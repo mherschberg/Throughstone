@@ -251,6 +251,11 @@ rm -rf "$ROOT/.git"
 # your project's context lives in the docs hub. (Mono-repo: add a project README yourself if you
 # want one.)
 rm -f "$ROOT/README.md"
+# The community/health files (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, TRADEMARK) describe the
+# Throughstone *template* itself — its contribution policy, its trademark, its security contact.
+# They must not carry into your project (e.g. they'd leak the maintainer's contact and assert
+# Throughstone's trademark inside your repo). Drop them; add your own project's versions if you want.
+rm -f "$ROOT/CONTRIBUTING.md" "$ROOT/CODE_OF_CONDUCT.md" "$ROOT/SECURITY.md" "$ROOT/TRADEMARK.md"
 # .dev/ holds template-maintainer-only notes (handoffs, design memos) — not part of your
 # project; drop it so internal notes don't leak into bootstrapped repos.
 rm -rf "$ROOT/.dev"
