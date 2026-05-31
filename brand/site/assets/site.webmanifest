@@ -1,0 +1,11 @@
+{
+  "name": "Throughstone",
+  "short_name": "Throughstone",
+  "icons": [
+    { "src": "android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#2A2521",
+  "background_color": "#F4EEE2",
+  "display": "standalone"
+}
