@@ -1,0 +1,9 @@
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Per-machine agent config — never shared (also stale/personal here).
+.claude/settings.local.json
+
+# Maintainer-only notes (handoffs, design memos) — not part of the published template.
+.dev/

@@ -1,0 +1,29 @@
+# Canonical repo inventory for {{PROJECT}} (multi-repo projects).
+# The source of truth for which repos exist and what each is. Update this whenever a repo
+# is created. Tooling/CI can read it to stay in sync. See METHOD.md §7.
+#
+# Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
+# yet — this inventory describes the post-split (multi-repo) target.
+#
+# Teams: give each repo a `remote:` field (git URL). scripts/setup-workspace.sh clones from
+# it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
+# for prompts/ + this docs hub. Solo with no remotes, it's optional.
+
+repos:
+  - name: "{{PROJECT}}-docs"
+    location: "Code/{{PROJECT}}-docs/"
+    type: docs            # docs | service | library | app | infra | tests
+    description: "Documentation hub: architecture, ADRs, standards, registries."
+
+  - name: "prompts"
+    location: "prompts/"
+    type: docs
+    description: "STEP plans and substep prompts; the build record. STEP-index.md is the roadmap."
+
+  # Service / app / library repos get added here as the architecture names them and they
+  # are stamped from templates/repo-readme.md. Example:
+  # - name: "{{PROJECT}}-api"
+  #   location: "Code/{{PROJECT}}-api/"
+  #   type: service
+  #   remote: "git@github.com:OWNER/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
+  #   description: "..."

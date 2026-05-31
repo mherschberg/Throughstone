@@ -1,0 +1,30 @@
+# .env.example — template for {{PROJECT}} local dev secrets/config
+#
+# Copy this file to `.env` and fill in real values for local development:
+#     cp .env.example .env
+#
+# This is the project's local-secrets convention. Three things, three roles:
+#
+#   .env          Gitignored. Your local secret VALUES as environment variables
+#                 (API keys, DB passwords, tokens). Never committed.
+#   .secrets/     Gitignored directory. For secret FILES that aren't env vars —
+#                 TLS certs, keystores, service-account JSON, private keys.
+#   .env.example  THIS file. Committed. The documented list of every key the app
+#                 needs, with placeholder/dummy values and a one-line note each.
+#                 Never put real secrets here — it's the public contract, not a vault.
+#
+# Rules: real secret values live only in .env / .secrets/ (both gitignored, see the
+# project .gitignore). Deployed environments get their secrets from a real secrets
+# manager, not from a committed file (see architecture/06-* and 09-*). When you add a
+# new key to the app, add it here too so the next developer knows it exists.
+
+# --- Examples (replace with this project's real keys) ---------------------------
+
+# Database connection string
+DATABASE_URL=postgres://user:password@localhost:5432/{{PROJECT}}_dev
+
+# Third-party API key (get yours from the provider dashboard)
+EXAMPLE_API_KEY=replace-me
+
+# App secret used to sign sessions/tokens
+APP_SECRET=replace-me-with-a-long-random-string

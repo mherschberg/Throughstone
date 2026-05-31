@@ -1,0 +1,64 @@
+# {{PROJECT}} — Infrastructure & Deployment (Session 1.8)
+
+> **How to run:** Tell your agent *"run session 1.8"*. It interviews you one decision at a
+> time, then writes `architecture/08-infrastructure-deployment.md` and updates
+> `prompts/STEP-index.md`. Reads `overview.md` and `architecture/03-*`, `05-*`, `06-*` first.
+> **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
+
+## About {{PROJECT}}
+{{PROJECT_DESCRIPTION}}
+
+## What this session does
+With the architecture, scale, and security decided, we'll settle where the system runs and
+how your code gets there, so deploys are repeatable and recoverable instead of hand-assembled.
+
+## Why this session matters
+"It runs on my laptop" is not a deployment. Without a deliberate plan, infrastructure
+becomes a pile of hand-configured boxes no one can reproduce. Deciding **where it runs, how
+it gets there, and how it's provisioned** now keeps deploys boring and recoverable — and
+keeps cloud lock-in a choice rather than an accident.
+
+## How this session works
+- One decision at a time; **wait** for answers.
+- Recommend the **lowest-operational-burden option that fits** (often a managed PaaS or
+  containers on a managed platform for an MVP), and flag cost and lock-in tradeoffs.
+- Tie back to scaling (1.5) and security (1.6) where relevant.
+
+## Decisions to make (in order)
+1. **Hosting target.** Cloud provider / managed PaaS / self-host. What's already decided or
+   constrained (existing accounts, compliance, budget)?
+2. **Compute model.** Containers (Docker; orchestrated by K8s/ECS/etc.) vs. serverless
+   functions vs. managed app platform vs. plain VMs. Default to the simplest that meets the
+   scaling needs from 1.5.
+3. **Build & deploy pipeline.** How code becomes a running version: CI builds, artifacts,
+   and how a deploy is triggered (and rolled back). Manual is OK for an MVP if it's written
+   down and repeatable.
+4. **Infrastructure as code.** Terraform / Pulumi / provider tooling / none. How infra is
+   provisioned reproducibly — even a single script beats clicking in a console.
+5. **Networking & TLS.** Load balancer / ingress, DNS, TLS certificates, public vs. private
+   surfaces.
+6. **Secrets in production.** Where prod secrets live (a secret manager) and how services
+   get them. (Consistent with 1.6.)
+7. **Backups & disaster recovery.** What's backed up, how often, and a rough RTO/RPO (how
+   much downtime / data loss is tolerable). Even "daily DB snapshot, restore tested" counts.
+8. **Cost & cloud coupling.** Rough cost shape and what drives it as you scale; how coupled
+   you are to one provider and what would be painful to move.
+
+## Output
+Write `architecture/08-infrastructure-deployment.md` (use `templates/architecture-doc.md`).
+Body:
+- **Hosting & compute** model + rationale
+- **Deploy pipeline** — build → deploy → rollback
+- **Infrastructure as code** approach
+- **Networking, TLS, secrets**
+- **Backups & DR** — what, cadence, RTO/RPO
+- **Cost & cloud-coupling** notes
+
+Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Capture
+provider/lock-in decisions as ADRs if significant. Update `prompts/STEP-index.md`: mark 1.8
+done.
+
+## Next
+Once 1.8 is marked done, the next action is the lowest open STEP-1 substep — normally **1.9 (Environments)**. Tell the user to **start a fresh chat** and run it (*"run session 1.9"*); if the index shows a different next open substep (sessions can be skipped or added), run that instead. See the next-action resolver in `METHOD.md` §10.
+
+**Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

@@ -1,0 +1,8 @@
+Copyright (c) {{YEAR}} {{HOLDER}}
+All rights reserved.
+
+This software and its source code are proprietary and confidential.
+
+Unauthorized copying, distribution, modification, or use of this software,
+in whole or in part, by any means or in any medium, is strictly prohibited
+without the express prior written permission of the copyright holder.
