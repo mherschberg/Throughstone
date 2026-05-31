@@ -4,6 +4,11 @@
 
 # Per-machine agent config — never shared (also stale/personal here).
 .claude/settings.local.json
+.claude/launch.json
 
 # Maintainer-only notes (handoffs, design memos) — not part of the published template.
 .dev/
+
+# Brand-asset exploration scratch (Python venv, downloaded fonts, draft comps).
+# The finished assets live in brand/logo, brand/social, brand/site, brand/BRAND.md.
+brand/explore/

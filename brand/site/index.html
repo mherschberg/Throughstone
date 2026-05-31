@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Throughstone — Disciplined software development</title>
+<meta name="description" content="Disciplined software development — build real, well-architected software with an AI coding agent. From idea to blueprint to built.">
+<link rel="icon" href="assets/throughstone-favicon.svg" type="image/svg+xml">
+<!-- Open Graph / social -->
+<meta property="og:title" content="Throughstone — From idea to blueprint to built.">
+<meta property="og:description" content="Disciplined software development with an AI coding agent.">
+<meta property="og:image" content="assets/throughstone-social.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  @font-face{font-family:'Cinzel';font-weight:600;font-display:swap;src:url('assets/fonts/Cinzel.ttf') format('truetype');}
+  @font-face{font-family:'Source Sans 3';font-weight:400;font-display:swap;src:url('assets/fonts/SourceSans3-400.ttf') format('truetype');}
+  @font-face{font-family:'Source Sans 3';font-weight:600;font-display:swap;src:url('assets/fonts/SourceSans3-600.ttf') format('truetype');}
+  @font-face{font-family:'IBM Plex Mono';font-weight:400;font-display:swap;src:url('assets/fonts/IBMPlexMono-400.ttf') format('truetype');}
+
+  :root{
+    --paper:#F4EEE2; --lime:#FBF7EE; --sand:#DEC9A0; --ochre:#B07A35; --ochreD:#8F6024;
+    --ochreL:#C99A52; --mortar:#857667; --ink:#2A2521; --basalt:#1E1B17;
+    --sans:'Source Sans 3',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+    --cinzel:'Cinzel',Georgia,serif;
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  a{color:var(--ochreD);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  .eyebrow{font-family:var(--cinzel);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ochreD);font-size:14px;}
+  h1,h2,h3{font-weight:600;line-height:1.12;letter-spacing:-.01em;margin:0;}
+  h2{font-size:34px;}
+  .btn{display:inline-block;font-weight:600;font-size:16px;padding:13px 22px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;}
+  .btn-primary{background:var(--ochre);color:var(--ink);}
+  .btn-primary:hover{background:var(--ochreD);color:var(--paper);text-decoration:none;}
+  .btn-ghost{border-color:var(--mortar);color:var(--ink);background:transparent;}
+  .btn-ghost:hover{border-color:var(--ink);text-decoration:none;}
+
+  /* nav */
+  header{position:sticky;top:0;z-index:10;background:rgba(244,238,226,.86);backdrop-filter:blur(8px);border-bottom:1px solid #e4dac6;}
+  nav{display:flex;align-items:center;justify-content:space-between;height:66px;}
+  nav .brand img{height:34px;display:block;}
+  nav .links{display:flex;align-items:center;gap:26px;font-size:15px;}
+  nav .links a{color:var(--ink);}
+  nav .links a:hover{color:var(--ochreD);text-decoration:none;}
+  nav .links .btn{padding:9px 16px;font-size:14px;}
+  @media(max-width:760px){ nav .links .navlink{display:none;} nav .brand img{height:28px;} nav .links{gap:12px;} }
+
+  /* hero */
+  .hero{padding:84px 0 72px;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;}
+  .hero h1{font-size:62px;margin:18px 0 0;}
+  .hero .lead{font-size:21px;color:#4a4036;margin:22px 0 30px;max-width:540px;}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap;}
+  .hero .sub{margin-top:18px;font-size:14px;color:var(--mortar);font-family:var(--mono);}
+  /* hero visual: the actual social card */
+  .herocard-img{width:100%;height:auto;border-radius:16px;display:block;box-shadow:0 24px 60px -24px rgba(42,37,33,.5);}
+
+  /* generic section */
+  section{padding:74px 0;}
+  .sec-head{max-width:680px;margin-bottom:40px;}
+  .sec-head h2{margin-top:10px;}
+  .sec-head p{color:var(--mortar);font-size:18px;margin:14px 0 0;}
+
+  /* principles */
+  .principles{background:var(--lime);border-top:1px solid #ece2cf;border-bottom:1px solid #ece2cf;}
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .pcard{background:var(--paper);border:1px solid #e8ddc8;border-radius:14px;padding:28px;}
+  .pcard .num{font-family:var(--mono);color:var(--ochre);font-size:15px;margin-bottom:14px;}
+  .pcard h3{font-size:21px;margin-bottom:8px;}
+  .pcard p{color:var(--mortar);font-size:16px;margin:0;}
+
+  /* who */
+  .who .cards3 .pcard{background:var(--lime);}
+  .who .pcard h3{font-size:19px;}
+
+  /* quickstart */
+  .quick{background:var(--basalt);color:var(--paper);}
+  .quick .eyebrow{color:var(--ochreL);}
+  .quick h2{color:var(--paper);}
+  .quick p{color:#cdbfa9;}
+  .codeblock{background:#15120f;border:1px solid #3a322a;border-radius:12px;padding:22px 24px;font-family:var(--mono);font-size:14.5px;line-height:1.9;color:#EAD9BC;overflow-x:auto;margin-top:26px;}
+  .codeblock .c{color:#9a8c79;}
+  .codeblock .p{color:var(--ochreL);}
+  .quick .cta{margin-top:28px;}
+
+  /* footer */
+  footer{background:var(--paper);border-top:1px solid #e4dac6;padding:46px 0;}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:14px;color:var(--mortar);}
+  .foot img{height:30px;}
+  .foot .meta{font-family:var(--mono);font-size:13px;}
+
+  @media(max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:40px;}
+    .hero h1{font-size:46px;}
+    .cards3{grid-template-columns:1fr;}
+    h2{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap"><nav>
+    <a class="brand" href="#top"><img src="assets/throughstone-lockup.svg" alt="Throughstone"></a>
+    <div class="links">
+      <a class="navlink" href="#principles">Principles</a>
+      <a class="navlink" href="#who">Who it's for</a>
+      <a class="navlink" href="#quickstart">Quickstart</a>
+      <a class="navlink" href="https://github.com/mherschberg/Throughstone">GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone/generate">Use this template</a>
+    </div>
+  </nav></div>
+</header>
+
+<a id="top"></a>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Disciplined software development</div>
+      <h1>From idea to blueprint to built.</h1>
+      <p class="lead">Start with your software idea. Throughstone and your AI coding agent turn it into a planned, documented, well-architected project. Each step is turnkey and the system guides you throughout the process.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone/generate">Use this template</a>
+        <a class="btn btn-ghost" href="https://github.com/mherschberg/Throughstone">View on GitHub</a>
+      </div>
+      <div class="sub">Plain Markdown + a Bash setup wizard · BSD-3-Clause</div>
+    </div>
+    <img class="herocard-img" src="assets/throughstone-social.svg" alt="Throughstone — from idea to blueprint to built.">
+
+  </div>
+</section>
+
+<section class="principles" id="principles">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Three principles, all the way down.</h2>
+      <p>The architecture you lay down at the start is carried through every phase, step, and check-in.</p>
+    </div>
+    <div class="cards3">
+      <div class="pcard"><div class="num">01</div><h3>Think before you code.</h3><p>Start with architecture docs and decision records, then code. You begin from a plan you can read and question.</p></div>
+      <div class="pcard"><div class="num">02</div><h3>Decisions get recorded.</h3><p>Every meaningful choice is written down as a decision record, not buried in a chat log — so the “why” survives.</p></div>
+      <div class="pcard"><div class="num">03</div><h3>Work in runnable units.</h3><p>Build proceeds in phases → steps → substeps, each a runnable unit with check-ins, so progress stays reviewable.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="who" id="who">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Who it's for</div>
+      <h2>For anyone who wants to create AI-driven software that's built to last.</h2>
+    </div>
+    <div class="cards3">
+      <div class="pcard"><h3>New to building with AI</h3><p>You want to ship real software without inheriting a pile of generated code you don’t understand.</p></div>
+      <div class="pcard"><h3>Early-career developers</h3><p>You want the project-shaping discipline that turns a prompt into an architecture and a plan.</p></div>
+      <div class="pcard"><h3>Senior devs, leads &amp; founders</h3><p>Hand it to the juniors — and to everyone who keeps asking “how do I actually start building with AI?”</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="quick" id="quickstart">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Quickstart</div>
+      <h2>Two commands to set up. Then just talk to your agent.</h2>
+      <p>Run the wizard once, then hand the project to your AI agent in plain English. It drafts your architecture and then guides you through the code creation.</p>
+    </div>
+    <div class="codeblock">
+<span class="c"># 1 · Use this template, then clone it into a new folder named for your project</span><br>
+<span class="c">#     (your-new-repo-url is on your new repo's green "Code" button)</span><br>
+$ git <span class="p">clone</span> &lt;your-new-repo-url&gt; my-project &amp;&amp; cd my-project<br><br>
+<span class="c"># 2 · Run the one-time setup wizard (asks a few questions)</span><br>
+$ ./init.sh<br><br>
+<span class="c"># 3 · Start your AI agent in that folder and send it one message:</span><br>
+<span class="p">&gt; Read AGENTS.md and follow it.</span><br><br>
+<span class="c"># It runs the kickoff, drafts your architecture docs + decision</span><br>
+<span class="c"># records (you review), then builds in phases → steps → substeps.</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone/generate">Use this template</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <img src="assets/throughstone-lockup.svg" alt="Throughstone">
+    <div class="meta">
+      © Mark A. Herschberg · Software: BSD-3-Clause · Throughstone™ (unregistered)
+    </div>
+    <div><a href="https://github.com/mherschberg/Throughstone">github.com/mherschberg/Throughstone</a></div>
+  </div>
+</footer>
+
+</body>
+</html>
