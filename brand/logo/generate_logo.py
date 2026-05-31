@@ -12,7 +12,7 @@ from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.transformPen import TransformPen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FONT = os.path.join(HERE, "..", "explore", "fonts", "Cinzel.ttf")
+FONT = os.path.join(HERE, "..", "site", "assets", "fonts", "Cinzel.ttf")
 OUT = HERE
 
 # ---- palette ----

@@ -138,8 +138,11 @@ geometric headings (more contemporary).
 **Type scale (suggested, rem):** 3.0 / 2.25 / 1.75 / 1.375 / 1.125 / 1.0 / 0.875.
 Line-height: 1.2 for display, 1.6 for body/prose.
 
-All faces are SIL Open Font License — free to embed and self-host. (Local copies for previews
-live in `brand/explore/fonts/`; the landing page may load them from Google Fonts.)
+All faces are SIL Open Font License — free to embed and self-host. The landing page self-hosts
+them from `brand/site/assets/fonts/` (mirrored in `docs/assets/fonts/`); the asset generators
+(`brand/logo/generate_logo.py`, `brand/social/generate_social.py`) read the same files, so the
+brand is fully reproducible from the repo — only a Python venv with `fonttools` + `pillow` is
+needed, no font downloads.
 
 ---
 
