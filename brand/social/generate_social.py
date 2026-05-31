@@ -7,7 +7,7 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FDIR = os.path.join(HERE, "..", "explore", "fonts")
+FDIR = os.path.join(HERE, "..", "site", "assets", "fonts")
 def fp(n): return os.path.join(FDIR, n)
 
 PAPER="#F4EEE2"; SAND="#DEC9A0"; OCHRE="#B07A35"; OCHRED="#8F6024"; MORTAR="#857667"; INK="#2A2521"
@@ -56,7 +56,7 @@ def wrap(text, font_path, size, maxw):
     if cur: lines.append(cur)
     return lines
 
-CINZEL=fp("Cinzel.ttf"); SPECTRAL=fp("Spectral.ttf"); SANS=fp("SourceSans3-400.ttf"); SANS600=fp("SourceSans3-600.ttf"); MONO=fp("IBMPlexMono-400.ttf")
+CINZEL=fp("Cinzel.ttf"); SANS=fp("SourceSans3-400.ttf"); SANS600=fp("SourceSans3-600.ttf"); MONO=fp("IBMPlexMono-400.ttf")
 
 # ----- mark wall (rows 16/30/58/72; row 44 left open for the stone) -----
 ROWS={
