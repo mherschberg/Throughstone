@@ -264,6 +264,11 @@ rm -rf "$ROOT/.github"
 # .dev/ holds template-maintainer-only notes (handoffs, design memos) — not part of your
 # project; drop it so internal notes don't leak into bootstrapped repos.
 rm -rf "$ROOT/.dev"
+# brand/ (Throughstone's brand brief, logo, social card, landing-page source) and docs/ (the
+# built landing page served via GitHub Pages) are Throughstone's *own* marketing — they assert
+# the Throughstone trademark and aren't part of your project. Drop them so your repo doesn't
+# inherit Throughstone's branding or its GitHub Pages site.
+rm -rf "$ROOT/brand" "$ROOT/docs"
 
 # --- 3. Replace the {{PROJECT}} token + description -------------------------
 say "Renaming {{PROJECT}} -> ${SLUG} ..."
