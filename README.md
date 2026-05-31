@@ -8,8 +8,6 @@ page or two's worth of thinking, though you don't have to write it down first; t
 interview helps you capture it. This scaffold and the agent turn it into a planned,
 documented, well-architected project.
 
-> **Just want to start?** Jump to the **[Quickstart](#quickstart)**.
-
 It encodes a pattern proven across several real projects:
 - **Think before you code.** The first STEP produces architecture docs and decision
   records — *no application code* — so the foundation is deliberate.
@@ -17,6 +15,8 @@ It encodes a pattern proven across several real projects:
   it's that way. Both are versioned and maintained.
 - **Work is broken into runnable units.** Phases → STEPs → substeps, each small enough
   for an agent to execute cleanly in a fresh context.
+
+> **Just want to start?** Jump to the **[Quickstart](#quickstart)**.
 
 ## Why I built this
 
@@ -44,6 +44,10 @@ for granted. I know it works because I've used it on my own projects.
   do the mentoring you'd otherwise have to repeat by hand. *(Want it for your own projects?
   Set your experience level to senior at the start and the sessions stay terse and
   decision-focused.)*
+
+**A scope note:** this is built for software meant to stick around (e.g., a product, an
+internal business tool, a serious open-source project). For a throwaway proof-of-concept, a
+school assignment, or other code you won't maintain, it's likely overkill.
 
 You do **not** need to be a senior architect to use this. The architecture *sessions*
 interview you — they ask about the things developers routinely skip (scaling, security,
