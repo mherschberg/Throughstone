@@ -256,6 +256,11 @@ rm -f "$ROOT/README.md"
 # They must not carry into your project (e.g. they'd leak the maintainer's contact and assert
 # Throughstone's trademark inside your repo). Drop them; add your own project's versions if you want.
 rm -f "$ROOT/CONTRIBUTING.md" "$ROOT/CODE_OF_CONDUCT.md" "$ROOT/SECURITY.md" "$ROOT/TRADEMARK.md"
+# .github/ holds the Throughstone repo's own issue/PR templates and contact links — they point
+# at Throughstone's issues/discussions/security pages and its contribution funnel. They're not
+# part of your project; drop them so your repo doesn't inherit them. Add your own .github/ if
+# you want issue/PR templates for your project.
+rm -rf "$ROOT/.github"
 # .dev/ holds template-maintainer-only notes (handoffs, design memos) — not part of your
 # project; drop it so internal notes don't leak into bootstrapped repos.
 rm -rf "$ROOT/.dev"

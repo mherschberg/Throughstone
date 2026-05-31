@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions & how-to (Discussions)
+    url: https://github.com/mherschberg/Throughstone/discussions
+    about: For "how do I…?" and open-ended questions, please use Discussions instead of opening an issue.
+  - name: Report a security vulnerability (private)
+    url: https://github.com/mherschberg/Throughstone/security/advisories/new
+    about: Please report security issues privately here, not as a public issue.
