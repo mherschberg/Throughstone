@@ -90,7 +90,7 @@ parts.append(text_path("DISCIPLINED SOFTWARE DEVELOPMENT", CINZEL, 17, X, 262, O
 parts.append(text_path("From idea to blueprint", SANS600, 56, X, 330, INK))
 parts.append(text_path("to built.", SANS600, 56, X, 392, INK))
 # descriptor, Source Sans 22, wrapped
-desc="Turn a rough idea into a planned, documented, well-architected project — with an AI coding agent."
+desc="Start with your software idea — your AI agent turns it into a planned, documented, well-architected project."
 lines=wrap(desc, SANS, 22, 600)
 y=452
 for ln in lines:
