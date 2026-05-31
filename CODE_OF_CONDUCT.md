@@ -30,7 +30,7 @@ for this Code of Conduct and is available at:
 ## Reporting
 
 If you experience or witness unacceptable behavior, or have any concerns, please report it
-privately to the maintainer at **hershey@gmail.com**. All reports will be reviewed and
+privately to the maintainer at **hershey@throughstone.org**. All reports will be reviewed and
 handled with discretion. The maintainer is responsible for enforcement and will respect the
 privacy and safety of anyone who reports an issue.
 
