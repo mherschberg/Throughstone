@@ -210,7 +210,7 @@ reports, fixes, and ideas are genuinely welcome. A few starting points:
 - **Bugs and feature ideas** — open an [Issue](../../issues).
 - **Security reports** — please use the private channel in [SECURITY.md](SECURITY.md), not a
   public issue.
-- **Conduct concerns** — email **hershey@gmail.com** (see the [Code of Conduct](CODE_OF_CONDUCT.md)).
+- **Conduct concerns** — email **hershey@throughstone.org** (see the [Code of Conduct](CODE_OF_CONDUCT.md)).
 
 ## License
 

@@ -13,7 +13,7 @@ Instead, use one of these private channels:
 
 - **Preferred:** GitHub's [private vulnerability reporting](../../security/advisories/new)
   ("Report a vulnerability" on the Security tab).
-- **Fallback:** email **hershey@gmail.com** with the details.
+- **Fallback:** email **hershey@throughstone.org** with the details.
 
 Please include enough information to reproduce the issue (affected file, steps, and impact).
 
