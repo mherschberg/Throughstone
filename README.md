@@ -1,5 +1,7 @@
 # Throughstone
 
+[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
+
 A starting structure for building a software project *architecture-first*, with an AI
 coding agent (Claude Code, Codex, etc.) as your collaborator. You bring a 1–2 page idea;
 this scaffold and the agent turn it into a planned, documented, well-architected project.
