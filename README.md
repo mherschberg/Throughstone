@@ -8,6 +8,8 @@ page or two's worth of thinking, though you don't have to write it down first; t
 interview helps you capture it. This scaffold and the agent turn it into a planned,
 documented, well-architected project.
 
+> **Just want to start?** Jump to the **[Quickstart](#quickstart)**.
+
 It encodes a pattern proven across several real projects:
 - **Think before you code.** The first STEP produces architecture docs and decision
   records — *no application code* — so the foundation is deliberate.
