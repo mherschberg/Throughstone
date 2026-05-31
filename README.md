@@ -3,8 +3,10 @@
 [![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 
 A starting structure for building a software project *architecture-first*, with an AI
-coding agent (Claude Code, Codex, etc.) as your collaborator. You bring a 1–2 page idea;
-this scaffold and the agent turn it into a planned, documented, well-architected project.
+coding agent (Claude Code, Codex, etc.) as your collaborator. You bring an idea — roughly a
+page or two's worth of thinking, though you don't have to write it down first; the kickoff
+interview helps you capture it. This scaffold and the agent turn it into a planned,
+documented, well-architected project.
 
 It encodes a pattern proven across several real projects:
 - **Think before you code.** The first STEP produces architecture docs and decision
@@ -13,6 +15,33 @@ It encodes a pattern proven across several real projects:
   it's that way. Both are versioned and maintained.
 - **Work is broken into runnable units.** Phases → STEPs → substeps, each small enough
   for an agent to execute cleanly in a fresh context.
+
+## Why I built this
+
+I kept hearing the same story: a vibe-coded project that started great and then turned
+unmaintainable a few months in. Dev shops I know would inherit projects that looked polished
+on the surface but were a mess underneath; security holes are rampant in code shipped this
+way. Experienced developers know a little upfront planning and a low-overhead, disciplined
+approach to coding goes a long way. This project draws upon decades of building software to
+give AI coders a framework that nudges them toward the practices experienced engineers take
+for granted. I know it works because I've used it on my own projects.
+
+## Who it's for
+
+- **New to building / little or no coding experience.** You have an idea and want to
+  build it with an AI agent — but you don't want a mystery box of code you can't
+  understand or extend. The sessions interview you in plain language and recommend
+  sensible defaults; you bring the idea, the scaffold brings the structure.
+- **Early-career developers.** You can write code, but the *project-shaping* part — what
+  to decide first, how to phase the work, what the architecture should be — is exactly
+  where AI agents tend to leave you with a tangle. This puts that discipline up front, so
+  what you build holds together past v1.
+- **Experienced developers and leads.** You may not need this for your own work — but it's
+  a clean thing to hand the early-career developers and non-technical founders who keep
+  asking you *"how do I even start building with AI?"* Point them here and let the scaffold
+  do the mentoring you'd otherwise have to repeat by hand. *(Want it for your own projects?
+  Set your experience level to senior at the start and the sessions stay terse and
+  decision-focused.)*
 
 You do **not** need to be a senior architect to use this. The architecture *sessions*
 interview you — they ask about the things developers routinely skip (scaling, security,
@@ -39,6 +68,18 @@ things keep them approachable whatever your background:
 
 ## Quickstart
 
+> **Not a developer — or never used a command line?** You can still use this. The steps
+> below assume a little comfort with a terminal, but you don't need to understand them
+> deeply: you run two setup commands once, and everything after that is a normal
+> conversation with your AI agent in plain English. Take it slowly, and if any step is
+> unclear or throws an error, paste it to your agent and ask what it means — explaining
+> things from scratch is exactly what this is built to do.
+>
+> Already have an AI agent open on your computer? You can let it drive the setup, too — just
+> tell it: *"Read https://github.com/mherschberg/Throughstone/blob/main/README.md and walk
+> me through getting started, one step at a time."* It can explain each command and, with
+> your go-ahead, run them for you.
+
 > **Requirements:** a POSIX shell (`bash`), `git`, and `perl` — `init.sh` uses `perl` for its
 > placeholder substitution; all three ship on macOS and nearly every Linux. `gh` is optional
 > (only for auto-creating GitHub remotes), and the later `setup-workspace.sh` uses `python3`
@@ -50,14 +91,14 @@ things keep them approachable whatever your background:
    name you want the project to have (e.g. `acme` or `MyCoolMobileApp`, not `Throughstone`). Two ways:
    - **GitHub "Use this template" ▸ Create a new repository** (recommended — clean copy, no
      template history). Name the new repo for your project, then clone it into a folder of
-     that name:
+     that name (e.g. `acme`):
      ```bash
      git clone <your-new-repo-url> acme
      cd acme
      ```
-   - **Or clone this repo directly** into a project-named folder:
+   - **Or clone this repo directly** into a project-named folder (e.g. `acme`):
      ```bash
-     git clone <this-repo-url> acme
+     git clone https://github.com/mherschberg/Throughstone.git acme
      cd acme
      ```
    Everything from here runs *inside* this folder. After setup it holds your repo(s); the
