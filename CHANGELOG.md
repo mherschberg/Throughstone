@@ -7,6 +7,38 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [1.2.0] - 2026-06-01
+
+A **discoverability & docs-hygiene** release: it indexes the runbook and registry folders, adds
+the **secrets-rotation runbook** the operate-time set was missing, makes the **session set
+flexible** for added/conditional sessions, and closes plain-language gaps the method's own L1/L2
+standard exposed.
+
+### New operate-time runbook
+- **Secrets rotation** (`runbooks/secrets-rotation.md`): scheduled rotation (inventory, cadence,
+  no-downtime overlap, verify-then-revoke) and a **revoke-first** response to a suspected leak
+  that hands off to the incident runbook. Operationalizes the threat-model §5 posture, mirroring
+  how the dependency runbook operationalizes §6.
+
+### Discoverability & docs hygiene
+- **README indexes** for `runbooks/` (all five — purpose, when each fires + trigger phrase,
+  governing section; STEP-shaped vs. operational) and `registries/` (machine-readable state,
+  pointing at `repos.yml`'s own header rather than duplicating the schema); docs-hub rows now link
+  both indexes.
+- **Conditional-session naming is shown, not just described:** the by-name → file mapping inline
+  in METHOD §4, and a copyable lettered-row example in the STEP-index seed.
+- **Plain-language glosses** for jargon flagged against the method's own L1/L2 standard:
+  API / OpenAPI / GraphQL / protobuf (session 1.3) and the RPO/RTO acronyms (session 1.8).
+
+### Flexible session set
+- **Session numbering no longer hardcodes the current set:** the conditional-doc rule and
+  `status.sh` review-detection adapt to added sessions; dependency-bearing sessions
+  (1.5 / 1.7 / 1.8 / 1.10 / 1.11) read relevant conditional docs when present.
+- **Glossary session (1.12)** harvests terms from every architecture doc (including conditional
+  docs 13+), not a fixed range.
+- **METHOD §4 "Adding a session" recipe** — conditional (zero-touch) vs. standard (renumber the
+  cross-cutting review) wire-in checklist.
+
 ## [1.1.0] - 2026-05-31
 
 This release **broadens the architecture sessions**, adds the **operate-time runbooks** the
@@ -71,5 +103,6 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[1.2.0]: https://github.com/mherschberg/Throughstone/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/mherschberg/Throughstone/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/mherschberg/Throughstone/releases/tag/v1.0.0
