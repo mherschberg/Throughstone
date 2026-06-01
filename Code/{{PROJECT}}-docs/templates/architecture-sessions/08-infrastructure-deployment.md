@@ -36,7 +36,8 @@ how a small outage becomes permanent data loss.
    scaling needs from 1.5.
 3. **Build & deploy pipeline.** How code becomes a running version: CI builds, artifacts,
    and how a deploy is triggered (and rolled back). Manual is OK for an MVP if it's written
-   down and repeatable.
+   down and repeatable — the optional `runbooks/release-deploy.md` checklist is where that
+   procedure lives operationally; this decision designs what it executes.
 4. **Infrastructure as code.** Terraform / Pulumi / provider tooling / none. How infra is
    provisioned reproducibly — even a single script beats clicking in a console.
 5. **Networking & TLS.** Load balancer / ingress, DNS, TLS certificates, public vs. private
