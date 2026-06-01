@@ -37,7 +37,12 @@ UI session (1.7) and the conditional Native-app session apply.
    (independent scaling, separate teams, isolation). Flag what the choice forecloses.
 4. **Boundaries & contracts.** For each boundary between components: what crosses it (an
    API call? an event/queue? a shared DB — usually avoid), sync vs async, who owns the data
-   on each side. For any boundary that's an **API**, decide that its contract is a
+   on each side. *(Plain terms: a boundary is an **API** when the handoff crosses a network —
+   one service calling another, or an outside client calling yours — not a plain in-process
+   function call within one program. Its **contract** is the agreed shape of that call, written
+   as a machine-readable file — **OpenAPI** for REST/HTTP, a **GraphQL** schema, or
+   **protobuf**/gRPC — so both sides build against one spec instead of guessing from prose.)*
+   For any boundary that's an **API**, decide that its contract is a
    **versioned artifact** — an OpenAPI / GraphQL schema / protobuf file in the owning repo,
    not just prose — since it's what other components build against and the thing most likely
    to break them when it drifts.
