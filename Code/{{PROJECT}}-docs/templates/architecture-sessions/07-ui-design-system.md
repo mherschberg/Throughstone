@@ -2,7 +2,9 @@
 
 > **How to run:** Tell your agent *"run session 1.7"*. It interviews you one decision at a
 > time, then writes `architecture/07-ui-design-system.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and `architecture/03-*` (for the client-surfaces answer) first.
+> Reads `overview.md` and `architecture/03-*` (for the client-surfaces answer) first — plus any
+> conditional-session doc that shapes the UI (e.g. identity-auth for login/account/consent screens,
+> or one added later), if it's been written.
 >
 > **No UI?** If session 1.3 said this is API-only / a CLI with no styled UI, skip this
 > session — note "N/A, no UI" in the index and move on.
