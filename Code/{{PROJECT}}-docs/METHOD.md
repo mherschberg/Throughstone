@@ -347,6 +347,10 @@ granularity). Every session and STEP also **ends by stating the next action** an
 to start a fresh chat for it — clearing context between units is the norm, since the state
 lives in files (§4, §5).
 
+> **Shortcut:** `scripts/status.sh` runs this resolver mechanically — it prints where you
+> are, the next action, and the check-in cadence straight from the index. Use it as a quick
+> read; the rules below remain authoritative when a case is ambiguous.
+
 Resolve the next action top-down against the index — the first rule that matches wins:
 
 1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one:

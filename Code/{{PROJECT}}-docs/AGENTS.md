@@ -119,7 +119,8 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
   reading `prompts/STEP-index.md` per the **next-action resolver** (`METHOD.md` §10) — from
-  disk, never from memory.
+  disk, never from memory. `Code/{{PROJECT}}-docs/scripts/status.sh` runs that resolver
+  mechanically (where you are · next action · check-in cadence) for a quick read.
 - One decision/question cluster at a time. Recommend defaults; flag what they foreclose.
 
 ## Working alongside others (humans or other agents)
