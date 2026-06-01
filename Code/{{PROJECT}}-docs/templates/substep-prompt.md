@@ -20,10 +20,13 @@
        - coding-standards/README.md — the per-language standards
        - registries/repos.yml       — the repo inventory; each repo's own README is its "about"
      List the specific files this substep depends on below — including the README of each
-     repo this substep touches, read before you work in it. -->
+     repo this substep touches, read before you work in it. For any substep that adds or
+     changes an API surface (an endpoint, a request/response shape), include
+     coding-standards/api.md so the house style — timestamps, pagination, errors, versioning —
+     stays consistent across endpoints. -->
 - architecture/NN-…
 - ADR-XXXX-…
-- coding-standards/…
+- coding-standards/…  (include coding-standards/api.md for API-touching substeps)
 - <repo>/README.md  (for each repo this substep touches)
 
 ## Scope

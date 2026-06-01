@@ -7,8 +7,9 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
 ## How this works
 - Default standards for common languages ship with Throughstone (e.g. `python.md`,
   `typescript.md`, `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`), plus cross-cutting
-  `sql.md` (SQL in migrations, queries, and embedded in app code) and `shell.md` (Bash scripts —
-  CI glue, dev scripts, entrypoints). **These are starting points — review and
+  `sql.md` (SQL in migrations, queries, and embedded in app code), `shell.md` (Bash scripts —
+  CI glue, dev scripts, entrypoints), and `api.md` (the house style for REST/HTTP APIs —
+  timestamps, pagination, errors, versioning). **These are starting points — review and
   customize them** to match your team's preferences. Nothing here is fixed law; treat the
   shipped contents as a draft to edit, not a rule to obey.
 - You only need the file(s) for the language(s) you actually use. **Session 1.11
@@ -49,3 +50,4 @@ the rest, and customize the contents to match your team.
 | C# | [`csharp.md`](csharp.md) | Default — customize |
 | SQL (cross-cutting) | [`sql.md`](sql.md) | Default — customize; secondary to the language docs |
 | Shell / Bash (cross-cutting) | [`shell.md`](shell.md) | Default — customize |
+| API design (cross-cutting) | [`api.md`](api.md) | Default — customize; keep only if the project exposes/consumes an HTTP API |
