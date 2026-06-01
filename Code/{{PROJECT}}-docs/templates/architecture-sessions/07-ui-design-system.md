@@ -18,8 +18,9 @@ this one if the project has no UI.)
 
 ## Why this session matters
 A design system decided up front keeps the product visually consistent and saves you from
-re-litigating colors and components on every screen. It's also where two things developers
-skip get handled: **accessibility** and (for apps) **platform conventions**. The
+re-litigating colors and components on every screen. It's also where things developers
+routinely skip get handled: **accessibility**, **internationalization**, and (for apps)
+**platform conventions** — each far cheaper designed in now than bolted on later. The
 foundations — color, type, spacing — are shared across web and mobile; platform-specific
 patterns branch from there.
 
@@ -28,7 +29,7 @@ patterns branch from there.
   HTML page (or component sketch) with realistic {{PROJECT}} content so choices are visual,
   not hex codes in text. **Wait** for the answer.
 - Reuse the client-surfaces answer from 1.3 to decide which platform branches apply.
-- Recommend sensible defaults; flag accessibility implications.
+- Recommend sensible defaults; flag accessibility and localization implications.
 
 ## Decisions to make (in order)
 
@@ -51,12 +52,26 @@ patterns branch from there.
 9. **Iconography.** Icon set/library.
 10. **Responsive / device strategy.** Web: breakpoints, mobile-web behavior. Native:
     device sizes, safe areas, orientation.
-11. **Accessibility.** Contrast targets, focus states, keyboard nav, touch-target sizes,
-    screen-reader support (ARIA / VoiceOver / TalkBack). Not optional.
-12. **Motion & transitions**; **data visualization** (if charts).
-13. **Implementation approach.** CSS framework / component library (web) or native toolkit;
+11. **Accessibility.** Pick a target to design against — **WCAG 2.1 AA** is the common
+    default (and a legal requirement in many jurisdictions). Concretely: color-contrast
+    ratios, visible focus states, full keyboard navigation, adequate touch-target sizes, alt
+    text for meaningful images, labeled form fields, and screen-reader support (semantic
+    HTML / ARIA / VoiceOver / TalkBack). Honor a reduced-motion preference (ties to decision
+    13). Not optional — and far cheaper designed in now than retrofitted.
+12. **Internationalization & localization.** Two separate questions. *Internationalization
+    (i18n)* is whether the UI is **built to be translatable at all**: user-facing text pulled
+    into a strings layer instead of hardcoded, layouts that tolerate longer translated text,
+    locale-aware dates/numbers/currency, and — if you might ever need Arabic/Hebrew —
+    right-to-left support. *Localization (l10n)* is **which languages/locales you actually
+    ship** now. The trap is foreclosure: shipping English-only is fine, but *hardcoding*
+    English everywhere is the expensive mistake — retrofitting i18n later means touching every
+    screen. MVP default: ship one locale, but route user-facing text through a strings layer
+    from day one so adding a language later is a translation job, not a rewrite. Decide RTL
+    in or out deliberately.
+13. **Motion & transitions**; **data visualization** (if charts).
+14. **Implementation approach.** CSS framework / component library (web) or native toolkit;
     how tokens are defined (e.g. CSS custom properties).
-14. **Platform conventions** (if mobile/desktop). Respect iOS HIG / Android Material /
+15. **Platform conventions** (if mobile/desktop). Respect iOS HIG / Android Material /
     desktop OS conventions where they differ from web.
 
 ## Output
@@ -64,7 +79,7 @@ Write `architecture/07-ui-design-system.md` (use `templates/architecture-doc.md`
 - **Design principles**
 - **Tokens** — color, typography, spacing, shape (exact values; CSS custom properties)
 - **Components** — specs with variants
-- **Navigation, theme, icons, responsive/device, accessibility, motion, data-viz**
+- **Navigation, theme, icons, responsive/device, accessibility, internationalization, motion, data-viz**
 - **Implementation stack** and any **platform-specific** notes
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
