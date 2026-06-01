@@ -48,8 +48,11 @@ architecture changes and the remaining STEPs need re-planning.
    baseline (1.9) — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
-   the `.env` / `.secrets/` secret-file block so local secrets never get committed). Confirm
-   the repo list and that they don't exist yet.
+   the `.env` / `.secrets/` secret-file block so local secrets never get committed). **Each
+   repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
+   the repo is and the slice of the system it owns), and the repo gets a row in
+   `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can
+   explain itself. Confirm the repo list and that they don't exist yet.
 2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order.
    A typical shape:
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.

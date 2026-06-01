@@ -79,8 +79,12 @@ pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 - `prompts/` — STEP plans + substep prompts.
 - `Code/{{PROJECT}}-*` — code repos, created as the architecture names them.
 
-`registries/repos.yml` is the canonical inventory. `scripts/setup-workspace.sh` sets up a
-new developer's machine (clones the siblings, writes the root pointers).
+`registries/repos.yml` is the canonical inventory **and the index to the repos** — each
+entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
+`ARCHITECTURE.md` if it has deep internals). **Before working in a repo, read its README
+first** — the same way you read the architecture docs before a design change.
+`scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
+the root pointers).
 
 **Workspace-root hygiene:** the workspace root should contain only per-machine pointers
 and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`), the repo folders (`Code/*`, `prompts/`),
@@ -94,7 +98,12 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   rewrite an accepted ADR's decision — supersede it or append an amendment.
 - **Keep the docs true.** When implementation changes an architecture decision, update the
   affected `Code/{{PROJECT}}-docs/architecture/NN-*.md` and bump its Version Log, or write an
-  ADR — don't let the doc go stale (see `Code/{{PROJECT}}-docs/METHOD.md` §6).
+  ADR. New code counts too: a new component or repo may need the architecture overview /
+  `registries/repos.yml`, a new domain term the glossary — don't let a doc go stale (see
+  `Code/{{PROJECT}}-docs/METHOD.md` §6).
+- **Document code as you write it.** Every class, function, and method gets a docstring;
+  comment the *why* of non-obvious logic (see
+  `Code/{{PROJECT}}-docs/coding-standards/README.md`).
 - **Suggest a check-in every ~10–20 STEPs.** When about that many STEPs have passed since the
   last check-in, proactively propose inserting a **Check-in STEP** that runs
   `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways + full

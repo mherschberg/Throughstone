@@ -21,6 +21,12 @@ Per Effective Dart (the analyzer enforces most of it):
 - Acronyms are capitalized as words: `HttpRequest`, not `HTTPRequest`.
 - Names say what, not how. Booleans read as predicates (`isActive`, `hasAccess`).
 
+## Documentation
+- **Dartdoc `///` on every class, function, and method** (the project rule — see
+  [`README.md`](README.md)); `dart doc` renders them. The `public_member_api_docs` lint
+  enforces presence on the public API — carry the habit to private members.
+- Comment the *why*; let names and types carry the *what*.
+
 ## Project / module layout
 - Pub package: public API in `lib/`, implementation details in **`lib/src/`** (not imported
   directly by consumers); re-export the intended surface from `lib/<package>.dart`. Tests in

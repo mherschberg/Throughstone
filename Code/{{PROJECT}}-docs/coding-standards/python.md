@@ -19,6 +19,13 @@ just documented.
 - Names say what, not how: `active_users`, not `user_list`. Booleans read as predicates
   (`is_active`, `has_access`). No single-letter names except short-lived loop indices.
 
+## Documentation
+- **Docstrings on every module, class, function, and method** (the project rule — see
+  [`README.md`](README.md)). Triple-quoted, [PEP 257](https://peps.python.org/pep-0257/);
+  pick one style for structured fields (Google or NumPy) and apply it consistently. Ruff's
+  `pydocstyle` rules (`D`) can enforce presence.
+- Comment the *why* of non-obvious logic; let clear names and type hints carry the *what*.
+
 ## Project / module layout
 - **Layout:** for a packaged/distributable library, prefer the `src/` layout (package under
   `src/{{PROJECT}}/`, tests in a top-level `tests/`) — it keeps tests running against the

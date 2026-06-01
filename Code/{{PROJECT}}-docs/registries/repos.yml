@@ -1,6 +1,10 @@
 # Canonical repo inventory for {{PROJECT}} (multi-repo projects).
-# The source of truth for which repos exist and what each is. Update this whenever a repo
-# is created. Tooling/CI can read it to stay in sync. See METHOD.md §7.
+# The source of truth for which repos exist and what each is — and the index to their docs:
+# each entry's `location` points to a repo whose own README.md (plus an optional
+# ARCHITECTURE.md) is the detailed "about". To orient in a multi-repo project, read this map
+# first, then read the README of each repo you'll touch — the same way you read the
+# architecture docs before a design change. Update this whenever a repo is created. Tooling/CI
+# can read it to stay in sync. See METHOD.md §7.
 #
 # Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
 # yet — this inventory describes the post-split (multi-repo) target.

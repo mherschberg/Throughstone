@@ -37,7 +37,10 @@ UI session (1.7) and the conditional Native-app session apply.
    (independent scaling, separate teams, isolation). Flag what the choice forecloses.
 4. **Boundaries & contracts.** For each boundary between components: what crosses it (an
    API call? an event/queue? a shared DB — usually avoid), sync vs async, who owns the data
-   on each side.
+   on each side. For any boundary that's an **API**, decide that its contract is a
+   **versioned artifact** — an OpenAPI / GraphQL schema / protobuf file in the owning repo,
+   not just prose — since it's what other components build against and the thing most likely
+   to break them when it drifts.
 5. **Key flows.** Walk through 1–2 important end-to-end scenarios and how components
    collaborate to serve them. This validates the boundaries.
 6. **High-level tech stack.** Languages/frameworks per component (detail lands in the
@@ -51,7 +54,8 @@ UI session (1.7) and the conditional Native-app session apply.
 Write `architecture/03-architecture-overview.md` (use `templates/architecture-doc.md`). Body:
 - **Client surfaces** (the recorded answer + what it gates)
 - **Component diagram** (ASCII) + a **component table**: name | responsibility | tech
-- **Boundaries & contracts** table
+- **Boundaries & contracts** table — and for each API boundary, where its spec lives (the
+  versioned OpenAPI / GraphQL / protobuf artifact that is the contract of record)
 - **Key flows** (numbered walk-throughs)
 - **Build vs. buy** notes
 
