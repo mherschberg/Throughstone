@@ -25,8 +25,13 @@ line). It has one of two values:
   *What is {{PROJECT}}* below). The user should not have to pre-write `overview.md` or paste a
   kickoff command. The bootstrap flips the marker to `kickoff-complete` when it finishes.
 - **`kickoff-complete` → Resume mode.** Kickoff already happened. **Do not re-run kickoff.**
-  Pick up the next action via the next-action resolver (`METHOD.md` §10): read
-  `prompts/STEP-index.md` and tell the user what's next.
+  Pick up the next action via the next-action resolver (`METHOD.md` §10): **run
+  `Code/{{PROJECT}}-docs/scripts/status.sh`** — it resolves §10 mechanically from disk and
+  prints where you are, the next action, and the check-in cadence. Read
+  `prompts/STEP-index.md` to confirm (and for the sub-STEP detail the script doesn't carry —
+  the in-flight PLAN in `Upcoming Prompts/`), then tell the user what's next. If the script
+  isn't available (older project, no shell), fall back to reading the index and applying §10
+  yourself.
 
 (If the marker is missing entirely — an older project predating it — fall back to inferring:
 treat it as resume unless `prompts/STEP-index.md` is still the bare `init.sh` seed.)
@@ -118,8 +123,9 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - Keep **`prompts/STEP-index.md`** current — it's the source of truth for status.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
-  reading `prompts/STEP-index.md` per the **next-action resolver** (`METHOD.md` §10) — from
-  disk, never from memory.
+  running `Code/{{PROJECT}}-docs/scripts/status.sh` — it runs the **next-action resolver**
+  (`METHOD.md` §10) mechanically from disk (where you are · next action · check-in cadence) —
+  then confirming against `prompts/STEP-index.md`. From disk, never from memory.
 - One decision/question cluster at a time. Recommend defaults; flag what they foreclose.
 
 ## Working alongside others (humans or other agents)

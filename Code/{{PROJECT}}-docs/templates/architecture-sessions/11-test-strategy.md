@@ -39,7 +39,9 @@ where the pieces have to work *together*.
 5. **System / end-to-end tests.** How the whole system is tested together — important for
    multi-repo. Where do cross-repo e2e tests live (often a dedicated tests repo)?
 6. **CI gates.** What must pass before code merges and before it deploys (tests, linters,
-   type checks, build). Keep the gate fast enough that people don't route around it.
+   type checks, build). Keep the gate fast enough that people don't route around it. A starter
+   wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
+   `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
 7. **Performance / load testing.** Whether and when load tests run (ties to the targets in
    1.5).
 8. **Coding standards per language.** Confirm the implementation language(s) from the

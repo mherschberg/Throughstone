@@ -1,0 +1,46 @@
+# Tests CI for a {{PROJECT}} code repo — runs the test suite on every push and pull request.
+# This is the merge gate from the test-strategy session (architecture/11-test-strategy.md,
+# "CI gates"): keep it fast enough that people don't route around it.
+#
+# Stamp this into each code repo's .github/workflows/ when the repo is scaffolded (alongside its
+# README from templates/repo-readme.md), then fill in the toolchain + test command for that
+# repo's stack. The job below FAILS on purpose until you do — an unconfigured gate that silently
+# passes is worse than none. Replace the final step with one of the examples (or your own).
+
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Node (npm) ---
+      # - uses: actions/setup-node@v4
+      #   with: { node-version: '20', cache: 'npm' }
+      # - run: npm ci
+      # - run: npm test
+
+      # --- Python ---
+      # - uses: actions/setup-python@v5
+      #   with: { python-version: '3.12' }
+      # - run: pip install -r requirements.txt
+      # - run: pytest
+
+      # --- Go ---
+      # - uses: actions/setup-go@v5
+      #   with: { go-version: '1.22' }
+      # - run: go test ./...
+
+      # --- Rust ---
+      # - uses: dtolnay/rust-toolchain@stable
+      # - run: cargo test
+
+      - name: Configure me
+        run: |
+          echo "TODO: replace this step with this repo's setup + test command (see examples above)."
+          exit 1

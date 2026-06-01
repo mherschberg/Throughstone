@@ -1,0 +1,28 @@
+# Method integrity check — runs the Throughstone "doctor" (scripts/check.sh) on every push
+# and pull request, so structural drift fails the build instead of slipping through review:
+# duplicate STEP/ADR numbers, invalid statuses, architecture docs missing Version/Status/
+# Version-Log, and an ADR registry that disagrees with the files on disk.
+#
+# This file ships LIVE in the docs-hub repo — it is active from day one in a multi-repo project
+# (the hub is its own repo, so this sits at that repo's .github/workflows/). In the hub it
+# validates the hub's own content (ADRs + architecture docs); the STEP-index lives in the
+# sibling `prompts/` repo, so those checks skip here with a note and run in full whenever the
+# whole workspace is checked out (locally, and during the periodic check-in).
+#
+# Mono-repo-for-now project? The workspace root is the single repo, so copy this file to the
+# ROOT `.github/workflows/` (a workflow nested under Code/<project>-docs/ won't trigger there) —
+# then check.sh sees prompts/ too and the STEP-index checks run as well. See templates/ci/README.md.
+
+name: method-check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run scripts/check.sh (project integrity)
+        run: bash scripts/check.sh

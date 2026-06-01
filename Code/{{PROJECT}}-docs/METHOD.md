@@ -72,9 +72,10 @@ Other folders in the hub: `coding-standards/` (per-language; defaults ship for c
 languages, and session 1.11 reconciles them to the stack you pick — review what's there,
 add what's missing, prune the rest), `runbooks/` (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
-deploy/rollback checklist), and `incident-postmortem.md` (respond to a production incident,
-then spin up an Incident STEP to RCA → find similar → fix); add your own operational ones),
-`registries/`
+deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
+spin up an Incident STEP to RCA → find similar → fix), and `dependency-supply-chain.md` (vet a
+new dependency; audit dependencies for vulns/licenses on a cadence); add your own operational
+ones), `registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects).
 
 ## 4. Architecture sessions
@@ -345,6 +346,11 @@ fresh chat (and any teammate who just joined) can answer *"what do I do next?"* 
 granularity). Every session and STEP also **ends by stating the next action** and telling you
 to start a fresh chat for it — clearing context between units is the norm, since the state
 lives in files (§4, §5).
+
+> **Shortcut:** `scripts/status.sh` runs this resolver mechanically — it prints where you
+> are, the next action, and the check-in cadence straight from the index. It's the mechanism a
+> resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
+> authoritative when a case is ambiguous or the script isn't available.
 
 Resolve the next action top-down against the index — the first rule that matches wins:
 
