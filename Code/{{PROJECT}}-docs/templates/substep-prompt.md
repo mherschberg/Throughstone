@@ -27,9 +27,25 @@
 
 ## Verification
 <!-- How to prove it's done and correct: tests to write/run, commands, checks. -->
-- **If this substep writes or changes code, write the tests that cover it** — the new
-  behavior and its failure modes. (Default; override only for a genuinely code-free substep,
-  e.g. docs/config, and say why.)
+- **If this substep writes or changes code, write the tests that cover it** — not just the
+  happy path. (Default; override only for a genuinely code-free substep, e.g. docs/config,
+  and say why.)
+<!-- Kinds of cases to consider — cover the ones that apply, prune the rest:
+     - Happy path — the expected, valid case.
+     - Empty / zero / null / missing input — empty collections & strings, 0, null/None,
+       absent optional fields.
+     - Boundary values — min/max, first/last, off-by-one, size/length limits, overflow.
+     - Invalid / malformed input — wrong type, bad format, out-of-range — rejected cleanly.
+     - Error paths — failures surface correctly (right exception / error code / message);
+       partial work rolls back.
+     - Edge cases in logic — unusual-but-valid combinations, ordering, duplicates, conflicts.
+     - State & side effects — data persisted/updated correctly, no unintended mutation,
+       cleanup on failure.
+     - Concurrency & idempotency (where relevant) — repeated / parallel / out-of-order calls.
+     - External-dependency failure (where relevant) — timeouts / unavailable deps handled
+       (mock at the boundary).
+     - Security / authorization (where relevant) — unauthenticated / unauthorized access denied.
+     - Regression — when fixing a bug, add a test that reproduces it so it can't return. -->
 - **Run the relevant tests before marking this substep done** — at minimum the tests that
   exercise the code you touched. They must pass.
 
