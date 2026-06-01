@@ -38,7 +38,8 @@ now prevents painful migrations and compliance surprises later.
    whether IDs are exposed publicly.
 5. **Sensitive data / PII.** What personal or sensitive data is collected, and a rough
    classification (public / internal / confidential / regulated). Feeds the security
-   session (1.6).
+   session (1.6) — and, if any of it is regulated, the conditional Privacy/compliance session
+   (which sharpens retention/deletion below into legal obligations).
 6. **Retention & deletion.** How long each data class is kept, and how deletion works
    (including user-requested deletion / "right to be forgotten" if relevant).
 7. **Consistency & evolution.** Where you need strong consistency vs. where eventual is

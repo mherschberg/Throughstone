@@ -99,7 +99,8 @@ set lives in `templates/architecture-sessions/`.
 | 1.13 | Cross-cutting review | review doc |
 
 **Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
-question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**.
+question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
+**Privacy, compliance & data governance** (personal or regulated data).
 
 ### Running a session  *(Layer 1 — works in any agent)*
 
@@ -343,7 +344,8 @@ Resolve the next action top-down against the index — the first rule that match
    *"run session N.M"* in a fresh chat. Skip any substep marked `N/A`. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
-   session"*), since its template file is named by topic, not by number (see §4).
+   session"* / *"run the privacy session"*), since its template file is named by topic, not by
+   number (see §4).
 2. **All STEP-1 substeps done but 1.13 not?** → *"run session 1.13"* (cross-cutting review).
 3. **1.13 done and STEP-1 complete, but only the STEP-1 row exists?** → *"run the planning
    session"* — it outlines the Phase-1 implementation STEPs (§2).

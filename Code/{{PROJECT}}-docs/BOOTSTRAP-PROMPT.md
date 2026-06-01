@@ -67,8 +67,10 @@ scope** before continuing.
 ### Stage 2 — STEP-1 PLAN  ▸ checkpoint
 STEP-1 is **architecture-first: design docs + ADRs, no code.** Decide which architecture
 sessions apply (see the core set in `METHOD.md` §4). Use the platform question to decide
-whether the **Native app** session is needed, and whether **Identity/auth** applies. Drop
-sessions that clearly don't fit; note why. Write
+whether the **Native app** session is needed, whether **Identity/auth** applies, and — if the
+project handles personal or regulated data (PII, health/financial/children's data, or a regime
+like GDPR/HIPAA/PCI) — slot in the **Privacy/compliance** session. Drop sessions that clearly
+don't fit; note why. Write
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (from
 `Code/{{PROJECT}}-docs/templates/step-plan.md`) listing the chosen sessions as substeps,
 the locked decisions, and the definition of done. **Wait for confirmation.**
