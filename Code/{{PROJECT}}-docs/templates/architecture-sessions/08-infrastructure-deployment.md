@@ -56,8 +56,9 @@ how a small outage becomes permanent data loss.
    Where it's cheap, prefer **graceful degradation** (read-only mode, a cached response, a
    clear "try again shortly") over a hard crash when a dependency is unavailable.
 8. **Backups & disaster recovery.** What's backed up, how often, and how long backups are
-   retained; then the two numbers that define recovery — **RPO** (how much *data loss* is
-   tolerable: minutes? a day?) and **RTO** (how long to get back *up*). The catch: **a backup
+   retained; then the two numbers that define recovery — **RPO** (*recovery point* — how much
+   *data loss* is tolerable: minutes? a day?) and **RTO** (*recovery time* — how long to get
+   back *up*). The catch: **a backup
    you have never restored is not a backup** — decide how and how often a restore is actually
    rehearsed. Even "daily DB snapshot, restore rehearsed once, ~1-day RPO / few-hour RTO"
    counts. Note who does what when it's genuinely down (the bones of a DR runbook).

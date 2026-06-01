@@ -48,7 +48,9 @@ oversight.
    certs/keystores); the repo commits only a `.env.example` listing the required keys with
    placeholder values — see `templates/env-example.txt` for the full convention. The
    `.gitignore` stamped by `init.sh` already excludes these — confirm production secrets come
-   from a real secrets manager, not a checked-in file.
+   from a real secrets manager, not a checked-in file. (The rotation posture you set here is
+   operationalized in `runbooks/secrets-rotation.md` — rotating on a cadence and responding to a
+   suspected leak.)
 6. **Common web risks.** Posture on input validation, injection, XSS/CSRF, rate limiting,
    dependency vulnerabilities. What's handled by the framework vs. needs attention? (The
    dependency/supply-chain posture you set here is operationalized in
