@@ -108,6 +108,10 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   last check-in, proactively propose inserting a **Check-in STEP** that runs
   `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways + full
   test run). See `METHOD.md` §5.
+- **Flag milestone docs at a phase/release.** When a phase completes or you cut a release,
+  proactively ask the user about **release notes** and **user-facing doc updates** — neither
+  is produced by normal STEP work, and end-user docs are otherwise outside this method's scope
+  (see `METHOD.md` §5, *Milestone doc review*).
 - **Never commit secrets.** Local dev values live in a gitignored `.env` / `.secrets/`;
   commit only a `.env.example` that documents the required keys.
 - Keep **`prompts/STEP-index.md`** current — it's the source of truth for status.

@@ -210,6 +210,20 @@ judgment. The agent should also **proactively suggest** inserting a check-in whe
 many STEPs have passed since the last one. This is the periodic safety net; it's separate
 from the continuous rule that every substep updates the doc it changes.
 
+### Milestone doc review
+A **phase is a release-level milestone** (§1), and two kinds of documentation fall *outside*
+the per-STEP engineering discipline — they're written for people outside the build, not to
+keep the code's own docs true:
+- **Release notes** — a human-readable "what shipped" for the milestone.
+- **End-user / product docs** — user guides, help, tutorials. These are otherwise **out of
+  scope** of this method, which documents the *engineering*, not the product surface.
+
+Because nothing in normal STEP work produces them, they need a deliberate prompt: **at each
+milestone (a phase completing, or any release you cut), the agent proactively asks the user**
+whether user-facing docs need updating and whether to write release notes. The user decides
+how much to do — the method's job is to *raise it at the right moment*, not to mandate the
+output.
+
 ## 6. Versioning architecture docs
 
 Each architecture doc carries:
@@ -341,7 +355,9 @@ Resolve the next action top-down against the index — the first rule that match
    then archive it (§5) and mark it `Done`.
 6. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).
-7. **The phase is complete?** → open the next phase and re-run the planning session for it.
+7. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
+   notes and any user-facing doc updates** (§5, *Milestone doc review*), then open the next
+   phase and re-run the planning session for it.
 
 When the index and an in-flight PLAN disagree, the **index** is authoritative for *which
 STEP* is next; the **PLAN** owns *which substep* within it.
