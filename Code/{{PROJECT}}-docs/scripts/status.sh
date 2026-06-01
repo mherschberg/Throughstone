@@ -125,7 +125,7 @@ if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
   # first so a conditional is never mistaken for the review.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
     next="run the conditional session for substep ${lowsub} — \"${lowsub_se}\"; invoke it BY NAME (e.g. \"run the identity-auth session\"), not by number."
-  elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting|review'; then
+  elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
     next="run session ${lowsub} — the cross-cutting review."
   else
     next="run session ${lowsub}  (${lowsub_se})."
