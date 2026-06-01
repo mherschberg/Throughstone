@@ -50,7 +50,9 @@ oversight.
    `.gitignore` stamped by `init.sh` already excludes these — confirm production secrets come
    from a real secrets manager, not a checked-in file.
 6. **Common web risks.** Posture on input validation, injection, XSS/CSRF, rate limiting,
-   dependency vulnerabilities. What's handled by the framework vs. needs attention?
+   dependency vulnerabilities. What's handled by the framework vs. needs attention? (The
+   dependency/supply-chain posture you set here is operationalized in
+   `runbooks/dependency-supply-chain.md` — vetting new deps and auditing them on a cadence.)
 7. **Mitigate now vs. defer.** For each significant threat: mitigate in the MVP, or defer?
    For every deferral, record the blast radius and **what triggers revisiting** (e.g.
    "before we accept real user data / payments / go public").

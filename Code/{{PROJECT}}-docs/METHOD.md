@@ -72,9 +72,10 @@ Other folders in the hub: `coding-standards/` (per-language; defaults ship for c
 languages, and session 1.11 reconciles them to the stack you pick — review what's there,
 add what's missing, prune the rest), `runbooks/` (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
-deploy/rollback checklist), and `incident-postmortem.md` (respond to a production incident,
-then spin up an Incident STEP to RCA → find similar → fix); add your own operational ones),
-`registries/`
+deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
+spin up an Incident STEP to RCA → find similar → fix), and `dependency-supply-chain.md` (vet a
+new dependency; audit dependencies for vulns/licenses on a cadence); add your own operational
+ones), `registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects).
 
 ## 4. Architecture sessions
