@@ -27,6 +27,11 @@
 
 ## Verification
 <!-- How to prove it's done and correct: tests to write/run, commands, checks. -->
+- **If this substep writes or changes code, write the tests that cover it** — the new
+  behavior and its failure modes. (Default; override only for a genuinely code-free substep,
+  e.g. docs/config, and say why.)
+- **Run the relevant tests before marking this substep done** — at minimum the tests that
+  exercise the code you touched. They must pass.
 
 ## Keeping the docs true  (always)
 <!-- The architecture docs are the source of truth for the design. Implementation drifts
@@ -47,6 +52,8 @@ Leaving the doc stale is a defect, not a follow-up.
 ## Definition of done
 - [ ]
 - [ ]
+- [ ] Code this substep wrote or changed is covered by tests, and the relevant tests pass.
+      <!-- default; drop only for a genuinely code-free substep -->
 - [ ] Any architecture decision this substep changed is reflected in the docs (Version Log
       bumped) or recorded in an ADR.
 
