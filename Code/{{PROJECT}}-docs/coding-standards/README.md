@@ -22,7 +22,8 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
 ## Documentation & comments  (all languages)
 A project-wide rule; each language file shows the idiomatic *form* and the lint that
 enforces it.
-- **Docstrings are required on every class, method, and function** — public *and* private.
+- **Docstrings are required on every class, method, and function** — and on fields/properties
+  where the language documents them (e.g. Java fields, C# properties) — public *and* private.
   Say what it does, its parameters and return, and anything non-obvious about its contract.
   Describe what the code **actually does**, not what you set out to write — a docstring that
   drifts from the behavior misleads worse than silence. This is a gate: code without them
