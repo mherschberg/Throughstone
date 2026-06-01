@@ -59,4 +59,4 @@ Per Effective Dart (the analyzer enforces most of it):
 - One behavior per test, named for the behavior (`rejects an expired token`). Mock at
   boundaries (network, storage, clock) with `mockito` or `mocktail` — not the unit under test.
 - Keep tests fast and deterministic; use `setUp`/`tearDown` for shared state. Cover behavior
-  and edge cases, not a coverage percentage.
+  and edge cases, not a coverage percentage — though ~80% unit-test coverage is a reasonable guide to aim for, not a gate.

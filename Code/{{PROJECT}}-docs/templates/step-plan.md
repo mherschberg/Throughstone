@@ -38,11 +38,16 @@
 ## Ground rules
 <!-- The working agreement for this STEP. e.g. "no code in this STEP", commit discipline,
      what 'done' means for a substep, review gates. -->
+- **Tests ship with the code.** Every substep that writes or changes code also writes the
+  tests for it and runs the relevant tests before it's done (see
+  `templates/substep-prompt.md`). Override per substep only with a stated reason.
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->
 - [ ]
 - [ ]
+- [ ] All unit tests pass at the end of this STEP — ideally the full suite (unit +
+      integration/e2e). <!-- the default bar; narrow or widen with a stated reason -->
 - [ ] STEP review passed; STEP-index.md updated; STEP archived to prompts/.
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from

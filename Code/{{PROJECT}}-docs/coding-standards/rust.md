@@ -60,6 +60,7 @@ compiler's built-in lints enforce the case conventions (`clippy` adds more):
   alongside the code; **integration tests** in `tests/`; **doc tests** in `///` examples
   that double as verified documentation. Run with `cargo test`.
 - One behavior per test, named for the behavior (`rejects_expired_token`). Use `Result` in
-  tests so you can `?`. Keep tests fast and deterministic.
+  tests so you can `?`. Keep tests fast and deterministic. As a guide, ~80% unit-test
+  coverage is a reasonable thing to aim for — a suggestion, not a gate.
 - Use `#[should_panic]` sparingly (prefer asserting on a returned `Err`). Reach for helper
   crates (`rstest`, `proptest`) only if the team wants them.

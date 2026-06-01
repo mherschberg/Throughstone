@@ -64,4 +64,4 @@ not just documented.
 - Name tests for the behavior (`rejects an expired token`), not the function. Mock at
   boundaries (network, fs, clock) — not the unit under test.
 - Keep tests fast and deterministic; isolate slow/integration tests so the fast suite stays
-  the default. Cover behavior and edge cases, not a coverage percentage.
+  the default. Cover behavior and edge cases, not a coverage percentage — though ~80% unit-test coverage is a reasonable guide to aim for, not a gate.
