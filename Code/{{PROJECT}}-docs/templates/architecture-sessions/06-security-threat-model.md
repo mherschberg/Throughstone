@@ -29,7 +29,10 @@ oversight.
 
 ## Decisions to make (in order)
 1. **Assets.** What's worth protecting? (Credentials/keys, personal data, money/payments,
-   proprietary data, availability itself.) List them — everything else hangs off this.
+   proprietary data, availability itself.) List them — everything else hangs off this. (If
+   **personal/regulated data** is among them, this session covers keeping attackers *out* of
+   it; handling it *lawfully* — regimes, consent, retention, deletion rights — is the
+   conditional Privacy/compliance session. Flag that it applies.)
 2. **Trust boundaries.** Where does data cross a line of trust? (Internet → your service;
    user → admin; your service → third party; service → service.) Each boundary is where
    threats live.

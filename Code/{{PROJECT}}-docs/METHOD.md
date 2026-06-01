@@ -71,7 +71,10 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
 Other folders in the hub: `coding-standards/` (per-language; defaults ship for common
 languages, and session 1.11 reconciles them to the stack you pick — review what's there,
 add what's missing, prune the rest), `runbooks/` (repeatable procedures — ships with
-`check-in.md` and `collaboration.md`; add your own operational ones), `registries/`
+`check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
+deploy/rollback checklist), and `incident-postmortem.md` (respond to a production incident,
+then spin up an Incident STEP to RCA → find similar → fix); add your own operational ones),
+`registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects).
 
 ## 4. Architecture sessions
@@ -99,7 +102,13 @@ set lives in `templates/architecture-sessions/`.
 | 1.13 | Cross-cutting review | review doc |
 
 **Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
-question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**.
+question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
+**Privacy, compliance & data governance** (personal or regulated data). Each is an **explicit
+include-or-skip decision at kickoff** — the STEP-1 PLAN records a *Conditional sessions
+considered* table marking every one Include (→ substep) or N/A (with a reason), so a skip is a
+recorded choice rather than a silent omission. (A need can also emerge *later* — a project adds
+login or starts collecting regulated data — in which case slot the conditional in then, the
+same way: add its substep/STEP and run it by name.)
 
 ### Running a session  *(Layer 1 — works in any agent)*
 
@@ -343,7 +352,8 @@ Resolve the next action top-down against the index — the first rule that match
    *"run session N.M"* in a fresh chat. Skip any substep marked `N/A`. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
-   session"*), since its template file is named by topic, not by number (see §4).
+   session"* / *"run the privacy session"*), since its template file is named by topic, not by
+   number (see §4).
 2. **All STEP-1 substeps done but 1.13 not?** → *"run session 1.13"* (cross-cutting review).
 3. **1.13 done and STEP-1 complete, but only the STEP-1 row exists?** → *"run the planning
    session"* — it outlines the Phase-1 implementation STEPs (§2).

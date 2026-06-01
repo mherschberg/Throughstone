@@ -32,6 +32,18 @@
      (N.1) and full test run (N.2) defined in runbooks/check-in.md; this PLAN just points
      there. -->
 
+## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
+<!-- Every conditional session is an EXPLICIT decision, never a silent omission: mark each
+     one Include (with the substep it became) or N/A (with a one-line reason). A skipped
+     conditional must leave a recorded reason here so a future reader sees a decision, not an
+     accident. See METHOD.md §4 and the conditional-*.md session files. -->
+
+| Conditional session | Decision | Substep / reason |
+|---------------------|----------|------------------|
+| Native app (mobile / desktop) | Include / N/A | {{e.g. 1.7a, or "N/A — web-only per 1.3"}} |
+| Identity & auth | Include / N/A | {{e.g. 1.6a, or "N/A — no accounts/login"}} |
+| Privacy, compliance & data governance | Include / N/A | {{e.g. 1.6b, or "N/A — no personal/regulated data"}} |
+
 ## Open questions
 <!-- Things still undecided at the start of this STEP. Mark Q1, Q2, … with owner. -->
 

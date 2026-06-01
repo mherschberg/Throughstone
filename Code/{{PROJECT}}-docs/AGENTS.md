@@ -59,7 +59,8 @@ short command and expects the first question back, not a confirmation prompt.
 
 **Conditional sessions** are invoked **by name**, not by number: *"run the identity-auth
 session"* → `conditional-identity-auth.md`; *"run the native-app session"* →
-`conditional-native-app.md`. They're slotted into STEP-1 under a lettered substep (e.g.
+`conditional-native-app.md`; *"run the privacy session"* → `conditional-privacy-compliance.md`.
+They're slotted into STEP-1 under a lettered substep (e.g.
 `1.6a`, `1.7a`), so if the index's next open substep has a letter suffix, run the matching
 `conditional-*.md` by topic rather than looking for a `NN-*.md` file for that number.
 

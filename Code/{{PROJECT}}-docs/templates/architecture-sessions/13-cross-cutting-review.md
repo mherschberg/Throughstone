@@ -27,9 +27,10 @@ between "we have a pile of docs" and "we have a coherent architecture."
 
 ## What to check
 1. **Consistency.** Do the docs agree? Common conflicts: the data model vs. the API/flows
-   in the architecture overview; scaling assumptions vs. the chosen infrastructure;
-   security boundaries vs. the actual component boundaries; terms used differently than the
-   glossary defines them.
+   in the architecture overview; scaling assumptions vs. the chosen infrastructure; the
+   backup/RPO and availability target (1.8) vs. the data the model (1.4) says you can't
+   afford to lose; security boundaries vs. the actual component boundaries; terms used
+   differently than the glossary defines them.
 2. **Completeness.** Is anything referenced but never specified? Any area that should have
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?

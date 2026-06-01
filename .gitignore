@@ -8,6 +8,8 @@
 
 # Maintainer-only notes (handoffs, design memos) — not part of the published template.
 .dev/
+# Local maintainer scratch list of outstanding improvements — not part of the published template.
+TODO.md
 
 # Brand-asset exploration scratch (Python venv, downloaded fonts, draft comps).
 # The finished assets live in brand/logo, brand/social, brand/site, brand/BRAND.md.
