@@ -68,9 +68,10 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
   rejected, consequences. You don't edit an ADR's decision later; you write a new ADR that
   supersedes it, or append a dated amendment. There's an index at `adr/README.md`.
 
-Other folders in the hub: `coding-standards/` (per-language; defaults ship for common
-languages, and session 1.11 reconciles them to the stack you pick — review what's there,
-add what's missing, prune the rest), `runbooks/` (repeatable procedures — ships with
+Other folders in the hub: `coding-standards/` (per-language plus cross-cutting — `sql.md`,
+`shell.md`, `api.md`; defaults ship for common languages, and session 1.11 reconciles them to
+the stack you pick — review what's there, add what's missing, prune the rest), `runbooks/`
+(repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
 deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
 spin up an Incident STEP to RCA → find similar → fix), and `dependency-supply-chain.md` (vet a

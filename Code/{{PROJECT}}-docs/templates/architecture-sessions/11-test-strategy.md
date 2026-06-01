@@ -58,10 +58,13 @@ where the pieces have to work *together*.
      existing standard (e.g. `coding-standards/python.md`) — same sections (naming, layout,
      error handling, logging, testing) — and fill it in with the user.
    - **Prune** the default standards for languages this project won't use.
-   - **`sql.md` and `shell.md` are cross-cutting**, not 1.3 implementation languages: keep `sql.md`
-     if the project uses a relational database, and `shell.md` if it ships shell scripts (CI glue,
-     dev scripts, entrypoints) — regardless of the language list; prune either if it doesn't apply.
-     `sql.md`'s rules are secondary to the language docs where they conflict.
+   - **`sql.md`, `shell.md`, and `api.md` are cross-cutting**, not 1.3 implementation languages:
+     keep `sql.md` if the project uses a relational database, `shell.md` if it ships shell scripts
+     (CI glue, dev scripts, entrypoints), and `api.md` if any boundary from 1.3 is an HTTP/REST API
+     it exposes or consumes — regardless of the language list; prune any that don't apply.
+     `sql.md`'s rules are secondary to the language docs where they conflict; `api.md` is the house
+     style that complements each API's versioned contract artifact (the OpenAPI/GraphQL/protobuf
+     spec from 1.3).
 
 ## Output
 Write `architecture/11-test-strategy.md` (use `templates/architecture-doc.md`). Body:

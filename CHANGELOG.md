@@ -7,6 +7,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [Unreleased]
+
+### New cross-cutting coding standard
+- **API design** (`coding-standards/api.md`): an opinionated, customizable house style for
+  REST/HTTP APIs — resource naming, methods/status codes, RFC 3339 UTC timestamps, money as
+  integer minor units, RFC 9457 problem-details errors, idempotency, and rate limits. Three
+  genuine forks are flagged for per-project review (field casing snake_case vs. camelCase,
+  cursor vs. offset pagination, URI vs. header versioning), each with an ADR pointer.
+  Complements — doesn't replace — each API's versioned contract artifact from session 1.3.
+- **Wired in:** listed in `coding-standards/README.md` (intro + Files table) and the `METHOD.md`
+  hub gloss, reconciled by **session 1.11** as a cross-cutting standard (kept only when a 1.3
+  boundary is an HTTP/REST API the project exposes or consumes), and nudged in
+  `templates/substep-prompt.md` so any API-touching substep reads it.
+
 ## [1.2.0] - 2026-06-01
 
 A **discoverability & docs-hygiene** release: it indexes the runbook and registry folders, adds
