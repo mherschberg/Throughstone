@@ -20,8 +20,10 @@ control flow or real data structures, it's usually worth rewriting in Python/Go 
 read, and maintain. This is a guideline to weigh, not a hard gate.
 
 ## Preamble & strict mode
-- **Shebang:** `#!/usr/bin/env bash` (portable across systems where bash isn't in `/bin`, e.g.
-  macOS/Nix); the Google guide uses `#!/bin/bash`. Pick one and apply it everywhere.
+- **Shebang — a project decision; pick one and apply it everywhere.** `#!/usr/bin/env bash`
+  resolves bash via `PATH`, so it works where bash isn't in `/bin` (macOS/Homebrew, Nix);
+  `#!/bin/bash` is an absolute path (what the Google guide mandates) and avoids `PATH` surprises.
+  There's no universal default — settle it for the project (and record the why if it's not obvious).
 - Start scripts with **strict mode**: `set -euo pipefail` — exit on error, error on unset
   variables, and fail a pipeline if any stage fails. Be aware `set -e` has well-known edge cases,
   so still check explicitly any command whose failure you must handle. Set `IFS=$'\n\t'` when
