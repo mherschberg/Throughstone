@@ -65,6 +65,21 @@ not just documented.
   failures needing attention. Configure the logger once at the entrypoint. Never log secrets
   or PII.
 
+## Async
+- JavaScript is single-threaded: `async`/`await` gives you **concurrency, not parallelism**. Keep
+  CPU-heavy work off the event loop — move it to **worker threads** (`node:worker_threads`); the
+  built-in async I/O already handles I/O-bound work efficiently.
+- Prefer `async`/`await` with `try/catch` over `.then()` chains; if you do chain, keep it flat and
+  don't nest. Run **independent** operations concurrently with **`Promise.all`** (fail-fast),
+  **`Promise.allSettled`** (want every outcome), `Promise.race`, or `Promise.any` — don't `await`
+  them one at a time in a loop.
+- **No floating promises** — every promise is `await`ed, returned, `.catch()`-ed, or `void`-ed
+  (see *Error handling*); `@typescript-eslint/no-floating-promises` and `no-misused-promises`
+  enforce it.
+- Make long-running async work **cancellable** with `AbortController` / `AbortSignal` (and
+  `AbortSignal.timeout(ms)` for deadlines), passing the `signal` to `fetch` and other
+  signal-aware APIs.
+
 ## Testing
 - **Vitest** (or Jest). Test files `*.test.ts`; one behavior per test, Arrange–Act–Assert.
 - Name tests for the behavior (`rejects an expired token`), not the function. Mock at

@@ -54,6 +54,24 @@ just documented.
   `ERROR` failures needing attention. Configure handlers/format once at the entrypoint, not
   in libraries. Never log secrets or PII.
 
+## Concurrency & async
+- Pick the model by workload: **`asyncio`** for I/O-bound work with many concurrent operations
+  (cooperative, single-threaded); **threads** (`threading` /
+  `concurrent.futures.ThreadPoolExecutor`) for I/O-bound work that calls blocking libraries —
+  both are bound by the **GIL**, so neither parallelizes CPU work. For **CPU-bound** work use
+  processes (`multiprocessing` / `ProcessPoolExecutor`).
+- In asyncio, **never block the event loop** — one slow call stalls every task. Offload blocking
+  or CPU-heavy work with `asyncio.to_thread(...)` (or `loop.run_in_executor`), and enter the loop
+  once at the top with `asyncio.run(main())`.
+- Prefer **structured concurrency**: run related tasks under `async with asyncio.TaskGroup()`
+  (3.11+) rather than bare `asyncio.gather` — a TaskGroup cancels its siblings when one fails and
+  surfaces errors as an `ExceptionGroup`. Bound waits with `async with asyncio.timeout(...)`.
+- For fire-and-forget `create_task`, **keep a strong reference** to the task — the loop holds only
+  a weak one, so it can be garbage-collected mid-flight and its exception silently dropped.
+- asyncio objects are **not thread-safe**: cross thread boundaries only via
+  `asyncio.run_coroutine_threadsafe` / `loop.call_soon_threadsafe`. Let `CancelledError` propagate
+  (it derives from `BaseException`) and do cleanup in `finally`.
+
 ## Testing
 - **pytest**. Tests in `tests/`, files `test_*.py` (or `*_test.py`), plain `assert`.
 - Arrange–Act–Assert; one behavior per test. Name tests for the behavior
