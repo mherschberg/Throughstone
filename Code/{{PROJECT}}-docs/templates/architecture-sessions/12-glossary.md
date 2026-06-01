@@ -21,6 +21,15 @@ language the same way. It's short, but it prevents a lot of drift.
 ## How this session works
 - This is more harvesting than interviewing: **read the architecture docs written so far**
   and pull out the terms that need definition, then confirm/refine each with the user.
+- **Sweep *every* file in `architecture/`, whatever its number — don't stop at this session's
+  own number.** New sessions get added over time, both standard and conditional, and their
+  docs are numbered as they're slotted in; conditional-session docs in particular land *after*
+  the standard range, so a sweep that assumes a fixed upper bound will miss them. Glob the
+  directory, not a numbered range. Conditional docs tend to carry the most specialized
+  vocabulary — for the conditionals that ship today, e.g. *JWT / refresh token / scope*
+  (identity-auth), *data subject / DPA / sub-processor / retention window* (privacy-compliance),
+  *deep link / push token / platform entitlement* (native-app) — but treat that as illustrative:
+  scan whatever docs exist for new domain terms and acronyms, including any added later.
 - Flag **ambiguous or overloaded words** — terms used loosely that need a single agreed
   meaning (e.g. "user" vs. "account" vs. "member"; "job" vs. "task").
 - Keep definitions tight and align entity names with the data model (1.4).
