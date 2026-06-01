@@ -83,7 +83,10 @@ long since the last (see `METHOD.md` §5).
    `Code/{{PROJECT}}-docs/templates/architecture-sessions/` — you don't author those from
    scratch. For a **Check-in STEP**, you don't author prompts either — its two substeps are
    the doc-drift reconciliation and full test run defined in
-   `Code/{{PROJECT}}-docs/runbooks/check-in.md`; the PLAN just points there.)*
+   `Code/{{PROJECT}}-docs/runbooks/check-in.md`; the PLAN just points there. An **Incident
+   STEP** is the same kind of thin STEP — its three substeps (RCA → find similar → fix) are
+   defined in `Code/{{PROJECT}}-docs/runbooks/incident-postmortem.md`, opened by that runbook
+   when responding to a production incident.)*
 5. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps.
 6. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files

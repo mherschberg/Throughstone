@@ -71,8 +71,10 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
 Other folders in the hub: `coding-standards/` (per-language; defaults ship for common
 languages, and session 1.11 reconciles them to the stack you pick — review what's there,
 add what's missing, prune the rest), `runbooks/` (repeatable procedures — ships with
-`check-in.md`, `collaboration.md`, and `release-deploy.md` (an optional, customizable
-deploy/rollback checklist); add your own operational ones), `registries/`
+`check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
+deploy/rollback checklist), and `incident-postmortem.md` (respond to a production incident,
+then spin up an Incident STEP to RCA → find similar → fix); add your own operational ones),
+`registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects).
 
 ## 4. Architecture sessions

@@ -64,9 +64,10 @@ if it goes bad.
   data migration, rolling back the code isn't enough and may corrupt data. Here a **forward fix**
   (roll forward with a patch) is often safer than a rollback — decide deliberately. This is
   exactly why Part 1 insists migrations be reversible or forward-compatible.
-- **After a rollback.** Capture what happened — symptom, trigger, what you did — for a brief
-  write-up. (If/when an incident-postmortem runbook exists, that's its input; until then, a few
-  lines in the release record.) File a STEP for the real fix.
+- **After a rollback.** A rollback means something broke in production — that's an **incident**.
+  Capture what happened — symptom, trigger, what you did — and hand off to
+  `runbooks/incident-postmortem.md`, which turns it into a tracked STEP (RCA → find similar →
+  fix) so the real fix can't evaporate once service is restored.
 
 ## After the release
 - Confirm the released version is **tagged / recorded**.
