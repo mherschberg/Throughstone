@@ -29,7 +29,9 @@ where the pieces have to work *together*.
 1. **Test tiers.** Define unit / integration / end-to-end for this project: what each
    covers and roughly the balance between them.
 2. **What must be covered.** The critical paths and risky areas that must have tests (not a
-   vanity coverage %). What's explicitly *not* worth testing heavily.
+   vanity coverage %). What's explicitly *not* worth testing heavily. As a rough guide you
+   can *aim* for ~80% unit-test coverage — a suggestion to steer by, not a gate; don't chase
+   the number at the expense of testing what matters.
 3. **Test data & isolation.** How tests get data (fixtures/factories) and stay isolated
    (e.g. a fresh DB/schema per test run) so they don't interfere.
 4. **Mocking strategy.** What to mock (external/third-party dependencies) vs. exercise for

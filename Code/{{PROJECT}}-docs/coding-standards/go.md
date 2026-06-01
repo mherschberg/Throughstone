@@ -64,4 +64,4 @@ where we're opinionated. Pin the linters in the repo so the standard is enforced
   helpers. Reach for `testify` only if the team wants it.
 - Keep the unit suite fast and deterministic; gate slow/integration tests behind
   `testing.Short()` or a build tag. Use `t.Parallel()` where safe. Cover behavior and edge
-  cases, not a coverage percentage.
+  cases, not a coverage percentage — though ~80% unit-test coverage is a reasonable guide to aim for, not a gate.

@@ -54,4 +54,4 @@ just documented.
 - Use fixtures for setup and `pytest.mark.parametrize` for cases. Mock at boundaries (I/O,
   network, clock) — don't mock the code under test.
 - Keep tests fast and deterministic; mark slow/integration tests so the fast suite stays
-  the default. Aim for coverage of behavior and edge cases, not a percentage target.
+  the default. Aim for coverage of behavior and edge cases, not a percentage target — though ~80% unit-test coverage is a reasonable guide to aim for, not a gate.
