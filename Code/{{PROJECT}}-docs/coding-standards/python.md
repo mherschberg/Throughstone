@@ -1,7 +1,7 @@
 # Python coding standards — {{PROJECT}}
 
-> **Starting point — overwrite this.** These are sane defaults so code is consistent from
-> day one. Replace anything that doesn't fit your team. If a rule here encodes a real
+> **Starting point — review and customize.** These are sane defaults so code is consistent from
+> day one. Change anything that doesn't fit your team. If a rule here encodes a real
 > decision (a chosen framework, an error-handling pattern), record the *why* in an ADR and
 > link it from this file.
 
