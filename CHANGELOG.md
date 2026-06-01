@@ -7,19 +7,42 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
-## [Unreleased]
+## [1.3.0] - 2026-06-01
 
-### New cross-cutting coding standard
+A **coding-standards** release: it reframes the shipped standards as customizable starting
+points, broadens per-language coverage (adds Java and C#, plus concurrency/async and Python
+idioms), and introduces three cross-cutting standards — SQL, Shell, and API design — wired into
+the method so each surfaces at the right moment.
+
+### New cross-cutting standards
+- **SQL** (`coding-standards/sql.md`): naming, formatting (sqlfluff), query practices,
+  parameterized-query safety, schema/DDL, and migrations — secondary to the language docs where
+  they conflict.
+- **Shell / Bash** (`coding-standards/shell.md`): strict mode, quoting/safety, naming/layout,
+  idioms, and error handling (Google Shell Style Guide + ShellCheck/shfmt); the shebang is
+  framed as an explicit, recorded project decision.
 - **API design** (`coding-standards/api.md`): an opinionated, customizable house style for
   REST/HTTP APIs — resource naming, methods/status codes, RFC 3339 UTC timestamps, money as
-  integer minor units, RFC 9457 problem-details errors, idempotency, and rate limits. Three
-  genuine forks are flagged for per-project review (field casing snake_case vs. camelCase,
-  cursor vs. offset pagination, URI vs. header versioning), each with an ADR pointer.
-  Complements — doesn't replace — each API's versioned contract artifact from session 1.3.
-- **Wired in:** listed in `coding-standards/README.md` (intro + Files table) and the `METHOD.md`
-  hub gloss, reconciled by **session 1.11** as a cross-cutting standard (kept only when a 1.3
-  boundary is an HTTP/REST API the project exposes or consumes), and nudged in
-  `templates/substep-prompt.md` so any API-touching substep reads it.
+  integer minor units, RFC 9457 problem-details errors, idempotency, and rate limits — with
+  three per-project forks flagged (field casing, pagination, versioning), each with an ADR
+  pointer. Complements each API's versioned contract artifact from session 1.3.
+
+### Expanded per-language coverage
+- **Java** (`java.md`) and **C#** (`csharp.md`) standards added.
+- **Concurrency / async** sections added to Python, Rust, and TypeScript.
+- **Python**: a Language idioms section.
+
+### Customizable by default
+- Shipped standards reframed as **customizable starting-point drafts** — both the per-language
+  headers and the README — so teams treat them as a draft to edit, not law to obey.
+- The **all-languages documentation rule** broadened to **fields/properties** (docstrings where
+  the language documents them, e.g. Java fields, C# properties), public and private.
+
+### Wiring
+- The cross-cutting standards are reconciled by **session 1.11** (kept only when each applies —
+  a relational DB for SQL, shell scripts for Shell, an HTTP/REST boundary for API), listed in
+  `coding-standards/README.md` and the `METHOD.md` hub gloss ("per-language plus cross-cutting"),
+  and `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
 
 ## [1.2.0] - 2026-06-01
 
