@@ -36,6 +36,24 @@ just documented.
 - **Type hints** on all public APIs at minimum; fully typing new code is recommended (and
   is what the strict type-checker config above assumes).
 
+## Language idioms
+- **Prefer immutability and value types.** Use **`@dataclass`** for data-holding classes
+  (`frozen=True` when they shouldn't mutate) instead of hand-written
+  `__init__`/`__repr__`/`__eq__`; **never use a mutable default** (`[]`, `{}`) — use
+  `field(default_factory=list)`. Reach for `tuple`/`frozenset` when a value shouldn't change.
+- **EAFP over LBYL** — Python prefers "easier to ask forgiveness than permission": attempt the
+  operation and catch the exception rather than pre-checking with `if`. Guard-first (LBYL) code is
+  race-prone and less idiomatic. (Still validate at trust boundaries — see *Error handling*.)
+- Use **comprehensions** and **generator expressions** to transform iterables
+  (`[f(x) for x in xs if p(x)]`), and a generator (`yield`) for lazy or streamed sequences —
+  don't build a list with an explicit `for`-append loop when a comprehension reads clearly.
+- Manage resources with **context managers** (`with open(...) as f:`) rather than manual
+  open/close, and iterate with `enumerate`/`zip` rather than index arithmetic.
+- Follow the [PEP 8](https://peps.python.org/pep-0008/#programming-recommendations) idioms: lean on
+  **truthiness** (`if not items:`, not `if len(items) == 0:`), compare to `None` with `is`/`is not`,
+  and use `isinstance(x, T)` not `type(x) == T`. Prefer **f-strings** for formatting (except in
+  logging — see *Logging*) and **`pathlib`** over `os.path` string munging.
+
 ## Error handling
 - Raise specific exceptions; define a small package-level hierarchy
   (`class {{PROJECT}}Error(Exception)`) and derive from it so callers can catch by domain.
