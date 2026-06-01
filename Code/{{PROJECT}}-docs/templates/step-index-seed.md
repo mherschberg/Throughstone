@@ -58,8 +58,15 @@ worked, and completed.
 | 1.12 | Glossary | Planned | `architecture/12-…` |
 | 1.13 | Cross-cutting review | Planned | review doc |
 
-<!-- Conditional sessions (add rows if they apply): Native app architecture (mobile/desktop);
-     Identity & auth. The 1.3 platform question decides whether the app session is needed. -->
+<!-- Conditional sessions: include-or-skip per the kickoff "Conditional sessions considered"
+     table — add a row only when one is included. Slot it under a LETTERED substep after the
+     related core session, and run it BY NAME, not number (e.g. "run the identity-auth session"
+     → conditional-identity-auth.md; likewise conditional-native-app.md,
+     conditional-privacy-compliance.md). The output doc takes the next number above the core
+     set (13+). Example row shape (a real row starts at the left margin):
+       | 1.6a | Identity & auth | Planned | architecture/13-identity-auth.md |
+     The 1.3 platform question decides whether the native-app session is needed; identity-auth
+     and privacy-compliance are included by need. -->
 
 ## How to add a STEP
 See `prompts/README.md` for the authoring recipe.

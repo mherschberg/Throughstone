@@ -104,7 +104,10 @@ set lives in `templates/architecture-sessions/`.
 
 **Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
 question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
-**Privacy, compliance & data governance** (personal or regulated data). Each is an **explicit
+**Privacy, compliance & data governance** (personal or regulated data). Run each **by name**,
+not by number — *"run the identity-auth session"* → `conditional-identity-auth.md` (likewise
+`conditional-native-app.md` and `conditional-privacy-compliance.md`) — slotted under a lettered
+substep (e.g. `1.6a`, after the related core session). Each is an **explicit
 include-or-skip decision at kickoff** — the STEP-1 PLAN records a *Conditional sessions
 considered* table marking every one Include (→ substep) or N/A (with a reason), so a skip is a
 recorded choice rather than a silent omission. (A need can also emerge *later* — a project adds
