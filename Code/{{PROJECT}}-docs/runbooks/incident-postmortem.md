@@ -38,7 +38,8 @@ the cause in the *system*, never who typed the command.
 > **Security incidents** that exposed data or credentials also start a **breach-notification**
 > clock from your privacy/security work (`architecture/06-security-threat-model.md`, and the
 > privacy-compliance doc if you have one). That obligation is not optional and runs independently
-> of this runbook — handle it in parallel with Part 1.
+> of this runbook — handle it in parallel with Part 1. If a **credential** was exposed, revoke and
+> rotate it now per `runbooks/secrets-rotation.md` (Part 2) as part of stabilizing.
 
 ## Part 2 — Root-cause analysis (RCA)  *(substep N.1)*
 Get past the symptom to the **cause in the system**. Ask *why* repeatedly (5 Whys) until you

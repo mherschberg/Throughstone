@@ -33,7 +33,9 @@ if it goes bad.
       shape, deploy, backfill, switch, drop the old in a *later* release). A deploy you can roll
       back sitting on a schema you can't is a trap — write down the down-path explicitly.
 - [ ] **Config & secrets for the target environment are in place** — from the secrets manager,
-      not a checked-in file (see `architecture/06-security-threat-model.md` and `08`).
+      not a checked-in file (see `architecture/06-security-threat-model.md` and `08`). Rotating a
+      credential rather than just consuming one? That's its own procedure —
+      `runbooks/secrets-rotation.md`.
 - [ ] **Rollback plan confirmed.** Write down, now, exactly how you'd undo this release (Part 4)
       and what would make you do it. If you can't state it, you're not ready to deploy.
 
