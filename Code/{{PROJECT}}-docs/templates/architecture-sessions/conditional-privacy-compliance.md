@@ -8,11 +8,13 @@
 > *"run the privacy-compliance session"*). It writes `architecture/NN-privacy-compliance.md`
 > (number assigned in the index) and updates `prompts/STEP-index.md`.
 > **Two separate numbers:** the *substep* number (e.g. `1.6b`) marks its place in STEP-1; the
-> *doc file* number (`NN`) is the first number **after the reserved core range `01–12`** —
-> i.e. `13`, or the next free conditional number if another conditional already took `13`/`14`
-> — **not** the lowest unused number. (This session may run early, before the later core docs
-> `07–12` exist; still take `13+`, so a core session can later claim its own `07`, `08`, …
-> without a clash.) The substep number and the doc number don't have to match.
+> *doc file* number (`NN`) is the next free number **above the reserved core-doc block** — the
+> standard sessions reserve a contiguous block at the front (today `01–12`; the current core set
+> is the session table in `METHOD.md` §4), and each conditional takes the next number above that
+> block (today `13`, then `14`, … — or the next free one if another conditional already claimed
+> it) — **not** the lowest unused number. (This session may run early, before the later core docs
+> exist; still take the first number above the core block, so a not-yet-run core session keeps
+> its own reserved slot without a clash.) The substep number and the doc number don't have to match.
 > Reads `overview.md` and `architecture/04-*` (data model) and `06-*` (security) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
