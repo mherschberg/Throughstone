@@ -2,7 +2,9 @@
 
 > **How to run:** Tell your agent *"run session 1.10"*. It interviews you one decision at a
 > time, then writes `architecture/10-observability.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and `architecture/03-*`, `05-*` first.
+> Reads `overview.md` and `architecture/03-*`, `05-*` first — plus any conditional-session doc that
+> affects what you log/alert on (e.g. identity-auth for auth-event audit logging, privacy-compliance
+> for PII-in-logs and log retention, or one added later), if it's been written.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}

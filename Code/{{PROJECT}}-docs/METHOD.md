@@ -134,6 +134,40 @@ change in that doc's Version Log** (and a new ADR if the decision is significant
 ADR is superseded, not edited). Re-running is the normal way the living docs stay true as
 the project learns; it's not a sign something went wrong the first time.
 
+### Adding a session
+The session set is yours to extend — and the two kinds differ sharply in cost.
+
+**A conditional session is zero-touch to the rest of the method.** Conditionals are lettered
+substeps (`1.6c`, `1.7b`) and never renumber the standard sessions. To add one:
+1. Write `templates/architecture-sessions/conditional-<topic>.md` — copy an existing conditional
+   for the shape (the two-numbers header note, a `Reads` line, the calibrate-to-experience note,
+   the decisions, Output, Next).
+2. Give its output doc the **next free number above the core block** (the conditional headers and
+   §8 explain why), and slot its substep as a letter suffix wherever it belongs.
+3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable by
+   name, and record it in the STEP-1 PLAN's *Conditional sessions considered* table.
+
+`status.sh`, the glossary (1.12), and the cross-cutting review (1.13) all pick it up with no
+further edits.
+
+**A standard (numbered) session costs a renumber, because the cross-cutting review is always
+last.** A new standard session inserts *before* the review, which shifts the review — and
+anything after the insertion point — up by one. To add one:
+1. Write `templates/architecture-sessions/NN-<topic>.md`; its doc number is the next in the core
+   block. Append it right before the review to minimize the shift.
+2. Renumber the review (and any shifted sessions): rename the file
+   (`13-cross-cutting-review.md` → `14-…`) and update every literal reference to the old number —
+   all findable with `grep -rn '1\.13'`: the registry (§4 table, the §10 resolver,
+   `templates/step-index-seed.md`), the doc index (`architecture/README.md`), and the prose
+   pointers (`step-plan.md`, `planning-session.md`, `BOOTSTRAP-PROMPT.md`, `01-system-overview.md`,
+   the glossary's *Next*, the review file's own header, and each conditional's closing line).
+3. Add its row to the §4 table and `templates/step-index-seed.md`.
+
+`status.sh` needs no change — it locates the review by its label, not its number.
+
+When in doubt, prefer a conditional: it carries the same interview-and-document machinery without
+the renumber.
+
 ### Calibrating to the user's experience level
 The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the user how much experience they have
 building a project like this and records it in `overview.md`: **Level 1** (no coding

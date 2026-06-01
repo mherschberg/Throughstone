@@ -2,7 +2,9 @@
 
 > **How to run:** Tell your agent *"run session 1.5"*. It interviews you one decision at a
 > time, then writes `architecture/05-scaling-performance.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and `architecture/02-*` (phasing), `03-*`, `04-*` first.
+> Reads `overview.md` and `architecture/02-*` (phasing), `03-*`, `04-*` first — plus any
+> conditional-session doc relevant to scale (e.g. native-app for offline/sync load, identity-auth,
+> or one added later), if it's been written.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
