@@ -27,6 +27,13 @@ This is a **review + verification** STEP, not feature work. It writes no applica
 it fixes docs, files bugs, and proves the tests pass.
 
 ## Part 1 — Doc drift (check **both** directions)  *(substep N.1)*
+
+> **Start with the mechanical pass.** Run `scripts/check.sh` first — in seconds it catches the
+> *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers, invalid
+> statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry that
+> disagrees with the files on disk. Fix anything it flags, then do the judgment-based review
+> below (which a script can't: does the doc still describe what the system actually *does*?).
+
 For each `architecture/NN-*.md`, compare the doc against the system as it actually is now —
 in both directions, because they catch different problems:
 
