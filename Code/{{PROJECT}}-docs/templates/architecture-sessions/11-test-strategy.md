@@ -58,9 +58,10 @@ where the pieces have to work *together*.
      existing standard (e.g. `coding-standards/python.md`) — same sections (naming, layout,
      error handling, logging, testing) — and fill it in with the user.
    - **Prune** the default standards for languages this project won't use.
-   - **`sql.md` is cross-cutting**, not a 1.3 implementation language: keep it if the project uses
-     a relational database (regardless of the language list), prune it if not. Its rules are
-     secondary to the language docs where they conflict.
+   - **`sql.md` and `shell.md` are cross-cutting**, not 1.3 implementation languages: keep `sql.md`
+     if the project uses a relational database, and `shell.md` if it ships shell scripts (CI glue,
+     dev scripts, entrypoints) — regardless of the language list; prune either if it doesn't apply.
+     `sql.md`'s rules are secondary to the language docs where they conflict.
 
 ## Output
 Write `architecture/11-test-strategy.md` (use `templates/architecture-doc.md`). Body:
