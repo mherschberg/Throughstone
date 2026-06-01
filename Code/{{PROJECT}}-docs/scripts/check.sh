@@ -34,6 +34,9 @@ pass() { printf '  [PASS] %s\n' "$1"; }
 fail() { printf '  [FAIL] %s\n' "$1"; fails=$((fails + 1)); }
 warn() { printf '  [WARN] %s\n' "$1"; warns=$((warns + 1)); }
 hdr()  { printf '\n%s\n' "$1"; }
+# A suggested remediation under a finding. The doctor diagnoses and prescribes; it never
+# edits files — renumbering touches branch/folder names and needs human judgment.
+hint() { printf '         → fix: %s\n' "$1"; }
 
 # Emit a newline list as sorted, unique, non-empty lines (for comm).
 emit() { printf '%s\n' "$1" | sed '/^[[:space:]]*$/d' | sort -u; }
@@ -46,6 +49,12 @@ if [ -f "$INDEX" ]; then
   dups="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE 'STEP-[0-9]+' | sort | uniq -d)"
   if [ -n "$dups" ]; then
     fail "duplicate STEP number(s): $(echo "$dups" | tr '\n' ' ')"
+    for d in $dups; do
+      lns="$(grep -nE "^\|[[:space:]]*$d([[:space:]]|\|)" "$INDEX" | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')"
+      printf '         %s appears on line(s): %s\n' "$d" "$lns"
+    done
+    maxn="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE '[0-9]+' | sort -n | tail -1)"
+    hint "renumber the duplicate (the one reserved later) to STEP-$((maxn + 1)) — never reuse or delete a number; mark a row Abandoned if it won't be built. See runbooks/collaboration.md §2."
   else
     pass "no duplicate STEP numbers"
   fi
@@ -59,6 +68,12 @@ if [ -f "$ADR_INDEX" ]; then
   dups="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE 'ADR-[0-9]+' | sort | uniq -d)"
   if [ -n "$dups" ]; then
     fail "duplicate ADR number(s): $(echo "$dups" | tr '\n' ' ')"
+    for d in $dups; do
+      lns="$(grep -nE "^\|[[:space:]]*$d([[:space:]]|\|)" "$ADR_INDEX" | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')"
+      printf '         %s appears on line(s): %s\n' "$d" "$lns"
+    done
+    maxn="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE '[0-9]+' | sed 's/^0*//' | sort -n | tail -1)"
+    hint "renumber the later duplicate to $(printf 'ADR-%04d' "$((maxn + 1))") and rename its file to match — never reuse a number. See adr/README.md and runbooks/collaboration.md §6."
   else
     pass "no duplicate ADR numbers"
   fi
@@ -87,6 +102,7 @@ if [ -f "$INDEX" ]; then
   if [ -n "$bad" ]; then
     fail "invalid status value(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$bad"
+    hint "use exactly one of: Planned · In progress · Done · Abandoned (a substep may also be N/A). See METHOD.md §1."
   else
     pass "all statuses valid"
   fi
@@ -109,7 +125,11 @@ else
     grep -qiF 'version log'  "$f" || missing="$missing Version-Log"
     if [ -n "$missing" ]; then fail "$b missing:$missing"; missing_any=1; fi
   done
-  [ "$missing_any" -eq 0 ] && pass "all ${#docs[@]} architecture doc(s) have the required fields"
+  if [ "$missing_any" -eq 0 ]; then
+    pass "all ${#docs[@]} architecture doc(s) have the required fields"
+  else
+    hint "add the missing field(s) from templates/architecture-doc.md (Version / Status header, and a Version Log table). See METHOD.md §6."
+  fi
 fi
 
 # --- 5. ADR registry <-> files on disk ----------------------------------------
@@ -121,8 +141,8 @@ if [ -f "$ADR_INDEX" ]; then
   missing_files="$(comm -23 <(emit "$reg_ids") <(emit "$disk_ids"))"   # in registry, no file
   missing_rows="$(comm -13 <(emit "$reg_ids") <(emit "$disk_ids"))"    # file, not in registry
   ok=1
-  [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; }
-  [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; }
+  [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; hint "create the ADR file(s) from templates/adr.md, or remove the stale registry row(s) in adr/README.md."; }
+  [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; hint "add a registry row in adr/README.md for the file(s), or delete the file if it shouldn't exist."; }
   [ "$ok" -eq 1 ] && pass "registry and files agree ($(emit "$reg_ids" | grep -c . ) ADR(s))"
 else
   warn "no adr/README.md — skipping ADR registry/disk check"
@@ -142,6 +162,7 @@ else
   done
   if [ -n "$stray" ]; then
     warn "unexpected entr(ies) at workspace root:$stray — should these be inside a repo (usually the docs hub)?"
+    hint "move durable content into a repo (almost always Code/<project>-docs/); the root holds only per-machine pointers, the repo folders, and Upcoming Prompts/. See METHOD.md §7."
   else
     pass "only the expected pointers / repos at the workspace root"
   fi
