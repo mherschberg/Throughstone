@@ -51,7 +51,7 @@ where the pieces have to work *together*.
    high-level stack (1.3 decision 6). Then reconcile `coding-standards/` to that list, **one
    language at a time**:
    - **If a `coding-standards/<lang>.md` already ships** (e.g. `python.md`, `typescript.md`,
-     `go.md`, `rust.md`, `dart.md`, `java.md`): tell the user it exists as a *default starting point*,
+     `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`): tell the user it exists as a *default starting point*,
      and ask them to review it and flag anything they want changed for this project. Apply
      their edits.
    - **If there's no file for that language:** create one by copying the structure of an

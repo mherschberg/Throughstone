@@ -6,7 +6,7 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
 
 ## How this works
 - Default standards for common languages ship with Throughstone (e.g. `python.md`,
-  `typescript.md`, `go.md`, `rust.md`, `dart.md`, `java.md`). **These are starting points — review and
+  `typescript.md`, `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`). **These are starting points — review and
   customize them** to match your team's preferences. Nothing here is fixed law; treat the
   shipped contents as a draft to edit, not a rule to obey.
 - You only need the file(s) for the language(s) you actually use. **Session 1.11
@@ -43,3 +43,4 @@ the rest, and customize the contents to match your team.
 | Rust | [`rust.md`](rust.md) | Default — customize |
 | Dart / Flutter | [`dart.md`](dart.md) | Default — customize |
 | Java | [`java.md`](java.md) | Default — customize |
+| C# | [`csharp.md`](csharp.md) | Default — customize |
