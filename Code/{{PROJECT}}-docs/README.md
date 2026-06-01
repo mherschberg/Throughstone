@@ -22,8 +22,8 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`architecture/`](architecture/README.md) | *What* the system is — living, versioned design docs (indexed). |
 | [`adr/`](adr/README.md) | *Why* it's that way — point-in-time decision records (indexed). |
 | [`coding-standards/`](coding-standards/README.md) | Per-language engineering standards (indexed). |
-| [`runbooks/`](runbooks/) | Repeatable procedures — check-in, collaboration. |
-| [`registries/`](registries/) | Inventories — `repos.yml`, the map of the project's repos. |
+| [`runbooks/`](runbooks/README.md) | Repeatable procedures — check-in, release, incident, dependencies, collaboration (indexed). |
+| [`registries/`](registries/README.md) | Machine-readable inventories — `repos.yml`, the map of the project's repos (indexed). |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
 | [`scripts/`](scripts/) | Setup helpers — e.g. `setup-workspace.sh`. |
 
