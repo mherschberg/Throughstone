@@ -19,6 +19,13 @@ where we're opinionated. Pin the linters in the repo so the standard is enforced
 - Interfaces describing one method end in `-er` (`Reader`, `Stringer`). Errors: `ErrNotFound`
   for sentinels, `FooError` for types.
 
+## Documentation
+- **A doc comment on every type, func, and method — exported *and* unexported** (the project
+  rule — see [`README.md`](README.md); Go's own norm is exported-only, the project rule goes
+  further). Go style: begin with the identifier's name (`// Server handles …`); `go doc` /
+  godoc render these. `revive` / `golangci-lint` can flag missing ones.
+- Comment the *why* of non-obvious logic (and *why* an ignored error is safe — see below).
+
 ## Project / module layout
 - One module per repo (`go.mod` at root, module path = repo URL). Package per directory;
   the directory name is the package name.

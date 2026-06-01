@@ -21,6 +21,13 @@ compiler's built-in lints enforce the case conventions (`clippy` adds more):
 - Acronyms are one word: `Uuid`, `HttpClient` — not `UUID`, `HTTPClient`.
 - Names say what, not how. Booleans read as predicates (`is_active`, `has_access`).
 
+## Documentation
+- **Doc comments (`///`) on every type, trait, function, and method — including private
+  items** (the project rule — see [`README.md`](README.md)). `///` docs double as **doc-tests**
+  (see Testing) and render with `cargo doc`. `#![warn(missing_docs)]` enforces them on the
+  public API; carry the habit to private items.
+- Comment the *why* of non-obvious logic; let types and names carry the *what*.
+
 ## Project / module layout
 - Cargo project: `src/main.rs` for a binary, `src/lib.rs` for a library; split modules into
   files/directories with `mod`. Use a **workspace** for multi-crate projects.

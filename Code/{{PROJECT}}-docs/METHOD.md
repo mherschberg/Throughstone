@@ -232,7 +232,11 @@ per-machine shell. The `init.sh` wizard sets this up for the first developer; se
 aren't created at bootstrap — they're stamped from
 `Code/{{PROJECT}}-docs/templates/repo-readme.md` once the architecture names them. (Or choose
 mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
-`registries/repos.yml` is the canonical inventory.
+`registries/repos.yml` is the canonical inventory. **Every repo carries a README explaining
+what it is** — its role and the slice of the system it owns — stamped from that template and
+filled in when the repo is scaffolded (with a matching one-line `description` in
+`registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
+its root for its internal design.
 
 **All durable content lives in a repo** — almost always `Code/{{PROJECT}}-docs/`. The
 workspace root holds only **per-machine** files: the pointer `CLAUDE.md` / `AGENTS.md`

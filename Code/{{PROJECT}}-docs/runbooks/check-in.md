@@ -44,6 +44,18 @@ secrets handling actually in place; glossary (12) vs. the terms the code now use
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
 with its current version/status).
 
+Beyond the architecture docs, sweep three things that rot just as quietly:
+- **Repo READMEs** — every code repo has one, its **Overview** still describes what the repo
+  *is*, and the **Setup / Running / Testing** steps still work from a clean checkout. They're
+  stamped once at repo creation and otherwise never re-checked, so they're usually the stalest
+  doc a new contributor or agent hits first (and any `ARCHITECTURE.md` still matches the design).
+- **API contracts** — any published spec (OpenAPI / GraphQL / protobuf) still matches the
+  endpoints the service actually serves. A drifted contract breaks consumers silently, so
+  treat a mismatch as a real defect (fix the spec, or file a bug if the code is wrong).
+- **Docstrings** — spot-check that docstrings describe what the code *now does*, not what it
+  was first written to do. A docstring that lies is worse than none; fix it in place (a doc
+  fix, not a bug STEP).
+
 ## Part 2 — Run all tests  *(substep N.2)*
 - Run the **full** test suite (all repos), not just the area you last touched.
 - Record the result: pass/fail counts, anything skipped, and coverage if you track it.

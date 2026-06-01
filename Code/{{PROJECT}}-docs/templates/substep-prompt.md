@@ -13,11 +13,18 @@
      substep is responsible for. Enough that a fresh agent understands without history. -->
 
 ## Read these first
-<!-- Explicit list of files this substep depends on: architecture docs, ADRs, prior code,
-     coding standards. The agent should read these before doing anything. -->
+<!-- Start from the main docs this substep depends on, then follow the indexes to find
+     anything else relevant — don't try to read everything. The indexes point the way:
+       - architecture/README.md     — the architecture docs (what the system is)
+       - adr/README.md              — the decision records (why it's that way)
+       - coding-standards/README.md — the per-language standards
+       - registries/repos.yml       — the repo inventory; each repo's own README is its "about"
+     List the specific files this substep depends on below — including the README of each
+     repo this substep touches, read before you work in it. -->
 - architecture/NN-…
 - ADR-XXXX-…
 - coding-standards/…
+- <repo>/README.md  (for each repo this substep touches)
 
 ## Scope
 <!-- What this substep owns, and — just as important — what it does NOT touch. -->
@@ -60,6 +67,13 @@ just change the code:
 - **Significant or contested change:** write an **ADR** (`templates/adr.md`) and update the
   doc to match. If it overturns a settled assumption, consider **re-running** the relevant
   architecture session (`METHOD.md` §4).
+- **New code, even when it overturns nothing:** adding a component, repo, or public surface,
+  or coining a domain term, can outdate a doc that's still "correct." Update whatever's now
+  stale: the architecture overview (`architecture/03-*`) and `registries/repos.yml` for new
+  components/repos (a brand-new repo also gets a stamped **README whose Overview explains what
+  it is**); the **API spec** (OpenAPI / GraphQL / protobuf) when you add or change an endpoint;
+  the repo **README** when setup/run/test changes; the glossary (`architecture/12-*`) for new
+  terms.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
   `.secrets/` (see `architecture/06-*` and `09-*`); commit only `.env.example`.
 
@@ -70,8 +84,11 @@ Leaving the doc stale is a defect, not a follow-up.
 - [ ]
 - [ ] Code this substep wrote or changed is covered by tests, and the relevant tests pass.
       <!-- default; drop only for a genuinely code-free substep -->
+- [ ] New/changed classes, functions, and methods carry docstrings (see
+      `coding-standards/README.md`).
 - [ ] Any architecture decision this substep changed is reflected in the docs (Version Log
-      bumped) or recorded in an ADR.
+      bumped) or recorded in an ADR — and any new component, repo, or domain term is reflected
+      in the relevant doc (overview / `repos.yml` / glossary).
 
 ## Next
 When this substep is done, update its status in the STEP PLAN, then tell the user the next

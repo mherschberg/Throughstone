@@ -22,6 +22,12 @@ not just documented.
 - No `I`-prefix on interfaces and no `T`-prefix on types. Booleans read as predicates
   (`isActive`, `hasAccess`).
 
+## Documentation
+- **A TSDoc/JSDoc `/** … */` block on every class, function, and method** (the project rule
+  — see [`README.md`](README.md)) — `@param`/`@returns` where they add what the signature
+  doesn't. `eslint-plugin-jsdoc` can enforce presence and shape.
+- Comment the *why*; let types and names carry the *what*.
+
 ## Project / module layout
 - Source under `src/`, tests colocated (`foo.test.ts`) or in `__tests__/` — pick one and be
   consistent. Compiled output to `dist/` (gitignored).

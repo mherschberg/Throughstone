@@ -41,6 +41,8 @@
 - **Tests ship with the code.** Every substep that writes or changes code also writes the
   tests for it and runs the relevant tests before it's done (see
   `templates/substep-prompt.md`). Override per substep only with a stated reason.
+- **Code is documented as it's written.** Every class, function, and method gets a docstring;
+  comment the *why* of non-obvious logic (see `coding-standards/README.md`).
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->

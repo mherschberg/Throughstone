@@ -1,8 +1,8 @@
 # Coding Standards
 
 Per-language engineering standards for {{PROJECT}}: naming, layout, error handling,
-logging, testing conventions. Code substeps should reference the relevant standard so the
-codebase stays consistent regardless of who (or which agent) writes it.
+logging, documentation, and testing conventions. Code substeps should reference the relevant
+standard so the codebase stays consistent regardless of who (or which agent) writes it.
 
 ## How this works
 - Default standards for common languages ship with Throughstone (e.g. `python.md`,
@@ -15,6 +15,20 @@ codebase stays consistent regardless of who (or which agent) writes it.
   standards per language" decision in that session.)
 - If a standard reflects a decision (e.g. "we use X error-handling pattern because…"),
   link the ADR that records why.
+
+## Documentation & comments  (all languages)
+A project-wide rule; each language file shows the idiomatic *form* and the lint that
+enforces it.
+- **Docstrings are required on every class, method, and function** — public *and* private.
+  Say what it does, its parameters and return, and anything non-obvious about its contract.
+  Describe what the code **actually does**, not what you set out to write — a docstring that
+  drifts from the behavior misleads worse than silence. This is a gate: code without them
+  isn't done.
+- **Comment for the next reader.** As a guideline, expect roughly a comment every ~10 lines
+  of non-trivial code — a readability *suggestion*, not a counted requirement. Explain the
+  *why*; don't restate what the code already says. Cut narration (`// increment i`): it's
+  noise, and it goes stale.
+- **Keep comments and docstrings true** as the code changes — a stale one is worse than none.
 
 ## Files
 Defaults that ship with Throughstone. Keep the file(s) for the language(s) you use, prune

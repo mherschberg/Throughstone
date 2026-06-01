@@ -4,16 +4,24 @@
 > defines it, e.g. `{{PROJECT}}-docs/architecture/03-architecture-overview.md`.)
 
 <!--
-  Stamp a copy of this into each code repo as it's created. Keep the section headings
-  consistent across all repos so the project reads uniformly. Drop sections that don't
-  apply (e.g. no "API Endpoints" for a library), but keep the order.
+  Stamp a copy of this into each code repo as it's created — every repo, including in a
+  multi-repo design, must carry one. Keep the section headings consistent across all repos
+  so the project reads uniformly. Sections that don't apply can be dropped (e.g. no
+  "API / interface" for a library), but keep the order — and never drop the role one-liner
+  above or the Overview below: explaining what the repo *is* is the one non-negotiable part.
 -->
 
 ## Overview
 <!-- A short paragraph or two: what this repo does, the problem it owns within the system,
      how it relates to the other repos, and what a newcomer should understand before
      reading the code. Longer than the one-liner above, shorter than the architecture doc
-     (link that for the full picture). -->
+     (link that for the full picture). This section is required — a repo without it doesn't
+     explain itself.
+
+     For a repo with real internal complexity, a README paragraph isn't enough: add an
+     `ARCHITECTURE.md` at the repo root for its internal design — the main modules, key
+     flows, and *why* it's built this way (the codebase-level counterpart to the hub's
+     system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo. -->
 
 ## Tech stack
 <!-- Language + version, framework, datastore(s), key libraries. -->
@@ -28,8 +36,9 @@
 <!-- How to start it locally, and how to verify it's up (health check, sample request). -->
 
 ## API / interface
-<!-- For a service: endpoint table (method, path, auth, description). For a library:
-     the public surface. Skip if not applicable. -->
+<!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the contract of
+     record, with a short endpoint table for orientation — don't duplicate the spec here.
+     For a library: the public surface. Skip if not applicable. -->
 
 ## Testing
 <!-- How to run the tests; the tiers (unit / integration / e2e) and what each covers. -->
