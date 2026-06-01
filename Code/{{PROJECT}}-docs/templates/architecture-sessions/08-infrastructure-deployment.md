@@ -9,14 +9,18 @@
 {{PROJECT_DESCRIPTION}}
 
 ## What this session does
-With the architecture, scale, and security decided, we'll settle where the system runs and
-how your code gets there, so deploys are repeatable and recoverable instead of hand-assembled.
+With the architecture, scale, and security decided, we'll settle where the system runs, how
+your code gets there, and how it survives the failures it will eventually hit — so deploys
+are repeatable and recoverable instead of hand-assembled and fragile.
 
 ## Why this session matters
 "It runs on my laptop" is not a deployment. Without a deliberate plan, infrastructure
 becomes a pile of hand-configured boxes no one can reproduce. Deciding **where it runs, how
-it gets there, and how it's provisioned** now keeps deploys boring and recoverable — and
-keeps cloud lock-in a choice rather than an accident.
+it gets there, how it's provisioned, and how it recovers when something breaks** now keeps
+deploys boring and recoverable — and keeps cloud lock-in a choice rather than an accident.
+The failure half matters as much as the deploy half: every system eventually loses a
+process, a machine, or a dependency it doesn't control, and "we never thought about it" is
+how a small outage becomes permanent data loss.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
@@ -39,9 +43,21 @@ keeps cloud lock-in a choice rather than an accident.
    surfaces.
 6. **Secrets in production.** Where prod secrets live (a secret manager) and how services
    get them. (Consistent with 1.6.)
-7. **Backups & disaster recovery.** What's backed up, how often, and a rough RTO/RPO (how
-   much downtime / data loss is tolerable). Even "daily DB snapshot, restore tested" counts.
-8. **Cost & cloud coupling.** Rough cost shape and what drives it as you scale; how coupled
+7. **Failure modes & resilience.** Walk what happens when a piece dies — a single process,
+   the machine or availability zone it runs on, or a dependency you don't control (the
+   database, a third-party API). Name the **single points of failure** (this is the
+   *availability* angle; 1.5 named them for *load*) and pick an **availability target**: is a
+   few hours of downtime fine, or must this stay up? For an MVP, a single region with a fast
+   redeploy is often the right call — the point is to choose it knowingly, not by default.
+   Where it's cheap, prefer **graceful degradation** (read-only mode, a cached response, a
+   clear "try again shortly") over a hard crash when a dependency is unavailable.
+8. **Backups & disaster recovery.** What's backed up, how often, and how long backups are
+   retained; then the two numbers that define recovery — **RPO** (how much *data loss* is
+   tolerable: minutes? a day?) and **RTO** (how long to get back *up*). The catch: **a backup
+   you have never restored is not a backup** — decide how and how often a restore is actually
+   rehearsed. Even "daily DB snapshot, restore rehearsed once, ~1-day RPO / few-hour RTO"
+   counts. Note who does what when it's genuinely down (the bones of a DR runbook).
+9. **Cost & cloud coupling.** Rough cost shape and what drives it as you scale; how coupled
    you are to one provider and what would be painful to move.
 
 ## Output
@@ -51,12 +67,13 @@ Body:
 - **Deploy pipeline** — build → deploy → rollback
 - **Infrastructure as code** approach
 - **Networking, TLS, secrets**
-- **Backups & DR** — what, cadence, RTO/RPO
+- **Resilience** — single points of failure, availability target, failover & degraded-mode behavior
+- **Backups & DR** — what, cadence, retention, restore-test plan, RPO/RTO, recovery responsibilities
 - **Cost & cloud-coupling** notes
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Capture
-provider/lock-in decisions as ADRs if significant. Update `prompts/STEP-index.md`: mark 1.8
-done.
+provider/lock-in and availability/RPO-RTO decisions as ADRs if significant. Update
+`prompts/STEP-index.md`: mark 1.8 done.
 
 ## Next
 Once 1.8 is marked done, the next action is the lowest open STEP-1 substep — normally **1.9 (Environments)**. Tell the user to **start a fresh chat** and run it (*"run session 1.9"*); if the index shows a different next open substep (sessions can be skipped or added), run that instead. See the next-action resolver in `METHOD.md` §10.
