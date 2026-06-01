@@ -150,7 +150,9 @@ fi
 
 # --- 6. Workspace-root hygiene (multi-repo only) ------------------------------
 hdr "6. Workspace-root hygiene (multi-repo only)"
-if [ -e "$ROOT/.git" ]; then
+if [ -n "${CI:-}" ]; then
+  pass "CI environment — root hygiene is a local-workspace check (a single repo is checked out here); skipping"
+elif [ -e "$ROOT/.git" ]; then
   pass "workspace root is itself a repo (mono-repo or the template) — hygiene rule relaxed; skipping"
 else
   allow=" CLAUDE.md AGENTS.md init.sh .git .gitignore .gitattributes .DS_Store .claude Code prompts Upcoming Prompts "
