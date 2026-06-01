@@ -100,7 +100,12 @@ set lives in `templates/architecture-sessions/`.
 
 **Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
 question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
-**Privacy, compliance & data governance** (personal or regulated data).
+**Privacy, compliance & data governance** (personal or regulated data). Each is an **explicit
+include-or-skip decision at kickoff** — the STEP-1 PLAN records a *Conditional sessions
+considered* table marking every one Include (→ substep) or N/A (with a reason), so a skip is a
+recorded choice rather than a silent omission. (A need can also emerge *later* — a project adds
+login or starts collecting regulated data — in which case slot the conditional in then, the
+same way: add its substep/STEP and run it by name.)
 
 ### Running a session  *(Layer 1 — works in any agent)*
 
