@@ -348,8 +348,9 @@ to start a fresh chat for it — clearing context between units is the norm, sin
 lives in files (§4, §5).
 
 > **Shortcut:** `scripts/status.sh` runs this resolver mechanically — it prints where you
-> are, the next action, and the check-in cadence straight from the index. Use it as a quick
-> read; the rules below remain authoritative when a case is ambiguous.
+> are, the next action, and the check-in cadence straight from the index. It's the mechanism a
+> resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
+> authoritative when a case is ambiguous or the script isn't available.
 
 Resolve the next action top-down against the index — the first rule that matches wins:
 
