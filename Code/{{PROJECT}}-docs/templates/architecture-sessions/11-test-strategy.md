@@ -51,13 +51,17 @@ where the pieces have to work *together*.
    high-level stack (1.3 decision 6). Then reconcile `coding-standards/` to that list, **one
    language at a time**:
    - **If a `coding-standards/<lang>.md` already ships** (e.g. `python.md`, `typescript.md`,
-     `go.md`, `rust.md`, `dart.md`): tell the user it exists as a *default starting point*,
+     `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`): tell the user it exists as a *default starting point*,
      and ask them to review it and flag anything they want changed for this project. Apply
      their edits.
    - **If there's no file for that language:** create one by copying the structure of an
      existing standard (e.g. `coding-standards/python.md`) — same sections (naming, layout,
      error handling, logging, testing) — and fill it in with the user.
    - **Prune** the default standards for languages this project won't use.
+   - **`sql.md` and `shell.md` are cross-cutting**, not 1.3 implementation languages: keep `sql.md`
+     if the project uses a relational database, and `shell.md` if it ships shell scripts (CI glue,
+     dev scripts, entrypoints) — regardless of the language list; prune either if it doesn't apply.
+     `sql.md`'s rules are secondary to the language docs where they conflict.
 
 ## Output
 Write `architecture/11-test-strategy.md` (use `templates/architecture-doc.md`). Body:

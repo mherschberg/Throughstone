@@ -1,7 +1,7 @@
 # Rust coding standards — {{PROJECT}}
 
-> **Starting point — overwrite this.** These are sane defaults so code is consistent from
-> day one. Replace anything that doesn't fit your team. If a rule here encodes a real
+> **Starting point — review and customize.** These are sane defaults so code is consistent from
+> day one. Change anything that doesn't fit your team. If a rule here encodes a real
 > decision (a chosen error or logging crate), record the *why* in an ADR and link it from
 > this file.
 
@@ -61,6 +61,20 @@ compiler's built-in lints enforce the case conventions (`clippy` adds more):
 - Levels: `trace`/`debug` dev detail, `info` lifecycle, `warn` recoverable surprises,
   `error` failures needing attention. Initialize the subscriber once in `main`. Never log
   secrets or PII.
+
+## Concurrency
+- Lean on **"fearless concurrency"**: the ownership model plus the `Send`/`Sync` marker traits
+  turn data races into compile errors rather than runtime bugs — let the type system carry the
+  guarantee.
+- **CPU-bound parallelism → threads** (`std::thread`, or `rayon` for data-parallel iterators).
+  **I/O-bound concurrency → async**. Prefer **message passing** (channels — `std::sync::mpsc` or
+  `crossbeam`) over shared state; when you must share, use `Arc<Mutex<T>>` / `Arc<RwLock<T>>`.
+- Async **futures are inert** — they do nothing until `.await`ed, and dropping one cancels it.
+  The standard library ships **no executor**, so you choose a runtime (**`tokio`** is the common
+  default). That choice is viral across the codebase — record it in an ADR.
+- **Don't block inside async tasks** — a blocking or CPU-heavy call stalls the executor. Offload
+  it to `tokio::task::spawn_blocking` or a dedicated thread. Spawned tasks must be `Send + 'static`;
+  move owned data in with `async move` and share it via `Arc`.
 
 ## Testing
 - Standard test framework: `#[cfg(test)] mod tests` with `#[test]` for **unit tests**

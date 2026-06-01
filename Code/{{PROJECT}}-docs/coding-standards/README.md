@@ -6,8 +6,11 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
 
 ## How this works
 - Default standards for common languages ship with Throughstone (e.g. `python.md`,
-  `typescript.md`, `go.md`, `rust.md`, `dart.md`). **They are starting points — overwrite or
-  replace them** to match your team's preferences.
+  `typescript.md`, `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`), plus cross-cutting
+  `sql.md` (SQL in migrations, queries, and embedded in app code) and `shell.md` (Bash scripts —
+  CI glue, dev scripts, entrypoints). **These are starting points — review and
+  customize them** to match your team's preferences. Nothing here is fixed law; treat the
+  shipped contents as a draft to edit, not a rule to obey.
 - You only need the file(s) for the language(s) you actually use. **Session 1.11
   (test strategy)** reconciles this directory to the languages chosen in 1.3: for each
   language it either has you *review* the standard that ships, or *create* a new one from an
@@ -32,12 +35,16 @@ enforces it.
 
 ## Files
 Defaults that ship with Throughstone. Keep the file(s) for the language(s) you use, prune
-the rest, and overwrite the contents to match your team.
+the rest, and customize the contents to match your team.
 
 | Language | File | Status |
 |----------|------|--------|
-| Python | [`python.md`](python.md) | Default — overwrite |
-| TypeScript | [`typescript.md`](typescript.md) | Default — overwrite |
-| Go | [`go.md`](go.md) | Default — overwrite |
-| Rust | [`rust.md`](rust.md) | Default — overwrite |
-| Dart / Flutter | [`dart.md`](dart.md) | Default — overwrite |
+| Python | [`python.md`](python.md) | Default — customize |
+| TypeScript | [`typescript.md`](typescript.md) | Default — customize |
+| Go | [`go.md`](go.md) | Default — customize |
+| Rust | [`rust.md`](rust.md) | Default — customize |
+| Dart / Flutter | [`dart.md`](dart.md) | Default — customize |
+| Java | [`java.md`](java.md) | Default — customize |
+| C# | [`csharp.md`](csharp.md) | Default — customize |
+| SQL (cross-cutting) | [`sql.md`](sql.md) | Default — customize; secondary to the language docs |
+| Shell / Bash (cross-cutting) | [`shell.md`](shell.md) | Default — customize |
