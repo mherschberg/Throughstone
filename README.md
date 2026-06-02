@@ -26,7 +26,9 @@ on the surface but were a mess underneath; security holes are rampant in code sh
 way. Experienced developers know a little upfront planning and a low-overhead, disciplined
 approach to coding goes a long way. This project draws upon decades of building software to
 give AI coders a framework that nudges them toward the practices experienced engineers take
-for granted. I know it works because I've used it on my own projects.
+for granted. I know it works because I've used it on my own projects. Like any tool, it
+doesn’t guarantee success, but it should make it easier to do things right and reduce the
+risk of creating unmaintainable code.
 
 ## Who it's for
 
