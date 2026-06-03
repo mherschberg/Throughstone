@@ -22,7 +22,8 @@ guidance with a conservative update model for bootstrapped projects.
   upstream update catalog; the updater itself stays stateless.
 - **Three-way comparison rules** (`base` / `local` / `upstream`) and classifications:
   already-current, upstream-only, local-only, diverged, untracked, protected, and
-  manifest-invalid.
+  manifest-invalid, with baseline-unknown handling for projects that lack a trustworthy
+  install-time manifest.
 - **Mechanical risk signals** for updater reports, including script changes, git/remote-touching
   commands, CI changes, placeholder handling, status resolver changes, incomplete update groups,
   and dirty affected repos.

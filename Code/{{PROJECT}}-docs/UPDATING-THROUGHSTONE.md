@@ -25,8 +25,8 @@ multiple repos, turn it into a tracked STEP before applying it.
 - **Do not run surprise remote code.** Manual comparison does not require signatures or
   checksums. If future tooling executes downloaded updater code, pin the release/ref and verify
   it using the provenance mechanism that release publishes.
-- **Make rollback boring.** Apply updates only from a clean git state or on the branch required
-  by this guide, and keep the report with the change.
+- **Make rollback boring.** Apply updates only when every affected repo has a clean working
+  tree and index, use the branch required by this guide, and keep the report with the change.
 
 ## 2. File Buckets
 
@@ -54,7 +54,8 @@ catalog.
    from upstream.
 5. For each candidate change, write a short report: target release/ref, files reviewed,
    implication/risk, recommendation, and whether it needs a tracked STEP.
-6. Apply only the reviewed changes the user explicitly approves, then run `scripts/check.sh`.
+6. Apply only the reviewed changes the user explicitly approves, following the apply and STEP
+   rules in §8 and §10, then run `scripts/check.sh`.
 
 Manual mode is slower than tooling, but it is the default path until the manifest and catalog
 described below exist.
@@ -174,11 +175,17 @@ Classify the result:
 | **upstream-only** | `local == base`, upstream changed | Candidate for apply, still review risk. |
 | **local-only** | local changed, upstream unchanged | Keep local; no update needed. |
 | **diverged** | local changed and upstream changed | Manual review or merge; do not auto-apply. |
+| **baseline-unknown** | install-time baseline is missing or cannot be verified | Report only; require manual review before any baseline is adopted or update is applied. |
 | **untracked** | file is not in the manifest | Report only unless explicitly added to manifest. |
 | **protected** | file is project-owned or generated | Never auto-apply. |
 | **manifest-invalid** | checksum/path/ref is missing or inconsistent | Stop automatic actions; require manual comparison. |
 
 Use precise wording: **"unchanged locally"** is acceptable; **"safe to apply"** is not.
+For projects without a trustworthy install-time manifest, do not backfill the manifest by
+treating today's local files as the original base. Mark those files `baseline-unknown` unless
+their local content can be verified against a known installed upstream ref after bootstrap
+normalization, or unless the user explicitly adopts a reviewed file as the new managed
+baseline.
 
 ## 6. Mechanical Risk Signals
 
@@ -224,11 +231,13 @@ Mechanical signals do not replace the catalog; they catch omissions and force re
 Only apply when all of these are true:
 
 - user explicitly requested apply
-- affected repo has a clean git state, or the updater created the branch required below
+- every affected repo has a clean working tree and index before the updater creates or switches
+  branches and before it writes files
 - upstream release/ref was selected; any downloaded executable updater code was verified using
   the release's published provenance mechanism
 - file is not protected
-- file is either `upstream-only` or the user selected a manual merge result
+- file is either `upstream-only` with a verified baseline or the user selected a manual merge
+  result
 - all files in the required update group are included
 
 Branch rule:
