@@ -10,7 +10,8 @@ any project built with it.
 ## [1.4.0] - 2026-06-03
 
 A **scaffold-update process** release: it replaces the old "hand-copy upstream improvements"
-guidance with a conservative update model for bootstrapped projects.
+guidance with a conservative update model for bootstrapped projects, and tightens bootstrap
+and resume behavior before cutting the next tag.
 
 ### Added
 - **Throughstone scaffold update guide** (`UPDATING-THROUGHSTONE.md`): an
@@ -34,6 +35,22 @@ guidance with a conservative update model for bootstrapped projects.
 - The docs hub and template README now make clear that Throughstone improvements do not apply
   automatically after bootstrap, project-owned state is protected, and even script updates need
   review.
+- STEP plans and substep prompts now remind agents to calibrate implementation work to the
+  user's recorded experience level, not only architecture-session interviews.
+- README and website quickstarts now lead with the direct clone flow and clarify GitHub template
+  setup.
+
+### Fixed
+- `status.sh` now ignores HTML-commented example STEP rows so the next-action resolver does not
+  treat documentation examples as real roadmap state.
+- Bootstrap no longer leaves Throughstone's root README and changelog in generated projects.
+- Mono-repo bootstrap now reuses a non-Throughstone root `origin`, while multi-repo workspaces
+  remain detached until the user chooses remotes.
+- Successful bootstrap remotes are recorded in `repos.yml` so `setup-workspace.sh` can clone
+  sibling repos later.
+- The method-check workflow can locate `check.sh` in both multi-repo and mono-repo layouts.
+- Session 1.1's conditional-session summary includes privacy/compliance alongside native app
+  and identity/auth.
 
 ## [1.3.0] - 2026-06-01
 
