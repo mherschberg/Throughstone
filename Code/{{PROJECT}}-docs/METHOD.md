@@ -1,6 +1,6 @@
 # The Method
 
-**Method version: 0.1 (beta)** — still early; expect refinement, especially the collaboration layer.
+**Method version: 0.2 (beta)** — still early; expect refinement, especially the collaboration and scaffold-update layers.
 
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
@@ -371,10 +371,18 @@ concurrent work collision-free the day a second contributor arrives; see §7 and
 This file and the templates/runbooks beside it were **copied into your project** at
 bootstrap — they're yours to edit, and upstream improvements to the Throughstone
 template don't reach you automatically. Chasing them is rarely worth it, but if you ever want
-a later improvement: compare your **Method version** (top of this file) against the upstream
-template and hand-copy in the process changes you want, bumping the version when you do. Pull
-only *process* (this file, `templates/`, `runbooks/`) — never your own `architecture/`,
-`adr/`, `overview.md`, or `prompts/`.
+a later improvement, follow `UPDATING-THROUGHSTONE.md`: it compares the project against an
+upstream Throughstone release, reports what changed, and separates "can be applied without a
+text merge" from "safe." Pull only scaffold/process material — `METHOD.md`, `AGENTS.md`,
+`UPDATING-THROUGHSTONE.md`, `templates/`, `runbooks/`, `coding-standards/`, and `scripts/` —
+and only after review.
+Never auto-update your own `architecture/`, `adr/`, `overview.md`, `prompts/`, application
+code, or files stamped from templates into project repos.
+
+Treat scaffold updates as advisory by default. Scripts can change behavior, templates affect
+future generated work, and process docs can alter how contributors or agents operate. When an
+update touches method rules, agent context, collaboration/numbering, CI, multiple repos, or
+requires manual merge decisions, make it a tracked STEP and apply it on that STEP's branch.
 
 ## 10. What to do next (the next-action resolver)
 

@@ -189,6 +189,19 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 **Start with [`Code/{{PROJECT}}-docs/METHOD.md`](Code/{{PROJECT}}-docs/METHOD.md)** to
 understand how the project is organized.
 
+## Updating after setup
+
+Throughstone is copied into your project at bootstrap; later template improvements do not
+apply automatically. That is intentional: your architecture docs, ADRs, prompts, generated
+repo files, and application code become project-owned state.
+
+If you want to compare a bootstrapped project against a newer Throughstone release, use the
+scaffold update guide in the docs hub:
+[`Code/{{PROJECT}}-docs/UPDATING-THROUGHSTONE.md`](Code/{{PROJECT}}-docs/UPDATING-THROUGHSTONE.md).
+It defines a conservative process: report first, protect project-owned files, review even
+script updates, and apply only verified scaffold/process changes. If updater tooling is added
+later, its project state belongs in `Code/{{PROJECT}}-docs/.throughstone/manifest.yml`.
+
 ## Works with any agent
 
 The methodology, prompts, and templates are plain Markdown + a Bash wizard — nothing is
