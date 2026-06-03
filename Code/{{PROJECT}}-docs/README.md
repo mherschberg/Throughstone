@@ -19,6 +19,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 |------|------|
 | [`METHOD.md`](METHOD.md) | The method — read once before working here. |
 | [`AGENTS.md`](AGENTS.md) | Canonical agent context + the next-action resolver. |
+| [`UPDATING-THROUGHSTONE.md`](UPDATING-THROUGHSTONE.md) | How to compare and selectively adopt newer Throughstone scaffold/process changes after bootstrap. |
 | [`architecture/`](architecture/README.md) | *What* the system is — living, versioned design docs (indexed). |
 | [`adr/`](adr/README.md) | *Why* it's that way — point-in-time decision records (indexed). |
 | [`coding-standards/`](coding-standards/README.md) | Per-language engineering standards (indexed). |

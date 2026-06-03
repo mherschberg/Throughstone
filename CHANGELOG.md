@@ -7,6 +7,34 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [1.4.0] - 2026-06-03
+
+A **scaffold-update process** release: it replaces the old "hand-copy upstream improvements"
+guidance with a conservative update model for bootstrapped projects.
+
+### Added
+- **Throughstone scaffold update guide** (`UPDATING-THROUGHSTONE.md`): an
+  advisory-first process for comparing a project to a newer Throughstone release, classifying
+  files by bucket, reporting risk/implications, and applying only reviewed scaffold/process
+  changes.
+- **Manifest + catalog model** for future updater tooling: project state would live in
+  `Code/{{PROJECT}}-docs/.throughstone/manifest.yml`; release implications would live in an
+  upstream update catalog; the updater itself stays stateless.
+- **Three-way comparison rules** (`base` / `local` / `upstream`) and classifications:
+  already-current, upstream-only, local-only, diverged, untracked, protected, and
+  manifest-invalid, with baseline-unknown handling for projects that lack a trustworthy
+  install-time manifest.
+- **Mechanical risk signals** for updater reports, including script changes, git/remote-touching
+  commands, CI changes, placeholder handling, status resolver changes, incomplete update groups,
+  and dirty affected repos.
+
+### Changed
+- `METHOD.md` is now **Method version 0.2 (beta)** and points scaffold updates to the new
+  guide instead of suggesting direct hand-copying.
+- The docs hub and template README now make clear that Throughstone improvements do not apply
+  automatically after bootstrap, project-owned state is protected, and even script updates need
+  review.
+
 ## [1.3.0] - 2026-06-01
 
 A **coding-standards** release: it reframes the shipped standards as customizable starting
@@ -140,6 +168,8 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[1.4.0]: https://github.com/mherschberg/Throughstone/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/mherschberg/Throughstone/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/mherschberg/Throughstone/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/mherschberg/Throughstone/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/mherschberg/Throughstone/releases/tag/v1.0.0

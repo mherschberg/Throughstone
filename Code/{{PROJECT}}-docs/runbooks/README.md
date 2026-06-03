@@ -2,8 +2,9 @@
 
 Repeatable procedures for the recurring, higher-stakes moments that fall *outside* normal
 STEP work — checking the project's health, shipping a release, responding to an incident,
-vetting a dependency, and collaborating without collisions. Each runbook is the durable
-"how we do this" for one such moment, so the procedure doesn't get improvised under pressure.
+vetting a dependency, rotating secrets, and collaborating without collisions. Each runbook is
+the durable "how we do this" for one such moment, so the procedure doesn't get improvised
+under pressure.
 
 ## Two kinds of runbook
 The method (`../METHOD.md`) draws a line that matters for how you *invoke* each one:
@@ -14,8 +15,9 @@ The method (`../METHOD.md`) draws a line that matters for how you *invoke* each 
   The **check-in** is one; the **incident** follow-up (Parts 2–4) becomes one.
 - **Operational procedure** — *not* a STEP. You run it in the moment by telling the agent the
   trigger phrase below, and it follows the file. The **release**, **dependency** vetting/audit,
-  **secrets rotation**, and the **incident** Part-1 response are these. **Collaboration** is neither — it's reference
-  you read once when a second contributor joins.
+  **secrets rotation**, and the **incident** Part-1 response are these. **Collaboration** is
+  neither — it's reference you read once when a second contributor joins. Throughstone
+  scaffold/method updates live separately at `../UPDATING-THROUGHSTONE.md`.
 
 The shipped runbooks are **defaults you customize** — they deliberately leave CI/CD, release
 versioning, and ecosystem-specific commands to your team's tooling. The *discipline* is the
