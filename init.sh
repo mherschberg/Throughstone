@@ -374,10 +374,50 @@ init_repo() { # dir
     && git branch -M main; )   # pin trunk to main (collaboration.md assumes a 'main' trunk)
   echo "  git repo: $1"
 }
-make_remote() { # dir reponame
+record_registry_remote() { # repo-name remote-url
+  local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
+  [ -f "$reg" ] || return 0
+  REPO="$repo" REMOTE="$remote" perl -0pi -e '
+    my $remote = $ENV{REMOTE};
+    my $qremote = $remote;
+    $qremote =~ s/\\/\\\\/g;
+    $qremote =~ s/"/\\"/g;
+    s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*remote:[^\n]*\n)}
+     {
+       my $block = $1;
+       $block =~ s{^[ \t]*remote:[^\n]*\n}{    remote: "$qremote"\n}m;
+       $block;
+     }ems
+    or
+    s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*type:[^\n]*\n)}
+     {$1 . qq{    remote: "$qremote"\n}}ems;
+  ' "$reg"
+}
+commit_registry_remotes() {
+  local reg="$DOCS/registries/repos.yml"
   [ "$MK_REMOTES" = "1" ] || return 0
-  ( cd "$1" && gh repo create "$OWNER/$2" --private --source=. --remote=origin --push >/dev/null \
-    && echo "  remote: $OWNER/$2" ) || echo "  (skipped remote for $2)"
+  [ "$LAYOUT" = "1" ] || return 0
+  [ -f "$reg" ] || return 0
+  if git -C "$DOCS" diff --quiet -- registries/repos.yml; then
+    return 0
+  fi
+  ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
+  echo "  registry: recorded bootstrap remotes"
+  if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
+    ( cd "$DOCS" && git push -q origin main && echo "  registry: pushed remote updates" ) \
+      || echo "  (could not push registry remote updates; push ${DOCS} manually later)"
+  fi
+}
+make_remote() { # dir reponame
+  MADE_REMOTE_URL=""
+  [ "$MK_REMOTES" = "1" ] || return 0
+  if ( cd "$1" && gh repo create "$OWNER/$2" --private --source=. --remote=origin --push >/dev/null ); then
+    MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
+    echo "  remote: $OWNER/$2"
+    return 0
+  fi
+  echo "  (skipped remote for $2)"
+  return 1
 }
 reuse_root_origin() { # dir
   [ -n "$ROOT_ORIGIN" ] || return 1
@@ -399,8 +439,13 @@ else
   if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
     echo "  note: existing root origin is not reused in multi-repo mode; use --remotes=yes or add remotes to the docs/prompts repos later."
   fi
-  init_repo "$DOCS";     make_remote "$DOCS" "${SLUG}-docs"
-  init_repo "prompts";   make_remote "prompts" "${SLUG}-prompts"
+  init_repo "$DOCS"
+  make_remote "$DOCS" "${SLUG}-docs" \
+    && [ -n "$MADE_REMOTE_URL" ] && record_registry_remote "${SLUG}-docs" "$MADE_REMOTE_URL"
+  init_repo "prompts"
+  make_remote "prompts" "${SLUG}-prompts" \
+    && [ -n "$MADE_REMOTE_URL" ] && record_registry_remote "prompts" "$MADE_REMOTE_URL"
+  commit_registry_remotes
 fi
 
 # --- 7. Done ----------------------------------------------------------------

@@ -6,7 +6,7 @@ checks and the test gate the architecture's test-strategy session calls for (`ar
 
 ## 1. Method integrity — `method-check.yml`  *(ships live; no template step)*
 
-Runs the project "doctor" (`scripts/check.sh`): duplicate STEP/ADR numbers, invalid statuses,
+Runs the project "doctor" (`scripts/check.sh` in the docs hub): duplicate STEP/ADR numbers, invalid statuses,
 architecture-doc frontmatter, ADR registry vs. files on disk, root hygiene. It is **already
 installed** in the docs hub at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a
 **multi-repo** project (the hub is its own repo) it's active the moment you push the hub — nothing
@@ -17,7 +17,8 @@ to place.
   when the whole workspace is checked out (locally and at each check-in).
 - **Mono-repo-for-now:** the workspace root is the single repo, and a workflow nested under
   `Code/<project>-docs/` does **not** trigger there — **copy** `method-check.yml` to the **root**
-  `.github/workflows/`. Then `check.sh` sees `prompts/` too, so the STEP-index checks run as well.
+  `.github/workflows/`. The workflow auto-detects `Code/<project>-docs/scripts/check.sh`;
+  from the root, that script sees `prompts/` too, so the STEP-index checks run as well.
 
 ## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
 
@@ -31,6 +32,6 @@ none. Replace the `Configure me` step (which `exit 1`s) with your real setup + t
 ## Keeping it honest
 
 CI enforces what the method otherwise trusts to discipline. Pair it with the local tools:
-`scripts/status.sh` (where am I / what's next) and `scripts/check.sh` (the same checks CI runs, on
-your machine before you push). The periodic check-in (`runbooks/check-in.md`) already runs
-`check.sh` as its mechanical first pass.
+`scripts/status.sh` (where am I / what's next) and `scripts/check.sh` in the docs hub (the same
+checks CI runs, on your machine before you push). The periodic check-in (`runbooks/check-in.md`)
+already runs `check.sh` as its mechanical first pass.
