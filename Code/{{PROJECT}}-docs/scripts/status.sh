@@ -42,6 +42,16 @@ fi
 # Locate each table's columns from its header, then emit pipe-delimited records.
 parsed="$(awk -F'|' '
   function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+  {
+    if (in_comment) {
+      if ($0 ~ /-->/) in_comment = 0
+      next
+    }
+    if ($0 ~ /<!--/) {
+      if ($0 !~ /-->/) in_comment = 1
+      next
+    }
+  }
   /^[[:space:]]*\|/ {
     isstep = 0; issub = 0
     for (i = 1; i <= NF; i++) {
