@@ -99,6 +99,10 @@ or find any *other* file at the workspace root, **ask whether it belongs in a re
 durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 
 ## Ground rules
+- **Calibrate to the user's experience level.** Before asking user-facing questions or
+  explaining a decision, read `Code/{{PROJECT}}-docs/overview.md` and use the recorded
+  **Your experience level** value as the communication baseline. Keep `overview.md` as the
+  single source of truth; don't duplicate the value into STEP plans or prompts.
 - During the architecture STEP, produce **Markdown docs + ADRs only — no code**.
 - Significant decisions become **ADRs** (`Code/{{PROJECT}}-docs/templates/adr.md`); never
   rewrite an accepted ADR's decision — supersede it or append an amendment.

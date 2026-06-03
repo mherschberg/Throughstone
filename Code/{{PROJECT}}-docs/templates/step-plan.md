@@ -15,6 +15,8 @@
 ## Decisions already locked
 <!-- Decisions from prior STEPs/ADRs that this STEP must respect. Reference by ADR number
      or architecture doc. Carrying these forward keeps a shared mental model. -->
+- `overview.md` — read **Your experience level** before user-facing questions or
+  explanations; keep that file as the single source of truth for the value.
 - ADR-XXXX — …
 - architecture/NN-… — …
 
@@ -50,6 +52,9 @@
 ## Ground rules
 <!-- The working agreement for this STEP. e.g. "no code in this STEP", commit discipline,
      what 'done' means for a substep, review gates. -->
+- **Calibrate communication from `overview.md`.** Substep prompts should read the recorded
+  **Your experience level** and adjust explanations/questions accordingly; don't copy the
+  value into this PLAN.
 - **Tests ship with the code.** Every substep that writes or changes code also writes the
   tests for it and runs the relevant tests before it's done (see
   `templates/substep-prompt.md`). Override per substep only with a stated reason.

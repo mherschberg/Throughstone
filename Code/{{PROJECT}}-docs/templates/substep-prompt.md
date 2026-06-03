@@ -15,6 +15,8 @@
 ## Read these first
 <!-- Start from the main docs this substep depends on, then follow the indexes to find
      anything else relevant — don't try to read everything. The indexes point the way:
+       - overview.md                — project brief + user's experience level; calibrate
+                                      user-facing explanations/questions to it
        - architecture/README.md     — the architecture docs (what the system is)
        - adr/README.md              — the decision records (why it's that way)
        - coding-standards/README.md — the per-language standards
@@ -24,6 +26,7 @@
      changes an API surface (an endpoint, a request/response shape), include
      coding-standards/api.md so the house style — timestamps, pagination, errors, versioning —
      stays consistent across endpoints. -->
+- overview.md
 - architecture/NN-…
 - ADR-XXXX-…
 - coding-standards/…  (include coding-standards/api.md for API-touching substeps)
