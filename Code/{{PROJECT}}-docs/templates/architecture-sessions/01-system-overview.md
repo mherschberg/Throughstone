@@ -94,9 +94,10 @@ already marked skipped/N/A):
 - **1.12 Glossary** — pinning down the precise meaning of key terms
 - **1.13 Cross-cutting review** — a final pass checking it all hangs together
 
-Mention that two **conditional** sessions slot in by name when they apply — **identity & auth**
-(if there are user accounts / access control) and **native app** (if there's a mobile or
-desktop app). The roadmap session (1.2) and the index confirm which sessions are in play.
+Mention that **conditional** sessions slot in by name when they apply — **identity & auth**
+(if there are user accounts / access control), **privacy/compliance** (if there's personal or
+regulated data), and **native app** (if there's a mobile or desktop app). The roadmap session
+(1.2) and the index confirm which sessions are in play.
 
 Then point them at the next action — normally **1.2 (Phasing & roadmap)**. Tell the user to
 **start a fresh chat** and run it (*"run session 1.2"*); if the index shows a different next
