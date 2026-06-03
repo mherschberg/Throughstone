@@ -97,16 +97,19 @@ things keep them approachable whatever your background:
 1. **Get the files into a folder named for your project.** The folder you download into
    **becomes your project's workspace root** — `init.sh` never renames it — so give it the
    name you want the project to have (e.g. `acme` or `MyCoolMobileApp`, not `Throughstone`). Two ways:
-   - **GitHub "Use this template" ▸ Create a new repository** (recommended — clean copy, no
-     template history). Name the new repo for your project, then clone it into a folder of
+   - **Clone this repo directly** into a project-named folder (e.g. `acme`):
+     ```bash
+     git clone https://github.com/mherschberg/Throughstone.git acme
+     cd acme
+     ```
+   - **Or use GitHub "Use this template" ▸ Create a new repository.** This is mainly useful
+     if you're choosing **mono-repo for now**; `init.sh` will reuse that repo's `origin`.
+     In the default **multi-repo** setup, the root is only a workspace shell, so the template
+     repo is just a download vehicle — use `--remotes=yes` or add remotes later for the docs
+     and prompts repos. Name the new repo for your project, then clone it into a folder of
      that name (e.g. `acme`):
      ```bash
      git clone <your-new-repo-url> acme
-     cd acme
-     ```
-   - **Or clone this repo directly** into a project-named folder (e.g. `acme`):
-     ```bash
-     git clone https://github.com/mherschberg/Throughstone.git acme
      cd acme
      ```
    Everything from here runs *inside* this folder. After setup it holds your repo(s); the

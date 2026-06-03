@@ -221,6 +221,16 @@ if [ "$COLLAB" = "2" ]; then
   fi
 fi
 
+# Remember whether this download came from an existing project repo before we detach it.
+# Mono-repo mode can reuse that origin; multi-repo mode cannot because the root stops being
+# the project repo.
+ROOT_ORIGIN="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
+ROOT_ORIGIN_IS_THROUGHSTONE=0
+case "$ROOT_ORIGIN" in
+  *github.com[:/]mherschberg/Throughstone|*github.com[:/]mherschberg/Throughstone.git)
+    ROOT_ORIGIN_IS_THROUGHSTONE=1 ;;
+esac
+
 # GitHub remotes (needs gh). Default off; --remotes=yes requires gh and an owner.
 MK_REMOTES=0; OWNER=""
 if [ -n "$REMOTES_IN" ]; then
@@ -235,7 +245,13 @@ if [ -n "$REMOTES_IN" ]; then
 elif [ "$NONINTERACTIVE" != "1" ] && command -v gh >/dev/null 2>&1 && yesno "Create GitHub remotes now (via gh)?"; then
   MK_REMOTES=1
 fi
-[ "$MK_REMOTES" = "1" ] && OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+if [ "$MK_REMOTES" = "1" ]; then
+  if [ "$LAYOUT" = "2" ] && [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
+    OWNER=""
+  else
+    OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+  fi
+fi
 
 # --- 2. Untether from the template origin -----------------------------------
 say "Detaching from the template's git history..."
@@ -245,12 +261,12 @@ rm -rf "$ROOT/.git"
 # stay under it — BSD-3 clause 1 requires retaining the notice — so we DON'T delete it; it's
 # relocated into the docs hub as LICENSE-THROUGHSTONE once the hub is renamed (step 3). Your own
 # code is covered by the license you choose, stamped into each repo (step 6).
-# README.md is Throughstone's own front-door (it documents init.sh and "Use this template").
-# Once you've bootstrapped it's stale and template-specific, and in multi-repo mode it would be
-# a stray file at the non-repo workspace root, against the hygiene rule (METHOD.md §7). Drop it;
-# your project's context lives in the docs hub. (Mono-repo: add a project README yourself if you
-# want one.)
-rm -f "$ROOT/README.md"
+# README.md is Throughstone's own front-door (it documents init.sh and "Use this template"),
+# and CHANGELOG.md is Throughstone's release history. Once you've bootstrapped they're stale and
+# template-specific, and in multi-repo mode they would be stray files at the non-repo workspace
+# root, against the hygiene rule (METHOD.md §7). Drop them; your project's context lives in the
+# docs hub. (Mono-repo: add project versions yourself if you want them.)
+rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md"
 # The community/health files (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, TRADEMARK) describe the
 # Throughstone *template* itself — its contribution policy, its trademark, its security contact.
 # They must not carry into your project (e.g. they'd leak the maintainer's contact and assert
@@ -363,12 +379,26 @@ make_remote() { # dir reponame
   ( cd "$1" && gh repo create "$OWNER/$2" --private --source=. --remote=origin --push >/dev/null \
     && echo "  remote: $OWNER/$2" ) || echo "  (skipped remote for $2)"
 }
+reuse_root_origin() { # dir
+  [ -n "$ROOT_ORIGIN" ] || return 1
+  [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] || return 1
+  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
+  echo "  remote: reused existing origin ($ROOT_ORIGIN)"
+  if [ "$MK_REMOTES" = "1" ]; then
+    ( cd "$1" && git push -u origin main >/dev/null \
+      && echo "  pushed: $ROOT_ORIGIN" ) || echo "  (could not push existing origin; push manually later)"
+  fi
+  return 0
+}
 
 say "Initialising git..."
 if [ "$LAYOUT" = "2" ]; then
   init_repo "."
-  make_remote "." "$SLUG"
+  reuse_root_origin "." || make_remote "." "$SLUG"
 else
+  if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
+    echo "  note: existing root origin is not reused in multi-repo mode; use --remotes=yes or add remotes to the docs/prompts repos later."
+  fi
   init_repo "$DOCS";     make_remote "$DOCS" "${SLUG}-docs"
   init_repo "prompts";   make_remote "prompts" "${SLUG}-prompts"
 fi
