@@ -9,7 +9,7 @@
 >
 > Reads **all** of `architecture/*` (especially the Phasing & Roadmap doc
 > `architecture/*-phasing-roadmap.md`, the Architecture Overview doc
-> `architecture/*-architecture-overview.md`, and the Interface Contracts doc
+> `architecture/*-architecture-overview.md`, and the Interface Contracts architecture doc
 > `architecture/*-interface-contracts.md`), `adr/*`,
 > `prompts/STEP-index.md`, and — for multi-repo
 > projects — `registries/repos.yml`.
@@ -49,8 +49,8 @@ architecture changes and the remaining STEPs need re-planning.
    `*-architecture-overview` / `registries/repos.yml`)? The first implementation STEP is
    almost always *"scaffold the repos and the skeleton"* — create each code repo from
    `templates/repo-readme.md`, wire up the chosen stack, CI, and the environments/secrets
-   baseline (Environments doc), plus any contract artifact placeholders or repo-local contract files
-   named in the Interface Contracts doc — including copying `templates/env-example.txt` into each repo as its
+   baseline (Environments doc), plus any interface contract artifact placeholders or repo-local contract files
+   named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
    the `.env` / `.secrets/` secret-file block so local secrets never get committed). **Each
@@ -100,4 +100,5 @@ lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prom
 (`METHOD.md` §10).
 
 Start by reading `architecture/*-phasing-roadmap.md`, `architecture/*-architecture-overview.md`,
-and `architecture/*-interface-contracts.md`, then work through the points above with the user.
+and the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`), then
+work through the points above with the user.

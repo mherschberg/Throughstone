@@ -1,7 +1,8 @@
 # {{PROJECT}} - Interface Contracts (Session 1.11)
 
 > **How to run:** Tell your agent *"run session 1.11"*. It interviews you one decision at a
-> time, then writes `architecture/11-interface-contracts.md` and updates `prompts/STEP-index.md`.
+> time, then writes the Interface Contracts architecture doc
+> (`architecture/11-interface-contracts.md`) and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
 > the Data Model doc (`architecture/*-data-model.md`), the Security & Threat Model doc
 > (`architecture/*-security-threat-model.md`), the Environments doc
@@ -17,6 +18,12 @@
 With the components, data, security, environments, and observability choices in place, we'll
 decide how system boundaries are specified and kept in sync so consumers build against a clear
 contract instead of guessing from prose or code.
+
+Terminology: **Interface Contracts** is the Session 1.11 process name;
+`architecture/11-interface-contracts.md` is the **Interface Contracts architecture doc** it
+produces; an **interface contract artifact** is a boundary-specific spec or schema named by
+that doc, such as OpenAPI, GraphQL, protobuf, AsyncAPI, JSON Schema, or a public package
+interface.
 
 ## Why this session matters
 Interfaces are where separately-built pieces most often drift apart: an endpoint changes shape,
@@ -37,7 +44,7 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
    consumers, webhooks, CLI interfaces, library/package public APIs, and data import/export
    formats. Separate **owned interfaces** from third-party APIs this project only consumes.
 2. **Contract level per boundary.** For each owned boundary, decide whether it needs a formal
-   contract artifact, a lightweight Markdown/interface note, or an explicit "informal for now"
+   interface contract artifact, a lightweight Markdown/interface note, or an explicit "informal for now"
    decision. Tiny single-component projects can record that no formal contract is needed yet.
 3. **Contract style per boundary.** Choose the style that fits each formal boundary: REST +
    OpenAPI, GraphQL schema, gRPC/protobuf, AsyncAPI/event schema, JSON Schema, typed package
@@ -46,7 +53,7 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
    design-first/manual artifact, code-first/generated from annotations or types, hybrid with
    generated output checked in, or explicitly deferred. Name both the **authoring source of
    truth** and the **consumer-facing contract of record**.
-5. **Artifact locations.** Decide where contract artifacts or planned artifacts live: owning
+5. **Artifact locations.** Decide where interface contract artifacts or planned artifacts live: owning
    repo, docs hub, shared contracts package/repo, per-service `contracts/`, generated docs, or
    a placeholder to create during repo scaffolding when the code repo does not exist yet.
 6. **Versioning and compatibility.** Decide URL/path/header versioning, schema/event versioning,
@@ -70,10 +77,11 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
     compatibility checks, and what must pass before merge.
 12. **Ownership and update rule.** Decide which component/team owns each contract, who reviews
     breaking changes, and the rule for implementation STEPs: any API/interface-changing substep
-    updates the contract artifact, contract tests, and related README links before it is done.
+    updates the interface contract artifact, contract tests, and related README links before it is done.
 
 ## Output
-Write `architecture/11-interface-contracts.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/11-interface-contracts.md` — the Interface Contracts architecture doc
+(use `templates/architecture-doc.md`). Body:
 - **Boundary contract inventory** - boundary | owner | contract level | style | status
 - **Authoring source and contract of record** - per formal boundary
 - **Artifact locations** - including repo-scaffolding placeholders where repos do not exist yet

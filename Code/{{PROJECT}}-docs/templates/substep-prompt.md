@@ -25,7 +25,8 @@
      repo this substep touches, read before you work in it. For any substep that adds or
      changes an API/interface surface (an endpoint, request/response shape, event, webhook,
      CLI contract, library public API, or import/export format), include
-     architecture/*-interface-contracts.md and any contract artifact it names; include
+     the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`) and any
+     interface contract artifact it names; include
      coding-standards/api.md for HTTP/REST endpoints so the house style — timestamps,
      pagination, errors, versioning — stays consistent across endpoints. -->
 - overview.md
@@ -79,7 +80,8 @@ just change the code:
   or coining a domain term, can outdate a doc that's still "correct." Update whatever's now
   stale: the architecture overview (`architecture/*-architecture-overview.md`) and `registries/repos.yml` for new
   components/repos (a brand-new repo also gets a stamped **README whose Overview explains what
-  it is**); the **interface contract artifact** named in `architecture/*-interface-contracts.md` when you add or
+  it is**); the **interface contract artifact** named in the Interface Contracts architecture doc
+  (`architecture/*-interface-contracts.md`) when you add or
   change an endpoint, event, webhook, CLI contract, library public API, or import/export format;
   the repo **README** when setup/run/test changes; the glossary (`architecture/*-glossary.md`) for new
   terms.

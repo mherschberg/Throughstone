@@ -4,7 +4,7 @@
 > time, then writes `architecture/12-test-strategy.md` and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
 > the Data Model doc (`architecture/*-data-model.md`), the Environments doc
-> (`architecture/*-environments.md`), and the Interface Contracts doc
+> (`architecture/*-environments.md`), and the Interface Contracts architecture doc
 > (`architecture/*-interface-contracts.md`) first — plus any conditional-session
 > doc that adds test surface (e.g. identity-auth for authn/authz flows, privacy-compliance for
 > data-handling/retention, native-app for device/platform testing, or one added later), if it's
@@ -49,7 +49,7 @@ where the pieces have to work *together*.
    type checks, build). Keep the gate fast enough that people don't route around it. A starter
    wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
    `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
-   Include the contract-validation gates chosen in the Interface Contracts doc where they apply.
+   Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
 7. **Performance / load testing.** Whether and when load tests run (ties to the targets in
    1.5).
 8. **Coding standards per language.** Confirm the implementation language(s) from the
@@ -68,7 +68,7 @@ where the pieces have to work *together*.
      (CI glue, dev scripts, entrypoints), and `api.md` if any boundary from the Architecture Overview doc is an HTTP/REST API
      it exposes or consumes — regardless of the language list; prune any that don't apply.
      `sql.md`'s rules are secondary to the language docs where they conflict; `api.md` is the house
-     style that complements the HTTP/REST contract artifacts and policy from the Interface Contracts doc.
+     style that complements the HTTP/REST interface contract artifacts and policy from the Interface Contracts architecture doc.
 
 ## Output
 Write `architecture/12-test-strategy.md` (use `templates/architecture-doc.md`). Body:

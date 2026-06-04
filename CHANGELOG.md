@@ -70,7 +70,7 @@ the method so each surfaces at the right moment.
   REST/HTTP APIs — resource naming, methods/status codes, RFC 3339 UTC timestamps, money as
   integer minor units, RFC 9457 problem-details errors, idempotency, and rate limits — with
   three per-project forks flagged (field casing, pagination, versioning), each with an ADR
-  pointer. Complements each API's versioned contract artifact from the Interface Contracts session.
+  pointer. Complements each API's versioned interface contract artifact from the Interface Contracts session.
 
 ### Expanded per-language coverage
 - **Java** (`java.md`) and **C#** (`csharp.md`) standards added.

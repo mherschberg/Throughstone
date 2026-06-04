@@ -100,7 +100,7 @@ set lives in `templates/architecture-sessions/`.
 | 1.8 | Infrastructure & deployment | `architecture/08-*` |
 | 1.9 | Environments *(sandbox is a question inside)* | `architecture/09-*` |
 | 1.10 | Observability | `architecture/10-*` |
-| 1.11 | Interface contracts | `architecture/11-*` |
+| 1.11 | Interface Contracts | `architecture/11-*` |
 | 1.12 | Test strategy | `architecture/12-*` |
 | 1.13 | Glossary | `architecture/13-*` |
 | 1.14 | Cross-cutting review | review doc |

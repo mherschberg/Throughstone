@@ -60,7 +60,7 @@ Write `architecture/03-architecture-overview.md` (use `templates/architecture-do
 - **Client surfaces** (the recorded answer + what it gates)
 - **Component diagram** (ASCII) + a **component table**: name | responsibility | tech
 - **Boundaries & contract candidates** table — boundary | what crosses it | sync/async |
-  data owner | likely contract style | notes for Interface Contracts
+  data owner | likely contract style | notes for the Interface Contracts session
 - **Key flows** (numbered walk-throughs)
 - **Build vs. buy** notes
 

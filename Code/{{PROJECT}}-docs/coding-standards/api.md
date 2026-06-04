@@ -4,8 +4,9 @@
 > looks the same from day one. Change anything that doesn't fit your team — a few choices below are
 > flagged as genuine forks to settle per project.
 >
-> **Cross-cutting, and complementary to the contract artifact.** The Interface Contracts session/doc
-> decides which API/interface boundaries need formal contracts, where those artifacts live, and which
+> **Cross-cutting, and complementary to the interface contract artifact.** The Interface Contracts
+> session produces the Interface Contracts architecture doc, which decides which API/interface
+> boundaries need formal contracts, where those artifacts live, and which
 > artifact is the consumer-facing contract of record. That artifact pins *one* API's shape; this
 > file pins the **house style every HTTP/REST API follows** — timestamps, pagination, errors,
 > naming, versioning — so endpoints stay consistent no

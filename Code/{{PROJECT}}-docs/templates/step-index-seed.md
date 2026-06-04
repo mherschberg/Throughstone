@@ -54,7 +54,7 @@ worked, and completed.
 | 1.8 | Infrastructure & deployment | Planned | `architecture/08-…` |
 | 1.9 | Environments | Planned | `architecture/09-…` |
 | 1.10 | Observability | Planned | `architecture/10-…` |
-| 1.11 | Interface contracts | Planned | `architecture/11-…` |
+| 1.11 | Interface Contracts | Planned | `architecture/11-…` |
 | 1.12 | Test strategy | Planned | `architecture/12-…` |
 | 1.13 | Glossary | Planned | `architecture/13-…` |
 | 1.14 | Cross-cutting review | Planned | review doc |

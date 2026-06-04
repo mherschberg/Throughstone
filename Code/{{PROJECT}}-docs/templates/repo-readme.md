@@ -39,8 +39,8 @@
 <!-- How to start it locally, and how to verify it's up (health check, sample request). -->
 
 ## API / interface
-<!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the contract of
-     record named by `{{PROJECT}}-docs/architecture/*-interface-contracts.md`, with a short
+<!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the interface
+     contract of record named by `{{PROJECT}}-docs/architecture/*-interface-contracts.md`, with a short
      endpoint table for orientation — don't duplicate the spec here. For a library: the
      public surface. Skip if not applicable. -->
 
