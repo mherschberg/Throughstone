@@ -11,8 +11,8 @@
 > actual commands and environments; the *discipline* below — a rollback plan **before** you
 > deploy, reversible migrations, a watch window — is the part worth keeping whatever your
 > pipeline. The mechanism it executes was designed in
-> `architecture/08-infrastructure-deployment.md` (deploy pipeline + rollback) and
-> `architecture/09-environments.md`; point at those for the specifics.
+> `architecture/*-infrastructure-deployment.md` (deploy pipeline + rollback) and
+> `architecture/*-environments.md`; point at those for the specifics.
 
 ## Why this runbook exists
 A deploy is the riskiest routine thing a project does — it's where a green test suite still
@@ -33,17 +33,18 @@ if it goes bad.
       shape, deploy, backfill, switch, drop the old in a *later* release). A deploy you can roll
       back sitting on a schema you can't is a trap — write down the down-path explicitly.
 - [ ] **Config & secrets for the target environment are in place** — from the secrets manager,
-      not a checked-in file (see `architecture/06-security-threat-model.md` and `08`). Rotating a
+      not a checked-in file (see `architecture/*-security-threat-model.md` and
+      `architecture/*-infrastructure-deployment.md`). Rotating a
       credential rather than just consuming one? That's its own procedure —
       `runbooks/secrets-rotation.md`.
 - [ ] **Rollback plan confirmed.** Write down, now, exactly how you'd undo this release (Part 4)
       and what would make you do it. If you can't state it, you're not ready to deploy.
 
 ## Part 2 — Deploy
-- [ ] **Ship to staging / pre-prod first** (`architecture/09-environments.md`) and **smoke-test**
+- [ ] **Ship to staging / pre-prod first** (`architecture/*-environments.md`) and **smoke-test**
       the critical paths there before production. Skip only if the project has no such
       environment — and say so.
-- [ ] **Deploy to production** via the pipeline from `architecture/08`. Where the infra supports
+- [ ] **Deploy to production** via the pipeline from `architecture/*-infrastructure-deployment.md`. Where the infra supports
       it, prefer a strategy that makes rollback cheap (blue-green / rolling / canary /
       feature-flagged).
 - [ ] **Record it** — what version went out, to which environment, when, and by whom. It's the
@@ -51,7 +52,7 @@ if it goes bad.
 
 ## Part 3 — Verify (don't walk away)
 - [ ] **Smoke-test the critical user paths** in production.
-- [ ] **Watch observability** (`architecture/10-observability.md`) for a defined window — error
+- [ ] **Watch observability** (`architecture/*-observability.md`) for a defined window — error
       rates, latency, and the alerts you set up — before calling it done. A deploy isn't "done"
       at deploy; it's done once it's stayed healthy for a bit.
 - [ ] **Health / uptime checks green.**

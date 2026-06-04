@@ -55,7 +55,7 @@ No code in this session. The output is a Markdown doc.
 7. **Assumptions.** What are you taking as given that, if wrong, would change the design?
    (Expected scale, available infra, third-party reliability, who owns what.)
 8. **Key risks & open questions.** What's most likely to go wrong or is still unknown?
-   These feed the roadmap (1.2) and the other sessions.
+   These feed Phasing & Roadmap and the other sessions.
 
 ## Output
 Write `architecture/01-system-overview.md` using
@@ -77,31 +77,20 @@ consider capturing it as an ADR using `templates/adr.md`.
 
 ## Next
 Once 1.1 is marked done, **first give the user a quick map of what's ahead** so they have a
-sense of the scope before continuing. Show this list of the remaining architecture sessions
-(each is its own short, focused chat; some may not apply to this project — note any the plan
-already marked skipped/N/A):
-
-- **1.2 Phasing & roadmap** — what the MVP includes vs. what's deferred to later phases
-- **1.3 Architecture overview** — the system's main components and how they connect
-- **1.4 Data model** — the key data, who owns it, retention, what's sensitive
-- **1.5 Scaling & performance** — making sure the MVP won't block later growth
-- **1.6 Security & threat model** — what could go wrong and the protections needed now
-- **1.7 UI / design system** — visual style and reusable UI building blocks (skip if no UI)
-- **1.8 Infrastructure & deployment** — where it runs and how code gets there
-- **1.9 Environments** — dev vs. prod and how config/secrets differ
-- **1.10 Observability** — what to log, measure, and alert on
-- **1.11 Test strategy** — what tests you'll write and what gates a merge
-- **1.12 Glossary** — pinning down the precise meaning of key terms
-- **1.13 Cross-cutting review** — a final pass checking it all hangs together
+sense of the scope before continuing. Build that map from the remaining rows in the
+**STEP-1 substeps (architecture sessions)** table in `prompts/STEP-index.md`, not from a
+baked-in list here, so added or reordered sessions stay visible automatically. For each
+remaining row, give the substep number, session label, and a plain-language phrase for what
+it decides; note any rows already marked skipped/N/A.
 
 Mention that **conditional** sessions slot in by name when they apply — **identity & auth**
 (if there are user accounts / access control), **privacy/compliance** (if there's personal or
 regulated data), and **native app** (if there's a mobile or desktop app). The roadmap session
-(1.2) and the index confirm which sessions are in play.
+and the index confirm which sessions are in play.
 
-Then point them at the next action — normally **1.2 (Phasing & roadmap)**. Tell the user to
-**start a fresh chat** and run it (*"run session 1.2"*); if the index shows a different next
-open substep (sessions can be skipped or added), run that instead. See the next-action
+Then point them at the next action: the lowest open STEP-1 substep in the index. Tell the
+user to **start a fresh chat** and run that substep (for a numbered core session, *"run
+session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
 resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

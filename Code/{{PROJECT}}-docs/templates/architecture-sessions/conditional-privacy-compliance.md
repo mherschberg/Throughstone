@@ -9,13 +9,14 @@
 > (number assigned in the index) and updates `prompts/STEP-index.md`.
 > **Two separate numbers:** the *substep* number (e.g. `1.6b`) marks its place in STEP-1; the
 > *doc file* number (`NN`) is the next free number **above the reserved core-doc block** — the
-> standard sessions reserve a contiguous block at the front (today `01–12`; the current core set
-> is the session table in `METHOD.md` §4), and each conditional takes the next number above that
-> block (today `13`, then `14`, … — or the next free one if another conditional already claimed
-> it) — **not** the lowest unused number. (This session may run early, before the later core docs
+> standard sessions reserve a contiguous block at the front (the current core set is the session
+> table in `METHOD.md` §4), and each conditional takes the next number above that block, or the
+> next free number above it if another conditional already claimed the first one — **not** the
+> lowest unused number. (This session may run early, before the later core docs
 > exist; still take the first number above the core block, so a not-yet-run core session keeps
 > its own reserved slot without a clash.) The substep number and the doc number don't have to match.
-> Reads `overview.md` and `architecture/04-*` (data model) and `06-*` (security) first.
+> Reads `overview.md`, the Data Model doc (`architecture/*-data-model.md`), and
+> the Security & Threat Model doc (`architecture/*-security-threat-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -27,7 +28,7 @@ and regulated data lawfully and responsibly** — which rules apply, what data y
 why, how long you keep it, and how you'll honor the rights people have over their own data.
 
 ## Why this session matters
-The security session (1.6) asks "how do we keep attackers *out*?" This one asks a different
+The Security & Threat Model session asks "how do we keep attackers *out*?" This one asks a different
 question: "are we handling people's data *lawfully and responsibly*?" — and that's where the
 fines, the lawsuits, and the trust damage come from. The common mistake is treating privacy
 as a checkbox bolted on before launch; in reality it's an *architecture* decision, because
@@ -39,8 +40,8 @@ deletion/export requests **now** keeps compliance a design property rather than 
 - One decision at a time; **wait** for answers.
 - Recommend the **least data, least retention, clearest purpose** option that meets the need,
   and flag what each choice obligates you to.
-- Keep it consistent with the data model (1.4) and threat model (1.6); flag where a choice
-  ties to infrastructure/residency (1.8).
+- Keep it consistent with the Data Model and Security & Threat Model docs; flag where a choice
+  ties to the Infrastructure & Deployment doc / residency.
 - This is **not legal advice** — it produces an engineering record of intent and surfaces
   where a lawyer or DPO should confirm. Say so when a question turns on a legal judgment.
 
@@ -51,7 +52,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
    from this. (When it turns on a legal judgment, flag it for a lawyer rather than guessing.)
 2. **Personal-data inventory.** What categories of personal data you collect, where each
    lives, and how sensitive it is (ordinary PII vs. special-category: health, financial,
-   biometric, children's). This is the privacy lens on the data model (1.4) — you can't
+   biometric, children's). This is the privacy lens on the Data Model doc — you can't
    govern what you haven't named. A simple table is the deliverable.
 3. **Lawful basis & consent.** For each category, *why* you're permitted to process it
    (consent, contract, legitimate interest, legal obligation…), and — where it's consent —
@@ -61,14 +62,14 @@ deletion/export requests **now** keeps compliance a design property rather than 
    and for what stated purpose? Dropping a field now is the cheapest control there is.
 5. **Retention & deletion.** How long each category is kept, and how it's actually deleted
    when the period ends and on account closure (including backups and downstream copies).
-   This sharpens the retention answer from 1.4 with the legal *must-delete* angle.
+   This sharpens the retention answer from the Data Model doc with the legal *must-delete* angle.
 6. **Data-subject rights.** How you'll satisfy access, export/portability, correction, and
    deletion ("right to be forgotten") requests — as an *operational process*, not a promise.
    Manual is fine for an MVP **if it's written down** and someone owns it.
 7. **Data residency & sub-processors.** Where data physically lives (residency/sovereignty
    constraints) and which third parties (analytics, hosting, payment, email, AI APIs) receive
    personal data — your sub-processors — plus a transfer mechanism if data crosses borders.
-   Ties to infrastructure (1.8).
+   Ties to the Infrastructure & Deployment doc.
 8. **Governance & accountability.** Who owns privacy, where the record-of-processing / data
    map lives and stays current, your **breach-notification** obligations (who you must notify
    and how fast), and the plan for a public **privacy policy** (and a DPA where required).
@@ -81,10 +82,10 @@ the **personal-data inventory** table, since the rest follows from them. Fill th
 Summary**, record **Open Questions** (flag any awaiting legal/DPO confirmation), start the
 **Version Log**. Capture significant choices as **ADRs** — applicable regimes, data
 residency, retention periods, and any consent/sub-processor decision that consumers depend on.
-Cross-check retention against the data model (1.4) and residency against infrastructure (1.8),
+Cross-check retention against the Data Model doc and residency against the Infrastructure & Deployment doc,
 and note any updates those docs need. Update `prompts/STEP-index.md`: mark this substep done.
 
 ## Next
-Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the 1.13 review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
+Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the cross-cutting review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

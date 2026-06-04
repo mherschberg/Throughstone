@@ -69,7 +69,8 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
   supersedes it, or append a dated amendment. There's an index at `adr/README.md`.
 
 Other folders in the hub: `coding-standards/` (per-language plus cross-cutting — `sql.md`,
-`shell.md`, `api.md`; defaults ship for common languages, and session 1.11 reconciles them to
+`shell.md`, `api.md`; defaults ship for common languages, and the Test Strategy session
+reconciles them to
 the stack you pick — review what's there, add what's missing, prune the rest), `runbooks/`
 (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
@@ -99,9 +100,10 @@ set lives in `templates/architecture-sessions/`.
 | 1.8 | Infrastructure & deployment | `architecture/08-*` |
 | 1.9 | Environments *(sandbox is a question inside)* | `architecture/09-*` |
 | 1.10 | Observability | `architecture/10-*` |
-| 1.11 | Test strategy | `architecture/11-*` |
-| 1.12 | Glossary | `architecture/12-*` |
-| 1.13 | Cross-cutting review | review doc |
+| 1.11 | Interface contracts | `architecture/11-*` |
+| 1.12 | Test strategy | `architecture/12-*` |
+| 1.13 | Glossary | `architecture/13-*` |
+| 1.14 | Cross-cutting review | review doc |
 
 **Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
 question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
@@ -151,8 +153,7 @@ substeps (`1.6c`, `1.7b`) and never renumber the standard sessions. To add one:
 3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable by
    name, and record it in the STEP-1 PLAN's *Conditional sessions considered* table.
 
-`status.sh`, the glossary (1.12), and the cross-cutting review (1.13) all pick it up with no
-further edits.
+`status.sh`, the glossary, and the cross-cutting review all pick it up with no further edits.
 
 **A standard (numbered) session costs a renumber, because the cross-cutting review is always
 last.** A new standard session inserts *before* the review, which shifts the review — and
@@ -160,8 +161,8 @@ anything after the insertion point — up by one. To add one:
 1. Write `templates/architecture-sessions/NN-<topic>.md`; its doc number is the next in the core
    block. Append it right before the review to minimize the shift.
 2. Renumber the review (and any shifted sessions): rename the file
-   (`13-cross-cutting-review.md` → `14-…`) and update every literal reference to the old number —
-   all findable with `grep -rn '1\.13'`: the registry (§4 table, the §10 resolver,
+   (`14-cross-cutting-review.md` → `15-…`) and update every literal reference to the old number —
+   all findable with `grep -rn '1\.14'`: the registry (§4 table, the §10 resolver,
    `templates/step-index-seed.md`), the doc index (`architecture/README.md`), and the prose
    pointers (`step-plan.md`, `planning-session.md`, `BOOTSTRAP-PROMPT.md`, `01-system-overview.md`,
    the glossary's *Next*, the review file's own header, and each conditional's closing line).
@@ -315,7 +316,7 @@ any *other* file appears, ask whether it belongs in a repo (usually the docs hub
 this file) write paths **relative to the workspace root** — `Code/{{PROJECT}}-docs/architecture/…`,
 `prompts/STEP-index.md`. The exception is the **session and template files** under
 `templates/`: because they live and operate inside the docs hub, they write hub-local paths
-(`architecture/04-*.md`, `adr/`, `overview.md`) relative to the hub. Either way, a reference
+(`architecture/*-data-model.md`, `adr/`, `overview.md`) relative to the hub. Either way, a reference
 that **crosses into another repo is always written in full** — most notably
 `prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written bare.
 
@@ -406,9 +407,10 @@ Resolve the next action top-down against the index — the first rule that match
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
    session"* / *"run the privacy session"*), since its template file is named by topic, not by
    number (see §4).
-2. **All STEP-1 substeps done but 1.13 not?** → *"run session 1.13"* (cross-cutting review).
-3. **1.13 done and STEP-1 complete, but only the STEP-1 row exists?** → *"run the planning
-   session"* — it outlines the Phase-1 implementation STEPs (§2).
+2. **All STEP-1 design sessions done but the cross-cutting review is still open?** → run the
+   substep whose Session label is **Cross-cutting review**.
+3. **Cross-cutting review done and STEP-1 complete, but only the STEP-1 row exists?** →
+   *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
 4. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → start the
    lowest-numbered `Planned` STEP: author its PLAN + substep prompts (`prompts/README.md` →
    "Recipe: adding a new STEP"), in a fresh chat.

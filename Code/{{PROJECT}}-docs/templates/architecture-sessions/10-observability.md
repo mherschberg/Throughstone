@@ -2,7 +2,8 @@
 
 > **How to run:** Tell your agent *"run session 1.10"*. It interviews you one decision at a
 > time, then writes `architecture/10-observability.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and `architecture/03-*`, `05-*` first — plus any conditional-session doc that
+> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
+> and the Scaling & Performance doc (`architecture/*-scaling-performance.md`) first — plus any conditional-session doc that
 > affects what you log/alert on (e.g. identity-auth for auth-event audit logging, privacy-compliance
 > for PII-in-logs and log retention, or one added later), if it's been written.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
@@ -31,11 +32,11 @@ to measure, and what to alert on** now means you can actually operate the thing.
    to trace a request across components. And the **never-log list** (secrets, tokens, PII).
 2. **Metrics.** The few that matter — start from the "golden signals": latency, traffic,
    errors, saturation. Plus any domain metrics (e.g. signups/day, jobs processed). Tie
-   targets to the performance numbers from 1.5.
+   targets to the performance numbers from the Scaling & Performance doc.
 3. **Tracing.** Do you need distributed tracing? (Usually yes once multiple
    services/components are in a request path; often skippable for a single service.)
 4. **Health checks.** Liveness/readiness endpoints each component exposes (used by infra
-   from 1.8).
+   from the Infrastructure & Deployment doc).
 5. **Error tracking.** How exceptions are captured and surfaced (e.g. Sentry-style).
 6. **Dashboards & alerting.** What you want to see at a glance; what conditions should page
    a human, the thresholds, and who's notified. Avoid alert noise — alert on symptoms users
@@ -56,6 +57,9 @@ Fill the **Decision Summary**, record **Open Questions**, start the **Version Lo
 `prompts/STEP-index.md`: mark 1.10 done.
 
 ## Next
-Once 1.10 is marked done, the next action is the lowest open STEP-1 substep — normally **1.11 (Test strategy)**. Tell the user to **start a fresh chat** and run it (*"run session 1.11"*); if the index shows a different next open substep (sessions can be skipped or added), run that instead. See the next-action resolver in `METHOD.md` §10.
+Once 1.10 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
+session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
+resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

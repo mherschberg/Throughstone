@@ -1,5 +1,5 @@
 # Tests CI for a {{PROJECT}} code repo — runs the test suite on every push and pull request.
-# This is the merge gate from the test-strategy session (architecture/11-test-strategy.md,
+# This is the merge gate from the test-strategy session (architecture/*-test-strategy.md,
 # "CI gates"): keep it fast enough that people don't route around it.
 #
 # Stamp this into each code repo's .github/workflows/ when the repo is scaffolded (alongside its

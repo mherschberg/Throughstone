@@ -2,14 +2,15 @@
 
 > **How to run:** Tell your agent *"run session 1.9"*. It interviews you one decision at a
 > time, then writes `architecture/09-environments.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and `architecture/08-*` first.
+> Reads `overview.md` and the Infrastructure & Deployment doc
+> (`architecture/*-infrastructure-deployment.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
 
 ## What this session does
-Building on the infrastructure from 1.8, we'll define your environments and how config and
+Building on the Infrastructure & Deployment decisions, we'll define your environments and how config and
 secrets differ between them, so untested code and leaked keys don't reach users.
 
 ## Why this session matters
@@ -31,7 +32,8 @@ code is promoted** gives you a safe path to production.
    needed at MVP; decide consciously.)
 3. **Config & secrets per environment.** How configuration differs per env (env vars /
    config files — never secrets in code) and where each env's secrets come from
-   (consistent with 1.6/1.8). **Local dev** uses a gitignored `.env` (values) / `.secrets/`
+   (consistent with the Security & Threat Model and Infrastructure & Deployment docs). **Local dev**
+   uses a gitignored `.env` (values) / `.secrets/`
    (files) with a committed `.env.example` documenting the keys — see
    `templates/env-example.txt` for the convention (the `init.sh` `.gitignore` already excludes
    these); **deployed envs** pull secrets from a secrets manager, not a file.
@@ -54,6 +56,9 @@ Fill the **Decision Summary**, record **Open Questions**, start the **Version Lo
 `prompts/STEP-index.md`: mark 1.9 done.
 
 ## Next
-Once 1.9 is marked done, the next action is the lowest open STEP-1 substep — normally **1.10 (Observability)**. Tell the user to **start a fresh chat** and run it (*"run session 1.10"*); if the index shows a different next open substep (sessions can be skipped or added), run that instead. See the next-action resolver in `METHOD.md` §10.
+Once 1.9 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
+session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
+resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

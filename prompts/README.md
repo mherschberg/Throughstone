@@ -92,7 +92,7 @@ long since the last (see `METHOD.md` §5).
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
    in the phase folder in this repo and mark it **Done** in the index.
-   (STEP-1's review is the cross-cutting review 1.13; a Check-in STEP is its own review.) Then tell the user
+   (STEP-1's review is the cross-cutting review; a Check-in STEP is its own review.) Then tell the user
    the next action — the next `Planned` STEP, or a **Check-in STEP** if one is due — via the
    next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10).
 

@@ -23,13 +23,15 @@
        - registries/repos.yml       — the repo inventory; each repo's own README is its "about"
      List the specific files this substep depends on below — including the README of each
      repo this substep touches, read before you work in it. For any substep that adds or
-     changes an API surface (an endpoint, a request/response shape), include
-     coding-standards/api.md so the house style — timestamps, pagination, errors, versioning —
-     stays consistent across endpoints. -->
+     changes an API/interface surface (an endpoint, request/response shape, event, webhook,
+     CLI contract, library public API, or import/export format), include
+     architecture/*-interface-contracts.md and any contract artifact it names; include
+     coding-standards/api.md for HTTP/REST endpoints so the house style — timestamps,
+     pagination, errors, versioning — stays consistent across endpoints. -->
 - overview.md
 - architecture/NN-…
 - ADR-XXXX-…
-- coding-standards/…  (include coding-standards/api.md for API-touching substeps)
+- coding-standards/…  (include coding-standards/api.md for HTTP/REST API-touching substeps)
 - <repo>/README.md  (for each repo this substep touches)
 
 ## Scope
@@ -75,13 +77,15 @@ just change the code:
   architecture session (`METHOD.md` §4).
 - **New code, even when it overturns nothing:** adding a component, repo, or public surface,
   or coining a domain term, can outdate a doc that's still "correct." Update whatever's now
-  stale: the architecture overview (`architecture/03-*`) and `registries/repos.yml` for new
+  stale: the architecture overview (`architecture/*-architecture-overview.md`) and `registries/repos.yml` for new
   components/repos (a brand-new repo also gets a stamped **README whose Overview explains what
-  it is**); the **API spec** (OpenAPI / GraphQL / protobuf) when you add or change an endpoint;
-  the repo **README** when setup/run/test changes; the glossary (`architecture/12-*`) for new
+  it is**); the **interface contract artifact** named in `architecture/*-interface-contracts.md` when you add or
+  change an endpoint, event, webhook, CLI contract, library public API, or import/export format;
+  the repo **README** when setup/run/test changes; the glossary (`architecture/*-glossary.md`) for new
   terms.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
-  `.secrets/` (see `architecture/06-*` and `09-*`); commit only `.env.example`.
+  `.secrets/` (see `architecture/*-security-threat-model.md` and
+  `architecture/*-environments.md`); commit only `.env.example`.
 
 Leaving the doc stale is a defect, not a follow-up.
 

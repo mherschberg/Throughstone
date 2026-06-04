@@ -26,7 +26,7 @@ the cause in the *system*, never who typed the command.
    last release (`runbooks/release-deploy.md`, Part 4), failing over, or disabling the bad path
    (a feature flag). Mitigation beats diagnosis while users are affected.
 2. **Confirm recovery.** Verify the critical paths work again and the alerts that fired have
-   cleared (`architecture/10-observability.md`).
+   cleared (`architecture/*-observability.md`).
 3. **Capture the facts while fresh** — a rough **timeline** (when it started, when it was
    noticed, what you did, when it resolved), the **symptom and blast radius** (who/what was
    affected, any data touched), and the alerts/logs that caught it (or *should* have). Don't
@@ -36,7 +36,7 @@ the cause in the *system*, never who typed the command.
    folder. Then hand off to that STEP — the emergency is over; the rest is deliberate work.
 
 > **Security incidents** that exposed data or credentials also start a **breach-notification**
-> clock from your privacy/security work (`architecture/06-security-threat-model.md`, and the
+> clock from your privacy/security work (`architecture/*-security-threat-model.md`, and the
 > privacy-compliance doc if you have one). That obligation is not optional and runs independently
 > of this runbook — handle it in parallel with Part 1. If a **credential** was exposed, revoke and
 > rotate it now per `runbooks/secrets-rotation.md` (Part 2) as part of stabilizing.
@@ -63,7 +63,7 @@ Fix the root cause **and** every sibling found in Part 3, in this STEP. Then clo
 the *next* one is caught sooner and cheaper:
 - **A regression test** that fails on the original bug and passes after the fix.
 - **Detection** — if nothing alerted (or it alerted too late), add or tune the signal
-  (`architecture/10-observability.md`) so this class trips an alarm next time.
+  (`architecture/*-observability.md`) so this class trips an alarm next time.
 - **Docs / runbooks** — fix any doc the RCA found wrong (bump its Version Log); if the response
   itself was clumsy, improve the relevant runbook so the next responder has it easier.
 - Anything too large to fix safely here becomes its own **follow-up STEP**, listed for the index.

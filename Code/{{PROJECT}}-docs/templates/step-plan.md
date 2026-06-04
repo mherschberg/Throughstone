@@ -71,4 +71,4 @@
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
      templates/substep-prompt.md ("Keeping the docs true"). Exceptions: STEP-1's review is the
-     cross-cutting review (session 1.13); a Check-in STEP is itself the review (runbooks/check-in.md). -->
+     cross-cutting review; a Check-in STEP is itself the review (runbooks/check-in.md). -->

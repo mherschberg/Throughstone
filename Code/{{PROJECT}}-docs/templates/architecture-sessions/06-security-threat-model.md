@@ -2,7 +2,8 @@
 
 > **How to run:** Tell your agent *"run session 1.6"*. It interviews you one decision at a
 > time, then writes `architecture/06-security-threat-model.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and `architecture/03-*`, `04-*` first.
+> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
+> and the Data Model doc (`architecture/*-data-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -25,7 +26,8 @@ oversight.
 - One decision at a time; **wait** for answers.
 - For each threat, recommend a **minimum viable mitigation** for the MVP and note the
   **blast radius** if it's skipped.
-- Keep it concrete to *this* system — use the assets and boundaries from 1.3/1.4.
+- Keep it concrete to *this* system — use the assets and boundaries from the Architecture
+  Overview and Data Model docs.
 
 ## Decisions to make (in order)
 1. **Assets.** What's worth protecting? (Credentials/keys, personal data, money/payments,
@@ -73,6 +75,9 @@ any contested or deferred decision as an **ADR** (`templates/adr.md`) — deferr
 Update `prompts/STEP-index.md`: mark 1.6 done (or "deferred — see ADR-XXXX").
 
 ## Next
-Once 1.6 is marked done, the next action is the lowest open STEP-1 substep — normally **1.7 (UI / design system)**. Tell the user to **start a fresh chat** and run it (*"run session 1.7"*); if the index shows a different next open substep (sessions can be skipped or added), run that instead. See the next-action resolver in `METHOD.md` §10.
+Once 1.6 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
+session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
+resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

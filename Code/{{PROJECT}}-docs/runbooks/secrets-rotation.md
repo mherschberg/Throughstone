@@ -13,7 +13,7 @@
 > cloud-native KMS, your CI's secret store…). The *discipline* below — know what you hold, rotate
 > on a cadence with no downtime, revoke first on exposure — is the durable part; fill in your
 > project's actual commands and stores. It operationalizes the **secrets & data protection**
-> posture set in `architecture/06-security-threat-model.md` (§5).
+> posture set in `architecture/*-security-threat-model.md`.
 
 ## Why this runbook exists
 Secrets are time-bombs: every API key, TLS cert, signing key, and database credential is a
@@ -42,7 +42,7 @@ low-drama operation instead of a crisis, and it proves you can actually replace 
       migration in `release-deploy.md`.)
 - [ ] **Update every consumer, in every environment.** Find *all* the places that hold the
       secret — services, CI/CD, infra-as-code, backups, partner integrations — and update them
-      per environment (`architecture/09-environments.md`). A missed consumer is exactly what
+      per environment (`architecture/*-environments.md`). A missed consumer is exactly what
       breaks at revoke time.
 - [ ] **Verify, then revoke the old.** Confirm the critical paths work on the new secret, then
       **revoke/delete the old value** so a leaked copy is now worthless. A rotation that leaves

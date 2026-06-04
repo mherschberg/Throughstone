@@ -87,7 +87,7 @@ while IFS='|' read -r kind id st extra; do
   fi
 done <<< "$parsed"
 
-# Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.13 -> 101300.
+# Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.14 -> 101400.
 subkey() {
   local x="$1" maj="${1%%.*}" rest="${1#*.}" num let lo=0
   num="${rest%%[a-z]*}"; let="${rest#"$num"}"
@@ -130,8 +130,8 @@ all_done=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_done=1
 where=""; next=""
 if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
-  # Identify the cross-cutting review by its Session-column label, not a hardcoded number —
-  # adding a standard session shifts the review off 1.13. Check the lettered-conditional case
+  # Identify the cross-cutting review by its Session-column label, not a hardcoded number.
+  # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
     next="run the conditional session for substep ${lowsub} — \"${lowsub_se}\"; invoke it BY NAME (e.g. \"run the identity-auth session\"), not by number."
