@@ -230,15 +230,18 @@ brief. For setup, you need a POSIX shell, `git`, and `perl` as described in the
 
 ### Is this just better vibe-coding prompts?
 
-No. Throughstone is not trying to solve AI coding by adding a larger rule file and hoping the
-model obeys it perfectly. AI agents still speculate, miss existing patterns, add accidental
-scope, and make plausible-looking mistakes.
+No. Throughstone is not trying to solve AI coding by adding more rules and guidance. AI
+agents still speculate, miss existing patterns, add accidental scope, and make
+plausible-looking mistakes. (Eventually you'll need an experienced developer on the project
+to handle this.)
 
-Throughstone's bet is different: move as much project judgment as possible out of a long chat
+Throughstone's approach is to move as much project judgment as possible out of a long chat
 and into a durable process. Architecture comes first, decisions are recorded, work is split
 into small STEPs, each STEP has review criteria, and periodic check-ins reconcile code back
 against the docs. The goal is not to make the AI incapable of being wrong; it is to make wrong
 turns smaller, easier to see, and less likely to compound into an unmaintainable project.
+
+Throughstone doesn't fix AI coding problems, but it reduces project risk.
 
 ### Why does Throughstone do architecture before code?
 
