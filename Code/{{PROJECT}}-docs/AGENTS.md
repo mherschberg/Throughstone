@@ -16,6 +16,10 @@
 marker near the top of `Code/{{PROJECT}}-docs/overview.md` (the `<!-- PROJECT-STATUS: … -->`
 line). It has one of two values:
 
+If `Code/{{PROJECT}}-docs/overview.md` does not exist, this is still the uninitialized
+template/download; tell the user to run `./init.sh` first, then come back with *"Read
+AGENTS.md and follow it."*
+
 - **`not-started` → Kickoff mode.** The project hasn't been bootstrapped yet. **Begin the
   kickoff now without waiting to be asked**: read `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md`
   and follow it from Stage 0. Greet the user briefly, ask their experience level, and — since
@@ -72,7 +76,7 @@ They're slotted into STEP-1 under a lettered substep (e.g.
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
 architecture docs), so context can be cleared between sessions — state lives in files.
 
-When STEP-1 is complete (cross-cutting review 1.13 passed), the user moves into building by
+When STEP-1 is complete (the cross-cutting review passed), the user moves into building by
 saying **"run the planning session"** — read
 `Code/{{PROJECT}}-docs/templates/planning-session.md` and follow it: it turns the locked
 architecture into the Phase-1 implementation STEPs.

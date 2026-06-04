@@ -212,6 +212,103 @@ tied to one AI tool. The only tool-specific files are thin pointers (`CLAUDE.md`
 Code, `AGENTS.md` for Codex and others) that both point at the same canonical context. Use
 whichever agent you like.
 
+## FAQ
+
+### What kinds of projects is Throughstone best for?
+
+Throughstone is best for software you expect to maintain: a product, internal business tool,
+serious open-source project, or anything where architecture, security, tests, and future
+changes matter. It is probably too much ceremony for a throwaway demo, quick script, school
+assignment, or one-off prototype you do not plan to keep.
+
+### What do I need before I start?
+
+You need an idea and a local AI coding agent. A page or two of notes helps, but it is not
+required; the kickoff interview can help you turn a rough idea into the initial project
+brief. For setup, you need a POSIX shell, `git`, and `perl` as described in the
+[Quickstart](#quickstart).
+
+### Is this just better vibe-coding prompts?
+
+No. Throughstone is not trying to solve AI coding by adding a larger rule file and hoping the
+model obeys it perfectly. AI agents still speculate, miss existing patterns, add accidental
+scope, and make plausible-looking mistakes.
+
+Throughstone's bet is different: move as much project judgment as possible out of a long chat
+and into a durable process. Architecture comes first, decisions are recorded, work is split
+into small STEPs, each STEP has review criteria, and periodic check-ins reconcile code back
+against the docs. The goal is not to make the AI incapable of being wrong; it is to make wrong
+turns smaller, easier to see, and less likely to compound into an unmaintainable project.
+
+### Why does Throughstone do architecture before code?
+
+Because AI agents are fast enough to turn an unclear idea into a lot of code before anyone has
+decided what the system is supposed to be. STEP-1 deliberately produces architecture docs and
+decision records before application code, so core choices about scope, data, security,
+deployment, testing, and interfaces are intentional instead of accidental.
+
+The point is not to freeze the project forever. It is to give the work a clear starting shape
+before implementation begins.
+
+### Does this let a non-developer ship production software alone?
+
+Not by magic. A non-developer can use Throughstone to describe the product, make guided
+architecture decisions, and work with an AI agent in a much more disciplined way than an
+open-ended chat. That can get a project much farther than raw prompting.
+
+But production software still needs judgment: security, data correctness, deployment risk,
+access control, payments, compliance, and other high-stakes areas deserve expert review.
+Throughstone is meant to make that review cheaper and clearer by leaving behind architecture
+docs, ADRs, scoped STEPs, tests, and a roadmap instead of a mystery pile of generated code.
+
+### Can I use this with an existing project?
+
+In theory it could work, but Throughstone was not designed or tested for that yet. We plan to
+add better support for existing projects in the future.
+
+In the meantime, you could try creating the documentation and following the STEP process
+manually. If you do, first make sure your code is saved in a git repo so you can revert
+changes. Second, tell the LLM that you want to use Throughstone on an existing project and
+that it should take the process step by step manually, without deleting existing code.
+
+### Can I change decisions later?
+
+Yes. Architecture-first does not mean architecture-once. If an assumption changes, rerun the
+relevant architecture session, update the architecture doc, and record any significant change
+with a new ADR or an amendment to the old one. Throughstone treats documentation as living
+project state, not a museum.
+
+### Do I have to keep using Throughstone after setup?
+
+No. The generated project is yours, and the files are plain Markdown and normal repos. But the
+value comes from continuing the discipline: working in scoped STEPs, keeping the roadmap
+current, recording important decisions, and updating architecture docs when reality changes.
+
+### How do I update my project when Throughstone improves?
+
+Throughstone is copied into your project at setup time; template improvements do not apply
+automatically. Use the scaffold update guide in
+[`Code/{{PROJECT}}-docs/UPDATING-THROUGHSTONE.md`](Code/{{PROJECT}}-docs/UPDATING-THROUGHSTONE.md)
+to compare carefully and apply only the updates that make sense for your project.
+
+### Can multiple people or agents work on the same project?
+
+Yes. Throughstone includes collaboration conventions for branch-per-STEP work, STEP-number
+reservation, overlap warnings, and ADR-based decisions. That layer is newer than the solo
+workflow, so treat it as useful but still evolving, and expect the team to refine it as real
+projects exercise it.
+
+### Do I need Claude Code or Codex specifically?
+
+No. Use the agent or AI-enabled IDE you already prefer: Claude Code, Codex, Cursor,
+Antigravity, or another tool. Throughstone is just files, prompts, scripts, and conventions in
+your project folder. As long as your tool can read the workspace, edit files, and follow
+`AGENTS.md` or `CLAUDE.md`, it can participate.
+
+If your IDE has its own rule system, keep using it for local preferences. Treat Throughstone's
+docs as the project source of truth: the agent should read the canonical context, follow the
+STEP plan, and update the architecture docs and ADRs when decisions change.
+
 ## Contributing & community
 
 Throughstone launched as a single-maintainer project and the hope is that it grows — bug

@@ -1,6 +1,6 @@
-# {{PROJECT}} — Cross-Cutting Review (Session 1.13)
+# {{PROJECT}} — Cross-Cutting Review (Session 1.14)
 
-> **How to run:** Tell your agent *"run session 1.13"*. This is the closing pass of the
+> **How to run:** Tell your agent *"run session 1.14"*. This is the closing pass of the
 > architecture STEP. Unlike the other sessions it's a **review**, not an interview — it
 > reads everything produced in STEP-1 and checks it hangs together, then fixes what doesn't.
 > Reads **all** of `architecture/*` and `adr/*` plus `prompts/STEP-index.md`.
@@ -28,14 +28,14 @@ between "we have a pile of docs" and "we have a coherent architecture."
 ## What to check
 1. **Consistency.** Do the docs agree? Common conflicts: the data model vs. the API/flows
    in the architecture overview; scaling assumptions vs. the chosen infrastructure; the
-   backup/RPO and availability target (1.8) vs. the data the model (1.4) says you can't
-   afford to lose; security boundaries vs. the actual component boundaries; terms used
+   backup/RPO and availability target vs. the data model's loss-tolerance decisions;
+   security boundaries vs. the actual component boundaries; terms used
    differently than the glossary defines them.
 2. **Completeness.** Is anything referenced but never specified? Any area that should have
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?
 3. **Foreclosure check.** Walk the "Forecloses / tradeoff" entries across all docs. Does any
-   MVP shortcut block a capability the phasing doc (1.2) committed to a later phase? If so,
+   MVP shortcut block a capability the phasing doc committed to a later phase? If so,
    flag it — it may need a cheaper approach now.
 4. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
    **ADRs**? Write any that are missing (`templates/adr.md`).
@@ -53,18 +53,18 @@ between "we have a pile of docs" and "we have a coherent architecture."
   (number, title, current version, status). This is the first time every doc exists in one
   place, so it's where the index gets filled in.
 - A consolidated **Open Questions** list carried forward into the first implementation STEP.
-- Update `prompts/STEP-index.md`: mark 1.13 done and **STEP-1 complete** once the review is
-  clean. STEP-1 is now ready to be archived (moved into `prompts/001-mvp/step-0001/`) per
-  `prompts/README.md`.
+- Update `prompts/STEP-index.md`: mark substep 1.14 `Done` and mark the STEP-1 row `Done`
+  once the review is clean. STEP-1 is now ready to be archived (moved into
+  `prompts/001-mvp/step-0001/`) per `prompts/README.md`.
 
 ## Next
-Once the review is clean, the architecture STEP is done — mark STEP-1 **complete** and archive
+Once the review is clean, the architecture STEP is done — mark the STEP-1 row `Done` and archive
 it to `prompts/001-mvp/step-0001/` (`prompts/README.md`). The next action is to move into
 building: **start a fresh chat** and run the **implementation planning session**
 (`templates/planning-session.md`, *"run the planning session"*) — it outlines the Phase-1
 implementation STEPs. See the next-action resolver (`METHOD.md` §10).
 
-**Begin now — in this same reply.** "run session 1.13" is your go-ahead, not a request for
+**Begin now — in this same reply.** "run session 1.14" is your go-ahead, not a request for
 acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to
 start. Read all the STEP-1 architecture docs and ADRs silently. Then, in this one reply:
 **(1)** tell the user — in the one or two sentences from **What this session does** above —

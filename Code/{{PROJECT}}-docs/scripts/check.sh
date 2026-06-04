@@ -12,6 +12,7 @@
 #   4. Every architecture/NN-*.md carries Version / Status / Version Log
 #   5. The ADR registry and the ADR files on disk match (both directions)
 #   6. (multi-repo only) No stray files at the workspace root
+#   7. Architecture-session template numbers match the STEP-index seed
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/check.sh
 # Exit:   non-zero if any hard check FAILs; warnings alone do not fail the run.
@@ -25,6 +26,8 @@ INDEX="$ROOT/prompts/STEP-index.md"
 ADR_INDEX="$DOCS_DIR/adr/README.md"
 ARCH_DIR="$DOCS_DIR/architecture"
 ADR_DIR="$DOCS_DIR/adr"
+SESSION_TEMPLATE_DIR="$DOCS_DIR/templates/architecture-sessions"
+STEP_INDEX_SEED="$DOCS_DIR/templates/step-index-seed.md"
 
 shopt -s nullglob
 
@@ -167,6 +170,110 @@ else
     hint "move durable content into a repo (almost always Code/<project>-docs/); the root holds only per-machine pointers, the repo folders, and Upcoming Prompts/. See METHOD.md §7."
   else
     pass "only the expected pointers / repos at the workspace root"
+  fi
+fi
+
+# --- 7. Architecture-session template numbering ------------------------------
+hdr "7. Architecture-session template numbering"
+session_templates=("$SESSION_TEMPLATE_DIR"/[0-9][0-9]-*.md)
+if [ ${#session_templates[@]} -eq 0 ]; then
+  warn "no numbered architecture-session templates found — skipping numbering check"
+elif [ ! -f "$STEP_INDEX_SEED" ]; then
+  warn "no templates/step-index-seed.md found — skipping numbering check"
+else
+  numbering_ok=1
+  max_prefix=0
+  max_file=""
+  template_minors=""
+  for f in "${session_templates[@]}"; do
+    b="$(basename "$f")"
+    prefix="${b%%-*}"
+    prefix_n=$((10#$prefix))
+    [ "$prefix_n" -gt "$max_prefix" ] && { max_prefix=$prefix_n; max_file="$b"; }
+
+    heading="$(grep -m1 -E '^# .*Session 1\.[0-9]+\)' "$f" || true)"
+    if [ -z "$heading" ]; then
+      fail "$b has no heading with '(Session 1.N)'"
+      numbering_ok=0
+      continue
+    fi
+    minor="$(printf '%s\n' "$heading" | sed -E 's/.*Session 1\.([0-9]+).*/\1/')"
+    template_minors="$template_minors $minor "
+    if [ "$prefix_n" -ne "$minor" ]; then
+      fail "$b prefix ($prefix_n) does not match heading session 1.$minor"
+      numbering_ok=0
+    fi
+
+    title="$(printf '%s\n' "$heading" | sed -E 's/^# //; s/^.* — //; s/^.* - //; s/[[:space:]]+\(Session 1\.[0-9]+\).*//')"
+    seed_row="$(awk -F'|' -v n="$minor" '
+      function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+      /^[[:space:]]*\|/ {
+        substep = trim($2)
+        if (substep == "1." n) { print trim($3) "|" trim($5); exit }
+      }
+    ' "$STEP_INDEX_SEED")"
+    if [ -z "$seed_row" ]; then
+      fail "$b has no matching 1.$minor row in templates/step-index-seed.md"
+      numbering_ok=0
+      seed_label=""
+      seed_output=""
+    else
+      seed_label="${seed_row%%|*}"
+      seed_output="${seed_row#*|}"
+      title_norm="$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]')"
+      seed_label_norm="$(printf '%s' "$seed_label" | tr '[:upper:]' '[:lower:]')"
+      if [ "$title_norm" != "$seed_label_norm" ]; then
+        fail "$b heading session label ('$title') does not match seed row label ('$seed_label')"
+        numbering_ok=0
+      fi
+    fi
+
+    if [[ "$b" != *cross-cutting-review.md ]]; then
+      if ! grep -Eq '^Write `architecture/'"$prefix"'-[^`]+`' "$f"; then
+        fail "$b does not instruct the agent to write architecture/${prefix}-… in its Output section"
+        numbering_ok=0
+      fi
+      if [ -n "$seed_output" ] && ! printf '%s' "$seed_output" | grep -q "architecture/${prefix}-"; then
+        fail "$b seed row output ('$seed_output') does not point at architecture/${prefix}-…"
+        numbering_ok=0
+      fi
+    elif [ -n "$seed_output" ] && [ "$seed_output" != "review doc" ]; then
+      fail "$b seed row output ('$seed_output') should be 'review doc'"
+      numbering_ok=0
+    fi
+  done
+
+  extra_seed_rows="$(awk -F'|' '
+    function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+    /^[[:space:]]*\|/ {
+      substep = trim($2)
+      if (substep ~ /^1\.[0-9]+$/) {
+        n = substep
+        sub(/^1\./, "", n)
+        print n "|" trim($3)
+      }
+    }
+  ' "$STEP_INDEX_SEED")"
+  while IFS='|' read -r seed_minor seed_label; do
+    [ -z "${seed_minor:-}" ] && continue
+    case "$template_minors" in
+      *" $seed_minor "*) : ;;
+      *)
+        fail "templates/step-index-seed.md has 1.$seed_minor ('$seed_label') but no matching numbered session template"
+        numbering_ok=0
+        ;;
+    esac
+  done <<< "$extra_seed_rows"
+
+  if [[ "$max_file" != *cross-cutting-review.md ]]; then
+    fail "cross-cutting review is not the final numbered session (last is $max_file)"
+    numbering_ok=0
+  fi
+
+  if [ "$numbering_ok" -eq 1 ]; then
+    pass "numbered architecture sessions match headings and STEP-index seed; cross-cutting review is last"
+  else
+    hint "keep numbered session files, their '(Session 1.N)' headings, and templates/step-index-seed.md rows in lockstep; the cross-cutting review remains the final numbered session."
   fi
 fi
 

@@ -13,7 +13,7 @@
 > to your stack (`npm audit`, `pip-audit`, `cargo audit`, `govulncheck`, Dependabot/Renovate,
 > a license scanner…). The *discipline* below — vet before you add, pin, audit on a cadence — is
 > the durable part; fill in your ecosystem's commands. It operationalizes the dependency-risk
-> posture set in `architecture/06-security-threat-model.md`.
+> posture set in `architecture/*-security-threat-model.md`.
 
 ## Why this runbook exists
 Most of a modern application is code you didn't write — your dependencies, and *their*
@@ -47,7 +47,7 @@ liability you're taking on — and the cheapest one is the one you don't add.
 - [ ] **Scan for known vulnerabilities.** Run your ecosystem's audit across **all repos**.
       Triage the findings: patch the exploitable ones now; for any you consciously defer, record
       an **accepted-risk** note with the trigger to revisit — the same discipline as a deferred
-      threat in `architecture/06-security-threat-model.md` (a standing policy → an ADR; a
+      threat in `architecture/*-security-threat-model.md` (a standing policy → an ADR; a
       one-off → a line in the check-in record).
 - [ ] **Update cadence.** Apply **security patches promptly**; take feature/major upgrades
       *deliberately* (read the changelog, expect breaking changes, run the tests). Neither

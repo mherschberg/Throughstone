@@ -1,7 +1,7 @@
 # {{repo-name}}
 
 > One line: this repo's role, and how it fits the system. (Link the architecture doc that
-> defines it, e.g. `{{PROJECT}}-docs/architecture/03-architecture-overview.md`.)
+> defines it, e.g. `{{PROJECT}}-docs/architecture/*-architecture-overview.md`.)
 
 <!--
   Stamp a copy of this into each code repo as it's created — every repo, including in a
@@ -40,8 +40,9 @@
 
 ## API / interface
 <!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the contract of
-     record, with a short endpoint table for orientation — don't duplicate the spec here.
-     For a library: the public surface. Skip if not applicable. -->
+     record named by `{{PROJECT}}-docs/architecture/*-interface-contracts.md`, with a short
+     endpoint table for orientation — don't duplicate the spec here. For a library: the
+     public surface. Skip if not applicable. -->
 
 ## Testing
 <!-- How to run the tests; the tiers (unit / integration / e2e) and what each covers. -->

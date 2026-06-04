@@ -44,10 +44,12 @@ in both directions, because they catch different problems:
   is wrong, not the doc). → **Don't "fix" the doc to bless the drift.** Flag it as a bug /
   follow-up STEP.
 
-Cover the high-drift areas at least: data model (04) vs. the real schema/migrations;
-architecture overview (03) and `registries/repos.yml` vs. the real components/repos;
-infrastructure (08) / environments (09) vs. what's deployed; security (06) vs. the auth and
-secrets handling actually in place; glossary (12) vs. the terms the code now uses. Also
+Cover the high-drift areas at least: data model (`architecture/*-data-model.md`) vs. the
+real schema/migrations; architecture overview (`architecture/*-architecture-overview.md`) and
+`registries/repos.yml` vs. the real components/repos;
+infrastructure / environments vs. what's deployed; interface contracts vs. the published and
+generated artifacts; security vs. the auth and secrets handling actually in place; glossary vs.
+the terms the code now uses. Also
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
 with its current version/status).
 
@@ -56,9 +58,11 @@ Beyond the architecture docs, sweep three things that rot just as quietly:
   *is*, and the **Setup / Running / Testing** steps still work from a clean checkout. They're
   stamped once at repo creation and otherwise never re-checked, so they're usually the stalest
   doc a new contributor or agent hits first (and any `ARCHITECTURE.md` still matches the design).
-- **API contracts** — any published spec (OpenAPI / GraphQL / protobuf) still matches the
-  endpoints the service actually serves. A drifted contract breaks consumers silently, so
-  treat a mismatch as a real defect (fix the spec, or file a bug if the code is wrong).
+- **Interface contracts** — any contract artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
+  GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
+  matches what the service, worker, CLI, library, or import/export path actually exposes. A
+  drifted contract breaks consumers silently, so treat a mismatch as a real defect (fix the
+  contract, or file a bug if the implementation is wrong).
 - **Docstrings** — spot-check that docstrings describe what the code *now does*, not what it
   was first written to do. A docstring that lies is worse than none; fix it in place (a doc
   fix, not a bug STEP).

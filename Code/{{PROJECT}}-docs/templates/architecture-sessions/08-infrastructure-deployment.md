@@ -2,7 +2,10 @@
 
 > **How to run:** Tell your agent *"run session 1.8"*. It interviews you one decision at a
 > time, then writes `architecture/08-infrastructure-deployment.md` and updates
-> `prompts/STEP-index.md`. Reads `overview.md` and `architecture/03-*`, `05-*`, `06-*` first — plus
+> `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview doc
+> (`architecture/*-architecture-overview.md`), the Scaling & Performance doc
+> (`architecture/*-scaling-performance.md`), and the Security & Threat Model doc
+> (`architecture/*-security-threat-model.md`) first — plus
 > any conditional-session doc with infra implications (e.g. privacy-compliance for data residency/
 > retention, identity-auth for secrets & session stores, native-app for build/distribution & push,
 > or one added later), if it's been written.
@@ -29,14 +32,14 @@ how a small outage becomes permanent data loss.
 - One decision at a time; **wait** for answers.
 - Recommend the **lowest-operational-burden option that fits** (often a managed PaaS or
   containers on a managed platform for an MVP), and flag cost and lock-in tradeoffs.
-- Tie back to scaling (1.5) and security (1.6) where relevant.
+- Tie back to the Scaling & Performance and Security & Threat Model docs where relevant.
 
 ## Decisions to make (in order)
 1. **Hosting target.** Cloud provider / managed PaaS / self-host. What's already decided or
    constrained (existing accounts, compliance, budget)?
 2. **Compute model.** Containers (Docker; orchestrated by K8s/ECS/etc.) vs. serverless
    functions vs. managed app platform vs. plain VMs. Default to the simplest that meets the
-   scaling needs from 1.5.
+   scaling needs from the Scaling & Performance doc.
 3. **Build & deploy pipeline.** How code becomes a running version: CI builds, artifacts,
    and how a deploy is triggered (and rolled back). Manual is OK for an MVP if it's written
    down and repeatable — the optional `runbooks/release-deploy.md` checklist is where that
@@ -46,11 +49,12 @@ how a small outage becomes permanent data loss.
 5. **Networking & TLS.** Load balancer / ingress, DNS, TLS certificates, public vs. private
    surfaces.
 6. **Secrets in production.** Where prod secrets live (a secret manager) and how services
-   get them. (Consistent with 1.6.)
+   get them. (Consistent with the Security & Threat Model doc.)
 7. **Failure modes & resilience.** Walk what happens when a piece dies — a single process,
    the machine or availability zone it runs on, or a dependency you don't control (the
    database, a third-party API). Name the **single points of failure** (this is the
-   *availability* angle; 1.5 named them for *load*) and pick an **availability target**: is a
+   *availability* angle; the Scaling & Performance doc named them for *load*) and pick an
+   **availability target**: is a
    few hours of downtime fine, or must this stay up? For an MVP, a single region with a fast
    redeploy is often the right call — the point is to choose it knowingly, not by default.
    Where it's cheap, prefer **graceful degradation** (read-only mode, a cached response, a
@@ -81,6 +85,9 @@ provider/lock-in and availability/RPO-RTO decisions as ADRs if significant. Upda
 `prompts/STEP-index.md`: mark 1.8 done.
 
 ## Next
-Once 1.8 is marked done, the next action is the lowest open STEP-1 substep — normally **1.9 (Environments)**. Tell the user to **start a fresh chat** and run it (*"run session 1.9"*); if the index shows a different next open substep (sessions can be skipped or added), run that instead. See the next-action resolver in `METHOD.md` §10.
+Once 1.8 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
+session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
+resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

@@ -54,17 +54,19 @@ worked, and completed.
 | 1.8 | Infrastructure & deployment | Planned | `architecture/08-…` |
 | 1.9 | Environments | Planned | `architecture/09-…` |
 | 1.10 | Observability | Planned | `architecture/10-…` |
-| 1.11 | Test strategy | Planned | `architecture/11-…` |
-| 1.12 | Glossary | Planned | `architecture/12-…` |
-| 1.13 | Cross-cutting review | Planned | review doc |
+| 1.11 | Interface contracts | Planned | `architecture/11-…` |
+| 1.12 | Test strategy | Planned | `architecture/12-…` |
+| 1.13 | Glossary | Planned | `architecture/13-…` |
+| 1.14 | Cross-cutting review | Planned | review doc |
 
 <!-- Conditional sessions: include-or-skip per the kickoff "Conditional sessions considered"
      table — add a row only when one is included. Slot it under a LETTERED substep after the
      related core session, and run it BY NAME, not number (e.g. "run the identity-auth session"
      → conditional-identity-auth.md; likewise conditional-native-app.md,
      conditional-privacy-compliance.md). The output doc takes the next number above the core
-     set (13+). Example row shape (a real row starts at the left margin):
-       | 1.6a | Identity & auth | Planned | architecture/13-identity-auth.md |
+     set. EXAMPLE ONLY — do not parse this as a real row; real rows start at the left margin
+     above this comment, with the assigned substep and doc number:
+       | 1.Xa | Conditional topic | Planned | `architecture/NN-topic.md` |
      The 1.3 platform question decides whether the native-app session is needed; identity-auth
      and privacy-compliance are included by need. -->
 

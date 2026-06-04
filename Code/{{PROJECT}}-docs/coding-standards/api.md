@@ -4,10 +4,11 @@
 > looks the same from day one. Change anything that doesn't fit your team — a few choices below are
 > flagged as genuine forks to settle per project.
 >
-> **Cross-cutting, and complementary to the contract artifact.** Architecture session 1.3 already
-> decides that every API boundary's contract is a **versioned artifact** (OpenAPI / GraphQL schema /
-> protobuf). That artifact pins *one* API's shape; this file pins the **house style every API
-> follows** — timestamps, pagination, errors, naming, versioning — so endpoints stay consistent no
+> **Cross-cutting, and complementary to the contract artifact.** The Interface Contracts session/doc
+> decides which API/interface boundaries need formal contracts, where those artifacts live, and which
+> artifact is the consumer-facing contract of record. That artifact pins *one* API's shape; this
+> file pins the **house style every HTTP/REST API follows** — timestamps, pagination, errors,
+> naming, versioning — so endpoints stay consistent no
 > matter who (or which agent) writes them. Where a rule here conflicts with an **external** API you
 > must integrate with, the external API wins — you don't own it. Record real decisions (the chosen
 > pagination style, versioning scheme, casing) in an ADR and link it from this file.

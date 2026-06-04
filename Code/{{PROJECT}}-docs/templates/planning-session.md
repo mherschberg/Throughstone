@@ -1,14 +1,17 @@
 # {{PROJECT}} — Implementation Planning Session
 
 > **How to run:** Once the architecture STEP (STEP-1) is complete and its cross-cutting
-> review (1.13) is clean, tell your agent *"run the planning session"*. Like the
+> review is clean, tell your agent *"run the planning session"*. Like the
 > architecture sessions it's an interview — it turns the locked architecture into the
 > **implementation STEPs** that build Phase 1. It only **outlines** them — a short scope
 > each. Authoring the first STEP's PLAN and starting to code is the *next* action, in a fresh
 > chat (see "Next" below).
 >
-> Reads **all** of `architecture/*` (especially `02-phasing-roadmap` and
-> `03-architecture-overview`), `adr/*`, `prompts/STEP-index.md`, and — for multi-repo
+> Reads **all** of `architecture/*` (especially the Phasing & Roadmap doc
+> `architecture/*-phasing-roadmap.md`, the Architecture Overview doc
+> `architecture/*-architecture-overview.md`, and the Interface Contracts doc
+> `architecture/*-interface-contracts.md`), `adr/*`,
+> `prompts/STEP-index.md`, and — for multi-repo
 > projects — `registries/repos.yml`.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -29,10 +32,11 @@ architecture changes and the remaining STEPs need re-planning.
 
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
-- Pull the Phase-1 scope from `architecture/02-phasing-roadmap.md` and the component
-  boundaries from `architecture/03-architecture-overview.md`. Don't re-litigate architecture
-  here — if a decision feels wrong, that's a signal to **re-run the relevant session**, not
-  to decide it in passing.
+- Pull the Phase-1 scope from `architecture/*-phasing-roadmap.md` and the component
+  boundaries from `architecture/*-architecture-overview.md`, plus the contract policy from
+  `architecture/*-interface-contracts.md`. Don't re-litigate architecture here — if a
+  decision feels wrong, that's a signal to **re-run the relevant session**, not to decide it
+  in passing.
 - Keep STEPs **small and runnable** — each should be completable and reviewable on its own.
   Push back on a STEP that's really three STEPs.
 - **This session only outlines — it writes no code and no detailed plans.** The output is
@@ -42,10 +46,11 @@ architecture changes and the remaining STEPs need re-planning.
 
 ## What to work through (with the user)
 1. **Repo scaffolding.** What repos does the architecture name (from
-   `03-architecture-overview` / `registries/repos.yml`)? The first implementation STEP is
+   `*-architecture-overview` / `registries/repos.yml`)? The first implementation STEP is
    almost always *"scaffold the repos and the skeleton"* — create each code repo from
    `templates/repo-readme.md`, wire up the chosen stack, CI, and the environments/secrets
-   baseline (1.9) — including copying `templates/env-example.txt` into each repo as its
+   baseline (Environments doc), plus any contract artifact placeholders or repo-local contract files
+   named in the Interface Contracts doc — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
    the `.env` / `.secrets/` secret-file block so local secrets never get committed). **Each
@@ -56,12 +61,12 @@ architecture changes and the remaining STEPs need re-planning.
 2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order.
    A typical shape:
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
-   - **Core data layer** — the data model from `04-data-model` made real (schema,
+   - **Core data layer** — the data model from `*-data-model` made real (schema,
      migrations, access layer).
    - **One STEP per core capability** — each Phase-1 capability from the phasing doc, built
      against the data layer and component boundaries.
    - **Integration / end-to-end** — wire the capabilities together; the launch-criteria
-     path from `02-phasing-roadmap` works end to end.
+     path from `*-phasing-roadmap` works end to end.
    Adjust to the actual project. Each STEP gets a global STEP number (continuing from
    STEP-1).
 3. **Interleave check-in STEPs.** Roughly **every 10–20 STEPs**, add a **Check-in STEP**
@@ -94,5 +99,5 @@ lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prom
 `prompts/README.md` ("Recipe: adding a new STEP"). See the next-action resolver
 (`METHOD.md` §10).
 
-Start by reading `architecture/02-phasing-roadmap.md` and `architecture/03-architecture-overview.md`,
-then work through the points above with the user.
+Start by reading `architecture/*-phasing-roadmap.md`, `architecture/*-architecture-overview.md`,
+and `architecture/*-interface-contracts.md`, then work through the points above with the user.

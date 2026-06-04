@@ -16,11 +16,11 @@ Most of these are produced by the **architecture sessions** during STEP-1
 
 ## Index
 
-> Filled in and reconciled by the **cross-cutting review** (session 1.13) once the docs
-> exist, and kept current at each **check-in** (`../runbooks/check-in.md`). Each doc's own
+> Filled in and reconciled by the **cross-cutting review** once the docs exist, and kept
+> current at each **check-in** (`../runbooks/check-in.md`). Each doc's own
 > header is the authoritative Version/Status; this table is a convenience map. During STEP-1,
 > `prompts/STEP-index.md` is the live view of which sessions have produced their docs.
 
 | # | Doc | Version | Status |
 |---|-----|---------|--------|
-| _(filled in by the cross-cutting review, 1.13)_ | | | |
+| _(filled in by the cross-cutting review)_ | | | |

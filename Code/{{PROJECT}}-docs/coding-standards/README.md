@@ -12,8 +12,8 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
   timestamps, pagination, errors, versioning). **These are starting points — review and
   customize them** to match your team's preferences. Nothing here is fixed law; treat the
   shipped contents as a draft to edit, not a rule to obey.
-- You only need the file(s) for the language(s) you actually use. **Session 1.11
-  (test strategy)** reconciles this directory to the languages chosen in 1.3: for each
+- You only need the file(s) for the language(s) you actually use. The **Test Strategy session**
+  reconciles this directory to the languages chosen in the Architecture Overview doc: for each
   language it either has you *review* the standard that ships, or *create* a new one from an
   existing file's pattern if there's no default — then prunes the rest. (See the "Coding
   standards per language" decision in that session.)
