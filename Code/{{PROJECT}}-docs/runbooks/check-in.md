@@ -44,8 +44,9 @@ in both directions, because they catch different problems:
   is wrong, not the doc). → **Don't "fix" the doc to bless the drift.** Flag it as a bug /
   follow-up STEP.
 
-Cover the high-drift areas at least: data model (04) vs. the real schema/migrations;
-architecture overview (03) and `registries/repos.yml` vs. the real components/repos;
+Cover the high-drift areas at least: data model (`architecture/*-data-model.md`) vs. the
+real schema/migrations; architecture overview (`architecture/*-architecture-overview.md`) and
+`registries/repos.yml` vs. the real components/repos;
 infrastructure / environments vs. what's deployed; interface contracts vs. the published and
 generated artifacts; security vs. the auth and secrets handling actually in place; glossary vs.
 the terms the code now uses. Also

@@ -11,6 +11,9 @@
 # Local maintainer scratch list of outstanding improvements — not part of the published template.
 TODO.md
 
+# Local test-answer fixtures used while exercising the scaffold manually.
+.test-fixtures/
+
 # Brand-asset exploration scratch (Python venv, downloaded fonts, draft comps).
 # The finished assets live in brand/logo, brand/social, brand/site, brand/BRAND.md.
 brand/explore/

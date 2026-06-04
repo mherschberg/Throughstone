@@ -70,7 +70,7 @@ the method so each surfaces at the right moment.
   REST/HTTP APIs — resource naming, methods/status codes, RFC 3339 UTC timestamps, money as
   integer minor units, RFC 9457 problem-details errors, idempotency, and rate limits — with
   three per-project forks flagged (field casing, pagination, versioning), each with an ADR
-  pointer. Complements each API's versioned contract artifact from session 1.3.
+  pointer. Complements each API's versioned contract artifact from the Interface Contracts session.
 
 ### Expanded per-language coverage
 - **Java** (`java.md`) and **C#** (`csharp.md`) standards added.
@@ -84,7 +84,7 @@ the method so each surfaces at the right moment.
   the language documents them, e.g. Java fields, C# properties), public and private.
 
 ### Wiring
-- The cross-cutting standards are reconciled by **session 1.11** (kept only when each applies —
+- The cross-cutting standards are reconciled by the **Test Strategy session** (kept only when each applies —
   a relational DB for SQL, shell scripts for Shell, an HTTP/REST boundary for API), listed in
   `coding-standards/README.md` and the `METHOD.md` hub gloss ("per-language plus cross-cutting"),
   and `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
@@ -115,9 +115,10 @@ standard exposed.
 ### Flexible session set
 - **Session numbering no longer hardcodes the current set:** the conditional-doc rule and
   `status.sh` review-detection adapt to added sessions; dependency-bearing sessions
-  (1.5 / 1.7 / 1.8 / 1.10 / 1.11) read relevant conditional docs when present.
-- **Glossary session (1.12)** harvests terms from every architecture doc (including conditional
-  docs 13+), not a fixed range.
+  (Scaling, UI, Infrastructure, Observability, Interface Contracts, and Test Strategy) read relevant
+  conditional docs when present.
+- **Glossary session** harvests terms from every architecture doc (including conditional docs above
+  the core block), not a fixed range.
 - **METHOD §4 "Adding a session" recipe** — conditional (zero-touch) vs. standard (renumber the
   cross-cutting review) wire-in checklist.
 

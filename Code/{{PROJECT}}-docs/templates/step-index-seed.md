@@ -64,9 +64,9 @@ worked, and completed.
      related core session, and run it BY NAME, not number (e.g. "run the identity-auth session"
      → conditional-identity-auth.md; likewise conditional-native-app.md,
      conditional-privacy-compliance.md). The output doc takes the next number above the core
-     set. Example row shape (a real row starts at the left margin; replace NN with the assigned
-     doc number):
-       | 1.6a | Identity & auth | Planned | architecture/NN-identity-auth.md |
+     set. EXAMPLE ONLY — do not parse this as a real row; real rows start at the left margin
+     above this comment, with the assigned substep and doc number:
+       | 1.Xa | Conditional topic | Planned | `architecture/NN-topic.md` |
      The 1.3 platform question decides whether the native-app session is needed; identity-auth
      and privacy-compliance are included by need. -->
 

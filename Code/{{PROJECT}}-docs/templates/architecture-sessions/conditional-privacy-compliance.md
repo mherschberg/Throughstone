@@ -10,10 +10,10 @@
 > **Two separate numbers:** the *substep* number (e.g. `1.6b`) marks its place in STEP-1; the
 > *doc file* number (`NN`) is the next free number **above the reserved core-doc block** — the
 > standard sessions reserve a contiguous block at the front (the current core set is the session
-> table in `METHOD.md` §4), and each conditional takes the next number above that block, or the
-> next free number above it if another conditional already claimed the first one — **not** the
-> lowest unused number. (This session may run early, before the later core docs
-> exist; still take the first number above the core block, so a not-yet-run core session keeps
+> table in `METHOD.md` §4), and each conditional takes the next free number above that block
+> if another conditional already claimed the first one — **not** the lowest unused number.
+> (This session may run early, before the later core docs
+> exist; still take the first free number above the core block, so a not-yet-run core session keeps
 > its own reserved slot without a clash.) The substep number and the doc number don't have to match.
 > Reads `overview.md`, the Data Model doc (`architecture/*-data-model.md`), and
 > the Security & Threat Model doc (`architecture/*-security-threat-model.md`) first.
@@ -88,4 +88,4 @@ and note any updates those docs need. Update `prompts/STEP-index.md`: mark this 
 ## Next
 Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the cross-cutting review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
 
-**Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.
+**Begin now — in this same reply.** "run the privacy session" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

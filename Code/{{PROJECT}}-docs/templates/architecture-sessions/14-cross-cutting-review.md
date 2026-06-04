@@ -53,12 +53,12 @@ between "we have a pile of docs" and "we have a coherent architecture."
   (number, title, current version, status). This is the first time every doc exists in one
   place, so it's where the index gets filled in.
 - A consolidated **Open Questions** list carried forward into the first implementation STEP.
-- Update `prompts/STEP-index.md`: mark 1.14 done and **STEP-1 complete** once the review is
-  clean. STEP-1 is now ready to be archived (moved into `prompts/001-mvp/step-0001/`) per
-  `prompts/README.md`.
+- Update `prompts/STEP-index.md`: mark substep 1.14 `Done` and mark the STEP-1 row `Done`
+  once the review is clean. STEP-1 is now ready to be archived (moved into
+  `prompts/001-mvp/step-0001/`) per `prompts/README.md`.
 
 ## Next
-Once the review is clean, the architecture STEP is done — mark STEP-1 **complete** and archive
+Once the review is clean, the architecture STEP is done — mark the STEP-1 row `Done` and archive
 it to `prompts/001-mvp/step-0001/` (`prompts/README.md`). The next action is to move into
 building: **start a fresh chat** and run the **implementation planning session**
 (`templates/planning-session.md`, *"run the planning session"*) — it outlines the Phase-1

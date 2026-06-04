@@ -73,8 +73,9 @@ sessions apply (see the core set in `METHOD.md` §4). For the **conditional** se
 its trigger: the Architecture Overview platform question for **Native app**; the auth posture for
 **Identity/auth**; and personal or regulated data (PII, health/financial/children's, or a
 regime like GDPR/HIPAA/PCI) for **Privacy/compliance**. A skipped conditional must leave a
-recorded reason, so a future reader sees a decision rather than an accident. Also drop any
-*core* session that clearly doesn't fit, noting why. Write
+recorded reason, so a future reader sees a decision rather than an accident. Keep the core
+sessions unless their own session instructions explicitly say to mark them `N/A` (for example,
+the UI session when there is no styled UI). Write
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (from
 `Code/{{PROJECT}}-docs/templates/step-plan.md`) listing the chosen sessions as substeps,
 the locked decisions, and the definition of done. **Wait for confirmation.**

@@ -134,7 +134,15 @@ if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
   # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
-    next="run the conditional session for substep ${lowsub} — \"${lowsub_se}\"; invoke it BY NAME (e.g. \"run the identity-auth session\"), not by number."
+    cond_example="run the conditional session by name"
+    if printf '%s' "$lowsub_se" | grep -qiE 'identity|auth'; then
+      cond_example="run the identity-auth session"
+    elif printf '%s' "$lowsub_se" | grep -qiE 'native|mobile|desktop'; then
+      cond_example="run the native-app session"
+    elif printf '%s' "$lowsub_se" | grep -qiE 'privacy|compliance|data governance'; then
+      cond_example="run the privacy session"
+    fi
+    next="run the conditional session for substep ${lowsub} — \"${lowsub_se}\"; invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
   elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
     next="run session ${lowsub} — the cross-cutting review."
   else

@@ -161,11 +161,13 @@ anything after the insertion point — up by one. To add one:
 1. Write `templates/architecture-sessions/NN-<topic>.md`; its doc number is the next in the core
    block. Append it right before the review to minimize the shift.
 2. Renumber the review (and any shifted sessions): rename the file
-   (`14-cross-cutting-review.md` → `15-…`) and update every literal reference to the old number —
-   all findable with `grep -rn '1\.14'`: the registry (§4 table, the §10 resolver,
-   `templates/step-index-seed.md`), the doc index (`architecture/README.md`), and the prose
-   pointers (`step-plan.md`, `planning-session.md`, `BOOTSTRAP-PROMPT.md`, `01-system-overview.md`,
-   the glossary's *Next*, the review file's own header, and each conditional's closing line).
+   (`14-cross-cutting-review.md` → `15-…`) and update the exact-number contracts: session
+   filenames/headings, the §4 core-session table, `templates/step-index-seed.md`, and each
+   session's invocation/output contract. Use a broad audit such as
+   `rg '1\.14|14-cross|architecture/14-'` to find leftovers, but keep dynamic prose dynamic:
+   prefer session labels and topic globs outside invocation/output contracts. Run
+   `scripts/check.sh` afterward; it is the mechanical backstop for heading/seed/output drift
+   and for keeping the cross-cutting review last.
 3. Add its row to the §4 table and `templates/step-index-seed.md`.
 
 `status.sh` needs no change — it locates the review by its label, not its number.

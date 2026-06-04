@@ -16,6 +16,10 @@
 marker near the top of `Code/{{PROJECT}}-docs/overview.md` (the `<!-- PROJECT-STATUS: … -->`
 line). It has one of two values:
 
+If `Code/{{PROJECT}}-docs/overview.md` does not exist, this is still the uninitialized
+template/download; tell the user to run `./init.sh` first, then come back with *"Read
+AGENTS.md and follow it."*
+
 - **`not-started` → Kickoff mode.** The project hasn't been bootstrapped yet. **Begin the
   kickoff now without waiting to be asked**: read `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md`
   and follow it from Stage 0. Greet the user briefly, ask their experience level, and — since

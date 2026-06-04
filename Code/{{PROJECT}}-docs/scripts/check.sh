@@ -184,6 +184,7 @@ else
   numbering_ok=1
   max_prefix=0
   max_file=""
+  template_minors=""
   for f in "${session_templates[@]}"; do
     b="$(basename "$f")"
     prefix="${b%%-*}"
@@ -197,27 +198,72 @@ else
       continue
     fi
     minor="$(printf '%s\n' "$heading" | sed -E 's/.*Session 1\.([0-9]+).*/\1/')"
+    template_minors="$template_minors $minor "
     if [ "$prefix_n" -ne "$minor" ]; then
       fail "$b prefix ($prefix_n) does not match heading session 1.$minor"
       numbering_ok=0
     fi
 
-    if ! grep -Eq "^\|[[:space:]]*1\.${minor}[[:space:]]*\|" "$STEP_INDEX_SEED"; then
+    title="$(printf '%s\n' "$heading" | sed -E 's/^# //; s/^.* — //; s/^.* - //; s/[[:space:]]+\(Session 1\.[0-9]+\).*//')"
+    seed_row="$(awk -F'|' -v n="$minor" '
+      function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+      /^[[:space:]]*\|/ {
+        substep = trim($2)
+        if (substep == "1." n) { print trim($3) "|" trim($5); exit }
+      }
+    ' "$STEP_INDEX_SEED")"
+    if [ -z "$seed_row" ]; then
       fail "$b has no matching 1.$minor row in templates/step-index-seed.md"
       numbering_ok=0
+      seed_label=""
+      seed_output=""
+    else
+      seed_label="${seed_row%%|*}"
+      seed_output="${seed_row#*|}"
+      title_norm="$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]')"
+      seed_label_norm="$(printf '%s' "$seed_label" | tr '[:upper:]' '[:lower:]')"
+      if [ "$title_norm" != "$seed_label_norm" ]; then
+        fail "$b heading session label ('$title') does not match seed row label ('$seed_label')"
+        numbering_ok=0
+      fi
     fi
 
     if [[ "$b" != *cross-cutting-review.md ]]; then
-      if ! grep -q "architecture/${prefix}-" "$f"; then
-        fail "$b does not reference its own architecture/${prefix}-… output doc"
+      if ! grep -Eq '^Write `architecture/'"$prefix"'-[^`]+`' "$f"; then
+        fail "$b does not instruct the agent to write architecture/${prefix}-… in its Output section"
         numbering_ok=0
       fi
-      if ! grep -Eq "^\|[[:space:]]*1\.${minor}[[:space:]]*\|.*architecture/${prefix}-" "$STEP_INDEX_SEED"; then
-        fail "$b seed row does not point at architecture/${prefix}-…"
+      if [ -n "$seed_output" ] && ! printf '%s' "$seed_output" | grep -q "architecture/${prefix}-"; then
+        fail "$b seed row output ('$seed_output') does not point at architecture/${prefix}-…"
         numbering_ok=0
       fi
+    elif [ -n "$seed_output" ] && [ "$seed_output" != "review doc" ]; then
+      fail "$b seed row output ('$seed_output') should be 'review doc'"
+      numbering_ok=0
     fi
   done
+
+  extra_seed_rows="$(awk -F'|' '
+    function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+    /^[[:space:]]*\|/ {
+      substep = trim($2)
+      if (substep ~ /^1\.[0-9]+$/) {
+        n = substep
+        sub(/^1\./, "", n)
+        print n "|" trim($3)
+      }
+    }
+  ' "$STEP_INDEX_SEED")"
+  while IFS='|' read -r seed_minor seed_label; do
+    [ -z "${seed_minor:-}" ] && continue
+    case "$template_minors" in
+      *" $seed_minor "*) : ;;
+      *)
+        fail "templates/step-index-seed.md has 1.$seed_minor ('$seed_label') but no matching numbered session template"
+        numbering_ok=0
+        ;;
+    esac
+  done <<< "$extra_seed_rows"
 
   if [[ "$max_file" != *cross-cutting-review.md ]]; then
     fail "cross-cutting review is not the final numbered session (last is $max_file)"
