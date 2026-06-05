@@ -78,7 +78,8 @@ standard is enforced, not just documented.
   relevant. One error shape across the whole API.
 - **Never leak internals** — no stack traces, SQL, or internal hostnames in a response body.
   Include a correlation/request ID the client can quote in a support ticket (ties to the
-  observability session). The status line and the `status` member agree.
+  observability hooks in the Observability architecture doc). The status line and the `status`
+  member agree.
 
 ## Versioning
 - **Fork; pick one.** **Default: URI versioning** — a major version in the path (`/v1/…`). It's

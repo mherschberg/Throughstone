@@ -25,8 +25,8 @@ the cause in the *system*, never who typed the command.
 1. **Stabilize first.** Restore service before you investigate — most often by rolling back the
    last release (`runbooks/release-deploy.md`, Part 4), failing over, or disabling the bad path
    (a feature flag). Mitigation beats diagnosis while users are affected.
-2. **Confirm recovery.** Verify the critical paths work again and the alerts that fired have
-   cleared (`architecture/*-observability.md`).
+2. **Confirm recovery.** Verify the critical paths work again and the alerts from the
+   Observability architecture doc have cleared (`architecture/*-observability.md`).
 3. **Capture the facts while fresh** — a rough **timeline** (when it started, when it was
    noticed, what you did, when it resolved), the **symptom and blast radius** (who/what was
    affected, any data touched), and the alerts/logs that caught it (or *should* have). Don't
@@ -62,8 +62,9 @@ and what you found — including "searched X, found none," which is a real resul
 Fix the root cause **and** every sibling found in Part 3, in this STEP. Then close the loop so
 the *next* one is caught sooner and cheaper:
 - **A regression test** that fails on the original bug and passes after the fix.
-- **Detection** — if nothing alerted (or it alerted too late), add or tune the signal
-  (`architecture/*-observability.md`) so this class trips an alarm next time.
+- **Detection** — if nothing alerted (or it alerted too late), add or tune the signal in the
+  Observability architecture doc (`architecture/*-observability.md`) so this class trips an
+  alarm next time.
 - **Docs / runbooks** — fix any doc the RCA found wrong (bump its Version Log); if the response
   itself was clumsy, improve the relevant runbook so the next responder has it easier.
 - Anything too large to fix safely here becomes its own **follow-up STEP**, listed for the index.

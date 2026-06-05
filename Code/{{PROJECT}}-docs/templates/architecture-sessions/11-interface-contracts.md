@@ -5,7 +5,7 @@
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
 > the Data Model doc (`architecture/*-data-model.md`), the Security & Threat Model doc
 > (`architecture/*-security-threat-model.md`), the Environments doc
-> (`architecture/*-environments.md`), and the Observability doc
+> (`architecture/*-environments.md`), and the Observability architecture doc
 > (`architecture/*-observability.md`) first - plus any conditional-session docs already written
 > that affect boundaries, identity/auth, privacy, native clients, or data sent to third parties.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` section 4.)
@@ -14,9 +14,9 @@
 {{PROJECT_DESCRIPTION}}
 
 ## What this session does
-With the components, data, security, environments, and observability choices in place, we'll
-decide how system boundaries are specified and kept in sync so consumers build against a clear
-contract instead of guessing from prose or code.
+With the components, data, security, environments, and choices from the Observability
+architecture doc in place, we'll decide how system boundaries are specified and kept in sync so
+consumers build against a clear contract instead of guessing from prose or code.
 
 Terminology: **Interface Contracts** is the Session 1.11 process name;
 `architecture/*-interface-contracts.md` is the **Interface Contracts architecture doc** it
@@ -69,8 +69,8 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
 9. **Auth, authorization, and privacy.** Pull from security, identity/auth, and privacy docs:
    auth mechanism, required scopes/roles/permissions, tenant boundaries, personal data in
    payloads, deletion/export endpoints if relevant, and audit-sensitive operations.
-10. **Observability hooks.** Pull from observability: request IDs/correlation IDs, trace headers,
-    event IDs, and error logging expectations at boundaries.
+10. **Observability hooks.** Pull from the Observability architecture doc: request IDs/correlation
+    IDs, trace headers, event IDs, and error logging expectations at boundaries.
 11. **Contract testing and CI gates.** Define the contract validation expectations that the Test
     Strategy session will fold into the Test Strategy architecture doc: schema validation, generated client/server tests,
     consumer-driven contract tests if needed, OpenAPI/GraphQL/protobuf linting, backward

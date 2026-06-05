@@ -52,9 +52,10 @@ if it goes bad.
 
 ## Part 3 — Verify (don't walk away)
 - [ ] **Smoke-test the critical user paths** in production.
-- [ ] **Watch observability** (`architecture/*-observability.md`) for a defined window — error
-      rates, latency, and the alerts you set up — before calling it done. A deploy isn't "done"
-      at deploy; it's done once it's stayed healthy for a bit.
+- [ ] **Watch production signals** from the Observability architecture doc
+      (`architecture/*-observability.md`) for a defined window — error rates, latency, and the
+      alerts you set up — before calling it done. A deploy isn't "done" at deploy; it's done
+      once it's stayed healthy for a bit.
 - [ ] **Health / uptime checks green.**
 
 ## Part 4 — Rollback (when verify fails)

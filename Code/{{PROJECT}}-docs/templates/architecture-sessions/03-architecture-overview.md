@@ -45,7 +45,8 @@ UI / Design System session and the conditional Native-app session apply.
    **protobuf**/gRPC — so both sides build against one spec instead of guessing from prose.)*
    Identify which boundaries probably need formal contracts and the likely style, but leave the
    final contract policy, source of truth, artifact locations, and update rules to the Interface
-   Contracts session, after data/security/privacy/observability choices are known.
+   Contracts session, after data/security/privacy choices and the Observability architecture
+   doc are known.
 5. **Key flows.** Walk through 1–2 important end-to-end scenarios and how components
    collaborate to serve them. This validates the boundaries.
 6. **High-level tech stack.** Languages/frameworks per component (detail lands in repo READMEs
