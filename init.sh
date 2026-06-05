@@ -266,7 +266,7 @@ rm -rf "$ROOT/.git"
 # template-specific, and in multi-repo mode they would be stray files at the non-repo workspace
 # root, against the hygiene rule (METHOD.md §7). Drop them; your project's context lives in the
 # docs hub. (Mono-repo: add project versions yourself if you want them.)
-rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md"
+rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md"
 # The community/health files (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, TRADEMARK) describe the
 # Throughstone *template* itself — its contribution policy, its trademark, its security contact.
 # They must not carry into your project (e.g. they'd leak the maintainer's contact and assert
@@ -280,6 +280,9 @@ rm -rf "$ROOT/.github"
 # .dev/ holds template-maintainer-only notes (handoffs, design memos) — not part of your
 # project; drop it so internal notes don't leak into bootstrapped repos.
 rm -rf "$ROOT/.dev"
+# .test-fixtures/ holds scaffold-maintainer test data — useful in this repo, but not part of a
+# bootstrapped user's project and a root-hygiene warning in multi-repo workspaces.
+rm -rf "$ROOT/.test-fixtures"
 # brand/ (Throughstone's brand brief, logo, social card, landing-page source) and docs/ (the
 # built landing page served via GitHub Pages) are Throughstone's *own* marketing — they assert
 # the Throughstone trademark and aren't part of your project. Drop them so your repo doesn't
