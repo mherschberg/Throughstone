@@ -27,7 +27,7 @@ between "we have a pile of docs" and "we have a coherent architecture."
 
 ## What to check
 1. **Consistency.** Do the docs agree? Common conflicts: the data model vs. the API/flows
-   in the architecture overview; scaling assumptions vs. the chosen infrastructure; the
+   in the Architecture Overview architecture doc; scaling assumptions vs. the chosen infrastructure; the
    backup/RPO and availability target vs. the data model's loss-tolerance decisions;
    security boundaries vs. the actual component boundaries; terms used
    differently than the Glossary architecture doc defines them.

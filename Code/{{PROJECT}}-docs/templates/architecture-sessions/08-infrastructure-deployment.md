@@ -2,7 +2,7 @@
 
 > **How to run:** Tell your agent *"run session 1.8"*. It interviews you one decision at a
 > time, then writes the Infrastructure & Deployment architecture doc and updates
-> `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview doc
+> `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview architecture doc
 > (`architecture/*-architecture-overview.md`), the Scaling & Performance architecture doc
 > (`architecture/*-scaling-performance.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first — plus

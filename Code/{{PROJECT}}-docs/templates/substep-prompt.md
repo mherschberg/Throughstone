@@ -78,7 +78,7 @@ just change the code:
   architecture session (`METHOD.md` §4).
 - **New code, even when it overturns nothing:** adding a component, repo, or public surface,
   or coining a domain term, can outdate a doc that's still "correct." Update whatever's now
-  stale: the architecture overview (`architecture/*-architecture-overview.md`) and `registries/repos.yml` for new
+  stale: the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`) and `registries/repos.yml` for new
   components/repos (a brand-new repo also gets a stamped **README whose Overview explains what
   it is**); the **interface contract artifact** named in the Interface Contracts architecture doc
   (`architecture/*-interface-contracts.md`) when you add or

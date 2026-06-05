@@ -2,7 +2,7 @@
 
 > **How to run:** Tell your agent *"run session 1.11"*. It interviews you one decision at a
 > time, then writes the Interface Contracts architecture doc and updates `prompts/STEP-index.md`.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
 > the Data Model architecture doc (`architecture/*-data-model.md`), the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`), the Environments architecture doc
 > (`architecture/*-environments.md`), and the Observability architecture doc
@@ -27,13 +27,13 @@ interface.
 
 ## Why this session matters
 Interfaces are where separately-built pieces most often drift apart: an endpoint changes shape,
-an event drops a field, or a generated client no longer matches the service. Architecture
-Overview doc names the boundaries; this session turns the boundary policy into something concrete enough for
+an event drops a field, or a generated client no longer matches the service. The Architecture
+Overview architecture doc names the boundaries; this session turns the boundary policy into something concrete enough for
 implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
-- Start from the boundaries named in the Architecture Overview doc, then pull in decisions from data, security/privacy,
+- Start from the boundaries named in the Architecture Overview architecture doc, then pull in decisions from data, security/privacy,
   the Environments architecture doc, the Observability architecture doc, and conditionals.
 - Keep the right weight for the project: formal contracts for public or cross-component
   boundaries; lightweight or explicitly informal contracts for simple internal seams.

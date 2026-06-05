@@ -1,6 +1,6 @@
 # {{PROJECT}} — Native App Architecture (Conditional Session)
 
-> **Conditional.** Include this only if the Architecture Overview doc says the project has a **mobile or
+> **Conditional.** Include this only if the Architecture Overview architecture doc says the project has a **mobile or
 > desktop app** (not just a web UI). The kickoff slots it in as a substep (e.g. `1.7a`) and
 > the index records its number. Run it by name: *"run the native-app session."* It writes
 > `architecture/NN-native-app-architecture.md` (number assigned in the index) and updates
@@ -13,7 +13,7 @@
 > before the later core docs exist; still take the first free number above the core block, so a
 > not-yet-run core session keeps its own reserved slot without a clash.) The substep number and the
 > doc number don't have to match.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`)
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`)
 > for surfaces, the Data Model architecture doc (`architecture/*-data-model.md`), the
 > Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`), and the UI / Design System architecture doc
 > (`architecture/*-ui-design-system.md`) first.

@@ -2,7 +2,7 @@
 
 > **How to run:** Tell your agent *"run session 1.10"*. It interviews you one decision at a
 > time, then writes the Observability architecture doc and updates `prompts/STEP-index.md`.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
 > and the Scaling & Performance architecture doc (`architecture/*-scaling-performance.md`) first
 > — plus any conditional-session doc that affects what you log/alert on (e.g. identity-auth
 > for auth-event audit logging, privacy-compliance for PII-in-logs and log retention, or one

@@ -1,7 +1,7 @@
 # {{PROJECT}} — Architecture Overview & Component Boundaries (Session 1.3)
 
 > **How to run:** Tell your agent *"run session 1.3"*. It interviews you one decision at a
-> time, then writes `architecture/03-architecture-overview.md` and updates `prompts/STEP-index.md`.
+> time, then writes the Architecture Overview architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the System Overview doc (`architecture/*-system-overview.md`), and
 > the Phasing & Roadmap doc (`architecture/*-phasing-roadmap.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
@@ -13,6 +13,11 @@
 Now that the scope and phases are set, we'll shape the system into its main components and
 decide how they talk to each other, so the parts stay separable instead of tangling into one
 big blob.
+
+Terminology: **Architecture Overview & Component Boundaries** is the Session 1.3 process name;
+`architecture/*-architecture-overview.md` is the **Architecture Overview architecture doc** it
+produces (the exact output file is named in the Output section below); **component boundaries**
+are the concrete separations, data handoffs, and contract candidates recorded in that doc.
 
 ## Why this session matters
 This is where the system gets its shape. Developers who skip it end up with a "big ball of

@@ -39,7 +39,8 @@ purpose, recorded.
    and ship it? (Ties to the success criteria from the System Overview doc.)
 6. **Don't-foreclose list.** The future-phase capabilities the MVP architecture must not
    block (e.g. multi-tenant, mobile, 100× scale). These become constraints for the other
-   sessions — especially the Scaling & Performance and Architecture Overview sessions.
+   sessions — especially the Scaling & Performance and Architecture Overview & Component
+   Boundaries sessions.
 
 ## Output
 Write `architecture/02-phasing-roadmap.md` (use `templates/architecture-doc.md`). Body:

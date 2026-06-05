@@ -92,7 +92,7 @@ set lives in `templates/architecture-sessions/`.
 |---|---------|----------|
 | 1.1 | System overview, requirements & non-goals | `architecture/01-*` |
 | 1.2 | Phasing & roadmap | `architecture/02-*` |
-| 1.3 | Architecture overview & component boundaries *(asks which client surfaces — gates UI / Design System + app)* | `architecture/03-*` |
+| 1.3 | Architecture Overview & Component Boundaries *(asks which client surfaces — gates UI / Design System + app)* | `architecture/03-*` |
 | 1.4 | Data Model, Ownership & Retention | `architecture/04-*` |
 | 1.5 | Scaling & Performance | `architecture/05-*` |
 | 1.6 | Security & Threat Model *(deferrable — but as a recorded, conscious decision)* | `architecture/06-*` |
@@ -105,8 +105,8 @@ set lives in `templates/architecture-sessions/`.
 | 1.13 | Glossary | `architecture/13-*` |
 | 1.14 | Cross-cutting review | review doc |
 
-**Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
-question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
+**Conditional sessions** (included only when relevant, auto-selected by the Architecture
+Overview & Component Boundaries client-surfaces question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
 **Privacy, compliance & data governance** (personal or regulated data). Run each **by name**,
 not by number — *"run the identity-auth session"* → `conditional-identity-auth.md` (likewise
 `conditional-native-app.md` and `conditional-privacy-compliance.md`) — slotted under a lettered

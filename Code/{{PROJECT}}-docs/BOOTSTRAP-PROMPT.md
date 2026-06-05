@@ -70,7 +70,7 @@ sessions apply (see the core set in `METHOD.md` §4). For the **conditional** se
 *explicit* call on **each one** — never leave a conditional simply unconsidered: fill in the
 **Conditional sessions considered** table in the PLAN, marking every conditional **Include**
 (→ the substep it becomes, e.g. `1.6a`) or **N/A** (with a one-line reason). Decide each from
-its trigger: the Architecture Overview platform question for **Native app**; the auth posture for
+its trigger: the Architecture Overview & Component Boundaries client-surfaces question for **Native app**; the auth posture for
 **Identity/auth**; and personal or regulated data (PII, health/financial/children's, or a
 regime like GDPR/HIPAA/PCI) for **Privacy/compliance**. A skipped conditional must leave a
 recorded reason, so a future reader sees a decision rather than an accident. Keep the core

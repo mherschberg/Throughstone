@@ -8,7 +8,7 @@
 > chat (see "Next" below).
 >
 > Reads **all** of `architecture/*` (especially the Phasing & Roadmap doc
-> `architecture/*-phasing-roadmap.md`, the Architecture Overview doc
+> `architecture/*-phasing-roadmap.md`, the Architecture Overview architecture doc
 > `architecture/*-architecture-overview.md`, and the Interface Contracts architecture doc
 > `architecture/*-interface-contracts.md`), `adr/*`,
 > `prompts/STEP-index.md`, and — for multi-repo
@@ -33,7 +33,8 @@ architecture changes and the remaining STEPs need re-planning.
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
 - Pull the Phase-1 scope from `architecture/*-phasing-roadmap.md` and the component
-  boundaries from `architecture/*-architecture-overview.md`, plus the contract policy from
+  boundaries from the Architecture Overview architecture doc
+  (`architecture/*-architecture-overview.md`), plus the contract policy from
   `architecture/*-interface-contracts.md`. Don't re-litigate architecture here — if a
   decision feels wrong, that's a signal to **re-run the relevant session**, not to decide it
   in passing.
@@ -45,8 +46,8 @@ architecture changes and the remaining STEPs need re-planning.
   to run that STEP (`prompts/README.md` → "Recipe: adding a new STEP"; `METHOD.md` §5).
 
 ## What to work through (with the user)
-1. **Repo scaffolding.** What repos does the architecture name (from
-   `*-architecture-overview` / `registries/repos.yml`)? The first implementation STEP is
+1. **Repo scaffolding.** What repos does the Architecture Overview architecture doc
+   (`architecture/*-architecture-overview.md`) / `registries/repos.yml` name? The first implementation STEP is
    almost always *"scaffold the repos and the skeleton"* — create each code repo from
    `templates/repo-readme.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
@@ -99,6 +100,7 @@ lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prom
 `prompts/README.md` ("Recipe: adding a new STEP"). See the next-action resolver
 (`METHOD.md` §10).
 
-Start by reading `architecture/*-phasing-roadmap.md`, `architecture/*-architecture-overview.md`,
+Start by reading `architecture/*-phasing-roadmap.md`, the Architecture Overview architecture doc
+(`architecture/*-architecture-overview.md`),
 and the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`), then
 work through the points above with the user.

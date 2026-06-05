@@ -4,7 +4,7 @@
 > time, then writes the Scaling & Performance architecture doc and updates
 > `prompts/STEP-index.md`.
 > Reads `overview.md`, the Phasing & Roadmap doc (`architecture/*-phasing-roadmap.md`),
-> the Architecture Overview doc (`architecture/*-architecture-overview.md`), and the Data Model
+> the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`), and the Data Model
 > architecture doc (`architecture/*-data-model.md`) first — plus any
 > conditional-session doc relevant to scale (e.g. native-app for offline/sync load, identity-auth,
 > or one added later), if it's been written.

@@ -2,7 +2,7 @@
 
 > **How to run:** Tell your agent *"run session 1.12"*. It interviews you one decision at a
 > time, then writes the Test Strategy architecture doc and updates `prompts/STEP-index.md`.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
 > the Data Model architecture doc (`architecture/*-data-model.md`), the Environments architecture doc
 > (`architecture/*-environments.md`), and the Interface Contracts architecture doc
 > (`architecture/*-interface-contracts.md`) first — plus any conditional-session
@@ -59,7 +59,7 @@ where the pieces have to work *together*.
 7. **Performance / load testing.** Whether and when load tests run (ties to the performance
    targets in the Scaling & Performance architecture doc).
 8. **Coding standards per language.** Confirm the implementation language(s) from the
-   high-level stack (the Architecture Overview stack decision). Then reconcile `coding-standards/` to that list, **one
+   high-level stack (the Architecture Overview architecture doc's stack decision). Then reconcile `coding-standards/` to that list, **one
    language at a time**:
    - **If a `coding-standards/<lang>.md` already ships** (e.g. `python.md`, `typescript.md`,
      `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`): tell the user it exists as a *default starting point*,
@@ -71,7 +71,7 @@ where the pieces have to work *together*.
    - **Prune** the default standards for languages this project won't use.
    - **`sql.md`, `shell.md`, and `api.md` are cross-cutting**, not 1.3 implementation languages:
      keep `sql.md` if the project uses a relational database, `shell.md` if it ships shell scripts
-     (CI glue, dev scripts, entrypoints), and `api.md` if any boundary from the Architecture Overview doc is an HTTP/REST API
+     (CI glue, dev scripts, entrypoints), and `api.md` if any boundary from the Architecture Overview architecture doc is an HTTP/REST API
      it exposes or consumes — regardless of the language list; prune any that don't apply.
      `sql.md`'s rules are secondary to the language docs where they conflict; `api.md` is the house
      style that complements the HTTP/REST interface contract artifacts and policy from the Interface Contracts architecture doc.

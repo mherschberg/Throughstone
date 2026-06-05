@@ -13,7 +13,7 @@
 > early, e.g. at `1.6a`, before the later core docs exist; still take the first free number
 > above the core block, so a not-yet-run core session keeps its own reserved slot without a clash.) The substep
 > number and the doc number don't have to match.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
 > the Data Model architecture doc (`architecture/*-data-model.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)

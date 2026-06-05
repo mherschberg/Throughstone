@@ -45,8 +45,8 @@ in both directions, because they catch different problems:
   follow-up STEP.
 
 Cover the high-drift areas at least: the Data Model architecture doc
-(`architecture/*-data-model.md`) vs. the real schema/migrations; architecture overview
-(`architecture/*-architecture-overview.md`) and
+(`architecture/*-data-model.md`) vs. the real schema/migrations; the Architecture Overview
+architecture doc (`architecture/*-architecture-overview.md`) and
 `registries/repos.yml` vs. the real components/repos;
 the Infrastructure & Deployment architecture doc and the Environments architecture doc vs. the
 deployed infrastructure and environments; the Interface Contracts architecture doc vs.
