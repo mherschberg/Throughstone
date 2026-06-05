@@ -116,6 +116,12 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   architecture doc (`architecture/*-architecture-overview.md`) / `registries/repos.yml`, and
   a new domain term may need the Glossary architecture doc — don't let a doc go stale (see
   `Code/{{PROJECT}}-docs/METHOD.md` §6).
+- **Keep accepted risks visible.** Known, accepted risks and deferred technical debt live in
+  `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
+  dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is
+  an index: reference the architecture decision/section, ADR, issue/follow-up STEP, incident
+  report, or check-in report that carries the details; create that source first if it doesn't
+  exist.
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).

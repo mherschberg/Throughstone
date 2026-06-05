@@ -69,11 +69,15 @@ the *next* one is caught sooner and cheaper:
 - **Docs / runbooks** — fix any doc the RCA found wrong (bump its Version Log); if the response
   itself was clumsy, improve the relevant runbook so the next responder has it easier.
 - Anything too large to fix safely here becomes its own **follow-up STEP**, listed for the index.
+  If the team accepts a residual risk or deferred debt item instead of fixing it now, add or
+  update the row in `registries/risks.yml` with the postmortem/STEP reference and revisit
+  trigger. The postmortem or follow-up STEP carries the detail; the register row stays short.
 
 ## Output
 - A **postmortem** in the Incident STEP folder: timeline, root cause, contributing factors, the
   similar issues found (Part 3), and the fixes/hardening applied (Part 4).
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any
-  **follow-up STEPs** filed in `prompts/STEP-index.md`.
+  **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
+  in `registries/risks.yml`.
 - Mark the Incident STEP's substeps and the STEP **Done**; note anything to watch at the next
   **check-in** (`runbooks/check-in.md`).

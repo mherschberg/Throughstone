@@ -47,9 +47,11 @@ liability you're taking on — and the cheapest one is the one you don't add.
 ## Part 2 — Periodic audit (on the check-in cadence)
 - [ ] **Scan for known vulnerabilities.** Run your ecosystem's audit across **all repos**.
       Triage the findings: patch the exploitable ones now; for any you consciously defer, record
-      an **accepted-risk** note with the trigger to revisit — the same discipline as a deferred
-      threat in `architecture/*-security-threat-model.md` (a standing policy → an ADR; a
-      one-off → a line in the check-in record).
+      an **accepted-risk** row in `registries/risks.yml` with the trigger to revisit — the same
+      discipline as a deferred threat in `architecture/*-security-threat-model.md` (a standing
+      policy → an ADR referenced from the row; a one-off → a concise row with the check-in or
+      advisory reference). If the deferral is not already explained in an ADR, issue, advisory
+      note, or check-in report, write that source first and reference it from the row.
 - [ ] **Update cadence.** Apply **security patches promptly**; take feature/major upgrades
       *deliberately* (read the changelog, expect breaking changes, run the tests). Neither
       extreme is safe: everything pinned years behind becomes one terrifying upgrade, but
@@ -70,7 +72,8 @@ present in other repos or other services?
 ## Output / record
 Most of this is action, not documents — but leave a trail:
 - **Audit result** noted in the check-in record (vulnerabilities found, patched, or deferred).
-- **Accepted-risk deferrals** with their revisit trigger (per above).
+- **Accepted-risk deferrals** recorded or updated in `registries/risks.yml` with their revisit
+  trigger (per above).
 - **Standing policies** as **ADRs** — e.g. "no AGPL dependencies," "pin exact versions,"
   "security patches within N days" — so the rule outlives the person who set it.
 - File a **follow-up STEP** for anything too big to handle in the moment (a major framework

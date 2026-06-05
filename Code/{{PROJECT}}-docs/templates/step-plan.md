@@ -17,6 +17,8 @@
      or architecture doc. Carrying these forward keeps a shared mental model. -->
 - `overview.md` — read **Your experience level** before user-facing questions or
   explanations; keep that file as the single source of truth for the value.
+- `registries/risks.yml` — review relevant accepted risks/debt before planning work that
+  touches their area.
 - ADR-XXXX — …
 - architecture/NN-… — …
 
@@ -60,6 +62,10 @@
   `templates/substep-prompt.md`). Override per substep only with a stated reason.
 - **Code is documented as it's written.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see `coding-standards/README.md`).
+- **Accepted risks stay visible.** If this STEP accepts a risk or defers tech debt, add or
+  update `registries/risks.yml` with severity, owner, and revisit trigger. Reference an
+  architecture decision/section, ADR, issue/follow-up STEP, incident report, or check-in report
+  instead of duplicating detail; create that source first if it doesn't already exist.
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->

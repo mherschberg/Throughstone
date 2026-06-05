@@ -78,7 +78,8 @@ deploy/rollback checklist), `incident-postmortem.md` (respond to a production in
 spin up an Incident STEP to RCA → find similar → fix), and `dependency-supply-chain.md` (vet a
 new dependency; audit dependencies for vulns/licenses on a cadence); add your own operational
 ones), `registries/`
-(e.g. `repos.yml`, the repo inventory for multi-repo projects).
+(e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted
+risk / tech-debt register).
 
 ## 4. Architecture sessions
 
@@ -255,7 +256,8 @@ go — the prompts should reflect the current intent, not the original guess.
 Roughly **every 10–20 STEPs**, the roadmap includes a **Check-in STEP** — a full STEP whose
 job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
 **both directions** (stale doc → fix the doc/write an ADR; code drifted from a still-correct
-doc → file a bug) and **run the full test suite**. The implementation planning session
+doc → file a bug), review the accepted risks/debt in `registries/risks.yml`, and **run the
+full test suite**. The implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
 capability lands, not mid-feature). Treat 10–20 as a guideline — pick the breakpoint by
 judgment. The agent should also **proactively suggest** inserting a check-in when about that
@@ -298,7 +300,12 @@ per-machine shell. The `init.sh` wizard sets this up for the first developer; se
 aren't created at bootstrap — they're stamped from
 `Code/{{PROJECT}}-docs/templates/repo-readme.md` once the architecture names them. (Or choose
 mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
-`registries/repos.yml` is the canonical inventory. **Every repo carries a README explaining
+`registries/repos.yml` is the canonical inventory. `registries/risks.yml` is the canonical
+accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
+there with owner, severity, revisit trigger, and a reference to the durable source artifact
+that explains it. If no source exists yet, create the right one first — an architecture
+decision/section, ADR, issue/follow-up STEP, incident report, or check-in report — then add the
+register row. **Every repo carries a README explaining
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at

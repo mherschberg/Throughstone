@@ -49,9 +49,10 @@ PLANs, no substep prompts. From then on you build the STEPs one at a time, autho
 STEP's PLAN + substep prompts with the recipe below **when you start that STEP**.
 
 The outline also interleaves a **Check-in STEP** every ~10–20 STEPs — a full STEP that runs
-`Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways + run the
-full test suite). The agent suggests one at a sensible breakpoint if it's been about that
-long since the last (see `METHOD.md` §5).
+`Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, review
+accepted risks/debt in `Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test
+suite). The agent suggests one at a sensible breakpoint if it's been about that long since
+the last (see `METHOD.md` §5).
 
 ## Recipe: adding a new STEP
 

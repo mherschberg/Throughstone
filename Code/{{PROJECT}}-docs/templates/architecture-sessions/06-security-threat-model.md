@@ -67,7 +67,8 @@ oversight.
    `runbooks/dependency-supply-chain.md` — vetting new deps and auditing them on a cadence.)
 7. **Mitigate now vs. defer.** For each significant threat: mitigate in the MVP, or defer?
    For every deferral, record the blast radius and **what triggers revisiting** (e.g.
-   "before we accept real user data / payments / go public").
+   "before we accept real user data / payments / go public"). Add each accepted deferral to
+   `registries/risks.yml`, or update the existing row if this session revisits it.
 8. **Deferral decision (if applicable).** If you're deferring a full threat model, state it
    explicitly with the trigger to revisit — a conscious, dated decision.
 
@@ -80,7 +81,11 @@ doc (use `templates/architecture-doc.md`). Body:
 - **AuthN/AuthZ posture**, **secrets & data protection**, **web-risk posture**
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Capture
-any contested or deferred decision as an **ADR** (`templates/adr.md`) — deferrals especially.
+any contested or deferred decision as an **ADR** (`templates/adr.md`) — deferrals especially —
+and add each accepted deferral to `registries/risks.yml` with owner, severity, and revisit
+trigger. Keep the register row short and reference the architecture section and/or ADR that
+records the detail; if neither exists, add the detail to this architecture doc before adding
+the register row.
 Update `prompts/STEP-index.md`: mark 1.6 done (or "deferred — see ADR-XXXX").
 
 ## Next
