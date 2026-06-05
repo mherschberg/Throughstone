@@ -97,7 +97,7 @@ set lives in `templates/architecture-sessions/`.
 | 1.5 | Scaling & performance | `architecture/05-*` |
 | 1.6 | Security & threat model *(deferrable — but as a recorded, conscious decision)* | `architecture/06-*` |
 | 1.7 | UI / design system *(platform-aware; "no UI" → skip)* | `architecture/07-*` |
-| 1.8 | Infrastructure & deployment | `architecture/08-*` |
+| 1.8 | Infrastructure & Deployment | `architecture/08-*` |
 | 1.9 | Environments *(sandbox is a question inside)* | `architecture/09-*` |
 | 1.10 | Observability | `architecture/10-*` |
 | 1.11 | Interface Contracts | `architecture/11-*` |

@@ -10,8 +10,9 @@
 > release process yet — and a home to write yours down when you do. Fill in your project's
 > actual commands and environments; the *discipline* below — a rollback plan **before** you
 > deploy, reversible migrations, a watch window — is the part worth keeping whatever your
-> pipeline. The mechanism it executes was designed in
-> `architecture/*-infrastructure-deployment.md` (deploy pipeline + rollback) and
+> pipeline. The mechanism it executes was designed in the Infrastructure & Deployment
+> architecture doc (`architecture/*-infrastructure-deployment.md`, deploy pipeline + rollback)
+> and
 > the Environments architecture doc (`architecture/*-environments.md`); point at those for the
 > specifics.
 
@@ -35,6 +36,7 @@ if it goes bad.
       back sitting on a schema you can't is a trap — write down the down-path explicitly.
 - [ ] **Config & secrets for the target environment are in place** — from the secrets manager,
       not a checked-in file (see `architecture/*-security-threat-model.md` and
+      the Infrastructure & Deployment architecture doc,
       `architecture/*-infrastructure-deployment.md`). Rotating a
       credential rather than just consuming one? That's its own procedure —
       `runbooks/secrets-rotation.md`.
@@ -45,9 +47,10 @@ if it goes bad.
 - [ ] **Ship to staging / pre-prod first** (per `architecture/*-environments.md`) and **smoke-test**
       the critical paths there before production. Skip only if the project has no such
       environment — and say so.
-- [ ] **Deploy to production** via the pipeline from `architecture/*-infrastructure-deployment.md`. Where the infra supports
-      it, prefer a strategy that makes rollback cheap (blue-green / rolling / canary /
-      feature-flagged).
+- [ ] **Deploy to production** via the deploy pipeline from the Infrastructure & Deployment
+      architecture doc (`architecture/*-infrastructure-deployment.md`). Where the runtime
+      infrastructure supports it, prefer a strategy that makes rollback cheap (blue-green /
+      rolling / canary / feature-flagged).
 - [ ] **Record it** — what version went out, to which environment, when, and by whom. It's the
       start of an audit trail the next check-in and any incident review will want.
 

@@ -2,7 +2,7 @@
 
 > **How to run:** Tell your agent *"run session 1.9"*. It interviews you one decision at a
 > time, then writes the Environments architecture doc and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and the Infrastructure & Deployment doc
+> Reads `overview.md` and the Infrastructure & Deployment architecture doc
 > (`architecture/*-infrastructure-deployment.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -40,7 +40,8 @@ code is promoted** gives you a safe path to production.
 3. **Config & secrets per environment.** How configuration differs per environment
    (environment variables / config files — never secrets in code) and where each environment's
    secrets come from
-   (consistent with the Security & Threat Model and Infrastructure & Deployment docs). **Local dev**
+   (consistent with the Security & Threat Model architecture doc and the Infrastructure &
+   Deployment architecture doc). **Local dev**
    uses a gitignored `.env` (values) / `.secrets/`
    (files) with a committed `.env.example` documenting the keys — see
    `templates/env-example.txt` for the convention (the `init.sh` `.gitignore` already excludes

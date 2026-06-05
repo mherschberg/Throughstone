@@ -130,7 +130,8 @@ method was missing, and introduces a **mechanical tooling layer** (scripts + CI)
 rules the method previously trusted to discipline.
 
 ### Broader architecture coverage
-- **Resilience & disaster recovery** is now first-class in the Infrastructure session (1.8):
+- **Resilience & disaster recovery** is now first-class in the Infrastructure & Deployment
+  session (1.8):
   failure modes / single points of failure, an availability target, graceful degradation, and
   backups with RPO/RTO and restore-rehearsal.
 - **Accessibility & internationalization** in the UI session (1.7): a concrete a11y target

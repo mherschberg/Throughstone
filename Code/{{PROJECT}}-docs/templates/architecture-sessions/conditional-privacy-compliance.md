@@ -41,7 +41,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
 - Recommend the **least data, least retention, clearest purpose** option that meets the need,
   and flag what each choice obligates you to.
 - Keep it consistent with the Data Model and Security & Threat Model docs; flag where a choice
-  ties to the Infrastructure & Deployment doc / residency.
+  ties to the Infrastructure & Deployment architecture doc's residency decisions.
 - This is **not legal advice** — it produces an engineering record of intent and surfaces
   where a lawyer or DPO should confirm. Say so when a question turns on a legal judgment.
 
@@ -69,7 +69,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
 7. **Data residency & sub-processors.** Where data physically lives (residency/sovereignty
    constraints) and which third parties (analytics, hosting, payment, email, AI APIs) receive
    personal data — your sub-processors — plus a transfer mechanism if data crosses borders.
-   Ties to the Infrastructure & Deployment doc.
+   Ties to the Infrastructure & Deployment architecture doc.
 8. **Governance & accountability.** Who owns privacy, where the record-of-processing / data
    map lives and stays current, your **breach-notification** obligations (who you must notify
    and how fast), and the plan for a public **privacy policy** (and a DPA where required).
@@ -82,8 +82,9 @@ the **personal-data inventory** table, since the rest follows from them. Fill th
 Summary**, record **Open Questions** (flag any awaiting legal/DPO confirmation), start the
 **Version Log**. Capture significant choices as **ADRs** — applicable regimes, data
 residency, retention periods, and any consent/sub-processor decision that consumers depend on.
-Cross-check retention against the Data Model doc and residency against the Infrastructure & Deployment doc,
-and note any updates those docs need. Update `prompts/STEP-index.md`: mark this substep done.
+Cross-check retention against the Data Model doc and residency against the Infrastructure &
+Deployment architecture doc, and note any updates those docs need. Update
+`prompts/STEP-index.md`: mark this substep done.
 
 ## Next
 Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the cross-cutting review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.

@@ -42,8 +42,8 @@ to measure, and what to alert on** now means you can actually operate the thing.
    targets to the performance numbers from the Scaling & Performance doc.
 3. **Tracing.** Do you need distributed tracing? (Usually yes once multiple
    services/components are in a request path; often skippable for a single service.)
-4. **Health checks.** Liveness/readiness endpoints each component exposes (used by infra
-   from the Infrastructure & Deployment doc).
+4. **Health checks.** Liveness/readiness endpoints each component exposes (used by runtime
+   infrastructure described in the Infrastructure & Deployment architecture doc).
 5. **Error tracking.** How exceptions are captured and surfaced (e.g. Sentry-style).
 6. **Dashboards & alerting.** What you want to see at a glance; what conditions should page
    a human, the thresholds, and who's notified. Avoid alert noise — alert on symptoms users

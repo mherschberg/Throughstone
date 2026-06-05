@@ -1,14 +1,14 @@
 # {{PROJECT}} — Infrastructure & Deployment (Session 1.8)
 
 > **How to run:** Tell your agent *"run session 1.8"*. It interviews you one decision at a
-> time, then writes `architecture/08-infrastructure-deployment.md` and updates
+> time, then writes the Infrastructure & Deployment architecture doc and updates
 > `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview doc
 > (`architecture/*-architecture-overview.md`), the Scaling & Performance doc
 > (`architecture/*-scaling-performance.md`), and the Security & Threat Model doc
 > (`architecture/*-security-threat-model.md`) first — plus
-> any conditional-session doc with infra implications (e.g. privacy-compliance for data residency/
-> retention, identity-auth for secrets & session stores, native-app for build/distribution & push,
-> or one added later), if it's been written.
+> any conditional-session doc with infrastructure or deployment implications (e.g.
+> privacy-compliance for data residency/retention, identity-auth for secrets & session stores,
+> native-app for build/distribution & push, or one added later), if it's been written.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -18,6 +18,13 @@
 With the architecture, scale, and security decided, we'll settle where the system runs, how
 your code gets there, and how it survives the failures it will eventually hit — so deploys
 are repeatable and recoverable instead of hand-assembled and fragile.
+
+Terminology: **Infrastructure & Deployment** is the Session 1.8 process name;
+`architecture/*-infrastructure-deployment.md` is the **Infrastructure & Deployment
+architecture doc** it produces (the exact output file is named in the Output section below);
+**deployment artifacts** are concrete files, settings, and operational conventions governed
+by that doc, such as deploy pipelines, infrastructure-as-code files, rollback procedures,
+runtime infrastructure, production secrets wiring, backup jobs, and DR runbooks.
 
 ## Why this session matters
 "It runs on my laptop" is not a deployment. Without a deliberate plan, infrastructure
