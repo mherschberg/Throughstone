@@ -117,8 +117,8 @@ standard exposed.
 ### Flexible session set
 - **Session numbering no longer hardcodes the current set:** the conditional-doc rule and
   `status.sh` review-detection adapt to added sessions; dependency-bearing sessions
-  (Scaling, UI, Infrastructure, Observability, Interface Contracts, and Test Strategy) read relevant
-  conditional docs when present.
+  (Scaling & Performance, UI / Design System, Infrastructure & Deployment, Observability,
+  Interface Contracts, and Test Strategy) read relevant conditional docs when present.
 - **Glossary session** harvests terms from every architecture doc (including conditional docs above
   the core block), not a fixed range.
 - **METHOD §4 "Adding a session" recipe** — conditional (zero-touch) vs. standard (renumber the

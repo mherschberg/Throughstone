@@ -3,9 +3,10 @@
 > **How to run:** Tell your agent *"run session 1.10"*. It interviews you one decision at a
 > time, then writes the Observability architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> and the Scaling & Performance doc (`architecture/*-scaling-performance.md`) first — plus any conditional-session doc that
-> affects what you log/alert on (e.g. identity-auth for auth-event audit logging, privacy-compliance
-> for PII-in-logs and log retention, or one added later), if it's been written.
+> and the Scaling & Performance architecture doc (`architecture/*-scaling-performance.md`) first
+> — plus any conditional-session doc that affects what you log/alert on (e.g. identity-auth
+> for auth-event audit logging, privacy-compliance for PII-in-logs and log retention, or one
+> added later), if it's been written.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -39,7 +40,7 @@ to measure, and what to alert on** now means you can actually operate the thing.
    to trace a request across components. And the **never-log list** (secrets, tokens, PII).
 2. **Metrics.** The few that matter — start from the "golden signals": latency, traffic,
    errors, saturation. Plus any domain metrics (e.g. signups/day, jobs processed). Tie
-   targets to the performance numbers from the Scaling & Performance doc.
+   targets to the performance numbers from the Scaling & Performance architecture doc.
 3. **Tracing.** Do you need distributed tracing? (Usually yes once multiple
    services/components are in a request path; often skippable for a single service.)
 4. **Health checks.** Liveness/readiness endpoints each component exposes (used by runtime

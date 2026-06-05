@@ -1,7 +1,8 @@
 # {{PROJECT}} — Scaling & Performance (Session 1.5)
 
 > **How to run:** Tell your agent *"run session 1.5"*. It interviews you one decision at a
-> time, then writes `architecture/05-scaling-performance.md` and updates `prompts/STEP-index.md`.
+> time, then writes the Scaling & Performance architecture doc and updates
+> `prompts/STEP-index.md`.
 > Reads `overview.md`, the Phasing & Roadmap doc (`architecture/*-phasing-roadmap.md`),
 > the Architecture Overview doc (`architecture/*-architecture-overview.md`), and the Data Model
 > doc (`architecture/*-data-model.md`) first — plus any
@@ -15,6 +16,13 @@
 ## What this session does
 With the components and data in place, we'll make sure the simple first version won't quietly
 block the growth you'll want later — without over-building for scale you don't have yet.
+
+Terminology: **Scaling & Performance** is the Session 1.5 process name;
+`architecture/*-scaling-performance.md` is the **Scaling & Performance architecture doc** it
+produces (the exact output file is named in the Output section below); **performance artifacts**
+are concrete outputs governed by that doc, such as load profiles, performance targets,
+bottleneck/scaling decisions, caching and async plans, load-test inputs, and don't-foreclose
+mitigations.
 
 ## Why this session matters
 The goal here is **not** to build for scale you don't have — it's to make sure the MVP,
@@ -49,7 +57,8 @@ shortcuts are fine and which to avoid cheaply now.
    keep handlers stateless, put an abstraction at the boundary)?
 
 ## Output
-Write `architecture/05-scaling-performance.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/05-scaling-performance.md` — the Scaling & Performance architecture doc
+(use `templates/architecture-doc.md`). Body:
 - **Load profile** — now vs. projected
 - **Performance targets** — operation | target
 - **Stateful vs. stateless** components

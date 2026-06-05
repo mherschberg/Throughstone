@@ -56,8 +56,8 @@ where the pieces have to work *together*.
    wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
    `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
-7. **Performance / load testing.** Whether and when load tests run (ties to the targets in
-   1.5).
+7. **Performance / load testing.** Whether and when load tests run (ties to the performance
+   targets in the Scaling & Performance architecture doc).
 8. **Coding standards per language.** Confirm the implementation language(s) from the
    high-level stack (the Architecture Overview stack decision). Then reconcile `coding-standards/` to that list, **one
    language at a time**:

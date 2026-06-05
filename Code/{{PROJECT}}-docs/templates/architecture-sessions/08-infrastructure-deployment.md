@@ -3,7 +3,7 @@
 > **How to run:** Tell your agent *"run session 1.8"*. It interviews you one decision at a
 > time, then writes the Infrastructure & Deployment architecture doc and updates
 > `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview doc
-> (`architecture/*-architecture-overview.md`), the Scaling & Performance doc
+> (`architecture/*-architecture-overview.md`), the Scaling & Performance architecture doc
 > (`architecture/*-scaling-performance.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first — plus
 > any conditional-session doc with infrastructure or deployment implications (e.g.
@@ -46,7 +46,7 @@ how a small outage becomes permanent data loss.
    constrained (existing accounts, compliance, budget)?
 2. **Compute model.** Containers (Docker; orchestrated by K8s/ECS/etc.) vs. serverless
    functions vs. managed app platform vs. plain VMs. Default to the simplest that meets the
-   scaling needs from the Scaling & Performance doc.
+   scaling needs from the Scaling & Performance architecture doc.
 3. **Build & deploy pipeline.** How code becomes a running version: CI builds, artifacts,
    and how a deploy is triggered (and rolled back). Manual is OK for an MVP if it's written
    down and repeatable — the optional `runbooks/release-deploy.md` checklist is where that
@@ -60,7 +60,7 @@ how a small outage becomes permanent data loss.
 7. **Failure modes & resilience.** Walk what happens when a piece dies — a single process,
    the machine or availability zone it runs on, or a dependency you don't control (the
    database, a third-party API). Name the **single points of failure** (this is the
-   *availability* angle; the Scaling & Performance doc named them for *load*) and pick an
+   *availability* angle; the Scaling & Performance architecture doc named them for *load*) and pick an
    **availability target**: is a
    few hours of downtime fine, or must this stay up? For an MVP, a single region with a fast
    redeploy is often the right call — the point is to choose it knowingly, not by default.

@@ -34,7 +34,8 @@ now prevents painful migrations and compliance surprises later.
    authoritative source). Critical once more than one component reads/writes it.
 3. **Storage choice(s).** Relational vs. document vs. key-value vs. blob — and whether it's
    one shared database or one per component. Default: one relational DB for an MVP unless
-   there's a reason. Flag lock-in / scaling implications (ties to 1.5).
+   there's a reason. Flag lock-in / scaling implications for the Scaling & Performance
+   session.
 4. **Identifiers.** Surrogate keys (UUID/auto-increment) vs. natural keys; ID format and
    whether IDs are exposed publicly.
 5. **Sensitive data / PII.** What personal or sensitive data is collected, and a rough
