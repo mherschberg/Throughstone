@@ -27,6 +27,44 @@ want() {
   ask "$prompt" "$def"
 }
 
+preflight_git_commit() {
+  local tmp out status
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-git-preflight.XXXXXX")"
+
+  if out="$(
+    {
+      cd "$tmp" &&
+      git init -q &&
+      printf 'preflight\n' > .preflight &&
+      git add .preflight &&
+      git commit -qm "Throughstone git preflight"
+    } 2>&1
+  )"; then
+    rm -rf "$tmp"
+    return 0
+  fi
+
+  status=$?
+  rm -rf "$tmp"
+  echo "init.sh: Git is installed, but it cannot create commits with your current configuration." >&2
+  [ -n "$out" ] && printf '%s\n\n' "$out" >&2
+  cat >&2 <<'EOF'
+Throughstone needs Git to save the initial project files. Git usually needs your
+name and email address set once on this computer before it can make commits.
+
+Common fix:
+  git config --global user.name "Your Name"
+  git config --global user.email "you@example.com"
+
+Then rerun:
+  ./init.sh
+
+For more help, see Git's first-time setup guide:
+  https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
+EOF
+  exit "$status"
+}
+
 usage() {
   cat <<'USAGE'
 init.sh — one-time Throughstone setup wizard.
@@ -103,6 +141,7 @@ if [ -n "$missing" ]; then
   echo "  'git' and 'perl' are required; both ship on macOS and nearly every Linux." >&2
   exit 1
 fi
+preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — the GitHub-remote step will be skipped (you can add remotes later)."
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
@@ -467,4 +506,17 @@ Next step:
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
 You can delete this init.sh now — it has done its job.
+
+Recommended optional backup:
+  You can start now; your project is saved locally with Git. For backup, sharing,
+  and working from another computer, put the project on GitHub when you're ready.
+
+  Create a GitHub account:
+    https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github
+
+  GitHub:
+    https://github.com/
+
+  GitHub CLI (optional; lets Throughstone create remotes for you with --remotes=yes):
+    https://cli.github.com/
 EOF
