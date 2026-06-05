@@ -35,7 +35,7 @@ between "we have a pile of docs" and "we have a coherent architecture."
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?
 3. **Foreclosure check.** Walk the "Forecloses / tradeoff" entries across all docs. Does any
-   MVP shortcut block a capability the phasing doc committed to a later phase? If so,
+   MVP shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
    flag it — it may need a cheaper approach now.
 4. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
    **ADRs**? Write any that are missing (`templates/adr.md`).

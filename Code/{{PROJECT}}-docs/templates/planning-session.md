@@ -7,7 +7,7 @@
 > each. Authoring the first STEP's PLAN and starting to code is the *next* action, in a fresh
 > chat (see "Next" below).
 >
-> Reads **all** of `architecture/*` (especially the Phasing & Roadmap doc
+> Reads **all** of `architecture/*` (especially the Phasing & Roadmap architecture doc
 > `architecture/*-phasing-roadmap.md`, the Architecture Overview architecture doc
 > `architecture/*-architecture-overview.md`, and the Interface Contracts architecture doc
 > `architecture/*-interface-contracts.md`), `adr/*`,
@@ -32,7 +32,8 @@ architecture changes and the remaining STEPs need re-planning.
 
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
-- Pull the Phase-1 scope from `architecture/*-phasing-roadmap.md` and the component
+- Pull the Phase-1 scope from the Phasing & Roadmap architecture doc
+  (`architecture/*-phasing-roadmap.md`) and the component
   boundaries from the Architecture Overview architecture doc
   (`architecture/*-architecture-overview.md`), plus the contract policy from
   `architecture/*-interface-contracts.md`. Don't re-litigate architecture here — if a
@@ -64,10 +65,10 @@ architecture changes and the remaining STEPs need re-planning.
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
    - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
-   - **One STEP per core capability** — each Phase-1 capability from the phasing doc, built
+   - **One STEP per core capability** — each Phase-1 capability from the phase plan, built
      against the data layer and component boundaries.
    - **Integration / end-to-end** — wire the capabilities together; the launch-criteria
-     path from `*-phasing-roadmap` works end to end.
+     path from the phase plan works end to end.
    Adjust to the actual project. Each STEP gets a global STEP number (continuing from
    STEP-1).
 3. **Interleave check-in STEPs.** Roughly **every 10–20 STEPs**, add a **Check-in STEP**
@@ -100,7 +101,7 @@ lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prom
 `prompts/README.md` ("Recipe: adding a new STEP"). See the next-action resolver
 (`METHOD.md` §10).
 
-Start by reading `architecture/*-phasing-roadmap.md`, the Architecture Overview architecture doc
+Start by reading the Phasing & Roadmap architecture doc (`architecture/*-phasing-roadmap.md`), the Architecture Overview architecture doc
 (`architecture/*-architecture-overview.md`),
 and the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`), then
 work through the points above with the user.

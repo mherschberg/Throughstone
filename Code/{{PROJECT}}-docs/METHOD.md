@@ -91,7 +91,7 @@ set lives in `templates/architecture-sessions/`.
 | # | Session | Produces |
 |---|---------|----------|
 | 1.1 | System overview, requirements & non-goals | `architecture/01-*` |
-| 1.2 | Phasing & roadmap | `architecture/02-*` |
+| 1.2 | Phasing & Roadmap | `architecture/02-*` |
 | 1.3 | Architecture Overview & Component Boundaries *(asks which client surfaces — gates UI / Design System + app)* | `architecture/03-*` |
 | 1.4 | Data Model, Ownership & Retention | `architecture/04-*` |
 | 1.5 | Scaling & Performance | `architecture/05-*` |

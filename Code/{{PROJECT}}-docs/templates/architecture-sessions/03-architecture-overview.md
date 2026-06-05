@@ -3,7 +3,7 @@
 > **How to run:** Tell your agent *"run session 1.3"*. It interviews you one decision at a
 > time, then writes the Architecture Overview architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the System Overview doc (`architecture/*-system-overview.md`), and
-> the Phasing & Roadmap doc (`architecture/*-phasing-roadmap.md`) first.
+> the Phasing & Roadmap architecture doc (`architecture/*-phasing-roadmap.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}

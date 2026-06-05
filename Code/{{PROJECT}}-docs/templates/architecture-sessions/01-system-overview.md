@@ -85,7 +85,7 @@ it decides; note any rows already marked skipped/N/A.
 
 Mention that **conditional** sessions slot in by name when they apply — **identity & auth**
 (if there are user accounts / access control), **privacy/compliance** (if there's personal or
-regulated data), and **native app** (if there's a mobile or desktop app). The roadmap session
+regulated data), and **native app** (if there's a mobile or desktop app). The Phasing & Roadmap session
 and the index confirm which sessions are in play.
 
 Then point them at the next action: the lowest open STEP-1 substep in the index. Tell the

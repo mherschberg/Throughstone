@@ -56,7 +56,7 @@ into `Code/{{PROJECT}}-docs/overview.md`. **Wait for confirmation.**
 Propose:
 - The **Phase plan** — what Phase 1 (the MVP) includes and, deliberately, excludes; a
   rough sketch of later phases for things being deferred. (This is a sketch to align on
-  direction; session 1.2 formalizes the phasing.)
+  direction; the Phasing & Roadmap session formalizes the phase plan.)
 - **STEP-1 (architecture)** as the first and — for now — the *only* STEP in the index.
 Record **only STEP-1's row** in `prompts/STEP-index.md` (already seeded from
 `Code/{{PROJECT}}-docs/templates/step-index-seed.md` by `init.sh` — fill in that row).
