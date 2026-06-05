@@ -48,10 +48,11 @@ UI / Design System session and the conditional Native-app session apply.
    Contracts session, after data/security/privacy/observability choices are known.
 5. **Key flows.** Walk through 1–2 important end-to-end scenarios and how components
    collaborate to serve them. This validates the boundaries.
-6. **High-level tech stack.** Languages/frameworks per component (detail lands in the
-   repo/Test Strategy session). Note anything already constrained. The language(s) you
-   name here drive which **coding standards** apply — Test Strategy reconciles
-   `coding-standards/` to this list (reviewing the ones that ship, creating any that don't).
+6. **High-level tech stack.** Languages/frameworks per component (detail lands in repo READMEs
+   and the Test Strategy session). Note anything already constrained. The language(s) you
+   name here drive which **coding standards** apply — the Test Strategy session reconciles
+   `coding-standards/` to this list and records the result in the Test Strategy architecture doc
+   (reviewing the ones that ship, creating any that don't).
 7. **Build vs. buy.** For major capabilities (auth, payments, search, email, etc.), what
    you'll build vs. use a managed service for. Flag anything that becomes a hard dependency.
 

@@ -1,8 +1,9 @@
 # CI starter (GitHub Actions)
 
 Two workflows so a {{PROJECT}} project has continuous integration **from day one** — the method
-checks and the test gate the architecture's test-strategy session calls for (`architecture/*-test-strategy.md`,
-"CI gates"). They're GitHub Actions, but the *shape* (check on push/PR, fail on red) ports to any CI.
+checks and the test gate the Test Strategy architecture doc calls for
+(`architecture/*-test-strategy.md`, "CI gates"). They're GitHub Actions, but the *shape*
+(check on push/PR, fail on red) ports to any CI.
 
 ## 1. Method integrity — `method-check.yml`  *(ships live; no template step)*
 

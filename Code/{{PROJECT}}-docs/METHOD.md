@@ -70,8 +70,8 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
 
 Other folders in the hub: `coding-standards/` (per-language plus cross-cutting — `sql.md`,
 `shell.md`, `api.md`; defaults ship for common languages, and the Test Strategy session
-reconciles them to
-the stack you pick — review what's there, add what's missing, prune the rest), `runbooks/`
+reconciles them to the stack you pick and records the result in the Test Strategy architecture
+doc — review what's there, add what's missing, prune the rest), `runbooks/`
 (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
 deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
@@ -101,7 +101,7 @@ set lives in `templates/architecture-sessions/`.
 | 1.9 | Environments *(sandbox is a question inside)* | `architecture/09-*` |
 | 1.10 | Observability | `architecture/10-*` |
 | 1.11 | Interface Contracts | `architecture/11-*` |
-| 1.12 | Test strategy | `architecture/12-*` |
+| 1.12 | Test Strategy | `architecture/12-*` |
 | 1.13 | Glossary | `architecture/13-*` |
 | 1.14 | Cross-cutting review | review doc |
 

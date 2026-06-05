@@ -1,8 +1,7 @@
 # {{PROJECT}} - Interface Contracts (Session 1.11)
 
 > **How to run:** Tell your agent *"run session 1.11"*. It interviews you one decision at a
-> time, then writes the Interface Contracts architecture doc
-> (`architecture/11-interface-contracts.md`) and updates `prompts/STEP-index.md`.
+> time, then writes the Interface Contracts architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
 > the Data Model doc (`architecture/*-data-model.md`), the Security & Threat Model doc
 > (`architecture/*-security-threat-model.md`), the Environments doc
@@ -20,8 +19,9 @@ decide how system boundaries are specified and kept in sync so consumers build a
 contract instead of guessing from prose or code.
 
 Terminology: **Interface Contracts** is the Session 1.11 process name;
-`architecture/11-interface-contracts.md` is the **Interface Contracts architecture doc** it
-produces; an **interface contract artifact** is a boundary-specific spec or schema named by
+`architecture/*-interface-contracts.md` is the **Interface Contracts architecture doc** it
+produces (the exact output file is named in the Output section below); an **interface contract artifact**
+is a boundary-specific spec or schema named by
 that doc, such as OpenAPI, GraphQL, protobuf, AsyncAPI, JSON Schema, or a public package
 interface.
 
@@ -72,7 +72,7 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
 10. **Observability hooks.** Pull from observability: request IDs/correlation IDs, trace headers,
     event IDs, and error logging expectations at boundaries.
 11. **Contract testing and CI gates.** Define the contract validation expectations that the Test
-    Strategy session will fold into the full test strategy: schema validation, generated client/server tests,
+    Strategy session will fold into the Test Strategy architecture doc: schema validation, generated client/server tests,
     consumer-driven contract tests if needed, OpenAPI/GraphQL/protobuf linting, backward
     compatibility checks, and what must pass before merge.
 12. **Ownership and update rule.** Decide which component/team owns each contract, who reviews

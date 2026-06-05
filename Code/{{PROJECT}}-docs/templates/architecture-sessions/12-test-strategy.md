@@ -1,7 +1,7 @@
 # {{PROJECT}} — Test Strategy (Session 1.12)
 
 > **How to run:** Tell your agent *"run session 1.12"*. It interviews you one decision at a
-> time, then writes `architecture/12-test-strategy.md` and updates `prompts/STEP-index.md`.
+> time, then writes the Test Strategy architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
 > the Data Model doc (`architecture/*-data-model.md`), the Environments doc
 > (`architecture/*-environments.md`), and the Interface Contracts architecture doc
@@ -18,6 +18,12 @@
 With the components, data, environments, and interface contracts set, we'll decide what kinds
 of tests you'll write and what has to pass before code merges, so you can change things later
 without fear.
+
+Terminology: **Test Strategy** is the Session 1.12 process name;
+`architecture/*-test-strategy.md` is the **Test Strategy architecture doc** it produces (the
+exact output file is named in the Output section below); **test artifacts** are concrete files
+or configured checks governed by that doc, such as test suites, CI workflows/gates, coverage
+reports, and the coding standards files reconciled during this session.
 
 ## Why this session matters
 Tests are what let you (and your AI agent) change code later without fear. The common
@@ -71,7 +77,8 @@ where the pieces have to work *together*.
      style that complements the HTTP/REST interface contract artifacts and policy from the Interface Contracts architecture doc.
 
 ## Output
-Write `architecture/12-test-strategy.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc (use
+`templates/architecture-doc.md`). Body:
 - **Test tiers** — tier | scope | tools | where it runs
 - **Coverage priorities** — must-cover paths
 - **Test data & isolation**, **mocking strategy**

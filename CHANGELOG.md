@@ -84,10 +84,11 @@ the method so each surfaces at the right moment.
   the language documents them, e.g. Java fields, C# properties), public and private.
 
 ### Wiring
-- The cross-cutting standards are reconciled by the **Test Strategy session** (kept only when each applies —
-  a relational DB for SQL, shell scripts for Shell, an HTTP/REST boundary for API), listed in
-  `coding-standards/README.md` and the `METHOD.md` hub gloss ("per-language plus cross-cutting"),
-  and `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
+- The cross-cutting standards are reconciled by the **Test Strategy session** and recorded in
+  the Test Strategy architecture doc (kept only when each applies — a relational DB for SQL,
+  shell scripts for Shell, an HTTP/REST boundary for API), listed in `coding-standards/README.md`
+  and the `METHOD.md` hub gloss ("per-language plus cross-cutting"), and
+  `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
 
 ## [1.2.0] - 2026-06-01
 

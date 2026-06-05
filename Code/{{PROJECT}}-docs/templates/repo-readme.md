@@ -10,8 +10,9 @@
   "API / interface" for a library), but keep the order — and never drop the role one-liner
   above or the Overview below: explaining what the repo *is* is the one non-negotiable part.
 
-  Stamp the CI gate too: drop `templates/ci/code-repo-ci.yml` into this repo's
-  `.github/workflows/ci.yml` and fill in its stack's test command (see `templates/ci/README.md`).
+  Stamp the CI gate named by the Test Strategy architecture doc too: drop
+  `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill in its
+  stack's test command (see `templates/ci/README.md`).
 -->
 
 ## Overview
