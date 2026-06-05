@@ -3,7 +3,7 @@
 > **How to run:** Tell your agent *"run session 1.11"*. It interviews you one decision at a
 > time, then writes the Interface Contracts architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> the Data Model doc (`architecture/*-data-model.md`), the Security & Threat Model architecture doc
+> the Data Model architecture doc (`architecture/*-data-model.md`), the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`), the Environments architecture doc
 > (`architecture/*-environments.md`), and the Observability architecture doc
 > (`architecture/*-observability.md`) first - plus any conditional-session docs already written

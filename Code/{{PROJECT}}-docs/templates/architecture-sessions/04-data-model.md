@@ -1,7 +1,7 @@
 # {{PROJECT}} — Data Model, Ownership & Retention (Session 1.4)
 
 > **How to run:** Tell your agent *"run session 1.4"*. It interviews you one decision at a
-> time, then writes `architecture/04-data-model.md` and updates `prompts/STEP-index.md`.
+> time, then writes the Data Model architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the System Overview doc (`architecture/*-system-overview.md`), and
 > the Architecture Overview doc (`architecture/*-architecture-overview.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
@@ -13,6 +13,12 @@
 In 1.3 we set the components; now we'll work out the data each one needs and owns, how long
 it's kept, and which parts are sensitive — decisions that get painful to change once code
 exists.
+
+Terminology: **Data Model, Ownership & Retention** is the Session 1.4 process name;
+`architecture/*-data-model.md` is the **Data Model architecture doc** it produces (the exact
+output file is named in the Output section below); **data model artifacts** are concrete
+outputs governed by that doc, such as entity/relationship models, ownership tables, storage
+choices, sensitive-data inventories, retention/deletion rules, and migration notes.
 
 ## Why this session matters
 Data outlives code. Developers often model entities ad hoc as they build, then discover

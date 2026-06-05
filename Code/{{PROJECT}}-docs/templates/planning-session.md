@@ -61,7 +61,7 @@ architecture changes and the remaining STEPs need re-planning.
 2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order.
    A typical shape:
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
-   - **Core data layer** — the data model from `*-data-model` made real (schema,
+   - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
    - **One STEP per core capability** — each Phase-1 capability from the phasing doc, built
      against the data layer and component boundaries.

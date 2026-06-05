@@ -4,7 +4,7 @@
 > time, then writes the Security & Threat Model architecture doc
 > (`architecture/06-security-threat-model.md`) and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> and the Data Model doc (`architecture/*-data-model.md`) first.
+> and the Data Model architecture doc (`architecture/*-data-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -35,7 +35,7 @@ oversight.
 - For each threat, recommend a **minimum viable mitigation** for the MVP and note the
   **blast radius** if it's skipped.
 - Keep it concrete to *this* system — use the assets and boundaries from the Architecture
-  Overview and Data Model docs.
+  Overview doc and the Data Model architecture doc.
 
 ## Decisions to make (in order)
 1. **Assets.** What's worth protecting? (Credentials/keys, personal data, money/payments,

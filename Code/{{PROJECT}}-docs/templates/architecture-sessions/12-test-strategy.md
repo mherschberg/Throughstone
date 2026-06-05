@@ -3,7 +3,7 @@
 > **How to run:** Tell your agent *"run session 1.12"*. It interviews you one decision at a
 > time, then writes the Test Strategy architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> the Data Model doc (`architecture/*-data-model.md`), the Environments architecture doc
+> the Data Model architecture doc (`architecture/*-data-model.md`), the Environments architecture doc
 > (`architecture/*-environments.md`), and the Interface Contracts architecture doc
 > (`architecture/*-interface-contracts.md`) first — plus any conditional-session
 > doc that adds test surface (e.g. identity-auth for authn/authz flows, privacy-compliance for

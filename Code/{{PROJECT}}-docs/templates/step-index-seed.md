@@ -47,7 +47,7 @@ worked, and completed.
 | 1.1 | System overview, requirements & non-goals | Planned | `architecture/01-…` |
 | 1.2 | Phasing & roadmap | Planned | `architecture/02-…` |
 | 1.3 | Architecture overview & component boundaries | Planned | `architecture/03-…` |
-| 1.4 | Data model, ownership & retention | Planned | `architecture/04-…` |
+| 1.4 | Data Model, Ownership & Retention | Planned | `architecture/04-…` |
 | 1.5 | Scaling & Performance | Planned | `architecture/05-…` |
 | 1.6 | Security & Threat Model | Planned | `architecture/06-…` |
 | 1.7 | UI / Design System | Planned | `architecture/07-…` |

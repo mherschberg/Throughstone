@@ -37,12 +37,12 @@ language the same way. It's short, but it prevents a lot of drift.
   scan whatever docs exist for new domain terms and acronyms, including any added later.
 - Flag **ambiguous or overloaded words** — terms used loosely that need a single agreed
   meaning (e.g. "user" vs. "account" vs. "member"; "job" vs. "task").
-- Keep definitions tight and align entity names with the Data Model doc.
+- Keep definitions tight and align entity names with the Data Model architecture doc.
 
 ## What to produce (work through these)
 1. **Domain terms.** The nouns and concepts specific to this project, each with a one- to
    two-sentence definition.
-2. **Entities.** The data-model entities, defined consistently.
+2. **Entities.** The data model entities, defined consistently.
 3. **Acronyms & abbreviations** used across the docs.
 4. **Disambiguations.** Words that have been used loosely — pick one meaning and note what
    each is *not*.
