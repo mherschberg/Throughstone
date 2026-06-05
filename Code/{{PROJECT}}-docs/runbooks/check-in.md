@@ -47,7 +47,7 @@ in both directions, because they catch different problems:
 Cover the high-drift areas at least: data model (`architecture/*-data-model.md`) vs. the
 real schema/migrations; architecture overview (`architecture/*-architecture-overview.md`) and
 `registries/repos.yml` vs. the real components/repos;
-infrastructure / environments vs. what's deployed; the Interface Contracts architecture doc vs.
+the Infrastructure & Deployment architecture doc and the Environments architecture doc vs. what's deployed; the Interface Contracts architecture doc vs.
 the published and generated artifacts; security vs. the auth and secrets handling actually in
 place; the Glossary architecture doc vs. the terms the code now uses. Also
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,

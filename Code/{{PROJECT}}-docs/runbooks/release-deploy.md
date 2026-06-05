@@ -12,7 +12,8 @@
 > deploy, reversible migrations, a watch window — is the part worth keeping whatever your
 > pipeline. The mechanism it executes was designed in
 > `architecture/*-infrastructure-deployment.md` (deploy pipeline + rollback) and
-> `architecture/*-environments.md`; point at those for the specifics.
+> the Environments architecture doc (`architecture/*-environments.md`); point at those for the
+> specifics.
 
 ## Why this runbook exists
 A deploy is the riskiest routine thing a project does — it's where a green test suite still
@@ -41,7 +42,7 @@ if it goes bad.
       and what would make you do it. If you can't state it, you're not ready to deploy.
 
 ## Part 2 — Deploy
-- [ ] **Ship to staging / pre-prod first** (`architecture/*-environments.md`) and **smoke-test**
+- [ ] **Ship to staging / pre-prod first** (per `architecture/*-environments.md`) and **smoke-test**
       the critical paths there before production. Skip only if the project has no such
       environment — and say so.
 - [ ] **Deploy to production** via the pipeline from `architecture/*-infrastructure-deployment.md`. Where the infra supports

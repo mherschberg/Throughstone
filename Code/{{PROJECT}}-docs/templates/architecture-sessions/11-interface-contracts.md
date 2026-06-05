@@ -4,7 +4,7 @@
 > time, then writes the Interface Contracts architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
 > the Data Model doc (`architecture/*-data-model.md`), the Security & Threat Model doc
-> (`architecture/*-security-threat-model.md`), the Environments doc
+> (`architecture/*-security-threat-model.md`), the Environments architecture doc
 > (`architecture/*-environments.md`), and the Observability architecture doc
 > (`architecture/*-observability.md`) first - plus any conditional-session docs already written
 > that affect boundaries, identity/auth, privacy, native clients, or data sent to third parties.
@@ -14,7 +14,7 @@
 {{PROJECT_DESCRIPTION}}
 
 ## What this session does
-With the components, data, security, environments, and choices from the Observability
+With the components, data, security, environment decisions, and choices from the Observability
 architecture doc in place, we'll decide how system boundaries are specified and kept in sync so
 consumers build against a clear contract instead of guessing from prose or code.
 
@@ -34,7 +34,7 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
 ## How this session works
 - One decision at a time; **wait** for answers.
 - Start from the boundaries named in the Architecture Overview doc, then pull in decisions from data, security/privacy,
-  environments, observability, and conditionals.
+  the Environments architecture doc, the Observability architecture doc, and conditionals.
 - Keep the right weight for the project: formal contracts for public or cross-component
   boundaries; lightweight or explicitly informal contracts for simple internal seams.
 

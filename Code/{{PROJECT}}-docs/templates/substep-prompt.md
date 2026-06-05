@@ -86,8 +86,8 @@ just change the code:
   the repo **README** when setup/run/test changes; the Glossary architecture doc
   (`architecture/*-glossary.md`) for new domain terms.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
-  `.secrets/` (see `architecture/*-security-threat-model.md` and
-  `architecture/*-environments.md`); commit only `.env.example`.
+  `.secrets/` (see `architecture/*-security-threat-model.md` and the Environments
+  architecture doc, `architecture/*-environments.md`); commit only `.env.example`.
 
 Leaving the doc stale is a defect, not a follow-up.
 

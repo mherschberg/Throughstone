@@ -3,7 +3,7 @@
 > **How to run:** Tell your agent *"run session 1.12"*. It interviews you one decision at a
 > time, then writes the Test Strategy architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> the Data Model doc (`architecture/*-data-model.md`), the Environments doc
+> the Data Model doc (`architecture/*-data-model.md`), the Environments architecture doc
 > (`architecture/*-environments.md`), and the Interface Contracts architecture doc
 > (`architecture/*-interface-contracts.md`) first — plus any conditional-session
 > doc that adds test surface (e.g. identity-auth for authn/authz flows, privacy-compliance for
@@ -15,7 +15,7 @@
 {{PROJECT_DESCRIPTION}}
 
 ## What this session does
-With the components, data, environments, and interface contracts set, we'll decide what kinds
+With the components, data, environment decisions, and interface contracts set, we'll decide what kinds
 of tests you'll write and what has to pass before code merges, so you can change things later
 without fear.
 
@@ -36,7 +36,7 @@ where the pieces have to work *together*.
 - One decision at a time; **wait** for answers.
 - Recommend a pragmatic default (a healthy **test pyramid**: many fast unit tests, fewer
   integration, a thin layer of end-to-end) and flag where this system needs more.
-- Tie back to the components, data, environments, and interface contracts.
+- Tie back to the components, data, environment decisions, and interface contracts.
 
 ## Decisions to make (in order)
 1. **Test tiers.** Define unit / integration / end-to-end for this project: what each

@@ -48,8 +48,8 @@ architecture changes and the remaining STEPs need re-planning.
 1. **Repo scaffolding.** What repos does the architecture name (from
    `*-architecture-overview` / `registries/repos.yml`)? The first implementation STEP is
    almost always *"scaffold the repos and the skeleton"* — create each code repo from
-   `templates/repo-readme.md`, wire up the chosen stack, CI, and the environments/secrets
-   baseline (Environments doc), plus any interface contract artifact placeholders or repo-local contract files
+   `templates/repo-readme.md`, wire up the chosen stack, CI, and the environment/secrets
+   baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus

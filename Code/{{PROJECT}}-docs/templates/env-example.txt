@@ -7,7 +7,7 @@
 #
 #   .env          Gitignored. Your local secret VALUES as environment variables
 #                 (API keys, DB passwords, tokens). Never committed.
-#   .secrets/     Gitignored directory. For secret FILES that aren't env vars —
+#   .secrets/     Gitignored directory. For secret FILES that aren't environment variables —
 #                 TLS certs, keystores, service-account JSON, private keys.
 #   .env.example  THIS file. Committed. The documented list of every key the app
 #                 needs, with placeholder/dummy values and a one-line note each.
@@ -16,7 +16,7 @@
 # Rules: real secret values live only in .env / .secrets/ (both gitignored, see the
 # project .gitignore). Deployed environments get their secrets from a real secrets
 # manager, not from a committed file (see architecture/*-security-threat-model.md and
-# architecture/*-environments.md). When you add a
+# the Environments architecture doc (architecture/*-environments.md). When you add a
 # new key to the app, add it here too so the next developer knows it exists.
 
 # --- Examples (replace with this project's real keys) ---------------------------
