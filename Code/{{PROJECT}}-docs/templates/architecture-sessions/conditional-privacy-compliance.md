@@ -88,6 +88,6 @@ Deployment architecture doc, and note any updates those docs need. Update
 `prompts/STEP-index.md`: mark this substep done.
 
 ## Next
-Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the cross-cutting review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
+Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the Cross-Cutting Review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run the privacy session" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

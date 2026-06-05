@@ -122,7 +122,7 @@ standard exposed.
 - **Glossary session** harvests terms from every architecture doc (including conditional docs above
   the core block), not a fixed range.
 - **METHOD §4 "Adding a session" recipe** — conditional (zero-touch) vs. standard (renumber the
-  cross-cutting review) wire-in checklist.
+  Cross-Cutting Review) wire-in checklist.
 
 ## [1.1.0] - 2026-05-31
 
@@ -180,7 +180,7 @@ software **architecture-first** with an AI coding agent.
 - **The method** (`METHOD.md`): the Phase → STEP → substep structure, architecture-first STEP-1
   (design docs + ADRs, no code), the two durable doc genres (architecture docs + ADRs),
   doc versioning, and the disk-derived next-action resolver.
-- **Architecture sessions:** 13 core sessions (system overview through cross-cutting review)
+- **Architecture sessions:** 13 core sessions (system overview through Cross-Cutting Review)
   plus 2 conditional sessions (native app, identity & auth).
 - **Runbooks:** the periodic check-in and multi-developer/agent collaboration.
 - **Templates:** architecture docs, ADRs, STEP plans, substep prompts, repo READMEs, per-language

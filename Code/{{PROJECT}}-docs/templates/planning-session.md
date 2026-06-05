@@ -1,7 +1,7 @@
 # {{PROJECT}} — Implementation Planning Session
 
-> **How to run:** Once the architecture STEP (STEP-1) is complete and its cross-cutting
-> review is clean, tell your agent *"run the planning session"*. Like the
+> **How to run:** Once the architecture STEP (STEP-1) is complete and its
+> Cross-Cutting Review is clean, tell your agent *"run the planning session"*. Like the
 > architecture sessions it's an interview — it turns the locked architecture into the
 > **implementation STEPs** that build Phase 1. It only **outlines** them — a short scope
 > each. Authoring the first STEP's PLAN and starting to code is the *next* action, in a fresh

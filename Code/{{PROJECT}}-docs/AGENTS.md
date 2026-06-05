@@ -76,7 +76,7 @@ They're slotted into STEP-1 under a lettered substep (e.g.
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
 architecture docs), so context can be cleared between sessions — state lives in files.
 
-When STEP-1 is complete (the cross-cutting review passed), the user moves into building by
+When STEP-1 is complete (the Cross-Cutting Review passed), the user moves into building by
 saying **"run the planning session"** — read
 `Code/{{PROJECT}}-docs/templates/planning-session.md` and follow it: it turns the locked
 architecture into the Phase-1 implementation STEPs.

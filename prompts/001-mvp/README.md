@@ -11,5 +11,5 @@ here. STEP numbers are global (they don't reset per phase).
 |------|-------|----------|----------|
 | | | | |
 
-<!-- The architecture STEP (STEP-1) is archived here as step-0001/ once its cross-cutting
+<!-- The architecture STEP (STEP-1) is archived here as step-0001/ once its Cross-Cutting
      review passes. Add a row per STEP on completion. -->

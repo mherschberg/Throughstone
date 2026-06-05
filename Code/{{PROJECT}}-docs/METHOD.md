@@ -103,7 +103,7 @@ set lives in `templates/architecture-sessions/`.
 | 1.11 | Interface Contracts | `architecture/11-*` |
 | 1.12 | Test Strategy | `architecture/12-*` |
 | 1.13 | Glossary | `architecture/13-*` |
-| 1.14 | Cross-cutting review | review doc |
+| 1.14 | Cross-Cutting Review | review doc |
 
 **Conditional sessions** (included only when relevant, auto-selected by the Architecture
 Overview & Component Boundaries client-surfaces question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
@@ -153,10 +153,10 @@ substeps (`1.6c`, `1.7b`) and never renumber the standard sessions. To add one:
 3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable by
    name, and record it in the STEP-1 PLAN's *Conditional sessions considered* table.
 
-`status.sh`, the Glossary session, and the cross-cutting review all pick it up with no further
+`status.sh`, the Glossary session, and the Cross-Cutting Review all pick it up with no further
 edits.
 
-**A standard (numbered) session costs a renumber, because the cross-cutting review is always
+**A standard (numbered) session costs a renumber, because the Cross-Cutting Review is always
 last.** A new standard session inserts *before* the review, which shifts the review — and
 anything after the insertion point — up by one. To add one:
 1. Write `templates/architecture-sessions/NN-<topic>.md`; its doc number is the next in the core
@@ -168,7 +168,7 @@ anything after the insertion point — up by one. To add one:
    `rg '1\.14|14-cross|architecture/14-'` to find leftovers, but keep dynamic prose dynamic:
    prefer session labels and topic globs outside invocation/output contracts. Run
    `scripts/check.sh` afterward; it is the mechanical backstop for heading/seed/output drift
-   and for keeping the cross-cutting review last.
+   and for keeping the Cross-Cutting Review last.
 3. Add its row to the §4 table and `templates/step-index-seed.md`.
 
 `status.sh` needs no change — it locates the review by its label, not its number.
@@ -410,9 +410,9 @@ Resolve the next action top-down against the index — the first rule that match
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
    session"* / *"run the privacy session"*), since its template file is named by topic, not by
    number (see §4).
-2. **All STEP-1 design sessions done but the cross-cutting review is still open?** → run the
-   substep whose Session label is **Cross-cutting review**.
-3. **Cross-cutting review done and STEP-1 complete, but only the STEP-1 row exists?** →
+2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
+   substep whose Session label is **Cross-Cutting Review**.
+3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
    *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
 4. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → start the
    lowest-numbered `Planned` STEP: author its PLAN + substep prompts (`prompts/README.md` →

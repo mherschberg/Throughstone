@@ -41,7 +41,7 @@ files into a new `step-NNNN/` folder** in the right phase here (see the recipe, 
 ## From architecture to implementation
 
 The implementation STEPs aren't invented one-by-one from a blank index. After STEP-1's
-cross-cutting review passes, run the **implementation planning session**
+Cross-Cutting Review passes, run the **implementation planning session**
 (`Code/{{PROJECT}}-docs/templates/planning-session.md`, *"run the planning session"*): it
 reads the locked architecture and **outlines all the Phase-1 implementation STEPs** into
 `STEP-index.md` — a short (2–3 sentence) scope each, in dependency order. It stops there: no
@@ -92,7 +92,7 @@ long since the last (see `METHOD.md` §5).
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
    in the phase folder in this repo and mark it **Done** in the index.
-   (STEP-1's review is the cross-cutting review; a Check-in STEP is its own review.) Then tell the user
+   (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.) Then tell the user
    the next action — the next `Planned` STEP, or a **Check-in STEP** if one is due — via the
    next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10).
 

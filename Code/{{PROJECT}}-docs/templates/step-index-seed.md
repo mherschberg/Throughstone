@@ -57,7 +57,7 @@ worked, and completed.
 | 1.11 | Interface Contracts | Planned | `architecture/11-…` |
 | 1.12 | Test Strategy | Planned | `architecture/12-…` |
 | 1.13 | Glossary | Planned | `architecture/13-…` |
-| 1.14 | Cross-cutting review | Planned | review doc |
+| 1.14 | Cross-Cutting Review | Planned | review doc |
 
 <!-- Conditional sessions: include-or-skip per the kickoff "Conditional sessions considered"
      table — add a row only when one is included. Slot it under a LETTERED substep after the

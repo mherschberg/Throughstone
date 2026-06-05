@@ -99,7 +99,7 @@ The user drives from here, one session at a time:
 Each session interviews the user and writes its architecture doc + any ADRs, then updates
 `prompts/STEP-index.md`. Encourage the user to clear the chat between sessions — state
 lives on disk. When all architecture sessions are done, run the substep labeled
-**Cross-cutting review**.
+**Cross-Cutting Review**.
 
 Then move from architecture into building: tell the agent *"run the planning session"*
 (`Code/{{PROJECT}}-docs/templates/planning-session.md`). It outlines **all** the Phase-1

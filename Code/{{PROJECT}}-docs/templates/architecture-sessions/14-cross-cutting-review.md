@@ -13,6 +13,12 @@ This is a final read-through of everything designed so far: it checks the docs a
 each other and fixes gaps or contradictions before coding begins. (This one's a review, not
 an interview.)
 
+Terminology: **Cross-Cutting Review** is the Session 1.14 process name; the
+`Upcoming Prompts/{{PROJECT}}-STEP-1-REVIEW.md` **review doc** is its summary artifact. This
+session does not produce a numbered architecture doc; it reconciles existing architecture docs,
+fills the architecture index, may write missing ADRs, and may carry open questions into the
+first implementation STEP.
+
 ## Why this session matters
 Each architecture doc was written in its own session, often in a cleared context. That's
 good for focus but means the docs can quietly **contradict each other** or leave **gaps
