@@ -97,5 +97,5 @@ standard is enforced, not just documented.
 - **Rate-limit** public surfaces and signal it: `429` plus `Retry-After`. Validate and bound every
   input (sizes, lengths, ranges) at the edge.
 - **Security is not optional:** authenticate every non-public endpoint, authorize per resource, and
-  serve only over TLS. Depth lives in the security-threat-model session and the **security-review**
-  process — this file just sets the house style.
+  serve only over TLS. Depth lives in the Security & Threat Model architecture doc and the
+  security review expectations for the implementation STEP — this file just sets the house style.

@@ -36,9 +36,10 @@ the cause in the *system*, never who typed the command.
    folder. Then hand off to that STEP — the emergency is over; the rest is deliberate work.
 
 > **Security incidents** that exposed data or credentials also start a **breach-notification**
-> clock from your privacy/security work (`architecture/*-security-threat-model.md`, and the
-> privacy-compliance doc if you have one). That obligation is not optional and runs independently
-> of this runbook — handle it in parallel with Part 1. If a **credential** was exposed, revoke and
+> clock from your privacy/security work (the Security & Threat Model architecture doc,
+> `architecture/*-security-threat-model.md`, and the Privacy, Compliance & Data Governance
+> architecture doc if you have one). That obligation is not optional and runs independently of
+> this runbook — handle it in parallel with Part 1. If a **credential** was exposed, revoke and
 > rotate it now per `runbooks/secrets-rotation.md` (Part 2) as part of stabilizing.
 
 ## Part 2 — Root-cause analysis (RCA)  *(substep N.1)*

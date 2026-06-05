@@ -49,7 +49,7 @@ worked, and completed.
 | 1.3 | Architecture overview & component boundaries | Planned | `architecture/03-…` |
 | 1.4 | Data model, ownership & retention | Planned | `architecture/04-…` |
 | 1.5 | Scaling & performance | Planned | `architecture/05-…` |
-| 1.6 | Security & threat model | Planned | `architecture/06-…` |
+| 1.6 | Security & Threat Model | Planned | `architecture/06-…` |
 | 1.7 | UI / Design System | Planned | `architecture/07-…` |
 | 1.8 | Infrastructure & Deployment | Planned | `architecture/08-…` |
 | 1.9 | Environments | Planned | `architecture/09-…` |

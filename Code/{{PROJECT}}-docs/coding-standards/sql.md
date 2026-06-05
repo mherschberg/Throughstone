@@ -46,7 +46,8 @@ formatter settle the rest.
 ## Safety
 - **Always use parameterized queries / prepared statements. Never build SQL by concatenating user
   input** — this is the leading cause of SQL injection, and it's a hard rule, not a preference.
-  OWASP's primary defense is parameterization; see the **security-review** process for depth.
+  OWASP's primary defense is parameterization; see the project's security review expectations
+  for depth.
 - Run the application under a **least-privilege** database account, never an admin/superuser. Wrap
   multi-statement changes that must succeed or fail together in a **transaction**, and keep
   transactions short to limit lock contention.

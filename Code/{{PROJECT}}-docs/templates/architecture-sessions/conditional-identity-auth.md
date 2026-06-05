@@ -14,7 +14,7 @@
 > above the core block, so a not-yet-run core session keeps its own reserved slot without a clash.) The substep
 > number and the doc number don't have to match.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> the Data Model doc (`architecture/*-data-model.md`), and the Security & Threat Model doc
+> the Data Model doc (`architecture/*-data-model.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -30,14 +30,14 @@ identity provider.
 Authentication ("who are you?") and authorization ("what may you do?") are easy to get
 subtly, dangerously wrong, and very expensive to retrofit. This session designs them
 deliberately — and, importantly, decides **build vs. buy**, since rolling your own identity
-is a common and costly mistake. It expands on the AuthN/AuthZ *posture* set in the security
-Security & Threat Model session.
+is a common and costly mistake. It expands on the AuthN/AuthZ posture set in the Security &
+Threat Model session.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
 - Strongly recommend a **managed identity provider** for most projects, and flag the
   obligations of rolling your own; flag what each choice forecloses.
-- Keep it consistent with the Data Model and Security & Threat Model docs.
+- Keep it consistent with the Data Model and Security & Threat Model architecture docs.
 
 ## Decisions to make (in order)
 1. **Authentication methods.** Password, OAuth/social, SSO/SAML/OIDC, passwordless/magic

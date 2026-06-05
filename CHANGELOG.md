@@ -100,8 +100,9 @@ standard exposed.
 ### New operate-time runbook
 - **Secrets rotation** (`runbooks/secrets-rotation.md`): scheduled rotation (inventory, cadence,
   no-downtime overlap, verify-then-revoke) and a **revoke-first** response to a suspected leak
-  that hands off to the incident runbook. Operationalizes the threat-model §5 posture, mirroring
-  how the dependency runbook operationalizes §6.
+  that hands off to the incident runbook. Operationalizes the secrets & data protection posture
+  from the Security & Threat Model architecture doc, mirroring how the dependency runbook
+  operationalizes the dependency-risk posture.
 
 ### Discoverability & docs hygiene
 - **README indexes** for `runbooks/` (all five — purpose, when each fires + trigger phrase,

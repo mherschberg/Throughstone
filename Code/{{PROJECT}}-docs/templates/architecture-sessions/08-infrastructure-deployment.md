@@ -4,7 +4,7 @@
 > time, then writes the Infrastructure & Deployment architecture doc and updates
 > `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview doc
 > (`architecture/*-architecture-overview.md`), the Scaling & Performance doc
-> (`architecture/*-scaling-performance.md`), and the Security & Threat Model doc
+> (`architecture/*-scaling-performance.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first — plus
 > any conditional-session doc with infrastructure or deployment implications (e.g.
 > privacy-compliance for data residency/retention, identity-auth for secrets & session stores,
@@ -39,7 +39,7 @@ how a small outage becomes permanent data loss.
 - One decision at a time; **wait** for answers.
 - Recommend the **lowest-operational-burden option that fits** (often a managed PaaS or
   containers on a managed platform for an MVP), and flag cost and lock-in tradeoffs.
-- Tie back to the Scaling & Performance and Security & Threat Model docs where relevant.
+- Tie back to the Scaling & Performance and Security & Threat Model architecture docs where relevant.
 
 ## Decisions to make (in order)
 1. **Hosting target.** Cloud provider / managed PaaS / self-host. What's already decided or
@@ -56,7 +56,7 @@ how a small outage becomes permanent data loss.
 5. **Networking & TLS.** Load balancer / ingress, DNS, TLS certificates, public vs. private
    surfaces.
 6. **Secrets in production.** Where prod secrets live (a secret manager) and how services
-   get them. (Consistent with the Security & Threat Model doc.)
+   get them. (Consistent with the Security & Threat Model architecture doc.)
 7. **Failure modes & resilience.** Walk what happens when a piece dies — a single process,
    the machine or availability zone it runs on, or a dependency you don't control (the
    database, a third-party API). Name the **single points of failure** (this is the

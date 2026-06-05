@@ -35,8 +35,8 @@ if it goes bad.
       shape, deploy, backfill, switch, drop the old in a *later* release). A deploy you can roll
       back sitting on a schema you can't is a trap — write down the down-path explicitly.
 - [ ] **Config & secrets for the target environment are in place** — from the secrets manager,
-      not a checked-in file (see `architecture/*-security-threat-model.md` and
-      the Infrastructure & Deployment architecture doc,
+      not a checked-in file (see the Security & Threat Model architecture doc,
+      `architecture/*-security-threat-model.md`, and the Infrastructure & Deployment architecture doc,
       `architecture/*-infrastructure-deployment.md`). Rotating a
       credential rather than just consuming one? That's its own procedure —
       `runbooks/secrets-rotation.md`.

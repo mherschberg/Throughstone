@@ -16,7 +16,7 @@
 > exist; still take the first free number above the core block, so a not-yet-run core session keeps
 > its own reserved slot without a clash.) The substep number and the doc number don't have to match.
 > Reads `overview.md`, the Data Model doc (`architecture/*-data-model.md`), and
-> the Security & Threat Model doc (`architecture/*-security-threat-model.md`) first.
+> the Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -40,7 +40,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
 - One decision at a time; **wait** for answers.
 - Recommend the **least data, least retention, clearest purpose** option that meets the need,
   and flag what each choice obligates you to.
-- Keep it consistent with the Data Model and Security & Threat Model docs; flag where a choice
+- Keep it consistent with the Data Model and Security & Threat Model architecture docs; flag where a choice
   ties to the Infrastructure & Deployment architecture doc's residency decisions.
 - This is **not legal advice** — it produces an engineering record of intent and surfaces
   where a lawyer or DPO should confirm. Say so when a question turns on a legal judgment.

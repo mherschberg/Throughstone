@@ -15,8 +15,9 @@
 #
 # Rules: real secret values live only in .env / .secrets/ (both gitignored, see the
 # project .gitignore). Deployed environments get their secrets from a real secrets
-# manager, not from a committed file (see architecture/*-security-threat-model.md and
-# the Environments architecture doc (architecture/*-environments.md). When you add a
+# manager, not from a committed file (see the Security & Threat Model architecture doc,
+# architecture/*-security-threat-model.md, and the Environments architecture doc
+# (architecture/*-environments.md). When you add a
 # new key to the app, add it here too so the next developer knows it exists.
 
 # --- Examples (replace with this project's real keys) ---------------------------
