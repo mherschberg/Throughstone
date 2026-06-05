@@ -180,7 +180,7 @@ software **architecture-first** with an AI coding agent.
 - **The method** (`METHOD.md`): the Phase → STEP → substep structure, architecture-first STEP-1
   (design docs + ADRs, no code), the two durable doc genres (architecture docs + ADRs),
   doc versioning, and the disk-derived next-action resolver.
-- **Architecture sessions:** 13 core sessions (system overview through Cross-Cutting Review)
+- **Architecture sessions:** 13 core sessions (System Overview, Requirements & Non-Goals through Cross-Cutting Review)
   plus 2 conditional sessions (native app, identity & auth).
 - **Runbooks:** the periodic check-in and multi-developer/agent collaboration.
 - **Templates:** architecture docs, ADRs, STEP plans, substep prompts, repo READMEs, per-language

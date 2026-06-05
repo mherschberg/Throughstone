@@ -2,7 +2,8 @@
 
 > **How to run:** Tell your agent *"run session 1.1"* (or *"read and run this file"*).
 > It interviews you one decision at a time, then writes
-> `architecture/01-system-overview.md` and updates `prompts/STEP-index.md`.
+> the System Overview, Requirements & Non-Goals architecture doc and updates
+> `prompts/STEP-index.md`.
 > Have `overview.md` (your 1–2 page brief) available — the session starts from it.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -13,6 +14,13 @@
 ## What this session does
 We'll nail down *what* you're building and — just as important — what you're deliberately
 *not* building: the problem, who it's for, how you'll know it works, and what's out of scope.
+
+Terminology: **System Overview, Requirements & Non-Goals** is the Session 1.1 process name;
+`architecture/*-system-overview.md` is the **System Overview, Requirements & Non-Goals
+architecture doc** it produces (the exact output file is named in the Output section below);
+`overview.md` is the separate kickoff project brief this session reads from. The requirements,
+non-goals, success criteria, constraints, assumptions, and risks are sections and decisions
+inside the architecture doc, not separate artifacts.
 
 ## Why this session matters
 This is the foundation every other architecture doc builds on. The two things developers
@@ -58,8 +66,8 @@ No code in this session. The output is a Markdown doc.
    These feed Phasing & Roadmap and the other sessions.
 
 ## Output
-Write `architecture/01-system-overview.md` using
-`templates/architecture-doc.md`. Body sections, in order:
+Write `architecture/01-system-overview.md` — the System Overview, Requirements & Non-Goals
+architecture doc (use `templates/architecture-doc.md`). Body sections, in order:
 - **Problem & Value** — the problem statement and why now
 - **Users & Stakeholders** — primary personas + others affected
 - **Success Criteria** — measurable
