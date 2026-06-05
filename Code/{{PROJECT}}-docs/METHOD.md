@@ -274,9 +274,10 @@ keep the code's own docs true:
 
 Because nothing in normal STEP work produces them, they need a deliberate prompt: **at each
 milestone (a phase completing, or any release you cut), the agent proactively asks the user**
-whether user-facing docs need updating and whether to write release notes. The user decides
-how much to do — the method's job is to *raise it at the right moment*, not to mandate the
-output.
+whether user-facing docs need updating and whether to write release notes. If the user wants
+release notes, start from `templates/release-notes.md` and trim sections that do not apply.
+The user decides how much to do — the method's job is to *raise it at the right moment*, not
+to mandate the output.
 
 ## 6. Versioning architecture docs
 
@@ -430,8 +431,8 @@ Resolve the next action top-down against the index — the first rule that match
 6. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).
 7. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
-   notes and any user-facing doc updates** (§5, *Milestone doc review*), then open the next
-   phase and re-run the planning session for it.
+   notes** (use `templates/release-notes.md` if yes) and **any user-facing doc updates** (§5,
+   *Milestone doc review*), then open the next phase and re-run the planning session for it.
 
 When the index and an in-flight PLAN disagree, the **index** is authoritative for *which
 STEP* is next; the **PLAN** owns *which substep* within it.

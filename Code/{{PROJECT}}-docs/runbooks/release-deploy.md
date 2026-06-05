@@ -28,8 +28,9 @@ if it goes bad.
 - [ ] **The change is merged and reviewed**, and the **full test suite is green** — not just the
       area you touched.
 - [ ] **Version stamped.** Tag / bump the version per your scheme so what's running is identifiable.
-- [ ] **Release notes drafted.** At a milestone or any release the method asks you to write them
-      (`METHOD.md` §5, *Milestone doc review*) — draft them now, while the changes are fresh.
+- [ ] **Release notes drafted.** At a milestone or any release the method asks you whether to
+      write them (`METHOD.md` §5, *Milestone doc review*) — if yes, draft them from
+      `templates/release-notes.md` while the changes are fresh.
 - [ ] **Migrations are safe to undo.** If this release changes the database schema, confirm the
       migration is **reversible or forward-compatible** (prefer expand/contract: add the new
       shape, deploy, backfill, switch, drop the old in a *later* release). A deploy you can roll
@@ -79,6 +80,7 @@ if it goes bad.
 
 ## After the release
 - Confirm the released version is **tagged / recorded**.
-- **Prompt the user about release notes and user-facing docs** if not already done — neither is
-  produced by normal STEP work (`METHOD.md` §5, *Milestone doc review*).
+- **Prompt the user about release notes and user-facing docs** if not already done. If the user
+  wants release notes, use `templates/release-notes.md`; neither release notes nor user-facing
+  docs are produced by normal STEP work (`METHOD.md` §5, *Milestone doc review*).
 - Note anything that should feed the next **check-in** (`runbooks/check-in.md`).
