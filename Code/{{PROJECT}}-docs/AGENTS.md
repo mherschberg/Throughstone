@@ -113,7 +113,8 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Keep the docs true.** When implementation changes an architecture decision, update the
   affected `Code/{{PROJECT}}-docs/architecture/NN-*.md` and bump its Version Log, or write an
   ADR. New code counts too: a new component or repo may need the architecture overview /
-  `registries/repos.yml`, a new domain term the glossary — don't let a doc go stale (see
+  `registries/repos.yml`, and a new domain term may need the Glossary architecture doc — don't
+  let a doc go stale (see
   `Code/{{PROJECT}}-docs/METHOD.md` §6).
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see

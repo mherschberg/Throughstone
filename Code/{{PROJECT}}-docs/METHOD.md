@@ -153,7 +153,8 @@ substeps (`1.6c`, `1.7b`) and never renumber the standard sessions. To add one:
 3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable by
    name, and record it in the STEP-1 PLAN's *Conditional sessions considered* table.
 
-`status.sh`, the glossary, and the cross-cutting review all pick it up with no further edits.
+`status.sh`, the Glossary session, and the cross-cutting review all pick it up with no further
+edits.
 
 **A standard (numbered) session costs a renumber, because the cross-cutting review is always
 last.** A new standard session inserts *before* the review, which shifts the review — and

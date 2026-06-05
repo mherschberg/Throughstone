@@ -30,7 +30,7 @@ between "we have a pile of docs" and "we have a coherent architecture."
    in the architecture overview; scaling assumptions vs. the chosen infrastructure; the
    backup/RPO and availability target vs. the data model's loss-tolerance decisions;
    security boundaries vs. the actual component boundaries; terms used
-   differently than the glossary defines them.
+   differently than the Glossary architecture doc defines them.
 2. **Completeness.** Is anything referenced but never specified? Any area that should have
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?

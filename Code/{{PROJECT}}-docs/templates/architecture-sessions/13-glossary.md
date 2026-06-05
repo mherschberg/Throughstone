@@ -1,7 +1,7 @@
 # {{PROJECT}} — Glossary (Session 1.13)
 
 > **How to run:** Tell your agent *"run session 1.13"*. It works through the project's terms
-> with you, then writes `architecture/13-glossary.md` and updates `prompts/STEP-index.md`.
+> with you, then writes the Glossary architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md` and **all** the architecture docs produced so far.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -11,6 +11,11 @@
 ## What this session does
 Drawing on everything designed so far, we'll pin down the precise meaning of the project's key
 terms, so everyone — and every future session — uses them the same way.
+
+Terminology: **Glossary** is the Session 1.13 process name;
+`architecture/*-glossary.md` is the **Glossary architecture doc** it produces (the exact
+output file is named in the Output section below); **glossary entries** are the concrete term
+definitions, acronyms, disambiguations, and naming notes recorded in that doc.
 
 ## Why this session matters
 Every project develops its own vocabulary, and when the same word means different things to
@@ -45,7 +50,8 @@ language the same way. It's short, but it prevents a lot of drift.
    — consistent with `METHOD.md` §8.
 
 ## Output
-Write `architecture/13-glossary.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/13-glossary.md` — the Glossary architecture doc (use
+`templates/architecture-doc.md`). Body:
 - An **alphabetical term table** — Term | Definition | Notes / "not to be confused with"
 - A short **naming conventions** note
 

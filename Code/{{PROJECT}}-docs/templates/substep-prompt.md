@@ -83,8 +83,8 @@ just change the code:
   it is**); the **interface contract artifact** named in the Interface Contracts architecture doc
   (`architecture/*-interface-contracts.md`) when you add or
   change an endpoint, event, webhook, CLI contract, library public API, or import/export format;
-  the repo **README** when setup/run/test changes; the glossary (`architecture/*-glossary.md`) for new
-  terms.
+  the repo **README** when setup/run/test changes; the Glossary architecture doc
+  (`architecture/*-glossary.md`) for new domain terms.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
   `.secrets/` (see `architecture/*-security-threat-model.md` and
   `architecture/*-environments.md`); commit only `.env.example`.
@@ -100,7 +100,7 @@ Leaving the doc stale is a defect, not a follow-up.
       `coding-standards/README.md`).
 - [ ] Any architecture decision this substep changed is reflected in the docs (Version Log
       bumped) or recorded in an ADR — and any new component, repo, or domain term is reflected
-      in the relevant doc (overview / `repos.yml` / glossary).
+      in the relevant doc (overview / `repos.yml` / Glossary architecture doc).
 
 ## Next
 When this substep is done, update its status in the STEP PLAN, then tell the user the next

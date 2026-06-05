@@ -28,8 +28,8 @@ now prevents painful migrations and compliance surprises later.
 
 ## Decisions to make (in order)
 1. **Core entities & relationships.** The nouns of the domain and how they relate
-   (one-to-many, many-to-many). Name them deliberately and consistently — the glossary
-   (the Glossary session) is later built *from* these names, so pick clear ones now.
+   (one-to-many, many-to-many). Name them deliberately and consistently — the Glossary
+   session later builds glossary entries *from* these names, so pick clear ones now.
 2. **Ownership / source of truth.** For each entity, which component owns it (is the
    authoritative source). Critical once more than one component reads/writes it.
 3. **Storage choice(s).** Relational vs. document vs. key-value vs. blob — and whether it's
@@ -54,7 +54,7 @@ Write `architecture/04-data-model.md` (use `templates/architecture-doc.md`). Bod
 - **PII / sensitive-data table** — data class | sensitivity | retention | deletion
 - **Consistency & migration notes**
 
-Fill the **Decision Summary**, record **Open Questions** (e.g. for security/glossary), start
+Fill the **Decision Summary**, record **Open Questions** (e.g. for security/glossary entries), start
 the **Version Log**. Update `prompts/STEP-index.md`: mark 1.4 done.
 
 ## Next
