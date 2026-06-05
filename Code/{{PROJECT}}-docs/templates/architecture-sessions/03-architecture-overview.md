@@ -68,15 +68,15 @@ Write `architecture/03-architecture-overview.md` (use `templates/architecture-do
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
 `prompts/STEP-index.md`: mark 1.3 done; then, **based on the client-surfaces answer** — if
-there's no styled UI, **mark the core UI row `N/A`** (keep the row, per the resolver's
+there's no styled UI, **mark the UI / Design System row `N/A`** (keep the row, per the resolver's
 "skip any `N/A`" rule in `METHOD.md` §10); if there's a mobile/desktop app, **add the
-Native-app conditional row** (e.g. `1.7a`). Don't delete the seeded UI row.
+Native-app conditional row** (e.g. `1.7a`). Don't delete the seeded UI / Design System row.
 
 ## Next
 Once 1.3 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
 the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
 session N.M"*; for a lettered conditional session, invoke it by name). This session may have
-marked the UI row `N/A` or added a Native-app row, so trust the index. See the next-action
+marked the UI / Design System row `N/A` or added a Native-app row, so trust the index. See the next-action
 resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

@@ -92,11 +92,11 @@ set lives in `templates/architecture-sessions/`.
 |---|---------|----------|
 | 1.1 | System overview, requirements & non-goals | `architecture/01-*` |
 | 1.2 | Phasing & roadmap | `architecture/02-*` |
-| 1.3 | Architecture overview & component boundaries *(asks which client surfaces — gates UI + app)* | `architecture/03-*` |
+| 1.3 | Architecture overview & component boundaries *(asks which client surfaces — gates UI / Design System + app)* | `architecture/03-*` |
 | 1.4 | Data model, ownership & retention | `architecture/04-*` |
 | 1.5 | Scaling & performance | `architecture/05-*` |
 | 1.6 | Security & threat model *(deferrable — but as a recorded, conscious decision)* | `architecture/06-*` |
-| 1.7 | UI / design system *(platform-aware; "no UI" → skip)* | `architecture/07-*` |
+| 1.7 | UI / Design System *(platform-aware; "no UI" → skip)* | `architecture/07-*` |
 | 1.8 | Infrastructure & Deployment | `architecture/08-*` |
 | 1.9 | Environments *(sandbox is a question inside)* | `architecture/09-*` |
 | 1.10 | Observability | `architecture/10-*` |

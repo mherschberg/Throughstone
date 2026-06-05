@@ -14,8 +14,8 @@
 > not-yet-run core session keeps its own reserved slot without a clash.) The substep number and the
 > doc number don't have to match.
 > Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`)
-> for surfaces, the Data Model doc (`architecture/*-data-model.md`), the Security & Threat
-> Model doc (`architecture/*-security-threat-model.md`), and the UI / Design System doc
+> for surfaces, the Data Model architecture doc (`architecture/*-data-model.md`), the Security & Threat
+> Model architecture doc (`architecture/*-security-threat-model.md`), and the UI / Design System architecture doc
 > (`architecture/*-ui-design-system.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -23,7 +23,7 @@
 {{PROJECT_DESCRIPTION}}
 
 ## What this session does
-Drawing on the architecture, data, and UI decisions, we'll cover the concerns unique to a
+Drawing on the architecture, data, and user-interface/design-system decisions, we'll cover the concerns unique to a
 mobile or desktop app — app-store update lag, offline or flaky networks, and data living on a
 device you don't control.
 

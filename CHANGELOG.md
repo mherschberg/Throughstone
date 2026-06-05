@@ -134,7 +134,7 @@ rules the method previously trusted to discipline.
   session (1.8):
   failure modes / single points of failure, an availability target, graceful degradation, and
   backups with RPO/RTO and restore-rehearsal.
-- **Accessibility & internationalization** in the UI session (1.7): a concrete a11y target
+- **Accessibility & internationalization** in the UI / Design System session (1.7): a concrete a11y target
   (WCAG 2.1 AA) plus a new i18n/l10n decision in the don't-foreclose spirit.
 - **New conditional session — Privacy, compliance & data governance** for projects handling
   personal/regulated data (applicable regimes, data inventory, lawful basis/consent,
