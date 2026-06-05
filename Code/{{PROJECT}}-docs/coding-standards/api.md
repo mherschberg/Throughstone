@@ -4,8 +4,9 @@
 > looks the same from day one. Change anything that doesn't fit your team — a few choices below are
 > flagged as genuine forks to settle per project.
 >
-> **Cross-cutting, and complementary to the contract artifact.** The Interface Contracts session/doc
-> decides which API/interface boundaries need formal contracts, where those artifacts live, and which
+> **Cross-cutting, and complementary to the interface contract artifact.** The Interface Contracts
+> session produces the Interface Contracts architecture doc, which decides which API/interface
+> boundaries need formal contracts, where those artifacts live, and which
 > artifact is the consumer-facing contract of record. That artifact pins *one* API's shape; this
 > file pins the **house style every HTTP/REST API follows** — timestamps, pagination, errors,
 > naming, versioning — so endpoints stay consistent no
@@ -77,7 +78,8 @@ standard is enforced, not just documented.
   relevant. One error shape across the whole API.
 - **Never leak internals** — no stack traces, SQL, or internal hostnames in a response body.
   Include a correlation/request ID the client can quote in a support ticket (ties to the
-  observability session). The status line and the `status` member agree.
+  observability hooks in the Observability architecture doc). The status line and the `status`
+  member agree.
 
 ## Versioning
 - **Fork; pick one.** **Default: URI versioning** — a major version in the path (`/v1/…`). It's
@@ -95,5 +97,5 @@ standard is enforced, not just documented.
 - **Rate-limit** public surfaces and signal it: `429` plus `Retry-After`. Validate and bound every
   input (sizes, lengths, ranges) at the edge.
 - **Security is not optional:** authenticate every non-public endpoint, authorize per resource, and
-  serve only over TLS. Depth lives in the security-threat-model session and the **security-review**
-  process — this file just sets the house style.
+  serve only over TLS. Depth lives in the Security & Threat Model architecture doc and the
+  security review expectations for the implementation STEP — this file just sets the house style.

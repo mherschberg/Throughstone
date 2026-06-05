@@ -266,14 +266,14 @@ else
   done <<< "$extra_seed_rows"
 
   if [[ "$max_file" != *cross-cutting-review.md ]]; then
-    fail "cross-cutting review is not the final numbered session (last is $max_file)"
+    fail "Cross-Cutting Review is not the final numbered session (last is $max_file)"
     numbering_ok=0
   fi
 
   if [ "$numbering_ok" -eq 1 ]; then
-    pass "numbered architecture sessions match headings and STEP-index seed; cross-cutting review is last"
+    pass "numbered architecture sessions match headings and STEP-index seed; Cross-Cutting Review is last"
   else
-    hint "keep numbered session files, their '(Session 1.N)' headings, and templates/step-index-seed.md rows in lockstep; the cross-cutting review remains the final numbered session."
+    hint "keep numbered session files, their '(Session 1.N)' headings, and templates/step-index-seed.md rows in lockstep; the Cross-Cutting Review remains the final numbered session."
   fi
 fi
 

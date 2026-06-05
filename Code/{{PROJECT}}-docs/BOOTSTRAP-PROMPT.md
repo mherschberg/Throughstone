@@ -56,7 +56,7 @@ into `Code/{{PROJECT}}-docs/overview.md`. **Wait for confirmation.**
 Propose:
 - The **Phase plan** — what Phase 1 (the MVP) includes and, deliberately, excludes; a
   rough sketch of later phases for things being deferred. (This is a sketch to align on
-  direction; session 1.2 formalizes the phasing.)
+  direction; the Phasing & Roadmap session formalizes the phase plan.)
 - **STEP-1 (architecture)** as the first and — for now — the *only* STEP in the index.
 Record **only STEP-1's row** in `prompts/STEP-index.md` (already seeded from
 `Code/{{PROJECT}}-docs/templates/step-index-seed.md` by `init.sh` — fill in that row).
@@ -70,12 +70,12 @@ sessions apply (see the core set in `METHOD.md` §4). For the **conditional** se
 *explicit* call on **each one** — never leave a conditional simply unconsidered: fill in the
 **Conditional sessions considered** table in the PLAN, marking every conditional **Include**
 (→ the substep it becomes, e.g. `1.6a`) or **N/A** (with a one-line reason). Decide each from
-its trigger: the Architecture Overview platform question for **Native app**; the auth posture for
+its trigger: the Architecture Overview & Component Boundaries client-surfaces question for **Native app**; the auth posture for
 **Identity/auth**; and personal or regulated data (PII, health/financial/children's, or a
 regime like GDPR/HIPAA/PCI) for **Privacy/compliance**. A skipped conditional must leave a
 recorded reason, so a future reader sees a decision rather than an accident. Keep the core
 sessions unless their own session instructions explicitly say to mark them `N/A` (for example,
-the UI session when there is no styled UI). Write
+the UI / Design System session when there is no styled UI). Write
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (from
 `Code/{{PROJECT}}-docs/templates/step-plan.md`) listing the chosen sessions as substeps,
 the locked decisions, and the definition of done. **Wait for confirmation.**
@@ -99,7 +99,7 @@ The user drives from here, one session at a time:
 Each session interviews the user and writes its architecture doc + any ADRs, then updates
 `prompts/STEP-index.md`. Encourage the user to clear the chat between sessions — state
 lives on disk. When all architecture sessions are done, run the substep labeled
-**Cross-cutting review**.
+**Cross-Cutting Review**.
 
 Then move from architecture into building: tell the agent *"run the planning session"*
 (`Code/{{PROJECT}}-docs/templates/planning-session.md`). It outlines **all** the Phase-1

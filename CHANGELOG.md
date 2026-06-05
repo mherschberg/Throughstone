@@ -70,7 +70,7 @@ the method so each surfaces at the right moment.
   REST/HTTP APIs — resource naming, methods/status codes, RFC 3339 UTC timestamps, money as
   integer minor units, RFC 9457 problem-details errors, idempotency, and rate limits — with
   three per-project forks flagged (field casing, pagination, versioning), each with an ADR
-  pointer. Complements each API's versioned contract artifact from the Interface Contracts session.
+  pointer. Complements each API's versioned interface contract artifact from the Interface Contracts session.
 
 ### Expanded per-language coverage
 - **Java** (`java.md`) and **C#** (`csharp.md`) standards added.
@@ -84,10 +84,11 @@ the method so each surfaces at the right moment.
   the language documents them, e.g. Java fields, C# properties), public and private.
 
 ### Wiring
-- The cross-cutting standards are reconciled by the **Test Strategy session** (kept only when each applies —
-  a relational DB for SQL, shell scripts for Shell, an HTTP/REST boundary for API), listed in
-  `coding-standards/README.md` and the `METHOD.md` hub gloss ("per-language plus cross-cutting"),
-  and `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
+- The cross-cutting standards are reconciled by the **Test Strategy session** and recorded in
+  the Test Strategy architecture doc (kept only when each applies — a relational DB for SQL,
+  shell scripts for Shell, an HTTP/REST boundary for API), listed in `coding-standards/README.md`
+  and the `METHOD.md` hub gloss ("per-language plus cross-cutting"), and
+  `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
 
 ## [1.2.0] - 2026-06-01
 
@@ -99,8 +100,9 @@ standard exposed.
 ### New operate-time runbook
 - **Secrets rotation** (`runbooks/secrets-rotation.md`): scheduled rotation (inventory, cadence,
   no-downtime overlap, verify-then-revoke) and a **revoke-first** response to a suspected leak
-  that hands off to the incident runbook. Operationalizes the threat-model §5 posture, mirroring
-  how the dependency runbook operationalizes §6.
+  that hands off to the incident runbook. Operationalizes the secrets & data protection posture
+  from the Security & Threat Model architecture doc, mirroring how the dependency runbook
+  operationalizes the dependency-risk posture.
 
 ### Discoverability & docs hygiene
 - **README indexes** for `runbooks/` (all five — purpose, when each fires + trigger phrase,
@@ -115,12 +117,12 @@ standard exposed.
 ### Flexible session set
 - **Session numbering no longer hardcodes the current set:** the conditional-doc rule and
   `status.sh` review-detection adapt to added sessions; dependency-bearing sessions
-  (Scaling, UI, Infrastructure, Observability, Interface Contracts, and Test Strategy) read relevant
-  conditional docs when present.
+  (Scaling & Performance, UI / Design System, Infrastructure & Deployment, Observability,
+  Interface Contracts, and Test Strategy) read relevant conditional docs when present.
 - **Glossary session** harvests terms from every architecture doc (including conditional docs above
   the core block), not a fixed range.
 - **METHOD §4 "Adding a session" recipe** — conditional (zero-touch) vs. standard (renumber the
-  cross-cutting review) wire-in checklist.
+  Cross-Cutting Review) wire-in checklist.
 
 ## [1.1.0] - 2026-05-31
 
@@ -129,10 +131,11 @@ method was missing, and introduces a **mechanical tooling layer** (scripts + CI)
 rules the method previously trusted to discipline.
 
 ### Broader architecture coverage
-- **Resilience & disaster recovery** is now first-class in the Infrastructure session (1.8):
+- **Resilience & disaster recovery** is now first-class in the Infrastructure & Deployment
+  session (1.8):
   failure modes / single points of failure, an availability target, graceful degradation, and
   backups with RPO/RTO and restore-rehearsal.
-- **Accessibility & internationalization** in the UI session (1.7): a concrete a11y target
+- **Accessibility & internationalization** in the UI / Design System session (1.7): a concrete a11y target
   (WCAG 2.1 AA) plus a new i18n/l10n decision in the don't-foreclose spirit.
 - **New conditional session — Privacy, compliance & data governance** for projects handling
   personal/regulated data (applicable regimes, data inventory, lawful basis/consent,
@@ -177,7 +180,7 @@ software **architecture-first** with an AI coding agent.
 - **The method** (`METHOD.md`): the Phase → STEP → substep structure, architecture-first STEP-1
   (design docs + ADRs, no code), the two durable doc genres (architecture docs + ADRs),
   doc versioning, and the disk-derived next-action resolver.
-- **Architecture sessions:** 13 core sessions (system overview through cross-cutting review)
+- **Architecture sessions:** 13 core sessions (System Overview, Requirements & Non-Goals through Cross-Cutting Review)
   plus 2 conditional sessions (native app, identity & auth).
 - **Runbooks:** the periodic check-in and multi-developer/agent collaboration.
 - **Templates:** architecture docs, ADRs, STEP plans, substep prompts, repo READMEs, per-language

@@ -10,8 +10,9 @@
   "API / interface" for a library), but keep the order — and never drop the role one-liner
   above or the Overview below: explaining what the repo *is* is the one non-negotiable part.
 
-  Stamp the CI gate too: drop `templates/ci/code-repo-ci.yml` into this repo's
-  `.github/workflows/ci.yml` and fill in its stack's test command (see `templates/ci/README.md`).
+  Stamp the CI gate named by the Test Strategy architecture doc too: drop
+  `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill in its
+  stack's test command (see `templates/ci/README.md`).
 -->
 
 ## Overview
@@ -39,8 +40,8 @@
 <!-- How to start it locally, and how to verify it's up (health check, sample request). -->
 
 ## API / interface
-<!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the contract of
-     record named by `{{PROJECT}}-docs/architecture/*-interface-contracts.md`, with a short
+<!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the interface
+     contract of record named by `{{PROJECT}}-docs/architecture/*-interface-contracts.md`, with a short
      endpoint table for orientation — don't duplicate the spec here. For a library: the
      public surface. Skip if not applicable. -->
 

@@ -1,9 +1,10 @@
 # {{PROJECT}} — Security & Threat Model (Session 1.6)
 
 > **How to run:** Tell your agent *"run session 1.6"*. It interviews you one decision at a
-> time, then writes `architecture/06-security-threat-model.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> and the Data Model doc (`architecture/*-data-model.md`) first.
+> time, then writes the Security & Threat Model architecture doc
+> (`architecture/06-security-threat-model.md`) and updates `prompts/STEP-index.md`.
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
+> and the Data Model architecture doc (`architecture/*-data-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -13,6 +14,13 @@
 Given the components and data from the last sessions, we'll work out what could realistically
 go wrong security-wise and the protections this first version actually needs — no fortress,
 but no negligence either.
+
+Terminology: **Security & Threat Model** is the Session 1.6 process name;
+`architecture/*-security-threat-model.md` is the **Security & Threat Model architecture
+doc** it produces (the exact output file is named in the Output section below); **security
+posture** and **security controls** are the concrete decisions governed by that doc, such as
+assets, trust boundaries, mitigations, AuthN/AuthZ posture, secrets handling,
+dependency-risk posture, and web-risk posture.
 
 ## Why this session matters
 "We're too small to be a target" is the most common — and most wrong — security
@@ -26,8 +34,8 @@ oversight.
 - One decision at a time; **wait** for answers.
 - For each threat, recommend a **minimum viable mitigation** for the MVP and note the
   **blast radius** if it's skipped.
-- Keep it concrete to *this* system — use the assets and boundaries from the Architecture
-  Overview and Data Model docs.
+- Keep it concrete to *this* system — use the assets and boundaries from the
+  Architecture Overview architecture doc and the Data Model architecture doc.
 
 ## Decisions to make (in order)
 1. **Assets.** What's worth protecting? (Credentials/keys, personal data, money/payments,
@@ -64,7 +72,8 @@ oversight.
    explicitly with the trigger to revisit — a conscious, dated decision.
 
 ## Output
-Write `architecture/06-security-threat-model.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/06-security-threat-model.md` — the Security & Threat Model architecture
+doc (use `templates/architecture-doc.md`). Body:
 - **Assets**
 - **Trust boundaries** (diagram or list)
 - **Threats → mitigations** table — threat | boundary | MVP mitigation | deferred / blast radius

@@ -130,7 +130,7 @@ all_done=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_done=1
 where=""; next=""
 if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
-  # Identify the cross-cutting review by its Session-column label, not a hardcoded number.
+  # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
@@ -144,7 +144,7 @@ if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
     fi
     next="run the conditional session for substep ${lowsub} — \"${lowsub_se}\"; invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
   elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
-    next="run session ${lowsub} — the cross-cutting review."
+    next="run session ${lowsub} — the Cross-Cutting Review."
   else
     next="run session ${lowsub}  (${lowsub_se})."
   fi

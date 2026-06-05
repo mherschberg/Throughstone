@@ -2,12 +2,12 @@
 
 > **How to run:** Tell your agent *"run session 1.7"*. It interviews you one decision at a
 > time, then writes `architecture/07-ui-design-system.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and the Architecture Overview doc (`architecture/*-architecture-overview.md`)
+> Reads `overview.md` and the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`)
 > for the client-surfaces answer first — plus any
 > conditional-session doc that shapes the UI (e.g. identity-auth for login/account/consent screens,
 > or one added later), if it's been written.
 >
-> **No UI?** If the Architecture Overview doc says this is API-only / a CLI with no styled UI, skip this
+> **No UI?** If the Architecture Overview architecture doc says this is API-only / a CLI with no styled UI, skip this
 > session — note "N/A, no UI" in the index and move on.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -31,7 +31,7 @@ patterns branch from there.
 - One decision at a time; **show, don't tell** — where possible, generate a small rendered
   HTML page (or component sketch) with realistic {{PROJECT}} content so choices are visual,
   not hex codes in text. **Wait** for the answer.
-- Reuse the client-surfaces answer from the Architecture Overview doc to decide which platform branches apply.
+- Reuse the client-surfaces answer from the Architecture Overview architecture doc to decide which platform branches apply.
 - Recommend sensible defaults; flag accessibility and localization implications.
 
 ## Decisions to make (in order)
@@ -48,7 +48,7 @@ patterns branch from there.
 6. **Core components.** Buttons (variants/sizes), form inputs, tables/lists, modals/dialogs,
    cards, navigation, toasts/notifications, empty & loading states.
 7. **Navigation pattern.** Web: sidebar vs. top nav. Mobile: tab bar vs. nav stack +
-   gestures. Desktop: menus/toolbars. (Use the surfaces from the Architecture Overview doc.)
+   gestures. Desktop: menus/toolbars. (Use the surfaces from the Architecture Overview architecture doc.)
 
 ### System-level
 8. **Theme support.** Light, dark, or both — and how switching works.

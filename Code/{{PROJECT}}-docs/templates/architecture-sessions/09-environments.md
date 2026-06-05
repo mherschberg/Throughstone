@@ -1,8 +1,8 @@
 # {{PROJECT}} — Environments (Session 1.9)
 
 > **How to run:** Tell your agent *"run session 1.9"*. It interviews you one decision at a
-> time, then writes `architecture/09-environments.md` and updates `prompts/STEP-index.md`.
-> Reads `overview.md` and the Infrastructure & Deployment doc
+> time, then writes the Environments architecture doc and updates `prompts/STEP-index.md`.
+> Reads `overview.md` and the Infrastructure & Deployment architecture doc
 > (`architecture/*-infrastructure-deployment.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -12,6 +12,13 @@
 ## What this session does
 Building on the Infrastructure & Deployment decisions, we'll define your environments and how config and
 secrets differ between them, so untested code and leaked keys don't reach users.
+
+Terminology: **Environments** is the Session 1.9 process name;
+`architecture/*-environments.md` is the **Environments architecture doc** it produces (the
+exact output file is named in the Output section below); **environment artifacts** are
+concrete files, settings, and operational conventions governed by that doc, such as
+`.env.example`, gitignored local `.env` / `.secrets/`, secrets-manager entries, seed data,
+staging/pre-prod setup, and promotion rules.
 
 ## Why this session matters
 Most early projects have exactly two environments — "my machine" and "production" — and
@@ -30,13 +37,15 @@ code is promoted** gives you a safe path to production.
 2. **Sandbox / demo environment?** Do you need a separate sandbox — for trying the product
    without real data, for demos, or for external integrators to test against? (Often *not*
    needed at MVP; decide consciously.)
-3. **Config & secrets per environment.** How configuration differs per env (env vars /
-   config files — never secrets in code) and where each env's secrets come from
-   (consistent with the Security & Threat Model and Infrastructure & Deployment docs). **Local dev**
+3. **Config & secrets per environment.** How configuration differs per environment
+   (environment variables / config files — never secrets in code) and where each environment's
+   secrets come from
+   (consistent with the Security & Threat Model architecture doc and the Infrastructure &
+   Deployment architecture doc). **Local dev**
    uses a gitignored `.env` (values) / `.secrets/`
    (files) with a committed `.env.example` documenting the keys — see
    `templates/env-example.txt` for the convention (the `init.sh` `.gitignore` already excludes
-   these); **deployed envs** pull secrets from a secrets manager, not a file.
+   these); **deployed environments** pull secrets from a secrets manager, not a file.
 4. **Data per environment.** Seed/fixture data for local & CI; is staging data synthetic or
    a prod-like (scrubbed) copy?
 5. **Parity.** How close each environment is to production, and where it deliberately
@@ -47,7 +56,7 @@ code is promoted** gives you a safe path to production.
 
 ## Output
 Write `architecture/09-environments.md` (use `templates/architecture-doc.md`). Body:
-- **Environments table** — env | purpose | who has access | data
+- **Environments table** — environment | purpose | who has access | data
 - **Sandbox decision** (needed or not, and why)
 - **Config & secrets** per environment
 - **Parity & promotion flow**

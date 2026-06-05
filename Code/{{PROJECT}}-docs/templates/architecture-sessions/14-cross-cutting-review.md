@@ -13,6 +13,12 @@ This is a final read-through of everything designed so far: it checks the docs a
 each other and fixes gaps or contradictions before coding begins. (This one's a review, not
 an interview.)
 
+Terminology: **Cross-Cutting Review** is the Session 1.14 process name; the
+`Upcoming Prompts/{{PROJECT}}-STEP-1-REVIEW.md` **review doc** is its summary artifact. This
+session does not produce a numbered architecture doc; it reconciles existing architecture docs,
+fills the architecture index, may write missing ADRs, and may carry open questions into the
+first implementation STEP.
+
 ## Why this session matters
 Each architecture doc was written in its own session, often in a cleared context. That's
 good for focus but means the docs can quietly **contradict each other** or leave **gaps
@@ -27,15 +33,15 @@ between "we have a pile of docs" and "we have a coherent architecture."
 
 ## What to check
 1. **Consistency.** Do the docs agree? Common conflicts: the data model vs. the API/flows
-   in the architecture overview; scaling assumptions vs. the chosen infrastructure; the
+   in the Architecture Overview architecture doc; scaling assumptions vs. the chosen infrastructure; the
    backup/RPO and availability target vs. the data model's loss-tolerance decisions;
    security boundaries vs. the actual component boundaries; terms used
-   differently than the glossary defines them.
+   differently than the Glossary architecture doc defines them.
 2. **Completeness.** Is anything referenced but never specified? Any area that should have
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?
 3. **Foreclosure check.** Walk the "Forecloses / tradeoff" entries across all docs. Does any
-   MVP shortcut block a capability the phasing doc committed to a later phase? If so,
+   MVP shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
    flag it — it may need a cheaper approach now.
 4. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
    **ADRs**? Write any that are missing (`templates/adr.md`).

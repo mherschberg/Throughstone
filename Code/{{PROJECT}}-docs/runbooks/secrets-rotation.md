@@ -13,7 +13,8 @@
 > cloud-native KMS, your CI's secret store…). The *discipline* below — know what you hold, rotate
 > on a cadence with no downtime, revoke first on exposure — is the durable part; fill in your
 > project's actual commands and stores. It operationalizes the **secrets & data protection**
-> posture set in `architecture/*-security-threat-model.md`.
+> posture set in the Security & Threat Model architecture doc
+> (`architecture/*-security-threat-model.md`).
 
 ## Why this runbook exists
 Secrets are time-bombs: every API key, TLS cert, signing key, and database credential is a
@@ -28,8 +29,9 @@ low-drama operation instead of a crisis, and it proves you can actually replace 
 ## Part 1 — Scheduled rotation (on a cadence)
 - [ ] **Know what you hold.** Keep an inventory of the project's secrets — what each is, **who
       owns it**, where it lives, and its rotation interval. Secrets live in a real secrets
-      manager, **never in code or the repo** (the threat model's §5 rule; local dev uses a
-      gitignored `.env` / `.secrets/`, committing only `.env.example`). You can't rotate what you
+      manager, **never in code or the repo** (the secrets & data protection rule from the
+      Security & Threat Model architecture doc; local dev uses a gitignored `.env` /
+      `.secrets/`, committing only `.env.example`). You can't rotate what you
       can't list.
 - [ ] **Set a cadence per secret class.** Rotate on an interval matched to risk — short-lived
       tokens often (or make them auto-expiring), long-lived API keys and DB credentials on a
@@ -42,8 +44,9 @@ low-drama operation instead of a crisis, and it proves you can actually replace 
       migration in `release-deploy.md`.)
 - [ ] **Update every consumer, in every environment.** Find *all* the places that hold the
       secret — services, CI/CD, infra-as-code, backups, partner integrations — and update them
-      per environment (`architecture/*-environments.md`). A missed consumer is exactly what
-      breaks at revoke time.
+      per environment, as recorded in the Environments architecture doc
+      (`architecture/*-environments.md`). A missed consumer is exactly what breaks at revoke
+      time.
 - [ ] **Verify, then revoke the old.** Confirm the critical paths work on the new secret, then
       **revoke/delete the old value** so a leaked copy is now worthless. A rotation that leaves
       the old key valid hasn't actually reduced risk.

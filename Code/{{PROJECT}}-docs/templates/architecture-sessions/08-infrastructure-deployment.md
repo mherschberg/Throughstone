@@ -1,14 +1,14 @@
 # {{PROJECT}} — Infrastructure & Deployment (Session 1.8)
 
 > **How to run:** Tell your agent *"run session 1.8"*. It interviews you one decision at a
-> time, then writes `architecture/08-infrastructure-deployment.md` and updates
-> `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview doc
-> (`architecture/*-architecture-overview.md`), the Scaling & Performance doc
-> (`architecture/*-scaling-performance.md`), and the Security & Threat Model doc
+> time, then writes the Infrastructure & Deployment architecture doc and updates
+> `prompts/STEP-index.md`. Reads `overview.md`, the Architecture Overview architecture doc
+> (`architecture/*-architecture-overview.md`), the Scaling & Performance architecture doc
+> (`architecture/*-scaling-performance.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first — plus
-> any conditional-session doc with infra implications (e.g. privacy-compliance for data residency/
-> retention, identity-auth for secrets & session stores, native-app for build/distribution & push,
-> or one added later), if it's been written.
+> any conditional-session doc with infrastructure or deployment implications (e.g.
+> privacy-compliance for data residency/retention, identity-auth for secrets & session stores,
+> native-app for build/distribution & push, or one added later), if it's been written.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -18,6 +18,13 @@
 With the architecture, scale, and security decided, we'll settle where the system runs, how
 your code gets there, and how it survives the failures it will eventually hit — so deploys
 are repeatable and recoverable instead of hand-assembled and fragile.
+
+Terminology: **Infrastructure & Deployment** is the Session 1.8 process name;
+`architecture/*-infrastructure-deployment.md` is the **Infrastructure & Deployment
+architecture doc** it produces (the exact output file is named in the Output section below);
+**deployment artifacts** are concrete files, settings, and operational conventions governed
+by that doc, such as deploy pipelines, infrastructure-as-code files, rollback procedures,
+runtime infrastructure, production secrets wiring, backup jobs, and DR runbooks.
 
 ## Why this session matters
 "It runs on my laptop" is not a deployment. Without a deliberate plan, infrastructure
@@ -32,14 +39,14 @@ how a small outage becomes permanent data loss.
 - One decision at a time; **wait** for answers.
 - Recommend the **lowest-operational-burden option that fits** (often a managed PaaS or
   containers on a managed platform for an MVP), and flag cost and lock-in tradeoffs.
-- Tie back to the Scaling & Performance and Security & Threat Model docs where relevant.
+- Tie back to the Scaling & Performance and Security & Threat Model architecture docs where relevant.
 
 ## Decisions to make (in order)
 1. **Hosting target.** Cloud provider / managed PaaS / self-host. What's already decided or
    constrained (existing accounts, compliance, budget)?
 2. **Compute model.** Containers (Docker; orchestrated by K8s/ECS/etc.) vs. serverless
    functions vs. managed app platform vs. plain VMs. Default to the simplest that meets the
-   scaling needs from the Scaling & Performance doc.
+   scaling needs from the Scaling & Performance architecture doc.
 3. **Build & deploy pipeline.** How code becomes a running version: CI builds, artifacts,
    and how a deploy is triggered (and rolled back). Manual is OK for an MVP if it's written
    down and repeatable — the optional `runbooks/release-deploy.md` checklist is where that
@@ -49,11 +56,11 @@ how a small outage becomes permanent data loss.
 5. **Networking & TLS.** Load balancer / ingress, DNS, TLS certificates, public vs. private
    surfaces.
 6. **Secrets in production.** Where prod secrets live (a secret manager) and how services
-   get them. (Consistent with the Security & Threat Model doc.)
+   get them. (Consistent with the Security & Threat Model architecture doc.)
 7. **Failure modes & resilience.** Walk what happens when a piece dies — a single process,
    the machine or availability zone it runs on, or a dependency you don't control (the
    database, a third-party API). Name the **single points of failure** (this is the
-   *availability* angle; the Scaling & Performance doc named them for *load*) and pick an
+   *availability* angle; the Scaling & Performance architecture doc named them for *load*) and pick an
    **availability target**: is a
    few hours of downtime fine, or must this stay up? For an MVP, a single region with a fast
    redeploy is often the right call — the point is to choose it knowingly, not by default.

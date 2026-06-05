@@ -76,7 +76,7 @@ They're slotted into STEP-1 under a lettered substep (e.g.
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
 architecture docs), so context can be cleared between sessions — state lives in files.
 
-When STEP-1 is complete (the cross-cutting review passed), the user moves into building by
+When STEP-1 is complete (the Cross-Cutting Review passed), the user moves into building by
 saying **"run the planning session"** — read
 `Code/{{PROJECT}}-docs/templates/planning-session.md` and follow it: it turns the locked
 architecture into the Phase-1 implementation STEPs.
@@ -112,8 +112,9 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   rewrite an accepted ADR's decision — supersede it or append an amendment.
 - **Keep the docs true.** When implementation changes an architecture decision, update the
   affected `Code/{{PROJECT}}-docs/architecture/NN-*.md` and bump its Version Log, or write an
-  ADR. New code counts too: a new component or repo may need the architecture overview /
-  `registries/repos.yml`, a new domain term the glossary — don't let a doc go stale (see
+  ADR. New code counts too: a new component or repo may need the Architecture Overview
+  architecture doc (`architecture/*-architecture-overview.md`) / `registries/repos.yml`, and
+  a new domain term may need the Glossary architecture doc — don't let a doc go stale (see
   `Code/{{PROJECT}}-docs/METHOD.md` §6).
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see

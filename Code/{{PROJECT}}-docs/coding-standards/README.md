@@ -13,10 +13,11 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
   customize them** to match your team's preferences. Nothing here is fixed law; treat the
   shipped contents as a draft to edit, not a rule to obey.
 - You only need the file(s) for the language(s) you actually use. The **Test Strategy session**
-  reconciles this directory to the languages chosen in the Architecture Overview doc: for each
-  language it either has you *review* the standard that ships, or *create* a new one from an
-  existing file's pattern if there's no default — then prunes the rest. (See the "Coding
-  standards per language" decision in that session.)
+  reconciles this directory to the languages chosen in the Architecture Overview architecture doc and records
+  the result in the Test Strategy architecture doc: for each language it either has you *review*
+  the standard that ships, or *create* a new one from an existing file's pattern if there's no
+  default — then prunes the rest. (See the "Coding standards per language" decision in that
+  session.)
 - If a standard reflects a decision (e.g. "we use X error-handling pattern because…"),
   link the ADR that records why.
 

@@ -13,8 +13,8 @@
 > early, e.g. at `1.6a`, before the later core docs exist; still take the first free number
 > above the core block, so a not-yet-run core session keeps its own reserved slot without a clash.) The substep
 > number and the doc number don't have to match.
-> Reads `overview.md`, the Architecture Overview doc (`architecture/*-architecture-overview.md`),
-> the Data Model doc (`architecture/*-data-model.md`), and the Security & Threat Model doc
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
+> the Data Model architecture doc (`architecture/*-data-model.md`), and the Security & Threat Model architecture doc
 > (`architecture/*-security-threat-model.md`) first.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
@@ -30,14 +30,15 @@ identity provider.
 Authentication ("who are you?") and authorization ("what may you do?") are easy to get
 subtly, dangerously wrong, and very expensive to retrofit. This session designs them
 deliberately — and, importantly, decides **build vs. buy**, since rolling your own identity
-is a common and costly mistake. It expands on the AuthN/AuthZ *posture* set in the security
-Security & Threat Model session.
+is a common and costly mistake. It expands on the AuthN/AuthZ posture set in the Security &
+Threat Model session.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
 - Strongly recommend a **managed identity provider** for most projects, and flag the
   obligations of rolling your own; flag what each choice forecloses.
-- Keep it consistent with the Data Model and Security & Threat Model docs.
+- Keep it consistent with the Data Model architecture doc and the Security & Threat Model
+  architecture doc.
 
 ## Decisions to make (in order)
 1. **Authentication methods.** Password, OAuth/social, SSO/SAML/OIDC, passwordless/magic
@@ -65,6 +66,6 @@ Questions**, start the **Version Log**. Capture the build-vs-buy and authorizati
 choices as **ADRs**. Update `prompts/STEP-index.md`: mark this substep done.
 
 ## Next
-Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the cross-cutting review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
+Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the Cross-Cutting Review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
 
 **Begin now — in this same reply.** "run the identity-auth session" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

@@ -13,7 +13,8 @@
 > to your stack (`npm audit`, `pip-audit`, `cargo audit`, `govulncheck`, Dependabot/Renovate,
 > a license scanner…). The *discipline* below — vet before you add, pin, audit on a cadence — is
 > the durable part; fill in your ecosystem's commands. It operationalizes the dependency-risk
-> posture set in `architecture/*-security-threat-model.md`.
+> posture set in the Security & Threat Model architecture doc
+> (`architecture/*-security-threat-model.md`).
 
 ## Why this runbook exists
 Most of a modern application is code you didn't write — your dependencies, and *their*

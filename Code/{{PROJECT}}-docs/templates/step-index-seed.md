@@ -44,20 +44,20 @@ worked, and completed.
 
 | Substep | Session | Status | Output doc |
 |---------|---------|--------|------------|
-| 1.1 | System overview, requirements & non-goals | Planned | `architecture/01-…` |
-| 1.2 | Phasing & roadmap | Planned | `architecture/02-…` |
-| 1.3 | Architecture overview & component boundaries | Planned | `architecture/03-…` |
-| 1.4 | Data model, ownership & retention | Planned | `architecture/04-…` |
-| 1.5 | Scaling & performance | Planned | `architecture/05-…` |
-| 1.6 | Security & threat model | Planned | `architecture/06-…` |
-| 1.7 | UI / design system | Planned | `architecture/07-…` |
-| 1.8 | Infrastructure & deployment | Planned | `architecture/08-…` |
+| 1.1 | System Overview, Requirements & Non-Goals | Planned | `architecture/01-…` |
+| 1.2 | Phasing & Roadmap | Planned | `architecture/02-…` |
+| 1.3 | Architecture Overview & Component Boundaries | Planned | `architecture/03-…` |
+| 1.4 | Data Model, Ownership & Retention | Planned | `architecture/04-…` |
+| 1.5 | Scaling & Performance | Planned | `architecture/05-…` |
+| 1.6 | Security & Threat Model | Planned | `architecture/06-…` |
+| 1.7 | UI / Design System | Planned | `architecture/07-…` |
+| 1.8 | Infrastructure & Deployment | Planned | `architecture/08-…` |
 | 1.9 | Environments | Planned | `architecture/09-…` |
 | 1.10 | Observability | Planned | `architecture/10-…` |
-| 1.11 | Interface contracts | Planned | `architecture/11-…` |
-| 1.12 | Test strategy | Planned | `architecture/12-…` |
+| 1.11 | Interface Contracts | Planned | `architecture/11-…` |
+| 1.12 | Test Strategy | Planned | `architecture/12-…` |
 | 1.13 | Glossary | Planned | `architecture/13-…` |
-| 1.14 | Cross-cutting review | Planned | review doc |
+| 1.14 | Cross-Cutting Review | Planned | review doc |
 
 <!-- Conditional sessions: include-or-skip per the kickoff "Conditional sessions considered"
      table — add a row only when one is included. Slot it under a LETTERED substep after the

@@ -70,8 +70,8 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
 
 Other folders in the hub: `coding-standards/` (per-language plus cross-cutting — `sql.md`,
 `shell.md`, `api.md`; defaults ship for common languages, and the Test Strategy session
-reconciles them to
-the stack you pick — review what's there, add what's missing, prune the rest), `runbooks/`
+reconciles them to the stack you pick and records the result in the Test Strategy architecture
+doc — review what's there, add what's missing, prune the rest), `runbooks/`
 (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
 deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
@@ -90,23 +90,23 @@ set lives in `templates/architecture-sessions/`.
 
 | # | Session | Produces |
 |---|---------|----------|
-| 1.1 | System overview, requirements & non-goals | `architecture/01-*` |
-| 1.2 | Phasing & roadmap | `architecture/02-*` |
-| 1.3 | Architecture overview & component boundaries *(asks which client surfaces — gates UI + app)* | `architecture/03-*` |
-| 1.4 | Data model, ownership & retention | `architecture/04-*` |
-| 1.5 | Scaling & performance | `architecture/05-*` |
-| 1.6 | Security & threat model *(deferrable — but as a recorded, conscious decision)* | `architecture/06-*` |
-| 1.7 | UI / design system *(platform-aware; "no UI" → skip)* | `architecture/07-*` |
-| 1.8 | Infrastructure & deployment | `architecture/08-*` |
+| 1.1 | System Overview, Requirements & Non-Goals | `architecture/01-*` |
+| 1.2 | Phasing & Roadmap | `architecture/02-*` |
+| 1.3 | Architecture Overview & Component Boundaries *(asks which client surfaces — gates UI / Design System + app)* | `architecture/03-*` |
+| 1.4 | Data Model, Ownership & Retention | `architecture/04-*` |
+| 1.5 | Scaling & Performance | `architecture/05-*` |
+| 1.6 | Security & Threat Model *(deferrable — but as a recorded, conscious decision)* | `architecture/06-*` |
+| 1.7 | UI / Design System *(platform-aware; "no UI" → skip)* | `architecture/07-*` |
+| 1.8 | Infrastructure & Deployment | `architecture/08-*` |
 | 1.9 | Environments *(sandbox is a question inside)* | `architecture/09-*` |
 | 1.10 | Observability | `architecture/10-*` |
-| 1.11 | Interface contracts | `architecture/11-*` |
-| 1.12 | Test strategy | `architecture/12-*` |
+| 1.11 | Interface Contracts | `architecture/11-*` |
+| 1.12 | Test Strategy | `architecture/12-*` |
 | 1.13 | Glossary | `architecture/13-*` |
-| 1.14 | Cross-cutting review | review doc |
+| 1.14 | Cross-Cutting Review | review doc |
 
-**Conditional sessions** (included only when relevant, auto-selected by the 1.3 platform
-question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
+**Conditional sessions** (included only when relevant, auto-selected by the Architecture
+Overview & Component Boundaries client-surfaces question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
 **Privacy, compliance & data governance** (personal or regulated data). Run each **by name**,
 not by number — *"run the identity-auth session"* → `conditional-identity-auth.md` (likewise
 `conditional-native-app.md` and `conditional-privacy-compliance.md`) — slotted under a lettered
@@ -153,9 +153,10 @@ substeps (`1.6c`, `1.7b`) and never renumber the standard sessions. To add one:
 3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable by
    name, and record it in the STEP-1 PLAN's *Conditional sessions considered* table.
 
-`status.sh`, the glossary, and the cross-cutting review all pick it up with no further edits.
+`status.sh`, the Glossary session, and the Cross-Cutting Review all pick it up with no further
+edits.
 
-**A standard (numbered) session costs a renumber, because the cross-cutting review is always
+**A standard (numbered) session costs a renumber, because the Cross-Cutting Review is always
 last.** A new standard session inserts *before* the review, which shifts the review — and
 anything after the insertion point — up by one. To add one:
 1. Write `templates/architecture-sessions/NN-<topic>.md`; its doc number is the next in the core
@@ -167,7 +168,7 @@ anything after the insertion point — up by one. To add one:
    `rg '1\.14|14-cross|architecture/14-'` to find leftovers, but keep dynamic prose dynamic:
    prefer session labels and topic globs outside invocation/output contracts. Run
    `scripts/check.sh` afterward; it is the mechanical backstop for heading/seed/output drift
-   and for keeping the cross-cutting review last.
+   and for keeping the Cross-Cutting Review last.
 3. Add its row to the §4 table and `templates/step-index-seed.md`.
 
 `status.sh` needs no change — it locates the review by its label, not its number.
@@ -409,9 +410,9 @@ Resolve the next action top-down against the index — the first rule that match
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
    session"* / *"run the privacy session"*), since its template file is named by topic, not by
    number (see §4).
-2. **All STEP-1 design sessions done but the cross-cutting review is still open?** → run the
-   substep whose Session label is **Cross-cutting review**.
-3. **Cross-cutting review done and STEP-1 complete, but only the STEP-1 row exists?** →
+2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
+   substep whose Session label is **Cross-Cutting Review**.
+3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
    *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
 4. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → start the
    lowest-numbered `Planned` STEP: author its PLAN + substep prompts (`prompts/README.md` →
