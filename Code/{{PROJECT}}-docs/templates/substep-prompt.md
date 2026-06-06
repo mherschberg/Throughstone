@@ -21,6 +21,7 @@
        - adr/README.md              — the decision records (why it's that way)
        - coding-standards/README.md — the per-language standards
        - registries/repos.yml       — the repo inventory; each repo's own README is its "about"
+       - registries/risks.yml       — accepted risks/debt with owners and revisit triggers
      List the specific files this substep depends on below — including the README of each
      repo this substep touches, read before you work in it. For any substep that adds or
      changes an API/interface surface (an endpoint, request/response shape, event, webhook,
@@ -85,6 +86,12 @@ just change the code:
   change an endpoint, event, webhook, CLI contract, library public API, or import/export format;
   the repo **README** when setup/run/test changes; the Glossary architecture doc
   (`architecture/*-glossary.md`) for new domain terms.
+- **Accepted risk or debt:** if this substep consciously defers a security control,
+  dependency fix, incident follow-up, operational weakness, or other tech debt, add or update
+  `registries/risks.yml` with severity, owner, and revisit trigger. The register is an index:
+  reference the architecture decision/section, ADR, issue/follow-up STEP, incident report, or
+  check-in report that carries the details. If no such source exists, create it first, then add
+  the register row.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
   `.secrets/` (see `architecture/*-security-threat-model.md` and the Environments
   architecture doc, `architecture/*-environments.md`); commit only `.env.example`.
@@ -101,6 +108,8 @@ Leaving the doc stale is a defect, not a follow-up.
 - [ ] Any architecture decision this substep changed is reflected in the docs (Version Log
       bumped) or recorded in an ADR — and any new component, repo, or domain term is reflected
       in the relevant doc (overview / `repos.yml` / Glossary architecture doc).
+- [ ] Any accepted risk or deferred technical debt created or changed by this substep is
+      recorded in `registries/risks.yml` or explicitly marked not applicable.
 
 ## Next
 When this substep is done, update its status in the STEP PLAN, then tell the user the next

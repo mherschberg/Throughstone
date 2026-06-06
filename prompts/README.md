@@ -1,8 +1,8 @@
 # Prompts
 
-This is where the project's plans and prompts live — the record of *how* the project was
-built, STEP by STEP. See `Code/{{PROJECT}}-docs/METHOD.md` for the full method; this README
-covers the conventions here and the recipe for adding a STEP.
+This is where the project's roadmap and archived STEP plans/prompts live — the record of
+*how* the project was built, STEP by STEP. See `Code/{{PROJECT}}-docs/METHOD.md` for the
+full method; this README covers the conventions here and the recipe for adding a STEP.
 
 **`prompts/` is its own repo** — project-wide, spanning all the code repos. It is
 **history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`) is **state** (kept
@@ -49,9 +49,10 @@ PLANs, no substep prompts. From then on you build the STEPs one at a time, autho
 STEP's PLAN + substep prompts with the recipe below **when you start that STEP**.
 
 The outline also interleaves a **Check-in STEP** every ~10–20 STEPs — a full STEP that runs
-`Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways + run the
-full test suite). The agent suggests one at a sensible breakpoint if it's been about that
-long since the last (see `METHOD.md` §5).
+`Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, review
+accepted risks/debt in `Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test
+suite). The agent suggests one at a sensible breakpoint if it's been about that long since
+the last (see `METHOD.md` §5).
 
 ## Recipe: adding a new STEP
 

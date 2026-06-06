@@ -9,7 +9,7 @@ This method is opinionated only about **its own artifacts**. Everything a normal
 already has tooling for, it leaves to that tooling.
 
 - **The method defines:** how a global **STEP number** is reserved without collisions, how
-  STEPs are isolated on branches, how the shared **`STEP-index.md`** is edited without merge
+  STEPs are isolated on branches, how the shared **`prompts/STEP-index.md`** is edited without merge
   pain, how decisions are socialized through **ADRs** (and their numbers reserved like STEP
   numbers), and how **`prompts/`** (shared history) is appended by many hands.
 - **Standard practice, not the method's job:** your branching model beyond the one naming
@@ -48,12 +48,12 @@ write anything.
 
 **Protocol — identical for humans and agents:**
 
-1. **Pull `prompts/`.** Get the current `STEP-index.md`.
+1. **Pull `prompts/`.** Get the current `prompts/STEP-index.md`.
 2. **Allocate** the next number: `max(existing STEP numbers) + 1`.
-3. **Add the row** to `STEP-index.md` (number, title, owner = you, status, one-line scope,
+3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, one-line scope,
    and the repos you expect to touch).
 4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on `prompts/`'s
-   **shared trunk** (e.g. `main`), separate from any other change. `STEP-index.md` is a shared
+   **shared trunk** (e.g. `main`), separate from any other change. `prompts/STEP-index.md` is a shared
    registry: the reserve commit *and every later edit to it* (status flips, archival rows) land
    on the trunk, **never on a `step-NNNN` branch** — the push-reject that referees the race only
    fires when everyone pushes to the same branch, and the duplicate scan (step 6) only works if
@@ -86,7 +86,7 @@ Do not create the `step-NNNN` branches or start work until the reserving push su
 After that the number is yours; everyone who pulls sees it.
 
 > If your remote supports **file locking** (GitHub / Bitbucket / GitLab), you can lock
-> `STEP-index.md` for the reserve edit and skip the push-race entirely — see §5. The protocol
+> `prompts/STEP-index.md` for the reserve edit and skip the push-race entirely — see §5. The protocol
 > above still stands as the baseline (and the duplicate scan is still worth running).
 
 **Flip the row to `In progress` when you start — and push the flip.** Reservation leaves the
@@ -105,7 +105,7 @@ or it's invisible to everyone else's overlap check.
 ## 3. The shared coordination surface is the index row
 While a STEP is in flight its PLAN and substep prompts live in `Upcoming Prompts/`, which is
 **per-machine scratch — not a repo, not shared** (`METHOD.md` §5). So a teammate **cannot see
-your in-flight PLAN** — they see only your **row in `STEP-index.md`**. Everything others need
+your in-flight PLAN** — they see only your **row in `prompts/STEP-index.md`**. Everything others need
 to coordinate must therefore be *in that row*:
 
 - **Owner** — the single person who owns this STEP. **A STEP and all its substeps have one
@@ -114,9 +114,12 @@ to coordinate must therefore be *in that row*:
   owner; that keeps the unit of ownership the same as the unit of isolation (the branch). The
   owner is informational here (who to talk to), recorded in the STEP PLAN and surfaced in this
   row.
-- **Status** — Planned · In progress · Done · **Abandoned**. A STEP that was reserved but
-  won't be built is marked **Abandoned** — its row **stays** (never delete it) so its number
-  is never reused (`METHOD.md` §8). `max + 1` always counts an abandoned number; don't reissue it.
+- **Status** — Planned · In progress · Done · **Deferred** · **Abandoned**. A STEP that is
+  consciously not needed under the current project shape but may be revisited later is marked
+  **Deferred** with a revisit trigger in the PLAN/risk register. A STEP that was reserved but
+  won't be built is marked **Abandoned** — its row **stays** (never delete it) so its number is
+  never reused (`METHOD.md` §8). `max + 1` always counts deferred and abandoned numbers; don't
+  reissue them.
 - **Repos (projection)** — the repos you *expect* to touch. This is a **projection, not a
   guarantee** — scope shifts as a STEP is worked, and that's fine. It exists to power the
   overlap warning below, not to reserve anything. The PLAN carries the same field
@@ -136,7 +139,7 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
 
 - **The shared index row is the coordination surface** (§3) — it's the only thing others can
   see of your in-flight work, so it's the primary check. **When you start a STEP**, read the
-  **in-flight** rows in `STEP-index.md` — `In progress`, plus any `Planned` row that already has
+  **in-flight** rows in `prompts/STEP-index.md` — `In progress`, plus any `Planned` row that already has
   a `step-*` branch — and compare their **Repos (projection)** against your STEP's scope. If
   they overlap, **say so** — then proceed. It's a heads-up, not a gate. (This is why the
   `In progress` flip must be *pushed*, §2: an unpushed status makes a worked STEP invisible here.)
@@ -159,7 +162,7 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
 ## 5. Editing shared files without merge pain
 A few files are global and edited by everyone. They fall into two kinds:
 
-**Table files** — `STEP-index.md`, `adr/README.md` (the registry), each phase `README.md`,
+**Table files** — `prompts/STEP-index.md`, `adr/README.md` (the registry), each phase `README.md`,
 and `registries/repos.yml`. These conflict only when people reflow them:
 - Edit **only your own row(s)**; never re-sort or reformat the whole table.
 - Land index/registry edits in **small, dedicated commits** and push promptly.
@@ -247,7 +250,7 @@ contributors append to it:
   `step-NNNN/` folder in the phase (`prompts/001-mvp/step-NNNN/`) and adds a row to that
   phase's `README.md`.
 - Archived STEP folders are **write-once**, so they essentially never conflict. The only
-  shared files touched on archival are the phase `README.md` and `STEP-index.md` — handle
+  shared files touched on archival are the phase `README.md` and `prompts/STEP-index.md` — handle
   both with the your-row-only rule (§5).
 
 ## 8. A STEP that spans repos

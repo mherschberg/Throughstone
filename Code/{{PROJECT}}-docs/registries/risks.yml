@@ -1,0 +1,58 @@
+# Canonical risk / tech-debt register for {{PROJECT}}.
+# This is the durable home for known, accepted risks and deferred technical debt that are
+# still intentionally open. ADRs record decisions; architecture docs record the current
+# design; this file records the accepted "we know this is not ideal yet" items that need a
+# revisit trigger so they do not evaporate.
+#
+# When to add a row:
+# - A threat, security control, compliance concern, dependency vulnerability, operational
+#   weakness, or design/code debt is consciously deferred.
+# - An incident follow-up finds a risk/debt item that is too large to fix in that Incident STEP.
+# - A check-in finds drift or test debt that the team accepts temporarily instead of fixing now.
+#
+# Recording rule (hybrid):
+# - This YAML file is the compact index: status, owner, severity, revisit trigger, and links.
+# - The explanation lives in a durable source artifact. Every row should have at least one
+#   `refs` entry pointing at the architecture decision/section, ADR, issue, incident
+#   postmortem, check-in report, or STEP report that records the details.
+# - If no such artifact exists yet, create the right one first (usually an architecture
+#   decision/section for design posture, an ADR for a significant/contested decision, an issue
+#   or follow-up STEP for implementation debt, an incident report for incident fallout, or a
+#   check-in report for periodic-review findings), then add the row here by reference.
+# - Keep `description`, `impact`, and `mitigation` short: enough to scan the index, not a
+#   duplicate of the source artifact.
+#
+# Lifecycle:
+# - `status`: open | monitoring | mitigated | accepted-permanently | closed
+# - Keep open/monitoring items in front of every check-in (`runbooks/check-in.md`).
+# - When an item closes, keep the row for history and set `closed` with the date and reason.
+#
+# Severity is a project judgment, not a formula:
+# - critical: could compromise safety, regulated data, money, production availability, or
+#   core trust if triggered.
+# - high: serious user/business impact or painful rework likely.
+# - medium: meaningful but bounded blast radius.
+# - low: local nuisance, cleanup, or small maintainability drag.
+
+risks: []
+
+# Example:
+# risks:
+#   - id: RISK-0001
+#     status: open
+#     title: "Example deferred rate limiting"
+#     category: security        # security | privacy | dependency | reliability | data | tech-debt | compliance | operations | other
+#     severity: medium          # critical | high | medium | low
+#     owner: "TBD"
+#     opened: "YYYY-MM-DD"
+#     source: "architecture/06-security-threat-model.md"
+#     description: "Public endpoints launch without per-user rate limiting; details live in refs."
+#     impact: "Possible availability degradation from noisy clients or automated attacks."
+#     mitigation: "Framework-level request limits plus uptime alerting for MVP."
+#     revisit_trigger: "Before public beta or before accepting untrusted user traffic."
+#     refs:
+#       - "architecture/06-security-threat-model.md#threats--mitigations"
+#       - "ADR-0000-example.md"
+#     closed:
+#       date:
+#       reason:

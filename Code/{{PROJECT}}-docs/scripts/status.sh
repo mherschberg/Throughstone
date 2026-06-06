@@ -89,21 +89,22 @@ done <<< "$parsed"
 
 # Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.14 -> 101400.
 subkey() {
-  local x="$1" maj="${1%%.*}" rest="${1#*.}" num let lo=0
-  num="${rest%%[a-z]*}"; let="${rest#"$num"}"
-  [ -n "$let" ] && lo=$(printf '%d' "'$let")
+  local maj="${1%%.*}" rest="${1#*.}" num suffix lo=0
+  num="${rest%%[a-z]*}"; suffix="${rest#"$num"}"
+  [ -n "$suffix" ] && lo=$(printf '%d' "'$suffix")
   echo $(( maj * 100000 + num * 100 + lo ))
 }
 
 # --- STEP-1 substep state -----------------------------------------------------
-total_sub=${#sub_id[@]}; done_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
+total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
 i=0
 while [ "$i" -lt "$total_sub" ]; do
   s="${sub_id[$i]}"
   case "${sub_st[$i]}" in
-    Done|N/A) done_sub=$((done_sub + 1)) ;;
+    Done|Deferred|N/A) done_sub=$((done_sub + 1)) ;;
     Planned|"In progress")
       k=$(subkey "$s"); if [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
+    *) unknown_sub=$((unknown_sub + 1)) ;;
   esac
   i=$((i + 1))
 done
@@ -120,15 +121,18 @@ while [ "$i" -lt "$n_steps" ]; do
   [ "$n" -ge 2 ] && have_impl=1
   if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
-  case "$st" in Done|Abandoned) ;; *) nonfinal=1 ;; esac
+  case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
   if printf '%s' "$ti" | grep -qiE 'check.?in'; then [ "$n" -gt "$last_ci" ] && last_ci=$n; fi
   i=$((i + 1))
 done
-all_done=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_done=1
+all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
 where=""; next=""
-if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
+if [ "$unknown_sub" -gt 0 ]; then
+  where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
+  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
@@ -148,6 +152,9 @@ if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
   else
     next="run session ${lowsub}  (${lowsub_se})."
   fi
+elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
+  where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
+  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
   if [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
@@ -165,9 +172,9 @@ elif [ -n "$inprog" ]; then                                 # §10.5
 elif [ -n "$lowplanned" ]; then                             # §10.4
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
   next="start ${lowplanned} — confirm scope, then author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat."
-elif [ "$all_done" -eq 1 ]; then                            # §10.7
-  where="Every STEP in the index is Done."
-  next="phase looks complete — it's a milestone: prompt release notes + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
+elif [ "$all_final" -eq 1 ]; then                           # §10.7
+  where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
+  next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
 else
   where="Indeterminate from the index alone."
   next="resolve by hand via the next-action resolver in METHOD.md §10."

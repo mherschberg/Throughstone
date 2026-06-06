@@ -1,11 +1,11 @@
 # {{PROJECT}} — STEP-{{N}} PLAN: {{STEP TITLE}}
 
 **Phase:** {{e.g. Phase 1 — MVP}}
-**Owner:** {{who is running this STEP}}        <!-- one owner for the whole STEP and all its substeps; also shown in STEP-index.md; solo: optional -->
-**Status:** Planned        <!-- Planned → In progress → Done; or Abandoned (see METHOD.md §1) -->
+**Owner:** {{who is running this STEP}}        <!-- one owner for the whole STEP and all its substeps; also shown in prompts/STEP-index.md; solo: optional -->
+**Status:** Planned        <!-- Planned → In progress → Done; or Deferred / Abandoned (see METHOD.md §1) -->
 **Date:** {{DATE}}
 **Branch:** `step-{{NNNN}}-{{short-name}}`   <!-- same name in every repo this STEP touches -->
-**Repos (projection):** {{repos + merge order}}   <!-- same label as STEP-index.md; lists repos + merge order; powers the overlap warning -->
+**Repos (projection):** {{repos + merge order}}   <!-- same label as prompts/STEP-index.md; lists repos + merge order; powers the overlap warning -->
 
 > One-paragraph statement of what this STEP delivers and why it comes now.
 
@@ -17,6 +17,8 @@
      or architecture doc. Carrying these forward keeps a shared mental model. -->
 - `overview.md` — read **Your experience level** before user-facing questions or
   explanations; keep that file as the single source of truth for the value.
+- `registries/risks.yml` — review relevant accepted risks/debt before planning work that
+  touches their area.
 - ADR-XXXX — …
 - architecture/NN-… — …
 
@@ -35,16 +37,17 @@
      there. -->
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
-<!-- Every conditional session is an EXPLICIT decision, never a silent omission: mark each
-     one Include (with the substep it became) or N/A (with a one-line reason). A skipped
+<!-- Every conditional session is an EXPLICIT decision, never a silent omission. Name the
+     session that owns the decision, then mark each one Include (with the substep it became),
+     Deferred (with a revisit trigger), or N/A (with a one-line reason). A skipped or deferred
      conditional must leave a recorded reason here so a future reader sees a decision, not an
      accident. See METHOD.md §4 and the conditional-*.md session files. -->
 
-| Conditional session | Decision | Substep / reason |
-|---------------------|----------|------------------|
-| Native app (mobile / desktop) | Include / N/A | {{e.g. 1.7a, or "N/A — web-only per 1.3"}} |
-| Identity & auth | Include / N/A | {{e.g. 1.6a, or "N/A — no accounts/login"}} |
-| Privacy, compliance & data governance | Include / N/A | {{e.g. 1.6b, or "N/A — no personal/regulated data"}} |
+| Conditional session | Owning session | Decision | Substep / reason / revisit trigger |
+|---------------------|----------------|----------|------------------------------------|
+| Native app (mobile / desktop) | 1.3 Architecture Overview | Include / Deferred / N/A | {{e.g. 1.7a, or "N/A — web-only per 1.3"}} |
+| Identity & auth | 1.6 Security & Threat Model | Include / Deferred / N/A | {{e.g. 1.6a, or "Deferred — no accounts/login until Phase 2; revisit before login"}} |
+| Privacy, compliance & data governance | 1.4 Data Model / 1.6 Security | Include / Deferred / N/A | {{e.g. 1.6b, or "N/A — no personal/regulated data"}} |
 
 ## Open questions
 <!-- Things still undecided at the start of this STEP. Mark Q1, Q2, … with owner. -->
@@ -60,6 +63,10 @@
   `templates/substep-prompt.md`). Override per substep only with a stated reason.
 - **Code is documented as it's written.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see `coding-standards/README.md`).
+- **Accepted risks stay visible.** If this STEP accepts a risk or defers tech debt, add or
+  update `registries/risks.yml` with severity, owner, and revisit trigger. Reference an
+  architecture decision/section, ADR, issue/follow-up STEP, incident report, or check-in report
+  instead of duplicating detail; create that source first if it doesn't already exist.
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->
@@ -67,7 +74,7 @@
 - [ ]
 - [ ] All unit tests pass at the end of this STEP — ideally the full suite (unit +
       integration/e2e). <!-- the default bar; narrow or widen with a stated reason -->
-- [ ] STEP review passed; STEP-index.md updated; STEP archived to prompts/.
+- [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
      templates/substep-prompt.md ("Keeping the docs true"). Exceptions: STEP-1's review is the

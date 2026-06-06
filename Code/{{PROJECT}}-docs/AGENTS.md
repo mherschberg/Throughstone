@@ -71,7 +71,9 @@ session"* → `conditional-identity-auth.md`; *"run the native-app session"* →
 `conditional-native-app.md`; *"run the privacy session"* → `conditional-privacy-compliance.md`.
 They're slotted into STEP-1 under a lettered substep (e.g.
 `1.6a`, `1.7a`), so if the index's next open substep has a letter suffix, run the matching
-`conditional-*.md` by topic rather than looking for a `NN-*.md` file for that number.
+`conditional-*.md` by topic rather than looking for a `NN-*.md` file for that number. Each
+conditional has an owning session that decides it when the needed facts exist: Native app in
+1.3, Privacy/compliance from Data Model / Security, and Identity/auth from Security.
 
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
 architecture docs), so context can be cleared between sessions — state lives in files.
@@ -86,7 +88,7 @@ This is a **multi-repo** project. The workspace root is **not** a repo — it's 
 shell. (Mono-repo-for-now is the exception — then the root *is* the single repo and the
 pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 - `Code/{{PROJECT}}-docs/` — the docs hub (this repo). All durable content lives here.
-- `prompts/` — STEP plans + substep prompts.
+- `prompts/` — `prompts/STEP-index.md` roadmap + archived STEP plans/substep prompts.
 - `Code/{{PROJECT}}-*` — code repos, created as the architecture names them.
 
 `registries/repos.yml` is the canonical inventory **and the index to the repos** — each
@@ -116,6 +118,12 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   architecture doc (`architecture/*-architecture-overview.md`) / `registries/repos.yml`, and
   a new domain term may need the Glossary architecture doc — don't let a doc go stale (see
   `Code/{{PROJECT}}-docs/METHOD.md` §6).
+- **Keep accepted risks visible.** Known, accepted risks and deferred technical debt live in
+  `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
+  dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is
+  an index: reference the architecture decision/section, ADR, issue/follow-up STEP, incident
+  report, or check-in report that carries the details; create that source first if it doesn't
+  exist.
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).
@@ -125,11 +133,15 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   test run). See `METHOD.md` §5.
 - **Flag milestone docs at a phase/release.** When a phase completes or you cut a release,
   proactively ask the user about **release notes** and **user-facing doc updates** — neither
-  is produced by normal STEP work, and end-user docs are otherwise outside this method's scope
-  (see `METHOD.md` §5, *Milestone doc review*).
+  is produced by normal STEP work. If the user wants release notes, start from
+  `Code/{{PROJECT}}-docs/templates/release-notes.md`; end-user docs are otherwise outside this
+  method's scope (see `METHOD.md` §5, *Milestone doc review*).
 - **Never commit secrets.** Local dev values live in a gitignored `.env` / `.secrets/`;
   commit only a `.env.example` that documents the required keys.
 - Keep **`prompts/STEP-index.md`** current — it's the source of truth for status.
+- **Treat STEP-1 as the bootstrap special case.** `init.sh` seeds `STEP-1` as `Planned`; the
+  kickoff creates the STEP-1 PLAN. When kickoff closes, flip `STEP-1` to `In progress` and use
+  `step-0001-architecture` wherever branch-per-STEP applies.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
   running `Code/{{PROJECT}}-docs/scripts/status.sh` — it runs the **next-action resolver**
@@ -145,7 +157,7 @@ STEP when more than one contributor is active. The rules that bind you as an age
 - **Every STEP is worked on a branch** named `step-NNNN-short-name` — the same name in every
   repo it touches. Do this even solo.
 - **Reserve the STEP number before working.** Pull `prompts/`, take `max + 1`, add the row to
-  `STEP-index.md` **on `prompts/`'s shared trunk** (never a `step-NNNN` branch), then **commit
+  `prompts/STEP-index.md` **on `prompts/`'s shared trunk** (never a `step-NNNN` branch), then **commit
   and push immediately** (a dedicated `reserve STEP-N` commit) — before you branch or write. If
   the push is rejected, pull, renumber, push again. After any pull/merge — even a clean one,
   which merges two appended rows into a silent duplicate that no conflict flags — scan before
@@ -161,7 +173,7 @@ STEP when more than one contributor is active. The rules that bind you as an age
   **push the flip to the shared trunk** — reservation leaves it `Planned`, and a STEP left at
   `Planned` (or whose flip is unpushed) while you work is invisible to everyone else's overlap
   check.
-- **Edit only your own rows** in shared table files (`STEP-index.md`, `adr/README.md`, phase
+- **Edit only your own rows** in shared table files (`prompts/STEP-index.md`, `adr/README.md`, phase
   `README.md`, `registries/repos.yml`); never re-sort or reflow them.
 - **Significant decisions in a team land as `Proposed` ADRs**, accepted by the designated
   authority (see `adr/README.md`) — don't silently Accept a decision others depend on.

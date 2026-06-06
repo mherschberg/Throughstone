@@ -7,6 +7,43 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [1.5.0] - 2026-06-06
+
+A **risk visibility and release-notes workflow** release: it adds a canonical accepted risk /
+technical debt register, introduces a reusable release-notes template, and tightens the
+architecture-session flow around consciously deferred work before the release is merged or
+tagged.
+
+### Added
+- **Accepted risk and technical debt register** (`registries/risks.yml`): a compact,
+  machine-readable index for known accepted risks and deferred technical debt, with each row
+  pointing to the durable source artifact that carries the full context.
+- **Release notes template** (`templates/release-notes.md`): a lightweight milestone artifact
+  focused on user-visible changes, action required, known issues, documentation, and technical
+  references.
+- Method and agent guidance requiring accepted risks to stay visible, with a source architecture
+  section, ADR, issue/follow-up STEP, incident report, or check-in report created or referenced
+  before a risk-register row is added.
+
+### Changed
+- `METHOD.md` is now **Method version 0.3 (beta)**.
+- Conditional architecture sessions now record **Include**, **Deferred**, or **N/A** with a reason
+  and revisit trigger.
+- Conditional-session ownership is clearer: Native app is decided by Architecture Overview,
+  Privacy/compliance by Data Model or Security, and Identity/auth by Security.
+- STEP-1 bootstrap behavior is documented as a special case: `init.sh` reserves STEP-1, kickoff
+  creates the STEP-1 PLAN, then flips it to `In progress` and uses `step-0001-architecture`
+  wherever branch-per-STEP applies.
+- Release/deploy and milestone-doc guidance now points agents to the release-notes template while
+  keeping user-facing documentation optional and explicit.
+- STEP index path wording now distinguishes workspace-root paths from docs-hub-relative paths.
+
+### Fixed
+- `status.sh` now stops resolving STEP-1 when a substep has an unrecognized status or when no
+  runnable open substep can be derived.
+- Malformed STEP-index state now points users toward `scripts/check.sh` instead of silently
+  skipping ahead.
+
 ## [1.4.0] - 2026-06-03
 
 A **scaffold-update process** release: it replaces the old "hand-copy upstream improvements"

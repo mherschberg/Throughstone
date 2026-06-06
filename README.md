@@ -170,7 +170,7 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 ├── CLAUDE.md, AGENTS.md         ← per-machine pointers to the canonical context
 ├── .claude/                     ← per-machine agent config
 ├── init.sh                      ← one-time setup wizard (this download)
-├── prompts/                     ← [repo] STEP plans + substep prompts; STEP-index.md roadmap
+├── prompts/                     ← [repo] prompts/STEP-index.md roadmap + archived STEP plans/prompts
 ├── Upcoming Prompts/            ← scratch for the in-flight STEP (not a repo)
 └── Code/
     └── {{PROJECT}}-docs/         ← [repo] the docs hub — ALL durable content:

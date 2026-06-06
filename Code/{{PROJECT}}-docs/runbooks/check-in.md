@@ -55,7 +55,7 @@ place; the Glossary architecture doc vs. the terms the code now uses. Also
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
 with its current version/status).
 
-Beyond the architecture docs, sweep three things that rot just as quietly:
+Beyond the architecture docs, sweep four things that rot just as quietly:
 - **Repo READMEs** — every code repo has one, its **Overview** still describes what the repo
   *is*, and the **Setup / Running / Testing** steps still work from a clean checkout. They're
   stamped once at repo creation and otherwise never re-checked, so they're usually the stalest
@@ -68,6 +68,12 @@ Beyond the architecture docs, sweep three things that rot just as quietly:
 - **Docstrings** — spot-check that docstrings describe what the code *now does*, not what it
   was first written to do. A docstring that lies is worse than none; fix it in place (a doc
   fix, not a bug STEP).
+- **Accepted risks / tech debt** — review `registries/risks.yml`. For every open or monitoring
+  item, decide whether the revisit trigger has fired, the severity/owner still matches reality,
+  and the referenced architecture section, ADR, issue, STEP report, incident postmortem, or
+  check-in report still exists and still explains the risk. Close items that are mitigated,
+  update stale rows, create missing source artifacts, and file follow-up STEPs for anything
+  whose trigger has fired or whose severity is no longer acceptable.
 
 ## Part 2 — Run all tests  *(substep N.2)*
 - Run the **full** test suite (all repos), not just the area you last touched.
@@ -79,6 +85,8 @@ Beyond the architecture docs, sweep three things that rot just as quietly:
 Write a short **check-in report** to the check-in STEP's folder:
 - **Drift:** docs reviewed, discrepancies found, classified (doc fixed / ADR written / bug
   filed) — with the fixes applied and the bugs filed.
+- **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
+  follow-up STEPs.
 - **Tests:** the suite result, and what was done about any failures.
 - **Carry-forward:** anything that became a new bug/STEP, listed for the index.
 
