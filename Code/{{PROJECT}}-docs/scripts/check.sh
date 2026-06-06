@@ -238,7 +238,7 @@ else
     fi
 
     if [[ "$b" != *cross-cutting-review.md ]]; then
-      if ! grep -Eq '^Write `architecture/'"$prefix"'-[^`]+`' "$f"; then
+      if ! grep -Eq "^Write \`architecture/${prefix}-[^\`]+\`" "$f"; then
         fail "$b does not instruct the agent to write architecture/${prefix}-… in its Output section"
         numbering_ok=0
       fi

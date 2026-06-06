@@ -89,9 +89,9 @@ done <<< "$parsed"
 
 # Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.14 -> 101400.
 subkey() {
-  local x="$1" maj="${1%%.*}" rest="${1#*.}" num let lo=0
-  num="${rest%%[a-z]*}"; let="${rest#"$num"}"
-  [ -n "$let" ] && lo=$(printf '%d' "'$let")
+  local maj="${1%%.*}" rest="${1#*.}" num suffix lo=0
+  num="${rest%%[a-z]*}"; suffix="${rest#"$num"}"
+  [ -n "$suffix" ] && lo=$(printf '%d' "'$suffix")
   echo $(( maj * 100000 + num * 100 + lo ))
 }
 
