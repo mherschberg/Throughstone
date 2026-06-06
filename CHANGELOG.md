@@ -7,7 +7,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
-## [1.5.0] - Unreleased
+## [1.5.0] - 2026-06-06
 
 A **risk visibility and release-notes workflow** release: it adds a canonical accepted risk /
 technical debt register, introduces a reusable release-notes template, and tightens the
