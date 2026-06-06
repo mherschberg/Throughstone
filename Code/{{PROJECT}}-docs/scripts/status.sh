@@ -96,7 +96,7 @@ subkey() {
 }
 
 # --- STEP-1 substep state -----------------------------------------------------
-total_sub=${#sub_id[@]}; done_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
+total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
 i=0
 while [ "$i" -lt "$total_sub" ]; do
   s="${sub_id[$i]}"
@@ -104,6 +104,7 @@ while [ "$i" -lt "$total_sub" ]; do
     Done|Deferred|N/A) done_sub=$((done_sub + 1)) ;;
     Planned|"In progress")
       k=$(subkey "$s"); if [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
+    *) unknown_sub=$((unknown_sub + 1)) ;;
   esac
   i=$((i + 1))
 done
@@ -128,7 +129,10 @@ all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
 where=""; next=""
-if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
+if [ "$unknown_sub" -gt 0 ]; then
+  where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
+  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
@@ -148,6 +152,9 @@ if [ -n "$lowsub" ]; then                                   # §10.1 / §10.2
   else
     next="run session ${lowsub}  (${lowsub_se})."
   fi
+elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
+  where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
+  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
   if [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
