@@ -88,7 +88,7 @@ This is a **multi-repo** project. The workspace root is **not** a repo — it's 
 shell. (Mono-repo-for-now is the exception — then the root *is* the single repo and the
 pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 - `Code/{{PROJECT}}-docs/` — the docs hub (this repo). All durable content lives here.
-- `prompts/` — STEP plans + substep prompts.
+- `prompts/` — `prompts/STEP-index.md` roadmap + archived STEP plans/substep prompts.
 - `Code/{{PROJECT}}-*` — code repos, created as the architecture names them.
 
 `registries/repos.yml` is the canonical inventory **and the index to the repos** — each
@@ -157,7 +157,7 @@ STEP when more than one contributor is active. The rules that bind you as an age
 - **Every STEP is worked on a branch** named `step-NNNN-short-name` — the same name in every
   repo it touches. Do this even solo.
 - **Reserve the STEP number before working.** Pull `prompts/`, take `max + 1`, add the row to
-  `STEP-index.md` **on `prompts/`'s shared trunk** (never a `step-NNNN` branch), then **commit
+  `prompts/STEP-index.md` **on `prompts/`'s shared trunk** (never a `step-NNNN` branch), then **commit
   and push immediately** (a dedicated `reserve STEP-N` commit) — before you branch or write. If
   the push is rejected, pull, renumber, push again. After any pull/merge — even a clean one,
   which merges two appended rows into a silent duplicate that no conflict flags — scan before
@@ -173,7 +173,7 @@ STEP when more than one contributor is active. The rules that bind you as an age
   **push the flip to the shared trunk** — reservation leaves it `Planned`, and a STEP left at
   `Planned` (or whose flip is unpushed) while you work is invisible to everyone else's overlap
   check.
-- **Edit only your own rows** in shared table files (`STEP-index.md`, `adr/README.md`, phase
+- **Edit only your own rows** in shared table files (`prompts/STEP-index.md`, `adr/README.md`, phase
   `README.md`, `registries/repos.yml`); never re-sort or reflow them.
 - **Significant decisions in a team land as `Proposed` ADRs**, accepted by the designated
   authority (see `adr/README.md`) — don't silently Accept a decision others depend on.

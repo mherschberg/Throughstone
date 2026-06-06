@@ -1,8 +1,8 @@
 # Prompts
 
-This is where the project's plans and prompts live — the record of *how* the project was
-built, STEP by STEP. See `Code/{{PROJECT}}-docs/METHOD.md` for the full method; this README
-covers the conventions here and the recipe for adding a STEP.
+This is where the project's roadmap and archived STEP plans/prompts live — the record of
+*how* the project was built, STEP by STEP. See `Code/{{PROJECT}}-docs/METHOD.md` for the
+full method; this README covers the conventions here and the recipe for adding a STEP.
 
 **`prompts/` is its own repo** — project-wide, spanning all the code repos. It is
 **history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`) is **state** (kept

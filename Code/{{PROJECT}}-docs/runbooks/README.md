@@ -10,8 +10,8 @@ under pressure.
 The method (`../METHOD.md`) draws a line that matters for how you *invoke* each one:
 
 - **STEP-shaped** — runs as a tracked STEP with substeps that record status in the
-  `STEP-index.md`/PLAN. Its PLAN is thin and points at the runbook; you don't author substep
-  prompts for it (the same special case as the architecture STEP — see `../prompts/README.md`).
+  `prompts/STEP-index.md`/PLAN. Its PLAN is thin and points at the runbook; you don't author substep
+  prompts for it (the same special case as the architecture STEP — see `prompts/README.md`).
   The **check-in** is one; the **incident** follow-up (Parts 2–4) becomes one.
 - **Operational procedure** — *not* a STEP. You run it in the moment by telling the agent the
   trigger phrase below, and it follows the file. The **release**, **dependency** vetting/audit,

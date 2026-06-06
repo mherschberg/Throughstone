@@ -1,11 +1,11 @@
 # {{PROJECT}} — STEP-{{N}} PLAN: {{STEP TITLE}}
 
 **Phase:** {{e.g. Phase 1 — MVP}}
-**Owner:** {{who is running this STEP}}        <!-- one owner for the whole STEP and all its substeps; also shown in STEP-index.md; solo: optional -->
+**Owner:** {{who is running this STEP}}        <!-- one owner for the whole STEP and all its substeps; also shown in prompts/STEP-index.md; solo: optional -->
 **Status:** Planned        <!-- Planned → In progress → Done; or Deferred / Abandoned (see METHOD.md §1) -->
 **Date:** {{DATE}}
 **Branch:** `step-{{NNNN}}-{{short-name}}`   <!-- same name in every repo this STEP touches -->
-**Repos (projection):** {{repos + merge order}}   <!-- same label as STEP-index.md; lists repos + merge order; powers the overlap warning -->
+**Repos (projection):** {{repos + merge order}}   <!-- same label as prompts/STEP-index.md; lists repos + merge order; powers the overlap warning -->
 
 > One-paragraph statement of what this STEP delivers and why it comes now.
 
@@ -74,7 +74,7 @@
 - [ ]
 - [ ] All unit tests pass at the end of this STEP — ideally the full suite (unit +
       integration/e2e). <!-- the default bar; narrow or widen with a stated reason -->
-- [ ] STEP review passed; STEP-index.md updated; STEP archived to prompts/.
+- [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
      templates/substep-prompt.md ("Keeping the docs true"). Exceptions: STEP-1's review is the

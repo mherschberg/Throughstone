@@ -16,7 +16,7 @@ worked, and completed.
 > shared trunk (not a `step-NNNN` branch). Pull `prompts/`, take `max + 1`, add the row, then
 > **commit and push immediately** — before branching or working. If the push is rejected, pull,
 > renumber, push again. Before every push, even a clean merge, scan for duplicates
-> (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`)
+> (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`)
 > — two appended rows merge with no
 > conflict into a silent duplicate. See `runbooks/collaboration.md`.
 > **Owner** = who's on it; **Repos** = the repos it expects to touch (a *projection* that may

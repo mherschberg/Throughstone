@@ -131,7 +131,7 @@ To run an architecture session, tell your agent:
 The agent reads the matching file in
 `Code/{{PROJECT}}-docs/templates/architecture-sessions/NN-*.md` and follows it exactly:
 it interviews you one decision at a time, then writes the output doc and updates
-`STEP-index.md`. No copy-paste, no special commands.
+`prompts/STEP-index.md`. No copy-paste, no special commands.
 
 Each session reads what it needs (`overview.md` + earlier architecture docs) from disk, so
 **you can clear the chat / start fresh between sessions** — the state lives in files, not

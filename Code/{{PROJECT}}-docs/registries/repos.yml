@@ -22,7 +22,7 @@ repos:
   - name: "prompts"
     location: "prompts/"
     type: docs
-    description: "STEP plans and substep prompts; the build record. STEP-index.md is the roadmap."
+    description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them and they
   # are stamped from templates/repo-readme.md. Example:
