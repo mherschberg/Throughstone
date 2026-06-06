@@ -74,9 +74,12 @@ Write `architecture/03-architecture-overview.md` (use `templates/architecture-do
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
 `prompts/STEP-index.md`: mark 1.3 done; then, **based on the client-surfaces answer** — if
-there's no styled UI, **mark the UI / Design System row `N/A`** (keep the row, per the resolver's
-"skip any `N/A`" rule in `METHOD.md` §10); if there's a mobile/desktop app, **add the
-Native-app conditional row** (e.g. `1.7a`). Don't delete the seeded UI / Design System row.
+there's no styled UI, **mark the UI / Design System row `Deferred` or `N/A`** (keep the row, per
+the resolver's "skip any `Deferred`/`N/A`" rule in `METHOD.md` §10; use `Deferred` when a UI may
+arrive later, `N/A` when this project has no UI by design). If there's a mobile/desktop app,
+**add the Native-app conditional row** (e.g. `1.7a`); otherwise record the Native-app decision in
+the STEP-1 PLAN's Conditional sessions considered table. Don't delete the seeded UI / Design
+System row.
 
 ## Next
 Once 1.3 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell

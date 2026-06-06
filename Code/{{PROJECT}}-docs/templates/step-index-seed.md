@@ -5,6 +5,7 @@ place to look to understand where the project is.** Keep it current as STEPs are
 worked, and completed.
 
 > Status values: **Planned** · **In progress** · **Done** (archived to `prompts/`) ·
+> **Deferred** (consciously not needed now; keep a revisit trigger) ·
 > **Abandoned** (reserved but won't be built — keep the row so the number is never reused).
 > Flip a STEP to **In progress** when you start it, so the overlap warning can see it.
 > STEP numbers are global and never reset (see `METHOD.md` §1, §8).
@@ -25,7 +26,7 @@ worked, and completed.
 
 | STEP | Title | Owner | Status | Repos (projection) | Scope (one line) |
 |------|-------|-------|--------|--------------------|------------------|
-| STEP-1 | Architecture | | Planned | `{{PROJECT}}-docs` | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `templates/architecture-sessions/`. |
+| STEP-1 | Architecture | | Planned | `{{PROJECT}}-docs`, `prompts` | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
 
 <!-- STEP-1 is the ONLY row at bootstrap. STEP-2 onward are the implementation STEPs — don't
      add them by hand: after STEP-1's review passes, run the planning session
@@ -59,16 +60,17 @@ worked, and completed.
 | 1.13 | Glossary | Planned | `architecture/13-…` |
 | 1.14 | Cross-Cutting Review | Planned | review doc |
 
-<!-- Conditional sessions: include-or-skip per the kickoff "Conditional sessions considered"
-     table — add a row only when one is included. Slot it under a LETTERED substep after the
-     related core session, and run it BY NAME, not number (e.g. "run the identity-auth session"
-     → conditional-identity-auth.md; likewise conditional-native-app.md,
-     conditional-privacy-compliance.md). The output doc takes the next number above the core
-     set. EXAMPLE ONLY — do not parse this as a real row; real rows start at the left margin
-     above this comment, with the assigned substep and doc number:
+<!-- Conditional sessions: include/defer/skip per the STEP-1 PLAN's "Conditional sessions
+     considered" table. Add a row only when one is included. Native app is decided by 1.3;
+     Privacy/compliance by Data Model / Security; Identity/auth by Security. Slot included
+     conditionals under a LETTERED substep after the related core session, and run them BY NAME,
+     not number (e.g. "run the identity-auth session" → conditional-identity-auth.md; likewise
+     conditional-native-app.md, conditional-privacy-compliance.md). The output doc takes the next
+     number above the core set. EXAMPLE ONLY — do not parse this as a real row; real rows start
+     at the left margin above this comment, with the assigned substep and doc number:
        | 1.Xa | Conditional topic | Planned | `architecture/NN-topic.md` |
-     The 1.3 platform question decides whether the native-app session is needed; identity-auth
-     and privacy-compliance are included by need. -->
+     If a conditional row is later added and then consciously not needed under the current
+     project shape, mark it Deferred with the revisit trigger in the PLAN/risk register. -->
 
 ## How to add a STEP
 See `prompts/README.md` for the authoring recipe.

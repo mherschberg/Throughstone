@@ -71,7 +71,9 @@ session"* → `conditional-identity-auth.md`; *"run the native-app session"* →
 `conditional-native-app.md`; *"run the privacy session"* → `conditional-privacy-compliance.md`.
 They're slotted into STEP-1 under a lettered substep (e.g.
 `1.6a`, `1.7a`), so if the index's next open substep has a letter suffix, run the matching
-`conditional-*.md` by topic rather than looking for a `NN-*.md` file for that number.
+`conditional-*.md` by topic rather than looking for a `NN-*.md` file for that number. Each
+conditional has an owning session that decides it when the needed facts exist: Native app in
+1.3, Privacy/compliance from Data Model / Security, and Identity/auth from Security.
 
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
 architecture docs), so context can be cleared between sessions — state lives in files.
@@ -137,6 +139,9 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Never commit secrets.** Local dev values live in a gitignored `.env` / `.secrets/`;
   commit only a `.env.example` that documents the required keys.
 - Keep **`prompts/STEP-index.md`** current — it's the source of truth for status.
+- **Treat STEP-1 as the bootstrap special case.** `init.sh` seeds `STEP-1` as `Planned`; the
+  kickoff creates the STEP-1 PLAN. When kickoff closes, flip `STEP-1` to `In progress` and use
+  `step-0001-architecture` wherever branch-per-STEP applies.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
   running `Code/{{PROJECT}}-docs/scripts/status.sh` — it runs the **next-action resolver**

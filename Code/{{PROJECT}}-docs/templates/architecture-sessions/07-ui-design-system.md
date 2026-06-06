@@ -8,7 +8,8 @@
 > or one added later), if it's been written.
 >
 > **No UI?** If the Architecture Overview architecture doc says this is API-only / a CLI with no styled UI, skip this
-> session — note "N/A, no UI" in the index and move on.
+> session — note `Deferred` when a UI may arrive later, or `N/A` when the project has no UI by
+> design, in the index and move on.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}

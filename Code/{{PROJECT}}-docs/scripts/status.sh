@@ -101,7 +101,7 @@ i=0
 while [ "$i" -lt "$total_sub" ]; do
   s="${sub_id[$i]}"
   case "${sub_st[$i]}" in
-    Done|N/A) done_sub=$((done_sub + 1)) ;;
+    Done|Deferred|N/A) done_sub=$((done_sub + 1)) ;;
     Planned|"In progress")
       k=$(subkey "$s"); if [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
   esac
@@ -120,11 +120,11 @@ while [ "$i" -lt "$n_steps" ]; do
   [ "$n" -ge 2 ] && have_impl=1
   if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
-  case "$st" in Done|Abandoned) ;; *) nonfinal=1 ;; esac
+  case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
   if printf '%s' "$ti" | grep -qiE 'check.?in'; then [ "$n" -gt "$last_ci" ] && last_ci=$n; fi
   i=$((i + 1))
 done
-all_done=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_done=1
+all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
 where=""; next=""
@@ -165,8 +165,8 @@ elif [ -n "$inprog" ]; then                                 # §10.5
 elif [ -n "$lowplanned" ]; then                             # §10.4
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
   next="start ${lowplanned} — confirm scope, then author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat."
-elif [ "$all_done" -eq 1 ]; then                            # §10.7
-  where="Every STEP in the index is Done."
+elif [ "$all_final" -eq 1 ]; then                           # §10.7
+  where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
   next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
 else
   where="Indeterminate from the index alone."

@@ -31,9 +31,10 @@ Phase            e.g. Phase 1 = "MVP"          a release-level milestone
 - **STEP** — the main unit of work. Every STEP has a **PLAN** that lists its substeps,
   the decisions already locked, ground rules, and a definition of done. STEP numbers are
   **global and never reset** — Phase 3 might open at STEP-87. A STEP ends in a review. Its
-  status moves through **Planned → In progress → Done**, or **Abandoned** if it was reserved
-  but won't be built (the row stays so its number is never reused — see §8). These four are
-  the only STEP states.
+  status moves through **Planned → In progress → Done**. A STEP may be marked
+  **Deferred** when it is consciously not needed under the current project shape but may be
+  revisited later, or **Abandoned** if it was reserved but won't be built (the row stays so
+  its number is never reused — see §8). These five are the only STEP states.
 
 - **Substep** — the smallest unit: one focused task, written so it can be executed cold
   in a fresh chat. Numbered with dotted notation (`1.1`, `1.2`, `1.5a`). For the
@@ -106,17 +107,20 @@ set lives in `templates/architecture-sessions/`.
 | 1.13 | Glossary | `architecture/13-*` |
 | 1.14 | Cross-Cutting Review | review doc |
 
-**Conditional sessions** (included only when relevant, auto-selected by the Architecture
-Overview & Component Boundaries client-surfaces question or by need): **Native app architecture** (mobile/desktop), **Identity & auth**,
-**Privacy, compliance & data governance** (personal or regulated data). Run each **by name**,
-not by number — *"run the identity-auth session"* → `conditional-identity-auth.md` (likewise
-`conditional-native-app.md` and `conditional-privacy-compliance.md`) — slotted under a lettered
-substep (e.g. `1.6a`, after the related core session). Each is an **explicit
-include-or-skip decision at kickoff** — the STEP-1 PLAN records a *Conditional sessions
-considered* table marking every one Include (→ substep) or N/A (with a reason), so a skip is a
-recorded choice rather than a silent omission. (A need can also emerge *later* — a project adds
-login or starts collecting regulated data — in which case slot the conditional in then, the
-same way: add its substep/STEP and run it by name.)
+**Conditional sessions** are included only when relevant and are owned by the session that has
+enough information to decide them: **Native app architecture** is decided by Session 1.3's
+client-surfaces question; **Privacy, compliance & data governance** is decided when the Data
+Model / Security sessions identify personal or regulated data; **Identity & auth** is decided
+from the Security session's AuthN/AuthZ posture. Run each **by name**, not by number — *"run
+the identity-auth session"* → `conditional-identity-auth.md` (likewise
+`conditional-native-app.md` and `conditional-privacy-compliance.md`) — slotted under a
+lettered substep (e.g. `1.6a`, after the related core session). The STEP-1 PLAN records a
+*Conditional sessions considered* table that names the owning session for each conditional and
+tracks the current call: Include (→ substep), Deferred (with a revisit trigger), or N/A (with
+a reason). This keeps a skip or deferral visible without forcing a decision before the
+owning session has the facts. (A need can also emerge *later* — a project adds login or starts
+collecting regulated data — in which case slot the conditional in then, the same way: add its
+substep/STEP and run it by name.)
 
 ### Running a session  *(Layer 1 — works in any agent)*
 
@@ -356,6 +360,13 @@ Decisions are socialized through ADRs (`Proposed` → `Accepted` in a team). Ful
 shared-file editing, the overlap warning, ADR authority, solo→team onboarding — are in
 `runbooks/collaboration.md`.
 
+**STEP-1 special case:** `init.sh` seeds `STEP-1` as `Planned`; the kickoff is the project
+setup that creates the STEP-1 PLAN and records which architecture sessions will be run. When
+kickoff closes, flip the `STEP-1` row to `In progress`. Use the branch name
+`step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies (docs hub and
+`prompts/` in multi-repo projects; the root repo in mono-repo-for-now). In a team/shared-remote
+project, push the `In progress` flip so others can see that the architecture STEP is active.
+
 ## 8. Naming conventions
 
 | Thing | Pattern | Example |
@@ -413,7 +424,7 @@ lives in files (§4, §5).
 Resolve the next action top-down against the index — the first rule that matches wins:
 
 1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one:
-   *"run session N.M"* in a fresh chat. Skip any substep marked `N/A`. A substep with a
+   *"run session N.M"* in a fresh chat. Skip any substep marked `N/A` or `Deferred`. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
    session"* / *"run the privacy session"*), since its template file is named by topic, not by

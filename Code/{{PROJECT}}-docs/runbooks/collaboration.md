@@ -114,9 +114,12 @@ to coordinate must therefore be *in that row*:
   owner; that keeps the unit of ownership the same as the unit of isolation (the branch). The
   owner is informational here (who to talk to), recorded in the STEP PLAN and surfaced in this
   row.
-- **Status** — Planned · In progress · Done · **Abandoned**. A STEP that was reserved but
-  won't be built is marked **Abandoned** — its row **stays** (never delete it) so its number
-  is never reused (`METHOD.md` §8). `max + 1` always counts an abandoned number; don't reissue it.
+- **Status** — Planned · In progress · Done · **Deferred** · **Abandoned**. A STEP that is
+  consciously not needed under the current project shape but may be revisited later is marked
+  **Deferred** with a revisit trigger in the PLAN/risk register. A STEP that was reserved but
+  won't be built is marked **Abandoned** — its row **stays** (never delete it) so its number is
+  never reused (`METHOD.md` §8). `max + 1` always counts deferred and abandoned numbers; don't
+  reissue them.
 - **Repos (projection)** — the repos you *expect* to touch. This is a **projection, not a
   guarantee** — scope shifts as a STEP is worked, and that's fine. It exists to power the
   overlap warning below, not to reserve anything. The PLAN carries the same field

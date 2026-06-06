@@ -89,7 +89,7 @@ sense of the scope before continuing. Build that map from the remaining rows in 
 **STEP-1 substeps (architecture sessions)** table in `prompts/STEP-index.md`, not from a
 baked-in list here, so added or reordered sessions stay visible automatically. For each
 remaining row, give the substep number, session label, and a plain-language phrase for what
-it decides; note any rows already marked skipped/N/A.
+it decides; note any rows already marked `Deferred` or `N/A`.
 
 Mention that **conditional** sessions slot in by name when they apply — **identity & auth**
 (if there are user accounts / access control), **privacy/compliance** (if there's personal or

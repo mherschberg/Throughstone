@@ -85,27 +85,36 @@ else
 fi
 
 # --- 3. Valid STEP / substep statuses -----------------------------------------
-hdr "3. Statuses valid (Planned · In progress · Done · Abandoned · N/A)"
+hdr "3. Statuses valid (Planned · In progress · Done · Deferred · Abandoned · N/A)"
 if [ -f "$INDEX" ]; then
   # Find each table's Status column from its header row, then validate that cell in data rows.
   bad="$(awk -F'|' '
     function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
     {
       if ($0 !~ /^[[:space:]]*\|/) { inrow = 0; statuscol = 0; next }   # left a table
-      ishdr = 0
-      for (i = 1; i <= NF; i++) if (trim($i) == "Status") { ishdr = 1; statuscol = i }
+      ishdr = 0; isstep = 0; issub = 0
+      for (i = 1; i <= NF; i++) {
+        c = trim($i)
+        if (c == "Status") { ishdr = 1; statuscol = i }
+        if (c == "STEP") isstep = 1
+        if (c == "Substep") issub = 1
+      }
+      if (ishdr && isstep) tablekind = "STEP"
+      if (ishdr && issub)  tablekind = "SUB"
       if (ishdr) { inrow = 1; next }
       if (!inrow || statuscol == 0) next
       sc = trim($statuscol)
       if (sc == "" || sc ~ /^:?-+:?$/) next                            # blank or separator row
-      if (sc != "Planned" && sc != "In progress" && sc != "Done" && sc != "Abandoned" && sc != "N/A")
+      if (sc != "Planned" && sc != "In progress" && sc != "Done" && sc != "Deferred" && sc != "Abandoned" && sc != "N/A")
         print trim($2) " -> \"" sc "\""
+      else if (sc == "N/A" && tablekind != "SUB")
+        print trim($2) " -> \"N/A\" (only substeps may use N/A)"
     }
   ' "$INDEX")"
   if [ -n "$bad" ]; then
     fail "invalid status value(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$bad"
-    hint "use exactly one of: Planned · In progress · Done · Abandoned (a substep may also be N/A). See METHOD.md §1."
+    hint "use exactly one of: Planned · In progress · Done · Deferred · Abandoned (a substep may also be N/A). See METHOD.md §1."
   else
     pass "all statuses valid"
   fi

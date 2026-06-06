@@ -2,7 +2,7 @@
 
 **Phase:** {{e.g. Phase 1 — MVP}}
 **Owner:** {{who is running this STEP}}        <!-- one owner for the whole STEP and all its substeps; also shown in STEP-index.md; solo: optional -->
-**Status:** Planned        <!-- Planned → In progress → Done; or Abandoned (see METHOD.md §1) -->
+**Status:** Planned        <!-- Planned → In progress → Done; or Deferred / Abandoned (see METHOD.md §1) -->
 **Date:** {{DATE}}
 **Branch:** `step-{{NNNN}}-{{short-name}}`   <!-- same name in every repo this STEP touches -->
 **Repos (projection):** {{repos + merge order}}   <!-- same label as STEP-index.md; lists repos + merge order; powers the overlap warning -->
@@ -37,16 +37,17 @@
      there. -->
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
-<!-- Every conditional session is an EXPLICIT decision, never a silent omission: mark each
-     one Include (with the substep it became) or N/A (with a one-line reason). A skipped
+<!-- Every conditional session is an EXPLICIT decision, never a silent omission. Name the
+     session that owns the decision, then mark each one Include (with the substep it became),
+     Deferred (with a revisit trigger), or N/A (with a one-line reason). A skipped or deferred
      conditional must leave a recorded reason here so a future reader sees a decision, not an
      accident. See METHOD.md §4 and the conditional-*.md session files. -->
 
-| Conditional session | Decision | Substep / reason |
-|---------------------|----------|------------------|
-| Native app (mobile / desktop) | Include / N/A | {{e.g. 1.7a, or "N/A — web-only per 1.3"}} |
-| Identity & auth | Include / N/A | {{e.g. 1.6a, or "N/A — no accounts/login"}} |
-| Privacy, compliance & data governance | Include / N/A | {{e.g. 1.6b, or "N/A — no personal/regulated data"}} |
+| Conditional session | Owning session | Decision | Substep / reason / revisit trigger |
+|---------------------|----------------|----------|------------------------------------|
+| Native app (mobile / desktop) | 1.3 Architecture Overview | Include / Deferred / N/A | {{e.g. 1.7a, or "N/A — web-only per 1.3"}} |
+| Identity & auth | 1.6 Security & Threat Model | Include / Deferred / N/A | {{e.g. 1.6a, or "Deferred — no accounts/login until Phase 2; revisit before login"}} |
+| Privacy, compliance & data governance | 1.4 Data Model / 1.6 Security | Include / Deferred / N/A | {{e.g. 1.6b, or "N/A — no personal/regulated data"}} |
 
 ## Open questions
 <!-- Things still undecided at the start of this STEP. Mark Q1, Q2, … with owner. -->

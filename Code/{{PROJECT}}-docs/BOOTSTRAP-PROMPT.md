@@ -66,16 +66,18 @@ scope** before continuing.
 
 ### Stage 2 — STEP-1 PLAN  ▸ checkpoint
 STEP-1 is **architecture-first: design docs + ADRs, no code.** Decide which architecture
-sessions apply (see the core set in `METHOD.md` §4). For the **conditional** sessions, make an
-*explicit* call on **each one** — never leave a conditional simply unconsidered: fill in the
-**Conditional sessions considered** table in the PLAN, marking every conditional **Include**
-(→ the substep it becomes, e.g. `1.6a`) or **N/A** (with a one-line reason). Decide each from
-its trigger: the Architecture Overview & Component Boundaries client-surfaces question for **Native app**; the auth posture for
-**Identity/auth**; and personal or regulated data (PII, health/financial/children's, or a
-regime like GDPR/HIPAA/PCI) for **Privacy/compliance**. A skipped conditional must leave a
-recorded reason, so a future reader sees a decision rather than an accident. Keep the core
-sessions unless their own session instructions explicitly say to mark them `N/A` (for example,
-the UI / Design System session when there is no styled UI). Write
+sessions apply (see the core set in `METHOD.md` §4). For the **conditional** sessions, make
+the decision explicit at the point where the method has enough facts — never leave a
+conditional simply unconsidered. Fill in the **Conditional sessions considered** table in the
+PLAN, naming the owning session and current call for each conditional: **Include** (→ the
+substep it becomes, e.g. `1.6a`), **Deferred** (with a revisit trigger), or **N/A** (with a
+one-line reason). Native app is owned by the Architecture Overview & Component Boundaries
+client-surfaces question; Identity/auth is owned by the Security session's AuthN/AuthZ
+posture; Privacy/compliance is owned by the Data Model / Security sessions when personal or
+regulated data appears. A skipped or deferred conditional must leave a recorded reason, so a
+future reader sees a decision rather than an accident. Keep the core sessions unless their own
+session instructions explicitly say to mark them `N/A` or `Deferred` (for example, the UI /
+Design System session when there is no styled UI). Write
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (from
 `Code/{{PROJECT}}-docs/templates/step-plan.md`) listing the chosen sessions as substeps,
 the locked decisions, and the definition of done. **Wait for confirmation.**
@@ -90,7 +92,10 @@ author substep prompts from `Code/{{PROJECT}}-docs/templates/substep-prompt.md`.
 `<!-- PROJECT-STATUS: not-started -->` line near the top of
 `Code/{{PROJECT}}-docs/overview.md` to `<!-- PROJECT-STATUS: kickoff-complete -->`. This is
 what tells future sessions to resume from `prompts/STEP-index.md` instead of re-running this
-kickoff. **Then stop.**
+kickoff. Then flip the `STEP-1` row in `prompts/STEP-index.md` from `Planned` to
+`In progress`; `init.sh` reserved `STEP-1`, and kickoff is the special setup that starts it.
+Use branch `step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies (and in a
+team/shared-remote project, push the `In progress` flip). **Then stop.**
 
 ### Execution (after kickoff)
 The user drives from here, one session at a time:

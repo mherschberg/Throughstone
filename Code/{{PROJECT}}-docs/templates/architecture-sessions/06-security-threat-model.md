@@ -42,7 +42,8 @@ oversight.
    proprietary data, availability itself.) List them — everything else hangs off this. (If
    **personal/regulated data** is among them, this session covers keeping attackers *out* of
    it; handling it *lawfully* — regimes, consent, retention, deletion rights — is the
-   conditional Privacy/compliance session. Flag that it applies.)
+   conditional Privacy/compliance session. Add that row, or mark it `Deferred` with a revisit
+   trigger if the data is planned for a later phase.)
 2. **Trust boundaries.** Where does data cross a line of trust? (Internet → your service;
    user → admin; your service → third party; service → service.) Each boundary is where
    threats live.
@@ -51,7 +52,8 @@ oversight.
    escalation, insider misuse?
 4. **AuthN / AuthZ posture.** High-level: how do you know who someone is, and what they're
    allowed to do? (Deep design is the conditional Identity/auth session — here just the
-   stance.)
+   stance. Add that row if accounts/login/roles are in scope; mark it `Deferred` with a revisit
+   trigger if identity is deliberately pushed to a later phase.)
 5. **Secrets & data protection.** Where do secrets live (never in code/repo) and how are
    they rotated? TLS in transit; encryption at rest for sensitive data? **Local dev
    convention:** secrets stay in a gitignored `.env` (values) or `.secrets/` (files like
@@ -70,7 +72,8 @@ oversight.
    "before we accept real user data / payments / go public"). Add each accepted deferral to
    `registries/risks.yml`, or update the existing row if this session revisits it.
 8. **Deferral decision (if applicable).** If you're deferring a full threat model, state it
-   explicitly with the trigger to revisit — a conscious, dated decision.
+   explicitly with the trigger to revisit — a conscious, dated decision — and mark substep 1.6
+   `Deferred` in the index rather than `Done`.
 
 ## Output
 Write `architecture/06-security-threat-model.md` — the Security & Threat Model architecture
@@ -86,10 +89,14 @@ and add each accepted deferral to `registries/risks.yml` with owner, severity, a
 trigger. Keep the register row short and reference the architecture section and/or ADR that
 records the detail; if neither exists, add the detail to this architecture doc before adding
 the register row.
-Update `prompts/STEP-index.md`: mark 1.6 done (or "deferred — see ADR-XXXX").
+Update `prompts/STEP-index.md`: mark 1.6 `Done` if the threat model is complete, or
+`Deferred` if the session deliberately records that a full threat model is not needed yet.
+Do not put prose such as "deferred — see ADR-XXXX" in the Status cell; keep the Status cell to
+the allowed value and put ADR/risk references in the architecture doc, ADR registry, risk
+register, PLAN, or notes/scope text.
 
 ## Next
-Once 1.6 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+Once 1.6 is marked `Done` or `Deferred`, the next action is the lowest open STEP-1 substep in the index. Tell
 the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
 session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
 resolver in `METHOD.md` §10.
