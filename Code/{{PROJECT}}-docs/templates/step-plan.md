@@ -34,7 +34,10 @@
      substep gets a prompt authored from templates/substep-prompt.md. A Check-in STEP is
      thin: no prompts are authored — its two substeps are the doc-drift reconciliation
      (N.1) and full test run (N.2) defined in runbooks/check-in.md; this PLAN just points
-     there. -->
+     there. An Incident STEP is also thin: no prompts are authored — its substeps are
+     RCA (N.1), find similar (N.2), and fix/harden (N.3) defined in
+     runbooks/incident-postmortem.md; its durable postmortem starts from
+     templates/incident-postmortem.md. -->
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
 <!-- Every conditional session is an EXPLICIT decision, never a silent omission. Name the
@@ -78,4 +81,6 @@
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
      templates/substep-prompt.md ("Keeping the docs true"). Exceptions: STEP-1's review is the
-     Cross-Cutting Review; a Check-in STEP is itself the review (runbooks/check-in.md). -->
+     Cross-Cutting Review; a Check-in STEP is itself the review (runbooks/check-in.md); an
+     Incident STEP closes by completing the postmortem and output checklist in
+     runbooks/incident-postmortem.md. -->

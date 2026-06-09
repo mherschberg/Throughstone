@@ -76,9 +76,10 @@ doc — review what's there, add what's missing, prune the rest), `runbooks/`
 (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
 deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
-spin up an Incident STEP to RCA → find similar → fix), and `dependency-supply-chain.md` (vet a
-new dependency; audit dependencies for vulns/licenses on a cadence); add your own operational
-ones), `registries/`
+spin up an Incident STEP to RCA → find similar → fix, with a postmortem from
+`templates/incident-postmortem.md`), and `dependency-supply-chain.md` (vet a new dependency;
+audit dependencies for vulns/licenses on a cadence); add your own operational ones),
+`registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted
 risk / tech-debt register).
 
