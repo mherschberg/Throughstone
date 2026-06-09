@@ -33,7 +33,10 @@ the cause in the *system*, never who typed the command.
    diagnose yet — just record. This is the raw material for the RCA.
 4. **Open the Incident STEP.** Reserve a STEP number and branch per the recipe
    (`prompts/README.md`); its substeps are Parts 2–4. Park the captured timeline in the STEP
-   folder. Then hand off to that STEP — the emergency is over; the rest is deliberate work.
+   folder by starting a postmortem from `templates/incident-postmortem.md`. Set the initial
+   incident window, customer-facing, revenue-impacting, and impact level fields to `Unknown`
+   if the facts are not clear yet. Then hand off to that STEP — the emergency is over; the
+   rest is deliberate work.
 
 > **Security incidents** that exposed data or credentials also start a **breach-notification**
 > clock from your privacy/security work (the Security & Threat Model architecture doc,
@@ -47,9 +50,10 @@ Get past the symptom to the **cause in the system**. Ask *why* repeatedly (5 Why
 reach something you can actually change — usually not "the code had a bug" but the missing test,
 the missing guardrail, the missing alert, or the design assumption that didn't hold. Name the
 **contributing factors**, not a single culprit. Write a short **postmortem** into the Incident
-STEP folder: the timeline (from Part 1), the root cause, contributing factors, and what made it
-easier or harder to detect and recover. If the RCA overturns a recorded decision, write an
-**ADR** (`templates/adr.md`); if it shows a doc was wrong, that's a fix for Part 4.
+STEP folder using `templates/incident-postmortem.md`: the timeline (from Part 1), impact
+classification, the root cause, contributing factors, and what made it easier or harder to
+detect and recover. If the RCA overturns a recorded decision, write an **ADR**
+(`templates/adr.md`); if it shows a doc was wrong, that's a fix for Part 4.
 
 ## Part 3 — Find similar issues  *(substep N.2)*
 The bug you saw is an *instance of a class*. Before fixing, **hunt the class**: search the
@@ -74,8 +78,10 @@ the *next* one is caught sooner and cheaper:
   trigger. The postmortem or follow-up STEP carries the detail; the register row stays short.
 
 ## Output
-- A **postmortem** in the Incident STEP folder: timeline, root cause, contributing factors, the
-  similar issues found (Part 3), and the fixes/hardening applied (Part 4).
+- A **postmortem** in the Incident STEP folder, started from
+  `templates/incident-postmortem.md`: impact classification, timeline, root cause,
+  contributing factors, the similar issues found (Part 3), and the fixes/hardening applied
+  (Part 4).
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any
   **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
   in `registries/risks.yml`.
