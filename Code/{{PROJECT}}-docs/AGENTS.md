@@ -95,6 +95,14 @@ pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has deep internals). **Before working in a repo, read its README
 first** — the same way you read the architecture docs before a design change.
+When creating an application-code repo, also apply the project-license posture recorded at
+bootstrap by running
+`Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>`. The authoritative
+selection is in `Code/{{PROJECT}}-docs/.throughstone/project-license`; the helper validates
+that selection against the docs hub's canonical `LICENSE`, copies the project license unchanged
+for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
+copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
+README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
 `scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
 the root pointers).
 

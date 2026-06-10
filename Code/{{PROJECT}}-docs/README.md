@@ -26,9 +26,14 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`runbooks/`](runbooks/README.md) | Repeatable procedures — check-in, release, incident, dependencies, secrets, collaboration (indexed). |
 | [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`) and accepted risk / tech-debt index (`risks.yml`) (indexed). |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
-| [`scripts/`](scripts/) | Setup helpers — e.g. `setup-workspace.sh`. |
+| [`scripts/`](scripts/) | Setup helpers — workspace setup and project-license propagation. |
 
 > Built with **Throughstone**. The scaffold files (`METHOD.md`, `templates/`, `runbooks/`,
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
-> `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the license
-> you chose at setup.
+> `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the
+> open-source license you chose at setup or kept private/proprietary. For open-source projects,
+> this repo's `LICENSE` is the canonical project-license file copied unchanged into each
+> application-code repo when it is created. `.throughstone/project-license` records the durable
+> selection independently, and the repo-scaffolding helper validates the two before copying.
+> It also copies `LICENSE-THROUGHSTONE` for retained Throughstone-authored README and CI
+> templates and writes `LICENSING.md` so its limited scope is visible.

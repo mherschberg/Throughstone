@@ -122,8 +122,8 @@ things keep them approachable whatever your background:
    ```
    It asks a few questions (project slug, repo layout, **license**, optional pieces), then
    detaches this download from the template's git history, renames the `{{PROJECT}}`
-   placeholder everywhere to your slug, stamps your chosen `LICENSE`, and initializes your
-   repo(s). See [`init.sh`](init.sh).
+   placeholder everywhere to your slug, stamps your chosen open-source `LICENSE` when
+   applicable, and initializes your repo(s). See [`init.sh`](init.sh).
 
    Prefer to script it? Every question has a flag — run `./init.sh --help` to see them, or
    pre-answer non-interactively, e.g.:
@@ -134,6 +134,11 @@ things keep them approachable whatever your background:
    Any flag you omit is still prompted (without `--non-interactive`); with it, a missing
    required value is an error. `init.sh` first checks that `git` and `perl` are present. When
    it finishes you can delete `init.sh` — it has done its job.
+
+   Repository visibility is separate from licensing. When creating GitHub remotes, use
+   `--visibility=private` or `--visibility=public`; the default is private. Public visibility
+   with `--license=private` publishes the source without granting open-source reuse rights, so
+   the wizard warns before creating that combination.
 
 3. **Start your AI agent in the project folder, and send it one command.** Launch your
    agent however you normally do (Claude Code, Codex, … — start it yourself; this scaffold
@@ -333,13 +338,18 @@ reports, fixes, and ideas are genuinely welcome. A few starting points:
 ## License
 
 This Throughstone template is released under the [BSD 3-Clause License](LICENSE) — use
-it freely. `init.sh` sets up **your** project's own license for the code you write: it asks
-whether your project is open source (MIT, BSD-3, or Apache-2.0) or private/proprietary (an
-"all rights reserved" notice) and stamps that into each repo. The scaffold's own files
-(`METHOD.md`, `templates/`, `runbooks/`, `scripts/`) remain under BSD-3-Clause — `init.sh`
-retains it as `LICENSE-THROUGHSTONE` in the docs hub (BSD-3 requires keeping the notice). So your
-application code is governed by the license you chose, while the project keeps a reference
-back to Throughstone.
+it freely. `init.sh` asks whether **your** project is open source (MIT, BSD-3, or Apache-2.0)
+or private/proprietary. Open-source projects get the selected project `LICENSE`; private
+projects get no project license file. The selected license in the docs hub is the source copied
+into application-code repos when they are created later. The durable selection is recorded in
+the docs hub's `.throughstone/project-license`, so deleting or losing the canonical `LICENSE`
+causes an error instead of silently changing an open-source project to proprietary.
+Throughstone-authored scaffold material remains under BSD-3-Clause, so `init.sh` retains that
+separate notice as `LICENSE-THROUGHSTONE` in each independently distributed repo that contains
+it, including the root of a mono-repo. Generated repos also include `LICENSING.md` to state that
+the Throughstone notice does not license proprietary application code. Your application code is
+therefore governed by the open-source license you chose or remains proprietary, while retained
+Throughstone material keeps its original license.
 
 > **A note on the name.** The BSD-3-Clause license covers the *code*, not the *name*.
 > "Throughstone" is a trademark of Mark A. Herschberg — you're welcome to say you *use*

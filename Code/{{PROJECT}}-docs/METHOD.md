@@ -5,7 +5,10 @@
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
 > retained as `LICENSE-THROUGHSTONE` in this docs hub. Your own application code is under the
-> license you chose at setup.
+> open-source license you chose at setup or remains private/proprietary. For open-source
+> projects, the docs hub's `LICENSE` is the canonical project-license file copied into each
+> application-code repo when that repo is created. The durable selection is recorded separately
+> in `.throughstone/project-license`, so a missing license file cannot silently change it.
 
 How projects built with this scaffold are structured. This is the canonical reference;
 the agent reads it to understand how to work. Read it once before you start.
@@ -315,7 +318,15 @@ register row. **Every repo carries a README explaining
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
-its root for its internal design.
+its root for its internal design. **Every new application-code repo also inherits the
+project-license posture established by `init.sh`:** read the authoritative selection from the
+docs hub's `.throughstone/project-license`. For an open-source selection, the docs hub must have
+a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
+`Proprietary`, the new repo gets no project `LICENSE`. Do not copy `LICENSE-THROUGHSTONE` into
+application-code repos that contain no Throughstone-authored material. Repos scaffolded through
+this method do contain the Throughstone-authored README and CI starter, so
+`scripts/apply-project-license.sh` copies `LICENSE-THROUGHSTONE` and writes a visible
+`LICENSING.md` that distinguishes retained scaffold material from project-authored code.
 
 **All durable content lives in a repo** — almost always `Code/{{PROJECT}}-docs/`. The
 workspace root holds only **per-machine** files: the pointer `CLAUDE.md` / `AGENTS.md`

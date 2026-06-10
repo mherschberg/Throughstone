@@ -13,6 +13,13 @@
   Stamp the CI gate named by the Test Strategy architecture doc too: drop
   `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill in its
   stack's test command (see `templates/ci/README.md`).
+
+  Apply the project license established at bootstrap by running
+  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <this-repo-path>`. It copies the
+  docs hub's canonical `LICENSE` unchanged for open-source projects. Proprietary projects
+  get no project license file. It also copies `LICENSE-THROUGHSTONE` for this retained
+  Throughstone-authored README/CI scaffolding and writes `LICENSING.md` to make the boundary
+  between the two licenses explicit.
 -->
 
 ## Overview
@@ -26,6 +33,12 @@
      `ARCHITECTURE.md` at the repo root for its internal design — the main modules, key
      flows, and *why* it's built this way (the codebase-level counterpart to the hub's
      system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo. -->
+
+## Licensing
+
+See [`LICENSING.md`](LICENSING.md) for the exact scope. A root `LICENSE`, when present,
+governs project-authored content. `LICENSE-THROUGHSTONE` applies only to retained
+Throughstone-authored scaffold material and does not license the project's application code.
 
 ## Tech stack
 <!-- Language + version, framework, datastore(s), key libraries. -->
