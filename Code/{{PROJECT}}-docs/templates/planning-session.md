@@ -55,7 +55,18 @@ architecture changes and the remaining STEPs need re-planning.
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
-   the `.env` / `.secrets/` secret-file block so local secrets never get committed). **Each
+   the `.env` / `.secrets/` secret-file block so local secrets never get committed). Apply the
+   project-license posture too: run
+   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` for every new code
+   repo. It reads `.throughstone/project-license`, requires the canonical docs-hub `LICENSE`
+   for an open-source selection, and copies that file unchanged. For `Proprietary`, no project
+   `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
+   and CI starter are retained Throughstone-authored scaffold material, and writes
+   `LICENSING.md` to make clear that notice is not the application-code license. Repository
+   visibility is separate: when adding a remote for each code repo, choose private or public
+   deliberately rather than inferring it from the license. Publishing a proprietary repo makes
+   its source visible without granting open-source reuse rights, so call that out explicitly.
+   **Each
    repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
    the repo is and the slice of the system it owns), and the repo gets a row in
    `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can

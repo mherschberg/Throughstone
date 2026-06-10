@@ -27,6 +27,53 @@ want() {
   ask "$prompt" "$def"
 }
 
+# normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
+normalize_license_choice() {
+  local input
+  input="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  case "$input" in
+    mit|1)                       NORMALIZED_LICENSE_CHOICE=1 ;;
+    bsd|bsd-3|bsd-3-clause|2)   NORMALIZED_LICENSE_CHOICE=2 ;;
+    apache|apache-2|apache-2.0|3) NORMALIZED_LICENSE_CHOICE=3 ;;
+    proprietary|private)        NORMALIZED_LICENSE_CHOICE=private ;;
+    *)                          return 1 ;;
+  esac
+}
+
+# choose_license_interactively — prompt until the project type and license are valid.
+choose_license_interactively() {
+  local project_type license_input
+
+  while :; do
+    echo "Is this project open source or private/proprietary?"
+    echo "  1) Open source"
+    echo "  2) Private / proprietary"
+    project_type="$(ask 'Choose 1 or 2' '1')"
+    case "$project_type" in
+      1) break ;;
+      2)
+        LICENSE_CHOICE="private"
+        return 0
+        ;;
+      *) echo "  -> choose 1 for open source or 2 for private / proprietary." ;;
+    esac
+  done
+
+  while :; do
+    echo "Open-source license:"
+    echo "  1) MIT           (permissive, simplest)"
+    echo "  2) BSD-3-Clause  (permissive + name-endorsement protection)"
+    echo "  3) Apache-2.0    (permissive, with patent grant)"
+    license_input="$(ask 'Choose 1, 2, or 3' '1')"
+    if normalize_license_choice "$license_input" \
+      && [ "$NORMALIZED_LICENSE_CHOICE" != "private" ]; then
+      LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
+      return 0
+    fi
+    echo "  -> choose 1/mit, 2/bsd-3, or 3/apache-2.0."
+  done
+}
+
 preflight_git_commit() {
   local tmp out status
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-git-preflight.XXXXXX")"
@@ -78,20 +125,21 @@ Usage: ./init.sh [options]
 Options:
   --slug=SLUG            Project slug (lowercase kebab-case, e.g. acme-scheduler)
   --desc=TEXT           One-line description
-  --license=NAME        mit | bsd-3 | apache-2.0 | proprietary
-  --holder=NAME         Copyright holder (name or org)
+  --license=NAME        mit | bsd-3 | apache-2.0 | private
+  --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
   --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
   --remotes=yes|no      Create GitHub remotes via gh    (default: no; needs gh)
   --owner=OWNER         GitHub owner/org (required when --remotes=yes)
+  --visibility=VALUE    private | public                (default: private)
   -y, --non-interactive Never prompt; error on any missing required value
   -h, --help            Show this help and exit
 
 Env vars (flags take precedence): INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
   INIT_LAYOUT, INIT_REGISTRIES, INIT_COLLAB, INIT_ADR_AUTHORITY, INIT_REMOTES,
-  INIT_OWNER, INIT_NONINTERACTIVE.
+  INIT_OWNER, INIT_VISIBILITY, INIT_NONINTERACTIVE.
 USAGE
 }
 
@@ -101,6 +149,7 @@ LICENSE_IN="${INIT_LICENSE:-}"; HOLDER_IN="${INIT_HOLDER:-}"
 LAYOUT_IN="${INIT_LAYOUT:-}";   REGISTRIES_IN="${INIT_REGISTRIES:-}"
 COLLAB_IN="${INIT_COLLAB:-}";   ADR_AUTHORITY_IN="${INIT_ADR_AUTHORITY:-}"
 REMOTES_IN="${INIT_REMOTES:-}"; OWNER_IN="${INIT_OWNER:-}"
+VISIBILITY_IN="${INIT_VISIBILITY:-}"
 NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 
 while [ $# -gt 0 ]; do
@@ -125,6 +174,8 @@ while [ $# -gt 0 ]; do
     --remotes)         REMOTES_IN="${2:-}"; shift ;;
     --owner=*)         OWNER_IN="${1#*=}" ;;
     --owner)           OWNER_IN="${2:-}"; shift ;;
+    --visibility=*)    VISIBILITY_IN="${1#*=}" ;;
+    --visibility)      VISIBILITY_IN="${2:-}"; shift ;;
     -y|--yes|--non-interactive) NONINTERACTIVE=1 ;;
     -h|--help)         usage; exit 0 ;;
     *) echo "init.sh: unknown option: $1 (try './init.sh --help')" >&2; exit 2 ;;
@@ -166,31 +217,46 @@ DESC="$(want "$DESC_IN" 'One-line description')"
 # License — accept a friendly token from --license, else ask the two-part question.
 LICENSE_CHOICE=""
 if [ -n "$LICENSE_IN" ]; then
-  case "$(printf '%s' "$LICENSE_IN" | tr '[:upper:]' '[:lower:]')" in
-    mit)                        LICENSE_CHOICE=1 ;;
-    bsd|bsd-3|bsd-3-clause)     LICENSE_CHOICE=2 ;;
-    apache|apache-2|apache-2.0) LICENSE_CHOICE=3 ;;
-    proprietary|private)        LICENSE_CHOICE=proprietary ;;
-    1|2|3)                      LICENSE_CHOICE="$LICENSE_IN" ;;
-    *) echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2 ;;
-  esac
+  normalize_license_choice "$LICENSE_IN" \
+    || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2; }
+  LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
 elif [ "$NONINTERACTIVE" = "1" ]; then
-  echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2
+  echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2
 else
-  echo "Is this project open source or private/proprietary?"
-  echo "  1) Open source"
-  echo "  2) Private / proprietary"
-  if [ "$(ask 'Choose 1 or 2' '1')" = "2" ]; then
-    LICENSE_CHOICE="proprietary"
-  else
-    echo "Open-source license:"
-    echo "  1) MIT           (permissive, simplest)"
-    echo "  2) BSD-3-Clause  (permissive + name-endorsement protection)"
-    echo "  3) Apache-2.0    (permissive, with patent grant)"
-    LICENSE_CHOICE="$(ask 'Choose 1, 2, or 3' '1')"
-  fi
+  choose_license_interactively
 fi
-HOLDER="$(want "$HOLDER_IN" 'Copyright holder (name or org)')"
+HOLDER=""
+if [ "$LICENSE_CHOICE" != "private" ]; then
+  HOLDER="$(want "$HOLDER_IN" 'Copyright holder (name or org)')"
+fi
+LICENSE_TEMPLATE_NAME=""
+PROJECT_LICENSE_ID=""
+case "$LICENSE_CHOICE" in
+  1)
+    LICENSE_TEMPLATE_NAME="MIT.txt"
+    PROJECT_LICENSE_ID="MIT"
+    ;;
+  2)
+    LICENSE_TEMPLATE_NAME="BSD-3-Clause.txt"
+    PROJECT_LICENSE_ID="BSD-3-Clause"
+    ;;
+  3)
+    LICENSE_TEMPLATE_NAME="Apache-2.0.txt"
+    PROJECT_LICENSE_ID="Apache-2.0"
+    ;;
+  private)
+    PROJECT_LICENSE_ID="Proprietary"
+    ;;
+  *)
+    echo "init.sh: internal error: unsupported license choice '$LICENSE_CHOICE'." >&2
+    exit 1
+    ;;
+esac
+if [ -n "$LICENSE_TEMPLATE_NAME" ] \
+  && [ ! -f "$ROOT/Code/{{PROJECT}}-docs/templates/licenses/$LICENSE_TEMPLATE_NAME" ]; then
+  echo "init.sh: project license template is missing: Code/{{PROJECT}}-docs/templates/licenses/$LICENSE_TEMPLATE_NAME" >&2
+  exit 1
+fi
 
 # Repo layout — multi (default) or mono.
 if [ -n "$LAYOUT_IN" ]; then
@@ -271,7 +337,9 @@ case "$ROOT_ORIGIN" in
 esac
 
 # GitHub remotes (needs gh). Default off; --remotes=yes requires gh and an owner.
-MK_REMOTES=0; OWNER=""
+# Visibility is independent of the project license: private repos may use open-source
+# licenses, and public repos still need an explicit project-license choice.
+MK_REMOTES=0; OWNER=""; REMOTE_VISIBILITY=private
 if [ -n "$REMOTES_IN" ]; then
   case "$(printf '%s' "$REMOTES_IN" | tr '[:upper:]' '[:lower:]')" in
     y|yes|true|1) MK_REMOTES=1 ;;
@@ -285,10 +353,42 @@ elif [ "$NONINTERACTIVE" != "1" ] && command -v gh >/dev/null 2>&1 && yesno "Cre
   MK_REMOTES=1
 fi
 if [ "$MK_REMOTES" = "1" ]; then
+  if [ -n "$VISIBILITY_IN" ]; then
+    case "$(printf '%s' "$VISIBILITY_IN" | tr '[:upper:]' '[:lower:]')" in
+      private|1) REMOTE_VISIBILITY=private ;;
+      public|2)  REMOTE_VISIBILITY=public ;;
+      *) echo "init.sh: invalid --visibility '$VISIBILITY_IN' (private | public)." >&2; exit 2 ;;
+    esac
+  elif [ "$NONINTERACTIVE" != "1" ]; then
+    echo "GitHub repository visibility:"
+    echo "  1) Private"
+    echo "  2) Public"
+    while :; do
+      case "$(ask 'Choose 1 or 2' '1')" in
+        1) REMOTE_VISIBILITY=private; break ;;
+        2) REMOTE_VISIBILITY=public; break ;;
+        *) echo "  -> choose 1 for private or 2 for public." ;;
+      esac
+    done
+  fi
   if [ "$LAYOUT" = "2" ] && [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
     OWNER=""
   else
     OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+  fi
+fi
+if [ "$MK_REMOTES" = "1" ] \
+  && [ "$REMOTE_VISIBILITY" = "public" ] \
+  && [ "$LICENSE_CHOICE" = "private" ]; then
+  cat >&2 <<'WARNING'
+WARNING: public visibility with a proprietary license publishes the source code but grants
+no open-source reuse rights. LICENSE-THROUGHSTONE covers only retained Throughstone scaffold
+material; it does not license the project's application code.
+WARNING
+  if [ "$NONINTERACTIVE" != "1" ] \
+    && ! yesno "Continue with public proprietary repositories?"; then
+    echo "init.sh: public proprietary repository creation cancelled." >&2
+    exit 2
   fi
 fi
 
@@ -298,8 +398,8 @@ rm -rf "$ROOT/.git"
 # The root LICENSE is the Throughstone scaffold's own license (BSD-3-Clause, © Mark A.
 # Herschberg). The scaffold files you keep using (METHOD.md, templates/, runbooks/, scripts/)
 # stay under it — BSD-3 clause 1 requires retaining the notice — so we DON'T delete it; it's
-# relocated into the docs hub as LICENSE-THROUGHSTONE once the hub is renamed (step 3). Your own
-# code is covered by the license you choose, stamped into each repo (step 6).
+# relocated into the docs hub as LICENSE-THROUGHSTONE once the hub is renamed (step 3).
+# Open-source projects get their selected license in each repo; private projects do not.
 # README.md is Throughstone's own front-door (it documents init.sh and "Use this template"),
 # and CHANGELOG.md is Throughstone's release history. Once you've bootstrapped they're stale and
 # template-specific, and in multi-repo mode they would be stray files at the non-repo workspace
@@ -319,9 +419,10 @@ rm -rf "$ROOT/.github"
 # .dev/ holds template-maintainer-only notes (handoffs, design memos) — not part of your
 # project; drop it so internal notes don't leak into bootstrapped repos.
 rm -rf "$ROOT/.dev"
-# .test-fixtures/ holds scaffold-maintainer test data — useful in this repo, but not part of a
-# bootstrapped user's project and a root-hygiene warning in multi-repo workspaces.
-rm -rf "$ROOT/.test-fixtures"
+# tests/ and .test-fixtures/ hold scaffold-maintainer checks and test data — useful in this
+# repo, but not part of a bootstrapped user's project and root-hygiene warnings in multi-repo
+# workspaces.
+rm -rf "$ROOT/tests" "$ROOT/.test-fixtures"
 # brand/ (Throughstone's brand brief, logo, social card, landing-page source) and docs/ (the
 # built landing page served via GitHub Pages) are Throughstone's *own* marketing — they assert
 # the Throughstone trademark and aren't part of your project. Drop them so your repo doesn't
@@ -338,6 +439,8 @@ done
 [ -d "Code/{{PROJECT}}-docs" ] && mv "Code/{{PROJECT}}-docs" "Code/${SLUG}-docs"
 
 DOCS="Code/${SLUG}-docs"
+mkdir -p "$DOCS/.throughstone"
+printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 
 # description: fill {{PROJECT_DESCRIPTION}} EVERYWHERE it appears (AGENTS.md + every
 # architecture/planning-session "About" blurb) so no literal placeholder is left dangling.
@@ -347,9 +450,19 @@ grep -rlF '{{PROJECT_DESCRIPTION}}' . --exclude-dir=.git 2>/dev/null | while rea
 done
 
 # Relocate the scaffold's BSD license into the docs hub (retained as attribution per BSD-3,
-# next to the method files it covers — not deleted). Your project's own license is stamped
-# separately into each repo in step 6.
+# next to the method files it covers — not deleted). Open-source project licenses are stamped
+# separately into each repo in step 6; private projects get no project LICENSE.
 [ -f "$ROOT/LICENSE" ] && mv "$ROOT/LICENSE" "$DOCS/LICENSE-THROUGHSTONE"
+# In multi-repo mode, prompts/ is distributed independently and contains Throughstone-authored
+# seed content. Retain the scaffold notice there too; this is distinct from the user's project
+# LICENSE stamped below for open-source projects.
+if [ -f "$DOCS/LICENSE-THROUGHSTONE" ]; then
+  if [ "$LAYOUT" = "1" ]; then
+    cp "$DOCS/LICENSE-THROUGHSTONE" "prompts/LICENSE-THROUGHSTONE"
+  else
+    cp "$DOCS/LICENSE-THROUGHSTONE" "$ROOT/LICENSE-THROUGHSTONE"
+  fi
+fi
 
 # --- 4. Prune optional pieces -----------------------------------------------
 # runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
@@ -395,23 +508,49 @@ write_gitignore() { # dir
 .secrets/
 GI
 }
-stamp_license() { # dir — write the chosen LICENSE, filling {{YEAR}}/{{HOLDER}}
+stamp_license() { # dir — write the chosen open-source LICENSE, if any
   local src
-  case "$LICENSE_CHOICE" in
-    1)           src="$DOCS/templates/licenses/MIT.txt" ;;
-    2)           src="$DOCS/templates/licenses/BSD-3-Clause.txt" ;;
-    3)           src="$DOCS/templates/licenses/Apache-2.0.txt" ;;
-    proprietary) src="$DOCS/templates/licenses/Proprietary.txt" ;;
-    *) return 0 ;;
-  esac
-  [ -f "$src" ] || { echo "  (license source $src missing; skipped)"; return 0; }
+  [ "$LICENSE_CHOICE" = "private" ] && return 0
+  src="$DOCS/templates/licenses/$LICENSE_TEMPLATE_NAME"
+  [ -f "$src" ] || {
+    echo "init.sh: project license template disappeared during setup: $src" >&2
+    return 1
+  }
   YEAR="$(date +%Y)" HOLDER="$HOLDER" perl -pe \
     's/\Q{{YEAR}}\E/$ENV{YEAR}/g; s/\Q{{HOLDER}}\E/$ENV{HOLDER}/g' "$src" > "$1/LICENSE"
   echo "  license: $1/LICENSE"
+  if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
+    cp "$1/LICENSE" "$DOCS/LICENSE"
+    echo "  canonical project license: $DOCS/LICENSE"
+  fi
+}
+write_licensing_summary() { # dir — make the project/Throughstone license boundary visible
+  if [ "$LICENSE_CHOICE" = "private" ]; then
+    cat > "$1/LICENSING.md" <<'EOF'
+# Licensing
+
+Project-authored content in this repository is proprietary. No project `LICENSE` is
+provided, and the presence of `LICENSE-THROUGHSTONE` does not grant permission to copy,
+modify, or distribute the project's application code.
+
+`LICENSE-THROUGHSTONE` applies only to retained Throughstone-authored scaffold material.
+EOF
+  else
+    cat > "$1/LICENSING.md" <<EOF
+# Licensing
+
+Project-authored content in this repository is licensed under $PROJECT_LICENSE_ID. See
+\`LICENSE\` for the full project license.
+
+\`LICENSE-THROUGHSTONE\` applies only to retained Throughstone-authored scaffold material;
+it does not replace or alter the project license.
+EOF
+  fi
 }
 init_repo() { # dir
   write_gitignore "$1"
   stamp_license "$1"
+  write_licensing_summary "$1"
   ( cd "$1" && git init -q && git add -A && git commit -qm "Initial commit (bootstrapped)" \
     && git branch -M main; )   # pin trunk to main (collaboration.md assumes a 'main' trunk)
   echo "  git repo: $1"
@@ -453,7 +592,7 @@ commit_registry_remotes() {
 make_remote() { # dir reponame
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
-  if ( cd "$1" && gh repo create "$OWNER/$2" --private --source=. --remote=origin --push >/dev/null ); then
+  if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
     MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
     echo "  remote: $OWNER/$2"
     return 0

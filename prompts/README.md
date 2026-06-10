@@ -4,6 +4,13 @@ This is where the project's roadmap and archived STEP plans/prompts live — the
 *how* the project was built, STEP by STEP. See `Code/{{PROJECT}}-docs/METHOD.md` for the
 full method; this README covers the conventions here and the recipe for adding a STEP.
 
+**Licensing:** project-authored roadmap and prompt content follows the posture recorded in the
+docs hub's `.throughstone/project-license`. Open-source projects carry that selected project
+license in the root `LICENSE`; proprietary projects intentionally do not. A missing
+open-source `LICENSE` is an error, not a change of posture. Retained Throughstone-authored seed
+content and conventions remain under BSD-3-Clause; see `LICENSE-THROUGHSTONE`. The two scopes
+describe different material and neither replaces the other.
+
 **`prompts/` is its own repo** — project-wide, spanning all the code repos. It is
 **history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`) is **state** (kept
 current). `Upcoming Prompts/` is a workspace folder for the in-flight STEP, not generally a

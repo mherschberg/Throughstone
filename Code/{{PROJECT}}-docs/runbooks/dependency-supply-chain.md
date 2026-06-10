@@ -33,7 +33,7 @@ liability you're taking on — and the cheapest one is the one you don't add.
       single-maintainer abandonware), and reasonably responsive on issues/security. A popular,
       maintained package is a smaller risk than a clever neglected one.
 - [ ] **License compatibility.** Check the package's license — and its transitive licenses —
-      against the license your project ships under (the one `init.sh` stamped). Copyleft
+      against your project's open-source license or proprietary distribution model. Copyleft
       (GPL/AGPL) inside a proprietary product, or an incompatible mix, is a real legal problem;
       catch it *before* the dependency is load-bearing.
 - [ ] **Security & provenance.** Any known CVEs? Is this the **canonical** package from the
