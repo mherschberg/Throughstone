@@ -7,11 +7,12 @@ checks and the test gate the Test Strategy architecture doc calls for
 
 ## 1. Method integrity — `method-check.yml`  *(ships live; no template step)*
 
-Runs the project "doctor" (`scripts/check.sh` in the docs hub): duplicate STEP/ADR numbers, invalid statuses,
-architecture-doc frontmatter, ADR registry vs. files on disk, root hygiene. It is **already
-installed** in the docs hub at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a
-**multi-repo** project (the hub is its own repo) it's active the moment you push the hub — nothing
-to place.
+Runs the project "doctor" (`scripts/check.sh` in the docs hub): duplicate STEP/ADR numbers,
+invalid statuses, architecture-doc frontmatter, ADR registry vs. files on disk, root hygiene,
+numbered-session/seed alignment, and the conditional-session template contract required by
+the Cross-Cutting Review and periodic check-in. It is **already installed** in the docs hub
+at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-repo** project
+(the hub is its own repo) it's active the moment you push the hub — nothing to place.
 
 - **Multi-repo:** active as shipped. In the hub it validates the hub's content (ADRs + architecture
   docs); the `STEP-index` lives in the `prompts/` repo, so those checks skip here and run in full

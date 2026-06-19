@@ -56,10 +56,11 @@ PLANs, no substep prompts. From then on you build the STEPs one at a time, autho
 STEP's PLAN + substep prompts with the recipe below **when you start that STEP**.
 
 The outline also interleaves a **Check-in STEP** every ~10–20 STEPs — a full STEP that runs
-`Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, review
-accepted risks/debt in `Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test
-suite). The agent suggests one at a sensible breakpoint if it's been about that long since
-the last (see `METHOD.md` §5).
+`Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
+conditional-session coverage, review accepted risks/debt in
+`Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). The agent suggests
+one at a sensible breakpoint if it's been about that long since the last (see `METHOD.md`
+§5).
 
 ## Recipe: adding a new STEP
 
@@ -90,16 +91,21 @@ the last (see `METHOD.md` §5).
    *(For the architecture STEP-1, the substeps are the interview sessions in
    `Code/{{PROJECT}}-docs/templates/architecture-sessions/` — you don't author those from
    scratch. For a **Check-in STEP**, you don't author prompts either — its two substeps are
-   the doc-drift reconciliation and full test run defined in
+   the doc-drift/conditional-coverage reconciliation and full test run defined in
    `Code/{{PROJECT}}-docs/runbooks/check-in.md`; the PLAN just points there. An **Incident
    STEP** is the same kind of thin STEP — its three substeps (RCA → find similar → fix) are
    defined in `Code/{{PROJECT}}-docs/runbooks/incident-postmortem.md`, opened by that runbook
    when responding to a production incident; its durable postmortem starts from
-   `Code/{{PROJECT}}-docs/templates/incident-postmortem.md`.)*
+   `Code/{{PROJECT}}-docs/templates/incident-postmortem.md`. A **late conditional-session
+   follow-up STEP** is also thin: its one substep points directly to the applicable
+   `templates/architecture-sessions/conditional-*.md` file and records its exact by-name
+   invocation plus the assigned output-doc number; don't duplicate the session into a new
+   prompt. Give its index row the title `Conditional session: <topic>` so the resolver runs
+   it before ordinary planned implementation work.)*
 5. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps.
 6. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
-   (PLAN + substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
+   (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
    in the phase folder in this repo and mark it **Done** in the index.
    (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.) Then tell the user
    the next action — the next `Planned` STEP, or a **Check-in STEP** if one is due — via the

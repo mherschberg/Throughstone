@@ -60,14 +60,13 @@ worked, and completed.
 | 1.13 | Glossary | Planned | `architecture/13-…` |
 | 1.14 | Cross-Cutting Review | Planned | review doc |
 
-<!-- Conditional sessions: include/defer/skip per the STEP-1 PLAN's "Conditional sessions
-     considered" table. Add a row only when one is included. Native app is decided by 1.3;
-     Privacy/compliance by Data Model / Security; Identity/auth by Security. Slot included
-     conditionals under a LETTERED substep after the related core session, and run them BY NAME,
-     not number (e.g. "run the identity-auth session" → conditional-identity-auth.md; likewise
-     conditional-native-app.md, conditional-privacy-compliance.md). The output doc takes the next
-     number above the core set. EXAMPLE ONLY — do not parse this as a real row; real rows start
-     at the left margin above this comment, with the assigned substep and doc number:
+<!-- Conditional sessions: enumerate every conditional-*.md template and include/defer/skip it
+     in the STEP-1 PLAN's "Conditional sessions considered" table. Add an index row only when
+     one is included. Slot included conditionals under a LETTERED substep after the related
+     owning session, and run them BY NAME, not number (for example, "run the identity-auth
+     session" → conditional-identity-auth.md). The output doc takes the next number above the
+     core set. EXAMPLE ONLY — do not parse this as a real row; real rows start at the left
+     margin above this comment, with the assigned substep and doc number:
        | 1.Xa | Conditional topic | Planned | `architecture/NN-topic.md` |
      If a conditional row is later added and then consciously not needed under the current
      project shape, mark it Deferred with the revisit trigger in the PLAN/risk register. -->

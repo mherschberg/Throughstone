@@ -3,8 +3,11 @@
 > **Conditional.** Include this only if the Architecture Overview architecture doc says the project has a **mobile or
 > desktop app** (not just a web UI). The kickoff slots it in as a substep (e.g. `1.7a`) and
 > the index records its number. Run it by name: *"run the native-app session."* It writes
-> `architecture/NN-native-app-architecture.md` (number assigned in the index) and updates
-> `prompts/STEP-index.md`.
+> `architecture/NN-native-app-architecture.md` (number assigned in the STEP-1 index when run
+> there, or in the follow-up PLAN when run later) and updates `prompts/STEP-index.md`.
+> It may also be scheduled later as its own follow-up STEP when a periodic check-in finds
+> that a native client has become applicable. In that mode, use the follow-up STEP's status
+> and review bookkeeping rather than reopening STEP-1.
 > **Two separate numbers:** the *substep* number (e.g. `1.7a`) marks its place in STEP-1; the
 > *doc file* number (`NN`) is the next free number **above the reserved core-doc block** — the
 > standard sessions reserve a contiguous block at the front (the current core set is the session
@@ -16,7 +19,8 @@
 > Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`)
 > for surfaces, the Data Model architecture doc (`architecture/*-data-model.md`), the
 > Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`), and the UI / Design System architecture doc
-> (`architecture/*-ui-design-system.md`) first.
+> (`architecture/*-ui-design-system.md`) first, plus the active STEP PLAN in
+> `Upcoming Prompts/` when this is a later follow-up.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -61,12 +65,23 @@ up front avoids painful reworks once the app is in users' hands.
 
 ## Output
 Write `architecture/NN-native-app-architecture.md` (use `templates/architecture-doc.md`;
-NN per the index). Body covers each area above. Fill the **Decision Summary** (the
-distribution/forced-upgrade and offline choices especially belong here), record **Open
-Questions**, start the **Version Log**. Capture significant platform/distribution decisions
-as ADRs. Update `prompts/STEP-index.md`: mark this substep done.
+NN per the active STEP's index/PLAN). If the doc already exists, revise it in place and bump
+its Version Log instead of creating a second native-app doc. Body covers each area above.
+Fill the **Decision Summary** (the distribution/forced-upgrade and offline choices especially
+belong here), record **Open Questions**, and capture significant platform/distribution
+decisions as ADRs. Reconcile any affected architecture docs. If this is a later follow-up
+STEP, add or update this doc's row in `architecture/README.md`. Update
+the active PLAN to mark this substep done. In STEP-1 mode, also mark the lettered substep
+done in `prompts/STEP-index.md`. In follow-up mode, keep the parent STEP `In progress` there
+until its review and normal completion bookkeeping are finished.
 
 ## Next
-Once this substep is marked done, the next action is the lowest open STEP-1 substep in the index — its position depends on where this conditional was slotted. Tell the user to **start a fresh chat** and run it. When all STEP-1 substeps and the Cross-Cutting Review are done, the next action is *"run the planning session."* See the next-action resolver in `METHOD.md` §10.
+If this session was slotted into STEP-1, mark its lettered substep done; the next action is
+the lowest open STEP-1 substep in the index. If the Cross-Cutting Review discovered it, that
+review remains open and must restart from the beginning after this session. If a periodic
+check-in scheduled this as a later follow-up STEP, complete that STEP's normal review and
+bookkeeping instead of modifying STEP-1; re-run the planning session before more
+implementation work if these decisions change the remaining roadmap. Tell the user to
+**start a fresh chat** for the next action from the resolver in `METHOD.md` §10.
 
-**Begin now — in this same reply.** "run the native-app session" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.
+**Begin now — in this same reply.** "run the native-app session" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md`, the relevant architecture docs, and any active follow-up PLAN silently; the PLAN determines the execution mode and output-doc number when this is not part of STEP-1. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

@@ -66,18 +66,19 @@ scope** before continuing.
 
 ### Stage 2 — STEP-1 PLAN  ▸ checkpoint
 STEP-1 is **architecture-first: design docs + ADRs, no code.** Decide which architecture
-sessions apply (see the core set in `METHOD.md` §4). For the **conditional** sessions, make
-the decision explicit at the point where the method has enough facts — never leave a
-conditional simply unconsidered. Fill in the **Conditional sessions considered** table in the
-PLAN, naming the owning session and current call for each conditional: **Include** (→ the
-substep it becomes, e.g. `1.6a`), **Deferred** (with a revisit trigger), or **N/A** (with a
-one-line reason). Native app is owned by the Architecture Overview & Component Boundaries
-client-surfaces question; Identity/auth is owned by the Security session's AuthN/AuthZ
-posture; Privacy/compliance is owned by the Data Model / Security sessions when personal or
-regulated data appears. A skipped or deferred conditional must leave a recorded reason, so a
-future reader sees a decision rather than an accident. Keep the core sessions unless their own
-session instructions explicitly say to mark them `N/A` or `Deferred` (for example, the UI /
-Design System session when there is no styled UI). Write
+sessions apply (see the core set in `METHOD.md` §4). Enumerate every
+`Code/{{PROJECT}}-docs/templates/architecture-sessions/conditional-*.md` file; never leave a
+conditional simply unconsidered, including one added after this bootstrap prompt was written.
+Fill in the **Conditional sessions considered** table in the PLAN with one row per discovered
+template, adding any row not already seeded there. Name its owning session and current call:
+**Include** (→ the substep it becomes, e.g. `1.6a`), **Deferred** (with a revisit trigger), or
+**N/A** (with a one-line reason). Native app is owned by the Architecture Overview & Component
+Boundaries client-surfaces question; Identity/auth is owned by the Security session's
+AuthN/AuthZ posture; Privacy/compliance is owned by the Data Model / Security sessions when
+personal or regulated data appears. A skipped or deferred conditional must leave a recorded
+reason, so a future reader sees a decision rather than an accident. Keep the core sessions
+unless their own session instructions explicitly say to mark them `N/A` or `Deferred` (for
+example, the UI / Design System session when there is no styled UI). Write
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (from
 `Code/{{PROJECT}}-docs/templates/step-plan.md`) listing the chosen sessions as substeps,
 the locked decisions, and the definition of done. **Wait for confirmation.**

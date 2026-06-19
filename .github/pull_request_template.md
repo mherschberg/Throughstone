@@ -14,7 +14,8 @@ Closes #___
 - [ ] Other:
 
 ## Checklist
-- [ ] If I changed a script: `bash -n init.sh` and `bash -n "Code/{{PROJECT}}-docs/scripts/setup-workspace.sh"` pass
+- [ ] If I changed shell: `bash -n` and `shellcheck` pass for the affected scripts
+- [ ] `Code/{{PROJECT}}-docs/scripts/check.sh` and the relevant `tests/*.sh` regressions pass
 - [ ] If I changed the wizard or templates, I ran a throwaway `init.sh` smoke test and confirmed a clean generated project
 - [ ] Kept the `{{PROJECT}}` placeholder convention intact
 - [ ] Updated `METHOD.md` / `README.md` / `prompts/` for consistency where the change affects them

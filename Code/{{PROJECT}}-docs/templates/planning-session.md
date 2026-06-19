@@ -30,6 +30,12 @@ It is **re-runnable** (in the spirit of `METHOD.md` §4 — here it revises the 
 not an architecture doc). Run it once now to lay out the Phase-1 STEPs; re-run it when the
 architecture changes and the remaining STEPs need re-planning.
 
+On a re-run, preserve roadmap history: never renumber or delete an existing STEP, and do not
+rewrite `Done` work. Reconcile the remaining rows instead — update still-valid `Planned`
+scopes, mark a reserved row `Deferred` or `Abandoned` when appropriate, and append genuinely
+new work at `max + 1`. If a changed decision affects an `In progress` STEP, revise that
+STEP's PLAN with its owner rather than silently replacing its index row.
+
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
 - Pull the Phase-1 scope from the Phasing & Roadmap architecture doc
@@ -83,10 +89,11 @@ architecture changes and the remaining STEPs need re-planning.
    Adjust to the actual project. Each STEP gets a global STEP number (continuing from
    STEP-1).
 3. **Interleave check-in STEPs.** Roughly **every 10–20 STEPs**, add a **Check-in STEP**
-   that runs `runbooks/check-in.md` (doc-drift reconciliation + full test run). Place each at
-   a sensible breakpoint — after a capability lands, not mid-feature — rather than mechanically
-   on a fixed count. For a Phase 1 with only a handful of STEPs, one check-in near the end (or
-   none) is fine; use judgment.
+   that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
+   accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
+   capability lands, not mid-feature — rather than mechanically on a fixed count. For a
+   Phase 1 with only a handful of STEPs, one check-in near the end (or none) is fine; use
+   judgment.
 4. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
    what it delivers and how it depends on the others. Roughly **2–3 sentences each** — a
    guideline, not a rule. Don't write the detailed plan, the substeps, or the definition of
@@ -95,7 +102,8 @@ architecture changes and the remaining STEPs need re-planning.
 ## Output
 - **Update `prompts/STEP-index.md`:** add a row for every Phase-1 implementation STEP —
   global STEP number, title, status `Planned`, and the short (2–3 sentence) outline as its
-  scope — in dependency order after STEP-1. **That list is the whole deliverable.**
+  scope — in dependency order after STEP-1. **That list is the whole deliverable.** On a
+  re-run, follow the history-preserving rules above instead of adding duplicate rows.
   - *In a team:* this batch is a number reservation like any other
     (`runbooks/collaboration.md` §2) — commit it to `prompts/`'s shared trunk and push. If the
     push is rejected, move the **whole block** above the new `max` (not just one row), re-scan

@@ -14,7 +14,9 @@ set -uo pipefail
 
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
-INDEX="$ROOT/prompts/STEP-index.md"
+# The override is used by the maintainer regression test; normal projects read the canonical
+# prompts index.
+INDEX="${THROUGHSTONE_STEP_INDEX:-$ROOT/prompts/STEP-index.md}"
 OVERVIEW="$DOCS_DIR/overview.md"
 
 echo "Throughstone status — $ROOT"
@@ -112,6 +114,7 @@ done
 # --- Main STEP state ----------------------------------------------------------
 maxnum=0; have_impl=0; nonfinal=0; last_ci=0; step1_st=""
 inprog=""; inprog_ti=""; inprog_n=999999
+lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
 lowplanned=""; lowplanned_ti=""; lowplanned_n=999999
 n_steps=${#step_id[@]}; i=0
 while [ "$i" -lt "$n_steps" ]; do
@@ -120,6 +123,11 @@ while [ "$i" -lt "$n_steps" ]; do
   [ "$n" -gt "$maxnum" ] && maxnum=$n
   [ "$n" -ge 2 ] && have_impl=1
   if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; fi
+  if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] &&
+     printf '%s' "$ti" | grep -qiE '^conditional session:' &&
+     [ "$n" -lt "$lowplanned_cond_n" ]; then
+    lowplanned_cond_n=$n; lowplanned_cond=$id; lowplanned_cond_ti="$ti"
+  fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
   case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
   if printf '%s' "$ti" | grep -qiE 'check.?in'; then [ "$n" -gt "$last_ci" ] && last_ci=$n; fi
@@ -166,13 +174,20 @@ elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 
     where="Architecture (STEP-1) not yet run."
     next="run session 1.1 — start the architecture STEP."
   fi
-elif [ -n "$inprog" ]; then                                 # §10.5
+elif [ -n "$inprog" ]; then                                 # §10.6
   where="Building — ${inprog} (${inprog_ti}) is In progress."
-  next="open ${inprog}'s PLAN in \"Upcoming Prompts/\" and run its lowest open substep (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
-elif [ -n "$lowplanned" ]; then                             # §10.4
+  if printf '%s' "$inprog_ti" | grep -qiE '^conditional session:'; then
+    next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\" and invoke its conditional template BY NAME. Then run its architecture-consistency review, archive it, and mark ${inprog} Done."
+  else
+    next="open ${inprog}'s PLAN in \"Upcoming Prompts/\" and run its lowest open substep (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
+  fi
+elif [ -n "$lowplanned_cond" ]; then                        # §10.4
+  where="Architecture follow-up required — ${lowplanned_cond} (${lowplanned_cond_ti}) is Planned."
+  next="start ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching conditional-*.md template, record the exact by-name invocation and output-doc number, then run it in a fresh chat."
+elif [ -n "$lowplanned" ]; then                             # §10.5
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
   next="start ${lowplanned} — confirm scope, then author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat."
-elif [ "$all_final" -eq 1 ]; then                           # §10.7
+elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
   next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
 else
@@ -180,7 +195,7 @@ else
   next="resolve by hand via the next-action resolver in METHOD.md §10."
 fi
 
-# --- Check-in cadence (METHOD.md §10.6) ---------------------------------------
+# --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))
   if   [ "$since" -ge 20 ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>20); insert a Check-in STEP now."
