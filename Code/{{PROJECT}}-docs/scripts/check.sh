@@ -13,6 +13,7 @@
 #   5. The ADR registry and the ADR files on disk match (both directions)
 #   6. (multi-repo only) No stray files at the workspace root
 #   7. Architecture-session template numbers match the STEP-index seed
+#   8. Conditional-session templates expose the metadata generic review gates require
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/check.sh
 # Exit:   non-zero if any hard check FAILs; warnings alone do not fail the run.
@@ -283,6 +284,37 @@ else
     pass "numbered architecture sessions match headings and STEP-index seed; Cross-Cutting Review is last"
   else
     hint "keep numbered session files, their '(Session 1.N)' headings, and templates/step-index-seed.md rows in lockstep; the Cross-Cutting Review remains the final numbered session."
+  fi
+fi
+
+# --- 8. Conditional-session template contract --------------------------------
+hdr "8. Conditional-session template contract"
+conditional_templates=("$SESSION_TEMPLATE_DIR"/conditional-*.md)
+if [ ${#conditional_templates[@]} -eq 0 ]; then
+  pass "no conditional-session templates found (nothing to check)"
+else
+  conditional_ok=1
+  for f in "${conditional_templates[@]}"; do
+    b="$(basename "$f")"
+    missing=""
+    grep -qE '^# .*Conditional Session' "$f" || missing="$missing heading"
+    grep -qF '> **Conditional.**' "$f" || missing="$missing applicability"
+    grep -qi 'Run it by name' "$f" || missing="$missing invocation"
+    grep -qE '^## Output[[:space:]]*$' "$f" || missing="$missing Output"
+    grep -qE '^## Next[[:space:]]*$' "$f" || missing="$missing Next"
+    grep -qi 'follow-up STEP' "$f" || missing="$missing late-follow-up-mode"
+    grep -qiE 'active (STEP |follow-up )?PLAN' "$f" || missing="$missing active-PLAN-read"
+    grep -qF 'architecture/README.md' "$f" || missing="$missing architecture-index-update"
+    grep -qiE 'mark (this|the active) substep done' "$f" || missing="$missing active-substep-update"
+    if [ -n "$missing" ]; then
+      fail "$b missing:$missing"
+      conditional_ok=0
+    fi
+  done
+  if [ "$conditional_ok" -eq 1 ]; then
+    pass "all ${#conditional_templates[@]} conditional template(s) expose applicability, invocation, output, next action, and complete late-follow-up bookkeeping"
+  else
+    hint "copy an existing conditional template's contract: explicit applicability, 'Run it by name', Output, Next, and both STEP-1 / late-follow-up PLAN, architecture-index, and active-substep bookkeeping. See METHOD.md §4."
   fi
 fi
 

@@ -122,9 +122,13 @@ lettered substep (e.g. `1.6a`, after the related core session). The STEP-1 PLAN 
 *Conditional sessions considered* table that names the owning session for each conditional and
 tracks the current call: Include (→ substep), Deferred (with a revisit trigger), or N/A (with
 a reason). This keeps a skip or deferral visible without forcing a decision before the
-owning session has the facts. (A need can also emerge *later* — a project adds login or starts
-collecting regulated data — in which case slot the conditional in then, the same way: add its
-substep/STEP and run it by name.)
+owning session has the facts. The Cross-Cutting Review and periodic check-in both enumerate
+every `templates/architecture-sessions/conditional-*.md` file and re-evaluate its applicability,
+so a newly added conditional automatically joins both safety nets. If the Cross-Cutting Review
+finds a missing applicable session, it pauses, the conditional runs, and the review restarts
+from the beginning. If a need emerges after STEP-1 — for example, the project later adds login
+or starts collecting regulated data — the check-in files a follow-up STEP to run the
+conditional by name.
 
 ### Running a session  *(Layer 1 — works in any agent)*
 
@@ -152,18 +156,34 @@ the project learns; it's not a sign something went wrong the first time.
 ### Adding a session
 The session set is yours to extend — and the two kinds differ sharply in cost.
 
-**A conditional session is zero-touch to the rest of the method.** Conditionals are lettered
-substeps (`1.6c`, `1.7b`) and never renumber the standard sessions. To add one:
+**A conditional session does not renumber the standard sessions.** Conditionals are lettered
+substeps (`1.6c`, `1.7b`), so adding one leaves the numbered core intact. To add one:
 1. Write `templates/architecture-sessions/conditional-<topic>.md` — copy an existing conditional
    for the shape (the two-numbers header note, a `Reads` line, the calibrate-to-experience note,
-   the decisions, Output, Next).
+   explicit applicability and invocation, the decisions, Output, and Next). Preserve its two
+   execution modes: a lettered STEP-1 substep, or a later follow-up STEP raised by a check-in.
 2. Give its output doc the **next free number above the core block** (the conditional headers and
    §8 explain why), and slot its substep as a letter suffix wherever it belongs.
-3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable by
-   name, and record it in the STEP-1 PLAN's *Conditional sessions considered* table.
+3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable
+   by name. Add its ownership guidance to `BOOTSTRAP-PROMPT.md` and seed its row in
+   `templates/step-plan.md`'s *Conditional sessions considered* table. The bootstrap also
+   enumerates `conditional-*.md`, so an unseeded new template is still surfaced rather than
+   silently omitted.
 
-`status.sh`, the Glossary session, and the Cross-Cutting Review all pick it up with no further
-edits.
+`status.sh`, the Glossary session, the Cross-Cutting Review, and the periodic check-in all pick
+it up with no further edits.
+
+If a periodic check-in discovers a conditional after STEP-1, it becomes a thin,
+architecture-only follow-up STEP rather than reopening the archived architecture STEP. Its
+PLAN has one substep pointing directly to the conditional template (no duplicate prompt);
+the PLAN also records the template's exact invocation and assigned output-doc number (reuse
+the existing number for a re-interview; otherwise take the next free number above the core
+block). The session writes or revises the architecture doc, reconciles related docs and
+`architecture/README.md`, and records ADRs. Review the resulting architecture coherently,
+then re-run the planning session if the remaining implementation roadmap needs to change.
+Its index title starts `Conditional session:` so the next-action resolver runs this
+architecture work before ordinary `Planned` implementation STEPs, even though its newly
+reserved STEP number is higher.
 
 **A standard (numbered) session costs a renumber, because the Cross-Cutting Review is always
 last.** A new standard session inserts *before* the review, which shifts the review — and
@@ -264,8 +284,9 @@ go — the prompts should reflect the current intent, not the original guess.
 Roughly **every 10–20 STEPs**, the roadmap includes a **Check-in STEP** — a full STEP whose
 job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
 **both directions** (stale doc → fix the doc/write an ADR; code drifted from a still-correct
-doc → file a bug), review the accepted risks/debt in `registries/risks.yml`, and **run the
-full test suite**. The implementation planning session
+doc → file a bug), re-evaluate every available conditional architecture session, review the
+accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
+implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
 capability lands, not mid-feature). Treat 10–20 as a guideline — pick the breakpoint by
 judgment. The agent should also **proactively suggest** inserting a check-in when about that
@@ -445,15 +466,18 @@ Resolve the next action top-down against the index — the first rule that match
    substep whose Session label is **Cross-Cutting Review**.
 3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
    *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
-4. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → start the
+4. **A `Conditional session: …` follow-up STEP is `Planned`, and no STEP is `In progress`?**
+   → start the lowest-numbered such follow-up before returning to implementation. Author its
+   thin one-substep PLAN as described in §4 and invoke the conditional by name.
+5. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → start the
    lowest-numbered `Planned` STEP: author its PLAN + substep prompts (`prompts/README.md` →
    "Recipe: adding a new STEP"), in a fresh chat.
-5. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run its lowest
+6. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run its lowest
    open substep: *"run substep N.M"*. When the last substep is done, run the STEP's review,
    then archive it (§5) and mark it `Done`.
-6. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
+7. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).
-7. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
+8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
    notes** (use `templates/release-notes.md` if yes) and **any user-facing doc updates** (§5,
    *Milestone doc review*), then open the next phase and re-run the planning session for it.
 

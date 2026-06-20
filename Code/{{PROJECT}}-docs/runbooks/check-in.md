@@ -9,30 +9,32 @@
 > **Its PLAN is thin and it has exactly two substeps** — you don't author substep prompts for
 > it (like the architecture STEP, it's a special case of the recipe in `prompts/README.md`).
 > The two substeps *are* this runbook:
-> - **substep N.1 — doc-drift reconciliation** (Part 1 below), and
+> - **substep N.1 — doc-drift reconciliation + conditional coverage** (Part 1 below), and
 > - **substep N.2 — full test run** (Part 2 below).
 >
 > The PLAN just points here and lists those two; record their status in the index/PLAN like
 > any other substep.
 
 ## Why this runbook exists
-Two kinds of rot accumulate quietly while you build: the architecture docs drift away from
-the code, and the test suite degrades as STEPs add features faster than they add coverage.
-Neither shows up until it hurts. The check-in is a deliberate, periodic sweep that catches
-both before they harden — a scheduled "is the project still healthy?" gate, distinct from
-the per-substep discipline (each substep already updates the doc it changes; this is the
-full reconciliation across everything).
+Three kinds of rot accumulate quietly while you build: the architecture docs drift away from
+the code, a once-irrelevant architecture area becomes applicable without its conditional
+session ever running, and the test suite degrades as STEPs add features faster than they add
+coverage. They rarely show up until they hurt. The check-in is a deliberate, periodic sweep
+that catches them before they harden — a scheduled "is the project still healthy?" gate,
+distinct from the per-substep discipline (each substep already updates the doc it changes;
+this is the full reconciliation across everything).
 
 This is a **review + verification** STEP, not feature work. It writes no application code —
 it fixes docs, files bugs, and proves the tests pass.
 
-## Part 1 — Doc drift (check **both** directions)  *(substep N.1)*
+## Part 1 — Doc drift and conditional coverage  *(substep N.1)*
 
 > **Start with the mechanical pass.** Run `scripts/check.sh` first — in seconds it catches the
 > *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers, invalid
 > statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry that
-> disagrees with the files on disk. Fix anything it flags, then do the judgment-based review
-> below (which a script can't: does the doc still describe what the system actually *does*?).
+> disagrees with the files on disk, plus architecture-session numbering and conditional-template
+> contract drift. Fix anything it flags, then do the judgment-based review below (which a
+> script can't: does the doc still describe what the system actually *does*?).
 
 For each `architecture/NN-*.md`, compare the doc against the system as it actually is now —
 in both directions, because they catch different problems:
@@ -54,6 +56,40 @@ the published and generated artifacts; security vs. the auth and secrets handlin
 place; the Glossary architecture doc vs. the terms the code now uses. Also
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
 with its current version/status).
+
+### Conditional-session coverage
+
+Re-evaluate conditional architecture coverage against the system as it exists now. Enumerate
+every `templates/architecture-sessions/conditional-*.md` file — do not use a hard-coded topic
+list, because projects may add conditional sessions later. For each template:
+
+- Read its applicability rule and invocation. Compare the rule with the current architecture,
+  implemented code, deployed surfaces, data handled, and product behavior.
+- Find its latest recorded disposition. Start with the archived STEP-1 PLAN under
+  `prompts/*/step-0001/` (or the in-flight PLAN in `Upcoming Prompts/` if STEP-1 is not yet
+  archived), then consider later check-in reports and conditional follow-up STEPs. Do not
+  edit archived plans or reports; this check-in report records the new current disposition.
+- Confirm that an applicable conditional has a completed output architecture doc, or that
+  the latest `Deferred` / `N/A` reason remains valid. A newly added template with no earlier
+  record still needs an explicit current disposition in this check-in report.
+- If the conditional now applies but was never run, its old reason is no longer valid, or
+  its existing doc needs a material re-interview rather than an ordinary drift correction,
+  first check for an existing `Planned` or `In progress` follow-up for the same template.
+  Report and retain that STEP if one exists; do not create a duplicate. Otherwise add a
+  **separate follow-up STEP** to `prompts/STEP-index.md` for that conditional. Record which
+  earlier assumption changed. Title the row `Conditional session: <topic>` so the
+  next-action resolver prioritizes it before ordinary planned implementation work. Do not
+  run the architecture interview inside the check-in.
+
+A conditional follow-up is a thin, architecture-only STEP: its PLAN has one substep that
+points directly to the `conditional-*.md` template and records the template's exact
+by-name invocation and assigned output-doc number; reuse the existing doc number for a
+re-interview, otherwise take the next free number above the core block. Do not author a
+duplicate substep prompt. The session writes or revises its architecture doc, updates
+related architecture docs and `architecture/README.md`, and records significant decisions
+as ADRs. Its review checks the new decisions against the rest of the architecture. Before
+returning to implementation, re-run the planning session if those decisions change the
+remaining roadmap.
 
 Beyond the architecture docs, sweep four things that rot just as quietly:
 - **Repo READMEs** — every code repo has one, its **Overview** still describes what the repo
@@ -85,11 +121,13 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
 Write a short **check-in report** to the check-in STEP's folder:
 - **Drift:** docs reviewed, discrepancies found, classified (doc fixed / ADR written / bug
   filed) — with the fixes applied and the bugs filed.
+- **Conditional coverage:** every discovered conditional-session template and its current
+  disposition; list any whose trigger fired and the follow-up STEP created or already pending.
 - **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
   follow-up STEPs.
 - **Tests:** the suite result, and what was done about any failures.
 - **Carry-forward:** anything that became a new bug/STEP, listed for the index.
 
-Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug STEPs it
-spawned), apply the doc fixes (Version Logs bumped), and add any new ADRs to
+Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
+follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), and add any new ADRs to
 `adr/README.md`. Note when the next check-in is due (~10–20 STEPs out).

@@ -73,7 +73,10 @@ They're slotted into STEP-1 under a lettered substep (e.g.
 `1.6a`, `1.7a`), so if the index's next open substep has a letter suffix, run the matching
 `conditional-*.md` by topic rather than looking for a `NN-*.md` file for that number. Each
 conditional has an owning session that decides it when the needed facts exist: Native app in
-1.3, Privacy/compliance from Data Model / Security, and Identity/auth from Security.
+1.3, Privacy/compliance from Data Model / Security, and Identity/auth from Security. A
+periodic check-in may also schedule a conditional later as a standalone
+`Conditional session: <topic>` follow-up STEP; in that mode, read its active PLAN for the
+exact invocation and output-doc number instead of reopening STEP-1.
 
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
 architecture docs), so context can be cleared between sessions — state lives in files.
@@ -137,8 +140,9 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).
 - **Suggest a check-in every ~10–20 STEPs.** When about that many STEPs have passed since the
   last check-in, proactively propose inserting a **Check-in STEP** that runs
-  `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways + full
-  test run). See `METHOD.md` §5.
+  `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways,
+  conditional-session coverage, accepted-risk review, and a full test run). See `METHOD.md`
+  §5.
 - **Flag milestone docs at a phase/release.** When a phase completes or you cut a release,
   proactively ask the user about **release notes** and **user-facing doc updates** — neither
   is produced by normal STEP work. If the user wants release notes, start from

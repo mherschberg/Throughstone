@@ -32,19 +32,24 @@
 <!-- For the architecture STEP, substeps are the sessions in
      templates/architecture-sessions/ (1.1 → session 01, etc.). For later STEPs, each
      substep gets a prompt authored from templates/substep-prompt.md. A Check-in STEP is
-     thin: no prompts are authored — its two substeps are the doc-drift reconciliation
-     (N.1) and full test run (N.2) defined in runbooks/check-in.md; this PLAN just points
-     there. An Incident STEP is also thin: no prompts are authored — its substeps are
+     thin: no prompts are authored — its two substeps are doc-drift/conditional-coverage
+     reconciliation (N.1) and the full test run (N.2) defined in runbooks/check-in.md; this
+     PLAN just points there. A late conditional-session follow-up STEP is also thin: its
+     one substep points directly to the applicable conditional-*.md template and records the
+     exact by-name invocation plus the assigned output-doc number; title its index row
+     "Conditional session: <topic>" so the resolver prioritizes it. An Incident STEP is also
+     thin: no prompts are authored — its substeps are
      RCA (N.1), find similar (N.2), and fix/harden (N.3) defined in
      runbooks/incident-postmortem.md; its durable postmortem starts from
      templates/incident-postmortem.md. -->
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
-<!-- Every conditional session is an EXPLICIT decision, never a silent omission. Name the
-     session that owns the decision, then mark each one Include (with the substep it became),
-     Deferred (with a revisit trigger), or N/A (with a one-line reason). A skipped or deferred
-     conditional must leave a recorded reason here so a future reader sees a decision, not an
-     accident. See METHOD.md §4 and the conditional-*.md session files. -->
+<!-- Every conditional-*.md session file gets a row and an EXPLICIT decision, never a silent
+     omission. The current set is seeded below; add a row for any newly discovered template.
+     Name the session that owns the decision, then mark each one Include (with the substep it
+     became), Deferred (with a revisit trigger), or N/A (with a one-line reason). A skipped or
+     deferred conditional must leave a recorded reason here so a future reader sees a decision,
+     not an accident. See METHOD.md §4 and the conditional-*.md session files. -->
 
 | Conditional session | Owning session | Decision | Substep / reason / revisit trigger |
 |---------------------|----------------|----------|------------------------------------|
