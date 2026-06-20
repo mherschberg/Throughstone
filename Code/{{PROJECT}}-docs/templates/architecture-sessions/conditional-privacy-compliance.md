@@ -21,7 +21,10 @@
 > its own reserved slot without a clash.) The substep number and the doc number don't have to match.
 > Reads `overview.md`, the Data Model architecture doc (`architecture/*-data-model.md`), and
 > the Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`)
-> first, plus the active STEP PLAN in `Upcoming Prompts/` when this is a later follow-up.
+> first; also read the Infrastructure & Deployment architecture doc
+> (`architecture/*-infrastructure-deployment.md`) if it already exists, especially in
+> follow-up mode. Read the active STEP PLAN in `Upcoming Prompts/` when this is a later
+> follow-up.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
@@ -46,8 +49,9 @@ deletion/export requests **now** keeps compliance a design property rather than 
 - Recommend the **least data, least retention, clearest purpose** option that meets the need,
   and flag what each choice obligates you to.
 - Keep it consistent with the Data Model architecture doc and the Security & Threat Model
-  architecture doc; flag where a choice ties to the Infrastructure & Deployment architecture
-  doc's residency decisions.
+  architecture doc; flag where a choice ties to Infrastructure & Deployment residency
+  decisions, or needs to feed the Infrastructure & Deployment session if that doc does not
+  exist yet.
 - This is **not legal advice** — it produces an engineering record of intent and surfaces
   where a lawyer or DPO should confirm. Say so when a question turns on a legal judgment.
 
@@ -90,8 +94,10 @@ since the rest follows from them. Fill the **Decision Summary**, record **Open Q
 (flag any awaiting legal/DPO confirmation), and capture significant choices as **ADRs** —
 applicable regimes, data residency, retention periods, and any consent/sub-processor decision
 that consumers depend on. Cross-check retention against the Data Model architecture doc and
-residency against the Infrastructure & Deployment architecture doc, and note any updates
-those docs need. Update `architecture/README.md` if this is a later follow-up STEP. Update
+residency against the Infrastructure & Deployment architecture doc if it exists; otherwise,
+record the residency constraint as an input to the Infrastructure & Deployment session. Note
+any updates those docs need. If this is a later follow-up STEP, add or update this doc's row
+in `architecture/README.md`. Update
 the active PLAN to mark this substep done. In STEP-1 mode, also mark the lettered substep
 done in `prompts/STEP-index.md`. In follow-up mode, keep the parent STEP `In progress` there
 until its review and normal completion bookkeeping are finished.
