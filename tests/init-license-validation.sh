@@ -35,6 +35,37 @@ copy_template() {
       git -C "$ROOT" ls-files --others --exclude-standard -z
     }
   )
+
+  # Ignored fixture files are not copied by the Git-based harness above, but
+  # init.sh must still clean this maintainer-only path from generated projects.
+  mkdir -p "$dest/.test-fixtures"
+  printf '%s\n' "maintainer-only ignored fixture" > "$dest/.test-fixtures/sentinel.txt"
+}
+
+assert_maintainer_tests_removed() {
+  local name="$1" work="$2"
+
+  [ ! -d "$work/tests" ] || {
+    echo "FAIL: $name retained maintainer-only tests/" >&2
+    return 1
+  }
+  [ ! -d "$work/.test-fixtures" ] || {
+    echo "FAIL: $name retained maintainer-only .test-fixtures/" >&2
+    return 1
+  }
+}
+
+assert_maintainer_tests_retained() {
+  local name="$1" work="$2"
+
+  [ -d "$work/tests" ] || {
+    echo "FAIL: $name removed tests/ before destructive bootstrap work" >&2
+    return 1
+  }
+  [ -f "$work/.test-fixtures/sentinel.txt" ] || {
+    echo "FAIL: $name removed .test-fixtures/ before destructive bootstrap work" >&2
+    return 1
+  }
 }
 
 # run_interactive_case NAME INPUT EXPECTED_TEXT — bootstrap and verify both repo licenses.
@@ -113,10 +144,7 @@ run_interactive_case() {
   [ "$conflict_status" -eq 1 ]
   [ ! -e "$work/Code/$name-conflict/LICENSE-THROUGHSTONE" ]
 
-  [ ! -d "$work/tests" ] || {
-    echo "FAIL: $name retained maintainer-only tests/" >&2
-    return 1
-  }
+  assert_maintainer_tests_removed "$name" "$work"
 }
 
 # run_flag_case NAME LICENSE EXPECTED_TEXT — preserve flag-path normalization behavior.
@@ -140,6 +168,7 @@ run_flag_case() {
 
   grep -Fq "$expected_text" "$work/Code/$name-docs/LICENSE"
   grep -Fq "$expected_text" "$work/prompts/LICENSE"
+  assert_maintainer_tests_removed "$name" "$work"
 }
 
 # run_private_case NAME ARGS... — private projects should not get a project LICENSE.
@@ -174,7 +203,7 @@ run_private_case() {
     "$work/Code/$name-api/LICENSING.md"
   grep -Fq "does not grant permission" "$work/Code/$name-api/LICENSING.md"
 
-  [ ! -d "$work/tests" ]
+  assert_maintainer_tests_removed "$name" "$work"
   ! grep -Fq "Copyright holder" "$TMP_ROOT/$name.out"
 }
 
@@ -214,6 +243,7 @@ run_mono_case() {
   cmp -s \
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE" \
     "$work/Code/$name-api/LICENSE-THROUGHSTONE"
+  assert_maintainer_tests_removed "$name" "$work"
 }
 
 # run_visibility_case NAME VISIBILITY — verify gh receives the requested remote visibility.
@@ -258,6 +288,7 @@ run_visibility_case() {
       return 1
     fi
   fi
+  assert_maintainer_tests_removed "$name" "$work"
 }
 
 # run_public_proprietary_case — public source visibility must warn about proprietary rights.
@@ -299,6 +330,7 @@ run_public_proprietary_case() {
   grep -Fxq "Proprietary" "$work/Code/$name-docs/.throughstone/project-license"
   grep -Fq "Project-authored content in this repository is proprietary" \
     "$work/Code/$name-docs/LICENSING.md"
+  assert_maintainer_tests_removed "$name" "$work"
 
   copy_template "$cancel_work"
   : > "$gh_log"
@@ -327,6 +359,7 @@ run_public_proprietary_case() {
     "$TMP_ROOT/$cancel_name.out"
   [ -d "$cancel_work/Code/{{PROJECT}}-docs" ]
   [ -f "$cancel_work/README.md" ]
+  assert_maintainer_tests_retained "$cancel_name" "$cancel_work"
   [ ! -s "$gh_log" ]
 }
 
@@ -364,6 +397,7 @@ run_missing_canonical_license_case() {
   grep -Fq "project posture is MIT, but the canonical license is missing" \
     "$TMP_ROOT/$name-helper.out"
   [ -z "$(find "$target" -mindepth 1 -print -quit)" ]
+  assert_maintainer_tests_removed "$name" "$work"
 }
 
 # run_private_mono_case — the single repo retains and explains Throughstone's notice at root.
@@ -391,6 +425,7 @@ run_private_mono_case() {
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE"
   grep -Fxq "Proprietary" "$work/Code/$name-docs/.throughstone/project-license"
   grep -Fq "does not grant permission" "$work/LICENSING.md"
+  assert_maintainer_tests_removed "$name" "$work"
 }
 
 # run_invalid_visibility_case — reject bad visibility before destructive bootstrap work.
@@ -430,6 +465,7 @@ run_invalid_visibility_case() {
   [ "$status" -eq 2 ]
   [ -d "$work/Code/{{PROJECT}}-docs" ]
   [ -f "$work/README.md" ]
+  assert_maintainer_tests_retained "$name" "$work"
   [ ! -s "$gh_log" ]
   grep -Fq "invalid --visibility 'internal'" "$TMP_ROOT/$name.out"
 }
@@ -503,7 +539,7 @@ set -e
 
 [ "$invalid_status" -eq 2 ]
 [ -d "$invalid_work/Code/{{PROJECT}}-docs" ]
-[ -d "$invalid_work/tests" ]
+assert_maintainer_tests_retained "license-invalid-flag" "$invalid_work"
 grep -Fq "invalid --license 'not-a-license'" "$TMP_ROOT/license-invalid-flag.out"
 
 missing_template_work="$TMP_ROOT/license-missing-template"
@@ -525,6 +561,7 @@ set -e
 [ "$missing_template_status" -eq 1 ]
 [ -d "$missing_template_work/Code/{{PROJECT}}-docs" ]
 [ -f "$missing_template_work/README.md" ]
+assert_maintainer_tests_retained "license-missing-template" "$missing_template_work"
 grep -Fq "project license template is missing" "$TMP_ROOT/license-missing-template.out"
 
 echo "init.sh license choice validation: PASS"
