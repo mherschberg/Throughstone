@@ -1,5 +1,19 @@
 # CLAUDE.md
 
+<!-- THROUGHSTONE-TEMPLATE-GUARD:BEGIN -->
+## Template-checkout guard
+
+If the docs path below still contains an unresolved `PROJECT` placeholder in braces, this
+checkout is the **Throughstone scaffold before project initialization**, not an initialized
+app/project workspace. In that mode, do **not** start the generated-project kickoff/resume
+flow. Treat the files under the template docs path as templates for future projects, and
+work on the scaffold repo like a normal repository unless the user explicitly asks to run
+`./init.sh` or to simulate/test a generated project.
+
+If the docs path below is a concrete project path such as `Code/<name>-docs/AGENTS.md`,
+ignore this guard and follow the normal handoff below.
+<!-- THROUGHSTONE-TEMPLATE-GUARD:END -->
+
 The canonical agent context lives in the docs repo:
 **`Code/{{PROJECT}}-docs/AGENTS.md`** (tool-agnostic). Read it — and the methodology it
 points to in `Code/{{PROJECT}}-docs/METHOD.md` — before working here.
