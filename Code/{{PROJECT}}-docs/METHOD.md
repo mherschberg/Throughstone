@@ -117,7 +117,8 @@ client-surfaces question; **Privacy, compliance & data governance** is decided w
 Model / Security sessions identify personal or regulated data; **Identity & auth** is decided
 from the Security session's AuthN/AuthZ posture. Run each **by name**, not by number — *"run
 the identity-auth session"* → `conditional-identity-auth.md` (likewise
-`conditional-native-app.md` and `conditional-privacy-compliance.md`) — slotted under a
+`conditional-native-app.md`; *"run the privacy session"* or *"run the privacy-compliance
+session"* → `conditional-privacy-compliance.md`) — slotted under a
 lettered substep (e.g. `1.6a`, after the related core session). The STEP-1 PLAN records a
 *Conditional sessions considered* table that names the owning session for each conditional and
 tracks the current call: Include (→ substep), Deferred (with a revisit trigger), or N/A (with
@@ -460,8 +461,8 @@ Resolve the next action top-down against the index — the first rule that match
    *"run session N.M"* in a fresh chat. Skip any substep marked `N/A` or `Deferred`. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
-   session"* / *"run the privacy session"*), since its template file is named by topic, not by
-   number (see §4).
+   session"* / *"run the privacy session"* or *"run the privacy-compliance session"*), since
+   its template file is named by topic, not by number (see §4).
 2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
    substep whose Session label is **Cross-Cutting Review**.
 3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
