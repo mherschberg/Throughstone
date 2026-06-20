@@ -438,6 +438,13 @@ done
 # directory name (rename BEFORE the description fill below, so its grep walks the new path)
 [ -d "Code/{{PROJECT}}-docs" ] && mv "Code/{{PROJECT}}-docs" "Code/${SLUG}-docs"
 
+# The root pointers carry a guard for agents working on the raw Throughstone scaffold. Once
+# the project placeholder is resolved, generated projects should get the clean handoff only.
+for f in AGENTS.md CLAUDE.md; do
+  [ -f "$f" ] || continue
+  perl -0pi -e 's/<!-- THROUGHSTONE-TEMPLATE-GUARD:BEGIN -->\n.*?<!-- THROUGHSTONE-TEMPLATE-GUARD:END -->\n\n//s' "$f"
+done
+
 DOCS="Code/${SLUG}-docs"
 mkdir -p "$DOCS/.throughstone"
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
