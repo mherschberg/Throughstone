@@ -28,7 +28,7 @@ ADRs are how a decision is socialized — especially in a team (see
   others depend on follows the same flow: write the new ADR **Proposed**, review, **Accept**,
   and mark the old one `Superseded by ADR-XXXX` — never revise a shared decision silently.
 
-**Who accepts an ADR in this project:** _solo author_ <!-- record your rule when a team forms:
+**Who accepts an ADR in this project:** <!-- ADR-AUTHORITY -->_solo author_<!-- /ADR-AUTHORITY --> <!-- record your rule when a team forms:
 e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 
 ## Registry
