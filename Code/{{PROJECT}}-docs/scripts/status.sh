@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# status.sh — mechanically run the next-action resolver (METHOD.md §10) and print where the
+# status.sh — mechanically run the next-action helper for METHOD.md §10 and print where the
 # project is, what to do next, and the check-in cadence. Read-only. It reads the kickoff marker
 # in overview.md and the roadmap in prompts/STEP-index.md — the same disk state the resolver
 # uses — so a fresh chat (or a new teammate) can answer "what do I do next?" without guessing.
@@ -14,8 +14,12 @@ set -uo pipefail
 
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
-# The override is used by the maintainer regression test; normal projects read the canonical
-# prompts index.
+
+# File assumptions: the generated docs repo sits at Code/<project>-docs/, while the runtime
+# STEP index lives at the project root in prompts/STEP-index.md.
+#
+# THROUGHSTONE_STEP_INDEX is a maintainer-test seam for fixtures. Generated projects should
+# leave it unset and read the canonical prompts index.
 INDEX="${THROUGHSTONE_STEP_INDEX:-$ROOT/prompts/STEP-index.md}"
 OVERVIEW="$DOCS_DIR/overview.md"
 
@@ -41,7 +45,11 @@ if [ ! -f "$INDEX" ]; then
 fi
 
 # --- Parse the index into STEP rows and STEP-1 substep rows --------------------
-# Locate each table's columns from its header, then emit pipe-delimited records.
+# Locate each table's columns from its header, then emit normalized pipe-delimited records:
+#   STEP|STEP-N|Status|Title
+#   SUB|N.M[a]|Status|Session
+# The parser depends on Markdown table headers, not fixed column positions, and ignores comments
+# so dormant scaffold examples do not affect generated-project status.
 parsed="$(awk -F'|' '
   function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
   {
@@ -77,7 +85,8 @@ parsed="$(awk -F'|' '
   }
 ' "$INDEX")"
 
-# Parallel indexed arrays (bash 3.2 has no associative arrays — stock macOS must run this).
+# Parallel indexed arrays preserve row shape while staying compatible with bash 3.2 (stock
+# macOS has no associative arrays). For each i, step_id/st/ti or sub_id/st/se is one record.
 step_id=(); step_st=(); step_ti=()
 sub_id=(); sub_st=(); sub_se=()
 while IFS='|' read -r kind id st extra; do
@@ -90,6 +99,8 @@ while IFS='|' read -r kind id st extra; do
 done <<< "$parsed"
 
 # Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.14 -> 101400.
+# Lettered conditional substeps therefore sort after their base numeric slot and before later
+# numeric sessions, matching the STEP-1 table order.
 subkey() {
   local maj="${1%%.*}" rest="${1#*.}" num suffix lo=0
   num="${rest%%[a-z]*}"; suffix="${rest#"$num"}"
@@ -98,6 +109,8 @@ subkey() {
 }
 
 # --- STEP-1 substep state -----------------------------------------------------
+# Track the first runnable architecture substep. Final statuses count as complete; unknown
+# statuses stop normal resolution and point the maintainer back to validation.
 total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
 i=0
 while [ "$i" -lt "$total_sub" ]; do
@@ -112,6 +125,8 @@ while [ "$i" -lt "$total_sub" ]; do
 done
 
 # --- Main STEP state ----------------------------------------------------------
+# Scan implementation STEPs once and retain the lowest-numbered candidate in each resolver
+# bucket: active STEP, planned conditional follow-up, and ordinary planned STEP.
 maxnum=0; have_impl=0; nonfinal=0; last_ci=0; step1_st=""
 inprog=""; inprog_ti=""; inprog_n=999999
 lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
@@ -136,6 +151,10 @@ done
 all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
+# First-match precedence is intentional:
+# - open STEP-1 substeps come before implementation planning;
+# - active ordinary or conditional STEPs beat planned follow-up conditional STEPs;
+# - planned conditional follow-ups beat ordinary planned implementation STEPs.
 where=""; next=""
 if [ "$unknown_sub" -gt 0 ]; then
   where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
@@ -196,6 +215,8 @@ else
 fi
 
 # --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
+# Cadence is measured by highest indexed STEP minus the latest STEP whose title looks like a
+# check-in. The helper reports the 10-20 STEP window; METHOD.md remains authoritative.
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))
   if   [ "$since" -ge 20 ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>20); insert a Check-in STEP now."
