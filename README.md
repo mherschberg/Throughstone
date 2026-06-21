@@ -241,6 +241,37 @@ required; the kickoff interview can help you turn a rough idea into the initial 
 brief. For setup, you need a POSIX shell, `git`, and `perl` as described in the
 [Quickstart](#quickstart).
 
+### What documents does Throughstone create?
+
+Good documentation gives the project a memory: what you decided, why you decided it, and
+what future work is supposed to respect. That matters especially with AI-assisted coding,
+where it is easy to generate a lot of code faster than anyone can reconstruct the reasoning
+behind it.
+
+Throughstone creates a project documentation hub under `Code/{{PROJECT}}-docs/`. The core
+files include:
+
+- `overview.md` — the project brief.
+- `METHOD.md` and `AGENTS.md` — the process and agent instructions.
+- `prompts/STEP-index.md` — the roadmap of planned work.
+- `architecture/` — living architecture documents.
+- `adr/` — architecture decision records.
+- `coding-standards/` — stack and style guidance.
+- `runbooks/` — repeatable operating procedures.
+- `registries/` — repo inventory, accepted risks, and technical debt.
+- `templates/` — reusable templates for future docs, ADRs, plans, and prompts.
+
+The default STEP-1 architecture set covers: system overview, roadmap, component boundaries,
+data model, scaling, security, UI/design system, infrastructure, environments,
+observability, interface contracts, test strategy, glossary, and a cross-cutting review.
+
+Some architecture documents are conditional because not every project needs the same level of
+detail. Throughstone adds native app architecture when the project includes mobile or desktop
+clients; identity/auth when the system has users, accounts, permissions, or login; and
+privacy/compliance/data governance when the project stores personal, sensitive, regulated, or
+retention-sensitive data. Those sessions are included when they affect the design, and skipped
+or deferred with an explicit reason when they do not.
+
 ### Is this just better vibe-coding prompts?
 
 No. Throughstone is not trying to solve AI coding by adding more rules and guidance. AI
