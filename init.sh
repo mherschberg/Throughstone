@@ -476,10 +476,19 @@ fi
 # AGENTS.md and METHOD.md reference.
 [ "$KEEP_REGISTRIES" = "0" ] && rm -rf "$DOCS/registries" && echo "  pruned registries/"
 
-# Team: record who accepts ADRs (replaces the "_solo author_" placeholder in adr/README.md).
-if [ "$COLLAB" = "2" ] && [ -n "$ADR_AUTHORITY" ] && [ -f "$DOCS/adr/README.md" ]; then
-  ADR_AUTHORITY="$ADR_AUTHORITY" perl -pi -e 's/\Q_solo author_\E/$ENV{ADR_AUTHORITY}/' "$DOCS/adr/README.md"
-  echo "  ADR authority: $ADR_AUTHORITY"
+# Record who accepts ADRs by replacing the visible marker block in adr/README.md.
+# Solo keeps the old rendered text; team records the selected authority.
+if [ -f "$DOCS/adr/README.md" ]; then
+  ADR_AUTHORITY_TEXT="_solo author_"
+  if [ "$COLLAB" = "2" ] && [ -n "$ADR_AUTHORITY" ]; then
+    ADR_AUTHORITY_TEXT="$ADR_AUTHORITY"
+  fi
+  ADR_AUTHORITY="$ADR_AUTHORITY_TEXT" perl -0pi -e \
+    's/<!-- ADR-AUTHORITY -->.*?<!-- \/ADR-AUTHORITY -->/$ENV{ADR_AUTHORITY}/s' \
+    "$DOCS/adr/README.md"
+  if [ "$COLLAB" = "2" ] && [ -n "$ADR_AUTHORITY_TEXT" ]; then
+    echo "  ADR authority: $ADR_AUTHORITY_TEXT"
+  fi
 fi
 
 # --- 5. Create the project brief from the template --------------------------
