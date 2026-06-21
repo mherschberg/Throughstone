@@ -102,16 +102,21 @@ things keep them approachable whatever your background:
      git clone https://github.com/mherschberg/Throughstone.git acme
      cd acme
      ```
-   - **Or use GitHub "Use this template" ▸ Create a new repository.** This is mainly useful
-     if you're choosing **mono-repo for now**; `init.sh` will reuse that repo's `origin`.
-     In the default **multi-repo** setup, the root is only a workspace shell, so the template
-     repo is just a download vehicle — use `--remotes=yes` or add remotes later for the docs
-     and prompts repos. Name the new repo for your project, then clone it into a folder of
-     that name (e.g. `acme`):
+   - **Or use GitHub "Use this template" ▸ Create a new repository.** Name the new repo for
+     your project, then clone it into a folder of that name (e.g. `acme`):
      ```bash
      git clone <your-new-repo-url> acme
      cd acme
      ```
+     GitHub template repos already contain a template-created commit. Because `init.sh`
+     creates fresh project history, it will not automatically reuse that non-empty `origin`
+     in **mono-repo** mode; otherwise a normal `git push -u origin main` would fail. Use
+     the template path as a download vehicle, then add an empty remote later, delete/recreate
+     the GitHub repo before using `--remotes=yes`, or deliberately replace the
+     template-created remote yourself after reviewing the history. In the default
+     **multi-repo** setup, the root is only a workspace shell, so the template repo is just a
+     download vehicle — use `--remotes=yes` or add remotes later for the docs and prompts
+     repos.
    Everything from here runs *inside* this folder. After setup it holds your repo(s); the
    root folder itself is just the shell around them (see [Layout](#layout)), so its name is
    cosmetic — but matching it to your project keeps things clear.
@@ -123,7 +128,10 @@ things keep them approachable whatever your background:
    It asks a few questions (project slug, repo layout, **license**, optional pieces), then
    detaches this download from the template's git history, renames the `{{PROJECT}}`
    placeholder everywhere to your slug, stamps your chosen open-source `LICENSE` when
-   applicable, and initializes your repo(s). See [`init.sh`](init.sh).
+   applicable, and initializes your repo(s). In mono-repo mode it reuses an existing root
+   `origin` only when that origin appears empty; non-empty template-created origins are left
+   unattached so setup does not lead you into a failed or destructive push. See
+   [`init.sh`](init.sh).
 
    Prefer to script it? Every question has a flag — run `./init.sh --help` to see them, or
    pre-answer non-interactively, e.g.:
