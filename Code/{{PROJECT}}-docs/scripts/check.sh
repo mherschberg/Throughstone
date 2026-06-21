@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
-# check.sh — a "doctor" for a Throughstone project. It runs the mechanical integrity checks
-# the method otherwise trusts prose (and the agent's memory) to enforce. Read-only: it never
-# modifies a file. Safe to run anytime — intended for the periodic check-in (runbooks/check-in.md)
-# and for CI.
+# check.sh — a read-only "doctor" for a Throughstone project. It runs the mechanical
+# integrity checks the method otherwise trusts prose (and the agent's memory) to enforce.
+# It never modifies files; a FAIL is structural drift that must be fixed, while a WARN is
+# missing context or local-workspace state that should be reviewed but does not fail the run.
+# Safe to run anytime — intended for the periodic check-in (runbooks/check-in.md) and for CI.
 #
 # Checks:
 #   1. No duplicate STEP numbers in prompts/STEP-index.md
@@ -20,9 +21,13 @@
 
 set -uo pipefail
 
-# This script lives in <workspace>/Code/<project>-docs/scripts/ — derive the paths.
+# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
+# Code/<project>-docs/scripts/ after initialization. Derive all paths from BASH_SOURCE so the
+# doctor can be run from any working directory without resolving the template placeholder.
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
+# Authoritative project state is split between the workspace-root STEP index and docs-hub
+# registries/templates. Keep those assumptions centralized so each check reads the same files.
 INDEX="$ROOT/prompts/STEP-index.md"
 ADR_INDEX="$DOCS_DIR/adr/README.md"
 ARCH_DIR="$DOCS_DIR/architecture"
@@ -34,6 +39,8 @@ shopt -s nullglob
 
 fails=0
 warns=0
+# pass/fail/warn/hdr are presentation helpers only. fail increments the hard-failure count;
+# warn increments the advisory count; neither exits early so one run reports all drift.
 pass() { printf '  [PASS] %s\n' "$1"; }
 fail() { printf '  [FAIL] %s\n' "$1"; fails=$((fails + 1)); }
 warn() { printf '  [WARN] %s\n' "$1"; warns=$((warns + 1)); }
@@ -50,6 +57,8 @@ echo "Throughstone check — $ROOT"
 # --- 1. Duplicate STEP numbers ------------------------------------------------
 hdr "1. Duplicate STEP numbers (prompts/STEP-index.md)"
 if [ -f "$INDEX" ]; then
+  # Invariant: STEP numbers are durable IDs. prompts/STEP-index.md is authoritative, and
+  # duplicates catch accidental reuse after planning, branching, or folder creation.
   dups="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE 'STEP-[0-9]+' | sort | uniq -d)"
   if [ -n "$dups" ]; then
     fail "duplicate STEP number(s): $(echo "$dups" | tr '\n' ' ')"
@@ -69,6 +78,8 @@ fi
 # --- 2. Duplicate ADR numbers -------------------------------------------------
 hdr "2. Duplicate ADR numbers (adr/README.md)"
 if [ -f "$ADR_INDEX" ]; then
+  # Invariant: ADR numbers are durable decision IDs. adr/README.md is the registry authority,
+  # and duplicates catch copy/paste rows or renumbering drift before files are reconciled.
   dups="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE 'ADR-[0-9]+' | sort | uniq -d)"
   if [ -n "$dups" ]; then
     fail "duplicate ADR number(s): $(echo "$dups" | tr '\n' ' ')"
@@ -88,7 +99,12 @@ fi
 # --- 3. Valid STEP / substep statuses -----------------------------------------
 hdr "3. Statuses valid (Planned · In progress · Done · Deferred · Abandoned · N/A)"
 if [ -f "$INDEX" ]; then
+  # Invariant: resolver-visible status cells use the METHOD.md vocabulary exactly.
+  # prompts/STEP-index.md is authoritative; invalid values break status.sh and agent handoffs.
+  #
   # Find each table's Status column from its header row, then validate that cell in data rows.
+  # The parser depends on Markdown table headers, not fixed column positions; STEP rows may not
+  # use N/A because only substeps can be structurally inapplicable.
   bad="$(awk -F'|' '
     function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
     {
@@ -125,6 +141,9 @@ fi
 
 # --- 4. Architecture-doc frontmatter ------------------------------------------
 hdr "4. Architecture docs carry Version / Status / Version Log"
+# Invariant: each numbered architecture document exposes reviewable lifecycle metadata.
+# templates/architecture-doc.md defines the shape; this catches hand-written docs that skipped
+# the template or lost the Version Log during edits.
 docs=("$ARCH_DIR"/[0-9][0-9]-*.md)
 if [ ${#docs[@]} -eq 0 ]; then
   pass "no architecture docs yet (nothing to check)"
@@ -148,9 +167,13 @@ fi
 # --- 5. ADR registry <-> files on disk ----------------------------------------
 hdr "5. ADR registry matches ADR files on disk (both directions)"
 if [ -f "$ADR_INDEX" ]; then
+  # Invariant: each registered ADR has exactly one file, and each ADR file is registered.
+  # The registry is adr/README.md; the disk authority for materialized decisions is adr/ADR-*.md.
+  # Compare normalized ID sets both ways to catch stale rows and orphan files.
   reg_ids="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE 'ADR-[0-9]+')"
   disk_ids=""
   for f in "$ADR_DIR"/ADR-*.md; do disk_ids="$disk_ids$(basename "$f" | grep -oE 'ADR-[0-9]+')"$'\n'; done
+  # comm requires sorted inputs; emit normalizes blank/duplicate IDs before the set difference.
   missing_files="$(comm -23 <(emit "$reg_ids") <(emit "$disk_ids"))"   # in registry, no file
   missing_rows="$(comm -13 <(emit "$reg_ids") <(emit "$disk_ids"))"    # file, not in registry
   ok=1
@@ -163,11 +186,15 @@ fi
 
 # --- 6. Workspace-root hygiene (multi-repo only) ------------------------------
 hdr "6. Workspace-root hygiene (multi-repo only)"
+# Invariant: in generated multi-repo workspaces, the root is a per-machine shell and durable
+# content should live inside repos. CI usually checks out only one repo, and this scaffold can
+# be a mono-repo/template checkout, so those contexts intentionally relax the local hygiene rule.
 if [ -n "${CI:-}" ]; then
   pass "CI environment — root hygiene is a local-workspace check (a single repo is checked out here); skipping"
 elif [ -e "$ROOT/.git" ]; then
   pass "workspace root is itself a repo (mono-repo or the template) — hygiene rule relaxed; skipping"
 else
+  # Allowed root entries are per-machine pointers, repo containers, and transient prompt intake.
   allow=" CLAUDE.md AGENTS.md init.sh .git .gitignore .gitattributes .DS_Store .claude Code prompts Upcoming Prompts "
   stray=""
   for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
@@ -185,6 +212,9 @@ fi
 
 # --- 7. Architecture-session template numbering ------------------------------
 hdr "7. Architecture-session template numbering"
+# Invariant: numbered STEP-1 session templates, their headings, and the STEP-index seed remain
+# in lockstep. The seed is the generated project's initial roadmap; template drift here becomes
+# broken kickoff sequencing after init.
 session_templates=("$SESSION_TEMPLATE_DIR"/[0-9][0-9]-*.md)
 if [ ${#session_templates[@]} -eq 0 ]; then
   warn "no numbered architecture-session templates found — skipping numbering check"
@@ -201,6 +231,8 @@ else
     prefix_n=$((10#$prefix))
     [ "$prefix_n" -gt "$max_prefix" ] && { max_prefix=$prefix_n; max_file="$b"; }
 
+    # Each numbered session declares its STEP-1 minor in the H1. The filename prefix, heading
+    # session number, seed-row label, and expected output path must all describe the same slot.
     heading="$(grep -m1 -E '^# .*Session 1\.[0-9]+\)' "$f" || true)"
     if [ -z "$heading" ]; then
       fail "$b has no heading with '(Session 1.N)'"
@@ -214,6 +246,8 @@ else
       numbering_ok=0
     fi
 
+    # The seed row provides the generated roadmap label and output contract for this session.
+    # Parsing by columns keeps the check tied to the table shape instead of incidental spacing.
     title="$(printf '%s\n' "$heading" | sed -E 's/^# //; s/^.* — //; s/^.* - //; s/[[:space:]]+\(Session 1\.[0-9]+\).*//')"
     seed_row="$(awk -F'|' -v n="$minor" '
       function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
@@ -238,6 +272,8 @@ else
       fi
     fi
 
+    # Architecture sessions write architecture/NN-*.md docs. The Cross-Cutting Review is the
+    # exception: it produces a review doc after all numbered architecture docs exist.
     if [[ "$b" != *cross-cutting-review.md ]]; then
       if ! grep -Eq "^Write \`architecture/${prefix}-[^\`]+\`" "$f"; then
         fail "$b does not instruct the agent to write architecture/${prefix}-… in its Output section"
@@ -253,6 +289,8 @@ else
     fi
   done
 
+  # Check the reverse direction: every numbered STEP-1 seed row must have a matching template,
+  # or generated projects will contain a roadmap session agents cannot run by file.
   extra_seed_rows="$(awk -F'|' '
     function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
     /^[[:space:]]*\|/ {
@@ -275,6 +313,8 @@ else
     esac
   done <<< "$extra_seed_rows"
 
+  # The Cross-Cutting Review must stay last because it checks consistency across the complete
+  # architecture set; adding numbered architecture sessions after it would make the review stale.
   if [[ "$max_file" != *cross-cutting-review.md ]]; then
     fail "Cross-Cutting Review is not the final numbered session (last is $max_file)"
     numbering_ok=0
@@ -289,6 +329,9 @@ fi
 
 # --- 8. Conditional-session template contract --------------------------------
 hdr "8. Conditional-session template contract"
+# Invariant: conditional sessions are optional architecture gates, but generic review/resume
+# tooling still needs a common metadata contract: applicability, invocation, outputs, next
+# action, active PLAN handling, architecture index updates, and substep completion language.
 conditional_templates=("$SESSION_TEMPLATE_DIR"/conditional-*.md)
 if [ ${#conditional_templates[@]} -eq 0 ]; then
   pass "no conditional-session templates found (nothing to check)"
@@ -297,6 +340,8 @@ else
   for f in "${conditional_templates[@]}"; do
     b="$(basename "$f")"
     missing=""
+    # Presence checks are intentionally textual: the contract is for generic agents and review
+    # gates that need stable cues without knowing each conditional session's domain.
     grep -qE '^# .*Conditional Session' "$f" || missing="$missing heading"
     grep -qF '> **Conditional.**' "$f" || missing="$missing applicability"
     grep -qi 'Run it by name' "$f" || missing="$missing invocation"
