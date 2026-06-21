@@ -335,6 +335,31 @@ case "$ROOT_ORIGIN" in
   *github.com[:/]mherschberg/Throughstone|*github.com[:/]mherschberg/Throughstone.git)
     ROOT_ORIGIN_IS_THROUGHSTONE=1 ;;
 esac
+ROOT_ORIGIN_HAS_LOCAL_REFS=0
+if [ -n "$ROOT_ORIGIN" ] \
+  && git -C "$ROOT" for-each-ref --format='%(refname)' refs/remotes/origin | grep -q .; then
+  ROOT_ORIGIN_HAS_LOCAL_REFS=1
+fi
+ROOT_ORIGIN_REUSABLE=0
+ROOT_ORIGIN_REUSE_SKIP_REASON=""
+if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
+  if [ "$ROOT_ORIGIN_HAS_LOCAL_REFS" = "1" ]; then
+    ROOT_ORIGIN_REUSE_SKIP_REASON="already has Git history"
+  elif ROOT_ORIGIN_REMOTE_REFS="$(
+    GIT_TERMINAL_PROMPT=0 git -C "$ROOT" ls-remote --heads --tags origin 2>/dev/null
+  )"; then
+    if [ -z "$ROOT_ORIGIN_REMOTE_REFS" ]; then
+      ROOT_ORIGIN_REUSABLE=1
+    else
+      ROOT_ORIGIN_REUSE_SKIP_REASON="already has Git history"
+    fi
+  else
+    ROOT_ORIGIN_REUSE_SKIP_REASON="could not be verified as empty"
+  fi
+fi
+root_origin_can_be_reused() {
+  [ "$ROOT_ORIGIN_REUSABLE" = "1" ]
+}
 
 # GitHub remotes (needs gh). Default off; --remotes=yes requires gh and an owner.
 # Visibility is independent of the project license: private repos may use open-source
@@ -371,7 +396,7 @@ if [ "$MK_REMOTES" = "1" ]; then
       esac
     done
   fi
-  if [ "$LAYOUT" = "2" ] && [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
+  if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
     OWNER=""
   else
     OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
@@ -617,8 +642,16 @@ make_remote() { # dir reponame
   return 1
 }
 reuse_root_origin() { # dir
-  [ -n "$ROOT_ORIGIN" ] || return 1
-  [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] || return 1
+  root_origin_can_be_reused || {
+    if [ -n "$ROOT_ORIGIN" ] \
+      && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] \
+      && [ -n "$ROOT_ORIGIN_REUSE_SKIP_REASON" ]; then
+      echo "  note: existing root origin $ROOT_ORIGIN_REUSE_SKIP_REASON and was not reused:"
+      echo "        $ROOT_ORIGIN"
+      echo "        Add a fresh remote, or replace that remote only after an explicit review."
+    fi
+    return 1
+  }
   ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
   echo "  remote: reused existing origin ($ROOT_ORIGIN)"
   if [ "$MK_REMOTES" = "1" ]; then
