@@ -15,7 +15,10 @@
 #
 set -euo pipefail
 
-# This script lives in <workspace>/Code/<project>-docs/scripts/ — derive the workspace root.
+# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
+# Code/<project>-docs/scripts/ after initialization; derive paths instead of hard-coding the
+# generated project name. DOCS_REL is written into root pointers and falls back when python3
+# is unavailable.
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 DOCS_REL="$(python3 -c "import os;print(os.path.relpath('$DOCS_DIR','$ROOT'))" 2>/dev/null || echo "Code/$(basename "$DOCS_DIR")")"
@@ -29,10 +32,9 @@ REG="$DOCS_DIR/registries/repos.yml"
 if [ -f "$REG" ]; then
   echo "Cloning sibling repos with remotes from registries/repos.yml ..."
   # Parse repos.yml block-aware: pair each repo's own location with its own remote.
-  # (A column-paste of all location:/remote: lines misaligns when only *some* repos have a
-  # remote — it would clone repo N's URL into repo M's path. Walking entry-by-entry, keyed on
-  # each `- name:` block start, stays correct regardless of which repos have remotes. Comment
-  # lines and remote-less repos are skipped.)
+  # The registry is the multi-repo inventory, and remote: is optional. Walking each `- name:`
+  # block keeps locations and remotes aligned when only some repos are cloneable; comment lines
+  # and remote-less repos are skipped.
   awk '
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*-[[:space:]]*name:/ { if (loc != "" && rem != "") print loc "|" rem; loc=""; rem=""; next }
@@ -42,6 +44,8 @@ if [ -f "$REG" ]; then
   ' "$REG" \
   | while IFS='|' read -r loc rem; do
       [ -n "${rem:-}" ] || continue
+      # Clone side effect: create a missing sibling repo at its registry location. Existing git
+      # checkouts are left untouched so rerunning setup is safe for already-cloned repos.
       [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
       echo "  cloning $rem -> $loc"
       git clone -q "$rem" "$loc"
@@ -52,6 +56,8 @@ fi
 
 # --- 2. Write the per-machine root pointers ---------------------------------
 echo "Writing per-machine pointers (CLAUDE.md, AGENTS.md) ..."
+# The workspace root is a per-machine shell in multi-repo projects, not a durable repo. These
+# pointers are regenerated locally so agents opened at the root can find the canonical docs hub.
 for name in CLAUDE.md AGENTS.md; do
   cat > "$ROOT/$name" <<EOF
 # $name
