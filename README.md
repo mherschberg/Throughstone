@@ -111,7 +111,7 @@ things keep them approachable whatever your background:
      ```
      GitHub template repos already contain a template-created commit. Because `init.sh`
      creates fresh project history, it will not automatically reuse that non-empty `origin`
-     in **mono-repo** mode; otherwise a normal `git push -u origin main` would fail. Use
+     in **mono-repo** mode; otherwise a normal push to the generated trunk branch would fail. Use
      the template path as a download vehicle, then add an empty remote later, delete/recreate
      the GitHub repo before using GitHub remote creation, or deliberately replace the
      template-created remote yourself after reviewing the history. In the default
@@ -134,8 +134,9 @@ things keep them approachable whatever your background:
    unattached so setup does not lead you into a failed or destructive push. See
    [`init.sh`](init.sh).
 
-   Prefer to script it? Every question has a flag — run `./init.sh --help` to see them, or
-   pre-answer non-interactively, e.g.:
+   Prefer to script it? Every question has a flag — run `./init.sh --help` or see
+   [What `init.sh` flags are available?](#what-initsh-flags-are-available) for the full list.
+   You can pre-answer non-interactively, e.g.:
    ```bash
    ./init.sh --non-interactive --slug=acme --desc="platform for roadrunner catching" \
              --license=mit --holder="Acme Inc." --layout=multi
@@ -257,6 +258,33 @@ You need an idea and a local AI coding agent. A page or two of notes helps, but 
 required; the kickoff interview can help you turn a rough idea into the initial project
 brief. For setup, you need a POSIX shell, `git`, and `perl` as described in the
 [Quickstart](#quickstart).
+
+### What `init.sh` flags are available?
+
+`./init.sh` runs interactively by default. Flags pre-answer setup questions; any omitted
+answer is still prompted unless you pass `--non-interactive`. Flags take precedence over the
+matching environment variables.
+
+| Flag | Env var | Values | Purpose |
+|------|---------|--------|---------|
+| `--slug=SLUG` | `INIT_SLUG` | lowercase kebab-case | Project slug used for generated paths and placeholders. |
+| `--desc=TEXT` | `INIT_DESC` | one-line text | Seed project description. |
+| `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `private` | Project license posture. |
+| `--holder=NAME` | `INIT_HOLDER` | text | Copyright holder for open-source licenses. |
+| `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; default is `multi`. |
+| `--registries=yes\|no` | `INIT_REGISTRIES` | `yes`, `no` | Keep `registries/` in mono-repo mode; default is `yes`. |
+| `--collab=MODE` | `INIT_COLLAB` | `solo`, `team` | Collaboration wording and ADR authority defaults; default is `solo`. |
+| `--adr-authority=TEXT` | `INIT_ADR_AUTHORITY` | text | Who accepts ADRs in team mode. |
+| `--trunk-branch=NAME` | `INIT_TRUNK_BRANCH` | valid Git branch name | Generated repo trunk branch; default is `main`. |
+| `--remotes=yes\|no` | `INIT_REMOTES` | `yes`, `no` | Set up Git remotes during init; default is `no`. |
+| `--remote-provider=PROVIDER` | `INIT_REMOTE_PROVIDER` | `github`, `manual` | Use GitHub CLI or existing remote URLs; default is `github` when remotes are enabled. |
+| `--owner=OWNER` | `INIT_OWNER` | GitHub user/org | GitHub owner/org for `--remote-provider=github`. |
+| `--remote-url=URL` | `INIT_REMOTE_URL` | Git URL | Existing mono-repo remote URL for manual setup. |
+| `--docs-remote=URL` | `INIT_DOCS_REMOTE` | Git URL | Existing docs repo remote URL for manual multi-repo setup. |
+| `--prompts-remote=URL` | `INIT_PROMPTS_REMOTE` | Git URL | Existing prompts repo remote URL for manual multi-repo setup. |
+| `--visibility=VALUE` | `INIT_VISIBILITY` | `private`, `public` | GitHub repo visibility; default is `private`. |
+| `-y`, `--yes`, `--non-interactive` | `INIT_NONINTERACTIVE` | none / truthy env value | Never prompt; error on missing required values. |
+| `-h`, `--help` | | none | Show the help text and exit. |
 
 ### What documents does Throughstone create?
 

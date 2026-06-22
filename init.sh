@@ -52,6 +52,17 @@ normalize_license_choice() {
   esac
 }
 
+# validate_trunk_branch NAME — accept ordinary Git branch names, reject empty/pathological
+# values before bootstrap removes the template history.
+validate_trunk_branch() {
+  local branch="$1"
+  [ -n "$branch" ] || return 1
+  case "$branch" in
+    -*|HEAD) return 1 ;;
+  esac
+  git check-ref-format "refs/heads/$branch" >/dev/null 2>&1
+}
+
 # choose_license_interactively — prompt until the project type and license are valid.
 # Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
@@ -151,6 +162,7 @@ Options:
   --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
+  --trunk-branch=NAME   Generated repo trunk branch     (default: main)
   --remotes=yes|no      Set up remotes now              (default: no)
   --remote-provider=PROVIDER
                          github | manual                (default: github)
@@ -165,7 +177,7 @@ Options:
 Env vars (flags take precedence): INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
   INIT_LAYOUT, INIT_REGISTRIES, INIT_COLLAB, INIT_ADR_AUTHORITY, INIT_REMOTES,
   INIT_REMOTE_PROVIDER, INIT_OWNER, INIT_REMOTE_URL, INIT_DOCS_REMOTE,
-  INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_NONINTERACTIVE.
+  INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_TRUNK_BRANCH, INIT_NONINTERACTIVE.
 USAGE
 }
 
@@ -177,6 +189,7 @@ SLUG_IN="${INIT_SLUG:-}";       DESC_IN="${INIT_DESC:-}"
 LICENSE_IN="${INIT_LICENSE:-}"; HOLDER_IN="${INIT_HOLDER:-}"
 LAYOUT_IN="${INIT_LAYOUT:-}";   REGISTRIES_IN="${INIT_REGISTRIES:-}"
 COLLAB_IN="${INIT_COLLAB:-}";   ADR_AUTHORITY_IN="${INIT_ADR_AUTHORITY:-}"
+TRUNK_BRANCH_IN="${INIT_TRUNK_BRANCH:-}"; TRUNK_BRANCH_FLAG_SET=0
 REMOTES_IN="${INIT_REMOTES:-}"; REMOTE_PROVIDER_IN="${INIT_REMOTE_PROVIDER:-}"
 OWNER_IN="${INIT_OWNER:-}";     REMOTE_URL_IN="${INIT_REMOTE_URL:-}"
 DOCS_REMOTE_IN="${INIT_DOCS_REMOTE:-}"; PROMPTS_REMOTE_IN="${INIT_PROMPTS_REMOTE:-}"
@@ -201,6 +214,8 @@ while [ $# -gt 0 ]; do
     --collab)          COLLAB_IN="${2:-}"; shift ;;
     --adr-authority=*) ADR_AUTHORITY_IN="${1#*=}" ;;
     --adr-authority)   ADR_AUTHORITY_IN="${2:-}"; shift ;;
+    --trunk-branch=*)  TRUNK_BRANCH_IN="${1#*=}"; TRUNK_BRANCH_FLAG_SET=1 ;;
+    --trunk-branch)    TRUNK_BRANCH_IN="${2:-}"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
     --remotes=*)       REMOTES_IN="${1#*=}" ;;
     --remotes)         REMOTES_IN="${2:-}"; shift ;;
     --remote-provider=*) REMOTE_PROVIDER_IN="${1#*=}" ;;
@@ -380,6 +395,17 @@ if [ "$COLLAB" = "2" ]; then
       echo "  before the team grows — see METHOD.md §7 (\"Mono-repo for now\")."
     fi
   fi
+fi
+
+# Generated repos default to a `main` trunk, but teams that still standardize on `master` or
+# another branch name can stamp that convention into Git and the generated collaboration docs.
+TRUNK_BRANCH="main"
+if [ "$TRUNK_BRANCH_FLAG_SET" = "1" ] || [ -n "$TRUNK_BRANCH_IN" ]; then
+  TRUNK_BRANCH="$TRUNK_BRANCH_IN"
+fi
+if ! validate_trunk_branch "$TRUNK_BRANCH"; then
+  echo "init.sh: invalid --trunk-branch '$TRUNK_BRANCH' (valid Git branch name, e.g. main, master, trunk, release/stable)." >&2
+  exit 2
 fi
 
 # Remember whether this download came from an existing project repo before we detach it. A
@@ -682,6 +708,11 @@ printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 grep -rlF '{{PROJECT_DESCRIPTION}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
   DESC="$DESC" perl -pi -e 's/\Q{{PROJECT_DESCRIPTION}}\E/$ENV{DESC}/g' "$f"
 done
+# Fill generated collaboration docs with the actual initialized trunk branch. The scaffold
+# keeps the placeholder only where generated-project text should name the branch.
+grep -rlF '{{TRUNK_BRANCH}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  TRUNK_BRANCH="$TRUNK_BRANCH" perl -pi -e 's/\Q{{TRUNK_BRANCH}}\E/$ENV{TRUNK_BRANCH}/g' "$f"
+done
 
 # Relocate the scaffold's BSD license into the docs hub (retained as attribution per BSD-3,
 # next to the method files it covers — not deleted). Open-source project licenses are stamped
@@ -806,7 +837,7 @@ EOF
   fi
 }
 
-# init_repo DIR — create one generated repo with baseline files and an initial main commit.
+# init_repo DIR — create one generated repo with baseline files and an initial trunk commit.
 # Callers decide which directories are durable repos; this helper keeps their initial commit
 # shape consistent.
 init_repo() {
@@ -814,7 +845,7 @@ init_repo() {
   stamp_license "$1"
   write_licensing_summary "$1"
   ( cd "$1" && git init -q && git add -A && git commit -qm "Initial commit (bootstrapped)" \
-    && git branch -M main; )   # pin trunk to main (collaboration.md assumes a 'main' trunk)
+    && git branch -M "$TRUNK_BRANCH"; )
   echo "  git repo: $1"
 }
 
@@ -855,21 +886,21 @@ commit_registry_remotes() {
   ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
   echo "  registry: recorded bootstrap remotes"
   if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
-    ( cd "$DOCS" && git push -q origin main && echo "  registry: pushed remote updates" ) \
+    ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" && echo "  registry: pushed remote updates" ) \
       || echo "  (could not push registry remote updates; push ${DOCS} manually later)"
   fi
 }
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
-# host and pushes the initialized main branch. MADE_REMOTE_URL is a small out-parameter used only
-# by the multi-repo registry recorder.
+# host and pushes the initialized trunk branch. MADE_REMOTE_URL is a small out-parameter used
+# only by the multi-repo registry recorder.
 setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
   if [ "$REMOTE_PROVIDER" = "manual" ]; then
     [ -n "${3:-}" ] || return 1
-    if ( cd "$1" && git remote add origin "$3" && git push -u origin main >/dev/null ); then
+    if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
       return 0
@@ -907,7 +938,7 @@ reuse_root_origin() {
   ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
   echo "  remote: reused existing origin ($ROOT_ORIGIN)"
   if [ "$MK_REMOTES" = "1" ]; then
-    ( cd "$1" && git push -u origin main >/dev/null \
+    ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null \
       && echo "  pushed: $ROOT_ORIGIN" ) || echo "  (could not push existing origin; push manually later)"
   fi
   return 0
@@ -962,7 +993,7 @@ Recommended optional backup:
 
   GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
   If you did not set up remotes during init, create empty repos on your host, add
-  their URLs to registries/repos.yml, and push each local repo's main branch.
+  their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch.
 
   GitHub:
     https://github.com/
