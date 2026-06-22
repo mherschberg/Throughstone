@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for init.sh interactive license validation.
+# Regression coverage for init.sh license validation and generated license posture.
 
 set -euo pipefail
 export LC_ALL=C
@@ -9,7 +9,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-license-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
-# copy_template DEST — copy HEAD plus current working-tree changes, without Git metadata.
+# copy_template DEST — build an init.sh fixture from HEAD, then overlay current worktree
+# changes. The overlay keeps uncommitted bootstrap/comment-pass edits under test, while leaving
+# Git metadata behind so init.sh sees the same shape as a downloaded template.
 copy_template() {
   local dest="$1" file
   mkdir -p "$dest"
@@ -36,12 +38,13 @@ copy_template() {
     }
   )
 
-  # Ignored fixture files are not copied by the Git-based harness above, but
-  # init.sh must still clean this maintainer-only path from generated projects.
+  # Ignored files are invisible to the Git archive/diff harness. Seed one maintainer-only path
+  # explicitly so successful bootstraps prove generated projects remove it with tests/.
   mkdir -p "$dest/.test-fixtures"
   printf '%s\n' "maintainer-only ignored fixture" > "$dest/.test-fixtures/sentinel.txt"
 }
 
+# Successful bootstraps must remove maintainer-only test assets from generated projects.
 assert_maintainer_tests_removed() {
   local name="$1" work="$2"
 
@@ -55,6 +58,8 @@ assert_maintainer_tests_removed() {
   }
 }
 
+# Early validation failures must stop before the destructive bootstrap boundary that removes
+# tests/ and ignored maintainer fixtures.
 assert_maintainer_tests_retained() {
   local name="$1" work="$2"
 
@@ -68,7 +73,9 @@ assert_maintainer_tests_retained() {
   }
 }
 
-# run_interactive_case NAME INPUT EXPECTED_TEXT — bootstrap and verify both repo licenses.
+# run_interactive_case NAME INPUT EXPECTED_TEXT — exercise the prompt path for an open-source
+# license. Verifies project LICENSE files, retained Throughstone notices, LICENSING.md summary
+# text, idempotent application to a future code repo, and no-overwrite conflict behavior.
 run_interactive_case() {
   local name="$1" input="$2" expected_text="$3" conflict_status
   local work="$TMP_ROOT/$name"
@@ -85,6 +92,7 @@ run_interactive_case() {
       --remotes=no
   ) >"$TMP_ROOT/$name.out" 2>&1
 
+  # Project LICENSE belongs to project-authored content in both generated repos.
   for license_file in \
     "$work/Code/$name-docs/LICENSE" \
     "$work/prompts/LICENSE"; do
@@ -97,6 +105,8 @@ run_interactive_case() {
       return 1
     }
   done
+  # LICENSE-THROUGHSTONE is separate: it documents retained scaffold material and must exist
+  # even when the project license is different.
   for notice_file in \
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE" \
     "$work/prompts/LICENSE-THROUGHSTONE"; do
@@ -109,6 +119,7 @@ run_interactive_case() {
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE" \
     "$work/prompts/LICENSE-THROUGHSTONE"
 
+  # Future code repos inherit the docs hub's project posture plus the Throughstone notice.
   mkdir -p "$work/Code/$name-api"
   "$work/Code/$name-docs/scripts/apply-project-license.sh" \
     "$work/Code/$name-api" >"$TMP_ROOT/$name-code-license.out"
@@ -124,6 +135,7 @@ run_interactive_case() {
   "$work/Code/$name-docs/scripts/apply-project-license.sh" \
     "$work/Code/$name-api" >"$TMP_ROOT/$name-code-license-repeat.out"
 
+  # Existing conflicting files must fail before being overwritten.
   printf 'different license\n' > "$work/Code/$name-api/LICENSE"
   set +e
   "$work/Code/$name-docs/scripts/apply-project-license.sh" \
@@ -134,6 +146,7 @@ run_interactive_case() {
   grep -Fq "refusing to overwrite different project license" \
     "$TMP_ROOT/$name-code-license-conflict.out"
 
+  # A fresh target with a conflicting project LICENSE should remain otherwise untouched.
   mkdir -p "$work/Code/$name-conflict"
   printf 'different license\n' > "$work/Code/$name-conflict/LICENSE"
   set +e
@@ -147,7 +160,8 @@ run_interactive_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_flag_case NAME LICENSE EXPECTED_TEXT — preserve flag-path normalization behavior.
+# run_flag_case NAME LICENSE EXPECTED_TEXT — preserve non-interactive license normalization
+# for automation callers.
 run_flag_case() {
   local name="$1" license="$2" expected_text="$3"
   local work="$TMP_ROOT/$name"
@@ -171,7 +185,9 @@ run_flag_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_private_case NAME ARGS... — private projects should not get a project LICENSE.
+# run_private_case NAME ARGS... — proprietary projects should not get a project LICENSE.
+# They still retain LICENSE-THROUGHSTONE and LICENSING.md because generated repos include
+# Throughstone-authored scaffold material.
 run_private_case() {
   local name="$1"
   shift
@@ -207,7 +223,8 @@ run_private_case() {
   ! grep -Fq "Copyright holder" "$TMP_ROOT/$name.out"
 }
 
-# run_mono_case — mono mode keeps a canonical docs-hub copy for future code repos.
+# run_mono_case — mono mode keeps both the root project LICENSE and the docs-hub canonical
+# copy needed by apply-project-license.sh for future code repos.
 run_mono_case() {
   local name="license-mono"
   local work="$TMP_ROOT/$name"
@@ -246,7 +263,8 @@ run_mono_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_visibility_case NAME VISIBILITY — verify gh receives the requested remote visibility.
+# run_visibility_case NAME VISIBILITY — verify GitHub repo creation receives the requested
+# visibility flag for both generated multi-repo remotes.
 run_visibility_case() {
   local name="$1" visibility="$2"
   local work="$TMP_ROOT/$name"
@@ -291,7 +309,8 @@ run_visibility_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_public_proprietary_case — public source visibility must warn about proprietary rights.
+# run_public_proprietary_case — public source visibility with a proprietary posture must warn,
+# and the interactive path must allow the user to cancel before any remote or destructive work.
 run_public_proprietary_case() {
   local name="visibility-public-proprietary"
   local work="$TMP_ROOT/$name"
@@ -363,7 +382,8 @@ run_public_proprietary_case() {
   [ ! -s "$gh_log" ]
 }
 
-# run_missing_canonical_license_case — metadata prevents silent open-source-to-private drift.
+# run_missing_canonical_license_case — posture metadata prevents silent open-source-to-private
+# drift if the docs hub's canonical project LICENSE disappears later.
 run_missing_canonical_license_case() {
   local name="license-missing-canonical"
   local work="$TMP_ROOT/$name"
@@ -400,7 +420,8 @@ run_missing_canonical_license_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_private_mono_case — the single repo retains and explains Throughstone's notice at root.
+# run_private_mono_case — the single repo retains and explains Throughstone's notice at root
+# without creating a project LICENSE for proprietary code.
 run_private_mono_case() {
   local name="license-private-mono"
   local work="$TMP_ROOT/$name"
@@ -428,7 +449,8 @@ run_private_mono_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_invalid_visibility_case — reject bad visibility before destructive bootstrap work.
+# run_invalid_visibility_case — reject bad visibility before destructive bootstrap work or
+# remote creation.
 run_invalid_visibility_case() {
   local name="visibility-invalid"
   local work="$TMP_ROOT/$name"
@@ -470,6 +492,8 @@ run_invalid_visibility_case() {
   grep -Fq "invalid --visibility 'internal'" "$TMP_ROOT/$name.out"
 }
 
+# run_manual_multi_remote_case — manual remotes should be recorded in the repo registry and
+# receive the initial generated commits without using the gh stub.
 run_manual_multi_remote_case() {
   local name="manual-multi-remotes"
   local work="$TMP_ROOT/$name"
@@ -504,6 +528,9 @@ run_manual_multi_remote_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# --- Interactive license selection -------------------------------------------
+# Prompted open-source choices cover explicit input, defaults, and reprompting. The reprompt
+# case protects early validation: invalid answers should not cross into bootstrap work.
 run_interactive_case \
   "license-mit" \
   $'1\nMIT\n' \
@@ -526,6 +553,9 @@ grep -Fq \
   "choose 1/mit, 2/bsd-3, or 3/apache-2.0" \
   "$TMP_ROOT/license-reprompt.out"
 
+# --- Private / proprietary behavior ------------------------------------------
+# Interactive and flag paths both mean "proprietary project posture", not merely private
+# GitHub visibility; project LICENSE files must be absent.
 run_private_case \
   "license-private" \
   bash -c \
@@ -542,21 +572,37 @@ run_private_case \
   --collab=solo \
   --remotes=no
 
+# --- Flag-based license normalization ----------------------------------------
+# Friendly CLI spellings should normalize to canonical license IDs and template text.
 run_flag_case \
   "license-bsd" \
   "BSD-3" \
   "BSD 3-Clause License"
 
+# --- Mono-repo license behavior ----------------------------------------------
+# Mono mode keeps root-facing license files while preserving docs-hub authority for future
+# code repos.
 run_mono_case
 run_private_mono_case
 
+# --- GitHub visibility behavior ----------------------------------------------
+# Visibility is remote metadata. It must not change the selected project-license posture.
 run_visibility_case "visibility-public" "public"
 run_visibility_case "visibility-private" "private"
+
+# --- Public proprietary warning / cancel behavior -----------------------------
+# A public proprietary repo is allowed only after warning; cancellation must leave the template
+# intact and avoid remote creation.
 run_public_proprietary_case
+
+# --- Remote setup and missing canonical license behavior -----------------------
 run_invalid_visibility_case
 run_manual_multi_remote_case
 run_missing_canonical_license_case
 
+# --- Invalid inputs fail before destructive bootstrap work ---------------------
+# Bad license input and missing license templates are detected before template files,
+# maintainer tests, or ignored fixtures are removed.
 invalid_work="$TMP_ROOT/license-invalid-flag"
 copy_template "$invalid_work"
 set +e
