@@ -1,5 +1,11 @@
 # Runbook — Incident Response & Postmortem
 
+> **Quick start during an incident:** stabilize service first — roll back, fail over, or
+> disable the bad path before diagnosing. Capture the raw facts while fresh: timeline,
+> symptom/blast radius, affected data, and alerts/logs. Open an **Incident STEP**, start
+> `templates/incident-postmortem.md`, and put unclear fields as `Unknown`. Hand off the
+> RCA → find-similar → fix work to that STEP; use the detailed runbook below for the rest.
+
 > **How to run:** Two modes, run in sequence.
 > - **An incident is happening right now** → this is an **operational procedure**: tell your
 >   agent *"run the incident runbook"* and follow **Part 1** to stabilize and capture the facts.
