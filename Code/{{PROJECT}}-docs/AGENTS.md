@@ -108,8 +108,9 @@ for open-source projects, and creates no project `LICENSE` for proprietary proje
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
 `scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
-the root pointers). From the workspace root, `./doctor.sh status` and `./doctor.sh check`
-are thin shortcuts to the docs hub's `scripts/status.sh` and `scripts/check.sh`.
+the root pointers). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
+`./doctor.sh links` are thin shortcuts to the docs hub's `scripts/status.sh`,
+`scripts/check.sh`, and `scripts/links.sh`.
 
 **Workspace-root hygiene:** the workspace root should contain only per-machine pointers
 and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`), the root helper (`doctor.sh`), the repo

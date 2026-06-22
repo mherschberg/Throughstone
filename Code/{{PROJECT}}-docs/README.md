@@ -26,7 +26,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`runbooks/`](runbooks/README.md) | Repeatable procedures — check-in, release, incident, dependencies, secrets, collaboration (indexed). |
 | [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`) and accepted risk / tech-debt index (`risks.yml`) (indexed). |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
-| [`scripts/`](scripts/) | Setup and doctor helpers — status, structural checks, workspace setup, and project-license propagation. |
+| [`scripts/`](scripts/) | Setup and doctor helpers — status, structural checks, stale-link checks, workspace setup, and project-license propagation. |
 
 > Built with **Throughstone**. The scaffold files (`METHOD.md`, `templates/`, `runbooks/`,
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in

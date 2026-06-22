@@ -20,11 +20,13 @@ Usage: ./doctor.sh <command> [args]
 Commands:
   status    Show where the project is, the next action, and check-in cadence.
   check     Run the read-only structural project checks.
+  links     Check durable docs for stale local Markdown links.
   help      Show this help.
 
 Examples:
   ./doctor.sh status
   ./doctor.sh check
+  ./doctor.sh links
 USAGE
 }
 
@@ -58,6 +60,10 @@ case "$cmd" in
   check)
     shift
     run_helper check "$@"
+    ;;
+  links)
+    shift
+    run_helper links "$@"
     ;;
   *)
     echo "doctor.sh: unknown command: $cmd" >&2

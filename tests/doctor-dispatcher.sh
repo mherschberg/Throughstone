@@ -41,18 +41,28 @@ printf 'check helper: %s\n' "$*"
 CHECK
 chmod +x "$fixture/Code/acme-docs/scripts/check.sh"
 
+cat > "$fixture/Code/acme-docs/scripts/links.sh" <<'LINKS'
+#!/usr/bin/env bash
+printf 'links helper: %s\n' "$*"
+LINKS
+chmod +x "$fixture/Code/acme-docs/scripts/links.sh"
+
 # Help output is the user-facing command list; keep it explicit so new commands are deliberate.
 help_output="$("$ROOT/doctor.sh" --help)"
 assert_contains "$help_output" "Usage: ./doctor.sh <command> [args]"
 assert_contains "$help_output" "status"
 assert_contains "$help_output" "check"
+assert_contains "$help_output" "links"
 
-# The two implemented commands should be thin pass-throughs to the docs-hub helpers.
+# The implemented commands should be thin pass-throughs to the docs-hub helpers.
 output="$("$fixture/doctor.sh" status alpha beta)"
 assert_contains "$output" "status helper: alpha beta"
 
 output="$("$fixture/doctor.sh" check --verbose)"
 assert_contains "$output" "check helper: --verbose"
+
+output="$("$fixture/doctor.sh" links --sample)"
+assert_contains "$output" "links helper: --sample"
 
 # Multi-repo workspace roots are per-machine and not committed, so setup-workspace.sh must
 # regenerate the root dispatcher for later developers' machines.
