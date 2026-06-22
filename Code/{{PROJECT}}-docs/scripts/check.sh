@@ -195,7 +195,7 @@ elif [ -e "$ROOT/.git" ]; then
   pass "workspace root is itself a repo (mono-repo or the template) — hygiene rule relaxed; skipping"
 else
   # Allowed root entries are per-machine pointers, repo containers, and transient prompt intake.
-  allow=" CLAUDE.md AGENTS.md init.sh .git .gitignore .gitattributes .DS_Store .claude Code prompts Upcoming Prompts "
+  allow=" CLAUDE.md AGENTS.md init.sh doctor.sh .git .gitignore .gitattributes .DS_Store .claude Code prompts Upcoming Prompts "
   stray=""
   for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
     [ -e "$entry" ] || continue

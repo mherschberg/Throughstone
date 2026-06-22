@@ -201,6 +201,7 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 ├── CLAUDE.md, AGENTS.md         ← per-machine pointers to the canonical context
 ├── .claude/                     ← per-machine agent config
 ├── init.sh                      ← one-time setup wizard (this download)
+├── doctor.sh                    ← small dispatcher for status/check helpers
 ├── prompts/                     ← [repo] prompts/STEP-index.md roadmap + archived STEP plans/prompts
 ├── Upcoming Prompts/            ← scratch for the in-flight STEP (not a repo)
 └── Code/
@@ -222,6 +223,10 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 
 **Start with [`Code/{{PROJECT}}-docs/METHOD.md`](Code/{{PROJECT}}-docs/METHOD.md)** to
 understand how the project is organized.
+
+For day-to-day project health checks, `./doctor.sh status` reports the next action and
+`./doctor.sh check` runs the read-only structural checks. It is only a root shortcut for the
+plain Bash helpers in `Code/{{PROJECT}}-docs/scripts/`.
 
 ## Updating after setup
 
