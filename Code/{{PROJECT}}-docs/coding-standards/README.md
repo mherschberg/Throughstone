@@ -10,8 +10,8 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
   `sql.md` (SQL in migrations, queries, and embedded in app code), `shell.md` (Bash scripts —
   CI glue, dev scripts, entrypoints), and `api.md` (the house style for REST/HTTP APIs —
   timestamps, pagination, errors, versioning). **These are starting points — review and
-  customize them** to match your team's preferences. Nothing here is fixed law; treat the
-  shipped contents as a draft to edit, not a rule to obey.
+  customize them** to match your stack, tooling, and team conventions. Nothing here is
+  fixed law; treat the shipped contents as a draft to edit, not a rule to obey.
 - You only need the file(s) for the language(s) you actually use. The **Test Strategy session**
   reconciles this directory to the languages chosen in the Architecture Overview architecture doc and records
   the result in the Test Strategy architecture doc: for each language it either has you *review*
