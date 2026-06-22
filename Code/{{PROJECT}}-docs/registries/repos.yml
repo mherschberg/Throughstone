@@ -9,7 +9,7 @@
 # Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
 # yet — this inventory describes the post-split (multi-repo) target.
 #
-# Teams: give each repo a `remote:` field (git URL). scripts/setup-workspace.sh clones from
+# Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
 # it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
 # for prompts/ + this docs hub. Solo with no remotes, it's optional.
 
@@ -29,5 +29,5 @@ repos:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
-  #   remote: "git@github.com:OWNER/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
+  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."
