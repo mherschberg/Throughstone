@@ -455,6 +455,19 @@ lives in files (§4, §5).
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.
 
+Quick resolver:
+
+| First matching state in `prompts/STEP-index.md` | Next action |
+| --- | --- |
+| STEP-1 has an open design substep | Run the lowest-numbered open session |
+| STEP-1 design is done, Cross-Cutting Review open | Run Cross-Cutting Review |
+| STEP-1 complete and no implementation STEPs exist yet | Run the planning session |
+| Conditional-session follow-up STEP planned and none in progress | Start that conditional follow-up |
+| Planned implementation STEPs exist and none in progress | Start the lowest-numbered planned STEP |
+| A STEP is in progress | Open its PLAN and run the lowest open substep |
+| Check-in cadence is due | Propose a Check-in STEP |
+| Phase is complete | Do milestone doc review, then plan the next phase |
+
 Resolve the next action top-down against the index — the first rule that matches wins:
 
 1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one:
