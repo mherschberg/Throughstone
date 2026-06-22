@@ -30,7 +30,7 @@ AGENTS.md and follow it."*
   kickoff command. The bootstrap flips the marker to `kickoff-complete` when it finishes.
 - **`kickoff-complete` → Resume mode.** Kickoff already happened. **Do not re-run kickoff.**
   Pick up the next action via the next-action resolver (`METHOD.md` §10): **run
-  `Code/{{PROJECT}}-docs/scripts/status.sh`** — it resolves §10 mechanically from disk and
+  `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`)** — it resolves §10 mechanically from disk and
   prints where you are, the next action, and the check-in cadence. Read
   `prompts/STEP-index.md` to confirm (and for the sub-STEP detail the script doesn't carry —
   the in-flight PLAN in `Upcoming Prompts/`), then tell the user what's next. If the script
@@ -108,11 +108,13 @@ for open-source projects, and creates no project `LICENSE` for proprietary proje
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
 `scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
-the root pointers).
+the root pointers). From the workspace root, `./doctor.sh status` and `./doctor.sh check`
+are thin shortcuts to the docs hub's `scripts/status.sh` and `scripts/check.sh`.
 
 **Workspace-root hygiene:** the workspace root should contain only per-machine pointers
-and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`), the repo folders (`Code/*`, `prompts/`),
-and the `Upcoming Prompts/` working folder (scratch for the in-flight STEP). If you create
+and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`), the root helper (`doctor.sh`), the repo
+folders (`Code/*`, `prompts/`), and the `Upcoming Prompts/` working folder (scratch for the
+in-flight STEP). If you create
 or find any *other* file at the workspace root, **ask whether it belongs in a repo** —
 durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 
@@ -157,7 +159,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   `step-0001-architecture` wherever branch-per-STEP applies.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
-  running `Code/{{PROJECT}}-docs/scripts/status.sh` — it runs the **next-action resolver**
+  running `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`) — it runs the **next-action resolver**
   (`METHOD.md` §10) mechanically from disk (where you are · next action · check-in cadence) —
   then confirming against `prompts/STEP-index.md`. From disk, never from memory.
 - One decision/question cluster at a time. Recommend defaults; flag what they foreclose.
