@@ -53,7 +53,7 @@ write anything.
 3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, one-line scope,
    and the repos you expect to touch).
 4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on `prompts/`'s
-   **shared trunk** (e.g. `main`), separate from any other change. `prompts/STEP-index.md` is a shared
+   **shared trunk** (`{{TRUNK_BRANCH}}`), separate from any other change. `prompts/STEP-index.md` is a shared
    registry: the reserve commit *and every later edit to it* (status flips, archival rows) land
    on the trunk, **never on a `step-NNNN` branch** — the push-reject that referees the race only
    fires when everyone pushes to the same branch, and the duplicate scan (step 6) only works if

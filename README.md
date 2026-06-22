@@ -111,7 +111,7 @@ things keep them approachable whatever your background:
      ```
      GitHub template repos already contain a template-created commit. Because `init.sh`
      creates fresh project history, it will not automatically reuse that non-empty `origin`
-     in **mono-repo** mode; otherwise a normal `git push -u origin main` would fail. Use
+     in **mono-repo** mode; otherwise a normal push to the generated trunk branch would fail. Use
      the template path as a download vehicle, then add an empty remote later, delete/recreate
      the GitHub repo before using GitHub remote creation, or deliberately replace the
      template-created remote yourself after reviewing the history. In the default
@@ -143,6 +143,10 @@ things keep them approachable whatever your background:
    Any flag you omit is still prompted (without `--non-interactive`); with it, a missing
    required value is an error. `init.sh` first checks that `git` and `perl` are present. When
    it finishes you can delete `init.sh` — it has done its job.
+
+   Generated repos use `main` as their trunk branch by default. If your team uses another
+   convention, pass `--trunk-branch=master` (or another valid Git branch name) and the
+   initialized repos, pushes, and generated collaboration docs will use that branch.
 
    Repository visibility is separate from licensing. When creating GitHub remotes, use
    `--visibility=private` or `--visibility=public`; the default is private. Public visibility
