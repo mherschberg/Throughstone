@@ -470,6 +470,40 @@ run_invalid_visibility_case() {
   grep -Fq "invalid --visibility 'internal'" "$TMP_ROOT/$name.out"
 }
 
+run_manual_multi_remote_case() {
+  local name="manual-multi-remotes"
+  local work="$TMP_ROOT/$name"
+  local docs_remote="$TMP_ROOT/$name-docs.git"
+  local prompts_remote="$TMP_ROOT/$name-prompts.git"
+
+  copy_template "$work"
+  git init --bare -q "$docs_remote"
+  git init --bare -q "$prompts_remote"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Manual remote setup test" \
+      --license=private \
+      --layout=multi \
+      --collab=team \
+      --adr-authority="consensus of maintainers" \
+      --remotes=yes \
+      --remote-provider=manual \
+      --docs-remote="$docs_remote" \
+      --prompts-remote="$prompts_remote"
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  [ "$(git -C "$work/Code/$name-docs" remote get-url origin)" = "$docs_remote" ]
+  [ "$(git -C "$work/prompts" remote get-url origin)" = "$prompts_remote" ]
+  git --git-dir="$docs_remote" rev-parse --verify refs/heads/main >/dev/null
+  git --git-dir="$prompts_remote" rev-parse --verify refs/heads/main >/dev/null
+  grep -Fq "remote: \"$docs_remote\"" "$work/Code/$name-docs/registries/repos.yml"
+  grep -Fq "remote: \"$prompts_remote\"" "$work/Code/$name-docs/registries/repos.yml"
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 run_interactive_case \
   "license-mit" \
   $'1\nMIT\n' \
@@ -520,6 +554,7 @@ run_visibility_case "visibility-public" "public"
 run_visibility_case "visibility-private" "private"
 run_public_proprietary_case
 run_invalid_visibility_case
+run_manual_multi_remote_case
 run_missing_canonical_license_case
 
 invalid_work="$TMP_ROOT/license-invalid-flag"

@@ -151,15 +151,21 @@ Options:
   --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
-  --remotes=yes|no      Create GitHub remotes via gh    (default: no; needs gh)
-  --owner=OWNER         GitHub owner/org (required when --remotes=yes)
-  --visibility=VALUE    private | public                (default: private)
+  --remotes=yes|no      Set up remotes now              (default: no)
+  --remote-provider=PROVIDER
+                         github | manual                (default: github)
+  --owner=OWNER         GitHub owner/org (github provider only)
+  --remote-url=URL      Existing mono-repo remote URL    (manual provider)
+  --docs-remote=URL     Existing docs repo remote URL    (manual provider, multi)
+  --prompts-remote=URL  Existing prompts repo remote URL (manual provider, multi)
+  --visibility=VALUE    private | public                (GitHub creation default: private)
   -y, --non-interactive Never prompt; error on any missing required value
   -h, --help            Show this help and exit
 
 Env vars (flags take precedence): INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
   INIT_LAYOUT, INIT_REGISTRIES, INIT_COLLAB, INIT_ADR_AUTHORITY, INIT_REMOTES,
-  INIT_OWNER, INIT_VISIBILITY, INIT_NONINTERACTIVE.
+  INIT_REMOTE_PROVIDER, INIT_OWNER, INIT_REMOTE_URL, INIT_DOCS_REMOTE,
+  INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_NONINTERACTIVE.
 USAGE
 }
 
@@ -171,7 +177,9 @@ SLUG_IN="${INIT_SLUG:-}";       DESC_IN="${INIT_DESC:-}"
 LICENSE_IN="${INIT_LICENSE:-}"; HOLDER_IN="${INIT_HOLDER:-}"
 LAYOUT_IN="${INIT_LAYOUT:-}";   REGISTRIES_IN="${INIT_REGISTRIES:-}"
 COLLAB_IN="${INIT_COLLAB:-}";   ADR_AUTHORITY_IN="${INIT_ADR_AUTHORITY:-}"
-REMOTES_IN="${INIT_REMOTES:-}"; OWNER_IN="${INIT_OWNER:-}"
+REMOTES_IN="${INIT_REMOTES:-}"; REMOTE_PROVIDER_IN="${INIT_REMOTE_PROVIDER:-}"
+OWNER_IN="${INIT_OWNER:-}";     REMOTE_URL_IN="${INIT_REMOTE_URL:-}"
+DOCS_REMOTE_IN="${INIT_DOCS_REMOTE:-}"; PROMPTS_REMOTE_IN="${INIT_PROMPTS_REMOTE:-}"
 VISIBILITY_IN="${INIT_VISIBILITY:-}"
 NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 
@@ -195,8 +203,16 @@ while [ $# -gt 0 ]; do
     --adr-authority)   ADR_AUTHORITY_IN="${2:-}"; shift ;;
     --remotes=*)       REMOTES_IN="${1#*=}" ;;
     --remotes)         REMOTES_IN="${2:-}"; shift ;;
+    --remote-provider=*) REMOTE_PROVIDER_IN="${1#*=}" ;;
+    --remote-provider) REMOTE_PROVIDER_IN="${2:-}"; shift ;;
     --owner=*)         OWNER_IN="${1#*=}" ;;
     --owner)           OWNER_IN="${2:-}"; shift ;;
+    --remote-url=*)    REMOTE_URL_IN="${1#*=}" ;;
+    --remote-url)      REMOTE_URL_IN="${2:-}"; shift ;;
+    --docs-remote=*)   DOCS_REMOTE_IN="${1#*=}" ;;
+    --docs-remote)     DOCS_REMOTE_IN="${2:-}"; shift ;;
+    --prompts-remote=*) PROMPTS_REMOTE_IN="${1#*=}" ;;
+    --prompts-remote)  PROMPTS_REMOTE_IN="${2:-}"; shift ;;
     --visibility=*)    VISIBILITY_IN="${1#*=}" ;;
     --visibility)      VISIBILITY_IN="${2:-}"; shift ;;
     -y|--yes|--non-interactive) NONINTERACTIVE=1 ;;
@@ -219,14 +235,14 @@ if [ -n "$missing" ]; then
   exit 1
 fi
 preflight_git_commit
-command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — the GitHub-remote step will be skipped (you can add remotes later)."
+command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
 # Validation-before-destruction invariant: all user input, project-license posture, repo
-# layout, collaboration metadata, GitHub remotes, and visibility are resolved before `.git` or
+# layout, collaboration metadata, Git remotes, and visibility are resolved before `.git` or
 # template-only files are removed.
 #
 # Defaults are conservative for automation: multi-repo, solo, private GitHub visibility, and
@@ -355,8 +371,8 @@ if [ "$COLLAB" = "2" ]; then
     echo "  In a team, significant ADRs land as Proposed and are flipped to Accepted by a"
     echo "  designated authority (recorded in adr/README.md so it's on disk, not folklore)."
     ADR_AUTHORITY="$(ask 'Who accepts ADRs? e.g. tech lead / consensus of maintainers / ADR review on PR' 'consensus of maintainers')"
-    echo "  Heads-up: team collaboration relies on shared remotes —"
-    echo "  answer yes to the remotes question next so everyone clones from the same place."
+    echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
+    echo "  from the same place. You can still skip that now and add remotes later."
     if [ "$LAYOUT" = "2" ]; then
       echo "  NOTE: you picked mono-repo + team. That works for STEP-number reservation (one"
       echo "  shared repo with a remote), but the overlap warning is repo-granular and so is"
@@ -404,32 +420,92 @@ root_origin_can_be_reused() {
   [ "$ROOT_ORIGIN_REUSABLE" = "1" ]
 }
 
-# GitHub remotes (needs gh). Default off; --remotes=yes requires gh and an owner.
-# Visibility is independent of the project license: private repos may use open-source
-# licenses, and public repos still need an explicit project-license choice. A public
-# proprietary repo is allowed only after an explicit warning because it publishes source without
-# granting open-source reuse rights.
-MK_REMOTES=0; OWNER=""; REMOTE_VISIBILITY=private
+# validate_empty_remote_url LABEL URL — fail before bootstrap mutates the checkout if a manual
+# remote URL is unreachable or already has history. Manual remotes must be pre-created empty repos.
+validate_empty_remote_url() {
+  local label="$1" url="$2" refs
+  [ -n "$url" ] || return 0
+  if refs="$(GIT_TERMINAL_PROMPT=0 git ls-remote --heads --tags "$url" 2>/dev/null)"; then
+    if [ -n "$refs" ]; then
+      echo "init.sh: $label remote already has Git history and will not be overwritten:" >&2
+      echo "  $url" >&2
+      exit 2
+    fi
+    return 0
+  fi
+  echo "init.sh: could not verify $label remote as empty/reachable:" >&2
+  echo "  $url" >&2
+  echo "  Create an empty repo first, check your credentials, then rerun init.sh." >&2
+  exit 2
+}
+
+# Remotes. GitHub automation creates repositories with `gh`; manual mode attaches and pushes to
+# existing, empty/pushable Git URLs from any provider. Visibility is independent of the project
+# license: private repos may use open-source licenses, and public repos still need an explicit
+# project-license choice. A public proprietary repo is allowed only after an explicit warning
+# because it publishes source without granting open-source reuse rights.
+MK_REMOTES=0; REMOTE_PROVIDER=""; OWNER=""; REMOTE_URL=""; DOCS_REMOTE=""; PROMPTS_REMOTE=""
+REMOTE_VISIBILITY=private
+HAS_MANUAL_REMOTE_INPUT=0
+[ -n "$REMOTE_URL_IN$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] && HAS_MANUAL_REMOTE_INPUT=1
 if [ -n "$REMOTES_IN" ]; then
   case "$(printf '%s' "$REMOTES_IN" | tr '[:upper:]' '[:lower:]')" in
     y|yes|true|1) MK_REMOTES=1 ;;
     n|no|false|0) MK_REMOTES=0 ;;
     *) echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2 ;;
   esac
-  if [ "$MK_REMOTES" = "1" ] && ! command -v gh >/dev/null 2>&1; then
-    echo "init.sh: --remotes=yes needs the 'gh' CLI, which isn't installed." >&2; exit 2
-  fi
-elif [ "$NONINTERACTIVE" != "1" ] && command -v gh >/dev/null 2>&1 && yesno "Create GitHub remotes now (via gh)?"; then
+elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
   MK_REMOTES=1
+elif [ "$NONINTERACTIVE" != "1" ]; then
+  echo "Online backup / sharing (optional):"
+  echo "  Your project will be saved locally with Git."
+  echo "  A Git remote is an online copy on GitHub, Bitbucket, GitLab, or another Git host."
+  echo "  You can skip this now and add one later."
+  if ! yesno "Set up online Git remotes now?"; then
+    MK_REMOTES=0
+  elif command -v gh >/dev/null 2>&1; then
+    echo "Remote setup:"
+    echo "  1) Create GitHub remotes now (via gh)"
+    echo "  2) Use existing remote URLs (Bitbucket, GitLab, or another Git host)"
+    case "$(ask 'Choose 1 or 2' '1')" in
+      1) MK_REMOTES=1; REMOTE_PROVIDER_IN=github ;;
+      2) MK_REMOTES=1; REMOTE_PROVIDER_IN=manual ;;
+      *) echo "init.sh: invalid remote setup choice." >&2; exit 2 ;;
+    esac
+  else
+    echo "  GitHub auto-creation needs the 'gh' CLI, which is not installed."
+    echo "  If you already created empty repos online, you can paste their URLs now."
+    if yesno "Use existing remote URLs now?"; then
+      MK_REMOTES=1
+      REMOTE_PROVIDER_IN=manual
+    else
+      MK_REMOTES=0
+    fi
+  fi
 fi
 if [ "$MK_REMOTES" = "1" ]; then
+  if [ -n "$REMOTE_PROVIDER_IN" ]; then
+    case "$(printf '%s' "$REMOTE_PROVIDER_IN" | tr '[:upper:]' '[:lower:]')" in
+      github|gh) REMOTE_PROVIDER=github ;;
+      manual|existing|url|urls) REMOTE_PROVIDER=manual ;;
+      *) echo "init.sh: invalid --remote-provider '$REMOTE_PROVIDER_IN' (github | manual)." >&2; exit 2 ;;
+    esac
+  elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
+    REMOTE_PROVIDER=manual
+  else
+    REMOTE_PROVIDER=github
+  fi
+  if [ "$REMOTE_PROVIDER" = "github" ] && [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
+    echo "init.sh: manual remote URL flags require --remote-provider=manual." >&2
+    exit 2
+  fi
   if [ -n "$VISIBILITY_IN" ]; then
     case "$(printf '%s' "$VISIBILITY_IN" | tr '[:upper:]' '[:lower:]')" in
       private|1) REMOTE_VISIBILITY=private ;;
       public|2)  REMOTE_VISIBILITY=public ;;
       *) echo "init.sh: invalid --visibility '$VISIBILITY_IN' (private | public)." >&2; exit 2 ;;
     esac
-  elif [ "$NONINTERACTIVE" != "1" ]; then
+  elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ]; then
     echo "GitHub repository visibility:"
     echo "  1) Private"
     echo "  2) Public"
@@ -441,10 +517,86 @@ if [ "$MK_REMOTES" = "1" ]; then
       esac
     done
   fi
-  if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
-    OWNER=""
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    if ! command -v gh >/dev/null 2>&1; then
+      if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
+        REMOTE_PROVIDER=manual
+      else
+        echo "init.sh: --remotes=yes with --remote-provider=github needs the 'gh' CLI, which isn't installed." >&2
+        echo "  For Bitbucket, GitLab, or another Git host, pre-create empty repos and pass --remote-provider=manual with remote URL flags." >&2
+        exit 2
+      fi
+    fi
+  fi
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
+      OWNER=""
+    else
+      OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+    fi
   else
-    OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+    if [ -n "$OWNER_IN" ]; then
+      echo "init.sh: --owner is only used with --remote-provider=github." >&2
+      exit 2
+    fi
+    if [ "$LAYOUT" = "2" ]; then
+      if root_origin_can_be_reused && [ -z "$REMOTE_URL_IN" ]; then
+        REMOTE_URL=""
+      else
+        REMOTE_URL="$(want "$REMOTE_URL_IN" 'Project repo remote URL')"
+      fi
+    else
+      DOCS_REMOTE="$(want "$DOCS_REMOTE_IN" 'Docs repo remote URL')"
+      PROMPTS_REMOTE="$(want "$PROMPTS_REMOTE_IN" 'Prompts repo remote URL')"
+    fi
+    validate_empty_remote_url "project" "$REMOTE_URL"
+    validate_empty_remote_url "docs" "$DOCS_REMOTE"
+    validate_empty_remote_url "prompts" "$PROMPTS_REMOTE"
+  fi
+elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
+  echo "init.sh: remote URL flags require --remotes=yes (or omit --remotes)." >&2
+  exit 2
+else
+  if [ -n "$REMOTE_PROVIDER_IN" ]; then
+    echo "init.sh: --remote-provider requires --remotes=yes." >&2
+    exit 2
+  fi
+  if [ -n "$OWNER_IN" ]; then
+    echo "init.sh: --owner requires --remotes=yes with --remote-provider=github." >&2
+    exit 2
+  fi
+fi
+if [ "$MK_REMOTES" = "1" ]; then
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    :
+  elif [ "$REMOTE_PROVIDER" = "manual" ]; then
+    :
+  else
+    echo "init.sh: internal error: remote provider was not resolved." >&2
+    exit 1
+  fi
+fi
+if [ "$MK_REMOTES" = "1" ]; then
+  if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$VISIBILITY_IN" ]; then
+    echo "  note: --visibility records your intent only; manual remotes must already have the desired host visibility."
+  fi
+fi
+if [ "$MK_REMOTES" = "1" ]; then
+  if [ "$REMOTE_PROVIDER" = "github" ] && [ -n "$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN$REMOTE_URL_IN" ]; then
+    echo "init.sh: remote URL flags are not used with --remote-provider=github." >&2
+    exit 2
+  fi
+fi
+if [ "$MK_REMOTES" = "1" ]; then
+  if [ "$REMOTE_PROVIDER" = "manual" ]; then
+    if [ "$LAYOUT" = "1" ] && { [ -z "$DOCS_REMOTE" ] || [ -z "$PROMPTS_REMOTE" ]; }; then
+      echo "init.sh: manual multi-repo remotes need --docs-remote and --prompts-remote." >&2
+      exit 2
+    fi
+    if [ "$LAYOUT" = "2" ] && ! root_origin_can_be_reused && [ -z "$REMOTE_URL" ]; then
+      echo "init.sh: manual mono-repo remotes need --remote-url unless an empty root origin can be reused." >&2
+      exit 2
+    fi
   fi
 fi
 if [ "$MK_REMOTES" = "1" ] \
@@ -666,8 +818,8 @@ init_repo() {
   echo "  git repo: $1"
 }
 
-# record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after gh creates a
-# remote. The registry is the multi-repo clone inventory, so mono-repo and pruned-registry
+# record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
+# attached and pushed. The registry is the multi-repo clone inventory, so mono-repo and pruned-registry
 # setups can safely no-op.
 record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
@@ -691,7 +843,7 @@ record_registry_remote() {
 
 # commit_registry_remotes — persist registry remote URLs after all multi-repo remotes exist.
 # The docs repo is already initialized before this runs; recording in a second commit avoids
-# claiming remote URLs before gh creation has actually succeeded.
+# claiming remote URLs before creation/push has actually succeeded.
 commit_registry_remotes() {
   local reg="$DOCS/registries/repos.yml"
   [ "$MK_REMOTES" = "1" ] || return 0
@@ -708,17 +860,33 @@ commit_registry_remotes() {
   fi
 }
 
-# make_remote DIR REPONAME — create and push a GitHub repo with the chosen visibility.
-# MADE_REMOTE_URL is a small out-parameter used only by the multi-repo registry recorder.
-make_remote() {
+# setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
+# GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
+# host and pushes the initialized main branch. MADE_REMOTE_URL is a small out-parameter used only
+# by the multi-repo registry recorder.
+setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
-  if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
-    MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
-    echo "  remote: $OWNER/$2"
-    return 0
+  if [ "$REMOTE_PROVIDER" = "manual" ]; then
+    [ -n "${3:-}" ] || return 1
+    if ( cd "$1" && git remote add origin "$3" && git push -u origin main >/dev/null ); then
+      MADE_REMOTE_URL="$3"
+      echo "  remote: $3"
+      return 0
+    fi
+    echo "  (could not push remote for $2; check that the remote exists, is empty, and accepts your credentials)"
+    return 1
   fi
-  echo "  (skipped remote for $2)"
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
+      MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
+      echo "  remote: $OWNER/$2"
+      return 0
+    fi
+    echo "  (skipped remote for $2)"
+    return 1
+  fi
+  echo "  (skipped remote for $2; unknown provider '$REMOTE_PROVIDER')"
   return 1
 }
 
@@ -750,7 +918,11 @@ if [ "$LAYOUT" = "2" ]; then
   # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
   # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
-  reuse_root_origin "." || make_remote "." "$SLUG"
+  if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$REMOTE_URL" ]; then
+    setup_remote "." "$SLUG" "$REMOTE_URL"
+  else
+    reuse_root_origin "." || setup_remote "." "$SLUG" ""
+  fi
 else
   # Multi-repo: initialize docs and prompts as siblings. The root is only a local workspace
   # shell, so any origin attached to the downloaded template cannot represent the generated
@@ -759,10 +931,10 @@ else
     echo "  note: existing root origin is not reused in multi-repo mode; use --remotes=yes or add remotes to the docs/prompts repos later."
   fi
   init_repo "$DOCS"
-  make_remote "$DOCS" "${SLUG}-docs" \
+  setup_remote "$DOCS" "${SLUG}-docs" "$DOCS_REMOTE" \
     && [ -n "$MADE_REMOTE_URL" ] && record_registry_remote "${SLUG}-docs" "$MADE_REMOTE_URL"
   init_repo "prompts"
-  make_remote "prompts" "${SLUG}-prompts" \
+  setup_remote "prompts" "${SLUG}-prompts" "$PROMPTS_REMOTE" \
     && [ -n "$MADE_REMOTE_URL" ] && record_registry_remote "prompts" "$MADE_REMOTE_URL"
   commit_registry_remotes
 fi
@@ -786,14 +958,15 @@ You can delete this init.sh now — it has done its job.
 
 Recommended optional backup:
   You can start now; your project is saved locally with Git. For backup, sharing,
-  and working from another computer, put the project on GitHub when you're ready.
+  and working from another computer, put the project on a Git host when you're ready.
 
-  Create a GitHub account:
-    https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github
+  GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
+  If you did not set up remotes during init, create empty repos on your host, add
+  their URLs to registries/repos.yml, and push each local repo's main branch.
 
   GitHub:
     https://github.com/
 
-  GitHub CLI (optional; lets Throughstone create remotes for you with --remotes=yes):
+  GitHub CLI (optional; lets Throughstone create GitHub remotes for you):
     https://cli.github.com/
 EOF

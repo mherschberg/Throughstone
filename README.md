@@ -90,9 +90,10 @@ things keep them approachable whatever your background:
 
 > **Requirements:** a POSIX shell (`bash`), `git`, and `perl` — `init.sh` uses `perl` for its
 > placeholder substitution; all three ship on macOS and nearly every Linux. `gh` is optional
-> (only for auto-creating GitHub remotes), and the later `setup-workspace.sh` uses `python3`
-> if present (with a plain-shell fallback). The methodology, prompts, and templates themselves
-> are plain Markdown — these are just the two setup wizards.
+> (only for auto-creating GitHub remotes). Bitbucket, GitLab, and other Git hosts work through
+> pre-created remote URLs. The later `setup-workspace.sh` uses `python3` if present (with a
+> plain-shell fallback). The methodology, prompts, and templates themselves are plain Markdown —
+> these are just the two setup wizards.
 
 1. **Get the files into a folder named for your project.** The folder you download into
    **becomes your project's workspace root** — `init.sh` never renames it — so give it the
@@ -112,7 +113,7 @@ things keep them approachable whatever your background:
      creates fresh project history, it will not automatically reuse that non-empty `origin`
      in **mono-repo** mode; otherwise a normal `git push -u origin main` would fail. Use
      the template path as a download vehicle, then add an empty remote later, delete/recreate
-     the GitHub repo before using `--remotes=yes`, or deliberately replace the
+     the GitHub repo before using GitHub remote creation, or deliberately replace the
      template-created remote yourself after reviewing the history. In the default
      **multi-repo** setup, the root is only a workspace shell, so the template repo is just a
      download vehicle — use `--remotes=yes` or add remotes later for the docs and prompts
@@ -147,6 +148,22 @@ things keep them approachable whatever your background:
    `--visibility=private` or `--visibility=public`; the default is private. Public visibility
    with `--license=private` publishes the source without granting open-source reuse rights, so
    the wizard warns before creating that combination.
+
+   GitHub remotes can be auto-created with `gh`:
+   ```bash
+   ./init.sh --slug=acme --desc="..." --layout=multi --remotes=yes \
+             --remote-provider=github --owner=your-org
+   ```
+
+   For Bitbucket, GitLab, or another Git host, create empty repos first and pass their URLs:
+   ```bash
+   ./init.sh --slug=acme --desc="..." --layout=multi --remotes=yes \
+             --remote-provider=manual \
+             --docs-remote=git@bitbucket.org:your-team/acme-docs.git \
+             --prompts-remote=git@bitbucket.org:your-team/acme-prompts.git
+   ```
+   Mono-repo projects use `--remote-url=...` instead; if the checkout already has an empty
+   non-Throughstone `origin`, `--remotes=yes` reuses and pushes it with plain Git.
 
 3. **Start your AI agent in the project folder, and send it one command.** Launch your
    agent however you normally do (Claude Code, Codex, … — start it yourself; this scaffold

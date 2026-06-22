@@ -101,7 +101,35 @@ run_empty_origin_case() {
   grep -Fq "remote: reused existing origin ($remote)" "$TMP_ROOT/$name.out"
 }
 
+run_empty_origin_push_without_gh_case() {
+  local name="mono-empty-origin-push"
+  local work="$TMP_ROOT/$name"
+  local remote="$TMP_ROOT/$name-origin.git"
+
+  copy_template "$work"
+  git init --bare -q "$remote"
+  (
+    cd "$work"
+    git init -q
+    git remote add origin "$remote"
+    PATH="/usr/bin:/bin" ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Mono empty origin push test" \
+      --license=private \
+      --layout=mono \
+      --collab=solo \
+      --remotes=yes
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  [ "$(git -C "$work" remote get-url origin)" = "$remote" ]
+  git --git-dir="$remote" rev-parse --verify refs/heads/main >/dev/null
+  grep -Fq "remote: reused existing origin ($remote)" "$TMP_ROOT/$name.out"
+  grep -Fq "pushed: $remote" "$TMP_ROOT/$name.out"
+}
+
 run_non_empty_origin_case
 run_empty_origin_case
+run_empty_origin_push_without_gh_case
 
 echo "init.sh mono origin reuse: PASS"
