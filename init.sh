@@ -6,17 +6,27 @@
 # origin, renames the {{PROJECT}} placeholder everywhere, and sets up your repo(s).
 # Run it once, from the workspace root, right after downloading.
 #
+# Flow:
+#   0. Parse flags/env and prove required tools can create commits.
+#   1. Resolve every user choice: slug, license posture, layout, collaboration, remotes.
+#   2. Cross the destructive bootstrap boundary: remove template history and template-only files.
+#   3. Replace placeholders, seed generated-project state, and initialize repo(s).
+#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
+# Small UI helpers. They only print/prompt; all validation happens at the call sites so flags,
+# env vars, and interactive answers share the same checks.
 say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 ask()  { local p="$1" d="${2:-}" a; if [ -n "$d" ]; then read -r -p "$p [$d]: " a; echo "${a:-$d}"; else read -r -p "$p: " a; echo "$a"; fi; }
 yesno(){ local a; read -r -p "$1 [y/N]: " a; case "$a" in y|Y|yes) return 0;; *) return 1;; esac; }
 
 # want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty; otherwise prompt for it.
 # In --non-interactive mode, fall back to DEFAULT, or exit with an error if there is none.
+# This is the flag/env bridge: callers pass the already-parsed preset first, so command-line
+# values win over env vars and both bypass prompting.
 want() {
   local val="$1" prompt="$2" def="${3:-}"
   if [ -n "$val" ]; then printf '%s' "$val"; return; fi
@@ -28,6 +38,8 @@ want() {
 }
 
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
+# The rest of the script branches on small stable IDs, while the public interface accepts the
+# friendly spellings users are likely to type in flags, env vars, or prompts.
 normalize_license_choice() {
   local input
   input="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
@@ -41,6 +53,9 @@ normalize_license_choice() {
 }
 
 # choose_license_interactively — prompt until the project type and license are valid.
+# Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
+# projects choose a concrete permissive license template; proprietary projects intentionally
+# skip project LICENSE creation later.
 choose_license_interactively() {
   local project_type license_input
 
@@ -74,6 +89,9 @@ choose_license_interactively() {
   done
 }
 
+# preflight_git_commit — fail early when Git exists but cannot create commits.
+# Bootstrap creates brand-new repos after deleting template history, so author identity must be
+# valid before any destructive work begins.
 preflight_git_commit() {
   local tmp out status
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-git-preflight.XXXXXX")"
@@ -112,6 +130,8 @@ EOF
   exit "$status"
 }
 
+# usage — document the automation surface. Flags override env vars; --non-interactive converts
+# any still-missing required answer into an error instead of a prompt.
 usage() {
   cat <<'USAGE'
 init.sh — one-time Throughstone setup wizard.
@@ -144,6 +164,9 @@ USAGE
 }
 
 # --- 0. Parse flags / env (empty preset = "ask") ----------------------------
+# Every input starts as an env-supplied preset and may be overwritten by a flag below. Empty
+# means "not answered yet"; the question phase either prompts, applies a default, or errors in
+# --non-interactive mode.
 SLUG_IN="${INIT_SLUG:-}";       DESC_IN="${INIT_DESC:-}"
 LICENSE_IN="${INIT_LICENSE:-}"; HOLDER_IN="${INIT_HOLDER:-}"
 LAYOUT_IN="${INIT_LAYOUT:-}";   REGISTRIES_IN="${INIT_REGISTRIES:-}"
@@ -185,6 +208,9 @@ done
 case "$NONINTERACTIVE" in 1|true|yes|y|Y) NONINTERACTIVE=1 ;; *) NONINTERACTIVE=0 ;; esac
 
 # --- 0b. Preflight: required tools ------------------------------------------
+# Stop before asking project questions if the local machine cannot perform the mechanical
+# bootstrap. `git commit` is tested explicitly because install checks do not catch missing
+# user.name/user.email.
 missing=""
 for tool in git perl; do command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"; done
 if [ -n "$missing" ]; then
@@ -199,6 +225,12 @@ command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the la
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
+# Validation-before-destruction invariant: all user input, project-license posture, repo
+# layout, collaboration metadata, GitHub remotes, and visibility are resolved before `.git` or
+# template-only files are removed.
+#
+# Defaults are conservative for automation: multi-repo, solo, private GitHub visibility, and
+# no remote creation unless requested.
 # Project slug — validated kebab-case whether supplied or prompted.
 SLUG="$SLUG_IN"
 if [ -n "$SLUG" ]; then
@@ -214,7 +246,9 @@ else
 fi
 DESC="$(want "$DESC_IN" 'One-line description')"
 
-# License — accept a friendly token from --license, else ask the two-part question.
+# License — accept a friendly token from --license, else ask the two-part question. The durable
+# result is PROJECT_LICENSE_ID, written later to .throughstone/project-license so generated
+# helpers can distinguish proprietary projects from missing LICENSE files.
 LICENSE_CHOICE=""
 if [ -n "$LICENSE_IN" ]; then
   normalize_license_choice "$LICENSE_IN" \
@@ -252,13 +286,17 @@ case "$LICENSE_CHOICE" in
     exit 1
     ;;
 esac
+# Open-source projects depend on bundled templates; fail now rather than after the scaffold has
+# been detached from its original history.
 if [ -n "$LICENSE_TEMPLATE_NAME" ] \
   && [ ! -f "$ROOT/Code/{{PROJECT}}-docs/templates/licenses/$LICENSE_TEMPLATE_NAME" ]; then
   echo "init.sh: project license template is missing: Code/{{PROJECT}}-docs/templates/licenses/$LICENSE_TEMPLATE_NAME" >&2
   exit 1
 fi
 
-# Repo layout — multi (default) or mono.
+# Repo layout — multi (default) or mono. Multi-repo turns the root into a per-machine workspace
+# shell with separate durable repos under prompts/ and Code/<project>-docs/. Mono keeps a single
+# repo at the root for projects that are not ready to split yet.
 if [ -n "$LAYOUT_IN" ]; then
   case "$(printf '%s' "$LAYOUT_IN" | tr '[:upper:]' '[:lower:]')" in
     multi|multi-repo|1) LAYOUT=1 ;;
@@ -274,7 +312,8 @@ else
   LAYOUT="$(ask 'Choose 1 or 2' '1')"
 fi
 
-# registries/ is always kept in multi-repo; only optional in mono-repo.
+# registries/ is always kept in multi-repo because setup-workspace.sh and remote recording use
+# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained.
 KEEP_REGISTRIES=1
 if [ "$LAYOUT" = "2" ]; then
   if [ -n "$REGISTRIES_IN" ]; then
@@ -288,9 +327,10 @@ if [ "$LAYOUT" = "2" ]; then
   fi
 fi
 
-# Solo vs. team. This does NOT create a behavioral mode — branch-per-STEP and number
-# allocation are practiced solo too (see runbooks/collaboration.md). It only decides whether
-# to push for shared remotes now and records who accepts ADRs.
+# Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
+# reservation, and overlap checks are practiced solo too (see runbooks/collaboration.md). The
+# answer only affects prompt wording, remote guidance, and the ADR acceptance authority stamped
+# into adr/README.md.
 if [ -n "$COLLAB_IN" ]; then
   case "$(printf '%s' "$COLLAB_IN" | tr '[:upper:]' '[:lower:]')" in
     solo|1) COLLAB=1 ;;
@@ -326,9 +366,10 @@ if [ "$COLLAB" = "2" ]; then
   fi
 fi
 
-# Remember whether this download came from an existing project repo before we detach it.
-# Mono-repo mode can reuse that origin; multi-repo mode cannot because the root stops being
-# the project repo.
+# Remember whether this download came from an existing project repo before we detach it. A
+# non-Throughstone, empty root origin can be reused only in mono-repo mode, where the root
+# remains the project repo. Multi-repo cannot reuse it because the root becomes a workspace
+# shell and the durable repos are docs/prompts siblings.
 ROOT_ORIGIN="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
 ROOT_ORIGIN_IS_THROUGHSTONE=0
 case "$ROOT_ORIGIN" in
@@ -343,6 +384,8 @@ fi
 ROOT_ORIGIN_REUSABLE=0
 ROOT_ORIGIN_REUSE_SKIP_REASON=""
 if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
+  # Reuse only an origin that appears empty both locally and remotely. Existing refs mean it is
+  # already someone's history and should not be overwritten by bootstrap output.
   if [ "$ROOT_ORIGIN_HAS_LOCAL_REFS" = "1" ]; then
     ROOT_ORIGIN_REUSE_SKIP_REASON="already has Git history"
   elif ROOT_ORIGIN_REMOTE_REFS="$(
@@ -363,7 +406,9 @@ root_origin_can_be_reused() {
 
 # GitHub remotes (needs gh). Default off; --remotes=yes requires gh and an owner.
 # Visibility is independent of the project license: private repos may use open-source
-# licenses, and public repos still need an explicit project-license choice.
+# licenses, and public repos still need an explicit project-license choice. A public
+# proprietary repo is allowed only after an explicit warning because it publishes source without
+# granting open-source reuse rights.
 MK_REMOTES=0; OWNER=""; REMOTE_VISIBILITY=private
 if [ -n "$REMOTES_IN" ]; then
   case "$(printf '%s' "$REMOTES_IN" | tr '[:upper:]' '[:lower:]')" in
@@ -418,53 +463,56 @@ WARNING
 fi
 
 # --- 2. Untether from the template origin -----------------------------------
+# Destructive bootstrap boundary. Everything above this line is validation and choice
+# resolution; everything below mutates the checkout into a generated project. Keep questions,
+# license/layout/remotes validation, and public/proprietary warnings before this point.
 say "Detaching from the template's git history..."
+# Drop template history before creating project repos so the first generated commit contains
+# only the user's initialized project state, not Throughstone's development history.
 rm -rf "$ROOT/.git"
 # The root LICENSE is the Throughstone scaffold's own license (BSD-3-Clause, © Mark A.
-# Herschberg). The scaffold files you keep using (METHOD.md, templates/, runbooks/, scripts/)
-# stay under it — BSD-3 clause 1 requires retaining the notice — so we DON'T delete it; it's
-# relocated into the docs hub as LICENSE-THROUGHSTONE once the hub is renamed (step 3).
-# Open-source projects get their selected license in each repo; private projects do not.
-# README.md is Throughstone's own front-door (it documents init.sh and "Use this template"),
-# and CHANGELOG.md is Throughstone's release history. Once you've bootstrapped they're stale and
-# template-specific, and in multi-repo mode they would be stray files at the non-repo workspace
-# root, against the hygiene rule (METHOD.md §7). Drop them; your project's context lives in the
-# docs hub. (Mono-repo: add project versions yourself if you want them.)
+# Herschberg), not the generated project's license. Retained scaffold material (METHOD.md,
+# templates/, runbooks/, scripts/) stays under it, and BSD-3 clause 1 requires preserving the
+# notice. Relocate it as LICENSE-THROUGHSTONE below; open-source projects get their selected
+# project LICENSE separately, while proprietary projects intentionally do not.
+#
+# README/CHANGELOG/TODO are Throughstone-template files: the front door, release history, and
+# maintainer backlog. After bootstrap they are stale project content, and in multi-repo mode
+# they would be stray files at the non-repo workspace root. Drop them; generated-project context
+# starts in the docs hub. Mono-repo projects can add their own versions later.
 rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md"
-# The community/health files (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, TRADEMARK) describe the
-# Throughstone *template* itself — its contribution policy, its trademark, its security contact.
-# They must not carry into your project (e.g. they'd leak the maintainer's contact and assert
-# Throughstone's trademark inside your repo). Drop them; add your own project's versions if you want.
+# Community/health files describe the Throughstone template itself: contribution policy,
+# security contact, code of conduct, and trademark posture. Carrying them forward would leak the
+# template maintainer's contacts and assert Throughstone governance inside the user's project.
 rm -f "$ROOT/CONTRIBUTING.md" "$ROOT/CODE_OF_CONDUCT.md" "$ROOT/SECURITY.md" "$ROOT/TRADEMARK.md"
-# .github/ holds the Throughstone repo's own issue/PR templates and contact links — they point
-# at Throughstone's issues/discussions/security pages and its contribution funnel. They're not
-# part of your project; drop them so your repo doesn't inherit them. Add your own .github/ if
-# you want issue/PR templates for your project.
+# .github/ holds Throughstone's issue/PR templates, contact links, and contribution funnel.
+# They point at the template repo's issues/discussions/security pages, not the generated
+# project. Drop them so projects can add their own repository health files deliberately.
 rm -rf "$ROOT/.github"
-# .dev/ holds template-maintainer-only notes (handoffs, design memos) — not part of your
-# project; drop it so internal notes don't leak into bootstrapped repos.
+# .dev/ holds template-maintainer-only notes such as handoffs and design memos. It is not part
+# of the generated project and should not leak into bootstrapped repos.
 rm -rf "$ROOT/.dev"
-# tests/ and .test-fixtures/ hold scaffold-maintainer checks and test data — useful in this
-# repo, but not part of a bootstrapped user's project and root-hygiene warnings in multi-repo
-# workspaces.
+# tests/ and .test-fixtures/ validate the scaffold and carry scaffold-maintainer test data.
+# They are useful here, but not part of a user's project and would trip root-hygiene warnings in
+# multi-repo workspaces.
 rm -rf "$ROOT/tests" "$ROOT/.test-fixtures"
-# brand/ (Throughstone's brand brief, logo, social card, landing-page source) and docs/ (the
-# built landing page served via GitHub Pages) are Throughstone's *own* marketing — they assert
-# the Throughstone trademark and aren't part of your project. Drop them so your repo doesn't
-# inherit Throughstone's branding or its GitHub Pages site.
+# brand/ (brief, logo, social card, landing-page source) and docs/ (the built GitHub Pages
+# site) are Throughstone marketing assets. Drop them so generated repos do not inherit the
+# template's trademark, public site, or branding.
 rm -rf "$ROOT/brand" "$ROOT/docs"
 
 # --- 3. Replace the {{PROJECT}} token + description -------------------------
 say "Renaming {{PROJECT}} -> ${SLUG} ..."
-# file contents: the {{PROJECT}} token
+# Replace placeholder contents before repo initialization so generated commits never contain
+# unresolved scaffold tokens.
 grep -rlF '{{PROJECT}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
   SLUG="$SLUG" perl -pi -e 's/\Q{{PROJECT}}\E/$ENV{SLUG}/g' "$f"
 done
-# directory name (rename BEFORE the description fill below, so its grep walks the new path)
+# Rename the docs hub before filling descriptions so later scans walk the generated path.
 [ -d "Code/{{PROJECT}}-docs" ] && mv "Code/{{PROJECT}}-docs" "Code/${SLUG}-docs"
 
-# The root pointers carry a guard for agents working on the raw Throughstone scaffold. Once
-# the project placeholder is resolved, generated projects should get the clean handoff only.
+# Root pointers include a scaffold-only guard that tells agents not to start kickoff while
+# {{PROJECT}} is unresolved. Generated projects remove that guard and keep only the handoff.
 for f in AGENTS.md CLAUDE.md; do
   [ -f "$f" ] || continue
   perl -0pi -e 's/<!-- THROUGHSTONE-TEMPLATE-GUARD:BEGIN -->\n.*?<!-- THROUGHSTONE-TEMPLATE-GUARD:END -->\n\n//s' "$f"
@@ -472,6 +520,8 @@ done
 
 DOCS="Code/${SLUG}-docs"
 mkdir -p "$DOCS/.throughstone"
+# The posture file is the durable license authority for generated helpers. It remains present
+# even when proprietary projects intentionally have no project LICENSE.
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 
 # description: fill {{PROJECT_DESCRIPTION}} EVERYWHERE it appears (AGENTS.md + every
@@ -485,9 +535,10 @@ done
 # next to the method files it covers — not deleted). Open-source project licenses are stamped
 # separately into each repo in step 6; private projects get no project LICENSE.
 [ -f "$ROOT/LICENSE" ] && mv "$ROOT/LICENSE" "$DOCS/LICENSE-THROUGHSTONE"
-# In multi-repo mode, prompts/ is distributed independently and contains Throughstone-authored
-# seed content. Retain the scaffold notice there too; this is distinct from the user's project
-# LICENSE stamped below for open-source projects.
+# LICENSE-THROUGHSTONE follows retained scaffold material. In multi-repo mode prompts/ is its
+# own repo and contains Throughstone-authored seed content, so retain the scaffold notice there
+# too; this is distinct from the project LICENSE stamped below for open-source projects. In
+# mono-repo mode the root repo keeps the notice beside the generated project files.
 if [ -f "$DOCS/LICENSE-THROUGHSTONE" ]; then
   if [ "$LAYOUT" = "1" ]; then
     cp "$DOCS/LICENSE-THROUGHSTONE" "prompts/LICENSE-THROUGHSTONE"
@@ -501,8 +552,8 @@ fi
 # AGENTS.md and METHOD.md reference.
 [ "$KEEP_REGISTRIES" = "0" ] && rm -rf "$DOCS/registries" && echo "  pruned registries/"
 
-# Record who accepts ADRs by replacing the visible marker block in adr/README.md.
-# Solo keeps the old rendered text; team records the selected authority.
+# Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
+# single-author posture; team records the selected acceptance authority for future handoffs.
 if [ -f "$DOCS/adr/README.md" ]; then
   ADR_AUTHORITY_TEXT="_solo author_"
   if [ "$COLLAB" = "2" ] && [ -n "$ADR_AUTHORITY" ]; then
@@ -517,6 +568,8 @@ if [ -f "$DOCS/adr/README.md" ]; then
 fi
 
 # --- 5. Create the project brief from the template --------------------------
+# overview.md starts with PROJECT-STATUS: not-started, which tells AGENTS.md/status.sh to run
+# the kickoff interview before ordinary STEP resolution.
 if [ ! -f "$DOCS/overview.md" ]; then
   cp "$DOCS/templates/overview-template.md" "$DOCS/overview.md"
   echo "  created $DOCS/overview.md (fill it in)"
@@ -533,7 +586,10 @@ if [ ! -f "prompts/STEP-index.md" ]; then
 fi
 
 # --- 6. Initialise repo(s) --------------------------------------------------
-write_gitignore() { # dir
+# write_gitignore DIR — write the shared baseline ignore file for each generated repo.
+# The contents are intentionally small: editor cruft, per-machine agent config, and local
+# secrets. Project-specific ignores can be added after bootstrap.
+write_gitignore() {
   cat > "$1/.gitignore" <<'GI'
 # OS / editor cruft
 .DS_Store
@@ -549,7 +605,12 @@ write_gitignore() { # dir
 .secrets/
 GI
 }
-stamp_license() { # dir — write the chosen open-source LICENSE, if any
+
+# stamp_license DIR — write the selected project LICENSE for open-source projects.
+# Proprietary projects skip LICENSE creation; LICENSE-THROUGHSTONE remains separate and covers
+# only retained scaffold material. In mono-repo mode the docs hub also keeps the canonical copy
+# so apply-project-license.sh has the same source of truth as multi-repo projects.
+stamp_license() {
   local src
   [ "$LICENSE_CHOICE" = "private" ] && return 0
   src="$DOCS/templates/licenses/$LICENSE_TEMPLATE_NAME"
@@ -565,7 +626,11 @@ stamp_license() { # dir — write the chosen open-source LICENSE, if any
     echo "  canonical project license: $DOCS/LICENSE"
   fi
 }
-write_licensing_summary() { # dir — make the project/Throughstone license boundary visible
+
+# write_licensing_summary DIR — make the project/Throughstone license boundary explicit.
+# Every generated repo gets LICENSING.md so readers do not mistake LICENSE-THROUGHSTONE for the
+# project's license grant.
+write_licensing_summary() {
   if [ "$LICENSE_CHOICE" = "private" ]; then
     cat > "$1/LICENSING.md" <<'EOF'
 # Licensing
@@ -588,7 +653,11 @@ it does not replace or alter the project license.
 EOF
   fi
 }
-init_repo() { # dir
+
+# init_repo DIR — create one generated repo with baseline files and an initial main commit.
+# Callers decide which directories are durable repos; this helper keeps their initial commit
+# shape consistent.
+init_repo() {
   write_gitignore "$1"
   stamp_license "$1"
   write_licensing_summary "$1"
@@ -596,7 +665,11 @@ init_repo() { # dir
     && git branch -M main; )   # pin trunk to main (collaboration.md assumes a 'main' trunk)
   echo "  git repo: $1"
 }
-record_registry_remote() { # repo-name remote-url
+
+# record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after gh creates a
+# remote. The registry is the multi-repo clone inventory, so mono-repo and pruned-registry
+# setups can safely no-op.
+record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
   [ -f "$reg" ] || return 0
   REPO="$repo" REMOTE="$remote" perl -0pi -e '
@@ -615,6 +688,10 @@ record_registry_remote() { # repo-name remote-url
      {$1 . qq{    remote: "$qremote"\n}}ems;
   ' "$reg"
 }
+
+# commit_registry_remotes — persist registry remote URLs after all multi-repo remotes exist.
+# The docs repo is already initialized before this runs; recording in a second commit avoids
+# claiming remote URLs before gh creation has actually succeeded.
 commit_registry_remotes() {
   local reg="$DOCS/registries/repos.yml"
   [ "$MK_REMOTES" = "1" ] || return 0
@@ -630,7 +707,10 @@ commit_registry_remotes() {
       || echo "  (could not push registry remote updates; push ${DOCS} manually later)"
   fi
 }
-make_remote() { # dir reponame
+
+# make_remote DIR REPONAME — create and push a GitHub repo with the chosen visibility.
+# MADE_REMOTE_URL is a small out-parameter used only by the multi-repo registry recorder.
+make_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
   if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
@@ -641,7 +721,11 @@ make_remote() { # dir reponame
   echo "  (skipped remote for $2)"
   return 1
 }
-reuse_root_origin() { # dir
+
+# reuse_root_origin DIR — attach the preexisting empty root origin to a mono-repo project.
+# Multi-repo never calls this: the root stops being a durable repo, so reusing its origin for
+# docs or prompts would publish the wrong repository shape.
+reuse_root_origin() {
   root_origin_can_be_reused || {
     if [ -n "$ROOT_ORIGIN" ] \
       && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] \
@@ -663,9 +747,14 @@ reuse_root_origin() { # dir
 
 say "Initialising git..."
 if [ "$LAYOUT" = "2" ]; then
+  # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
+  # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
   reuse_root_origin "." || make_remote "." "$SLUG"
 else
+  # Multi-repo: initialize docs and prompts as siblings. The root is only a local workspace
+  # shell, so any origin attached to the downloaded template cannot represent the generated
+  # repos and is reported but not reused.
   if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
     echo "  note: existing root origin is not reused in multi-repo mode; use --remotes=yes or add remotes to the docs/prompts repos later."
   fi
