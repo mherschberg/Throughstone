@@ -654,11 +654,12 @@ rm -rf "$ROOT/.git"
 # notice. Relocate it as LICENSE-THROUGHSTONE below; open-source projects get their selected
 # project LICENSE separately, while proprietary projects intentionally do not.
 #
-# README/CHANGELOG/TODO are Throughstone-template files: the front door, release history, and
-# maintainer backlog. After bootstrap they are stale project content, and in multi-repo mode
-# they would be stray files at the non-repo workspace root. Drop them; generated-project context
-# starts in the docs hub. Mono-repo projects can add their own versions later.
-rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md"
+# README/CHANGELOG/TODO/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
+# history, maintainer backlog, and public explanation of the scaffold's output. After bootstrap
+# they are stale project content, and in multi-repo mode they would be stray files at the non-repo
+# workspace root. Drop them; generated-project context starts in the docs hub. Mono-repo projects
+# can add their own versions later.
+rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md" "$ROOT/ARTIFACT-TRAIL.md"
 # Community/health files describe the Throughstone template itself: contribution policy,
 # security contact, code of conduct, and trademark posture. Carrying them forward would leak the
 # template maintainer's contacts and assert Throughstone governance inside the user's project.

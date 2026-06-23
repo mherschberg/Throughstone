@@ -2,7 +2,7 @@
 #
 # links.sh — read-only stale-link checker for durable Throughstone documentation.
 #
-# Scope is intentionally narrow: root pointer/readme files and durable docs-hub Markdown.
+# Scope is intentionally narrow: root pointer/readme/artifact-tour files and durable docs-hub Markdown.
 # It skips prompts/, Upcoming Prompts/, templates/, app repos, links outside the local
 # workspace, and all external URLs so the result stays useful as a cheap check-in/CI guard
 # instead of becoming a noisy site crawler.
@@ -50,7 +50,7 @@ def fail(source, line_no, message, hint=None):
 # scoped_markdown_files — list the durable Markdown files this checker owns.
 def scoped_markdown_files():
     files = []
-    for name in ("AGENTS.md", "CLAUDE.md", "README.md"):
+    for name in ("AGENTS.md", "CLAUDE.md", "README.md", "ARTIFACT-TRAIL.md"):
         candidate = root / name
         if candidate.is_file():
             files.append(candidate)
@@ -389,7 +389,7 @@ for source in files:
 print(f"Throughstone links — {root}")
 print()
 print("Scope:")
-print("  root AGENTS.md / CLAUDE.md / README.md when present")
+print("  root AGENTS.md / CLAUDE.md / README.md / ARTIFACT-TRAIL.md when present")
 print(f"  {rel(docs_dir)}/**/*.md except templates/")
 print("  prompts/, Upcoming Prompts/, app repos, external URLs, and paths outside the workspace are skipped")
 print()
