@@ -299,8 +299,9 @@ what future work is supposed to respect. That matters especially with AI-assiste
 where it is easy to generate a lot of code faster than anyone can reconstruct the reasoning
 behind it.
 
-Throughstone creates a project documentation hub under `Code/{{PROJECT}}-docs/`. The core
-files include:
+See [Throughstone Artifact Trail](ARTIFACT-TRAIL.md) for a guided tour with representative
+snippets. In short, Throughstone creates a project documentation hub under
+`Code/{{PROJECT}}-docs/` and a sibling `prompts/` history repo. The core files include:
 
 - `overview.md` — the project brief.
 - `METHOD.md` and `AGENTS.md` — the process and agent instructions.

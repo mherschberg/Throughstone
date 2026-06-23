@@ -36,6 +36,12 @@ See [docs](Code/acme-docs/README.md), [local heading](#root-readme), and
 [docs-ref]: Code/acme-docs/README.md
 README
 
+cat > "$fixture/ARTIFACT-TRAIL.md" <<'ARTIFACTS'
+# Artifact Trail
+
+See [docs](Code/acme-docs/README.md).
+ARTIFACTS
+
 cat > "$fixture/Code/acme-docs/README.md" <<'DOCS'
 # Docs Hub
 
