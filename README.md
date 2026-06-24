@@ -229,6 +229,25 @@ For day-to-day project health checks, `./doctor.sh status` reports the next acti
 durable docs for stale local Markdown links. It is only a root shortcut for the plain Bash
 helpers in `Code/{{PROJECT}}-docs/scripts/`.
 
+## Website
+
+The canonical source for the static marketing site is `brand/site/`. GitHub Pages publishes
+from `docs/`, so after editing the site source run:
+
+```bash
+brand/publish-site.sh
+```
+
+That copies the site into `docs/` while preserving `docs/CNAME` and `docs/.nojekyll`, which
+keep `https://throughstone.org` working. To check for drift without writing, run:
+
+```bash
+brand/publish-site.sh --check
+```
+
+CI runs the same check for website changes, so a pull request fails if `brand/site/` and
+`docs/` drift.
+
 ## Updating after setup
 
 Throughstone is copied into your project at bootstrap; later template improvements do not
