@@ -1,0 +1,30 @@
+name: Site publish check
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/site-publish.yml"
+      - "brand/publish-site.sh"
+      - "brand/site/**"
+      - "docs/**"
+      - "tests/site-publish.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/site-publish.yml"
+      - "brand/publish-site.sh"
+      - "brand/site/**"
+      - "docs/**"
+      - "tests/site-publish.sh"
+
+jobs:
+  site-publish:
+    name: Verify generated site output
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check site source was published to docs
+        run: tests/site-publish.sh

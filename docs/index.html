@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Canonical source for the Throughstone website. Run brand/publish-site.sh to update docs/. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -34,16 +35,18 @@
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:20px;line-height:1.62;-webkit-font-smoothing:antialiased;}
   a{color:var(--ochreD);text-decoration:none;}
   a:hover{text-decoration:underline;}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
-  .eyebrow{font-family:var(--cinzel);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ochreD);font-size:14px;}
-  h1,h2,h3{font-weight:600;line-height:1.12;letter-spacing:-.01em;margin:0;}
-  h2{font-size:34px;}
-  .btn{display:inline-block;font-weight:600;font-size:16px;padding:13px 22px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;}
+  .eyebrow{font-family:var(--cinzel);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ochreD);font-size:15px;}
+  h1,h2,h3{font-weight:600;line-height:1.12;letter-spacing:0;margin:0;}
+  h2{font-size:38px;}
+  .btn{display:inline-block;font-weight:600;font-size:17px;padding:14px 23px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;}
   .btn-primary{background:var(--ochre);color:var(--ink);}
   .btn-primary:hover{background:var(--ochreD);color:var(--paper);text-decoration:none;}
+  .btn-secondary{background:var(--ink);color:var(--paper);}
+  .btn-secondary:hover{background:var(--basalt);color:var(--paper);text-decoration:none;}
   .btn-ghost{border-color:var(--mortar);color:var(--ink);background:transparent;}
   .btn-ghost:hover{border-color:var(--ink);text-decoration:none;}
 
@@ -51,19 +54,19 @@
   header{position:sticky;top:0;z-index:10;background:rgba(244,238,226,.86);backdrop-filter:blur(8px);border-bottom:1px solid #e4dac6;}
   nav{display:flex;align-items:center;justify-content:space-between;height:66px;}
   nav .brand img{height:34px;display:block;}
-  nav .links{display:flex;align-items:center;gap:26px;font-size:15px;}
+  nav .links{display:flex;align-items:center;gap:16px;font-size:16px;}
   nav .links a{color:var(--ink);}
   nav .links a:hover{color:var(--ochreD);text-decoration:none;}
-  nav .links .btn{padding:9px 16px;font-size:14px;}
-  @media(max-width:760px){ nav .links .navlink{display:none;} nav .brand img{height:28px;} nav .links{gap:12px;} }
+  nav .links .btn{padding:9px 16px;font-size:15px;}
+  @media(max-width:1080px){ nav .links .navlink{display:none;} nav .brand img{height:28px;} nav .links{gap:12px;} }
 
   /* hero */
   .hero{padding:84px 0 72px;}
   .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;}
-  .hero h1{font-size:62px;margin:18px 0 0;}
-  .hero .lead{font-size:21px;color:#4a4036;margin:22px 0 30px;max-width:540px;}
+  .hero h1{font-size:66px;margin:18px 0 0;}
+  .hero .lead{font-size:24px;color:#4a4036;margin:22px 0 30px;max-width:580px;}
   .hero .cta{display:flex;gap:14px;flex-wrap:wrap;}
-  .hero .sub{margin-top:18px;font-size:14px;color:var(--mortar);font-family:var(--mono);}
+  .hero .sub{margin-top:18px;font-size:15px;color:var(--mortar);font-family:var(--mono);}
   /* hero visual: the actual social card */
   .herocard-img{width:100%;height:auto;border-radius:16px;display:block;box-shadow:0 24px 60px -24px rgba(42,37,33,.5);}
 
@@ -71,51 +74,88 @@
   section{padding:74px 0;}
   .sec-head{max-width:680px;margin-bottom:40px;}
   .sec-head h2{margin-top:10px;}
-  .sec-head p{color:var(--mortar);font-size:18px;margin:14px 0 0;}
+  .sec-head p{color:var(--mortar);font-size:20px;margin:14px 0 0;}
 
   /* principles */
   .principles{background:var(--lime);border-top:1px solid #ece2cf;border-bottom:1px solid #ece2cf;}
   .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
   .pcard{background:var(--paper);border:1px solid #e8ddc8;border-radius:14px;padding:28px;}
-  .pcard .num{font-family:var(--mono);color:var(--ochre);font-size:15px;margin-bottom:14px;}
-  .pcard h3{font-size:21px;margin-bottom:8px;}
-  .pcard p{color:var(--mortar);font-size:16px;margin:0;}
+  .pcard .num{font-family:var(--mono);color:var(--ochre);font-size:16px;margin-bottom:14px;}
+  .pcard h3{font-size:23px;margin-bottom:8px;}
+  .pcard p{color:var(--mortar);font-size:18px;margin:0;}
+
+  /* process */
+  .process{background:var(--paper);}
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .flow-step{background:var(--lime);border:1px solid #e8ddc8;border-radius:8px;padding:22px;min-width:0;}
+  .flow-step .num{font-family:var(--mono);color:var(--ochreD);font-size:14px;margin-bottom:12px;}
+  .flow-step h3{font-size:20px;margin-bottom:8px;}
+  .flow-step p{color:var(--mortar);font-size:17px;margin:0;}
 
   /* artifacts */
-  .artifacts{background:var(--paper);}
+  .artifacts{background:var(--lime);border-top:1px solid #ece2cf;border-bottom:1px solid #ece2cf;}
   .artifact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-  .artifact-card{background:var(--lime);border:1px solid #e8ddc8;border-radius:8px;padding:20px;min-width:0;}
-  .artifact-card h3{font-size:18px;margin-bottom:12px;}
-  .artifact-card pre{margin:0;font-family:var(--mono);font-size:12.5px;line-height:1.55;color:#3d342c;white-space:pre-wrap;overflow-wrap:anywhere;}
-  .artifact-card .path{font-family:var(--mono);font-size:12px;color:var(--ochreD);margin-bottom:10px;}
-  .artifact-note{margin-top:28px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;color:var(--mortar);font-size:16px;}
+  .artifact-card{background:var(--paper);border:1px solid #e8ddc8;border-radius:8px;padding:20px;min-width:0;}
+  .artifact-card h3{font-size:21px;margin-bottom:10px;}
+  .artifact-card p{color:var(--mortar);font-size:17px;line-height:1.55;margin:0;}
+  .artifact-card .path{font-family:var(--mono);font-size:13px;color:var(--ochreD);margin-bottom:10px;}
+  .artifact-note{margin-top:28px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;color:var(--mortar);font-size:18px;}
   .artifact-note p{margin:0;max-width:640px;}
 
+  /* sessions */
+  .sessions{background:var(--paper);}
+  .session-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start;}
+  .session-panel{background:var(--lime);border:1px solid #e8ddc8;border-radius:8px;padding:24px;}
+  .session-panel h3{font-size:22px;margin-bottom:16px;}
+  .session-list{display:grid;grid-auto-flow:column;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,auto);gap:10px 18px;margin:0;padding:0;list-style:none;}
+  .session-list li,.compact-list li{color:#4a4036;font-size:17px;line-height:1.48;}
+  .session-list li{display:grid;grid-template-columns:2.1ch 1fr;column-gap:8px;align-items:start;}
+  .session-list .idx{font-family:var(--mono);color:var(--ochreD);font-size:13px;margin-top:.14em;}
+  .compact-list{margin:0;padding-left:18px;}
+  .compact-list li+li{margin-top:10px;}
+
+  /* operations */
+  .ops{background:var(--lime);border-top:1px solid #ece2cf;border-bottom:1px solid #ece2cf;}
+  .ops-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+  .op-card{background:var(--paper);border:1px solid #e8ddc8;border-radius:8px;padding:20px;min-width:0;}
+  .op-card h3{font-size:19px;margin-bottom:8px;}
+  .op-card p{color:var(--mortar);font-size:16.5px;margin:0;}
+
   /* who */
+  .who{background:var(--paper);}
   .who .cards3 .pcard{background:var(--lime);}
-  .who .pcard h3{font-size:19px;}
+  .who .pcard h3{font-size:21px;}
+
+  /* fit */
+  .fit{background:var(--lime);border-top:1px solid #ece2cf;border-bottom:1px solid #ece2cf;}
+  .fit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .fit-card{background:var(--paper);border:1px solid #e8ddc8;border-radius:8px;padding:24px;}
+  .fit-card h3{font-size:22px;margin-bottom:12px;}
+  .fit-card p{color:var(--mortar);font-size:18px;margin:0;}
+  .fit-card p+p{margin-top:12px;}
 
   /* quickstart */
   .quick{background:var(--basalt);color:var(--paper);}
   .quick .eyebrow{color:var(--ochreL);}
   .quick h2{color:var(--paper);}
   .quick p{color:#cdbfa9;}
-  .codeblock{background:#15120f;border:1px solid #3a322a;border-radius:12px;padding:22px 24px;font-family:var(--mono);font-size:14.5px;line-height:1.9;color:#EAD9BC;overflow-x:auto;margin-top:26px;}
+  .codeblock{background:#15120f;border:1px solid #3a322a;border-radius:12px;padding:24px 26px;font-family:var(--mono);font-size:16px;line-height:1.9;color:#EAD9BC;overflow-x:auto;margin-top:26px;}
   .codeblock .c{color:#9a8c79;}
   .codeblock .p{color:var(--ochreL);}
   .quick .cta{margin-top:28px;}
 
   /* footer */
   footer{background:var(--paper);border-top:1px solid #e4dac6;padding:46px 0;}
-  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:14px;color:var(--mortar);}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:16px;color:var(--mortar);}
   .foot img{height:30px;}
-  .foot .meta{font-family:var(--mono);font-size:13px;}
+  .foot .meta{font-family:var(--mono);font-size:14px;}
 
   @media(max-width:860px){
     .hero-grid{grid-template-columns:1fr;gap:40px;}
-    .hero h1{font-size:46px;}
-    .cards3,.artifact-grid{grid-template-columns:1fr;}
-    h2{font-size:28px;}
+    .hero h1{font-size:48px;}
+    .cards3,.artifact-grid,.flow,.session-grid,.session-list,.ops-grid,.fit-grid{grid-template-columns:1fr;}
+    .session-list{grid-auto-flow:row;grid-template-rows:none;}
+    h2{font-size:31px;}
   }
 </style>
 </head>
@@ -126,8 +166,10 @@
     <a class="brand" href="#top"><img src="assets/throughstone-lockup.svg" alt="Throughstone"></a>
     <div class="links">
       <a class="navlink" href="#principles">Principles</a>
-      <a class="navlink" href="#artifacts">Artifacts</a>
-      <a class="navlink" href="#who">Who it's for</a>
+      <a class="navlink" href="#process">Process</a>
+      <a class="navlink" href="#artifacts">Project memory</a>
+      <a class="navlink" href="#sessions">Sessions</a>
+      <a class="navlink" href="#operations">Operations</a>
       <a class="navlink" href="#quickstart">Quickstart</a>
       <a class="navlink" href="https://github.com/mherschberg/Throughstone">GitHub</a>
       <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone/generate">Use this template</a>
@@ -144,7 +186,7 @@
       <p class="lead">Start with your software idea. Throughstone and your AI coding agent turn it into a planned, documented, well-architected project. Each step is turnkey and the system guides you throughout the process.</p>
       <div class="cta">
         <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone/generate">Use this template</a>
-        <a class="btn btn-ghost" href="https://github.com/mherschberg/Throughstone">View on GitHub</a>
+        <a class="btn btn-secondary" href="https://github.com/mherschberg/Throughstone">View on GitHub</a>
       </div>
       <div class="sub">Plain Markdown + a Bash setup wizard · BSD-3-Clause</div>
     </div>
@@ -168,82 +210,112 @@
   </div>
 </section>
 
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">What actually happens</div>
+      <h2>A project moves from interview to architecture to runnable STEPs.</h2>
+      <p>Throughstone keeps the agent from starting with code. It first turns the idea into durable project state, then builds against that state in reviewable units.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step"><div class="num">01</div><h3>Initialize</h3><p>Run the setup wizard once. It stamps the project name, license posture, repo layout, docs hub, prompts repo, and agent pointers.</p></div>
+      <div class="flow-step"><div class="num">02</div><h3>Kick off</h3><p>Tell the agent to read AGENTS.md. It interviews you, records the project brief, and prepares STEP-1 for architecture.</p></div>
+      <div class="flow-step"><div class="num">03</div><h3>Design first</h3><p>Architecture sessions capture scope, data, security, interfaces, testing, deployment, ADRs, and the cross-cutting review before app code starts.</p></div>
+      <div class="flow-step"><div class="num">04</div><h3>Build in STEPs</h3><p>The planning session turns the locked architecture into implementation STEPs, each with substep prompts, verification, review, and archival.</p></div>
+    </div>
+  </div>
+</section>
+
 <section class="artifacts" id="artifacts">
   <div class="wrap">
     <div class="sec-head">
       <div class="eyebrow">Project memory</div>
-      <h2>The output is an artifact trail, not just a chat.</h2>
-      <p>Throughstone leaves durable Markdown behind: a brief, roadmap, architecture, decisions, executable prompts, and periodic check-ins.</p>
+      <h2>Creates documents that guide development and keep the project on track.</h2>
+      <p>Instead of leaving the plan buried in a long chat, Throughstone writes plain-language project documents your AI agent can reread before each new piece of work.</p>
     </div>
     <div class="artifact-grid">
       <div class="artifact-card">
-        <div class="path">overview.md</div>
         <h3>Project brief</h3>
-        <pre>## In one sentence
-A scheduling assistant for small consulting teams.
-
-## Sensitive data &amp; risk
-Calendar metadata and attendee emails require careful access control.</pre>
+        <p>A short description of what you are building, who it is for, what is deliberately out of scope, and any important risks or constraints. It gives the agent a stable target instead of relying on memory from the chat.</p>
       </div>
       <div class="artifact-card">
-        <div class="path">prompts/STEP-index.md</div>
         <h3>Living roadmap</h3>
-        <pre>| STEP | Title | Status |
-|------|-------|--------|
-| STEP-1 | Architecture | Done |
-| STEP-2 | API skeleton | Done |
-| STEP-3 | Calendar OAuth | In progress |
-| STEP-4 | Check-in | Planned |</pre>
+        <p>The project plan broken into manageable units of work. It shows what is planned, what is in progress, what is done, and where the next conversation should resume.</p>
       </div>
       <div class="artifact-card">
-        <div class="path">architecture/03-*.md</div>
         <h3>Current design</h3>
-        <pre>**Version:** v0.2.0
-**Status:** Draft
-
-## Decision Summary
-Service split: API + web client.
-Rationale: keep calendar sync server-side.</pre>
+        <p>The blueprint for the software: the major parts, how data moves, security expectations, deployment shape, testing approach, and other decisions future work must respect.</p>
       </div>
       <div class="artifact-card">
-        <div class="path">adr/ADR-0003-*.md</div>
         <h3>Decision record</h3>
-        <pre>## Context
-Scheduling needs transactional updates.
-
-## Decision
-Use Postgres for Phase 1.
-
-## Consequences
-Local development needs a database service.</pre>
+        <p>A short note explaining an important choice, the alternatives considered, and the tradeoffs accepted. It preserves the why, so the same decision does not get reopened by accident later.</p>
       </div>
       <div class="artifact-card">
-        <div class="path">STEP-3.1-PROMPT.md</div>
-        <h3>Cold-start prompt</h3>
-        <pre>## Read these first
-- architecture/06-security-threat-model.md
-- ADR-0002-hosted-oauth-provider.md
-
-## Verification
-Test success, denied consent, expired state, and provider errors.</pre>
+        <h3>Focused work prompt</h3>
+        <p>Instructions for one small task at a time. Each prompt tells the agent what to read first, what to change, what not to touch, and how to verify the result.</p>
       </div>
       <div class="artifact-card">
-        <div class="path">STEP-12 check-in report</div>
         <h3>Periodic reconciliation</h3>
-        <pre>## Drift
-Updated architecture overview for the new worker repo.
-
-## Tests
-API: 218 passed.
-Web: 96 passed.
-
-## Carry-forward
-Opened STEP-13 for pagination drift.</pre>
+        <p>A regular health check that compares the code back to the documents, reviews accepted risks, reconsiders skipped architecture sessions, and runs tests so drift does not silently pile up.</p>
       </div>
     </div>
     <div class="artifact-note">
       <p>The docs hub records what the system is now; the prompts repo records how it got there.</p>
-      <a class="btn btn-ghost" href="https://github.com/mherschberg/Throughstone/blob/main/ARTIFACT-TRAIL.md">Read the artifact tour</a>
+      <a class="btn btn-secondary" href="https://github.com/mherschberg/Throughstone/blob/main/ARTIFACT-TRAIL.md">See the artifact trail</a>
+    </div>
+  </div>
+</section>
+
+<section class="sessions" id="sessions">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Architecture sessions</div>
+      <h2>The first STEP asks the questions AI projects usually skip.</h2>
+      <p>The sessions are structured interviews. They adapt their explanation level to the user, recommend sensible defaults, and write architecture docs plus ADRs as decisions are made.</p>
+    </div>
+    <div class="session-grid">
+      <div class="session-panel">
+        <h3>Aspects covered</h3>
+        <ul class="session-list">
+          <li><span class="idx">1</span>What the product should and should not do</li>
+          <li><span class="idx">2</span>What belongs in the first version</li>
+          <li><span class="idx">3</span>Major parts of the system and their boundaries</li>
+          <li><span class="idx">4</span>Important data, ownership, and retention</li>
+          <li><span class="idx">5</span>Expected scale and performance needs</li>
+          <li><span class="idx">6</span>Security risks and protections</li>
+          <li><span class="idx">7</span>User interface and design direction</li>
+          <li><span class="idx">8</span>Hosting, deployment, and environments</li>
+          <li><span class="idx">9</span>Logs, monitoring, and knowing when things break</li>
+          <li><span class="idx">10</span>Interfaces between system parts</li>
+          <li><span class="idx">11</span>Testing strategy and quality gates</li>
+          <li><span class="idx">12</span>Shared terminology and final consistency review</li>
+        </ul>
+      </div>
+      <div class="session-panel">
+        <h3>Conditional coverage</h3>
+        <ul class="compact-list">
+          <li><strong>Identity and auth</strong> when the product has users, accounts, permissions, or login.</li>
+          <li><strong>Privacy, compliance, and data governance</strong> when the project handles personal, sensitive, regulated, or retention-sensitive data.</li>
+          <li><strong>Native app architecture</strong> when the project includes mobile or desktop clients.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ops" id="operations">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Operational discipline</div>
+      <h2>Throughstone keeps pressure on the project after the first plan.</h2>
+      <p>The scaffold includes runbooks and registers for the maintenance work that often gets skipped until production exposes it.</p>
+    </div>
+    <div class="ops-grid">
+      <div class="op-card"><h3>Check-ins</h3><p>Every 10-20 STEPs, reconcile docs against code, re-check conditional sessions, review risks, and run the full test suite.</p></div>
+      <div class="op-card"><h3>Release and rollback</h3><p>Prepare the rollback path before deploy, verify during a watch window, and make the return lever explicit.</p></div>
+      <div class="op-card"><h3>Incidents</h3><p>Stabilize first, then run root-cause analysis, search for similar bugs, fix, harden, and write the postmortem.</p></div>
+      <div class="op-card"><h3>Dependencies</h3><p>Vet packages before adding them and audit installed dependencies for vulnerabilities, licenses, and provenance.</p></div>
+      <div class="op-card"><h3>Secrets and risks</h3><p>Rotate credentials deliberately and keep accepted risks or technical debt visible in a durable register.</p></div>
     </div>
   </div>
 </section>
@@ -258,6 +330,21 @@ Opened STEP-13 for pagination drift.</pre>
       <div class="pcard"><h3>New to building with AI</h3><p>You want to ship real software without inheriting a pile of generated code you don’t understand.</p></div>
       <div class="pcard"><h3>Early-career developers</h3><p>You want the project-shaping discipline that turns a prompt into an architecture and a plan.</p></div>
       <div class="pcard"><h3>Senior devs, leads &amp; founders</h3><p>Hand it to the juniors — and to everyone who keeps asking “how do I actually start building with AI?”</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="fit" id="fit">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Fit guide</div>
+      <h2>Use it when the code needs to survive first contact with reality.</h2>
+      <p>Throughstone is intentionally more structured than a blank chat. That is the point, and also the tradeoff.</p>
+    </div>
+    <div class="fit-grid">
+      <div class="fit-card"><h3>Good fit</h3><p>Products, internal tools, serious open-source projects, and AI-assisted builds where architecture, tests, security, future changes, or team handoff matter.</p></div>
+      <div class="fit-card"><h3>Probably overkill</h3><p>Throwaway demos, quick scripts, school assignments, and prototypes you do not expect to maintain. For those, the process may cost more than it saves.</p></div>
+      <div class="fit-card"><h3>Honest boundary</h3><p>Throughstone reduces project risk; it does not make AI agents incapable of being wrong. Production software still deserves experienced review, especially around security, data, payments, and compliance.</p></div>
     </div>
   </div>
 </section>
