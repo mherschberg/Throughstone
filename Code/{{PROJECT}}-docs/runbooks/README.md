@@ -23,6 +23,9 @@ The shipped runbooks are **defaults you customize** — they deliberately leave 
 versioning, and ecosystem-specific commands to your team's tooling. The *discipline* is the
 durable part; fill in your project's specifics.
 
+New-contributor onboarding is intentionally not a runbook. It is project setup and
+first-contribution STEP guidance, so it lives at [`../ONBOARDING.md`](../ONBOARDING.md).
+
 ## Index
 
 | Runbook | Purpose (one line) | When it fires | Governed by |

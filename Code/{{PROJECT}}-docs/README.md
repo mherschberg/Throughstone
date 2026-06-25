@@ -10,6 +10,9 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 - **Humans:** read [`METHOD.md`](METHOD.md) once — how this project is structured (Phase ▸
   STEP ▸ substep, architecture-first, the durable doc genres). The project brief is
   `overview.md` (written during kickoff).
+- **New contributors:** read [`ONBOARDING.md`](ONBOARDING.md) for the first end-to-end path:
+  set up an existing project workspace, read state from disk, and start your first
+  contribution STEP.
 - **AI agents:** [`AGENTS.md`](AGENTS.md) is your canonical context — start there. The
   workspace-root `CLAUDE.md` / `AGENTS.md` just point to it. New project? It routes you to
   [`BOOTSTRAP-PROMPT.md`](BOOTSTRAP-PROMPT.md) for kickoff.
@@ -19,6 +22,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 |------|------|
 | [`METHOD.md`](METHOD.md) | The method — read once before working here. |
 | [`AGENTS.md`](AGENTS.md) | Canonical agent context + the next-action resolver. |
+| [`ONBOARDING.md`](ONBOARDING.md) | New contributor setup guide for joining an existing project and starting the contributor's first STEP. |
 | [`UPDATING-THROUGHSTONE.md`](UPDATING-THROUGHSTONE.md) | How to compare and selectively adopt newer Throughstone scaffold/process changes after bootstrap. |
 | [`architecture/`](architecture/README.md) | *What* the system is — living, versioned design docs (indexed). |
 | [`adr/`](adr/README.md) | *Why* it's that way — point-in-time decision records (indexed). |
