@@ -127,6 +127,10 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   explaining a decision, read `Code/{{PROJECT}}-docs/overview.md` and use the recorded
   **Your experience level** value as the communication baseline. Keep `overview.md` as the
   single source of truth; don't duplicate the value into STEP plans or prompts.
+- **Honor the saved planning style.** Before planning a STEP, read
+  `Code/{{PROJECT}}-docs/overview.md` and use the recorded **Planning communication style**
+  as the default verbosity. Don't re-ask for every STEP unless the value is missing or the
+  user asks to change it.
 - During the architecture STEP, produce **Markdown docs + ADRs only — no code**.
 - Significant decisions become **ADRs** (`Code/{{PROJECT}}-docs/templates/adr.md`); never
   rewrite an accepted ADR's decision — supersede it or append an amendment.

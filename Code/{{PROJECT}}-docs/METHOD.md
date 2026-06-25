@@ -229,6 +229,12 @@ the decisions reached are the same; only the explaining changes:
 The level is advisory, not a gate: if the conversation shows the user is more or less
 comfortable than they marked, adjust on the fly and correct the value in `overview.md`.
 
+`overview.md` also records the user's default **Planning communication style** for STEP
+planning sessions: **Terse**, **Normal**, or **Explanatory**. Read it before planning a STEP
+and treat it as the saved default, so the user is not asked the same verbosity question for
+each new STEP. The user can change it in `overview.md` or override it in chat for the
+current session.
+
 **Worked examples** — the *same* canonical question, rendered at each level. The substance is
 identical; only the framing changes. Notice the recurring moves: Level 1 names the failure it
 prevents and ends with a yes/no default so the user is never facing a blank prompt; Level 2
@@ -280,6 +286,13 @@ session holds the whole STEP in mind, so the substeps are coherent. But they are
 frozen**: while executing the substeps, decisions made in an earlier substep often change
 what a later substep should do. Update the affected substep prompts (and the PLAN) as you
 go — the prompts should reflect the current intent, not the original guess.
+
+Treat STEP planning as an interactive discussion, not a silent document-generation task.
+Before writing the PLAN, confirm the scope with the user and ask for clarification when
+requirements, sequencing, dependencies, or ownership are unclear. When the user needs to
+make a planning choice, offer plausible options with brief pros and cons, then wait for
+direction. Use the saved **Planning communication style** in `overview.md` as the default
+level of detail while still asking the questions needed to make the STEP coherent.
 
 ### Check-in STEPs
 Roughly **every 10–20 STEPs**, the roadmap includes a **Check-in STEP** — a full STEP whose

@@ -69,6 +69,14 @@ one at a sensible breakpoint if it's been about that long since the last (see `M
 > substeps, expect to revise later ones: decisions made in an earlier substep often change
 > what a later substep should do. Update those prompts (and the PLAN) as you go — they
 > should reflect current intent, not the original guess.
+>
+> STEP planning is an interactive discussion. Confirm the scope before drafting, ask for
+> clarification whenever the work is ambiguous, and when a decision is needed offer
+> appropriate options with brief pros and cons rather than forcing the user to start from a
+> blank page.
+> Read the saved **Planning communication style** in `Code/{{PROJECT}}-docs/overview.md`
+> and use it as the default verbosity; don't re-ask for every STEP unless the value is
+> missing or the user asks to change it.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's
    not there, add a row — and that row *is* the number reservation. **Pull first**, take the
@@ -80,8 +88,10 @@ one at a sensible breakpoint if it's been about that long since the last (see `M
    with no conflict into a silent duplicate. (Solo with no remote, this is just a local edit.)
    See `Code/{{PROJECT}}-docs/runbooks/collaboration.md`.
 2. **Confirm scope** with the user before writing anything — a STEP is a real commitment.
-   Work the STEP on a branch named `step-NNNN-short-name` (the same name in every repo it
-   touches).
+   Ask clarifying questions where the planned work, dependencies, repo ownership, or order
+   are uncertain. When there are real alternatives, present appropriate options with short
+   pros and cons and let the user choose or adjust. Work the STEP on a branch named
+   `step-NNNN-short-name` (the same name in every repo it touches).
 3. **Write the PLAN** from `Code/{{PROJECT}}-docs/templates/step-plan.md`: motivation,
    locked decisions (reference the ADRs/architecture docs it must respect), the substep
    table, ground rules, and a definition of done. Save it in `Upcoming Prompts/`.
