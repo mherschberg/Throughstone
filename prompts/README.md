@@ -62,6 +62,18 @@ conditional-session coverage, review accepted risks/debt in
 one at a sensible breakpoint if it's been about that long since the last (see `METHOD.md`
 §5).
 
+## When not to add a STEP
+
+Not every ticket, bug fix, or small feature needs this recipe. If the work is small,
+well-understood, low-risk, and does not change architecture, public contracts, data model,
+security posture, deployment behavior, multiple repos, or accepted risk/debt, use the team's
+normal issue, branch, PR, test, and commit flow. Reference any external ticket in the branch,
+PR, or commit message instead of reserving a STEP number.
+
+Add or promote to a STEP when the work needs planning context, sequencing, coordination,
+cross-repo handling, architecture/doc review, or a durable record that a fresh agent or
+teammate will need later.
+
 ## Recipe: adding a new STEP
 
 > **Write the PLAN and all its substep prompts in a single chat.** One session that holds

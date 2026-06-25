@@ -48,6 +48,9 @@ treat it as resume unless `prompts/STEP-index.md` is still the bare `init.sh` se
 ## How this project is built
 This project follows the method in **`Code/{{PROJECT}}-docs/METHOD.md`** — read it. In short:
 - Work is **Phase ▸ STEP ▸ substep**. Phase 1 is the MVP. STEP numbers are global.
+- Not every change is a STEP. Small, well-understood, low-risk tickets or fixes can use the
+  normal issue/branch/PR/test/commit flow. Promote to a STEP when the work needs planning,
+  sequencing, coordination, architecture/doc review, or durable context for a future agent.
 - **STEP-1 is architecture-first**: design docs + ADRs, *no application code*.
 - Durable docs live in `Code/{{PROJECT}}-docs/`:
   - `architecture/` — *what* the system is (versioned, living).
@@ -131,6 +134,10 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   `Code/{{PROJECT}}-docs/overview.md` and use the recorded **Planning communication style**
   as the default verbosity. Don't re-ask for every STEP unless the value is missing or the
   user asks to change it.
+- **Use judgment before creating a STEP.** For tiny, well-understood changes that do not affect
+  architecture, public contracts, data model, security posture, deployment behavior, multiple
+  repos, or accepted risk/debt, keep the record in the issue/PR/commit trail instead of adding
+  process overhead.
 - During the architecture STEP, produce **Markdown docs + ADRs only — no code**.
 - Significant decisions become **ADRs** (`Code/{{PROJECT}}-docs/templates/adr.md`); never
   rewrite an accepted ADR's decision — supersede it or append an amendment.

@@ -357,6 +357,10 @@ into small STEPs, each STEP has review criteria, and periodic check-ins reconcil
 against the docs. The goal is not to make the AI incapable of being wrong; it is to make wrong
 turns smaller, easier to see, and less likely to compound into an unmaintainable project.
 
+Not every change has to become a STEP. Tiny, well-understood fixes can stay in the normal
+issue, branch, PR, test, and commit trail. STEPs are for work that needs planning, sequencing,
+coordination, architecture/doc review, or durable context for the next person or agent.
+
 Throughstone doesn't fix AI coding problems, but it reduces project risk.
 
 ### Why does Throughstone do architecture before code?
@@ -402,6 +406,11 @@ project state, not a museum.
 No. The generated project is yours, and the files are plain Markdown and normal repos. But the
 value comes from continuing the discipline: working in scoped STEPs, keeping the roadmap
 current, recording important decisions, and updating architecture docs when reality changes.
+
+That does not mean every ticket needs a STEP. For small one-off changes, use your normal issue
+tracker and PR process. Create or promote to a STEP when the work is large, ambiguous,
+cross-repo, architecture-affecting, or important enough that future contributors need the
+planning record.
 
 ### How do I update my project when Throughstone improves?
 
