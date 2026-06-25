@@ -45,6 +45,12 @@ or request to clarify — however worded — as a cue to explain plainly. **When
 level, tell the user in plain terms they can ask you to explain any question at any time** —
 don't make them discover it. (See `METHOD.md` §4.)
 
+Also ask how terse or explanatory they want STEP planning discussions to be by default:
+**Terse**, **Normal**, or **Explanatory**. Record the answer in `overview.md` under
+*Planning communication style*. This is a saved preference for future STEP planning
+sessions, not something to re-ask for every STEP; the user can change it in `overview.md` or
+override it in chat for a single session.
+
 Then read `overview.md` and fill the gaps a brief usually misses. Ask about: who uses it and
 who else is affected; expected scale now vs. in a year; hard constraints (regulatory,
 budget, timeline, team, existing systems); data sensitivity; integrations; and — most

@@ -176,8 +176,9 @@ things keep them approachable whatever your background:
    That's the whole handoff — the same command for every project and every agent (no paths
    or project name to fill in). The agent reads the context, sees the project hasn't been
    started yet, and **begins the kickoff on its own**: it greets you, asks your experience
-   level, and helps you write the project brief (`Code/{{PROJECT}}-docs/overview.md`) right
-   in the chat. Just describe your idea when it asks — you don't have to pre-write anything.
+   level and preferred STEP planning style, and helps you write the project brief
+   (`Code/{{PROJECT}}-docs/overview.md`) right in the chat. Just describe your idea when it
+   asks — you don't have to pre-write anything.
 
    From there the agent proposes a roadmap and starts the architecture STEP; you work
    through the architecture sessions one at a time (*"run session 1.1"*), then move into

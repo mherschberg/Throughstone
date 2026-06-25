@@ -16,7 +16,8 @@
 <!-- Decisions from prior STEPs/ADRs that this STEP must respect. Reference by ADR number
      or architecture doc. Carrying these forward keeps a shared mental model. -->
 - `overview.md` — read **Your experience level** before user-facing questions or
-  explanations; keep that file as the single source of truth for the value.
+  explanations, and read **Planning communication style** before planning discussions; keep
+  that file as the single source of truth for both values.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that
   touches their area.
 - ADR-XXXX — …
@@ -64,8 +65,14 @@
 <!-- The working agreement for this STEP. e.g. "no code in this STEP", commit discipline,
      what 'done' means for a substep, review gates. -->
 - **Calibrate communication from `overview.md`.** Substep prompts should read the recorded
-  **Your experience level** and adjust explanations/questions accordingly; don't copy the
-  value into this PLAN.
+  **Your experience level** and adjust explanations/questions accordingly. STEP planning
+  should use the saved **Planning communication style** as the default verbosity. Don't copy
+  either value into this PLAN.
+- **Plan interactively.** Before this PLAN is finalized, confirm scope with the user and ask
+  clarifying questions for ambiguous requirements, sequencing, dependencies, ownership, or
+  repo boundaries. When a planning decision is needed, offer appropriate options with brief
+  pros and cons. Respect the saved planning style while still asking the questions needed to
+  make the STEP coherent.
 - **Tests ship with the code.** Every substep that writes or changes code also writes the
   tests for it and runs the relevant tests before it's done (see
   `templates/substep-prompt.md`). Override per substep only with a stated reason.
