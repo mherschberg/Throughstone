@@ -1,8 +1,9 @@
 # New Contributor Onboarding
 
 This guide is for a new human or agent contributor joining an existing, initialized
-Throughstone project. It gives the first end-to-end path: assemble the workspace, read the
-project state from disk, and start the first STEP without guessing.
+Throughstone project. It gives the contributor's first end-to-end path: assemble the
+workspace, read the project state from disk, and start their first contribution STEP without
+guessing.
 
 This is not the first project bootstrap. The first maintainer ran `./init.sh` from the
 Throughstone scaffold to create the project. Later contributors use the generated project
@@ -72,7 +73,7 @@ disk and applies the next-action resolver from `METHOD.md`. Confirm its result a
 `prompts/STEP-index.md`, and if a STEP is already in progress, read its PLAN in
 `Upcoming Prompts/`.
 
-## 4. Start your first STEP
+## 4. Start your first contribution STEP
 
 Before editing code or durable docs:
 

@@ -112,8 +112,8 @@ the root pointers). From the workspace root, `./doctor.sh status`, `./doctor.sh 
 `./doctor.sh links` are thin shortcuts to the docs hub's `scripts/status.sh`,
 `scripts/check.sh`, and `scripts/links.sh`.
 New human or agent contributor joining an existing project? Read
-`Code/{{PROJECT}}-docs/ONBOARDING.md` for the ordered setup and first-STEP path. It covers
-later contributor onboarding; initial project bootstrap still starts from `./init.sh`.
+`Code/{{PROJECT}}-docs/ONBOARDING.md` for the ordered setup and first-contribution STEP path.
+It covers later contributor onboarding; initial project bootstrap still starts from `./init.sh`.
 
 **Workspace-root hygiene:** the workspace root should contain only per-machine pointers
 and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`), the root helper (`doctor.sh`), the repo
