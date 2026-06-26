@@ -43,6 +43,14 @@ Phase            e.g. Phase 1 = "MVP"          a release-level milestone
   in a fresh chat. Numbered with dotted notation (`1.1`, `1.2`, `1.5a`). For the
   architecture STEP, each substep is an interactive **session** (see §4).
 
+Not every change needs to become a STEP. A STEP is for work that benefits from explicit
+planning, sequencing, coordination, preserved context, or architecture/doc review. Small,
+well-understood changes can use the team's normal issue, branch, PR, test, and commit flow
+without reserving a STEP number or writing a PLAN. Promote the work to a STEP when it changes
+architecture, public contracts, data model, security posture, deployment behavior, multiple
+repos, accepted risk/debt, or when the work is large or ambiguous enough that a future agent
+would need durable planning context.
+
 ## 2. Architecture-first
 
 **STEP-1 produces architecture docs and ADRs — no application code.** This is the most
