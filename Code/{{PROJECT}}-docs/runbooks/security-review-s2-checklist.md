@@ -73,54 +73,80 @@ impact, or customer impact fields, but keep this minimum vocabulary stable:
 ## Framework Reference Set
 
 Verify current versions when the audit runs. This scaffold starts from the following public
-frameworks and guidance:
+frameworks and guidance. Use only the references that match the project and add project-specific
+standards when needed.
 
-| Framework / source | URL | Typical S2 use |
-|--------------------|-----|----------------|
-| OWASP Top 10 2025 | <https://owasp.org/www-project-top-ten/> | Awareness baseline for common web application risk classes. Not a full audit standard by itself. |
-| OWASP API Security Top 10 2023 | <https://owasp.org/www-project-api-security/> | API-heavy systems, public APIs, partner APIs, internal service APIs with meaningful trust boundaries. |
-| OWASP Application Security Verification Standard (ASVS) | <https://owasp.org/www-project-application-security-verification-standard/> | Rigorous app-security verification checklist for web/service applications. Use Level 1/2/3 based on risk. |
-| OWASP Software Assurance Maturity Model (SAMM) | <https://owasp.org/www-project-samm/> | Secure-development process maturity across governance, design, implementation, verification, and operations. |
-| CWE Top 25 | <https://cwe.mitre.org/top25/> | Common software weakness classes for implementation review, test targeting, and secure-code hardening. |
-| CIS Controls v8.1 | <https://www.cisecurity.org/controls/v8-1> | Operational security hygiene: inventory, access control, secure config, logging, recovery, vulnerability management. |
-| NIST Secure Software Development Framework (SSDF) v1.1, SP 800-218 | <https://csrc.nist.gov/pubs/sp/800/218/final> | Secure software development practice checks: prepare, protect software, produce well-secured software, respond to vulnerabilities. |
-| NIST Cybersecurity Framework 2.0 | <https://www.nist.gov/cyberframework> | Broader governance, risk, identify/protect/detect/respond/recover posture. |
-| SLSA v1.2 | <https://slsa.dev/> | Build integrity, provenance, source/build isolation, and supply-chain assurance. |
-| OpenSSF Scorecard | <https://scorecard.dev/> | Repository and dependency hygiene signals for open-source or shared-source repos. |
-| SBOM formats and tooling | <https://cyclonedx.org/> and <https://spdx.dev/> | Component inventory for distribution, incident response, vulnerability response, and enterprise/customer assurance. |
-| OWASP Mobile Top 10 2024 | <https://owasp.org/www-project-mobile-top-10/> | Native or hybrid mobile apps, mobile SDKs, mobile API clients, and app-store distributed clients. |
-| OWASP Top 10 for LLM Applications / GenAI guidance | <https://genai.owasp.org/> | LLM, agent, RAG, tool-calling, prompt-injection, model-mediated decision, and model supply-chain surfaces. |
+- **OWASP Top 10 2025** (<https://owasp.org/www-project-top-ten/>) is an awareness baseline
+  for common web application risk classes. It is not a full audit standard by itself.
+- **OWASP API Security Top 10 2023** (<https://owasp.org/www-project-api-security/>) applies
+  to API-heavy systems, public APIs, partner APIs, and internal service APIs with meaningful
+  trust boundaries.
+- **OWASP ASVS** (<https://owasp.org/www-project-application-security-verification-standard/>)
+  is the more rigorous application-security verification checklist. Choose Level 1, 2, or 3
+  based on project risk.
+- **OWASP SAMM** (<https://owasp.org/www-project-samm/>) reviews secure-development maturity
+  across governance, design, implementation, verification, and operations.
+- **CWE Top 25** (<https://cwe.mitre.org/top25/>) helps target implementation review, tests,
+  and secure-code hardening at common weakness classes.
+- **CIS Controls v8.1** (<https://www.cisecurity.org/controls/v8-1>) covers operational
+  security hygiene such as inventory, access control, secure configuration, logging, recovery,
+  and vulnerability management.
+- **NIST SSDF v1.1 / SP 800-218** (<https://csrc.nist.gov/pubs/sp/800/218/final>) checks secure
+  software development practices: prepare, protect software, produce well-secured software, and
+  respond to vulnerabilities.
+- **NIST Cybersecurity Framework 2.0** (<https://www.nist.gov/cyberframework>) is useful for
+  broader governance, risk, identify/protect/detect/respond/recover posture.
+- **SLSA v1.2** (<https://slsa.dev/>) covers build integrity, provenance, source/build
+  isolation, and supply-chain assurance.
+- **OpenSSF Scorecard** (<https://scorecard.dev/>) gives repository and dependency hygiene
+  signals for open-source or shared-source repos.
+- **SBOM formats and tooling** such as CycloneDX (<https://cyclonedx.org/>) and SPDX
+  (<https://spdx.dev/>) support component inventory for distribution, incident response,
+  vulnerability response, and enterprise/customer assurance.
+- **OWASP Mobile Top 10 2024** (<https://owasp.org/www-project-mobile-top-10/>) applies to
+  native or hybrid mobile apps, mobile SDKs, mobile API clients, and app-store distributed
+  clients.
+- **OWASP LLM / GenAI guidance** (<https://genai.owasp.org/>) applies to LLM, agent, RAG,
+  tool-calling, prompt-injection, model-mediated decision, and model supply-chain surfaces.
 
 ## Module Selection
 
-Start every S2 with scoping, then choose modules. A module may be:
+Start every S2 with scoping, then choose modules. Record each selected module in the report's
+module-selection table with one disposition: **In scope**, **Deferred**, **Specialist review**,
+or **N/A**. Use **Deferred** only when the module applies but is intentionally moved to later
+work with an owner and trigger. Use **Specialist review** when normal project review is not
+enough and the area needs external/domain expertise. Use **N/A** when the module does not apply
+to the current project shape.
 
-| Disposition | Meaning |
-|-------------|---------|
-| In scope | Review it in this S2. |
-| Deferred | Applicable, but intentionally moved to a later STEP/review with owner and trigger. |
-| Specialist review | Applicable, but needs an external/domain specialist rather than normal project review. |
-| N/A | Not applicable to the current project shape. |
+Every S2 should include scoping and audit setup, prior reviews/baseline/risk-ledger review, and
+threat-model/architecture-posture review. Add the remaining modules only when they match the
+project:
 
-Use this selection table in the report:
-
-| Module | Applies? | Disposition | Reason | Depth / framework target | Owner | Follow-up STEP / issue |
-|--------|----------|-------------|--------|--------------------------|-------|------------------------|
-| Scoping and audit setup | Yes | In scope | Every S2 needs scope and evidence rules. | Required | TBD | TBD |
-| Prior reviews, baseline, and risk ledger | Yes | In scope | S2 builds on S0/S1 and open risks. | Required | TBD | TBD |
-| Threat model and architecture posture | Yes | In scope | Every S2 checks intended posture against reality. | Required | TBD | TBD |
-| Web application security | Yes / No | TBD | Public/admin web app, browser client, server-rendered UI, SPA, or web session surface. | OWASP Top 10; ASVS L1/L2/L3 | TBD | TBD |
-| API and service security | Yes / No | TBD | Public, partner, mobile, internal, GraphQL, RPC, webhook, or service-to-service APIs. | OWASP API Top 10; ASVS API controls | TBD | TBD |
-| AuthN, AuthZ, session, and tenant isolation | Yes / No | TBD | Accounts, roles, admins, tenants, service accounts, or privileged workflows. | ASVS identity/session/access controls | TBD | TBD |
-| Data protection and privacy-supporting controls | Yes / No | TBD | Sensitive, personal, regulated, payment, health, financial, confidential, or customer data. | ASVS data controls; NIST CSF; project privacy docs | TBD | TBD |
-| Secure implementation and CWE review | Yes / No | TBD | Custom code handles input, parsing, files, auth, crypto, concurrency, serialization, memory, commands, or queries. | CWE Top 25; language/framework standards | TBD | TBD |
-| Mobile application security | Yes / No | TBD | Native/hybrid mobile apps, mobile SDKs, mobile local storage, mobile auth, or app-store distribution. | OWASP Mobile Top 10; MASVS if adopted | TBD | TBD |
-| LLM, AI, agent, RAG, and tool-calling security | Yes / No | TBD | LLMs, agents, retrieval, prompts, tools, model-mediated decisions, embeddings, fine-tuning, or generated code/content. | OWASP LLM/GenAI guidance | TBD | TBD |
-| Dependency, SBOM, and vulnerability response | Yes / No | TBD | Any third-party packages, containers, images, plugins, AI models, datasets, or redistributable artifacts. | Dependency runbook; SBOM; OSV/GitHub/vendor advisories | TBD | TBD |
-| CI/CD, provenance, and software supply chain | Yes / No | TBD | Automated build, release, packages, containers, deploy pipelines, outside contributors, or distributed artifacts. | SLSA; OpenSSF Scorecard; SSDF | TBD | TBD |
-| Infrastructure, cloud, and operational posture | Yes / No | TBD | Hosted environments, cloud/IaC, Kubernetes, databases, queues, CDN, object storage, DNS, admin consoles, or production operations. | CIS Controls v8.1; CIS Benchmarks where adopted; NIST CSF | TBD | TBD |
-| Secure SDLC, governance, and maturity | Yes / No | TBD | Production systems, teams, compliance expectations, enterprise customers, high-risk cadence, or security program review. | NIST SSDF; OWASP SAMM; NIST CSF 2.0 | TBD | TBD |
-| Specialist penetration test or external assurance | Yes / No | TBD | Public launch, high-value target, regulatory/customer requirement, payments, regulated data, critical infrastructure, or untrusted multi-tenant system. | Project-specific | TBD | TBD |
+- Web application security: public/admin web app, browser client, server-rendered UI, SPA, or
+  web session surface. Typical references: OWASP Top 10 and ASVS.
+- API and service security: public, partner, mobile, internal, GraphQL, RPC, webhook, or
+  service-to-service APIs. Typical references: OWASP API Security Top 10 and ASVS API controls.
+- AuthN, AuthZ, session, and tenant isolation: accounts, roles, admins, tenants, service
+  accounts, or privileged workflows.
+- Data protection and privacy-supporting controls: sensitive, personal, regulated, payment,
+  health, financial, confidential, or customer data.
+- Secure implementation and CWE review: custom code handles input, parsing, files, auth,
+  crypto, concurrency, serialization, memory, commands, or queries.
+- Mobile application security: native/hybrid mobile apps, mobile SDKs, mobile local storage,
+  mobile auth, or app-store distribution.
+- LLM, AI, agent, RAG, and tool-calling security: LLMs, agents, retrieval, prompts, tools,
+  model-mediated decisions, embeddings, fine-tuning, or generated code/content.
+- Dependency, SBOM, and vulnerability response: third-party packages, containers, images,
+  plugins, AI models, datasets, or redistributable artifacts.
+- CI/CD, provenance, and software supply chain: automated build, release, packages, containers,
+  deploy pipelines, outside contributors, or distributed artifacts.
+- Infrastructure, cloud, and operational posture: hosted environments, cloud/IaC, Kubernetes,
+  databases, queues, CDN, object storage, DNS, admin consoles, or production operations.
+- Secure SDLC, governance, and maturity: production systems, teams, compliance expectations,
+  enterprise customers, high-risk cadence, or security program review.
+- Specialist penetration test or external assurance: public launch, high-value target,
+  regulatory/customer requirement, payments, regulated data, critical infrastructure, or
+  untrusted multi-tenant system.
 
 ## S2 Checklist
 

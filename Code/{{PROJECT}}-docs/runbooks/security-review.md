@@ -26,6 +26,13 @@ This runbook is deliberately split into levels so security gets nudged without t
 periodic check-in into a full audit. S0 checks that the guardrails exist. S1 checks whether
 anything has drifted or become newly risky. S2 asks whether the whole posture still stands up.
 
+These three levels, their starter checklists, and their external references are a baseline
+scaffold, not a universal security program. Each project should review and revise them for its
+actual architecture, risk, users, data, operational model, regulatory/customer expectations, and
+team maturity. Some projects need fewer checks; others need deeper or additional analysis such
+as privacy/legal review, domain-specific compliance, external penetration testing, cloud
+specialist review, mobile review, AI red teaming, or customer assurance work.
+
 ## Review levels
 
 ### S0 — Security Baseline
