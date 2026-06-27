@@ -11,6 +11,10 @@
 > Tell your agent *"run the security baseline"*, *"run the security sweep"*, or
 > *"run the security audit"*. Do not run every level by default. If the right level is unclear,
 > run S1 first and let it decide whether S0 or S2 is needed.
+>
+> When a review is created as a STEP, give it a thin PLAN that points back to this runbook and
+> breaks the selected review level into substeps. S1 and S2 are expected to be large enough that
+> their applicable areas or modules usually become separate substeps.
 
 ## Why this runbook exists
 Security is not handled once during the architecture interview and then forgotten. The Security
@@ -29,7 +33,8 @@ Purpose: establish or re-check the external security tooling, repository hygiene
 security practices that the project relies on.
 
 Run S0:
-- Before the first release.
+- Strongly recommended before the first release, but not required. If that release is internal,
+  closed, or still dev-like, the team may defer S0 with a reason and revisit trigger.
 - Earlier only when the user explicitly wants a baseline; S0 is not a project-setup gate.
 - After major repo, CI, hosting, deployment, or ownership changes.
 - During S2 if the baseline has not been checked recently.
@@ -59,7 +64,7 @@ Purpose: a deeper structured review against the security frameworks and threat a
 to this project.
 
 Run S2:
-- Before launch.
+- Strongly recommended before public launch.
 - Before handling sensitive production data, payments, regulated workflows, or materially more
   user trust.
 - Quarterly for high-risk production systems.
@@ -83,18 +88,17 @@ At each check-in, decide:
 - Is S2 due by schedule, launch milestone, production milestone, incident follow-up, or
   security-sensitive architecture change?
 
-If the answer is yes:
-- Run S1 inside the check-in if it is small enough and will not swamp the check-in.
-- Otherwise create a separate **Security Review STEP** that runs S1.
-- If S2 is needed, create a separate **Security Audit STEP**. Do not bury S2 inside a normal
-  check-in.
+If a review is due, create a separate STEP for it. Do not run S1 or S2 inside a normal
+check-in. Use a **Security Baseline STEP** for S0, a **Security Review STEP** for S1, and a
+**Security Audit STEP** for S2.
 
 ## Durable review ledger
 Each project needs one durable, machine-readable place to answer "when did we last check this?"
 and "how much changed since then?" Use `registries/security-reviews.yml` for that ledger.
 
-The ledger schema lives in `registries/security-reviews.yml`; do not duplicate it here. The
-ledger records the latest run for each level and the change markers captured at that time:
+The ledger schema and project cadence defaults live in `registries/security-reviews.yml`; do not
+duplicate them here. The ledger records the latest run for each level and the change markers
+captured at that time:
 - Review date.
 - Review level (`S0`, `S1`, or `S2`).
 - Report path.
@@ -126,9 +130,11 @@ Rules:
 - `N/A` needs a reason so future reviewers can tell whether the project changed.
 
 ## Reports and follow-up work
-Every S1 or S2 run writes a short report in the current STEP folder. If S0 is run as a tracked
-STEP, write its report there too; if S0 is explicitly run outside a tracked STEP, write the
-report next to the ledger or in the nearest planning artifact and reference it from the ledger.
+Every S0, S1, or S2 run writes a short report in the current STEP folder. While the STEP is in
+progress, keep the report with the active PLAN in `Upcoming Prompts/`; when the STEP is
+archived, keep it under that STEP's folder, e.g. `prompts/001-mvp/step-NNNN/`. If S0 is
+explicitly run outside a tracked STEP, write the report next to the ledger or in the nearest
+planning artifact and reference it from the ledger.
 
 Each report records:
 - Review level and date.
@@ -160,5 +166,7 @@ review.
 
 ## Detail placeholders
 The detailed S0 checklist, S1 sweep checklist, and S2 audit modules are intentionally defined in
-separate passes. Until then, use the purposes, triggers, outputs, and ledger rules above to keep
-the process consistent without pretending the detailed security checklist is complete.
+separate passes. Future passes should also add structured report templates for S0, S1, and S2
+and update this runbook to point at them. Until then, use the purposes, triggers, outputs, and
+ledger rules above to keep the process consistent without pretending the detailed security
+checklist is complete.

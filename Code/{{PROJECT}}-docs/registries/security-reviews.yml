@@ -11,7 +11,8 @@
 # Recording rule:
 # - Update the matching level after every completed security review.
 # - Put detailed findings, evidence, and baseline tables in the review report; reference that
-#   report here.
+#   report here. Security review reports normally live in the active/archived STEP folder for
+#   that review; see `runbooks/security-review.md` for the location rule.
 # - Capture cheap change markers so the next reviewer can judge staleness by elapsed time,
 #   commits, and rough code-size movement. If a marker is impractical, leave it blank and say why
 #   in `notes`.
@@ -25,7 +26,7 @@
 security_reviews:
   S0:
     name: "Security Baseline"
-    cadence: "Before first release; optional earlier; re-check during S2 or after repo/CI/hosting changes."
+    cadence: "Strongly recommended before first release; optional earlier; re-check during S2 or after repo/CI/hosting changes."
     last_run:
       date:
       report:
@@ -37,7 +38,7 @@ security_reviews:
     next_due:
   S1:
     name: "Security Sweep"
-    cadence: "TBD by project."
+    cadence: "Default: create a Security Review STEP when the check-in gate says S1 is due, roughly every check-in cycle or after a security trigger; customize per project."
     last_run:
       date:
       report:
@@ -49,7 +50,7 @@ security_reviews:
     next_due:
   S2:
     name: "Security Audit"
-    cadence: "TBD by project."
+    cadence: "Default: strongly recommended before public launch, sensitive production use, or major security-posture changes; quarterly for high-risk production systems."
     last_run:
       date:
       report:

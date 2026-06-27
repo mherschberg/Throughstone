@@ -126,9 +126,9 @@ security review is due:
 - Is an S2 Security Audit due by schedule, launch/production milestone, incident follow-up, or
   material security-posture change?
 
-If a review is due, run S1 inside this check-in only if it is small enough to finish cleanly
-without burying the check-in. Otherwise add a separate **Security Review STEP**. If S2 is due,
-add a separate **Security Audit STEP**; do not run a deep audit inside an ordinary check-in.
+If a review is due, add a separate STEP for it; do not run S1 or S2 inside this check-in. Use a
+**Security Baseline STEP** for S0, a **Security Review STEP** for S1, and a **Security Audit
+STEP** for S2.
 Update `registries/security-reviews.yml` only when a review actually runs, not merely because
 the gate was evaluated.
 
