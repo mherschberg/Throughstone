@@ -12,12 +12,15 @@
 # - Update the matching level after every completed security review.
 # - Put detailed findings, evidence, and baseline tables in the review report; reference that
 #   report here. Security review reports live under `reports/security/` in the docs hub.
-# - S0 reports should start from `templates/reports/security/s0-security-baseline.md` and the
-#   detailed checklist in `runbooks/security-review-s0-checklist.md`.
-# - S1 reports should start from `templates/reports/security/s1-security-sweep.md` and the
-#   detailed checklist in `runbooks/security-review-s1-checklist.md`.
-# - S2 reports should start from `templates/reports/security/s2-security-audit.md` and the
-#   detailed checklist in `runbooks/security-review-s2-checklist.md`.
+# - S0 reports should start from
+#   `templates/reports/security/s0-security-baseline-report-template.md` and the detailed
+#   checklist in `runbooks/security-review-s0-checklist.md`.
+# - S1 reports should start from
+#   `templates/reports/security/s1-security-sweep-report-template.md` and the detailed
+#   checklist in `runbooks/security-review-s1-checklist.md`.
+# - S2 reports should start from
+#   `templates/reports/security/s2-security-audit-report-template.md` and the detailed
+#   checklist in `runbooks/security-review-s2-checklist.md`.
 # - Capture cheap change markers so the next reviewer can judge staleness by elapsed time,
 #   commits, and rough code-size movement. If a marker is impractical, leave it blank and say why
 #   in `notes`.

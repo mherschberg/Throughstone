@@ -29,17 +29,17 @@ older reports here for history; do not move them into STEP folders when the STEP
 ## Templates
 
 Start S0 reports from
-[`../../templates/reports/security/s0-security-baseline.md`](../../templates/reports/security/s0-security-baseline.md)
+[`../../templates/reports/security/s0-security-baseline-report-template.md`](../../templates/reports/security/s0-security-baseline-report-template.md)
 and copy the applicable rows from
 [`../../runbooks/security-review-s0-checklist.md`](../../runbooks/security-review-s0-checklist.md).
 
 Start S1 reports from
-[`../../templates/reports/security/s1-security-sweep.md`](../../templates/reports/security/s1-security-sweep.md)
+[`../../templates/reports/security/s1-security-sweep-report-template.md`](../../templates/reports/security/s1-security-sweep-report-template.md)
 and copy the applicable rows from
 [`../../runbooks/security-review-s1-checklist.md`](../../runbooks/security-review-s1-checklist.md).
 
 Start S2 reports from
-[`../../templates/reports/security/s2-security-audit.md`](../../templates/reports/security/s2-security-audit.md)
+[`../../templates/reports/security/s2-security-audit-report-template.md`](../../templates/reports/security/s2-security-audit-report-template.md)
 and use the applicable module prompts from
 [`../../runbooks/security-review-s2-checklist.md`](../../runbooks/security-review-s2-checklist.md)
 to write the module prose sections and compact outcome tables. Do not paste the wide S2

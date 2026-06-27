@@ -51,7 +51,7 @@ Output: a baseline checklist. Each row records the decision date and one status:
 owner, and revisit trigger, and usually creates or updates a row in `registries/risks.yml`.
 Use the detailed S0 checklist in [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
 and the structured report template in
-[`../templates/reports/security/s0-security-baseline.md`](../templates/reports/security/s0-security-baseline.md).
+[`../templates/reports/security/s0-security-baseline-report-template.md`](../templates/reports/security/s0-security-baseline-report-template.md).
 
 ### S1 — Security Sweep
 Purpose: a lightweight recurring review that catches security drift, new advisories, stale
@@ -70,7 +70,7 @@ is missing or stale, run S0 or create a follow-up STEP for it. If the sweep find
 uncertainty or a high-risk change, create an S2 audit STEP.
 Use the detailed S1 checklist in [`security-review-s1-checklist.md`](security-review-s1-checklist.md)
 and the structured report template in
-[`../templates/reports/security/s1-security-sweep.md`](../templates/reports/security/s1-security-sweep.md).
+[`../templates/reports/security/s1-security-sweep-report-template.md`](../templates/reports/security/s1-security-sweep-report-template.md).
 
 ### S2 — Security Audit
 Purpose: a deeper structured review against the security frameworks and threat areas that apply
@@ -90,7 +90,7 @@ accepted risks, and follow-up STEPs. Only run modules that apply to the project;
 as one universal checklist.
 Use the detailed S2 checklist in [`security-review-s2-checklist.md`](security-review-s2-checklist.md)
 and the structured report template in
-[`../templates/reports/security/s2-security-audit.md`](../templates/reports/security/s2-security-audit.md).
+[`../templates/reports/security/s2-security-audit-report-template.md`](../templates/reports/security/s2-security-audit-report-template.md).
 
 ## Security review gate
 The periodic check-in (`check-in.md`) should include a short security gate rather than running a
@@ -187,8 +187,8 @@ review.
 
 The detailed S0, S1, and S2 checklists and report templates now exist:
 - [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
-- [`../templates/reports/security/s0-security-baseline.md`](../templates/reports/security/s0-security-baseline.md)
+- [`../templates/reports/security/s0-security-baseline-report-template.md`](../templates/reports/security/s0-security-baseline-report-template.md)
 - [`security-review-s1-checklist.md`](security-review-s1-checklist.md)
-- [`../templates/reports/security/s1-security-sweep.md`](../templates/reports/security/s1-security-sweep.md)
+- [`../templates/reports/security/s1-security-sweep-report-template.md`](../templates/reports/security/s1-security-sweep-report-template.md)
 - [`security-review-s2-checklist.md`](security-review-s2-checklist.md)
-- [`../templates/reports/security/s2-security-audit.md`](../templates/reports/security/s2-security-audit.md)
+- [`../templates/reports/security/s2-security-audit-report-template.md`](../templates/reports/security/s2-security-audit-report-template.md)
