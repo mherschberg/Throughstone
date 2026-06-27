@@ -41,7 +41,7 @@ in both directions, because they catch different problems:
 
 - **Docs vs. code** — the doc claims something the code no longer does (stale doc).
   → **Fix the doc** and bump its Version Log (`METHOD.md` §6); if a real decision was made in
-  code but never recorded, **write an ADR** (`templates/adr.md`) and update the doc to match.
+  code but never recorded, **write an ADR** (`templates/adr-template.md`) and update the doc to match.
 - **Code vs. docs** — the code diverges from a decision the doc still gets *right* (the code
   is wrong, not the doc). → **Don't "fix" the doc to bless the drift.** Flag it as a bug /
   follow-up STEP.

@@ -41,7 +41,7 @@ files into a new `step-NNNN/` folder** in the right phase here (see the recipe, 
   - PLAN: `{{PROJECT}}-STEP-N-PLAN.md`
   - Substep prompt: `{{PROJECT}}-STEP-N.M-PROMPT.md` (fractional substeps like `5a` are fine)
 - Each phase folder keeps a `README.md` summary table (from
-  `Code/{{PROJECT}}-docs/templates/phase-readme.md`), updated by hand as STEPs complete.
+  `Code/{{PROJECT}}-docs/templates/phase-readme-template.md`), updated by hand as STEPs complete.
   Phase 1 (`001-mvp/`) ships seeded; create `002-<name>/README.md` from the template when
   you open a new phase.
 
@@ -104,10 +104,10 @@ teammate will need later.
    are uncertain. When there are real alternatives, present appropriate options with short
    pros and cons and let the user choose or adjust. Work the STEP on a branch named
    `step-NNNN-short-name` (the same name in every repo it touches).
-3. **Write the PLAN** from `Code/{{PROJECT}}-docs/templates/step-plan.md`: motivation,
+3. **Write the PLAN** from `Code/{{PROJECT}}-docs/templates/step-plan-template.md`: motivation,
    locked decisions (reference the ADRs/architecture docs it must respect), the substep
    table, ground rules, and a definition of done. Save it in `Upcoming Prompts/`.
-4. **Write the substep prompts** from `Code/{{PROJECT}}-docs/templates/substep-prompt.md` —
+4. **Write the substep prompts** from `Code/{{PROJECT}}-docs/templates/substep-prompt-template.md` —
    one per substep, each self-contained (runnable cold in a fresh chat). Author these in
    the same chat as the PLAN.
    *(For the architecture STEP-1, the substeps are the interview sessions in
@@ -118,7 +118,7 @@ teammate will need later.
    STEP** is the same kind of thin STEP — its three substeps (RCA → find similar → fix) are
    defined in `Code/{{PROJECT}}-docs/runbooks/incident-postmortem.md`, opened by that runbook
    when responding to a production incident; its durable postmortem starts from
-   `Code/{{PROJECT}}-docs/templates/incident-postmortem.md`. A **late conditional-session
+   `Code/{{PROJECT}}-docs/templates/incident-postmortem-template.md`. A **late conditional-session
    follow-up STEP** is also thin: its one substep points directly to the applicable
    `templates/architecture-sessions/conditional-*.md` file and records its exact by-name
    invocation plus the assigned output-doc number; don't duplicate the session into a new

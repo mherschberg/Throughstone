@@ -1,4 +1,4 @@
-# S2 Security Audit Report Template - {{PROJECT}}
+# S2 Security Audit Report Template — {{PROJECT}}
 
 **Review level:** S2 - Security Audit
 **Review date:** YYYY-MM-DD

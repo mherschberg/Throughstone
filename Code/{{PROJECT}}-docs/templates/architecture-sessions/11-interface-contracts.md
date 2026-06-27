@@ -81,7 +81,7 @@ implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
 
 ## Output
 Write `architecture/11-interface-contracts.md` — the Interface Contracts architecture doc
-(use `templates/architecture-doc.md`). Body:
+(use `templates/architecture-doc-template.md`). Body:
 - **Boundary contract inventory** - boundary | owner | contract level | style | status
 - **Authoring source and contract of record** - per formal boundary
 - **Artifact locations** - including repo-scaffolding placeholders where repos do not exist yet

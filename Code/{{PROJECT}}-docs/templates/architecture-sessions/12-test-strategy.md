@@ -78,7 +78,7 @@ where the pieces have to work *together*.
 
 ## Output
 Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc (use
-`templates/architecture-doc.md`). Body:
+`templates/architecture-doc-template.md`). Body:
 - **Test tiers** — tier | scope | tools | where it runs
 - **Coverage priorities** — must-cover paths
 - **Test data & isolation**, **mocking strategy**

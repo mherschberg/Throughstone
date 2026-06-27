@@ -77,7 +77,7 @@ how a small outage becomes permanent data loss.
    you are to one provider and what would be painful to move.
 
 ## Output
-Write `architecture/08-infrastructure-deployment.md` (use `templates/architecture-doc.md`).
+Write `architecture/08-infrastructure-deployment.md` (use `templates/architecture-doc-template.md`).
 Body:
 - **Hosting & compute** model + rationale
 - **Deploy pipeline** — build → deploy → rollback

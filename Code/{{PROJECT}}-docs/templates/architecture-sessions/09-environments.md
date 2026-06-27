@@ -55,7 +55,7 @@ code is promoted** gives you a safe path to production.
 7. **Access control.** Who can read/modify each environment, especially production.
 
 ## Output
-Write `architecture/09-environments.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/09-environments.md` (use `templates/architecture-doc-template.md`). Body:
 - **Environments table** — environment | purpose | who has access | data
 - **Sandbox decision** (needed or not, and why)
 - **Config & secrets** per environment

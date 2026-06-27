@@ -58,7 +58,7 @@ shortcuts are fine and which to avoid cheaply now.
 
 ## Output
 Write `architecture/05-scaling-performance.md` — the Scaling & Performance architecture doc
-(use `templates/architecture-doc.md`). Body:
+(use `templates/architecture-doc-template.md`). Body:
 - **Load profile** — now vs. projected
 - **Performance targets** — operation | target
 - **Stateful vs. stateless** components

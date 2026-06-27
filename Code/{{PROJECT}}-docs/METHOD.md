@@ -88,7 +88,7 @@ doc — review what's there, add what's missing, prune the rest), `runbooks/`
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
 deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
 spin up an Incident STEP to RCA → find similar → fix, with a postmortem from
-`templates/incident-postmortem.md`), and `dependency-supply-chain.md` (vet a new dependency;
+`templates/incident-postmortem-template.md`), and `dependency-supply-chain.md` (vet a new dependency;
 audit dependencies for vulns/licenses on a cadence); add your own operational ones),
 `reports/` (durable review and operational reports, kept in the docs hub rather than inside
 STEP folders — `reports/security/` holds security baseline, sweep, and audit reports),
@@ -177,7 +177,7 @@ substeps (`1.6c`, `1.7b`), so adding one leaves the numbered core intact. To add
    §8 explain why), and slot its substep as a letter suffix wherever it belongs.
 3. List it in §4's conditional paragraph and the `AGENTS.md` conditional set so it's invocable
    by name. Add its ownership guidance to `BOOTSTRAP-PROMPT.md` and seed its row in
-   `templates/step-plan.md`'s *Conditional sessions considered* table. The bootstrap also
+   `templates/step-plan-template.md`'s *Conditional sessions considered* table. The bootstrap also
    enumerates `conditional-*.md`, so an unseeded new template is still surfaced rather than
    silently omitted.
 
@@ -328,7 +328,7 @@ keep the code's own docs true:
 Because nothing in normal STEP work produces them, they need a deliberate prompt: **at each
 milestone (a phase completing, or any release you cut), the agent proactively asks the user**
 whether user-facing docs need updating and whether to write release notes. If the user wants
-release notes, start from `templates/release-notes.md` and trim sections that do not apply.
+release notes, start from `templates/release-notes-template.md` and trim sections that do not apply.
 The user decides how much to do — the method's job is to *raise it at the right moment*, not
 to mandate the output.
 
@@ -352,7 +352,7 @@ inside it, `prompts/` is one repo and each thing under `Code/` (including
 `{{PROJECT}}-docs`) is its own **sibling** repo. Nothing sits "above" those repos except a
 per-machine shell. The `init.sh` wizard sets this up for the first developer; service repos
 aren't created at bootstrap — they're stamped from
-`Code/{{PROJECT}}-docs/templates/repo-readme.md` once the architecture names them. (Or choose
+`Code/{{PROJECT}}-docs/templates/repo-readme-template.md` once the architecture names them. (Or choose
 mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
 `registries/repos.yml` is the canonical inventory. `registries/risks.yml` is the canonical
 accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
@@ -515,7 +515,7 @@ Resolve the next action top-down against the index — the first rule that match
 7. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).
 8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
-   notes** (use `templates/release-notes.md` if yes) and **any user-facing doc updates** (§5,
+   notes** (use `templates/release-notes-template.md` if yes) and **any user-facing doc updates** (§5,
    *Milestone doc review*), then open the next phase and re-run the planning session for it.
 
 When the index and an in-flight PLAN disagree, the **index** is authoritative for *which

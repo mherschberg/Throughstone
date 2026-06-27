@@ -123,7 +123,7 @@ to coordinate must therefore be *in that row*:
 - **Repos (projection)** — the repos you *expect* to touch. This is a **projection, not a
   guarantee** — scope shifts as a STEP is worked, and that's fine. It exists to power the
   overlap warning below, not to reserve anything. The PLAN carries the same field
-  (`templates/step-plan.md`), but **the index row is the authoritative copy for coordination** —
+  (`templates/step-plan-template.md`), but **the index row is the authoritative copy for coordination** —
   it's what teammates read. **If a STEP grows to touch a repo not in its projection, update the
   row** (and keep the PLAN's copy in sync) — the projection only protects others if it's roughly
   current, and a stale one makes the overlap warning miss real collisions.

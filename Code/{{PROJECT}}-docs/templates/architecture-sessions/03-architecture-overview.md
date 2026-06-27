@@ -64,7 +64,7 @@ UI / Design System session and the conditional Native-app session apply.
    you'll build vs. use a managed service for. Flag anything that becomes a hard dependency.
 
 ## Output
-Write `architecture/03-architecture-overview.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/03-architecture-overview.md` (use `templates/architecture-doc-template.md`). Body:
 - **Client surfaces** (the recorded answer + what it gates)
 - **Component diagram** (ASCII) + a **component table**: name | responsibility | tech
 - **Boundaries & contract candidates** table — boundary | what crosses it | sync/async |

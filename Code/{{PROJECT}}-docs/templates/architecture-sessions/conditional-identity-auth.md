@@ -65,7 +65,7 @@ Threat Model session.
    other (mTLS, signed service tokens, pre-shared credentials).
 
 ## Output
-Write `architecture/NN-identity-auth.md` (use `templates/architecture-doc.md`; NN per the
+Write `architecture/NN-identity-auth.md` (use `templates/architecture-doc-template.md`; NN per the
 active STEP's index/PLAN). If the doc already exists, revise it in place and bump its Version
 Log instead of creating a second identity/auth doc. Body covers each area above. Fill the
 **Decision Summary**, record **Open Questions**, and capture the build-vs-buy and

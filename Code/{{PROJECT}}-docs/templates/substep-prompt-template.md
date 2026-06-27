@@ -74,7 +74,7 @@ technology, a scaling/security assumption, anything an `architecture/*` doc stat
 just change the code:
 - **Small/clarifying change:** update the affected `architecture/NN-*.md` and **bump its
   Version Log** (see `METHOD.md` §6).
-- **Significant or contested change:** write an **ADR** (`templates/adr.md`) and update the
+- **Significant or contested change:** write an **ADR** (`templates/adr-template.md`) and update the
   doc to match. If it overturns a settled assumption, consider **re-running** the relevant
   architecture session (`METHOD.md` §4).
 - **New code, even when it overturns nothing:** adding a component, repo, or public surface,

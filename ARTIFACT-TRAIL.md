@@ -103,7 +103,7 @@ Representative excerpt:
 ```
 
 The shared skeleton is
-[`Code/{{PROJECT}}-docs/templates/architecture-doc.md`](Code/{{PROJECT}}-docs/templates/architecture-doc.md).
+[`Code/{{PROJECT}}-docs/templates/architecture-doc-template.md`](Code/{{PROJECT}}-docs/templates/architecture-doc-template.md).
 
 ## 4. ADRs
 
@@ -130,7 +130,7 @@ database service instead of a single embedded file.
 ```
 
 The template is
-[`Code/{{PROJECT}}-docs/templates/adr.md`](Code/{{PROJECT}}-docs/templates/adr.md).
+[`Code/{{PROJECT}}-docs/templates/adr-template.md`](Code/{{PROJECT}}-docs/templates/adr-template.md).
 
 ## 5. STEP Plans and Substep Prompts
 
@@ -172,9 +172,9 @@ If token storage changes, update the security architecture doc or write a new AD
 ```
 
 The templates are
-[`Code/{{PROJECT}}-docs/templates/step-plan.md`](Code/{{PROJECT}}-docs/templates/step-plan.md)
+[`Code/{{PROJECT}}-docs/templates/step-plan-template.md`](Code/{{PROJECT}}-docs/templates/step-plan-template.md)
 and
-[`Code/{{PROJECT}}-docs/templates/substep-prompt.md`](Code/{{PROJECT}}-docs/templates/substep-prompt.md).
+[`Code/{{PROJECT}}-docs/templates/substep-prompt-template.md`](Code/{{PROJECT}}-docs/templates/substep-prompt-template.md).
 
 ## 6. Check-In Reports
 

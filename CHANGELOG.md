@@ -18,7 +18,7 @@ tagged.
 - **Accepted risk and technical debt register** (`registries/risks.yml`): a compact,
   machine-readable index for known accepted risks and deferred technical debt, with each row
   pointing to the durable source artifact that carries the full context.
-- **Release notes template** (`templates/release-notes.md`): a lightweight milestone artifact
+- **Release notes template** (`templates/release-notes-template.md`): a lightweight milestone artifact
   focused on user-visible changes, action required, known issues, documentation, and technical
   references.
 - Method and agent guidance requiring accepted risks to stay visible, with a source architecture
@@ -125,7 +125,7 @@ the method so each surfaces at the right moment.
   the Test Strategy architecture doc (kept only when each applies — a relational DB for SQL,
   shell scripts for Shell, an HTTP/REST boundary for API), listed in `coding-standards/README.md`
   and the `METHOD.md` hub gloss ("per-language plus cross-cutting"), and
-  `templates/substep-prompt.md` nudges API-touching substeps to read `api.md`.
+  `templates/substep-prompt-template.md` nudges API-touching substeps to read `api.md`.
 
 ## [1.2.0] - 2026-06-01
 

@@ -3,7 +3,7 @@
 > **Quick start during an incident:** stabilize service first — roll back, fail over, or
 > disable the bad path before diagnosing. Capture the raw facts while fresh: timeline,
 > symptom/blast radius, affected data, and alerts/logs. Open an **Incident STEP**, start
-> `templates/incident-postmortem.md`, and put unclear fields as `Unknown`. Hand off the
+> `templates/incident-postmortem-template.md`, and put unclear fields as `Unknown`. Hand off the
 > RCA → find-similar → fix work to that STEP; use the detailed runbook below for the rest.
 
 > **How to run:** Two modes, run in sequence.
@@ -39,7 +39,7 @@ the cause in the *system*, never who typed the command.
    diagnose yet — just record. This is the raw material for the RCA.
 4. **Open the Incident STEP.** Reserve a STEP number and branch per the recipe
    (`prompts/README.md`); its substeps are Parts 2–4. Park the captured timeline in the STEP
-   folder by starting a postmortem from `templates/incident-postmortem.md`. Set the initial
+   folder by starting a postmortem from `templates/incident-postmortem-template.md`. Set the initial
    incident window, customer-facing, revenue-impacting, and impact level fields to `Unknown`
    if the facts are not clear yet. Then hand off to that STEP — the emergency is over; the
    rest is deliberate work.
@@ -56,10 +56,10 @@ Get past the symptom to the **cause in the system**. Ask *why* repeatedly (5 Why
 reach something you can actually change — usually not "the code had a bug" but the missing test,
 the missing guardrail, the missing alert, or the design assumption that didn't hold. Name the
 **contributing factors**, not a single culprit. Write a short **postmortem** into the Incident
-STEP folder using `templates/incident-postmortem.md`: the timeline (from Part 1), impact
+STEP folder using `templates/incident-postmortem-template.md`: the timeline (from Part 1), impact
 classification, the root cause, contributing factors, and what made it easier or harder to
 detect and recover. If the RCA overturns a recorded decision, write an **ADR**
-(`templates/adr.md`); if it shows a doc was wrong, that's a fix for Part 4.
+(`templates/adr-template.md`); if it shows a doc was wrong, that's a fix for Part 4.
 
 ## Part 3 — Find similar issues  *(substep N.2)*
 The bug you saw is an *instance of a class*. Before fixing, **hunt the class**: search the
@@ -85,7 +85,7 @@ the *next* one is caught sooner and cheaper:
 
 ## Output
 - A **postmortem** in the Incident STEP folder, started from
-  `templates/incident-postmortem.md`: impact classification, timeline, root cause,
+  `templates/incident-postmortem-template.md`: impact classification, timeline, root cause,
   contributing factors, the similar issues found (Part 3), and the fixes/hardening applied
   (Part 4).
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any

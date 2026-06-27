@@ -79,7 +79,7 @@ patterns branch from there.
     desktop OS conventions where they differ from web.
 
 ## Output
-Write `architecture/07-ui-design-system.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/07-ui-design-system.md` (use `templates/architecture-doc-template.md`). Body:
 - **Design principles**
 - **Tokens** — color, typography, spacing, shape (exact values; CSS custom properties)
 - **Components** — specs with variants

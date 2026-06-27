@@ -60,7 +60,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 1. **Repo scaffolding.** What repos does the Architecture Overview architecture doc
    (`architecture/*-architecture-overview.md`) / `registries/repos.yml` name? The first implementation STEP is
    almost always *"scaffold the repos and the skeleton"* — create each code repo from
-   `templates/repo-readme.md`, wire up the chosen stack, CI, and the environment/secrets
+   `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo

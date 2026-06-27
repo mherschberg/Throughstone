@@ -54,7 +54,7 @@ to measure, and what to alert on** now means you can actually operate the thing.
 
 ## Output
 Write `architecture/10-observability.md` — the Observability architecture doc (use
-`templates/architecture-doc.md`). Body:
+`templates/architecture-doc-template.md`). Body:
 - **Logging** — format, levels, correlation IDs, never-log list
 - **Metrics** — the key set (+ targets) and domain metrics
 - **Tracing & health checks**

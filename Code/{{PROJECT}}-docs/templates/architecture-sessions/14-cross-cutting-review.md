@@ -68,7 +68,7 @@ between "we have a pile of docs" and "we have a coherent architecture."
    MVP shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
    flag it — it may need a cheaper approach now.
 5. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
-   **ADRs**? Write any that are missing (`templates/adr.md`).
+   **ADRs**? Write any that are missing (`templates/adr-template.md`).
 6. **Index accuracy.** Does `prompts/STEP-index.md` match what actually got produced
    (statuses, output docs)? And does `architecture/README.md`'s index list every
    architecture doc that exists (number, title, version, status)?

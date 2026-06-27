@@ -96,9 +96,9 @@ files:
     policy: "review"
     installed_sha256: "..."
 
-  - local_path: "templates/substep-prompt.md"
+  - local_path: "templates/substep-prompt-template.md"
     upstream_area: "docs-hub"
-    upstream_path: "templates/substep-prompt.md"
+    upstream_path: "templates/substep-prompt-template.md"
     kind: "template"
     policy: "future-only"
     installed_sha256: "..."
