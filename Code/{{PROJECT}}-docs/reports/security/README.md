@@ -40,5 +40,7 @@ and copy the applicable rows from
 
 Start S2 reports from
 [`../../templates/reports/security/s2-security-audit.md`](../../templates/reports/security/s2-security-audit.md)
-and copy the applicable module rows from
-[`../../runbooks/security-review-s2-checklist.md`](../../runbooks/security-review-s2-checklist.md).
+and use the applicable module prompts from
+[`../../runbooks/security-review-s2-checklist.md`](../../runbooks/security-review-s2-checklist.md)
+to write the module prose sections and compact outcome tables. Do not paste the wide S2
+checklist table into the report unless the project needs row-level traceability.

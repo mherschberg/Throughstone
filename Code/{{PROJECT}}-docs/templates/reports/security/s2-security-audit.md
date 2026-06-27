@@ -186,7 +186,8 @@ Use dispositions and outcomes exactly as defined by
 
 ## Checklist Outcomes
 
-Use this compact index for selected modules. Put detailed evidence in the module sections below.
+Use this compact index for selected modules. Put detailed evidence in the module sections below;
+do not paste the wide checklist table here unless the project needs row-level traceability.
 
 | Module | Outcome | Highest severity | Finding count | Follow-up STEP / issue | Risk ref |
 |--------|---------|------------------|---------------|------------------------|----------|

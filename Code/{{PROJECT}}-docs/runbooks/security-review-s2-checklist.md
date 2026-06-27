@@ -150,8 +150,15 @@ project:
 
 ## S2 Checklist
 
-Copy applicable rows into the S2 report. Add project-specific rows when the system has a
-security-relevant surface not covered by the starter structure.
+Use these rows as review prompts, not as a table that must be pasted wholesale into the S2
+report. Most S2 evidence and judgment will be too long for table cells. In the report, summarize
+module status in the compact **Checklist Outcomes** table, then write the detailed evidence,
+reasoning, gaps, fixes, accepted risks, and follow-up work in the relevant module prose
+sections. Keep a row-level tracker only when the project needs explicit control-by-control
+traceability.
+
+Add project-specific prompts when the system has a security-relevant surface not covered by the
+starter structure.
 
 | Module | Review item | Outcome | Severity | Evidence / notes | Follow-up STEP / issue | Risk ref |
 |--------|-------------|---------|----------|------------------|------------------------|----------|
