@@ -32,4 +32,10 @@ Start S0 reports from
 [`../../templates/reports/security/s0-security-baseline.md`](../../templates/reports/security/s0-security-baseline.md)
 and copy the applicable rows from
 [`../../runbooks/security-review-s0-checklist.md`](../../runbooks/security-review-s0-checklist.md).
-S1 and S2 structured templates are intentionally left for later passes.
+
+Start S1 reports from
+[`../../templates/reports/security/s1-security-sweep.md`](../../templates/reports/security/s1-security-sweep.md)
+and copy the applicable rows from
+[`../../runbooks/security-review-s1-checklist.md`](../../runbooks/security-review-s1-checklist.md).
+
+S2 structured templates are intentionally left for a later pass.

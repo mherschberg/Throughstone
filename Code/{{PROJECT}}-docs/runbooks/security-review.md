@@ -61,6 +61,9 @@ Output: a short report with scope, findings, fixes, accepted risks, follow-up ST
 next recommended review date. If the sweep is preparing for release and finds that the baseline
 is missing or stale, run S0 or create a follow-up STEP for it. If the sweep finds broad
 uncertainty or a high-risk change, create an S2 audit STEP.
+Use the detailed S1 checklist in [`security-review-s1-checklist.md`](security-review-s1-checklist.md)
+and the structured report template in
+[`../templates/reports/security/s1-security-sweep.md`](../templates/reports/security/s1-security-sweep.md).
 
 ### S2 — Security Audit
 Purpose: a deeper structured review against the security frameworks and threat areas that apply
@@ -170,12 +173,14 @@ review.
 - `registries/security-reviews.yml` is the durable index for review dates, cadence, and change
   markers.
 
-## Detail placeholders
-The detailed S0 checklist and report template now exist:
+## Detailed checklists and templates
+
+The detailed S0 and S1 checklists and report templates now exist:
 - [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
 - [`../templates/reports/security/s0-security-baseline.md`](../templates/reports/security/s0-security-baseline.md)
+- [`security-review-s1-checklist.md`](security-review-s1-checklist.md)
+- [`../templates/reports/security/s1-security-sweep.md`](../templates/reports/security/s1-security-sweep.md)
 
-The detailed S1 sweep checklist, S2 audit modules, and their structured report templates are
-intentionally left for separate passes. Until then, use the purposes, triggers, outputs, and
-ledger rules above to keep S1/S2 consistent without pretending their detailed checklists are
-complete.
+The detailed S2 audit modules and structured report template are intentionally left for a
+separate pass. Until then, use the purposes, triggers, outputs, and ledger rules above to keep
+S2 consistent without pretending its detailed checklist is complete.
