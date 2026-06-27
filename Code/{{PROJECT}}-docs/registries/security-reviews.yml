@@ -11,8 +11,7 @@
 # Recording rule:
 # - Update the matching level after every completed security review.
 # - Put detailed findings, evidence, and baseline tables in the review report; reference that
-#   report here. Security review reports normally live in the active/archived STEP folder for
-#   that review; see `runbooks/security-review.md` for the location rule.
+#   report here. Security review reports live under `reports/security/` in the docs hub.
 # - Capture cheap change markers so the next reviewer can judge staleness by elapsed time,
 #   commits, and rough code-size movement. If a marker is impractical, leave it blank and say why
 #   in `notes`.

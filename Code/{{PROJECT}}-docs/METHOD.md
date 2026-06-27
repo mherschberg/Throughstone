@@ -90,6 +90,8 @@ deploy/rollback checklist), `incident-postmortem.md` (respond to a production in
 spin up an Incident STEP to RCA → find similar → fix, with a postmortem from
 `templates/incident-postmortem.md`), and `dependency-supply-chain.md` (vet a new dependency;
 audit dependencies for vulns/licenses on a cadence); add your own operational ones),
+`reports/` (durable review and operational reports, kept in the docs hub rather than inside
+STEP folders — `reports/security/` holds security baseline, sweep, and audit reports),
 `registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted
 risk / tech-debt register).

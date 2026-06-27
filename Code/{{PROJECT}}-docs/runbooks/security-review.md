@@ -130,11 +130,13 @@ Rules:
 - `N/A` needs a reason so future reviewers can tell whether the project changed.
 
 ## Reports and follow-up work
-Every S0, S1, or S2 run writes a short report in the current STEP folder. While the STEP is in
-progress, keep the report with the active PLAN in `Upcoming Prompts/`; when the STEP is
-archived, keep it under that STEP's folder, e.g. `prompts/001-mvp/step-NNNN/`. If S0 is
-explicitly run outside a tracked STEP, write the report next to the ledger or in the nearest
-planning artifact and reference it from the ledger.
+Every S0, S1, or S2 run writes a short report under `reports/security/` in the docs hub. In a
+multi-repo project, that is the documentation repo. In a mono-repo project, it is the
+scaffolded docs folder inside the repo. The STEP tracks the work; the report artifact does not
+live in the STEP folder.
+
+Use the naming convention in `reports/security/README.md`, then record that report path in
+`registries/security-reviews.yml`.
 
 Each report records:
 - Review level and date.
