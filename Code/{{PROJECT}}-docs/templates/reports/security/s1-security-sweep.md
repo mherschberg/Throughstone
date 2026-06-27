@@ -69,6 +69,28 @@ security-sensitive change / other: TBD
 | SAST/security-lint/container/IaC/security tooling reports | TBD | TBD | Applicable tools only. |
 | Recent commits/PRs/releases since last review | TBD | TBD | Focus on security-sensitive changes. |
 
+## Advisory Sources Checked
+
+Use the starter sources from
+[`runbooks/security-review-s1-checklist.md`](../../../runbooks/security-review-s1-checklist.md),
+then add or remove rows based on the project stack. Keep rows for skipped-but-relevant sources so
+the reason is explicit.
+
+| Source | URL / dashboard | Applies? | Date checked | Result | Follow-up STEP / issue |
+|--------|-----------------|----------|--------------|--------|------------------------|
+| CISA Known Exploited Vulnerabilities catalog | <https://www.cisa.gov/known-exploited-vulnerabilities-catalog> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| OSV.dev / OSV-Scanner | <https://osv.dev/> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| GitHub Advisory Database / GitHub security alerts | <https://github.com/advisories> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| NVD | <https://nvd.nist.gov/> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| CVE.org | <https://www.cve.org/> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Project dependency/security alert dashboards | TBD | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Vendor/cloud/framework/platform advisories | TBD | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Stack-specific source: Go Vulnerability Database | <https://pkg.go.dev/vuln> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Stack-specific source: RustSec Advisory Database | <https://rustsec.org/advisories/> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Stack-specific source: Kubernetes official CVE feed | <https://kubernetes.io/docs/reference/issues-security/official-cve-feed/> | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Stack-specific source: OS/base image tracker | TBD | Yes / No | YYYY-MM-DD | TBD | TBD |
+| Other project-specific source | TBD | Yes / No | YYYY-MM-DD | TBD | TBD |
+
 ## Checklist Outcomes
 
 Use outcomes exactly as defined by

@@ -40,6 +40,44 @@ Use exactly one outcome for every applicable row:
 - Update the Security & Threat Model architecture doc only if reality changed. Do not edit it just
   to record that the sweep happened.
 
+## Advisory Sources
+
+Use this as a scaffold starter set, then customize it for the project's actual stack. Do not
+turn S1 into a broad threat-intelligence exercise; record the sources that apply, the date
+checked, the result, and any follow-up. If a project has configured alerting or scanner
+dashboards, those project-specific sources are usually more important than manually browsing a
+generic database.
+
+Core sources to consider for every S1:
+
+| Source | URL | Use when |
+|--------|-----|----------|
+| CISA Known Exploited Vulnerabilities catalog | <https://www.cisa.gov/known-exploited-vulnerabilities-catalog> | Always check for exploited-in-the-wild vulnerabilities relevant to technologies, products, CI/CD systems, hosting, appliances, and infrastructure in use. |
+| OSV.dev | <https://osv.dev/> | Always consider for open-source dependency ecosystems; prefer OSV-Scanner or the project's configured dependency audit when available. |
+| GitHub Advisory Database | <https://github.com/advisories> | Always consider for common package ecosystems, GitHub Actions, and GitHub-hosted dependency alerts. |
+| NVD | <https://nvd.nist.gov/> | Use as a cross-reference for CVEs and affected-product metadata; do not rely on it as the only source. |
+| CVE.org | <https://www.cve.org/> | Use as the CVE identifier authority and cross-reference when an advisory cites CVEs. |
+| Project alert dashboards | Project-specific | Review configured GitHub/GitLab/Bitbucket alerts, Dependabot/Renovate/Snyk/OSV-Scanner reports, SAST, container/image scans, cloud posture alerts, and vendor dashboards. |
+
+Stack-specific sources to add when applicable:
+
+| Source | URL | Applies when |
+|--------|-----|--------------|
+| Go Vulnerability Database | <https://pkg.go.dev/vuln> | The project uses Go modules or Go tooling. |
+| RustSec Advisory Database | <https://rustsec.org/advisories/> | The project uses Rust crates. |
+| Kubernetes official CVE feed | <https://kubernetes.io/docs/reference/issues-security/official-cve-feed/> | The project deploys to or depends on Kubernetes. |
+| AWS Security Bulletins | <https://aws.amazon.com/security/security-bulletins/> | The project uses AWS-managed services, AMIs, runtimes, or infrastructure. |
+| Google Cloud Security Bulletins | <https://cloud.google.com/support/bulletins> | The project uses Google Cloud or Firebase services. |
+| Microsoft Security Response Center Update Guide | <https://msrc.microsoft.com/update-guide> | The project uses Microsoft, Azure, Windows, .NET, or related platform services. |
+| Ubuntu CVE Tracker | <https://ubuntu.com/security/cves> | The project ships, deploys, or builds on Ubuntu images or packages. |
+| Debian Security Tracker | <https://security-tracker.debian.org/tracker/> | The project ships, deploys, or builds on Debian images or packages. |
+| Alpine secdb | <https://secdb.alpinelinux.org/> | The project ships, deploys, or builds on Alpine images or packages. |
+| Red Hat CVE Database | <https://access.redhat.com/security/security-updates/cve> | The project uses Red Hat Enterprise Linux, OpenShift, Red Hat runtimes, or related Red Hat products. |
+
+Add vendor advisories for any major database, identity provider, payment processor, CDN, queue,
+search engine, observability platform, AI provider, framework, hardware appliance, or hosted
+integration that is part of the project's security posture.
+
 ## Sweep Checklist
 
 Copy the rows into the S1 report, then add project-specific rows for any security-relevant
@@ -54,8 +92,8 @@ absence is a useful future signal.
 | Setup | Confirm the Security & Threat Model, architecture overview, environments, interface contracts, and data model docs still identify the security-relevant surfaces being swept. | TBD | TBD | TBD | TBD |
 | Dependency and security alerts | Review open dependency/security alerts across all package ecosystems and repos in scope. | TBD | TBD | TBD | TBD |
 | Dependency and security alerts | Run or review the project's dependency vulnerability audit process from `dependency-supply-chain.md`; record command/report evidence or why unavailable. | TBD | TBD | TBD | TBD |
-| Dependency and security alerts | Check relevant exploited-vulnerability sources, including CISA KEV where applicable, for technologies, frameworks, runtimes, databases, CI/CD, hosting, and appliances in use. | TBD | TBD | TBD | TBD |
-| Dependency and security alerts | Review vendor, cloud, framework, and platform security advisories for externally hosted services or managed components the project depends on. | TBD | TBD | TBD | TBD |
+| Dependency and security alerts | Check the applicable core and stack-specific advisory sources above, including CISA KEV for exploited vulnerabilities and OSV/GitHub advisories for dependency ecosystems. | TBD | TBD | TBD | TBD |
+| Dependency and security alerts | Review vendor, cloud, framework, and platform security advisories for externally hosted services, managed components, identity/payment providers, AI providers, or other integrations the project depends on. | TBD | TBD | TBD | TBD |
 | Dependency and security alerts | Review container, base image, package artifact, or IaC/cloud posture alerts if the project ships or deploys those artifacts. | TBD | TBD | TBD | TBD |
 | Dependency and security alerts | Review SAST/security-lint findings and confirm any deferrals are tracked as risks or follow-up work. | TBD | TBD | TBD | TBD |
 | Dependency and security alerts | Check CI/CD and supply-chain surfaces for new risky actions/images/scripts, unpinned third-party components, overly broad tokens, or alerting regressions. | TBD | TBD | TBD | TBD |
