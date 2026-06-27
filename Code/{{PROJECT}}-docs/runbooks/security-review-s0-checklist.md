@@ -29,7 +29,9 @@ Use exactly one status for every applicable row:
 - Do not paste secrets, private tokens, customer data, or sensitive infrastructure details into
   the report. Reference the secure system that holds them.
 - Use `registries/risks.yml` for accepted security risks and meaningful deferrals. The S0 report
-  may summarize the decision, but the durable risk/debt index lives there.
+  may summarize the decision, but the durable risk/debt index lives there. When an item is listed
+  in the risk register, put the exact `RISK-0000` ID in that row's `Risk ref` cell so the report
+  cross-references the specific entry.
 - If a tool is not configured because the project is pre-release, small, internal, or still a
   prototype, record that as `Deferred` or `N/A` with a concrete trigger. Do not leave blank rows.
 
@@ -82,8 +84,9 @@ An S0 baseline is complete when:
 - Every applicable row in the S0 report has one of the allowed statuses.
 - Each `Done` row has evidence.
 - Each `Planned`, `Deferred`, and `Accepted Risk` row has an owner and revisit trigger.
-- Each meaningful accepted risk or long-lived deferral is recorded or referenced in
-  `registries/risks.yml`.
+- Each meaningful accepted risk or long-lived deferral is recorded in `registries/risks.yml` or
+  clearly covered by an existing risk-register row, and each affected checklist row cites the
+  specific `RISK-0000` ID in `Risk ref`.
 - Follow-up STEPs or issues exist for planned work that must happen before release, production,
   public launch, or sensitive-data handling.
 - `registries/security-reviews.yml` points to the completed S0 report.

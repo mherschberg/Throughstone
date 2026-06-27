@@ -17,10 +17,6 @@ S2 prerequisite / other: TBD
 - **Next required action:** TBD
 - **Next review trigger/date:** TBD
 
-S0 is strongly recommended before first release, but it is not required unless this project has
-made it a release gate. Record any decision to defer, accept risk, or treat an item as not
-applicable in the table below.
-
 ## Scope
 
 ### Included
@@ -101,24 +97,6 @@ Use statuses exactly as defined by
 | Risk ref | Decision | Reason | Owner | Revisit trigger |
 |----------|----------|--------|-------|-----------------|
 | TBD | Deferred / Accepted Risk | TBD | TBD | TBD |
-
-## Ledger Update
-
-Update `registries/security-reviews.yml` after the review:
-
-```yaml
-security_reviews:
-  S0:
-    last_run:
-      date: "YYYY-MM-DD"
-      report: "reports/security/YYYY-MM-DD-s0-security-baseline.md"
-      reviewed_commit: "TBD"
-      sloc_at_review: TBD
-      commits_since_previous: TBD
-      sloc_delta_since_previous: TBD
-      notes: "TBD"
-    next_due: "TBD"
-```
 
 ## Reviewer Notes
 
