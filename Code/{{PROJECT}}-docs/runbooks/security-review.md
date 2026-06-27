@@ -42,6 +42,9 @@ Run S0:
 Output: a baseline checklist. Each row records the decision date and one status:
 `Done`, `Planned`, `Deferred`, `Accepted Risk`, or `N/A`. `Accepted Risk` requires a reason,
 owner, and revisit trigger, and usually creates or updates a row in `registries/risks.yml`.
+Use the detailed S0 checklist in [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
+and the structured report template in
+[`../templates/reports/security/s0-security-baseline.md`](../templates/reports/security/s0-security-baseline.md).
 
 ### S1 — Security Sweep
 Purpose: a lightweight recurring review that catches security drift, new advisories, stale
@@ -115,7 +118,8 @@ review is stale because time, commits, or code size changed materially.
 An S0 report includes a baseline table. Each row has a dated decision so the project can see not
 only the current status, but when that status was last accepted.
 
-Use this shape:
+Start from the detailed checklist in
+[`security-review-s0-checklist.md`](security-review-s0-checklist.md). Use this shape:
 
 | Area | Baseline item | Status | Decision date | Owner | Reason / evidence | Revisit trigger | Risk ref |
 |------|---------------|--------|---------------|-------|-------------------|-----------------|----------|
@@ -167,8 +171,11 @@ review.
   markers.
 
 ## Detail placeholders
-The detailed S0 checklist, S1 sweep checklist, and S2 audit modules are intentionally defined in
-separate passes. Future passes should also add structured report templates for S0, S1, and S2
-and update this runbook to point at them. Until then, use the purposes, triggers, outputs, and
-ledger rules above to keep the process consistent without pretending the detailed security
-checklist is complete.
+The detailed S0 checklist and report template now exist:
+- [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
+- [`../templates/reports/security/s0-security-baseline.md`](../templates/reports/security/s0-security-baseline.md)
+
+The detailed S1 sweep checklist, S2 audit modules, and their structured report templates are
+intentionally left for separate passes. Until then, use the purposes, triggers, outputs, and
+ledger rules above to keep S1/S2 consistent without pretending their detailed checklists are
+complete.

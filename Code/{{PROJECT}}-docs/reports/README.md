@@ -15,3 +15,6 @@ folders; STEPs may create reports, but the reports themselves live here.
 | Folder | What |
 |--------|------|
 | [`security/`](security/README.md) | Security baseline, sweep, and audit reports produced by `runbooks/security-review.md`. |
+
+Report templates live under `templates/reports/`; reports in this folder are completed review
+artifacts, not blank templates.

@@ -25,3 +25,11 @@ YYYY-MM-DD-s2-security-audit-payments.md
 
 `registries/security-reviews.yml` points to the latest report for each S0/S1/S2 level. Keep
 older reports here for history; do not move them into STEP folders when the STEP is archived.
+
+## Templates
+
+Start S0 reports from
+[`../../templates/reports/security/s0-security-baseline.md`](../../templates/reports/security/s0-security-baseline.md)
+and copy the applicable rows from
+[`../../runbooks/security-review-s0-checklist.md`](../../runbooks/security-review-s0-checklist.md).
+S1 and S2 structured templates are intentionally left for later passes.
