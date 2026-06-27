@@ -111,6 +111,27 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
   update stale rows, create missing source artifacts, and file follow-up STEPs for anything
   whose trigger has fired or whose severity is no longer acceptable.
 
+### Security-review gate
+
+Nudge security deliberately, but do not turn every check-in into a full audit. Read
+`registries/security-reviews.yml` and `runbooks/security-review.md`, then decide whether a
+security review is due:
+
+- Has the S1 Security Sweep cadence elapsed?
+- Has a trigger fired since the last S1 or S2 — auth/AuthZ change, sensitive-data change,
+  public API/surface change, payment or regulated workflow, AI/agent/tool-calling capability,
+  infrastructure/deployment change, major dependency advisory, or incident follow-up?
+- Is the S0 Security Baseline due because the first release is approaching, it is stale, or it
+  was invalidated by repo, CI, hosting, deployment, or ownership changes?
+- Is an S2 Security Audit due by schedule, launch/production milestone, incident follow-up, or
+  material security-posture change?
+
+If a review is due, run S1 inside this check-in only if it is small enough to finish cleanly
+without burying the check-in. Otherwise add a separate **Security Review STEP**. If S2 is due,
+add a separate **Security Audit STEP**; do not run a deep audit inside an ordinary check-in.
+Update `registries/security-reviews.yml` only when a review actually runs, not merely because
+the gate was evaluated.
+
 ## Part 2 — Run all tests  *(substep N.2)*
 - Run the **full** test suite (all repos), not just the area you last touched.
 - Record the result: pass/fail counts, anything skipped, and coverage if you track it.
@@ -125,6 +146,8 @@ Write a short **check-in report** to the check-in STEP's folder:
   disposition; list any whose trigger fired and the follow-up STEP created or already pending.
 - **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
   follow-up STEPs.
+- **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
+  Review or Security Audit STEP created.
 - **Tests:** the suite result, and what was done about any failures.
 - **Carry-forward:** anything that became a new bug/STEP, listed for the index.
 

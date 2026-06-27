@@ -1,0 +1,61 @@
+# Security review ledger for {{PROJECT}}.
+# Reports hold the details of each review. This file holds the latest dates, cadence, and
+# change markers agents compare during check-ins and future security reviews.
+#
+# Review levels:
+# - S0: Security Baseline — release-readiness tooling, repo hygiene, and recurring security
+#   practice setup.
+# - S1: Security Sweep — lightweight recurring drift/advisory/change review.
+# - S2: Security Audit — deeper structured review against applicable security frameworks.
+#
+# Recording rule:
+# - Update the matching level after every completed security review.
+# - Put detailed findings, evidence, and baseline tables in the review report; reference that
+#   report here.
+# - Capture cheap change markers so the next reviewer can judge staleness by elapsed time,
+#   commits, and rough code-size movement. If a marker is impractical, leave it blank and say why
+#   in `notes`.
+# - `reviewed_commit` is the Git commit/SHA that was current when the review ran.
+# - `sloc_at_review` is the rough total source-lines-of-code count at that review, not a delta.
+# - `commits_since_previous` and `sloc_delta_since_previous` are deltas from the previous run of
+#   the same review level when there is one.
+# - Accepted risks and deferrals belong in `registries/risks.yml`; reference them from the
+#   review report.
+
+security_reviews:
+  S0:
+    name: "Security Baseline"
+    cadence: "Before first release; optional earlier; re-check during S2 or after repo/CI/hosting changes."
+    last_run:
+      date:
+      report:
+      reviewed_commit:
+      sloc_at_review:
+      commits_since_previous:
+      sloc_delta_since_previous:
+      notes:
+    next_due:
+  S1:
+    name: "Security Sweep"
+    cadence: "TBD by project."
+    last_run:
+      date:
+      report:
+      reviewed_commit:
+      sloc_at_review:
+      commits_since_previous:
+      sloc_delta_since_previous:
+      notes:
+    next_due:
+  S2:
+    name: "Security Audit"
+    cadence: "TBD by project."
+    last_run:
+      date:
+      report:
+      reviewed_commit:
+      sloc_at_review:
+      commits_since_previous:
+      sloc_delta_since_previous:
+      notes:
+    next_due:
