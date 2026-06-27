@@ -1,4 +1,4 @@
-# S2 Security Audit - {{PROJECT}}
+# S2 Security Audit Report - {{PROJECT}}
 
 **Review level:** S2 - Security Audit
 **Review date:** YYYY-MM-DD
@@ -563,7 +563,7 @@ After completing the audit, update `registries/security-reviews.yml` for `S2`:
 S2:
   last_run:
     date: YYYY-MM-DD
-    report: reports/security/YYYY-MM-DD-s2-security-audit.md
+    report: reports/security/YYYY-MM-DD-s2-security-audit-report.md
     reviewed_commit: TBD
     sloc_at_review: TBD
     commits_since_previous: TBD

@@ -10,18 +10,21 @@ Reports in this folder are produced by `runbooks/security-review.md`:
 Use stable, sortable filenames:
 
 ```text
-YYYY-MM-DD-s0-security-baseline.md
-YYYY-MM-DD-s1-security-sweep.md
-YYYY-MM-DD-s2-security-audit.md
+YYYY-MM-DD-s0-security-baseline-report.md
+YYYY-MM-DD-s1-security-sweep-report.md
+YYYY-MM-DD-s2-security-audit-report.md
 ```
 
 If more than one report of the same level is written on the same date, append the STEP number or
 a short scope:
 
 ```text
-YYYY-MM-DD-s1-security-sweep-step-0042.md
-YYYY-MM-DD-s2-security-audit-payments.md
+YYYY-MM-DD-s1-security-sweep-report-step-0042.md
+YYYY-MM-DD-s2-security-audit-report-payments.md
 ```
+
+Completed report artifacts include `report` in the filename. Report templates include
+`report-template`. Runbooks and checklists do not.
 
 `registries/security-reviews.yml` points to the latest report for each S0/S1/S2 level. Keep
 older reports here for history; do not move them into STEP folders when the STEP is archived.

@@ -1,4 +1,4 @@
-# S0 Security Baseline — {{PROJECT}}
+# S0 Security Baseline Report — {{PROJECT}}
 
 **Review level:** S0 — Security Baseline
 **Review date:** YYYY-MM-DD

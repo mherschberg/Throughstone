@@ -1,4 +1,4 @@
-# S1 Security Sweep — {{PROJECT}}
+# S1 Security Sweep Report — {{PROJECT}}
 
 **Review level:** S1 — Security Sweep
 **Review date:** YYYY-MM-DD
@@ -418,7 +418,7 @@ After completing the sweep, update `registries/security-reviews.yml` for `S1`:
 S1:
   last_run:
     date: YYYY-MM-DD
-    report: reports/security/YYYY-MM-DD-s1-security-sweep.md
+    report: reports/security/YYYY-MM-DD-s1-security-sweep-report.md
     reviewed_commit: TBD
     sloc_at_review: TBD
     commits_since_previous: TBD
