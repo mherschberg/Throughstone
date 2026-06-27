@@ -56,18 +56,87 @@ security-sensitive change / other: TBD
 
 ## Inputs Reviewed
 
-| Input | Reviewed? | Evidence / source | Notes |
-|-------|-----------|-------------------|-------|
-| `registries/security-reviews.yml` | TBD | TBD | Last S0/S1/S2 and cadence. |
-| `registries/risks.yml` | TBD | TBD | Open and monitoring security risks. |
-| Security & Threat Model architecture doc | TBD | TBD | Update only if reality changed. |
-| Architecture overview / environments / data model / interface contracts | TBD | TBD | Security-sensitive drift only. |
-| Dependency/security alert dashboards | TBD | TBD | Git host, bot, package manager, vendor, or scanner. |
-| Dependency audit process from `runbooks/dependency-supply-chain.md` | TBD | TBD | Command/report or reason unavailable. |
-| Exploited-advisory sources, including CISA KEV where applicable | TBD | TBD | Date checked and relevant technology searched. |
-| Vendor/cloud/framework advisories | TBD | TBD | Managed services and platforms in use. |
-| SAST/security-lint/container/IaC/security tooling reports | TBD | TBD | Applicable tools only. |
-| Recent commits/PRs/releases since last review | TBD | TBD | Focus on security-sensitive changes. |
+Use these sections for the major inputs that shaped the sweep. Add or remove sections as needed
+for the project. Each section should be brief but complete enough that a future reviewer can tell
+what was checked, what was skipped, and why the evidence was sufficient.
+
+### Security Review Ledger
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** `registries/security-reviews.yml`
+
+**Notes:** Last S0/S1/S2, cadence, stale markers, and carry-forward items: TBD
+
+### Risk Register
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** `registries/risks.yml`
+
+**Notes:** Open and monitoring security risks reviewed, closed, updated, or promoted: TBD
+
+### Security & Threat Model
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** TBD
+
+**Notes:** Intended posture, trust boundaries, threat assumptions, sensitive data, and controls
+still match reality. Update only if reality changed: TBD
+
+### Related Architecture Docs
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** Architecture overview / environments / data model / interface contracts:
+TBD
+
+**Notes:** Security-sensitive drift only; note docs intentionally skipped: TBD
+
+### Dependency And Security Alert Dashboards
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** Git host, bot, package manager, vendor, scanner, or other dashboard: TBD
+
+**Notes:** Open alerts, stale alerts, false positives, suppressed items, and ownership: TBD
+
+### Dependency Audit Process
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** `runbooks/dependency-supply-chain.md`; command/report or reason unavailable:
+TBD
+
+**Notes:** Package ecosystems covered and intentionally skipped: TBD
+
+### Advisory Sources
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** See **Advisory Sources Checked** below.
+
+**Notes:** Include exploited-advisory, ecosystem, vendor, cloud, framework, and platform sources
+that apply to the project: TBD
+
+### Security Tooling Reports
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** SAST, security lint, container/image scan, IaC/cloud posture, SBOM, or
+other tooling reports: TBD
+
+**Notes:** Applicable tools, unavailable reports, deferrals, and stale findings: TBD
+
+### Recent Changes Since Last Review
+
+**Reviewed:** Yes / No
+
+**Evidence / source:** Commits, PRs, releases, deployment history, roadmap, or STEP reports: TBD
+
+**Notes:** Focus on security-sensitive changes: auth/AuthZ, data, deployment, AI/tool-calling,
+integrations, public surfaces, dependencies, and incident follow-up: TBD
 
 ## Advisory Sources Checked
 
@@ -98,19 +167,213 @@ Use outcomes exactly as defined by
 `No issue`, `Fixed during review`, `Follow-up STEP`, `Accepted Risk`, `Escalate S0`,
 `Escalate S2`, `Incident`, or `N/A`.
 
-| Area | Review item | Outcome | Evidence / notes | Follow-up STEP / issue | Risk ref |
-|------|-------------|---------|------------------|------------------------|----------|
-| Setup | Trigger, previous reviews, scope, and intentionally skipped areas recorded. | TBD | TBD | TBD | TBD |
-| Dependency and security alerts | Dependency alerts, vulnerability audits, exploited advisories, vendor advisories, SAST/security lint, artifact/IaC alerts, and CI supply-chain surfaces reviewed. | TBD | TBD | TBD | TBD |
-| Accepted risks | Open and monitoring security risks reviewed; stale, mitigated, or triggered risks updated. | TBD | TBD | TBD | TBD |
-| Auth/AuthZ | Authentication, authorization, session/token, tenant, admin, and service-to-service boundaries still match the architecture docs and recent changes. | TBD | TBD | TBD | TBD |
-| Data exposure | Sensitive data collection, storage, logs, exports, APIs, notifications, backups, and cross-tenant boundaries reviewed for drift. | TBD | TBD | TBD | TBD |
-| Secrets and config | Secrets, config, CI secret exposure, local env handling, generated artifacts, docs, logs, and rotation assumptions reviewed. | TBD | TBD | TBD | TBD |
-| Logging, monitoring, rate limiting, and uploads | Security logging, sensitive log leakage, rate limiting/abuse controls, and upload/user-content handling reviewed where applicable. | TBD | TBD | TBD | TBD |
-| External integrations | OAuth scopes, API keys, webhooks, callbacks, payment/regulated workflows, third-party sharing, retries, and signature checks reviewed. | TBD | TBD | TBD | TBD |
-| Infrastructure and deployment | Public exposure, network boundaries, TLS/domains, CORS/security headers, environment separation, least privilege, and rollback assumptions reviewed. | TBD | TBD | TBD | TBD |
-| AI and tool-calling | AI/agent/tool-calling, retrieval, user prompts, model outputs, data boundaries, tool permissions, and auditability reviewed if present. | TBD | TBD | TBD | TBD |
-| Documentation and follow-up | Security docs updated only if reality changed; non-trivial fixes filed as STEPs; S0/S2/incident escalation considered. | TBD | TBD | TBD | TBD |
+Use this table as the compact index. Put detailed evidence in the area sections below.
+
+| Area | Outcome | Finding count | Follow-up STEP / issue | Risk ref |
+|------|---------|---------------|------------------------|----------|
+| Setup | TBD | TBD | TBD | TBD |
+| Dependency and security alerts | TBD | TBD | TBD | TBD |
+| Accepted risks | TBD | TBD | TBD | TBD |
+| Auth/AuthZ | TBD | TBD | TBD | TBD |
+| Data exposure | TBD | TBD | TBD | TBD |
+| Secrets and config | TBD | TBD | TBD | TBD |
+| Logging, monitoring, rate limiting, and uploads | TBD | TBD | TBD | TBD |
+| External integrations | TBD | TBD | TBD | TBD |
+| Infrastructure and deployment | TBD | TBD | TBD | TBD |
+| AI and tool-calling | TBD | TBD | TBD | TBD |
+| Documentation and follow-up | TBD | TBD | TBD | TBD |
+
+## Area Review Details
+
+Use these sections for evidence and judgment. Add project-specific subsections when the sweep
+finds a security-relevant area that is not covered by the starter structure.
+
+### Setup
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Trigger, previous reviews, scope, intentionally skipped areas, reviewed commit, and
+change markers recorded: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Dependency And Security Alerts
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Dependency alerts, vulnerability audits, exploited advisories, vendor advisories,
+SAST/security lint, artifact/IaC alerts, and CI supply-chain surfaces reviewed: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Accepted Risks
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Open and monitoring security risks reviewed; stale, mitigated, or triggered risks
+updated: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Auth/AuthZ
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Authentication, authorization, session/token, tenant, admin, and service-to-service
+boundaries still match the architecture docs and recent changes: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Data Exposure
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Sensitive data collection, storage, logs, exports, APIs, notifications, backups,
+and cross-tenant boundaries reviewed for drift: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Secrets And Config
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Secrets, config, CI secret exposure, local env handling, generated artifacts, docs,
+logs, and rotation assumptions reviewed: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Logging, Monitoring, Rate Limiting, And Uploads
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Security logging, sensitive log leakage, rate limiting/abuse controls, and
+upload/user-content handling reviewed where applicable: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### External Integrations
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** OAuth scopes, API keys, webhooks, callbacks, payment/regulated workflows,
+third-party sharing, retries, and signature checks reviewed: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Infrastructure And Deployment
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Public exposure, network boundaries, TLS/domains, CORS/security headers,
+environment separation, least privilege, and rollback assumptions reviewed: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### AI And Tool-Calling
+
+**Reviewed:** Yes / No / N/A
+
+**Outcome:** TBD
+
+**Evidence:** AI/agent/tool-calling, retrieval, user prompts, model outputs, data boundaries,
+tool permissions, and auditability reviewed if present: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
+
+### Documentation And Follow-Up
+
+**Reviewed:** Yes / No
+
+**Outcome:** TBD
+
+**Evidence:** Security docs updated only if reality changed; non-trivial fixes filed as STEPs;
+S0/S2/incident escalation considered: TBD
+
+**Notes:** TBD
+
+**Findings / fixes:** TBD
+
+**Follow-up STEP / issue:** TBD
+
+**Risk ref:** TBD
 
 ## Findings
 
