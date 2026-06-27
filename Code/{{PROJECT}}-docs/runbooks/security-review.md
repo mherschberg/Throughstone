@@ -81,6 +81,9 @@ Run S2:
 Output: a scoped audit report listing the modules reviewed, findings, severity, required fixes,
 accepted risks, and follow-up STEPs. Only run modules that apply to the project; do not treat S2
 as one universal checklist.
+Use the detailed S2 checklist in [`security-review-s2-checklist.md`](security-review-s2-checklist.md)
+and the structured report template in
+[`../templates/reports/security/s2-security-audit.md`](../templates/reports/security/s2-security-audit.md).
 
 ## Security review gate
 The periodic check-in (`check-in.md`) should include a short security gate rather than running a
@@ -175,12 +178,10 @@ review.
 
 ## Detailed checklists and templates
 
-The detailed S0 and S1 checklists and report templates now exist:
+The detailed S0, S1, and S2 checklists and report templates now exist:
 - [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
 - [`../templates/reports/security/s0-security-baseline.md`](../templates/reports/security/s0-security-baseline.md)
 - [`security-review-s1-checklist.md`](security-review-s1-checklist.md)
 - [`../templates/reports/security/s1-security-sweep.md`](../templates/reports/security/s1-security-sweep.md)
-
-The detailed S2 audit modules and structured report template are intentionally left for a
-separate pass. Until then, use the purposes, triggers, outputs, and ledger rules above to keep
-S2 consistent without pretending its detailed checklist is complete.
+- [`security-review-s2-checklist.md`](security-review-s2-checklist.md)
+- [`../templates/reports/security/s2-security-audit.md`](../templates/reports/security/s2-security-audit.md)

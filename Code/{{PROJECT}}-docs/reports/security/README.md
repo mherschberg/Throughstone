@@ -38,4 +38,7 @@ Start S1 reports from
 and copy the applicable rows from
 [`../../runbooks/security-review-s1-checklist.md`](../../runbooks/security-review-s1-checklist.md).
 
-S2 structured templates are intentionally left for a later pass.
+Start S2 reports from
+[`../../templates/reports/security/s2-security-audit.md`](../../templates/reports/security/s2-security-audit.md)
+and copy the applicable module rows from
+[`../../runbooks/security-review-s2-checklist.md`](../../runbooks/security-review-s2-checklist.md).
