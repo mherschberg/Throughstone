@@ -1,4 +1,4 @@
-# S1 Security Sweep Report — {{PROJECT}}
+# S1 Security Sweep Report Template — {{PROJECT}}
 
 **Review level:** S1 — Security Sweep
 **Review date:** YYYY-MM-DD
