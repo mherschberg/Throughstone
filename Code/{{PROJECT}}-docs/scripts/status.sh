@@ -208,7 +208,7 @@ elif [ -n "$lowplanned" ]; then                             # §10.5
   next="start ${lowplanned} — confirm scope, then author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat."
 elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
-  next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
+  next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes-template.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
 else
   where="Indeterminate from the index alone."
   next="resolve by hand via the next-action resolver in METHOD.md §10."

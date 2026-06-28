@@ -55,7 +55,7 @@ purpose, recorded.
 
 ## Output
 Write `architecture/02-phasing-roadmap.md` — the Phasing & Roadmap architecture doc (use
-`templates/architecture-doc.md`). Body:
+`templates/architecture-doc-template.md`). Body:
 - **Phase 1 (MVP)** — goal, in-scope capabilities, launch criteria
 - **Later phases** — a short sketch of Phase 2+, each with its deferred items and rationale
 - **Don't-foreclose list** — constraints the MVP must respect

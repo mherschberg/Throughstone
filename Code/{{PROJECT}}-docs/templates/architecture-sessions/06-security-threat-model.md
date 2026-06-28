@@ -77,14 +77,14 @@ oversight.
 
 ## Output
 Write `architecture/06-security-threat-model.md` — the Security & Threat Model architecture
-doc (use `templates/architecture-doc.md`). Body:
+doc (use `templates/architecture-doc-template.md`). Body:
 - **Assets**
 - **Trust boundaries** (diagram or list)
 - **Threats → mitigations** table — threat | boundary | MVP mitigation | deferred / blast radius
 - **AuthN/AuthZ posture**, **secrets & data protection**, **web-risk posture**
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Capture
-any contested or deferred decision as an **ADR** (`templates/adr.md`) — deferrals especially —
+any contested or deferred decision as an **ADR** (`templates/adr-template.md`) — deferrals especially —
 and add each accepted deferral to `registries/risks.yml` with owner, severity, and revisit
 trigger. Keep the register row short and reference the architecture section and/or ADR that
 records the detail; if neither exists, add the detail to this architecture doc before adding

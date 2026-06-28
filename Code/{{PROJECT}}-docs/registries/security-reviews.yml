@@ -1,0 +1,73 @@
+# Security review ledger for {{PROJECT}}.
+# Reports hold the details of each review. This file holds the latest dates, cadence, and
+# change markers agents compare during check-ins and future security reviews.
+# The cadence values below are project-level defaults. Project users may change them here when
+# the project's risk, launch stage, compliance/customer expectations, or operating model call for
+# a different review rhythm; agents should read the current values rather than asking every time.
+#
+# Review levels:
+# - S0: Security Baseline — release-readiness tooling, repo hygiene, and recurring security
+#   practice setup.
+# - S1: Security Sweep — lightweight recurring drift/advisory/change review.
+# - S2: Security Audit — deeper structured review against applicable security frameworks.
+#
+# Recording rule:
+# - Update the matching level after every completed security review.
+# - Put detailed findings, evidence, and baseline tables in the review report; reference that
+#   report here. Security review reports live under `reports/security/` in the docs hub.
+# - S0 reports should start from
+#   `templates/reports/security/s0-security-baseline-report-template.md` and the detailed
+#   checklist in `runbooks/security-review-s0-checklist.md`.
+# - S1 reports should start from
+#   `templates/reports/security/s1-security-sweep-report-template.md` and the detailed
+#   checklist in `runbooks/security-review-s1-checklist.md`.
+# - S2 reports should start from
+#   `templates/reports/security/s2-security-audit-report-template.md` and the detailed
+#   checklist in `runbooks/security-review-s2-checklist.md`.
+# - Capture cheap change markers so the next reviewer can judge staleness by elapsed time,
+#   commits, and rough code-size movement. If a marker is impractical, leave it blank and say why
+#   in `notes`.
+# - `reviewed_commit` is the Git commit/SHA that was current when the review ran.
+# - `sloc_at_review` is the rough total source-lines-of-code count at that review, not a delta.
+# - `commits_since_previous` and `sloc_delta_since_previous` are deltas from the previous run of
+#   the same review level when there is one.
+# - Accepted risks and deferrals belong in `registries/risks.yml`; reference them from the
+#   review report.
+
+security_reviews:
+  S0:
+    name: "Security Baseline"
+    cadence: "Strongly recommended before first release; optional earlier; re-check during S2 or after repo/CI/hosting changes."
+    last_run:
+      date:
+      report:
+      reviewed_commit:
+      sloc_at_review:
+      commits_since_previous:
+      sloc_delta_since_previous:
+      notes:
+    next_due:
+  S1:
+    name: "Security Sweep"
+    cadence: "Default: consider an S1 Security Sweep quarterly and after security triggers; check-ins evaluate whether cadence or triggers make a separate Security Review STEP useful; customize per project."
+    last_run:
+      date:
+      report:
+      reviewed_commit:
+      sloc_at_review:
+      commits_since_previous:
+      sloc_delta_since_previous:
+      notes:
+    next_due:
+  S2:
+    name: "Security Audit"
+    cadence: "Default: strongly recommended before public launch, sensitive production use, or major security-posture changes; quarterly for high-risk production systems."
+    last_run:
+      date:
+      report:
+      reviewed_commit:
+      sloc_at_review:
+      commits_since_previous:
+      sloc_delta_since_previous:
+      notes:
+    next_due:

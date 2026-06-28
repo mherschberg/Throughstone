@@ -56,7 +56,7 @@ now prevents painful migrations and compliance surprises later.
    fine; and how schema changes/migrations will be handled.
 
 ## Output
-Write `architecture/04-data-model.md` (use `templates/architecture-doc.md`). Body:
+Write `architecture/04-data-model.md` (use `templates/architecture-doc-template.md`). Body:
 - **Entity model** — a diagram or list with relationships
 - **Ownership table** — entity | owning component | notes
 - **Storage** — choices + rationale

@@ -41,7 +41,7 @@ in both directions, because they catch different problems:
 
 - **Docs vs. code** — the doc claims something the code no longer does (stale doc).
   → **Fix the doc** and bump its Version Log (`METHOD.md` §6); if a real decision was made in
-  code but never recorded, **write an ADR** (`templates/adr.md`) and update the doc to match.
+  code but never recorded, **write an ADR** (`templates/adr-template.md`) and update the doc to match.
 - **Code vs. docs** — the code diverges from a decision the doc still gets *right* (the code
   is wrong, not the doc). → **Don't "fix" the doc to bless the drift.** Flag it as a bug /
   follow-up STEP.
@@ -67,7 +67,7 @@ list, because projects may add conditional sessions later. For each template:
   implemented code, deployed surfaces, data handled, and product behavior.
 - Find its latest recorded disposition. Start with the archived STEP-1 PLAN under
   `prompts/*/step-0001/` (or the in-flight PLAN in `Upcoming Prompts/` if STEP-1 is not yet
-  archived), then consider later check-in reports and conditional follow-up STEPs. Do not
+  archived), then consider later check-in reports under `reports/` and conditional follow-up STEPs. Do not
   edit archived plans or reports; this check-in report records the new current disposition.
 - Confirm that an applicable conditional has a completed output architecture doc, or that
   the latest `Deferred` / `N/A` reason remains valid. A newly added template with no earlier
@@ -107,9 +107,30 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
 - **Accepted risks / tech debt** — review `registries/risks.yml`. For every open or monitoring
   item, decide whether the revisit trigger has fired, the severity/owner still matches reality,
   and the referenced architecture section, ADR, issue, STEP report, incident postmortem, or
-  check-in report still exists and still explains the risk. Close items that are mitigated,
-  update stale rows, create missing source artifacts, and file follow-up STEPs for anything
-  whose trigger has fired or whose severity is no longer acceptable.
+  check-in report under `reports/` still exists and still explains the risk. Close items that
+  are mitigated, update stale rows, create missing source artifacts, and file follow-up STEPs
+  for anything whose trigger has fired or whose severity is no longer acceptable.
+
+### Security-review gate
+
+Nudge security deliberately, but do not turn every check-in into a full audit. Read
+`registries/security-reviews.yml` and `runbooks/security-review.md`, then decide whether a
+security review is due:
+
+- Has the S1 Security Sweep cadence elapsed?
+- Has a trigger fired since the last S1 or S2 — auth/AuthZ change, sensitive-data change,
+  public API/surface change, payment or regulated workflow, AI/agent/tool-calling capability,
+  infrastructure/deployment change, major dependency advisory, or incident follow-up?
+- Is the S0 Security Baseline due because the first release is approaching, it is stale, or it
+  was invalidated by repo, CI, hosting, deployment, or ownership changes?
+- Is an S2 Security Audit due by schedule, launch/production milestone, incident follow-up, or
+  material security-posture change?
+
+If a review is due, add a separate STEP for it; do not run S1 or S2 inside this check-in. Use a
+**Security Baseline STEP** for S0, a **Security Review STEP** for S1, and a **Security Audit
+STEP** for S2.
+Update `registries/security-reviews.yml` only when a review actually runs, not merely because
+the gate was evaluated.
 
 ## Part 2 — Run all tests  *(substep N.2)*
 - Run the **full** test suite (all repos), not just the area you last touched.
@@ -118,16 +139,21 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
   STEP if not. A red suite must not be left for "later."
 
 ## Output
-Write a short **check-in report** to the check-in STEP's folder:
+Write a short **check-in report** under `reports/` in the docs hub. Use
+`templates/reports/check-in-report-template.md` and name the completed report
+`reports/YYYY-MM-DD-step-NNNN-check-in-report.md`.
 - **Drift:** docs reviewed, discrepancies found, classified (doc fixed / ADR written / bug
   filed) — with the fixes applied and the bugs filed.
 - **Conditional coverage:** every discovered conditional-session template and its current
   disposition; list any whose trigger fired and the follow-up STEP created or already pending.
 - **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
   follow-up STEPs.
+- **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
+  Baseline, Security Review, or Security Audit STEP created.
 - **Tests:** the suite result, and what was done about any failures.
 - **Carry-forward:** anything that became a new bug/STEP, listed for the index.
 
 Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
-follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), and add any new ADRs to
-`adr/README.md`. Note when the next check-in is due (~10–20 STEPs out).
+follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
+`adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
+STEP. Note when the next check-in is due (~10–20 STEPs out).

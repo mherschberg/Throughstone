@@ -29,7 +29,13 @@
      the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`) and any
      interface contract artifact it names; include
      coding-standards/api.md for HTTP/REST endpoints so the house style — timestamps,
-     pagination, errors, versioning — stays consistent across endpoints. -->
+     pagination, errors, versioning — stays consistent across endpoints. For security-sensitive
+     work — auth/AuthZ, secrets, sensitive data, public attack surface, dependency/security
+     controls, or accepted security risk — include the Security & Threat Model architecture doc
+     (`architecture/*-security-threat-model.md`) and relevant `registries/risks.yml` rows.
+     Do not include `runbooks/security-review.md`, S0/S1/S2 checklists, or security report
+     templates in normal implementation substeps; those belong only to explicit Security
+     Baseline, Security Review, or Security Audit STEPs. -->
 - overview.md
 - architecture/NN-…
 - ADR-XXXX-…
@@ -74,7 +80,7 @@ technology, a scaling/security assumption, anything an `architecture/*` doc stat
 just change the code:
 - **Small/clarifying change:** update the affected `architecture/NN-*.md` and **bump its
   Version Log** (see `METHOD.md` §6).
-- **Significant or contested change:** write an **ADR** (`templates/adr.md`) and update the
+- **Significant or contested change:** write an **ADR** (`templates/adr-template.md`) and update the
   doc to match. If it overturns a settled assumption, consider **re-running** the relevant
   architecture session (`METHOD.md` §4).
 - **New code, even when it overturns nothing:** adding a component, repo, or public surface,
@@ -90,8 +96,8 @@ just change the code:
   dependency fix, incident follow-up, operational weakness, or other tech debt, add or update
   `registries/risks.yml` with severity, owner, and revisit trigger. The register is an index:
   reference the architecture decision/section, ADR, issue/follow-up STEP, incident report, or
-  check-in report that carries the details. If no such source exists, create it first, then add
-  the register row.
+  check-in report under `reports/` that carries the details. If no such source exists, create
+  it first, then add the register row.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
   `.secrets/` (see `architecture/*-security-threat-model.md` and the Environments
   architecture doc, `architecture/*-environments.md`); commit only `.env.example`.

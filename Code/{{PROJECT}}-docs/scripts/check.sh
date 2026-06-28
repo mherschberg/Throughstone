@@ -142,7 +142,7 @@ fi
 # --- 4. Architecture-doc frontmatter ------------------------------------------
 hdr "4. Architecture docs carry Version / Status / Version Log"
 # Invariant: each numbered architecture document exposes reviewable lifecycle metadata.
-# templates/architecture-doc.md defines the shape; this catches hand-written docs that skipped
+# templates/architecture-doc-template.md defines the shape; this catches hand-written docs that skipped
 # the template or lost the Version Log during edits.
 docs=("$ARCH_DIR"/[0-9][0-9]-*.md)
 if [ ${#docs[@]} -eq 0 ]; then
@@ -160,7 +160,7 @@ else
   if [ "$missing_any" -eq 0 ]; then
     pass "all ${#docs[@]} architecture doc(s) have the required fields"
   else
-    hint "add the missing field(s) from templates/architecture-doc.md (Version / Status header, and a Version Log table). See METHOD.md §6."
+    hint "add the missing field(s) from templates/architecture-doc-template.md (Version / Status header, and a Version Log table). See METHOD.md §6."
   fi
 fi
 
@@ -177,7 +177,7 @@ if [ -f "$ADR_INDEX" ]; then
   missing_files="$(comm -23 <(emit "$reg_ids") <(emit "$disk_ids"))"   # in registry, no file
   missing_rows="$(comm -13 <(emit "$reg_ids") <(emit "$disk_ids"))"    # file, not in registry
   ok=1
-  [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; hint "create the ADR file(s) from templates/adr.md, or remove the stale registry row(s) in adr/README.md."; }
+  [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; hint "create the ADR file(s) from templates/adr-template.md, or remove the stale registry row(s) in adr/README.md."; }
   [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; hint "add a registry row in adr/README.md for the file(s), or delete the file if it shouldn't exist."; }
   [ "$ok" -eq 1 ] && pass "registry and files agree ($(emit "$reg_ids" | grep -c . ) ADR(s))"
 else

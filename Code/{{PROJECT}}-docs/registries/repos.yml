@@ -25,7 +25,7 @@ repos:
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them and they
-  # are stamped from templates/repo-readme.md. Example:
+  # are stamped from templates/repo-readme-template.md. Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service

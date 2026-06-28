@@ -20,6 +20,10 @@
   that file as the single source of truth for both values.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that
   touches their area.
+- For security-sensitive feature work, reference the Security & Threat Model architecture doc
+  (`architecture/*-security-threat-model.md`) and relevant risk rows. Do not pull in
+  `runbooks/security-review.md`, S0/S1/S2 checklists, or security report templates unless this
+  STEP is explicitly a Security Baseline, Security Review, or Security Audit STEP.
 - ADR-XXXX — …
 - architecture/NN-… — …
 
@@ -32,7 +36,7 @@
 
 <!-- For the architecture STEP, substeps are the sessions in
      templates/architecture-sessions/ (1.1 → session 01, etc.). For later STEPs, each
-     substep gets a prompt authored from templates/substep-prompt.md. A Check-in STEP is
+     substep gets a prompt authored from templates/substep-prompt-template.md. A Check-in STEP is
      thin: no prompts are authored — its two substeps are doc-drift/conditional-coverage
      reconciliation (N.1) and the full test run (N.2) defined in runbooks/check-in.md; this
      PLAN just points there. A late conditional-session follow-up STEP is also thin: its
@@ -42,7 +46,7 @@
      thin: no prompts are authored — its substeps are
      RCA (N.1), find similar (N.2), and fix/harden (N.3) defined in
      runbooks/incident-postmortem.md; its durable postmortem starts from
-     templates/incident-postmortem.md. -->
+     templates/incident-postmortem-template.md. -->
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
 <!-- Every conditional-*.md session file gets a row and an EXPLICIT decision, never a silent
@@ -75,13 +79,14 @@
   make the STEP coherent.
 - **Tests ship with the code.** Every substep that writes or changes code also writes the
   tests for it and runs the relevant tests before it's done (see
-  `templates/substep-prompt.md`). Override per substep only with a stated reason.
+  `templates/substep-prompt-template.md`). Override per substep only with a stated reason.
 - **Code is documented as it's written.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see `coding-standards/README.md`).
 - **Accepted risks stay visible.** If this STEP accepts a risk or defers tech debt, add or
   update `registries/risks.yml` with severity, owner, and revisit trigger. Reference an
   architecture decision/section, ADR, issue/follow-up STEP, incident report, or check-in report
-  instead of duplicating detail; create that source first if it doesn't already exist.
+  under `reports/` instead of duplicating detail; create that source first if it doesn't already
+  exist.
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->
@@ -90,9 +95,11 @@
 - [ ] All unit tests pass at the end of this STEP — ideally the full suite (unit +
       integration/e2e). <!-- the default bar; narrow or widen with a stated reason -->
 - [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
+      <!-- For a Check-in STEP, the completed report is saved under reports/, not in the
+           archived STEP folder. -->
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
-     templates/substep-prompt.md ("Keeping the docs true"). Exceptions: STEP-1's review is the
+     templates/substep-prompt-template.md ("Keeping the docs true"). Exceptions: STEP-1's review is the
      Cross-Cutting Review; a Check-in STEP is itself the review (runbooks/check-in.md); an
      Incident STEP closes by completing the postmortem and output checklist in
      runbooks/incident-postmortem.md. -->

@@ -51,7 +51,7 @@ language the same way. It's short, but it prevents a lot of drift.
 
 ## Output
 Write `architecture/13-glossary.md` — the Glossary architecture doc (use
-`templates/architecture-doc.md`). Body:
+`templates/architecture-doc-template.md`). Body:
 - An **alphabetical term table** — Term | Definition | Notes / "not to be confused with"
 - A short **naming conventions** note
 

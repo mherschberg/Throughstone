@@ -64,7 +64,7 @@ up front avoids painful reworks once the app is in users' hands.
    what could blow them.
 
 ## Output
-Write `architecture/NN-native-app-architecture.md` (use `templates/architecture-doc.md`;
+Write `architecture/NN-native-app-architecture.md` (use `templates/architecture-doc-template.md`;
 NN per the active STEP's index/PLAN). If the doc already exists, revise it in place and bump
 its Version Log instead of creating a second native-app doc. Body covers each area above.
 Fill the **Decision Summary** (the distribution/forced-upgrade and offline choices especially

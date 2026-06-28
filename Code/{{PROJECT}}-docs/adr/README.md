@@ -17,7 +17,7 @@ decision: the context, the choice, the alternatives rejected, and the consequenc
   not tactical choices (library versions, file layout).
 - **Never rewrite an accepted decision.** If it changes, append a dated `## Amendment`,
   or write a new ADR and set this one's status to `Superseded by ADR-XXXX`.
-- Use `../templates/adr.md`. Add every new ADR to the registry below.
+- Use `../templates/adr-template.md`. Add every new ADR to the registry below.
 
 ## How decisions get accepted
 ADRs are how a decision is socialized — especially in a team (see

@@ -139,7 +139,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   repos, or accepted risk/debt, keep the record in the issue/PR/commit trail instead of adding
   process overhead.
 - During the architecture STEP, produce **Markdown docs + ADRs only — no code**.
-- Significant decisions become **ADRs** (`Code/{{PROJECT}}-docs/templates/adr.md`); never
+- Significant decisions become **ADRs** (`Code/{{PROJECT}}-docs/templates/adr-template.md`); never
   rewrite an accepted ADR's decision — supersede it or append an amendment.
 - **Keep the docs true.** When implementation changes an architecture decision, update the
   affected `Code/{{PROJECT}}-docs/architecture/NN-*.md` and bump its Version Log, or write an
@@ -151,8 +151,8 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
   dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is
   an index: reference the architecture decision/section, ADR, issue/follow-up STEP, incident
-  report, or check-in report that carries the details; create that source first if it doesn't
-  exist.
+  report, or check-in report under `Code/{{PROJECT}}-docs/reports/` that carries the details;
+  create that source first if it doesn't exist.
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).
@@ -164,7 +164,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Flag milestone docs at a phase/release.** When a phase completes or you cut a release,
   proactively ask the user about **release notes** and **user-facing doc updates** — neither
   is produced by normal STEP work. If the user wants release notes, start from
-  `Code/{{PROJECT}}-docs/templates/release-notes.md`; end-user docs are otherwise outside this
+  `Code/{{PROJECT}}-docs/templates/release-notes-template.md`; end-user docs are otherwise outside this
   method's scope (see `METHOD.md` §5, *Milestone doc review*).
 - **Never commit secrets.** Local dev values live in a gitignored `.env` / `.secrets/`;
   commit only a `.env.example` that documents the required keys.

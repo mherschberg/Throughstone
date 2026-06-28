@@ -4,7 +4,7 @@
 # around it.
 #
 # Stamp this into each code repo's .github/workflows/ when the repo is scaffolded (alongside its
-# README from templates/repo-readme.md), then fill in the toolchain + test command for that
+# README from templates/repo-readme-template.md), then fill in the toolchain + test command for that
 # repo's stack. The job below FAILS on purpose until you do — an unconfigured gate that silently
 # passes is worse than none. Replace the final step with one of the examples (or your own).
 

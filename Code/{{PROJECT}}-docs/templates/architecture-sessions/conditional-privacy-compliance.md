@@ -86,7 +86,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
    Lightweight for an MVP — but assigned to a name, not left ownerless.
 
 ## Output
-Write `architecture/NN-privacy-compliance.md` (use `templates/architecture-doc.md`; NN per
+Write `architecture/NN-privacy-compliance.md` (use `templates/architecture-doc-template.md`; NN per
 the active STEP's index/PLAN). If the doc already exists, revise it in place and bump its
 Version Log instead of creating a second privacy/compliance doc. Body covers each area above
 — lead with the **applicable-regimes** decision and the **personal-data inventory** table,

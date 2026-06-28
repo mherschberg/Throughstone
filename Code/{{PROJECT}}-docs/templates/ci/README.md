@@ -25,7 +25,7 @@ at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-r
 ## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
 
 The test gate for a code repo. When you scaffold a code repo (stamping its README from
-`templates/repo-readme.md`), also drop this into that repo's `.github/workflows/ci.yml` and fill in
+`templates/repo-readme-template.md`), also drop this into that repo's `.github/workflows/ci.yml` and fill in
 the toolchain + test command for its stack — examples for Node / Python / Go / Rust are inlined.
 
 It **fails until configured** on purpose: an unconfigured gate that silently passes is worse than

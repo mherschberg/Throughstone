@@ -86,14 +86,14 @@ reason, so a future reader sees a decision rather than an accident. Keep the cor
 unless their own session instructions explicitly say to mark them `N/A` or `Deferred` (for
 example, the UI / Design System session when there is no styled UI). Write
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (from
-`Code/{{PROJECT}}-docs/templates/step-plan.md`) listing the chosen sessions as substeps,
+`Code/{{PROJECT}}-docs/templates/step-plan-template.md`) listing the chosen sessions as substeps,
 the locked decisions, and the definition of done. **Wait for confirmation.**
 
 ### Stage 3 — Substep prompts  ▸ checkpoint
 For STEP-1, the substep prompts already exist as the session files in
 `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. Confirm the mapping (substep 1.1
 → session 01, etc.) in the PLAN and the index. (For later, non-architecture STEPs, you'll
-author substep prompts from `Code/{{PROJECT}}-docs/templates/substep-prompt.md`.)
+author substep prompts from `Code/{{PROJECT}}-docs/templates/substep-prompt-template.md`.)
 
 **Then close out the kickoff:** flip the kickoff gate by editing the
 `<!-- PROJECT-STATUS: not-started -->` line near the top of
@@ -131,6 +131,6 @@ STEP also ends by naming it. So *"what do I do next?"* is always answerable from
   confusion or request to clarify — however worded — as a cue to explain plainly, and tell
   the user up front they can ask.
 - **Record decisions.** Significant choices become ADRs
-  (`Code/{{PROJECT}}-docs/templates/adr.md`); the current design lives in architecture docs
-  (`Code/{{PROJECT}}-docs/templates/architecture-doc.md`).
+  (`Code/{{PROJECT}}-docs/templates/adr-template.md`); the current design lives in architecture docs
+  (`Code/{{PROJECT}}-docs/templates/architecture-doc-template.md`).
 - **Keep the index current.** `prompts/STEP-index.md` is the source of truth for status.

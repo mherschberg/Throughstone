@@ -67,7 +67,7 @@ No code in this session. The output is a Markdown doc.
 
 ## Output
 Write `architecture/01-system-overview.md` — the System Overview, Requirements & Non-Goals
-architecture doc (use `templates/architecture-doc.md`). Body sections, in order:
+architecture doc (use `templates/architecture-doc-template.md`). Body sections, in order:
 - **Problem & Value** — the problem statement and why now
 - **Users & Stakeholders** — primary personas + others affected
 - **Success Criteria** — measurable
@@ -81,7 +81,7 @@ Questions** for later sessions, and start the **Version Log** at v0.1.0.
 
 Finally, update `prompts/STEP-index.md`: mark substep 1.1 done and note open questions carried
 forward. If any decision was significant and contested (e.g. a deliberate "not ever"),
-consider capturing it as an ADR using `templates/adr.md`.
+consider capturing it as an ADR using `templates/adr-template.md`.
 
 ## Next
 Once 1.1 is marked done, **first give the user a quick map of what's ahead** so they have a
