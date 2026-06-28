@@ -1,6 +1,9 @@
 # Security review ledger for {{PROJECT}}.
 # Reports hold the details of each review. This file holds the latest dates, cadence, and
 # change markers agents compare during check-ins and future security reviews.
+# The cadence values below are project-level defaults. Project users may change them here when
+# the project's risk, launch stage, compliance/customer expectations, or operating model call for
+# a different review rhythm; agents should read the current values rather than asking every time.
 #
 # Review levels:
 # - S0: Security Baseline — release-readiness tooling, repo hygiene, and recurring security

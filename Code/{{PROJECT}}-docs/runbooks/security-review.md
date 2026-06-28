@@ -113,8 +113,10 @@ Each project needs one durable, machine-readable place to answer "when did we la
 and "how much changed since then?" Use `registries/security-reviews.yml` for that ledger.
 
 The ledger schema and project cadence defaults live in `registries/security-reviews.yml`; do not
-duplicate them here. The ledger records the latest run for each level and the change markers
-captured at that time:
+duplicate them here. Project users may override those cadence defaults in the ledger when the
+project's risk or operating model calls for a different rhythm; agents should read the current
+ledger values rather than asking about cadence during every check-in. The ledger records the
+latest run for each level and the change markers captured at that time:
 - Review date.
 - Review level (`S0`, `S1`, or `S2`).
 - Report path.
