@@ -46,7 +46,7 @@ security_reviews:
     next_due:
   S1:
     name: "Security Sweep"
-    cadence: "Default: create a Security Review STEP when the check-in gate says S1 is due, roughly every check-in cycle or after a security trigger; customize per project."
+    cadence: "Default: consider an S1 Security Sweep quarterly and after security triggers; check-ins evaluate whether cadence or triggers make a separate Security Review STEP useful; customize per project."
     last_run:
       date:
       report:

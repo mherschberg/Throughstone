@@ -147,7 +147,7 @@ Write a short **check-in report** to the check-in STEP's folder:
 - **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
   follow-up STEPs.
 - **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
-  Review or Security Audit STEP created.
+  Baseline, Security Review, or Security Audit STEP created.
 - **Tests:** the suite result, and what was done about any failures.
 - **Carry-forward:** anything that became a new bug/STEP, listed for the index.
 

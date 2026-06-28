@@ -48,13 +48,13 @@ checked, the result, and any follow-up. If a project has configured alerting or 
 dashboards, those project-specific sources are usually more important than manually browsing a
 generic database.
 
-Core sources to consider for every S1:
+Default sources to consider unless the project records why they are not useful:
 
 | Source | URL | Use when |
 |--------|-----|----------|
-| CISA Known Exploited Vulnerabilities catalog | <https://www.cisa.gov/known-exploited-vulnerabilities-catalog> | Always check for exploited-in-the-wild vulnerabilities relevant to technologies, products, CI/CD systems, hosting, appliances, and infrastructure in use. |
-| OSV.dev | <https://osv.dev/> | Always consider for open-source dependency ecosystems; prefer OSV-Scanner or the project's configured dependency audit when available. |
-| GitHub Advisory Database | <https://github.com/advisories> | Always consider for common package ecosystems, GitHub Actions, and GitHub-hosted dependency alerts. |
+| CISA Known Exploited Vulnerabilities catalog | <https://www.cisa.gov/known-exploited-vulnerabilities-catalog> | Consider for exploited-in-the-wild vulnerabilities relevant to technologies, products, CI/CD systems, hosting, appliances, and infrastructure in use. |
+| OSV.dev | <https://osv.dev/> | Consider for open-source dependency ecosystems; prefer OSV-Scanner or the project's configured dependency audit when available. |
+| GitHub Advisory Database | <https://github.com/advisories> | Consider for common package ecosystems, GitHub Actions, and GitHub-hosted dependency alerts. |
 | NVD | <https://nvd.nist.gov/> | Use as a cross-reference for CVEs and affected-product metadata; do not rely on it as the only source. |
 | CVE.org | <https://www.cve.org/> | Use as the CVE identifier authority and cross-reference when an advisory cites CVEs. |
 | Project alert dashboards | Project-specific | Review configured GitHub/GitLab/Bitbucket alerts, Dependabot/Renovate/Snyk/OSV-Scanner reports, SAST, container/image scans, cloud posture alerts, and vendor dashboards. |
