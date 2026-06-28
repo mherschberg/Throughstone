@@ -85,7 +85,8 @@
 - **Accepted risks stay visible.** If this STEP accepts a risk or defers tech debt, add or
   update `registries/risks.yml` with severity, owner, and revisit trigger. Reference an
   architecture decision/section, ADR, issue/follow-up STEP, incident report, or check-in report
-  instead of duplicating detail; create that source first if it doesn't already exist.
+  under `reports/` instead of duplicating detail; create that source first if it doesn't already
+  exist.
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->
@@ -94,6 +95,8 @@
 - [ ] All unit tests pass at the end of this STEP — ideally the full suite (unit +
       integration/e2e). <!-- the default bar; narrow or widen with a stated reason -->
 - [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
+      <!-- For a Check-in STEP, the completed report is saved under reports/, not in the
+           archived STEP folder. -->
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
      templates/substep-prompt-template.md ("Keeping the docs true"). Exceptions: STEP-1's review is the

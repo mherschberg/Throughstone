@@ -51,7 +51,8 @@ liability you're taking on — and the cheapest one is the one you don't add.
       discipline as a deferred threat in `architecture/*-security-threat-model.md` (a standing
       policy → an ADR referenced from the row; a one-off → a concise row with the check-in or
       advisory reference). If the deferral is not already explained in an ADR, issue, advisory
-      note, or check-in report, write that source first and reference it from the row.
+      note, or check-in report under `reports/`, write that source first and reference it from
+      the row.
 - [ ] **Update cadence.** Apply **security patches promptly**; take feature/major upgrades
       *deliberately* (read the changelog, expect breaking changes, run the tests). Neither
       extreme is safe: everything pinned years behind becomes one terrifying upgrade, but

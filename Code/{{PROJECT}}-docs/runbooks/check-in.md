@@ -67,7 +67,7 @@ list, because projects may add conditional sessions later. For each template:
   implemented code, deployed surfaces, data handled, and product behavior.
 - Find its latest recorded disposition. Start with the archived STEP-1 PLAN under
   `prompts/*/step-0001/` (or the in-flight PLAN in `Upcoming Prompts/` if STEP-1 is not yet
-  archived), then consider later check-in reports and conditional follow-up STEPs. Do not
+  archived), then consider later check-in reports under `reports/` and conditional follow-up STEPs. Do not
   edit archived plans or reports; this check-in report records the new current disposition.
 - Confirm that an applicable conditional has a completed output architecture doc, or that
   the latest `Deferred` / `N/A` reason remains valid. A newly added template with no earlier
@@ -107,9 +107,9 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
 - **Accepted risks / tech debt** — review `registries/risks.yml`. For every open or monitoring
   item, decide whether the revisit trigger has fired, the severity/owner still matches reality,
   and the referenced architecture section, ADR, issue, STEP report, incident postmortem, or
-  check-in report still exists and still explains the risk. Close items that are mitigated,
-  update stale rows, create missing source artifacts, and file follow-up STEPs for anything
-  whose trigger has fired or whose severity is no longer acceptable.
+  check-in report under `reports/` still exists and still explains the risk. Close items that
+  are mitigated, update stale rows, create missing source artifacts, and file follow-up STEPs
+  for anything whose trigger has fired or whose severity is no longer acceptable.
 
 ### Security-review gate
 
@@ -139,7 +139,9 @@ the gate was evaluated.
   STEP if not. A red suite must not be left for "later."
 
 ## Output
-Write a short **check-in report** to the check-in STEP's folder:
+Write a short **check-in report** under `reports/` in the docs hub. Use
+`templates/reports/check-in-report-template.md` and name the completed report
+`reports/YYYY-MM-DD-step-NNNN-check-in-report.md`.
 - **Drift:** docs reviewed, discrepancies found, classified (doc fixed / ADR written / bug
   filed) — with the fixes applied and the bugs filed.
 - **Conditional coverage:** every discovered conditional-session template and its current
@@ -152,5 +154,6 @@ Write a short **check-in report** to the check-in STEP's folder:
 - **Carry-forward:** anything that became a new bug/STEP, listed for the index.
 
 Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
-follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), and add any new ADRs to
-`adr/README.md`. Note when the next check-in is due (~10–20 STEPs out).
+follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
+`adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
+STEP. Note when the next check-in is due (~10–20 STEPs out).

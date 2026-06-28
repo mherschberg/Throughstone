@@ -14,7 +14,28 @@ folders; STEPs may create reports, but the reports themselves live here.
 
 | Folder | What |
 |--------|------|
+| `./` | Check-in reports produced by `runbooks/check-in.md`. |
 | [`security/`](security/README.md) | Security baseline, sweep, and audit reports produced by `runbooks/security-review.md`. |
+
+## Check-In Reports
+
+Check-in reports live directly in this folder because they are general project-health review
+artifacts, not a specialized report family. Use stable, sortable filenames:
+
+```text
+YYYY-MM-DD-step-NNNN-check-in-report.md
+```
+
+If more than one check-in report is written for the same STEP, append a short scope:
+
+```text
+YYYY-MM-DD-step-NNNN-check-in-report-doc-drift.md
+```
+
+Start from
+[`../templates/reports/check-in-report-template.md`](../templates/reports/check-in-report-template.md).
+Keep the corresponding check-in STEP PLAN archived under `prompts/`; do not move the completed
+report into the STEP folder.
 
 Report templates live under `templates/reports/`; reports in this folder are completed review
 artifacts, not blank templates.

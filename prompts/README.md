@@ -58,9 +58,10 @@ STEP's PLAN + substep prompts with the recipe below **when you start that STEP**
 The outline also interleaves a **Check-in STEP** every ~10–20 STEPs — a full STEP that runs
 `Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
 conditional-session coverage, review accepted risks/debt in
-`Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). The agent suggests
-one at a sensible breakpoint if it's been about that long since the last (see `METHOD.md`
-§5).
+`Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). Its completed
+report is written under `Code/{{PROJECT}}-docs/reports/`; the archived STEP folder here keeps
+the thin PLAN. The agent suggests one at a sensible breakpoint if it's been about that long
+since the last (see `METHOD.md` §5).
 
 ## When not to add a STEP
 

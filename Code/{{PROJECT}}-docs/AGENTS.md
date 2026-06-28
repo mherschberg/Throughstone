@@ -151,8 +151,8 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
   dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is
   an index: reference the architecture decision/section, ADR, issue/follow-up STEP, incident
-  report, or check-in report that carries the details; create that source first if it doesn't
-  exist.
+  report, or check-in report under `Code/{{PROJECT}}-docs/reports/` that carries the details;
+  create that source first if it doesn't exist.
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).

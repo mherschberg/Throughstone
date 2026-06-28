@@ -17,12 +17,15 @@ shape is stable.
 | ADRs | `Code/<project>-docs/adr/ADR-NNNN-*.md` | Decision history: why important choices were made. |
 | STEP plans | `Upcoming Prompts/` while active, then `prompts/<phase>/step-NNNN/` | The work contract for a STEP: scope, substeps, ground rules, and done criteria. |
 | Substep prompts | `Upcoming Prompts/` while active, then archived with the STEP | Cold-start instructions for one focused task. |
-| Check-in reports | Archived with check-in STEPs under `prompts/` | Periodic reconciliation: docs vs. code, conditional coverage, risks, and tests. |
+| Check-in reports | `Code/<project>-docs/reports/` | Periodic reconciliation: docs vs. code, conditional coverage, risks, and tests. |
+| Security reports | `Code/<project>-docs/reports/security/` | Durable S0/S1/S2 security baseline, sweep, and audit reports. |
 
 The split matters:
 
 - `Code/<project>-docs/` is **state**: what the system is now.
 - `prompts/` is **history**: how the system got there, STEP by STEP.
+- `Code/<project>-docs/reports/` is **durable review evidence**: what recurring reviews,
+  audits, incidents, and check-ins found.
 - `Upcoming Prompts/` is **working scratch** for the active STEP.
 
 ## 1. Project Brief
@@ -181,6 +184,9 @@ and
 Every 10-20 STEPs, a check-in STEP runs a deliberate sweep. It compares architecture docs
 against code in both directions, re-evaluates conditional architecture sessions, reviews
 accepted risks and debt, and runs the full test suite.
+
+Completed check-in reports live directly under `Code/<project>-docs/reports/`. The STEP folder
+in `prompts/` keeps the thin PLAN and any execution notes.
 
 Representative report excerpt:
 
