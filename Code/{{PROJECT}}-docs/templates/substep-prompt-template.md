@@ -29,7 +29,13 @@
      the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`) and any
      interface contract artifact it names; include
      coding-standards/api.md for HTTP/REST endpoints so the house style — timestamps,
-     pagination, errors, versioning — stays consistent across endpoints. -->
+     pagination, errors, versioning — stays consistent across endpoints. For security-sensitive
+     work — auth/AuthZ, secrets, sensitive data, public attack surface, dependency/security
+     controls, or accepted security risk — include the Security & Threat Model architecture doc
+     (`architecture/*-security-threat-model.md`) and relevant `registries/risks.yml` rows.
+     Do not include `runbooks/security-review.md`, S0/S1/S2 checklists, or security report
+     templates in normal implementation substeps; those belong only to explicit Security
+     Baseline, Security Review, or Security Audit STEPs. -->
 - overview.md
 - architecture/NN-…
 - ADR-XXXX-…

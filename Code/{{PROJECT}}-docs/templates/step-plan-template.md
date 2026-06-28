@@ -20,6 +20,10 @@
   that file as the single source of truth for both values.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that
   touches their area.
+- For security-sensitive feature work, reference the Security & Threat Model architecture doc
+  (`architecture/*-security-threat-model.md`) and relevant risk rows. Do not pull in
+  `runbooks/security-review.md`, S0/S1/S2 checklists, or security report templates unless this
+  STEP is explicitly a Security Baseline, Security Review, or Security Audit STEP.
 - ADR-XXXX — …
 - architecture/NN-… — …
 
