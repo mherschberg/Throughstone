@@ -75,7 +75,7 @@ third party is **assumed compromised** — treat possible exposure as exposure.
 Most of this is action, not documents — but leave a trail:
 - **Rotation log** — what was rotated and when — in the inventory and noted for the next
   **check-in** (`runbooks/check-in.md`).
-- **A leak becomes an incident record** via `runbooks/incident-postmortem.md`, with a
+- **A leak becomes an incident report** via `runbooks/incident-postmortem.md`, with a
   *find-similar* pass for the same exposure class elsewhere.
 - **Standing policies as ADRs** — e.g. "rotate production credentials every N days," "no
   long-lived keys where dynamic credentials are available," "secrets only from the manager" — so

@@ -1,5 +1,7 @@
-# {{PROJECT}} - Incident Postmortem: {{INCIDENT TITLE}}
+# {{PROJECT}} - Incident Postmortem Report: {{INCIDENT TITLE}}
 
+**Report date:** {{YYYY-MM-DD}}
+**Report path:** `reports/incidents/{{YYYY-MM-DD}}-step-{{NNNN}}-incident-postmortem-report.md`
 **Owner:** {{incident owner}}
 **Incident status:** {{Open / Mitigated / Resolved / Closed}}
 **Postmortem status:** Draft
@@ -20,6 +22,7 @@
 <!--
   Use this with runbooks/incident-postmortem.md. Part 1 captures the raw facts; Parts 2-4
   complete this postmortem during the Incident STEP: RCA -> find similar -> fix/harden.
+  Save completed reports under reports/incidents/ and record them in that folder's index table.
   Delete sections that do not apply, and link to technical records instead of copying them.
 -->
 
@@ -111,3 +114,4 @@
 - [ ] Detection/docs/runbooks are updated where needed.
 - [ ] Incident STEP substeps are marked Done.
 - [ ] `prompts/STEP-index.md` is updated.
+- [ ] `reports/incidents/README.md` is updated with this report and a short incident summary.

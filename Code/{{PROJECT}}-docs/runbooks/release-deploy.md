@@ -76,7 +76,8 @@ if it goes bad.
 - **After a rollback.** A rollback means something broke in production — that's an **incident**.
   Capture what happened — symptom, trigger, what you did — and hand off to
   `runbooks/incident-postmortem.md`, which turns it into a tracked STEP (RCA → find similar →
-  fix) so the real fix can't evaporate once service is restored.
+  fix) with a durable postmortem report under `reports/incidents/`, so the real fix can't
+  evaporate once service is restored.
 
 ## After the release
 - Confirm the released version is **tagged / recorded**.

@@ -3,8 +3,10 @@
 > **Quick start during an incident:** stabilize service first — roll back, fail over, or
 > disable the bad path before diagnosing. Capture the raw facts while fresh: timeline,
 > symptom/blast radius, affected data, and alerts/logs. Open an **Incident STEP**, start
-> `templates/incident-postmortem-template.md`, and put unclear fields as `Unknown`. Hand off the
-> RCA → find-similar → fix work to that STEP; use the detailed runbook below for the rest.
+> `templates/reports/incidents/incident-postmortem-report-template.md` as
+> `reports/incidents/YYYY-MM-DD-step-NNNN-incident-postmortem-report.md`, record it in
+> `reports/incidents/README.md`, and put unclear fields as `Unknown`. Hand off the RCA →
+> find-similar → fix work to that STEP; use the detailed runbook below for the rest.
 
 > **How to run:** Two modes, run in sequence.
 > - **An incident is happening right now** → this is an **operational procedure**: tell your
@@ -38,11 +40,14 @@ the cause in the *system*, never who typed the command.
    affected, any data touched), and the alerts/logs that caught it (or *should* have). Don't
    diagnose yet — just record. This is the raw material for the RCA.
 4. **Open the Incident STEP.** Reserve a STEP number and branch per the recipe
-   (`prompts/README.md`); its substeps are Parts 2–4. Park the captured timeline in the STEP
-   folder by starting a postmortem from `templates/incident-postmortem-template.md`. Set the initial
-   incident window, customer-facing, revenue-impacting, and impact level fields to `Unknown`
-   if the facts are not clear yet. Then hand off to that STEP — the emergency is over; the
-   rest is deliberate work.
+   (`prompts/README.md`); its substeps are Parts 2–4. Park the captured timeline in
+   `reports/incidents/` by starting a postmortem report from
+   `templates/reports/incidents/incident-postmortem-report-template.md` and naming it
+   `reports/incidents/YYYY-MM-DD-step-NNNN-incident-postmortem-report.md`. Add a row to
+   `reports/incidents/README.md` with the report path, STEP, report date, incident window,
+   impact level, status, a short summary, and follow-up. Set unclear fields to `Unknown` if
+   the facts are not clear yet. Then hand off to that STEP — the emergency is over; the rest
+   is deliberate work.
 
 > **Security incidents** that exposed data or credentials also start a **breach-notification**
 > clock from your privacy/security work (the Security & Threat Model architecture doc,
@@ -55,11 +60,11 @@ the cause in the *system*, never who typed the command.
 Get past the symptom to the **cause in the system**. Ask *why* repeatedly (5 Whys) until you
 reach something you can actually change — usually not "the code had a bug" but the missing test,
 the missing guardrail, the missing alert, or the design assumption that didn't hold. Name the
-**contributing factors**, not a single culprit. Write a short **postmortem** into the Incident
-STEP folder using `templates/incident-postmortem-template.md`: the timeline (from Part 1), impact
-classification, the root cause, contributing factors, and what made it easier or harder to
-detect and recover. If the RCA overturns a recorded decision, write an **ADR**
-(`templates/adr-template.md`); if it shows a doc was wrong, that's a fix for Part 4.
+**contributing factors**, not a single culprit. Complete the incident postmortem report in
+`reports/incidents/`: the timeline (from Part 1), impact classification, the root cause,
+contributing factors, and what made it easier or harder to detect and recover. If the RCA
+overturns a recorded decision, write an **ADR** (`templates/adr-template.md`); if it shows a
+doc was wrong, that's a fix for Part 4.
 
 ## Part 3 — Find similar issues  *(substep N.2)*
 The bug you saw is an *instance of a class*. Before fixing, **hunt the class**: search the
@@ -80,14 +85,18 @@ the *next* one is caught sooner and cheaper:
   itself was clumsy, improve the relevant runbook so the next responder has it easier.
 - Anything too large to fix safely here becomes its own **follow-up STEP**, listed for the index.
   If the team accepts a residual risk or deferred debt item instead of fixing it now, add or
-  update the row in `registries/risks.yml` with the postmortem/STEP reference and revisit
-  trigger. The postmortem or follow-up STEP carries the detail; the register row stays short.
+  update the row in `registries/risks.yml` with the postmortem report or STEP reference and
+  revisit trigger. The postmortem report or follow-up STEP carries the detail; the register row
+  stays short.
 
 ## Output
-- A **postmortem** in the Incident STEP folder, started from
-  `templates/incident-postmortem-template.md`: impact classification, timeline, root cause,
-  contributing factors, the similar issues found (Part 3), and the fixes/hardening applied
-  (Part 4).
+- A **postmortem report** in `reports/incidents/`, started from
+  `templates/reports/incidents/incident-postmortem-report-template.md` and named
+  `reports/incidents/YYYY-MM-DD-step-NNNN-incident-postmortem-report.md`: impact
+  classification, timeline, root cause, contributing factors, the similar issues found
+  (Part 3), and the fixes/hardening applied (Part 4).
+- An updated row in `reports/incidents/README.md` with the report path, STEP, report date,
+  incident window, impact level, status, summary, and follow-up.
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any
   **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
   in `registries/risks.yml`.

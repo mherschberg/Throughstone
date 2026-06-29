@@ -87,12 +87,13 @@ doc — review what's there, add what's missing, prune the rest), `runbooks/`
 (repeatable procedures — ships with
 `check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
 deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
-spin up an Incident STEP to RCA → find similar → fix, with a postmortem from
-`templates/incident-postmortem-template.md`), and `dependency-supply-chain.md` (vet a new dependency;
+spin up an Incident STEP to RCA → find similar → fix, with a postmortem report from
+`templates/reports/incidents/incident-postmortem-report-template.md`), and `dependency-supply-chain.md` (vet a new dependency;
 audit dependencies for vulns/licenses on a cadence); add your own operational ones),
 `reports/` (durable review and operational reports, kept in the docs hub rather than inside
-STEP folders — check-in reports live directly in `reports/`, while `reports/security/` holds
-security baseline, sweep, and audit reports),
+STEP folders — check-in reports live directly in `reports/`, `reports/incidents/` holds
+incident postmortem reports, and `reports/security/` holds security baseline, sweep, and audit
+reports),
 `registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted
 risk / tech-debt register).
@@ -361,8 +362,8 @@ mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-re
 accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
 there with owner, severity, revisit trigger, and a reference to the durable source artifact
 that explains it. If no source exists yet, create the right one first — an architecture
-decision/section, ADR, issue/follow-up STEP, incident report, or check-in report under
-`reports/` — then add the register row. **Every repo carries a README explaining
+decision/section, ADR, issue/follow-up STEP, incident report under `reports/incidents/`, or
+check-in report under `reports/` — then add the register row. **Every repo carries a README explaining
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at

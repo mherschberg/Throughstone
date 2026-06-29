@@ -95,9 +95,9 @@ just change the code:
 - **Accepted risk or debt:** if this substep consciously defers a security control,
   dependency fix, incident follow-up, operational weakness, or other tech debt, add or update
   `registries/risks.yml` with severity, owner, and revisit trigger. The register is an index:
-  reference the architecture decision/section, ADR, issue/follow-up STEP, incident report, or
-  check-in report under `reports/` that carries the details. If no such source exists, create
-  it first, then add the register row.
+  reference the architecture decision/section, ADR, issue/follow-up STEP, incident report under
+  `reports/incidents/`, or check-in report under `reports/` that carries the details. If no such
+  source exists, create it first, then add the register row.
 - **Secrets** stay out of the repo — local values live in the gitignored `.env` /
   `.secrets/` (see `architecture/*-security-threat-model.md` and the Environments
   architecture doc, `architecture/*-environments.md`); commit only `.env.example`.
