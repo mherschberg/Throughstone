@@ -22,7 +22,7 @@ Use exactly one outcome for every applicable row:
 | Accepted Risk | The team accepts the risk or a longer deferral. | `registries/risks.yml` ref, owner, reason, revisit trigger. |
 | Escalate S0 | Baseline guardrails are missing, stale, or invalidated. | Security Baseline STEP/issue or reason for immediate S0. |
 | Escalate S2 | A deeper audit is needed. | Security Audit STEP/issue and reason. |
-| Incident | Active compromise, serious exposure, malicious dependency, or urgent exploited vulnerability. | Switch to `incident-postmortem.md`; record incident ref. |
+| Incident | Active compromise, serious exposure, malicious dependency, or urgent exploited vulnerability. | Switch to `incident-postmortem.md`; record incident report ref. |
 | N/A | The item does not apply to the project in its current shape. | Reason, and trigger that would make it applicable if useful. |
 
 ## Evidence Rules

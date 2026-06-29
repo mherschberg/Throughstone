@@ -397,8 +397,8 @@ S0/S2/incident escalation considered: TBD
 
 ### Escalations
 
-| Escalation | Reason | STEP / incident ref | Owner |
-|------------|--------|---------------------|-------|
+| Escalation | Reason | STEP / incident report | Owner |
+|------------|--------|------------------------|-------|
 | S0 / S2 / Incident / None | TBD | TBD | TBD |
 
 ## Documentation Updates

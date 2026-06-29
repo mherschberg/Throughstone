@@ -118,8 +118,9 @@ teammate will need later.
    `Code/{{PROJECT}}-docs/runbooks/check-in.md`; the PLAN just points there. An **Incident
    STEP** is the same kind of thin STEP — its three substeps (RCA → find similar → fix) are
    defined in `Code/{{PROJECT}}-docs/runbooks/incident-postmortem.md`, opened by that runbook
-   when responding to a production incident; its durable postmortem starts from
-   `Code/{{PROJECT}}-docs/templates/incident-postmortem-template.md`. A **late conditional-session
+   when responding to a production incident; its durable postmortem report starts from
+   `Code/{{PROJECT}}-docs/templates/reports/incidents/incident-postmortem-report-template.md`
+   and is saved under `Code/{{PROJECT}}-docs/reports/incidents/`. A **late conditional-session
    follow-up STEP** is also thin: its one substep points directly to the applicable
    `templates/architecture-sessions/conditional-*.md` file and records its exact by-name
    invocation plus the assigned output-doc number; don't duplicate the session into a new

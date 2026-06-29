@@ -15,6 +15,7 @@ folders; STEPs may create reports, but the reports themselves live here.
 | Folder | What |
 |--------|------|
 | `./` | Check-in reports produced by `runbooks/check-in.md`. |
+| [`incidents/`](incidents/README.md) | Incident postmortem reports produced by `runbooks/incident-postmortem.md`. |
 | [`security/`](security/README.md) | Security baseline, sweep, and audit reports produced by `runbooks/security-review.md`. |
 
 ## Check-In Reports
@@ -37,5 +38,5 @@ Start from
 Keep the corresponding check-in STEP PLAN archived under `prompts/`; do not move the completed
 report into the STEP folder.
 
-Report templates live under `templates/reports/`; reports in this folder are completed review
-artifacts, not blank templates.
+Report templates live under `templates/reports/`; reports in this folder tree are completed
+review and operational artifacts, not blank templates.

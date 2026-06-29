@@ -541,8 +541,8 @@ specialist assessment: TBD
 
 ### Escalations
 
-| Escalation | Reason | STEP / incident ref | Owner |
-|------------|--------|---------------------|-------|
+| Escalation | Reason | STEP / incident report | Owner |
+|------------|--------|------------------------|-------|
 | S0 / S1 / Incident / None | TBD | TBD | TBD |
 
 ## Documentation Updates

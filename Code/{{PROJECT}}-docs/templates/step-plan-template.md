@@ -45,8 +45,9 @@
      "Conditional session: <topic>" so the resolver prioritizes it. An Incident STEP is also
      thin: no prompts are authored — its substeps are
      RCA (N.1), find similar (N.2), and fix/harden (N.3) defined in
-     runbooks/incident-postmortem.md; its durable postmortem starts from
-     templates/incident-postmortem-template.md. -->
+     runbooks/incident-postmortem.md; its durable postmortem report starts from
+     templates/reports/incidents/incident-postmortem-report-template.md and is saved under
+     reports/incidents/. -->
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
 <!-- Every conditional-*.md session file gets a row and an EXPLICIT decision, never a silent
@@ -84,9 +85,9 @@
   comment the *why* of non-obvious logic (see `coding-standards/README.md`).
 - **Accepted risks stay visible.** If this STEP accepts a risk or defers tech debt, add or
   update `registries/risks.yml` with severity, owner, and revisit trigger. Reference an
-  architecture decision/section, ADR, issue/follow-up STEP, incident report, or check-in report
-  under `reports/` instead of duplicating detail; create that source first if it doesn't already
-  exist.
+  architecture decision/section, ADR, issue/follow-up STEP, incident report under
+  `reports/incidents/`, or check-in report under `reports/` instead of duplicating detail; create
+  that source first if it doesn't already exist.
 
 ## Definition of done
 <!-- Concrete, checkable criteria for the whole STEP. -->
@@ -101,5 +102,5 @@
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
      templates/substep-prompt-template.md ("Keeping the docs true"). Exceptions: STEP-1's review is the
      Cross-Cutting Review; a Check-in STEP is itself the review (runbooks/check-in.md); an
-     Incident STEP closes by completing the postmortem and output checklist in
-     runbooks/incident-postmortem.md. -->
+     Incident STEP closes by completing the postmortem report, reports/incidents/README.md row,
+     and output checklist in runbooks/incident-postmortem.md. -->

@@ -36,7 +36,7 @@ Use exactly one outcome for every applicable checklist row:
 | Follow-up STEP | Non-trivial work is needed outside the audit. | STEP/issue ref, owner, severity, target trigger/date. |
 | Accepted Risk | The team accepts the risk or a longer deferral. | `registries/risks.yml` ref, owner, reason, revisit trigger. |
 | Specialist review | The area needs an external, domain-specific, legal, compliance, privacy, cloud, AI, mobile, or penetration-testing review. | Scope, owner, trigger/date, vendor or process if known. |
-| Incident | Active compromise, serious exposure, malicious dependency, or urgent exploited vulnerability. | Switch to `incident-postmortem.md`; record incident ref. |
+| Incident | Active compromise, serious exposure, malicious dependency, or urgent exploited vulnerability. | Switch to `incident-postmortem.md`; record incident report ref. |
 | N/A | The item does not apply to the project in its current shape. | Reason and trigger that would make it applicable if useful. |
 
 ## Severity Values

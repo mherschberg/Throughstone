@@ -29,7 +29,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`coding-standards/`](coding-standards/README.md) | Per-language engineering standards (indexed). |
 | [`runbooks/`](runbooks/README.md) | Repeatable procedures — check-in, release, incident, dependencies, secrets, collaboration (indexed). |
 | [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`) and accepted risk / tech-debt index (`risks.yml`) (indexed). |
-| [`reports/`](reports/README.md) | Durable review and operational reports, including check-in reports and security review reports. |
+| [`reports/`](reports/README.md) | Durable review and operational reports, including check-in, incident, and security review reports. |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
 | [`scripts/`](scripts/) | Setup and doctor helpers — status, structural checks, stale-link checks, workspace setup, and project-license propagation. |
 
