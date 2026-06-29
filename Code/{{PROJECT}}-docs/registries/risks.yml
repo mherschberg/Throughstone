@@ -13,9 +13,9 @@
 # Recording rule (hybrid):
 # - This YAML file is the compact index: status, owner, severity, revisit trigger, and links.
 # - The explanation lives in a durable source artifact. Every row should have at least one
-#   `refs` entry pointing at the architecture decision/section, ADR, issue, incident
-#   postmortem report under `reports/incidents/`, check-in report under `reports/`, or STEP
-#   report that records the details.
+#   `refs` entry pointing at the architecture decision/section, ADR, issue, archived STEP
+#   plan/execution notes, incident postmortem report under `reports/incidents/`, or check-in
+#   report under `reports/` that records the details.
 # - If no such artifact exists yet, create the right one first (usually an architecture
 #   decision/section for design posture, an ADR for a significant/contested decision, an issue
 #   or follow-up STEP for implementation debt, an incident report under `reports/incidents/`

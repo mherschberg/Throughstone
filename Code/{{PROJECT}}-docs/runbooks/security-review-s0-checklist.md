@@ -25,7 +25,8 @@ Use exactly one status for every applicable row:
 ## Evidence Rules
 
 - Prefer durable evidence: settings pages, policy files, workflow files, scanner reports,
-  command output snapshots, ADRs, STEP reports, vendor dashboards, tickets, or issue URLs.
+  command output snapshots, ADRs, archived STEP plan/execution notes, vendor dashboards,
+  tickets, or issue URLs.
 - Do not paste secrets, private tokens, customer data, or sensitive infrastructure details into
   the report. Reference the secure system that holds them.
 - Use `registries/risks.yml` for accepted security risks and meaningful deferrals. The S0 report
