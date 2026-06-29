@@ -157,6 +157,14 @@ live in the STEP folder.
 Use the naming convention in `reports/security/README.md`, then record that report path in
 `registries/security-reviews.yml`.
 
+Before starting a new S0, S1, or S2 report, read `registries/security-reviews.yml` and open the
+latest completed report for each relevant level. S0 reads the latest S0 report. S1 reads the
+latest S1 report and checks whether a newer S2 report should inform the sweep. S2 reads the
+latest S0, S1, and S2 reports when present. Older reports usually do not need separate review
+unless the latest report, ledger, or risk register points to unresolved carry-forward context. If
+the ledger is blank or stale, look in `reports/security/` using the naming convention and record
+whether no prior report was found.
+
 Each report records:
 - Review level and date.
 - Trigger.
