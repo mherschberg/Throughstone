@@ -43,6 +43,7 @@ broader row.
 
 | Area | Baseline item | Status | Decision date | Owner | Reason / evidence | Revisit trigger | Risk ref |
 |------|---------------|--------|---------------|-------|-------------------|-----------------|----------|
+| Setup | Read the last S0 report and `registries/security-reviews.yml`; record elapsed time, commits, rough size change, previous baseline decisions, and carry-forward items. | TBD | YYYY-MM-DD | TBD | TBD | TBD | TBD |
 | Release posture | First-release security baseline decision recorded: S0 done now, planned before release, deferred, or accepted as risk. | TBD | YYYY-MM-DD | TBD | TBD | Before first release; before public launch; when release scope changes. | TBD |
 | Release posture | Release runbook has a security-aware pre-flight: tests green, config/secrets in place, rollback plan, and production verification. | TBD | YYYY-MM-DD | TBD | `runbooks/release-deploy.md`; project-specific release docs or CI evidence. | Before first release; after deployment process changes. | TBD |
 | Ownership | Security owners or accountable maintainers are identified for code, infrastructure, secrets, and incident response. | TBD | YYYY-MM-DD | TBD | Owner list, team rota, repository maintainers, or operations doc. | Team ownership change; production handoff. | TBD |
