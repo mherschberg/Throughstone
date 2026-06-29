@@ -106,11 +106,11 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
   fix, not a bug STEP).
 - **Accepted risks / tech debt** — review `registries/risks.yml`. For every open or monitoring
   item, decide whether the revisit trigger has fired, the severity/owner still matches reality,
-  and the referenced architecture section, ADR, issue, STEP report, incident postmortem report
-  under `reports/incidents/`, or check-in report under `reports/` still exists and still
-  explains the risk. Close items that are mitigated, update stale rows, create missing source
-  artifacts, and file follow-up STEPs for anything whose trigger has fired or whose severity is
-  no longer acceptable.
+  and the referenced architecture section, ADR, issue, archived STEP plan/execution notes,
+  incident postmortem report under `reports/incidents/`, or check-in report under `reports/`
+  still exists and still explains the risk. Close items that are mitigated, update stale rows,
+  create missing source artifacts, and file follow-up STEPs for anything whose trigger has
+  fired or whose severity is no longer acceptable.
 
 ### Security-review gate
 

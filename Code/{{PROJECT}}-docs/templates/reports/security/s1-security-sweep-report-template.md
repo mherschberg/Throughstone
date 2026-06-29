@@ -133,7 +133,8 @@ other tooling reports: TBD
 
 **Reviewed:** Yes / No
 
-**Evidence / source:** Commits, PRs, releases, deployment history, roadmap, or STEP reports: TBD
+**Evidence / source:** Commits, PRs, releases, deployment history, roadmap, archived STEP
+plan/execution notes, or related issue evidence: TBD
 
 **Notes:** Focus on security-sensitive changes: auth/AuthZ, data, deployment, AI/tool-calling,
 integrations, public surfaces, dependencies, and incident follow-up: TBD
