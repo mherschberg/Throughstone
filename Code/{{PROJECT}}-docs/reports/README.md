@@ -17,6 +17,7 @@ folders; STEPs may create reports, but the reports themselves live here.
 | `./` | Check-in reports produced by `runbooks/check-in.md`. |
 | [`incidents/`](incidents/README.md) | Incident postmortem reports produced by `runbooks/incident-postmortem.md`. |
 | [`security/`](security/README.md) | Security baseline, sweep, and audit reports produced by `runbooks/security-review.md`. |
+| [`test-results/`](test-results/README.md) | Durable test, coverage, and quality-gate result reports. |
 
 ## Check-In Reports
 

@@ -135,7 +135,9 @@ the gate was evaluated.
 
 ## Part 2 — Run all tests  *(substep N.2)*
 - Run the **full** test suite (all repos), not just the area you last touched.
-- Record the result: pass/fail counts, anything skipped, and coverage if you track it.
+- Record the result: pass/fail counts, anything skipped, and coverage if you track it. Put
+  durable test-result or coverage-report details under `reports/test-results/` and summarize the
+  important outcome in the check-in report.
 - Any failure is a finding for this check-in — fix it here if small, or file it as a bug
   STEP if not. A red suite must not be left for "later."
 

@@ -19,6 +19,7 @@ shape is stable.
 | Substep prompts | `Upcoming Prompts/` while active, then archived with the STEP | Cold-start instructions for one focused task. |
 | Check-in reports | `Code/<project>-docs/reports/` | Periodic reconciliation: docs vs. code, conditional coverage, risks, and tests. |
 | Security reports | `Code/<project>-docs/reports/security/` | Durable S0/S1/S2 security baseline, sweep, and audit reports. |
+| Test-result reports | `Code/<project>-docs/reports/test-results/` | Durable test-suite, coverage, and quality-gate result reports. |
 
 The split matters:
 
