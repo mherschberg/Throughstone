@@ -92,7 +92,8 @@ spin up an Incident STEP to RCA → find similar → fix, with a postmortem repo
 audit dependencies for vulns/licenses on a cadence); add your own operational ones),
 `reports/` (durable review and operational reports, kept in the docs hub rather than inside
 STEP folders — check-in reports live directly in `reports/`, `reports/incidents/` holds
-incident postmortem reports, and `reports/security/` holds security baseline, sweep, and audit
+incident postmortem reports, `reports/security/` holds security baseline, sweep, and audit
+reports, and `reports/test-results/` holds durable test, coverage, and quality-gate result
 reports),
 `registries/`
 (e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted

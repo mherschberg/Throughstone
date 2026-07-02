@@ -56,9 +56,26 @@ where the pieces have to work *together*.
    wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
    `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
-7. **Performance / load testing.** Whether and when load tests run (ties to the performance
+7. **Coverage tooling and reporting.** For each real implementation language, choose the
+   coverage tool and where its report appears. Default durable coverage/test summaries to
+   `reports/test-results/` in the docs hub for meaningful runs such as check-ins, releases,
+   incidents, security reviews, major quality-gate changes, or when requested by a user. Keep
+   generated multi-file HTML trees as CI artifacts, coverage-service output, or ignored local output by default; only define
+   a docs-retained artifact convention when the project has a real release, audit, or compliance
+   reason. Treat coverage as a visibility/trend signal, not proof of quality; decide whether
+   there is a minimum threshold, changed-lines threshold, or no numeric gate. Good defaults:
+   Python `coverage.py` via `pytest-cov`; Java JaCoCo via Maven/Gradle; TypeScript/JavaScript
+   Vitest/Jest coverage with V8 or Istanbul/nyc; Go `go test -coverprofile=coverage.out ./...`;
+   Rust `cargo llvm-cov` (or `grcov`/`tarpaulin` when it fits better); Dart/Flutter
+   `dart test --coverage` / `flutter test --coverage` with LCOV output; C#/.NET Coverlet or
+   `dotnet test --collect:"XPlat Code Coverage"`. For substantial shell scripts, consider
+   `kcov`; for SQL, prefer migration/query tests or DB-specific tools such as pgTAP/tSQLt
+   rather than pretending there is universal line coverage; for APIs, track contract/e2e
+   coverage with OpenAPI/GraphQL/protobuf validation and tools such as Schemathesis, Dredd, or
+   Newman-style checks.
+8. **Performance / load testing.** Whether and when load tests run (ties to the performance
    targets in the Scaling & Performance architecture doc).
-8. **Coding standards per language.** Confirm the implementation language(s) from the
+9. **Coding standards per language.** Confirm the implementation language(s) from the
    high-level stack (the Architecture Overview architecture doc's stack decision). Then reconcile `coding-standards/` to that list, **one
    language at a time**:
    - **If a `coding-standards/<lang>.md` already ships** (e.g. `python.md`, `typescript.md`,
@@ -81,12 +98,17 @@ Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc 
 `templates/architecture-doc-template.md`). Body:
 - **Test tiers** — tier | scope | tools | where it runs
 - **Coverage priorities** — must-cover paths
+- **Coverage tooling and reporting** — language/surface | tool | durable summary location
+  (default: `reports/test-results/`) | generated artifact location | threshold/gate
 - **Test data & isolation**, **mocking strategy**
 - **System/e2e testing** (and its home in a multi-repo setup)
 - **CI gates** — what blocks merge / deploy
 - **Coding standards** — link the per-language file(s) in `coding-standards/` that apply
 
-Also reconcile the `coding-standards/` directory itself (decision 8): keep and user-review
+When durable Markdown summaries are written, start them from
+`templates/reports/test-results/test-results-summary-template.md`.
+
+Also reconcile the `coding-standards/` directory itself (decision 9): keep and user-review
 the standards for the chosen languages, add any missing ones from the existing pattern, and
 delete the rest. Update the file table in `coding-standards/README.md`.
 
