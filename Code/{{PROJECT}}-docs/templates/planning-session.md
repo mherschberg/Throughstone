@@ -100,8 +100,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    judgment.
 4. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
    what it delivers and how it depends on the others. Roughly **2–3 sentences each** — a
-   guideline, not a rule. Don't write the detailed plan, the substeps, or the definition of
-   done here; those come when the STEP is started.
+   guideline, not a rule. When the scope clearly creates a new test surface (API, user flow,
+   data path, integration boundary, migration, authorization rule, or performance-sensitive
+   path), mention the expected test tier at the outline level so it is not discovered only
+   after coding starts. Don't write the detailed plan, the substeps, or the definition of done
+   here; those come when the STEP is started.
 
 ## Output
 - **Update `prompts/STEP-index.md`:** add a row for every Phase-1 implementation STEP —
