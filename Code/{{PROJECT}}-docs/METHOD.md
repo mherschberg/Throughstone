@@ -306,6 +306,12 @@ requirements, sequencing, dependencies, or ownership are unclear. When the user 
 make a planning choice, offer plausible options with brief pros and cons, then wait for
 direction. Use the saved **Planning communication style** in `overview.md` as the default
 level of detail while still asking the questions needed to make the STEP coherent.
+For any code-changing STEP, read the Test Strategy architecture doc during planning, assign
+the relevant test tiers (unit, integration, API/contract, end-to-end, security/authorization,
+migration/data, performance, or project-specific) to the substeps that introduce the behavior,
+and make the STEP's final test command or CI gate explicit. Tests may run per substep or in a
+dedicated final verification substep; choose deliberately in the PLAN. A code-changing substep
+without tests needs a stated reason, not silence.
 
 ### Check-in STEPs
 Roughly **every 10–20 STEPs**, the roadmap includes a **Check-in STEP** — a full STEP whose

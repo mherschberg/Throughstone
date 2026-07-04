@@ -33,6 +33,9 @@
      work — auth/AuthZ, secrets, sensitive data, public attack surface, dependency/security
      controls, or accepted security risk — include the Security & Threat Model architecture doc
      (`architecture/*-security-threat-model.md`) and relevant `registries/risks.yml` rows.
+     For any substep that writes or changes code, include the Test Strategy architecture doc
+     (`architecture/*-test-strategy.md`) so the Verification section uses the project's chosen
+     test tiers, tools, coverage policy, and CI gates.
      Do not include `runbooks/security-review.md`, S0/S1/S2 checklists, or security report
      templates in normal implementation substeps; those belong only to explicit Security
      Baseline, Security Review, or Security Audit STEPs. -->
@@ -53,6 +56,13 @@
 - **If this substep writes or changes code, write the tests that cover it** — not just the
   happy path. (Default; override only for a genuinely code-free substep, e.g. docs/config,
   and say why.)
+- Choose the applicable tiers from the STEP test plan and Test Strategy architecture doc:
+  unit, integration, API/contract, end-to-end, security/authorization, migration/data,
+  performance, or project-specific tests. Prune what does not apply; do not silently skip a
+  tier that protects behavior this substep changes.
+- Name the test files/suites to create or update, and the exact command(s) or CI job(s) to run.
+  If this STEP intentionally batches execution into a final verification substep, name that
+  substep and the command/gate it will run instead of requiring this substep to run them now.
 <!-- Kinds of cases to consider — cover the ones that apply, prune the rest:
      - Happy path — the expected, valid case.
      - Empty / zero / null / missing input — empty collections & strings, 0, null/None,
@@ -69,8 +79,9 @@
        (mock at the boundary).
      - Security / authorization (where relevant) — unauthenticated / unauthorized access denied.
      - Regression — when fixing a bug, add a test that reproduces it so it can't return. -->
-- **Run the relevant tests before marking this substep done** — at minimum the tests that
-  exercise the code you touched. They must pass.
+- **Run timing:** either run the relevant tests before marking this substep done, or confirm
+  that the STEP PLAN assigns them to a later final verification substep. Tests that are deferred
+  this way still must pass before the STEP is Done.
 
 ## Keeping the docs true  (always)
 <!-- The architecture docs are the source of truth for the design. Implementation drifts
@@ -107,7 +118,8 @@ Leaving the doc stale is a defect, not a follow-up.
 ## Definition of done
 - [ ]
 - [ ]
-- [ ] Code this substep wrote or changed is covered by tests, and the relevant tests pass.
+- [ ] Code this substep wrote or changed is covered by the relevant tests named above, and
+      those tests either pass now or are assigned to the STEP's final verification substep.
       <!-- default; drop only for a genuinely code-free substep -->
 - [ ] New/changed classes, functions, and methods carry docstrings (see
       `coding-standards/README.md`).

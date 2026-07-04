@@ -105,12 +105,24 @@ teammate will need later.
    are uncertain. When there are real alternatives, present appropriate options with short
    pros and cons and let the user choose or adjust. Work the STEP on a branch named
    `step-NNNN-short-name` (the same name in every repo it touches).
-3. **Write the PLAN** from `Code/{{PROJECT}}-docs/templates/step-plan-template.md`: motivation,
+3. **Plan the tests before finalizing the substeps.** Read the Test Strategy architecture doc
+   (`Code/{{PROJECT}}-docs/architecture/*-test-strategy.md`) and decide which test tiers this
+   STEP needs: unit, integration, API/contract, end-to-end, security/authorization,
+   migration/data, performance, or another project-specific tier. Assign those tests to the
+   substeps that create or change the relevant code, and name the final command or CI gate that
+   must pass at the end of the STEP. Decide whether tests run as each substep completes or in a
+   dedicated final verification substep; both are valid, but the PLAN must say which one this
+   STEP uses. If a code-changing substep does not need tests, state the reason in that substep
+   instead of leaving the gap implicit.
+4. **Write the PLAN** from `Code/{{PROJECT}}-docs/templates/step-plan-template.md`: motivation,
    locked decisions (reference the ADRs/architecture docs it must respect), the substep
-   table, ground rules, and a definition of done. Save it in `Upcoming Prompts/`.
-4. **Write the substep prompts** from `Code/{{PROJECT}}-docs/templates/substep-prompt-template.md` —
+   table, test plan, ground rules, and a definition of done. Save it in `Upcoming Prompts/`.
+5. **Write the substep prompts** from `Code/{{PROJECT}}-docs/templates/substep-prompt-template.md` —
    one per substep, each self-contained (runnable cold in a fresh chat). Author these in
-   the same chat as the PLAN.
+   the same chat as the PLAN. Each code-changing substep's Verification section names the
+   relevant tests to create or update and either the exact test command(s) to run before marking
+   the substep done or the final verification substep/command that will run them before the STEP
+   closes.
    *(For the architecture STEP-1, the substeps are the interview sessions in
    `Code/{{PROJECT}}-docs/templates/architecture-sessions/` — you don't author those from
    scratch. For a **Check-in STEP**, you don't author prompts either — its two substeps are

@@ -20,6 +20,9 @@
   that file as the single source of truth for both values.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that
   touches their area.
+- The Test Strategy architecture doc (`architecture/*-test-strategy.md`) — use it to decide
+  which test tiers this STEP must add or update and which command or CI gate proves the STEP
+  is done.
 - For security-sensitive feature work, reference the Security & Threat Model architecture doc
   (`architecture/*-security-threat-model.md`) and relevant risk rows. Do not pull in
   `runbooks/security-review.md`, S0/S1/S2 checklists, or security report templates unless this
@@ -48,6 +51,22 @@
      runbooks/incident-postmortem.md; its durable postmortem report starts from
      templates/reports/incidents/incident-postmortem-report-template.md and is saved under
      reports/incidents/. -->
+
+## Test plan
+<!-- Required for any STEP that writes or changes code. Use the Test Strategy architecture doc
+     to choose the applicable tiers; prune rows that do not apply and add project-specific ones
+     where needed. Every code-changing substep should either appear here or state why tests are
+     not applicable. Choose the run timing deliberately: either per substep, a dedicated final
+     verification substep, or another stated gate. -->
+
+| Test tier / surface | Substep(s) | Tests to create or update | Run timing | Command / gate | Notes |
+|---------------------|------------|---------------------------|------------|----------------|-------|
+| Unit | {{N}}.? |  | Per substep / final verification |  |  |
+| Integration / data | {{N}}.? |  | Per substep / final verification |  |  |
+| API / contract | {{N}}.? |  | Per substep / final verification |  |  |
+| End-to-end / user flow | {{N}}.? |  | Per substep / final verification |  |  |
+| Security / authorization | {{N}}.? |  | Per substep / final verification |  |  |
+| Performance / load | {{N}}.? |  | Per substep / final verification |  |  |
 
 ## Conditional sessions considered  <!-- STEP-1 (architecture) only; delete this section for other STEPs -->
 <!-- Every conditional-*.md session file gets a row and an EXPLICIT decision, never a silent
@@ -78,9 +97,12 @@
   repo boundaries. When a planning decision is needed, offer appropriate options with brief
   pros and cons. Respect the saved planning style while still asking the questions needed to
   make the STEP coherent.
-- **Tests ship with the code.** Every substep that writes or changes code also writes the
-  tests for it and runs the relevant tests before it's done (see
-  `templates/substep-prompt-template.md`). Override per substep only with a stated reason.
+- **Tests ship with the code.** Every substep that writes or changes code also writes or updates
+  the relevant tests for it (unit, integration, API/contract, e2e, security/authorization,
+  migration/data, performance, or project-specific). The PLAN chooses whether tests run as each
+  substep completes or in a dedicated final verification substep; either way, the named test
+  command or CI gate must pass before the STEP is Done. Override per substep only with a stated
+  reason.
 - **Code is documented as it's written.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see `coding-standards/README.md`).
 - **Accepted risks stay visible.** If this STEP accepts a risk or defers tech debt, add or
@@ -93,8 +115,11 @@
 <!-- Concrete, checkable criteria for the whole STEP. -->
 - [ ]
 - [ ]
-- [ ] All unit tests pass at the end of this STEP — ideally the full suite (unit +
-      integration/e2e). <!-- the default bar; narrow or widen with a stated reason -->
+- [ ] The STEP test plan is complete: each code-changing substep either added/updated its
+      relevant tests or records why tests were not applicable.
+- [ ] All tests named in the STEP test plan pass at the end of this STEP — ideally the full
+      suite (unit + integration/API/e2e/security as applicable). <!-- the default bar; narrow
+      or widen with a stated reason -->
 - [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
       <!-- For a Check-in STEP, the completed report is saved under reports/, not in the
            archived STEP folder. -->

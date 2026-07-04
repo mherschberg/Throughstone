@@ -103,6 +103,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    guideline, not a rule. Don't write the detailed plan, the substeps, or the definition of
    done here; those come when the STEP is started.
 
+**Testing note.** When a planned STEP clearly creates a new test surface (API, user flow, data
+path, integration boundary, migration, authorization rule, or performance-sensitive path),
+mention the expected test tier in the STEP outline. Keep this at the outline level; the
+detailed test plan belongs in the STEP PLAN when that STEP starts.
+
 ## Output
 - **Update `prompts/STEP-index.md`:** add a row for every Phase-1 implementation STEP —
   global STEP number, title, status `Planned`, and the short (2–3 sentence) outline as its
