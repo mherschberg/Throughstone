@@ -437,6 +437,32 @@ If your IDE has its own rule system, keep using it for local preferences. Treat 
 docs as the project source of truth: the agent should read the canonical context, follow the
 STEP plan, and update the architecture docs and ADRs when decisions change.
 
+### How is Throughstone different from other AI coding projects?
+
+The AI-coding ecosystem is broad, and different GitHub topic pages surface different slices of
+it. Many projects are tactical tools: agent runners, desktop workspaces, MCP servers,
+code-search systems, memory layers, visual builders, skill registries, or tutorials. Others
+are closer to Throughstone: repository harnesses, spec-driven workflows, domain-specific agent
+bundles, or DevOps control planes for agent work.
+
+Throughstone sits in that second group, but with a narrower bet: it is an
+architecture-first project scaffold and working method for durable software projects. It does
+not try to replace your coding agent, editor, model, issue tracker, or deployment stack. It
+gives the project a durable shape before implementation begins: architecture docs, ADRs, STEP
+plans, runbooks, registries, status scripts, and agent handoff instructions that live in the
+repo instead of disappearing into chat history.
+
+The tradeoff is deliberate. Throughstone is less instant than a prompt-to-app tool, and it is
+too much process for throwaway experiments. It is aimed at software you expect to maintain:
+products, internal business tools, serious prototypes, and open-source projects where future
+humans or agents need to understand what was decided and why.
+
+Throughstone should work well alongside other projects in the ecosystem. Use tools like
+semantic code search, current-docs MCP servers, worktree-based agent runners, visual builders,
+or tracker integrations when they help. Throughstone's job is to keep the project
+architecture, decisions, risks, and next steps coherent while those tools do the tactical and
+operational work.
+
 ## Contributing & community
 
 Throughstone launched as a single-maintainer project and the hope is that it grows — bug
