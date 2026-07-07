@@ -95,6 +95,11 @@ things keep them approachable whatever your background:
 > plain-shell fallback). The methodology, prompts, and templates themselves are plain Markdown —
 > these are just the two setup wizards.
 
+> **Setup walkthrough:** Prefer to watch the setup before running commands?
+> [Watch the initial setup video](https://youtu.be/mSjY8XW9lUM). The written Quickstart
+> below is the source of truth; the video is a visual companion and may lag behind small
+> script changes.
+
 1. **Get the files into a folder named for your project.** The folder you download into
    **becomes your project's workspace root** — `init.sh` never renames it — so give it the
    name you want the project to have (e.g. `acme` or `MyCoolMobileApp`, not `Throughstone`). Two ways:
