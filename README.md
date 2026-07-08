@@ -16,7 +16,8 @@ It encodes a pattern proven across several real projects:
 - **Work is broken into runnable units.** Phases → STEPs → substeps, each small enough
   for an agent to execute cleanly in a fresh context.
 
-> **Just want to start?** Jump to the **[Quickstart](#quickstart)**.
+> **Just want to start?** Jump to the **[Quickstart](#quickstart)** or watch the
+> **[videos](#videos)**.
 
 ## Why I built this
 
@@ -95,10 +96,7 @@ things keep them approachable whatever your background:
 > plain-shell fallback). The methodology, prompts, and templates themselves are plain Markdown —
 > these are just the two setup wizards.
 
-> **Setup walkthrough:** Prefer to watch the setup before running commands?
-> [Watch the initial setup video](https://youtu.be/mSjY8XW9lUM). The written Quickstart
-> below is the source of truth; the video is a visual companion and may lag behind small
-> script changes.
+> You can also see the **[videos](#videos)** on how to get started.
 
 1. **Get the files into a folder named for your project.** The folder you download into
    **becomes your project's workspace root** — `init.sh` never renames it — so give it the
@@ -193,6 +191,14 @@ things keep them approachable whatever your background:
 
    > *Prefer to write the brief yourself first?* You can — fill in
    > `Code/{{PROJECT}}-docs/overview.md` before sending the command.
+
+## Videos
+
+- [Throughstone: Welcome to Throughstone](https://youtu.be/XIpP5yhlFOg)
+- [Throughstone: Initial Setup](https://youtu.be/mSjY8XW9lUM)
+- [Throughstone: Business Overview Walkthrough](https://youtu.be/JestTGLVMwA)
+- [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI)
+- [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28)
 
 ---
 
