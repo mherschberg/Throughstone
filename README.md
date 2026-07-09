@@ -202,6 +202,7 @@ things keep them approachable whatever your background:
 - [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4)
 - [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs)
 - [Throughstone: Glossary Session Example](https://youtu.be/RbsYeFkOgtQ)
+- [Throughstone: Post Architecture Session File Example](https://youtu.be/hcX2-mw7Oj4)
 
 ---
 
