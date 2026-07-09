@@ -203,8 +203,6 @@ things keep them approachable whatever your background:
 - [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI) —
   Shows how the system guides you automatically so you can focus on your product, not the
   process.
-- [Throughstone: Creating Steps](https://youtu.be/bDjWrMow_Qk) —
-  Shows how the development work gets broken down into smaller feature sets.
 - [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28) —
   An overview of how conditional sessions work (optional planning sessions based on your
   needs).
@@ -216,6 +214,8 @@ things keep them approachable whatever your background:
   The system glossary, what is it and how it helps your project.
 - [Throughstone: Post Architecture Session File Example](https://youtu.be/hcX2-mw7Oj4) —
   Shows what files get created by the architecture sessions.
+- [Throughstone: Creating Steps](https://youtu.be/bDjWrMow_Qk) —
+  Shows how the development work gets broken down into smaller feature sets.
 
 ---
 
