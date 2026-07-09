@@ -200,6 +200,7 @@ things keep them approachable whatever your background:
 - [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI)
 - [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28)
 - [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4)
+- [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs)
 
 ---
 
