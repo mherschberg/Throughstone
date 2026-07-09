@@ -194,14 +194,26 @@ things keep them approachable whatever your background:
 
 ## Videos
 
-- [Throughstone: Welcome to Throughstone](https://youtu.be/XIpP5yhlFOg)
-- [Throughstone: Initial Setup](https://youtu.be/mSjY8XW9lUM)
-- [Throughstone: Business Overview Walkthrough](https://youtu.be/JestTGLVMwA)
-- [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI)
-- [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28)
-- [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4)
-- [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs)
-- [Throughstone: Glossary Session Example](https://youtu.be/RbsYeFkOgtQ)
+- [Throughstone: Welcome to Throughstone](https://youtu.be/XIpP5yhlFOg) —
+  A general overview of what Throughstone does and its benefits.
+- [Throughstone: Initial Setup](https://youtu.be/mSjY8XW9lUM) —
+  How to install Throughstone to start your project.
+- [Throughstone: Business Overview Walkthrough](https://youtu.be/JestTGLVMwA) —
+  An overview of the first interactive session, describing your project.
+- [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI) —
+  Shows how the system guides you automatically so you can focus on your product, not the
+  process.
+- [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28) —
+  An overview of how conditional sessions work (optional planning sessions based on your
+  needs).
+- [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4) —
+  Deep dive into an example session (scaling).
+- [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs) —
+  Deep dive into an example session (observability).
+- [Throughstone: Glossary Session Example](https://youtu.be/RbsYeFkOgtQ) —
+  The system glossary, what is it and how it helps your project.
+- [Throughstone: Post Architecture Session File Example](https://youtu.be/hcX2-mw7Oj4) —
+  Shows what files get created by the architecture sessions.
 
 ---
 
