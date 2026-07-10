@@ -65,6 +65,12 @@ things keep them approachable whatever your background:
   why it matters and get a from-scratch explanation. The agent also offers one when you
   seem stuck.
 
+That said, "plain language" does not mean "no software concepts." Some topics, like
+deployment, observability, authentication, security, or data retention, may still introduce
+terms a non-technical user has not seen before. Throughstone tries to tone those topics down
+and recommend sensible defaults, but you should expect to ask follow-up questions — and for
+production software, get review from an experienced engineer.
+
 > **A note on collaboration.** The scaffold includes conventions for multiple developers and
 > agents working together — branch-per-STEP, global STEP-number reservation, an overlap
 > warning, and ADR-based decisions (see
@@ -194,28 +200,33 @@ things keep them approachable whatever your background:
 
 ## Videos
 
-- [Throughstone: Welcome to Throughstone](https://youtu.be/XIpP5yhlFOg) —
-  A general overview of what Throughstone does and its benefits.
-- [Throughstone: Initial Setup](https://youtu.be/mSjY8XW9lUM) —
-  How to install Throughstone to start your project.
-- [Throughstone: Business Overview Walkthrough](https://youtu.be/JestTGLVMwA) —
-  An overview of the first interactive session, describing your project.
-- [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI) —
-  Shows how the system guides you automatically so you can focus on your product, not the
-  process.
-- [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28) —
-  An overview of how conditional sessions work (optional planning sessions based on your
-  needs).
-- [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4) —
-  Deep dive into an example session (scaling).
-- [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs) —
-  Deep dive into an example session (observability).
-- [Throughstone: Glossary Session Example](https://youtu.be/RbsYeFkOgtQ) —
-  The system glossary, what is it and how it helps your project.
-- [Throughstone: Post Architecture Session File Example](https://youtu.be/hcX2-mw7Oj4) —
-  Shows what files get created by the architecture sessions.
-- [Throughstone: Creating Steps](https://youtu.be/bDjWrMow_Qk) —
-  Shows how the development work gets broken down into smaller feature sets.
+These videos follow a sample project, **AlignedDating**, a fictional dating app built with
+Throughstone. Watch them in order to see the setup flow, the early design sessions, the
+architecture artifacts Throughstone creates, and how the work gets broken into implementation
+STEPs.
+
+1. [Throughstone: Welcome to Throughstone](https://youtu.be/XIpP5yhlFOg) —
+   A general overview of what Throughstone does and its benefits.
+2. [Throughstone: Initial Setup](https://youtu.be/mSjY8XW9lUM) —
+   How to install Throughstone to start your project.
+3. [Throughstone: Business Overview Walkthrough](https://youtu.be/JestTGLVMwA) —
+   An overview of the first interactive session, describing your project.
+4. [Throughstone: Moving to the Next Sessions](https://youtu.be/16jq3MzZPvI) —
+   Shows how the system guides you automatically so you can focus on your product, not the
+   process.
+5. [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28) —
+   An overview of how conditional sessions work (optional planning sessions based on your
+   needs).
+6. [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4) —
+   Deep dive into an example session (scaling).
+7. [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs) —
+   Deep dive into an example session (observability).
+8. [Throughstone: Glossary Session Example](https://youtu.be/RbsYeFkOgtQ) —
+   The system glossary, what is it and how it helps your project.
+9. [Throughstone: Post Architecture Session File Example](https://youtu.be/hcX2-mw7Oj4) —
+   Shows what files get created by the architecture sessions.
+10. [Throughstone: Creating Steps](https://youtu.be/bDjWrMow_Qk) —
+    Shows how the development work gets broken down into smaller feature sets.
 
 ---
 
