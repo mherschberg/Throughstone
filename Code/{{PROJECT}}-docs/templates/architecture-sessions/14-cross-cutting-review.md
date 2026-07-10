@@ -1,6 +1,7 @@
 # {{PROJECT}} — Cross-Cutting Review (Session 1.14)
 
-> **How to run:** Tell your agent *"run session 1.14"*. This is the closing pass of the
+> **How to run:** Tell your agent *"STEP-1.14"* or *"session 1.14"*; a leading *"Run"* and
+> `: Cross-Cutting Review` are optional (but the label helps chat titles). This is the closing pass of the
 > architecture STEP. Unlike the other sessions it's a **review**, not an interview — it
 > reads everything produced in STEP-1 and checks it hangs together, then fixes what doesn't.
 > Reads **all** of `architecture/*`, `adr/*`, and
@@ -54,8 +55,10 @@ between "we have a pile of docs" and "we have a coherent architecture."
    to start a fresh chat and use the exact invocation from that conditional's template.
    **Stop the review here.** After the conditional session is complete, the next action is to
    run this Cross-Cutting Review again **from the beginning**, because the new doc may change
-   any cross-cutting finding. Do not mark 1.14 or STEP-1 `Done` until every discovered
-   conditional is resolved.
+   any cross-cutting finding. Use a descriptive first message when telling the user to run
+   the conditional, e.g. `Run STEP-1.Xa: <Conditional session label>` plus the invocation by
+   name from that conditional's template. Do not mark 1.14 or STEP-1 `Done` until every
+   discovered conditional is resolved.
 2. **Consistency.** Do the docs agree? Common conflicts: the data model vs. the API/flows
    in the Architecture Overview architecture doc; scaling assumptions vs. the chosen infrastructure; the
    backup/RPO and availability target vs. the data model's loss-tolerance decisions;
@@ -92,10 +95,11 @@ between "we have a pile of docs" and "we have a coherent architecture."
 Once the review is clean, the architecture STEP is done — mark the STEP-1 row `Done` and archive
 it to `prompts/001-mvp/step-0001/` (`prompts/README.md`). The next action is to move into
 building: **start a fresh chat** and run the **implementation planning session**
-(`templates/planning-session.md`, *"run the planning session"*) — it outlines the Phase-1
+(`templates/planning-session.md`, *"Run planning session: Phase-1 implementation roadmap"*) — it outlines the Phase-1
 implementation STEPs. See the next-action resolver (`METHOD.md` §10).
 
-**Begin now — in this same reply.** "run session 1.14" is your go-ahead, not a request for
+**Begin now — in this same reply.** "STEP-1.14" or "session 1.14", with or without a leading
+"Run" and with or without ": Cross-Cutting Review", is your go-ahead, not a request for
 acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to
 start. Read all the STEP-1 architecture docs and ADRs, every `conditional-*.md` template,
 the STEP-1 PLAN, and `prompts/STEP-index.md` silently. Run the conditional-session gate

@@ -106,7 +106,7 @@ team/shared-remote project, push the `In progress` flip). **Then stop.**
 
 ### Execution (after kickoff)
 The user drives from here, one session at a time:
-> run session 1.1
+> Run STEP-1.1: System Overview, Requirements & Non-Goals
 
 Each session interviews the user and writes its architecture doc + any ADRs, then updates
 `prompts/STEP-index.md`. Encourage the user to clear the chat between sessions — state
