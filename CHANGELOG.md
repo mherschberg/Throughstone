@@ -7,6 +7,55 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [1.6.0] - 2026-07-09
+
+A **release-readiness and operational discipline** release: it adds a structured security
+review framework, durable report artifacts, stronger STEP/test planning gates, better setup
+tooling, and more approachable onboarding material for new Throughstone projects.
+
+### Added
+- **Security review framework** for generated projects: S0 Security Baseline, S1 Security
+  Sweep, and S2 Security Audit runbooks/checklists; `registries/security-reviews.yml` for
+  review cadence and change markers; and report templates for baseline, sweep, and audit
+  outputs.
+- **Durable reports structure** under `reports/` for check-in reports, incident postmortems,
+  security reviews, and test-result summaries.
+- **Test results summary template** for recording test, coverage, CI, and quality-gate
+  outcomes.
+- **Generated project onboarding guide** to help new contributors understand the scaffolded
+  project structure and workflow.
+- **`doctor.sh` dispatcher** with a single entry point for `status`, `check`, and `links`.
+- **Local Markdown link checker** for durable Throughstone documentation.
+- **Website publishing workflow/checks** and artifact-trail publication support.
+- **Video resources** in the README covering setup, early sessions, conditional sessions,
+  scaling, observability, glossary, post-architecture files, and STEP creation.
+
+### Changed
+- `METHOD.md` is now **Method version 0.4 (beta)**.
+- STEP plans now require an explicit **test plan** for code-changing work, including test tier,
+  run timing, command/gate, and substep coverage.
+- The method now more clearly distinguishes small normal changes from work that should become a
+  full STEP.
+- Check-in guidance now records durable reports under `reports/` instead of burying review
+  artifacts inside STEP folders.
+- Incident postmortem handling is standardized around report templates and stable report paths.
+- Security-sensitive work now points to the Security & Threat Model and risk register, while
+  reserving S0/S1/S2 materials for explicit security review STEPs.
+- Conditional sessions are more robustly documented, rechecked, and prioritized when discovered
+  after STEP-1.
+- README and site copy now explain Throughstone's fit, limits, AI-project positioning, setup,
+  and workflow more clearly.
+- Template filenames are normalized with explicit `*-template.md` naming where appropriate.
+
+### Fixed
+- `init.sh` now validates and propagates project license choices more reliably.
+- Generated projects can choose a configurable trunk branch instead of assuming `main`.
+- Mono-repo setup avoids reusing non-empty template-created origins unsafely.
+- Bootstrap remote setup supports manual/non-GitHub Git hosts more clearly.
+- ADR authority substitution is explicit and covered by regression tests.
+- `status.sh` prioritizes late conditional-session follow-up STEPs correctly.
+- Local documentation links are now mechanically checkable through `doctor.sh links`.
+
 ## [1.5.0] - 2026-06-06
 
 A **risk visibility and release-notes workflow** release: it adds a canonical accepted risk /
@@ -226,6 +275,8 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[1.6.0]: https://github.com/mherschberg/Throughstone/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/mherschberg/Throughstone/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/mherschberg/Throughstone/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/mherschberg/Throughstone/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/mherschberg/Throughstone/compare/v1.1.0...v1.2.0
