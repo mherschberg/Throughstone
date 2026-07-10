@@ -66,6 +66,7 @@
   .hero h1{font-size:66px;margin:18px 0 0;}
   .hero .lead{font-size:24px;color:#4a4036;margin:22px 0 30px;max-width:580px;}
   .hero .cta{display:flex;gap:14px;flex-wrap:wrap;}
+  .hero .cta .btn{width:252px;text-align:center;}
   .hero .sub{margin-top:18px;font-size:15px;color:var(--mortar);font-family:var(--mono);}
   /* hero visual: the actual social card */
   .herocard-img{width:100%;height:auto;border-radius:16px;display:block;box-shadow:0 24px 60px -24px rgba(42,37,33,.5);}
@@ -101,6 +102,17 @@
   .artifact-card .path{font-family:var(--mono);font-size:13px;color:var(--ochreD);margin-bottom:10px;}
   .artifact-note{margin-top:28px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;color:var(--mortar);font-size:18px;}
   .artifact-note p{margin:0;max-width:640px;}
+
+  /* videos */
+  .videos{background:var(--paper);}
+  .video-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+  .video-card{background:var(--lime);border:1px solid #e8ddc8;border-radius:8px;padding:18px;min-width:0;display:flex;flex-direction:column;}
+  .video-card .num{font-family:var(--mono);color:var(--ochreD);font-size:13px;margin-bottom:10px;}
+  .video-card h3{font-size:18px;margin-bottom:8px;}
+  .video-card p{color:var(--mortar);font-size:16px;line-height:1.48;margin:0 0 12px;}
+  .video-card a{font-size:16px;font-weight:600;margin-top:auto;}
+  .video-note{margin-top:24px;color:var(--mortar);font-size:18px;max-width:760px;}
+  .video-note p{margin:0;}
 
   /* sessions */
   .sessions{background:var(--paper);}
@@ -153,7 +165,7 @@
   @media(max-width:860px){
     .hero-grid{grid-template-columns:1fr;gap:40px;}
     .hero h1{font-size:48px;}
-    .cards3,.artifact-grid,.flow,.session-grid,.session-list,.ops-grid,.fit-grid{grid-template-columns:1fr;}
+    .cards3,.artifact-grid,.flow,.session-grid,.session-list,.ops-grid,.fit-grid,.video-grid{grid-template-columns:1fr;}
     .session-list{grid-auto-flow:row;grid-template-rows:none;}
     h2{font-size:31px;}
   }
@@ -168,6 +180,7 @@
       <a class="navlink" href="#principles">Principles</a>
       <a class="navlink" href="#process">Process</a>
       <a class="navlink" href="#artifacts">Project memory</a>
+      <a class="navlink" href="#videos">Videos</a>
       <a class="navlink" href="#sessions">Sessions</a>
       <a class="navlink" href="#operations">Operations</a>
       <a class="navlink" href="#quickstart">Quickstart</a>
@@ -187,6 +200,7 @@
       <div class="cta">
         <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone/generate">Use this template</a>
         <a class="btn btn-secondary" href="https://github.com/mherschberg/Throughstone">View on GitHub</a>
+        <a class="btn btn-ghost" href="#videos">Watch the walkthrough</a>
       </div>
       <div class="sub">Plain Markdown + a Bash setup wizard · BSD-3-Clause</div>
     </div>
@@ -200,7 +214,7 @@
     <div class="sec-head">
       <div class="eyebrow">How it works</div>
       <h2>Three principles, all the way through.</h2>
-      <p>The architecture you lay down at the start is carried through every phase, step, and check-in.</p>
+      <p>Vibe-coded projects often start fast, then decay when nobody can explain the architecture, tradeoffs, or next safe change. Throughstone makes that project memory explicit from the start.</p>
     </div>
     <div class="cards3">
       <div class="pcard"><div class="num">01</div><h3>Think before you code.</h3><p>Start with architecture docs and decision records, then code. You begin from a plan you can read and question.</p></div>
@@ -262,6 +276,31 @@
     <div class="artifact-note">
       <p>The docs hub records what the system is now; the prompts repo records how it got there.</p>
       <a class="btn btn-secondary" href="https://github.com/mherschberg/Throughstone/blob/main/ARTIFACT-TRAIL.md">See the artifact trail</a>
+    </div>
+  </div>
+</section>
+
+<section class="videos" id="videos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Video walkthrough</div>
+      <h2>Watch Throughstone turn a sample app idea into project structure.</h2>
+      <p>The videos follow AlignedDating, a fictional dating app built with Throughstone. They work as a launch sequence or a start-here path for people evaluating the method.</p>
+    </div>
+    <div class="video-grid">
+      <div class="video-card"><div class="num">01</div><h3>Welcome to Throughstone</h3><p>A general overview of what Throughstone does and its benefits.</p><a href="https://youtu.be/XIpP5yhlFOg">Watch video 1</a></div>
+      <div class="video-card"><div class="num">02</div><h3>Initial Setup</h3><p>How to install Throughstone to start your project.</p><a href="https://youtu.be/mSjY8XW9lUM">Watch video 2</a></div>
+      <div class="video-card"><div class="num">03</div><h3>Business Overview Walkthrough</h3><p>An overview of the first interactive session, describing your project.</p><a href="https://youtu.be/JestTGLVMwA">Watch video 3</a></div>
+      <div class="video-card"><div class="num">04</div><h3>Moving to the Next Sessions</h3><p>Shows how the system guides you automatically so you can focus on your product, not the process.</p><a href="https://youtu.be/16jq3MzZPvI">Watch video 4</a></div>
+      <div class="video-card"><div class="num">05</div><h3>Conditional Sessions</h3><p>An overview of how optional planning sessions work based on your needs.</p><a href="https://youtu.be/OS0p9Riy_28">Watch video 5</a></div>
+      <div class="video-card"><div class="num">06</div><h3>Scaling Session Example</h3><p>Deep dive into an example session on scaling.</p><a href="https://youtu.be/dNaleBhDKe4">Watch video 6</a></div>
+      <div class="video-card"><div class="num">07</div><h3>Observability Session Example</h3><p>Deep dive into an example session on observability.</p><a href="https://youtu.be/88a0TXvQAKs">Watch video 7</a></div>
+      <div class="video-card"><div class="num">08</div><h3>Glossary Session Example</h3><p>The system glossary, what it is, and how it helps your project.</p><a href="https://youtu.be/RbsYeFkOgtQ">Watch video 8</a></div>
+      <div class="video-card"><div class="num">09</div><h3>Post Architecture Session File Example</h3><p>Shows what files get created by the architecture sessions.</p><a href="https://youtu.be/hcX2-mw7Oj4">Watch video 9</a></div>
+      <div class="video-card"><div class="num">10</div><h3>Creating Steps</h3><p>Shows how the development work gets broken down into smaller feature sets.</p><a href="https://youtu.be/bDjWrMow_Qk">Watch video 10</a></div>
+    </div>
+    <div class="video-note">
+      <p>For the full ordered list, including every AlignedDating session link, use the <a href="https://github.com/mherschberg/Throughstone#videos">README video section</a>.</p>
     </div>
   </div>
 </section>
