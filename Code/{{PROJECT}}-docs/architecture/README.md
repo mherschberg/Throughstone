@@ -6,7 +6,7 @@ are point-in-time). See `METHOD.md` §3 and §6.
 
 Most of these are produced by the **architecture sessions** during STEP-1
 (`../templates/architecture-sessions/`). To create or revise one, run its session
-(e.g. *"run session 1.5"*).
+(e.g. *"Run STEP-1.5: Scaling & Performance"*).
 
 ## Conventions
 - Filenames: `NN-kebab-title.md`, numbered in the order the sessions produce them.

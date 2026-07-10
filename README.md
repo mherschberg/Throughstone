@@ -192,7 +192,8 @@ production software, get review from an experienced engineer.
    asks — you don't have to pre-write anything.
 
    From there the agent proposes a roadmap and starts the architecture STEP; you work
-   through the architecture sessions one at a time (*"run session 1.1"*), then move into
+   through the architecture sessions one at a time
+   (*"Run STEP-1.1: System Overview, Requirements & Non-Goals"*), then move into
    building. On any later session, the same **"Read AGENTS.md and follow it"** resumes where
    you left off (it reads the roadmap in `prompts/STEP-index.md`) rather than re-running the
    kickoff.

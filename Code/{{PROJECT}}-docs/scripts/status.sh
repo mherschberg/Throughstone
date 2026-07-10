@@ -173,11 +173,11 @@ elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
     elif printf '%s' "$lowsub_se" | grep -qiE 'privacy|compliance|data governance'; then
       cond_example="run the privacy session"
     fi
-    next="run the conditional session for substep ${lowsub} — \"${lowsub_se}\"; invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
+    next="Run STEP-${lowsub}: ${lowsub_se} — invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
   elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
-    next="run session ${lowsub} — the Cross-Cutting Review."
+    next="Run STEP-${lowsub}: Cross-Cutting Review."
   else
-    next="run session ${lowsub}  (${lowsub_se})."
+    next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
 elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
   where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
@@ -191,7 +191,7 @@ elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 
     next="run the planning session — it outlines the Phase-1 implementation STEPs."
   else
     where="Architecture (STEP-1) not yet run."
-    next="run session 1.1 — start the architecture STEP."
+    next="Run STEP-1.1: System Overview, Requirements & Non-Goals — start the architecture STEP."
   fi
 elif [ -n "$inprog" ]; then                                 # §10.6
   where="Building — ${inprog} (${inprog_ti}) is In progress."

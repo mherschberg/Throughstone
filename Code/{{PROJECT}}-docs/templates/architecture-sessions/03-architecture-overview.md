@@ -1,6 +1,7 @@
 # {{PROJECT}} — Architecture Overview & Component Boundaries (Session 1.3)
 
-> **How to run:** Tell your agent *"run session 1.3"*. It interviews you one decision at a
+> **How to run:** Tell your agent *"STEP-1.3"* or *"session 1.3"*; a leading *"Run"* and
+> `: Architecture Overview & Component Boundaries` are optional (but the label helps chat titles). It interviews you one decision at a
 > time, then writes the Architecture Overview architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md`, the System Overview, Requirements & Non-Goals architecture doc
 > (`architecture/*-system-overview.md`), and
@@ -83,9 +84,11 @@ System row.
 
 ## Next
 Once 1.3 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
-the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
-session N.M"*; for a lettered conditional session, invoke it by name). This session may have
-marked the UI / Design System row `N/A` or added a Native-app row, so trust the index. See the next-action
-resolver in `METHOD.md` §10.
+the user to **start a fresh chat** and run that substep with a descriptive first message. For
+a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for example,
+`Run STEP-1.4: Data Model, Ownership & Retention`). For a lettered conditional session, use
+`Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
+conditional's template. This session may have marked the UI / Design System row `N/A` or
+added a Native-app row, so trust the index. See the next-action resolver in `METHOD.md` §10.
 
-**Begin now — in this same reply.** "run session N.M" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.
+**Begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the recorded experience level. That orientation plus the first question is your entire first reply — nothing more.

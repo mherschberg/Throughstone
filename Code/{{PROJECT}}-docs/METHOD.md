@@ -148,12 +148,14 @@ conditional by name.
 
 To run an architecture session, tell your agent:
 
-> run session 1.1
+> Run STEP-1.1: System Overview, Requirements & Non-Goals
 
 The agent reads the matching file in
 `Code/{{PROJECT}}-docs/templates/architecture-sessions/NN-*.md` and follows it exactly:
 it interviews you one decision at a time, then writes the output doc and updates
-`prompts/STEP-index.md`. No copy-paste, no special commands.
+`prompts/STEP-index.md`. No copy-paste, no special commands. The shorter
+*"STEP-1.N"* and *"session N.M"* forms also work, with or without a leading "Run" and with
+or without `: <session label>`, but the labeled form gives chat/task UIs a clearer title.
 
 Each session reads what it needs (`overview.md` + earlier architecture docs) from disk, so
 **you can clear the chat / start fresh between sessions** — the state lives in files, not
@@ -161,7 +163,8 @@ in the conversation. This keeps STEP-1's many sessions from piling up in one con
 
 ### Sessions are re-runnable
 A session isn't a one-time gate. If an assumption changes later — scaling needs grow, the
-threat model shifts, a phase gets re-cut — **re-run that session** (*"run session 1.5"*).
+threat model shifts, a phase gets re-cut — **re-run that session** (for example,
+*"Run STEP-1.5: Scaling & Performance"*).
 It re-interviews you, **revises the existing architecture doc in place, and records the
 change in that doc's Version Log** (and a new ADR if the decision is significant — the old
 ADR is superseded, not edited). Re-running is the normal way the living docs stay true as
@@ -504,12 +507,14 @@ Quick resolver:
 
 Resolve the next action top-down against the index — the first rule that matches wins:
 
-1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one:
-   *"run session N.M"* in a fresh chat. Skip any substep marked `N/A` or `Deferred`. A substep with a
+1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one
+   in a fresh chat using `Run STEP-1.N: <Session label from the index>`; the label is
+   optional but preferred because it gives the chat/task a clearer title. Skip any substep marked `N/A` or `Deferred`. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
-   in — invoke it **by name** (*"run the identity-auth session"* / *"run the native-app
-   session"* / *"run the privacy session"* or *"run the privacy-compliance session"*), since
-   its template file is named by topic, not by number (see §4).
+   in — use `Run STEP-1.Xa: <Conditional session label>` plus the invocation **by name**
+   (*"run the identity-auth session"* / *"run the native-app session"* / *"run the privacy
+   session"* or *"run the privacy-compliance session"*), since its template file is named by
+   topic, not by number (see §4).
 2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
    substep whose Session label is **Cross-Cutting Review**.
 3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →

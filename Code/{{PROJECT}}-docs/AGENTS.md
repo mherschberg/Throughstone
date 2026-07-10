@@ -58,16 +58,19 @@ This project follows the method in **`Code/{{PROJECT}}-docs/METHOD.md`** — rea
 - The roadmap and status are in `prompts/STEP-index.md`.
 
 ## Architecture sessions  (how to run one)
-When the user says **"run session N.M"** (e.g. *"run session 1.1"*), read the matching file
-in `Code/{{PROJECT}}-docs/templates/architecture-sessions/NN-*.md` and follow it exactly:
-interview the user one decision at a time, then write the output architecture doc and
-update `prompts/STEP-index.md`. No copy-paste, no special commands.
+When the user says **"STEP-1.N"** or **"session N.M"**, with or without a leading "Run" and
+with or without the session label (preferred with the label, e.g.
+*"Run STEP-1.1: System Overview, Requirements & Non-Goals"*), read the matching file in
+`Code/{{PROJECT}}-docs/templates/architecture-sessions/NN-*.md` and follow it exactly:
+interview the user one decision at a time, then write the output architecture doc and update
+`prompts/STEP-index.md`. No copy-paste, no special commands.
 
-**"run session N.M" is the user's go-ahead — begin in that same reply.** Don't acknowledge,
-summarize the file, restate the plan, or ask whether to start (no "Ready when you are"). Read
-`overview.md` and any earlier architecture docs silently, then immediately **ask the
-session's first question**, calibrated to the recorded experience level. The user types one
-short command and expects the first question back, not a confirmation prompt.
+**"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
+<session label>" are all the user's go-ahead — begin in that same reply.** Don't
+acknowledge, summarize the file, restate the plan, or ask whether to start (no "Ready when
+you are"). Read `overview.md` and any earlier architecture docs silently, then immediately
+**ask the session's first question**, calibrated to the recorded experience level. The user
+types one short command and expects the first question back, not a confirmation prompt.
 
 **Conditional sessions** are invoked **by name**, not by number: *"run the identity-auth
 session"* → `conditional-identity-auth.md`; *"run the native-app session"* →

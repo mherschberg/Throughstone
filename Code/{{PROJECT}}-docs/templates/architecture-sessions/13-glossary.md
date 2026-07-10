@@ -1,6 +1,7 @@
 # {{PROJECT}} — Glossary (Session 1.13)
 
-> **How to run:** Tell your agent *"run session 1.13"*. It works through the project's terms
+> **How to run:** Tell your agent *"STEP-1.13"* or *"session 1.13"*; a leading *"Run"* and
+> `: Glossary` are optional (but the label helps chat titles). It works through the project's terms
 > with you, then writes the Glossary architecture doc and updates `prompts/STEP-index.md`.
 > Reads `overview.md` and **all** the architecture docs produced so far.
 > **Calibrate to experience.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
@@ -61,13 +62,16 @@ Log**; record any unresolved naming questions in **Open Questions**. Update
 
 ## Next
 Once 1.13 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
-the user to **start a fresh chat** and run that substep (for a numbered core session, *"run
-session N.M"*; for a lettered conditional session, invoke it by name). See the next-action
-resolver in `METHOD.md` §10.
+the user to **start a fresh chat** and run that substep with a descriptive first message. For
+a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for example,
+`Run STEP-1.14: Cross-Cutting Review`). For a lettered conditional session, use
+`Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
+conditional's template. See the next-action resolver in `METHOD.md` §10.
 
-**Begin now — in this same reply.** "run session 1.13" is your go-ahead, not a request for
-acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to
-start. Read `overview.md` and all the architecture docs silently. Then, in this one reply:
+**Begin now — in this same reply.** "STEP-1.13" or "session 1.13", with or without a leading
+"Run" and with or without ": Glossary", is your go-ahead, not a request for acknowledgement:
+don't say "ready when you are", don't recap this file, don't ask whether to start. Read
+`overview.md` and all the architecture docs silently. Then, in this one reply:
 **(1)** tell the user — in the one or two sentences from **What this session does** above —
 what you're about to do (plain language); then **(2)** immediately present the first batch of
 terms you've gathered (with proposed plain-language definitions) for them to confirm or
