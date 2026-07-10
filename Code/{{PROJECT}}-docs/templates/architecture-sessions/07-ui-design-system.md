@@ -31,12 +31,18 @@ foundations — color, type, spacing — are shared across web and mobile; platf
 patterns branch from there.
 
 ## How this session works
-- One decision at a time; **show and tell**. For **every UI decision**, give a concise
-  explanation of what the decision controls and why it matters, then generate a rendered HTML
-  comparison page in a temporary `ui-design/` working folder with realistic {{PROJECT}}
-  content before asking the user to choose. Do not make the user decide from text-only
-  descriptions, hex codes, or abstract component names, and do not make them interpret visuals
-  with no explanation.
+- One decision at a time; **show and tell**. For **every decision**, give a concise
+  explanation of what the decision controls and why it matters before asking the user to
+  choose.
+- Decision 1, **Design principles / overall feel**, is intentionally **not visual**. Present
+  3–4 adjective-set options in text, explain what each direction implies, recommend a default,
+  and wait for the user's answer. Do not generate an HTML page for this first decision; visual
+  examples would prematurely mix color, typography, spacing, shape, and component style before
+  those choices have been made.
+- For later visual UI decisions, generate a rendered HTML comparison page in a temporary
+  `ui-design/` working folder with realistic {{PROJECT}} content before asking the user to
+  choose. Do not make the user decide from text-only descriptions, hex codes, or abstract
+  component names, and do not make them interpret visuals with no explanation.
 - Present a small set of concrete options for each decision: target **3–4 options** where the
   design space supports it, and use **2 options** only where the choice is naturally binary
   or constrained (for example, top navigation vs. side navigation). Label each option clearly,
@@ -44,11 +50,15 @@ patterns branch from there.
 - **Wait** for the user's answer after each visual option page before moving to the next
   decision. If a decision depends on an earlier answer, build the new HTML page using the
   selected earlier choices so the system accumulates coherently.
+- In each visual comparison page, isolate the current decision. Hold prior choices constant,
+  use neutral defaults for undecided tokens, and avoid changing unrelated attributes across
+  options. For example, a color page should not also vary fonts, corner radius, density, or
+  navigation style; a typography page should not also change palette or spacing.
 - Reuse the client-surfaces answer from the Architecture Overview architecture doc to decide which platform branches apply.
 - Recommend sensible defaults; flag accessibility and localization implications.
 - Keep each temporary visual page focused on one decision (or one tightly coupled decision group) and
-  name files with a sortable prefix, e.g. `ui-design/01-design-principles.html`,
-  `ui-design/02-color.html`, `ui-design/03-typography.html`.
+  name files with a sortable prefix, e.g. `ui-design/02-color.html`,
+  `ui-design/03-typography.html`, `ui-design/04-spacing-layout.html`.
 - Treat `ui-design/` as a temporary session workspace, not a durable docs artifact. The final
   architecture doc records the selected choices and exact values; the HTML option pages do
   not need to be retained unless the user explicitly asks to keep them.
@@ -57,8 +67,9 @@ patterns branch from there.
 
 ### Foundations (shared across all surfaces)
 1. **Design principles.** 2–4 adjectives for the look & feel (e.g. "trustworthy, modern,
-   data-dense") and what they imply. Show 3–4 visual mood directions with sample screens or
-   component compositions, not just adjective lists.
+   data-dense") and what they imply. This first decision is text-only: present 3–4 overall
+   feel options, explain the tradeoffs, recommend a default, and do **not** generate a visual
+   page yet.
 2. **Color.** Brand/primary, semantic (success/warning/error/info), and a grayscale ramp.
 3. **Typography.** Font families (UI + mono if needed) and a type scale.
 4. **Spacing & layout.** Base spacing unit and density (compact vs. comfortable).
@@ -99,9 +110,10 @@ patterns branch from there.
 
 ## Output
 Use the generated `ui-design/*.html` pages as temporary working aids during the session. There
-should be one HTML page per decision or tightly coupled decision group while the session is in
-progress, each showing the options being presented and the exact values under consideration.
-Do not treat these pages as durable output unless the user explicitly asks to keep them.
+should be one HTML page per visual decision or tightly coupled visual decision group after
+Decision 1 while the session is in progress, each showing the options being presented and the
+exact values under consideration. Do not treat these pages as durable output unless the user
+explicitly asks to keep them.
 
 Write `architecture/07-ui-design-system.md` (use `templates/architecture-doc-template.md`). Body:
 - **Design principles**
