@@ -33,20 +33,22 @@ risk of creating unmaintainable code.
 
 ## Who it's for
 
-- **New to building / little or no coding experience.** You have an idea and want to
-  build it with an AI agent — but you don't want a mystery box of code you can't
-  understand or extend. The sessions interview you in plain language and recommend
-  sensible defaults; you bring the idea, the scaffold brings the structure.
+- **Experienced developers, leads, and founders.** You may not need this for your own work,
+  but it's a useful structure to hand the early-career developers, AI-heavy builders, and
+  non-technical founders who keep asking *"how do I even start building with AI?"*
+  Throughstone gives them a repeatable process — architecture docs, ADRs, scoped STEPs, and
+  review points — so you can review decisions and project shape instead of
+  reverse-engineering a pile of generated code later. *(Want it for your own projects? Set
+  your experience level to senior at the start and the sessions stay terse and
+  decision-focused.)*
 - **Early-career developers.** You can write code, but the *project-shaping* part — what
   to decide first, how to phase the work, what the architecture should be — is exactly
   where AI agents tend to leave you with a tangle. This puts that discipline up front, so
   what you build holds together past v1.
-- **Experienced developers and leads.** You may not need this for your own work — but it's
-  a clean thing to hand the early-career developers and non-technical founders who keep
-  asking you *"how do I even start building with AI?"* Point them here and let the scaffold
-  do the mentoring you'd otherwise have to repeat by hand. *(Want it for your own projects?
-  Set your experience level to senior at the start and the sessions stay terse and
-  decision-focused.)*
+- **New to building / little or no coding experience.** You have an idea and want to
+  build it with an AI agent — but you don't want a mystery box of code you can't
+  understand or extend. The sessions interview you in plain language and recommend
+  sensible defaults; you bring the idea, the scaffold brings the structure.
 
 **A scope note:** this is built for software meant to stick around (e.g., a product, an
 internal business tool, a serious open-source project). For a throwaway proof-of-concept, a
