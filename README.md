@@ -454,6 +454,30 @@ tracker and PR process. Create or promote to a STEP when the work is large, ambi
 cross-repo, architecture-affecting, or important enough that future contributors need the
 planning record.
 
+### Can I use my own coding standards, runbooks, and processes?
+
+Yes. The generated `coding-standards/`, `runbooks/`, `templates/`, `METHOD.md`, and agent
+instructions are starting points. You can add your own files, replace the defaults, or edit
+the Throughstone versions to match your team's existing standards.
+
+For durable changes, put the standards in the repo so future agents and contributors can read
+the same source of truth.
+
+### What if I want the Throughstone process to be different?
+
+You can change it. For a one-off exception, tell the AI agent what you want to do differently
+for that task.
+
+For a lasting change, update the Throughstone process files: `METHOD.md`, `AGENTS.md`,
+`CLAUDE.md`, templates, runbooks, coding standards, or related project docs. You can do this
+by hand or by telling the agent to modify those files. Once changed, future agents can read
+and follow the updated process from disk instead of relying on chat memory.
+
+That flexibility cuts both ways: changing the process can be useful, but it can also weaken
+the guardrails that make Throughstone valuable. Treat major process changes like project
+decisions: document them, and use an ADR when the change affects how future work should be
+done.
+
 ### How do I update my project when Throughstone improves?
 
 Throughstone is copied into your project at setup time; template improvements do not apply
