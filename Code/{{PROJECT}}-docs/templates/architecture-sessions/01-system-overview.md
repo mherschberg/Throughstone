@@ -48,8 +48,9 @@ No code in this session. The output is a Markdown doc.
 
 ### Problem & value
 1. **The problem.** In 2–3 sentences: what does {{PROJECT}} solve, and why now?
-2. **Users & stakeholders.** Primary personas (1–3)? Who else is affected (admins, ops,
-   compliance, your customers' customers)?
+2. **Users & stakeholders.** Who are the users or stakeholders? For each main group, what
+   problem are they trying to solve? Capture primary personas (1–3) and anyone else affected
+   (admins, ops, compliance, your customers' customers).
 3. **Success criteria.** How will you know it works? Push for *measurable* outcomes
    ("new user completes X in under N minutes", "handles N requests/day"), not vanity metrics.
 
