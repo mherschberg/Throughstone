@@ -17,7 +17,8 @@
      anything else relevant — don't try to read everything. The indexes point the way:
        - root .throughstone/local-user.md — active user's experience level and
                                       communication style; if missing, ask the two
-                                      local-profile questions from METHOD.md §4, create it,
+                                      local-profile questions from `BOOTSTRAP-PROMPT.md`
+                                      Stage 0, create it,
                                       and calibrate explanations/questions to it
        - overview.md                — project brief
        - architecture/README.md     — the architecture docs (what the system is)

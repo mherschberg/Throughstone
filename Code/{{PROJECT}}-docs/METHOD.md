@@ -233,7 +233,7 @@ the decisions reached are the same; only the explaining changes:
 
 At any agent entry point — kickoff, resume, an architecture session, the planning session,
 STEP planning, substep execution, or contributor onboarding — if root
-`.throughstone/local-user.md` is missing, ask the two local-profile questions from Stage 0,
+`.throughstone/local-user.md` is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0,
 create the file, and then continue. If the user gives an explicit style instruction in chat,
 honor it for the current session; otherwise use `.throughstone/local-user.md`. To change the
 default for future sessions, edit that file.

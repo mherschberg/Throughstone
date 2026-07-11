@@ -13,7 +13,7 @@
 > `architecture/*-interface-contracts.md`), `adr/*`,
 > `prompts/STEP-index.md`, and — for multi-repo
 > projects — `registries/repos.yml`.
-> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `METHOD.md` §4, create it, then continue. Also check **Communication style** there and use it as the default verbosity for this planning session; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
+> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default verbosity for this planning session; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}

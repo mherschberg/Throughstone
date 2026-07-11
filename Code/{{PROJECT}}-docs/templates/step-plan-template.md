@@ -91,9 +91,9 @@
 - **Calibrate communication from root `.throughstone/local-user.md`.** Substep prompts
   should read the recorded **Experience level** and adjust explanations/questions
   accordingly. STEP planning should use the saved **Communication style** as the default
-  verbosity. If the file is missing, ask the two local-profile questions from `METHOD.md`
-  §4, create it, and continue. An explicit style request in chat overrides the profile for
-  this session only. Don't copy either value into this PLAN.
+  verbosity. If the file is missing, ask the two local-profile questions from
+  `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. An explicit style request in chat
+  overrides the profile for this session only. Don't copy either value into this PLAN.
 - **Plan interactively.** Before this PLAN is finalized, confirm scope with the user and ask
   clarifying questions for ambiguous requirements, sequencing, dependencies, ownership, or
   repo boundaries. When a planning decision is needed, offer appropriate options with brief
