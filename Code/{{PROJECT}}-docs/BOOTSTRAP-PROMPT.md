@@ -31,8 +31,8 @@ at a longer brief they already have, use that instead.)
 
 The user may be a less-experienced developer. **Guide, don't assume.** Recommend sensible
 defaults, explain tradeoffs in plain language, and ask before moving on. Stage 0 establishes
-the active user's local communication profile — calibrate every stage to it (see §4 of
-`METHOD.md`).
+the active user's local communication profile — calibrate every stage to it (see
+`METHOD.md` §4, "Calibrating to the user's experience level").
 
 ### Stage 0 — Interview  ▸ checkpoint
 **Ask these local-profile questions first, before any project question:**
