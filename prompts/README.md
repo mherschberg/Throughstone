@@ -89,7 +89,8 @@ teammate will need later.
 > blank page.
 > Read the saved **Communication style** in root `.throughstone/local-user.md` and use it as
 > the default verbosity. If the file or value is missing, ask the two local-profile
-> questions from `Code/{{PROJECT}}-docs/METHOD.md` §4, create/update the file, and continue.
+> questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create/update the file,
+> and continue.
 > An explicit style request in chat overrides the profile for the current session only.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's

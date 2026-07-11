@@ -65,7 +65,7 @@ language, lead with a recommended default, and avoid unexplained jargon (scaling
 model, environments …); at any level, treat any sign of confusion or request to clarify —
 however worded — as a cue to explain plainly. **When you write the profile, tell the user in
 plain terms they can ask you to explain any question at any time** — don't make them discover
-it. (See `METHOD.md` §4.)
+it. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 Then read `overview.md` and fill the gaps a brief usually misses. Ask about: who uses it and
 who else is affected; expected scale now vs. in a year; hard constraints (regulatory,
