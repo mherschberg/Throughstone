@@ -45,6 +45,20 @@ Older Throughstone projects stored the first user's communication preferences in
 projects store those personal preferences in root `.throughstone/local-user.md`, because each
 contributor has their own local profile.
 
+When reviewing or applying this migration, compare the related files as a coherent group. It is
+not just a `METHOD.md` change:
+
+- `BOOTSTRAP-PROMPT.md` defines the two local-profile questions and file shape.
+- `AGENTS.md`, `METHOD.md`, and `ONBOARDING.md` define when agents and additional contributors
+  create or read the local profile.
+- `scripts/check.sh` reports legacy `overview.md` preference sections.
+- `templates/overview-template.md`, `templates/planning-session.md`,
+  `templates/step-plan-template.md`, `templates/substep-prompt-template.md`, and
+  `templates/architecture-sessions/*.md` keep future sessions from reading project-level
+  preference fields.
+- `prompts/README.md` carries the STEP-planning communication-style behavior.
+- `runbooks/collaboration.md` explains the multi-contributor local-profile expectation.
+
 During an update, treat those old `overview.md` sections as legacy project-state drift:
 
 1. Create or update root `.throughstone/local-user.md` for the active user, optionally using
