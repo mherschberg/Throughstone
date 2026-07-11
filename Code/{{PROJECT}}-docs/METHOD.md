@@ -479,10 +479,11 @@ template don't reach you automatically. Chasing them is rarely worth it, but if 
 a later improvement, follow `UPDATING-THROUGHSTONE.md`: it compares the project against an
 upstream Throughstone release, reports what changed, and separates "can be applied without a
 text merge" from "safe." Pull only scaffold/process material — `METHOD.md`, `AGENTS.md`,
-`UPDATING-THROUGHSTONE.md`, `templates/`, `runbooks/`, `coding-standards/`, and `scripts/` —
-and only after review.
-Never auto-update your own `architecture/`, `adr/`, `overview.md`, `prompts/`, application
-code, or files stamped from templates into project repos.
+`UPDATING-THROUGHSTONE.md`, `prompts/README.md`, `templates/`, `runbooks/`,
+`coding-standards/`, and `scripts/` — and only after review.
+Never auto-update your own `architecture/`, `adr/`, `overview.md`, `prompts/STEP-index.md`,
+archived `prompts/<phase>/` content, application code, or files stamped from templates into
+project repos.
 
 Treat scaffold updates as advisory by default. Scripts can change behavior, templates affect
 future generated work, and process docs can alter how contributors or agents operate. When an
