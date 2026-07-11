@@ -13,7 +13,7 @@
 > `architecture/*-interface-contracts.md`), `adr/*`,
 > `prompts/STEP-index.md`, and — for multi-repo
 > projects — `registries/repos.yml`.
-> **Calibrate to experience and planning style.** Check the **Experience level** in `overview.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. Also check **Planning communication style** in `overview.md` and use it as the default verbosity for this planning session. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
+> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `METHOD.md` §4, create it, then continue. Also check **Communication style** there and use it as the default verbosity for this planning session; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (`METHOD.md` §4.)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
@@ -40,8 +40,9 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
 - When a decision is not obvious, offer plausible options with brief pros and cons.
-  Ask clarifying questions instead of guessing, and use the saved planning style in
-  `overview.md` unless the user asks to change it.
+  Ask clarifying questions instead of guessing, and use the saved communication style in
+  root `.throughstone/local-user.md` unless the user gives an explicit style instruction for
+  this session.
 - Pull the Phase-1 scope from the Phasing & Roadmap architecture doc
   (`architecture/*-phasing-roadmap.md`) and the component
   boundaries from the Architecture Overview architecture doc

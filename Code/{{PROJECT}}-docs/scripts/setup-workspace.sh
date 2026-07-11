@@ -92,4 +92,5 @@ EOF
 chmod +x "$ROOT/doctor.sh"
 
 mkdir -p "$ROOT/.claude"
+mkdir -p "$ROOT/.throughstone"
 echo "Done. Open this folder in your agent; it will discover the context via the pointers."

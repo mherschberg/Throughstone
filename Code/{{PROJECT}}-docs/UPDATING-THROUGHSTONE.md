@@ -38,6 +38,25 @@ multiple repos, turn it into a tracked STEP before applying it.
 | **Stamped/generated files** | repo `README.md`, copied CI workflows, `.env.example`, STEP plans | Project-owned after creation. Never auto-update; provide advisory diffs only if explicitly requested. |
 | **Project state** | `overview.md`, `architecture/`, `adr/`, `prompts/`, application code repos | Never auto-update from upstream Throughstone. Changes happen through the normal method: sessions, ADRs, STEPs, and check-ins. |
 
+### Legacy local user profile fields
+
+Older Throughstone projects stored the first user's communication preferences in
+`overview.md` under **Your experience level** and **Planning communication style**. Newer
+projects store those personal preferences in root `.throughstone/local-user.md`, because each
+contributor has their own local profile.
+
+During an update, treat those old `overview.md` sections as legacy project-state drift:
+
+1. Create or update root `.throughstone/local-user.md` for the active user, optionally using
+   the old `overview.md` values as a starting point if they actually describe that user.
+2. Remove the old personal-preference sections from `overview.md` only after confirming they
+   are not project facts.
+3. Do **not** migrate them automatically in updater tooling or `doctor`: in a team, the old
+   values may describe the original maintainer, not the active contributor.
+
+`scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
+not fail the check.
+
 ## 3. Manual Mode
 
 This guide works today even without updater tooling, a project manifest, or an upstream update

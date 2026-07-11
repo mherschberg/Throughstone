@@ -87,9 +87,10 @@ teammate will need later.
 > clarification whenever the work is ambiguous, and when a decision is needed offer
 > appropriate options with brief pros and cons rather than forcing the user to start from a
 > blank page.
-> Read the saved **Planning communication style** in `Code/{{PROJECT}}-docs/overview.md`
-> and use it as the default verbosity; don't re-ask for every STEP unless the value is
-> missing or the user asks to change it.
+> Read the saved **Communication style** in root `.throughstone/local-user.md` and use it as
+> the default verbosity. If the file or value is missing, ask the two local-profile
+> questions from `Code/{{PROJECT}}-docs/METHOD.md` §4, create/update the file, and continue.
+> An explicit style request in chat overrides the profile for the current session only.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's
    not there, add a row — and that row *is* the number reservation. **Pull first**, take the

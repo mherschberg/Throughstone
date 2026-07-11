@@ -12,9 +12,10 @@
 #   3. STEP / substep statuses are from the allowed set
 #   4. Every architecture/NN-*.md carries Version / Status / Version Log
 #   5. The ADR registry and the ADR files on disk match (both directions)
-#   6. (multi-repo only) No stray files at the workspace root
-#   7. Architecture-session template numbers match the STEP-index seed
-#   8. Conditional-session templates expose the metadata generic review gates require
+#   6. overview.md does not carry legacy local user preferences
+#   7. (multi-repo only) No stray files at the workspace root
+#   8. Architecture-session template numbers match the STEP-index seed
+#   9. Conditional-session templates expose the metadata generic review gates require
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/check.sh
 # Exit:   non-zero if any hard check FAILs; warnings alone do not fail the run.
@@ -29,6 +30,7 @@ ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 # Authoritative project state is split between the workspace-root STEP index and docs-hub
 # registries/templates. Keep those assumptions centralized so each check reads the same files.
 INDEX="$ROOT/prompts/STEP-index.md"
+OVERVIEW="$DOCS_DIR/overview.md"
 ADR_INDEX="$DOCS_DIR/adr/README.md"
 ARCH_DIR="$DOCS_DIR/architecture"
 ADR_DIR="$DOCS_DIR/adr"
@@ -184,8 +186,26 @@ else
   warn "no adr/README.md — skipping ADR registry/disk check"
 fi
 
-# --- 6. Workspace-root hygiene (multi-repo only) ------------------------------
-hdr "6. Workspace-root hygiene (multi-repo only)"
+# --- 6. Legacy local user profile fields --------------------------------------
+hdr "6. Legacy local user profile fields"
+# In older projects, the first user's communication preferences were stored in overview.md.
+# They now belong in root .throughstone/local-user.md, because each contributor has their own
+# local profile. This is warning-only: doctor cannot know which human the old values represent.
+if [ -f "$OVERVIEW" ]; then
+  legacy_profile_fields="$(grep -nE '^## (Your experience level|Planning communication style)[[:space:]]*$' "$OVERVIEW" || true)"
+  if [ -n "$legacy_profile_fields" ]; then
+    warn "overview.md contains legacy personal preference section(s):"
+    while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$legacy_profile_fields"
+    hint "create/update root .throughstone/local-user.md for the active user, then remove these personal-preference sections from overview.md after confirming they are not project facts. See UPDATING-THROUGHSTONE.md."
+  else
+    pass "overview.md has no legacy local user preference sections"
+  fi
+else
+  pass "no overview.md yet (project not initialized?) — skipping legacy local user profile check"
+fi
+
+# --- 7. Workspace-root hygiene (multi-repo only) ------------------------------
+hdr "7. Workspace-root hygiene (multi-repo only)"
 # Invariant: in generated multi-repo workspaces, the root is a per-machine shell and durable
 # content should live inside repos. CI usually checks out only one repo, and this scaffold can
 # be a mono-repo/template checkout, so those contexts intentionally relax the local hygiene rule.
@@ -195,7 +215,7 @@ elif [ -e "$ROOT/.git" ]; then
   pass "workspace root is itself a repo (mono-repo or the template) — hygiene rule relaxed; skipping"
 else
   # Allowed root entries are per-machine pointers, repo containers, and transient prompt intake.
-  allow=" CLAUDE.md AGENTS.md init.sh doctor.sh .git .gitignore .gitattributes .DS_Store .claude Code prompts Upcoming Prompts "
+  allow=" CLAUDE.md AGENTS.md init.sh doctor.sh .git .gitignore .gitattributes .DS_Store .claude .throughstone Code prompts Upcoming Prompts "
   stray=""
   for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
     [ -e "$entry" ] || continue
@@ -210,8 +230,8 @@ else
   fi
 fi
 
-# --- 7. Architecture-session template numbering ------------------------------
-hdr "7. Architecture-session template numbering"
+# --- 8. Architecture-session template numbering ------------------------------
+hdr "8. Architecture-session template numbering"
 # Invariant: numbered STEP-1 session templates, their headings, and the STEP-index seed remain
 # in lockstep. The seed is the generated project's initial roadmap; template drift here becomes
 # broken kickoff sequencing after init.
@@ -327,8 +347,8 @@ else
   fi
 fi
 
-# --- 8. Conditional-session template contract --------------------------------
-hdr "8. Conditional-session template contract"
+# --- 9. Conditional-session template contract --------------------------------
+hdr "9. Conditional-session template contract"
 # Invariant: conditional sessions are optional architecture gates, but generic review/resume
 # tooling still needs a common metadata contract: applicability, invocation, outputs, next
 # action, active PLAN handling, architecture index updates, and substep completion language.

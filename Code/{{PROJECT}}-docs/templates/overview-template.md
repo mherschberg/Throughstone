@@ -12,24 +12,6 @@
 > answer — the architecture sessions draw the rest out of you. Write what you know; leave a
 > `?` where you're unsure.
 
-## Your experience level
-<!-- Pick one. It doesn't change WHAT gets decided — it tells the agent how much to EXPLAIN
-     as it interviews you, both in the kickoff and in every later architecture session. You
-     can change it anytime, and at any level you can just ask the agent to explain any
-     question ("what do you mean?", "why does that matter?") for a plain-language
-     walkthrough — no set phrase needed. -->
-- [ ] **1 — No coding experience** (explain each concept from scratch; minimal jargon)
-- [ ] **2 — Basic coding experience** (some terms are new; define the unfamiliar ones)
-- [ ] **3 — Senior developer or above** (assume fluency; keep it terse)
-
-## Planning communication style
-<!-- Pick one. This is the saved default for STEP planning sessions, so the agent does not
-     need to ask how terse or explanatory to be for each new STEP. You can change it anytime,
-     and a one-off request in chat can override it for the current session. -->
-- [ ] **Terse** (decision-focused; minimal explanation unless requested)
-- [ ] **Normal** (brief context, options, and pros/cons)
-- [ ] **Explanatory** (more background and rationale before decisions)
-
 ## In one sentence
 <!-- What is this, for whom? e.g. "A scheduling assistant that negotiates meeting times
      between busy professionals on their behalf." -->

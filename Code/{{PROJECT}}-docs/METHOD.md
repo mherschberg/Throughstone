@@ -223,11 +223,20 @@ When in doubt, prefer a conditional: it carries the same interview-and-document 
 the renumber.
 
 ### Calibrating to the user's experience level
-The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the user how much experience they have
-building a project like this and records it in `overview.md`: **Level 1** (no coding
-experience), **Level 2** (basic coding experience), **Level 3** (senior developer or above).
-Every session reads `overview.md` first, so each one sees this and **adjusts how it asks** —
+The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the active user how much experience they
+have building a project like this and records it in root `.throughstone/local-user.md`:
+**Level 1** (no coding experience), **Level 2** (basic coding experience), **Level 3**
+(senior developer or above). This is a **personal, per-machine local profile**, not a
+project fact. Each additional contributor creates their own profile during onboarding.
+Every session reads this profile first, so each one sees it and **adjusts how it asks** —
 the decisions reached are the same; only the explaining changes:
+
+At any agent entry point — kickoff, resume, an architecture session, the planning session,
+STEP planning, substep execution, or contributor onboarding — if root
+`.throughstone/local-user.md` is missing, ask the two local-profile questions from Stage 0,
+create the file, and then continue. If the user gives an explicit style instruction in chat,
+honor it for the current session; otherwise use `.throughstone/local-user.md`. To change the
+default for future sessions, edit that file.
 
 - **Level 1–2** — before each question, say in plain language *what* it's asking and *why* it
   matters, and lead with a recommended default. Don't assume jargon: concepts like scaling,
@@ -243,13 +252,15 @@ the decisions reached are the same; only the explaining changes:
   question at any time; don't make them discover the affordance.
 
 The level is advisory, not a gate: if the conversation shows the user is more or less
-comfortable than they marked, adjust on the fly and correct the value in `overview.md`.
+comfortable than they marked, adjust on the fly and correct the value in
+`.throughstone/local-user.md`.
 
-`overview.md` also records the user's default **Planning communication style** for STEP
-planning sessions: **Terse**, **Normal**, or **Explanatory**. Read it before planning a STEP
-and treat it as the saved default, so the user is not asked the same verbosity question for
-each new STEP. The user can change it in `overview.md` or override it in chat for the
-current session.
+The same profile also records the user's default **Communication style**:
+**Terse**, **Normal**, or **Explanatory**. Read it before user-facing project discussions,
+especially STEP planning, and treat it as the saved default so the user is not asked the
+same verbosity question repeatedly. Override precedence is: **explicit chat instruction for
+this session** → **`.throughstone/local-user.md` default** → **ask and create the missing
+profile**.
 
 **Worked examples** — the *same* canonical question, rendered at each level. The substance is
 identical; only the framing changes. Notice the recurring moves: Level 1 names the failure it
@@ -307,8 +318,8 @@ Treat STEP planning as an interactive discussion, not a silent document-generati
 Before writing the PLAN, confirm the scope with the user and ask for clarification when
 requirements, sequencing, dependencies, or ownership are unclear. When the user needs to
 make a planning choice, offer plausible options with brief pros and cons, then wait for
-direction. Use the saved **Planning communication style** in `overview.md` as the default
-level of detail while still asking the questions needed to make the STEP coherent.
+direction. Use the saved **Communication style** in `.throughstone/local-user.md` as the
+default level of detail while still asking the questions needed to make the STEP coherent.
 For any code-changing STEP, read the Test Strategy architecture doc during planning, assign
 the relevant test tiers (unit, integration, API/contract, end-to-end, security/authorization,
 migration/data, performance, or project-specific) to the substeps that introduce the behavior,

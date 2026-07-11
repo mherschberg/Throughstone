@@ -22,9 +22,10 @@ AGENTS.md and follow it."*
 
 - **`not-started` → Kickoff mode.** The project hasn't been bootstrapped yet. **Begin the
   kickoff now without waiting to be asked**: read `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md`
-  and follow it from Stage 0. Greet the user briefly, ask their experience level, and — since
-  `overview.md` is still the empty template — **draft the project brief with them in chat** (a
-  couple of questions, then you write the first paragraph or two into
+  and follow it from Stage 0. Greet the user briefly, create/update root
+  `.throughstone/local-user.md` from the local-profile questions, and — since `overview.md`
+  is still the empty template — **draft the project brief with them in chat** (a couple of
+  questions, then you write the first paragraph or two into
   `Code/{{PROJECT}}-docs/overview.md` for review; seed it from the one-line description in
   *What is {{PROJECT}}* below). The user should not have to pre-write `overview.md` or paste a
   kickoff command. The bootstrap flips the marker to `kickoff-complete` when it finishes.
@@ -68,9 +69,10 @@ interview the user one decision at a time, then write the output architecture do
 **"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
 <session label>" are all the user's go-ahead — begin in that same reply.** Don't
 acknowledge, summarize the file, restate the plan, or ask whether to start (no "Ready when
-you are"). Read `overview.md` and any earlier architecture docs silently, then immediately
-**ask the session's first question**, calibrated to the recorded experience level. The user
-types one short command and expects the first question back, not a confirmation prompt.
+you are"). Read root `.throughstone/local-user.md`, `overview.md`, and any earlier
+architecture docs silently, then immediately **ask the session's first question**,
+calibrated to the profile's experience level. The user types one short command and expects
+the first question back, not a confirmation prompt.
 
 **Conditional sessions** are invoked **by name**, not by number: *"run the identity-auth
 session"* → `conditional-identity-auth.md`; *"run the native-app session"* →
@@ -122,21 +124,20 @@ New human or agent contributor joining an existing project? Read
 It covers later contributor onboarding; initial project bootstrap still starts from `./init.sh`.
 
 **Workspace-root hygiene:** the workspace root should contain only per-machine pointers
-and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`), the root helper (`doctor.sh`), the repo
-folders (`Code/*`, `prompts/`), and the `Upcoming Prompts/` working folder (scratch for the
-in-flight STEP). If you create
+and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.throughstone/`), the root helper
+(`doctor.sh`), the repo folders (`Code/*`, `prompts/`), and the `Upcoming Prompts/` working
+folder (scratch for the in-flight STEP). If you create
 or find any *other* file at the workspace root, **ask whether it belongs in a repo** —
 durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 
 ## Ground rules
-- **Calibrate to the user's experience level.** Before asking user-facing questions or
-  explaining a decision, read `Code/{{PROJECT}}-docs/overview.md` and use the recorded
-  **Your experience level** value as the communication baseline. Keep `overview.md` as the
-  single source of truth; don't duplicate the value into STEP plans or prompts.
-- **Honor the saved planning style.** Before planning a STEP, read
-  `Code/{{PROJECT}}-docs/overview.md` and use the recorded **Planning communication style**
-  as the default verbosity. Don't re-ask for every STEP unless the value is missing or the
-  user asks to change it.
+- **Calibrate to the local user profile.** Before asking user-facing questions or
+  explaining a decision, read root `.throughstone/local-user.md` and use its recorded
+  **Experience level** and **Communication style** as the communication baseline. This file
+  is personal local state; don't duplicate its values into STEP plans or prompts. If it is
+  missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it,
+  and continue. An explicit style request in chat overrides the profile for the current
+  session only; edit `.throughstone/local-user.md` to change future defaults.
 - **Use judgment before creating a STEP.** For tiny, well-understood changes that do not affect
   architecture, public contracts, data model, security posture, deployment behavior, multiple
   repos, or accepted risk/debt, keep the record in the issue/PR/commit trail instead of adding
