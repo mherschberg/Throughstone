@@ -6,6 +6,9 @@
 .claude/settings.local.json
 .claude/launch.json
 
+# Personal local Throughstone profile (not shared)
+/.throughstone/local-user.md
+
 # Maintainer-only notes (handoffs, design memos) — not part of the published template.
 .dev/
 marketing/outreach-targets.md
