@@ -699,6 +699,7 @@ done
 
 DOCS="Code/${SLUG}-docs"
 mkdir -p "$DOCS/.throughstone"
+mkdir -p "$ROOT/.throughstone"
 # The posture file is the durable license authority for generated helpers. It remains present
 # even when proprietary projects intentionally have no project LICENSE.
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
@@ -781,6 +782,9 @@ write_gitignore() {
 
 # Per-machine agent config (not shared)
 .claude/settings.local.json
+
+# Personal local Throughstone profile (not shared)
+/.throughstone/local-user.md
 
 # Local dev secrets — NEVER commit. Commit only .env.example (the documented key list).
 .env
@@ -982,8 +986,9 @@ Next step:
       Read AGENTS.md and follow it.
 
   That's the whole handoff (same command for every project, every agent). It begins the
-  kickoff on its own — greets you, asks your experience level, and helps you write the
-  project brief ($DOCS/overview.md) right in the chat. Just describe your idea when it asks.
+  kickoff on its own — greets you, creates your local communication profile in
+  .throughstone/local-user.md, and helps you write the project brief ($DOCS/overview.md)
+  right in the chat. Just describe your idea when it asks.
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
 You can delete this init.sh now — it has done its job.

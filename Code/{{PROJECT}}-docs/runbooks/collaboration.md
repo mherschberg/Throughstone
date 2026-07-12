@@ -278,9 +278,12 @@ repo):
    gone; (b) add the `remote:` fields in `registries/repos.yml`; (c) have each new contributor
    run `scripts/setup-workspace.sh` to clone them. Number reservation (§2) relies on this
    shared `prompts/` remote.
-2. **Record the ADR authority rule** in `adr/README.md` (§6) — decide once who can Accept a
+2. **Have each contributor create their local profile** (`.throughstone/local-user.md`) during
+   onboarding. This records their own Experience level and Communication style; do not copy
+   the original solo maintainer's preferences into project docs.
+3. **Record the ADR authority rule** in `adr/README.md` (§6) — decide once who can Accept a
    decision.
-3. **Point everyone here.** New contributors read this runbook (and `AGENTS.md`) before their
+4. **Point everyone here.** New contributors read this runbook (and `AGENTS.md`) before their
    first STEP.
 
 That's the whole transition: shared remotes, a written authority rule, and the branch-per-STEP

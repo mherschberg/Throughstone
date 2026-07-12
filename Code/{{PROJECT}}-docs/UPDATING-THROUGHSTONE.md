@@ -33,10 +33,47 @@ multiple repos, turn it into a tracked STEP before applying it.
 | Bucket | Examples | Update policy |
 |--------|----------|---------------|
 | **Tools / scripts** | `scripts/status.sh`, `scripts/check.sh`, `scripts/setup-workspace.sh` | Review required. May be replaced when local still matches the installed baseline, but still report behavioral implications. |
-| **Process docs** | `METHOD.md`, `AGENTS.md`, `UPDATING-THROUGHSTONE.md`, `runbooks/*.md`, `coding-standards/*.md` | Review required. Changes may alter how contributors or agents work. Apply as a coherent group when files reference each other. |
+| **Process docs** | `METHOD.md`, `AGENTS.md`, `UPDATING-THROUGHSTONE.md`, `prompts/README.md`, `runbooks/*.md`, `coding-standards/*.md` | Review required. Changes may alter how contributors or agents work. Apply as a coherent group when files reference each other. |
 | **Templates for future use** | `templates/*.md`, `templates/architecture-sessions/*.md`, `templates/ci/*.yml` | Future-only by default. Updating them affects newly generated docs/sessions/repos; it does not rewrite existing generated outputs. |
 | **Stamped/generated files** | repo `README.md`, copied CI workflows, `.env.example`, STEP plans | Project-owned after creation. Never auto-update; provide advisory diffs only if explicitly requested. |
-| **Project state** | `overview.md`, `architecture/`, `adr/`, `prompts/`, application code repos | Never auto-update from upstream Throughstone. Changes happen through the normal method: sessions, ADRs, STEPs, and check-ins. |
+| **Project state** | `overview.md`, `architecture/`, `adr/`, `prompts/STEP-index.md`, `prompts/<phase>/`, application code repos | Never auto-update from upstream Throughstone. Changes happen through the normal method: sessions, ADRs, STEPs, and check-ins. |
+
+`prompts/README.md` is the exception inside `prompts/`: it is scaffold/process guidance for
+future STEP authoring, not project history. Review it like other process docs. The STEP index,
+phase folders, archived PLANs, and archived substep prompts remain protected project state.
+
+### Legacy local user profile fields
+
+Older Throughstone projects stored the first user's communication preferences in
+`overview.md` under **Your experience level** and **Planning communication style**. Newer
+projects store those personal preferences in root `.throughstone/local-user.md`, because each
+contributor has their own local profile.
+
+When reviewing or applying this migration, compare the related files as a coherent group. It is
+not just a `METHOD.md` change:
+
+- `BOOTSTRAP-PROMPT.md` defines the two local-profile questions and file shape.
+- `AGENTS.md`, `METHOD.md`, and `ONBOARDING.md` define when agents and additional contributors
+  create or read the local profile.
+- `scripts/check.sh` reports legacy `overview.md` preference sections.
+- `templates/overview-template.md`, `templates/planning-session.md`,
+  `templates/step-plan-template.md`, `templates/substep-prompt-template.md`, and
+  `templates/architecture-sessions/*.md` keep future sessions from reading project-level
+  preference fields.
+- `prompts/README.md` carries the STEP-planning communication-style behavior.
+- `runbooks/collaboration.md` explains the multi-contributor local-profile expectation.
+
+During an update, treat those old `overview.md` sections as legacy project-state drift:
+
+1. Create or update root `.throughstone/local-user.md` for the active user, optionally using
+   the old `overview.md` values as a starting point if they actually describe that user.
+2. Remove the old personal-preference sections from `overview.md` only after confirming they
+   are not project facts.
+3. Do **not** migrate them automatically in updater tooling or `doctor`: in a team, the old
+   values may describe the original maintainer, not the active contributor.
+
+`scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
+not fail the check.
 
 ## 3. Manual Mode
 
@@ -48,8 +85,8 @@ catalog.
 2. Read the target release notes / `CHANGELOG.md` and identify the scaffold/process changes
    you may want.
 3. Compare only scaffold/process material: `METHOD.md`, `AGENTS.md`,
-   `UPDATING-THROUGHSTONE.md`, `templates/`, `runbooks/`, `coding-standards/`, and
-   `scripts/`.
+   `UPDATING-THROUGHSTONE.md`, `prompts/README.md`, `templates/`, `runbooks/`,
+   `coding-standards/`, and `scripts/`.
 4. Treat the file buckets in §2 as the authority. Never manually copy protected project state
    from upstream.
 5. For each candidate change, write a short report: target release/ref, files reviewed,

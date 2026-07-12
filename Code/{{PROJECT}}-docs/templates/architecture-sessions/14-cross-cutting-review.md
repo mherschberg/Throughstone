@@ -4,9 +4,10 @@
 > `: Cross-Cutting Review` are optional (but the label helps chat titles). This is the closing pass of the
 > architecture STEP. Unlike the other sessions it's a **review**, not an interview — it
 > reads everything produced in STEP-1 and checks it hangs together, then fixes what doesn't.
-> Reads **all** of `architecture/*`, `adr/*`, and
+> Reads root `.throughstone/local-user.md`, **all** of `architecture/*`, `adr/*`, and
 > `templates/architecture-sessions/conditional-*.md`, plus the STEP-1 PLAN and
-> `prompts/STEP-index.md`.
+> `prompts/STEP-index.md`. If the local profile is missing, ask the two local-profile
+> questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue.
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
@@ -101,10 +102,11 @@ implementation STEPs. See the next-action resolver (`METHOD.md` §10).
 **Begin now — in this same reply.** "STEP-1.14" or "session 1.14", with or without a leading
 "Run" and with or without ": Cross-Cutting Review", is your go-ahead, not a request for
 acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to
-start. Read all the STEP-1 architecture docs and ADRs, every `conditional-*.md` template,
-the STEP-1 PLAN, and `prompts/STEP-index.md` silently. Run the conditional-session gate
-before the rest of the review. Then, in this one reply: **(1)** tell the user — in the one or
-two sentences from **What this session does** above — what you're about to do (plain
-language); then **(2)** report the gate result and your first findings (issues by severity,
-anything needing the user's decision). That orientation plus the first findings is your
-first reply.
+start. Read root `.throughstone/local-user.md`, all the STEP-1 architecture docs and ADRs,
+every `conditional-*.md` template, the STEP-1 PLAN, and `prompts/STEP-index.md` silently. If
+the profile is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it,
+then continue. Run the conditional-session gate before the rest of the review. Then, in this
+one reply: **(1)** tell the user — in the one or two sentences from **What this session does**
+above — what you're about to do, calibrated to the local profile; then **(2)** report the
+gate result and your first findings (issues by severity, anything needing the user's
+decision). That orientation plus the first findings is your first reply.

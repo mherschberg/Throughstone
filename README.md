@@ -39,8 +39,7 @@ risk of creating unmaintainable code.
   Throughstone gives them a repeatable process — architecture docs, ADRs, scoped STEPs, and
   review points — so you can review decisions and project shape instead of
   reverse-engineering a pile of generated code later. *(Want it for your own projects? Set
-  your experience level to senior at the start and the sessions stay terse and
-  decision-focused.)*
+  your local profile to senior + terse at the start and the sessions stay decision-focused.)*
 - **Early-career developers.** You can write code, but the *project-shaping* part — what
   to decide first, how to phase the work, what the architecture should be — is exactly
   where AI agents tend to leave you with a tangle. This puts that discipline up front, so
@@ -59,10 +58,11 @@ interview you — they ask about the things developers routinely skip (scaling, 
 phasing) and recommend sensible defaults while flagging what each choice forecloses. Two
 things keep them approachable whatever your background:
 
-- **Tell it how much you know.** Up front you set your experience level — from *no coding
-  experience* to *senior developer* — and every session speaks to it: plain-language
-  framing and a recommended default for newer builders, terse and decision-focused for
-  veterans.
+- **Tell it how much you know.** Up front you set your local user profile — experience level
+  and communication style — and every session speaks to it: plain-language framing and a
+  recommended default for newer builders, terse and decision-focused for veterans. In a team,
+  each contributor keeps their own local profile. A one-off instruction in chat overrides
+  that profile for the current session only.
 - **Ask whenever something's unclear.** At any point you can ask what a question means or
   why it matters and get a from-scratch explanation. The agent also offers one when you
   seem stuck.
@@ -186,8 +186,8 @@ production software, get review from an experienced engineer.
 
    That's the whole handoff — the same command for every project and every agent (no paths
    or project name to fill in). The agent reads the context, sees the project hasn't been
-   started yet, and **begins the kickoff on its own**: it greets you, asks your experience
-   level and preferred STEP planning style, and helps you write the project brief
+   started yet, and **begins the kickoff on its own**: it greets you, creates your local
+   user profile with your experience level and communication style, and helps you write the project brief
    (`Code/{{PROJECT}}-docs/overview.md`) right in the chat. Just describe your idea when it
    asks — you don't have to pre-write anything.
 
@@ -243,6 +243,7 @@ repos:
 your-project/                    ← workspace shell (per-machine, not a repo)
 ├── CLAUDE.md, AGENTS.md         ← per-machine pointers to the canonical context
 ├── .claude/                     ← per-machine agent config
+├── .throughstone/               ← per-machine local user profile
 ├── init.sh                      ← one-time setup wizard (this download)
 ├── doctor.sh                    ← small dispatcher for status/check/links helpers
 ├── prompts/                     ← [repo] prompts/STEP-index.md roadmap + archived STEP plans/prompts

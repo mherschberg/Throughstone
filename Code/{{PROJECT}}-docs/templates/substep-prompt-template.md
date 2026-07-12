@@ -15,8 +15,12 @@
 ## Read these first
 <!-- Start from the main docs this substep depends on, then follow the indexes to find
      anything else relevant — don't try to read everything. The indexes point the way:
-       - overview.md                — project brief + user's experience level; calibrate
-                                      user-facing explanations/questions to it
+       - root .throughstone/local-user.md — active user's experience level and
+                                      communication style; if missing, ask the two
+                                      local-profile questions from `BOOTSTRAP-PROMPT.md`
+                                      Stage 0, create it,
+                                      and calibrate explanations/questions to it
+       - overview.md                — project brief
        - architecture/README.md     — the architecture docs (what the system is)
        - adr/README.md              — the decision records (why it's that way)
        - coding-standards/README.md — the per-language standards

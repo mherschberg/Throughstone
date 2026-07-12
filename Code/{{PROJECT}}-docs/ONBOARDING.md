@@ -50,7 +50,34 @@ workspace root:
 If a sibling repo has no remote in `registries/repos.yml`, `setup-workspace.sh` cannot clone
 it. Read its registry entry and ask the maintainer how that repo is provided.
 
-## 3. Read the project state
+## 3. Create your local user profile
+
+Before reading or running project sessions, create root `.throughstone/local-user.md`. If it
+already exists on this machine, confirm it belongs to the active user; otherwise replace it
+with this user's answers. This file is personal local state, not project documentation and
+not something to commit. If an agent is guiding onboarding, this is its first user-facing
+step for every second-or-later contributor. Ask the active user:
+
+1. How much experience do you have building a software project like this? Level **1** (no
+   coding experience), **2** (basic coding experience), or **3** (senior developer or above).
+2. How terse or explanatory should project discussions be by default? **Terse**,
+   **Normal**, or **Explanatory**.
+
+Record the answers as **Experience level** and **Communication style**. Agents use this file
+to calibrate explanations and questions for this contributor; they should not inherit another
+person's preferences from project docs. An explicit style request in chat overrides this file
+for the current session only; edit the file to change future defaults.
+
+Use this shape:
+
+```md
+# Local User Profile
+
+Experience level: {{1 | 2 | 3}} - {{label}}
+Communication style: {{Terse | Normal | Explanatory}}
+```
+
+## 4. Read the project state
 
 Start with these files, in this order:
 
@@ -73,7 +100,7 @@ disk and applies the next-action resolver from `METHOD.md`. Confirm its result a
 `prompts/STEP-index.md`, and if a STEP is already in progress, read its PLAN in
 `Upcoming Prompts/`.
 
-## 4. Start your first contribution STEP
+## 5. Start your first contribution STEP
 
 Before editing code or durable docs:
 
@@ -99,7 +126,7 @@ For team and concurrency details, read
 for reserving STEP numbers, branch naming, shared-file edits, ADR numbering, overlap
 warnings, and push races.
 
-## 5. Keep paths straight
+## 6. Keep paths straight
 
 This scaffold stores the template at `Code/{{PROJECT}}-docs/ONBOARDING.md`. In an
 initialized project, the generated docs hub path is `Code/<project>-docs/ONBOARDING.md`.

@@ -31,25 +31,41 @@ at a longer brief they already have, use that instead.)
 
 The user may be a less-experienced developer. **Guide, don't assume.** Recommend sensible
 defaults, explain tradeoffs in plain language, and ask before moving on. Stage 0 establishes
-the user's experience level — calibrate every stage to it (see §4 of `METHOD.md`).
+the active user's local communication profile — calibrate every stage to it (see
+`METHOD.md` §4, "Calibrating to the user's experience level").
 
 ### Stage 0 — Interview  ▸ checkpoint
-**Ask this first, before any other question:** *how much experience does the user have
-building a software project like this?* — Level **1** (no coding experience), **2** (basic
-coding experience), or **3** (senior developer or above). Record their answer in
-`overview.md` under *Your experience level*. This single answer **calibrates the rest of the
-interview and every later architecture session**: at Level 1–2, explain each question's
-*what* and *why* in plain language, lead with a recommended default, and avoid unexplained
-jargon (scaling, threat model, environments …); at any level, treat any sign of confusion
-or request to clarify — however worded — as a cue to explain plainly. **When you record the
-level, tell the user in plain terms they can ask you to explain any question at any time** —
-don't make them discover it. (See `METHOD.md` §4.)
+**Ask these local-profile questions first, before any project question:**
 
-Also ask how terse or explanatory they want STEP planning discussions to be by default:
-**Terse**, **Normal**, or **Explanatory**. Record the answer in `overview.md` under
-*Planning communication style*. This is a saved preference for future STEP planning
-sessions, not something to re-ask for every STEP; the user can change it in `overview.md` or
-override it in chat for a single session.
+1. *How much experience does the user have building a software project like this?* — Level
+   **1** (no coding experience), **2** (basic coding experience), or **3** (senior developer
+   or above).
+2. *How terse or explanatory should project discussions be by default?* — **Terse**,
+   **Normal**, or **Explanatory**.
+
+Create or update root `.throughstone/local-user.md` with those two answers under
+**Experience level** and **Communication style**. This file is **personal, per-machine local
+state**, not a project fact and not something to commit; each additional contributor creates
+their own copy during onboarding. The user can edit it later or override it in chat for a
+single session. Override precedence is: explicit chat instruction for this session, then
+`.throughstone/local-user.md`, then ask and create the missing profile.
+
+Use this shape:
+
+```md
+# Local User Profile
+
+Experience level: {{1 | 2 | 3}} - {{label}}
+Communication style: {{Terse | Normal | Explanatory}}
+```
+
+The experience level **calibrates the rest of the interview and every later architecture
+session for this user**: at Level 1–2, explain each question's *what* and *why* in plain
+language, lead with a recommended default, and avoid unexplained jargon (scaling, threat
+model, environments …); at any level, treat any sign of confusion or request to clarify —
+however worded — as a cue to explain plainly. **When you write the profile, tell the user in
+plain terms they can ask you to explain any question at any time** — don't make them discover
+it. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 Then read `overview.md` and fill the gaps a brief usually misses. Ask about: who uses it and
 who else is affected; expected scale now vs. in a year; hard constraints (regulatory,
@@ -126,10 +142,10 @@ STEP also ends by naming it. So *"what do I do next?"* is always answerable from
 ## Rules
 - **No application code during the architecture STEP.** Output is Markdown docs + ADRs.
 - **One decision/question cluster at a time.** Don't dump a wall of questions.
-- **Calibrate to the recorded experience level** (Stage 0; `overview.md`). At Level 1–2,
-  explain what you're asking and why before asking it; at any level, treat any sign of
-  confusion or request to clarify — however worded — as a cue to explain plainly, and tell
-  the user up front they can ask.
+- **Calibrate to the local user profile** (Stage 0; root `.throughstone/local-user.md`). At
+  Level 1–2, explain what you're asking and why before asking it; at any level, treat any
+  sign of confusion or request to clarify — however worded — as a cue to explain plainly,
+  and tell the user up front they can ask.
 - **Record decisions.** Significant choices become ADRs
   (`Code/{{PROJECT}}-docs/templates/adr-template.md`); the current design lives in architecture docs
   (`Code/{{PROJECT}}-docs/templates/architecture-doc-template.md`).
