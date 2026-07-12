@@ -296,10 +296,11 @@ prompts/001-mvp/step-NNNN/ ← archived: STEP PLAN + all substep prompts, kept f
   scope. It's the first place to look to understand where the project is.
 - `prompts/README.md` holds the **conventions + the recipe for authoring a new STEP**.
 
-**`prompts/` is history; the docs repo is state.** That's why they're separate repos.
-`prompts/` records *how* the project was built, STEP by STEP — it spans all the code repos
-in the project and is never rewritten. `Code/{{PROJECT}}-docs/` describes *what the system
-is now* — it's kept current. Don't fold one into the other.
+**Apart from `prompts/README.md`, `prompts/` is history; the docs repo is state.** That's
+why they're separate repos. `prompts/README.md` is process guidance; the rest of `prompts/`
+records *how* the project was built, STEP by STEP — it spans all the code repos in the
+project and is never rewritten. `Code/{{PROJECT}}-docs/` describes *what the system is now*
+— it's kept current. Don't fold one into the other.
 
 - **`prompts/` is its own repo** (project-wide; it cuts across the code repos).
 - **`Upcoming Prompts/` is a workspace folder, not generally a repo** — it's scratch space

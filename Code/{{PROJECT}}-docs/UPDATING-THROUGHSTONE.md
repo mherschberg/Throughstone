@@ -85,8 +85,8 @@ catalog.
 2. Read the target release notes / `CHANGELOG.md` and identify the scaffold/process changes
    you may want.
 3. Compare only scaffold/process material: `METHOD.md`, `AGENTS.md`,
-   `UPDATING-THROUGHSTONE.md`, `templates/`, `runbooks/`, `coding-standards/`, and
-   `scripts/`.
+   `UPDATING-THROUGHSTONE.md`, `prompts/README.md`, `templates/`, `runbooks/`,
+   `coding-standards/`, and `scripts/`.
 4. Treat the file buckets in §2 as the authority. Never manually copy protected project state
    from upstream.
 5. For each candidate change, write a short report: target release/ref, files reviewed,
