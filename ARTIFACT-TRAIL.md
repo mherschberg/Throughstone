@@ -57,15 +57,6 @@ Calendar metadata, attendee emails, and meeting notes require careful access con
 The template source is
 [`Code/{{PROJECT}}-docs/templates/overview-template.md`](Code/{{PROJECT}}-docs/templates/overview-template.md).
 
-Each contributor keeps their own local profile at the workspace root:
-
-```md
-# Local User Profile
-
-Experience level: 2 - Basic coding experience
-Communication style: Normal
-```
-
 ## 2. STEP Roadmap
 
 `prompts/STEP-index.md` is the first place to look when resuming. It tells a person or an
