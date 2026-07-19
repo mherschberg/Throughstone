@@ -196,16 +196,16 @@ elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 
 elif [ -n "$inprog" ]; then                                 # §10.6
   where="Building — ${inprog} (${inprog_ti}) is In progress."
   if printf '%s' "$inprog_ti" | grep -qiE '^conditional session:'; then
-    next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\" and invoke its conditional template BY NAME. Then run its architecture-consistency review, archive it, and mark ${inprog} Done."
+    next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\", identify its conditional template invocation BY NAME, and wait for that explicit by-name command. Then run its architecture-consistency review, archive it, and mark ${inprog} Done."
   else
-    next="open ${inprog}'s PLAN in \"Upcoming Prompts/\" and run its lowest open substep (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
+    next="open ${inprog}'s PLAN in \"Upcoming Prompts/\", identify its lowest open substep, and wait for an explicit substep command (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
   fi
 elif [ -n "$lowplanned_cond" ]; then                        # §10.4
   where="Architecture follow-up required — ${lowplanned_cond} (${lowplanned_cond_ti}) is Planned."
-  next="start ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching conditional-*.md template, record the exact by-name invocation and output-doc number, then run it in a fresh chat."
+  next="plan ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching conditional-*.md template, record the exact by-name invocation and output-doc number, then stop for approval before invoking it."
 elif [ -n "$lowplanned" ]; then                             # §10.5
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
-  next="start ${lowplanned} — confirm scope, then author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat."
+  next="plan ${lowplanned} — confirm scope, author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
 elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
   next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes-template.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."

@@ -32,7 +32,8 @@ worked, and completed.
      add them by hand: after STEP-1's review passes, run the planning session
      (templates/planning-session.md) and it outlines all the Phase-1 implementation STEPs
      here (a couple of sentences each), in dependency order after STEP-1. Each STEP's detailed
-     PLAN and substeps are written later, when you start that STEP. Example row shape:
+     PLAN and substeps are written later, when you start that STEP. Starting a STEP means
+     planning it and stopping for approval before any substep runs. Example row shape:
      | STEP-2 | Scaffold repos & skeleton | | Planned | `{{PROJECT}}-api` | … | -->
 
 

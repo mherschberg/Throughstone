@@ -315,6 +315,12 @@ frozen**: while executing the substeps, decisions made in an earlier substep oft
 what a later substep should do. Update the affected substep prompts (and the PLAN) as you
 go — the prompts should reflect the current intent, not the original guess.
 
+Authoring a STEP is a planning action, not execution approval. If the user's command names a
+whole implementation STEP (`run STEP N`, `start STEP N`, `kick off STEP N`, or similar),
+write or revise the PLAN and substep prompts, present them, and wait. Actual work begins only
+after an explicit substep command (or, for a thin conditional follow-up STEP, an explicit
+by-name conditional-session invocation).
+
 Treat STEP planning as an interactive discussion, not a silent document-generation task.
 Before writing the PLAN, confirm the scope with the user and ask for clarification when
 requirements, sequencing, dependencies, or ownership are unclear. When the user needs to
@@ -512,9 +518,9 @@ Quick resolver:
 | STEP-1 has an open design substep | Run the lowest-numbered open session |
 | STEP-1 design is done, Cross-Cutting Review open | Run Cross-Cutting Review |
 | STEP-1 complete and no implementation STEPs exist yet | Run the planning session |
-| Conditional-session follow-up STEP planned and none in progress | Start that conditional follow-up |
-| Planned implementation STEPs exist and none in progress | Start the lowest-numbered planned STEP |
-| A STEP is in progress | Open its PLAN and run the lowest open substep |
+| Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
+| Planned implementation STEPs exist and none in progress | Plan the lowest-numbered planned STEP, then wait for approval |
+| A STEP is in progress | Open its PLAN, identify the lowest open substep, and wait for an explicit substep command |
 | Check-in cadence is due | Propose a Check-in STEP |
 | Phase is complete | Do milestone doc review, then plan the next phase |
 
@@ -533,13 +539,19 @@ Resolve the next action top-down against the index — the first rule that match
 3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
    *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
 4. **A `Conditional session: …` follow-up STEP is `Planned`, and no STEP is `In progress`?**
-   → start the lowest-numbered such follow-up before returning to implementation. Author its
-   thin one-substep PLAN as described in §4 and invoke the conditional by name.
-5. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → start the
-   lowest-numbered `Planned` STEP: author its PLAN + substep prompts (`prompts/README.md` →
-   "Recipe: adding a new STEP"), in a fresh chat.
-6. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run its lowest
-   open substep: *"run substep N.M"*. When the last substep is done, run the STEP's review,
+   → plan the lowest-numbered such follow-up before returning to implementation. Author its
+   thin one-substep PLAN as described in §4, record the conditional's by-name invocation, then
+   stop for approval. Run the conditional only when the user explicitly invokes it by name.
+5. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → plan the
+   lowest-numbered `Planned` STEP: in a fresh chat, confirm scope, author its PLAN + substep
+   prompts (`prompts/README.md` → "Recipe: adding a new STEP"), update the index, then stop
+   for user approval. A whole-STEP command such as *"run STEP 6"*, *"run STEP-6"*,
+   *"start STEP 6"*, or *"kick off STEP 6"* means **plan the STEP and wait**; it is not
+   approval to execute the substeps you just created.
+6. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run only the
+   explicitly requested substep: *"run substep N.M"*. If the user says only *"run STEP N"*,
+   identify the lowest open substep and wait for that explicit substep command. When the last
+   substep is done, run the STEP's review,
    then archive it (§5) and mark it `Done`.
 7. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).

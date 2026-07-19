@@ -95,6 +95,22 @@ saying **"run the planning session"** — read
 `Code/{{PROJECT}}-docs/templates/planning-session.md` and follow it: it turns the locked
 architecture into the Phase-1 implementation STEPs.
 
+## Implementation STEPs  (how to start one)
+For implementation STEPs (`STEP-2` and later), a whole-STEP command such as **"run STEP 6"**,
+**"run STEP-6"**, **"start STEP 6"**, **"kick off STEP 6"**, or **"do STEP 6"** means:
+plan that STEP, then stop for user approval.
+
+For a `Planned` implementation STEP, confirm the scope, author the STEP PLAN and any substep
+prompts using `prompts/README.md` ("Recipe: adding a new STEP"), update
+`prompts/STEP-index.md`, then present the plan and ask for approval before running any
+substep. **Do not interpret a whole-STEP command as permission to execute the substeps you just
+created.** Execution starts only when the user explicitly says **"run substep N.M"** (or gives
+an equally specific substep command).
+
+For an `In progress` implementation STEP, open its PLAN in `Upcoming Prompts/`, identify the
+lowest open substep, and wait for the user's explicit substep command unless the current
+message already names that substep. Never run multiple substeps from a whole-STEP command.
+
 ## Repos & workspace layout
 This is a **multi-repo** project. The workspace root is **not** a repo — it's a per-machine
 shell. (Mono-repo-for-now is the exception — then the root *is* the single repo and the
