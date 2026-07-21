@@ -53,7 +53,8 @@ Cross-Cutting Review passes, run the **implementation planning session**
 reads the locked architecture and **outlines all the Phase-1 implementation STEPs** into
 `STEP-index.md` — a short (2–3 sentence) scope each, in dependency order. It stops there: no
 PLANs, no substep prompts. From then on you build the STEPs one at a time, authoring each
-STEP's PLAN + substep prompts with the recipe below **when you start that STEP**.
+STEP's PLAN + substep prompts with the recipe below **when you start that STEP**. Starting a
+STEP means planning it, then stopping for approval before any substep runs.
 
 The outline also interleaves a **Check-in STEP** every ~10–20 STEPs — a full STEP that runs
 `Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
@@ -87,6 +88,14 @@ teammate will need later.
 > clarification whenever the work is ambiguous, and when a decision is needed offer
 > appropriate options with brief pros and cons rather than forcing the user to start from a
 > blank page.
+> A whole-STEP command such as **"run STEP 6"**, **"run STEP-6"**, **"start STEP 6"**,
+> **"kick off STEP 6"**, or **"do STEP 6"** means **write or revise this STEP plan and its
+> substep prompts, then stop for approval**. It is not permission to execute the substeps.
+> For thin STEPs (Check-in, Incident, late conditional-session follow-up, or an explicit
+> Security Baseline/Review/Audit STEP), write the thin PLAN and record the runbook/session
+> substeps instead of authoring normal substep prompts; still stop for approval before running
+> the runbook or session.
+> Substep execution requires an explicit substep command such as **"run substep 6.1"**.
 > Read the saved **Communication style** in root `.throughstone/local-user.md` and use it as
 > the default verbosity. If the file or value is missing, ask the two local-profile
 > questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create/update the file,
@@ -140,7 +149,10 @@ teammate will need later.
    invocation plus the assigned output-doc number; don't duplicate the session into a new
    prompt. Give its index row the title `Conditional session: <topic>` so the resolver runs
    it before ordinary planned implementation work.)*
-5. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps.
+5. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps. Then
+   present the PLAN and substep list to the user and **stop for approval** before running any
+   substep. Do not continue from planning into execution unless the user explicitly asks for a
+   specific substep, e.g. `run substep N.1`.
 6. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**

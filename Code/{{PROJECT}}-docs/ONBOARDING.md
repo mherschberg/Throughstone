@@ -114,7 +114,7 @@ Before editing code or durable docs:
    STEP touches.
 5. Update only your STEP row in `prompts/STEP-index.md` to `In progress` when you start, and
    push that small status change to the shared trunk.
-6. Work from the STEP PLAN in `Upcoming Prompts/`, running the lowest open substep first.
+6. After the STEP PLAN is approved, work from it by running the lowest open substep first.
 7. Edit shared tables narrowly: your own STEP row, your own ADR/registry row, or the row the
    STEP explicitly owns. Do not re-sort or reformat shared tables as drive-by cleanup.
 8. When complete, update the STEP review state, archive the PLAN and substep prompts from

@@ -68,7 +68,7 @@ write_index "$index" \
 | STEP-12 | Conditional session: AI feature | | In progress | | Fixture |'
 output="$(run_status "$index")"
 assert_contains "$output" \
-  'invoke its conditional template BY NAME'
+  'identify its conditional template invocation BY NAME'
 
 # With no conditional follow-up in the index, the resolver should select ordinary planned work.
 write_index "$index" \
@@ -77,5 +77,7 @@ write_index "$index" \
 output="$(run_status "$index")"
 assert_contains "$output" \
   'Building — no STEP In progress; next up is STEP-2 (Ordinary implementation).'
+assert_contains "$output" \
+  'then stop for approval before running any substep'
 
 echo "status.sh conditional priority: PASS"

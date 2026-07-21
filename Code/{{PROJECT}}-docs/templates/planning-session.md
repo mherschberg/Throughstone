@@ -120,14 +120,16 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
     for duplicate numbers, and push again.
 - **Then stop.** Don't create any PLAN or substep-prompt files. When the user is ready to
   build, they start the first STEP — and *that* is when its PLAN and substep prompts get
-  authored, per `prompts/README.md`. Re-run this session if the outline needs revising as the
+  authored, per `prompts/README.md`. Starting that STEP still stops after planning; substeps
+  run only after explicit approval. Re-run this session if the outline needs revising as the
   project learns.
 
 ## Next
 The outline **is** the deliverable — author no PLANs here. Once the rows are in
 `prompts/STEP-index.md`, tell the user the next action: **start a fresh chat** and start the
 lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prompts via
-`prompts/README.md` ("Recipe: adding a new STEP"). See the next-action resolver
+`prompts/README.md` ("Recipe: adding a new STEP"), then stopping for approval before any
+substep runs. See the next-action resolver
 (`METHOD.md` §10).
 
 Start by reading the Phasing & Roadmap architecture doc (`architecture/*-phasing-roadmap.md`), the Architecture Overview architecture doc
