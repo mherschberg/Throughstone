@@ -1,7 +1,10 @@
 # Doc {{NN}} — {{TITLE}}
 
 **Version:** v0.1.0
-**Status:** Draft        <!-- Draft (v0.x) → MVP (v1.x) → Stable (v2.x); see METHOD.md §6 -->
+**Status:** Draft        <!-- Draft → Current → Deprecated; see METHOD.md §6 -->
+<!-- Optional — add a **Coverage:** line only for a deliberately fat or partial area:
+     omit (or `full`) = fully described; `deferred` / `enumerated to depth N` records a chunk
+     intentionally not yet enumerated (resurfaced at each check-in). See METHOD.md §6. -->
 **Last updated:** {{DATE}} ({{STEP}})
 **Audience:** {{who should read this}}
 

@@ -10,7 +10,7 @@ Most of these are produced by the **architecture sessions** during STEP-1
 
 ## Conventions
 - Filenames: `NN-kebab-title.md`, numbered in the order the sessions produce them.
-- Every doc carries: `Version` (major.minor.patch), `Status` (Draft → MVP → Stable),
+- Every doc carries: `Version` (major.minor.patch), `Status` (Draft → Current → Deprecated),
   `Last updated`, `Audience`, a **Decision Summary**, **Open Questions**, and a
   **Version Log**. Use `../templates/architecture-doc-template.md`.
 

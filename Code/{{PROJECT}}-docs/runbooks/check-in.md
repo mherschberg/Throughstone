@@ -36,8 +36,11 @@ it fixes docs, files bugs, and proves the tests pass.
 > contract drift. Fix anything it flags, then do the judgment-based review below (which a
 > script can't: does the doc still describe what the system actually *does*?).
 
-For each `architecture/NN-*.md`, compare the doc against the system as it actually is now —
-in both directions, because they catch different problems:
+For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it
+actually is now — in both directions, because they catch different problems (a `Status:
+Deprecated` doc is **listed as retired** in the index reconciliation below, but **not** reconciled
+against current code or backfilled — it is kept for history, not swept as live;
+`METHOD.md` §6):
 
 - **Docs vs. code** — the doc claims something the code no longer does (stale doc).
   → **Fix the doc** and bump its Version Log (`METHOD.md` §6); if a real decision was made in
