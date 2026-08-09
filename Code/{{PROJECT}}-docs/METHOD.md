@@ -366,12 +366,29 @@ to mandate the output.
 
 ## 6. Versioning architecture docs
 
-Each architecture doc carries:
-- **`Version:`** — `major.minor.patch`. Bump *patch* for fixes/clarifications, *minor*
-  for added sections/decisions, *major* for a maturity era change.
-- **`Status:`** — the maturity era: **Draft** (`v0.x`, pre-MVP, shape unstable) →
-  **MVP** (`v1.x`, describes what's built) → **Stable** (`v2.x`, ready for outside
-  consumers).
+Each architecture doc carries three independent header facts — an identity **number**, a
+maturity **status**, and (optionally) a **coverage** note — plus a change log:
+- **`Version:`** — identity / number, `major.minor.patch`. Bump *patch* for
+  fixes/clarifications, *minor* for added sections/decisions, *major* for a **breaking
+  architectural change** (a decision that supersedes a prior one). The number is **decoupled
+  from maturity**: `major` no longer marks a maturity "era," so a project already on its own
+  house convention (a calendar date, a `v16`-style line) may keep it — the lifecycle lives in
+  `Status`, not in the digits.
+- **`Status:`** — the doc's **maturity lifecycle**, the authoritative *"is this doc the current
+  agreed truth?"* signal, independent of the number: **Draft** (not yet — `v0.x`, pre-release,
+  shape still unstable) → **Current** (yes — the live, agreed description you can depend on) →
+  **Deprecated** (no longer — the doc is retired). A doc is deprecated either because a newer doc
+  supersedes it or because the thing it described was removed (a server, a feature); either way it is
+  kept for history, not deleted, with a short note on why — and a pointer to its replacement when there
+  is one. A project may rename the rungs, but only to *settledness synonyms* (e.g.
+  WIP / Reviewed / Locked) — never a scope word (MVP) or a release-stage word (Beta / GA), which
+  are different axes. A **`Deprecated` doc is excluded from the check-in's doc-drift and
+  deferred-coverage sweeps** (`runbooks/check-in.md`): it is listed as retired for the record,
+  not reconciled against current code or backfilled.
+- **`Coverage:`** *(optional)* — how completely the doc describes its area. Omit it (or `full`)
+  when the doc fully covers the area; mark a deliberately fat or partial area `deferred` (or
+  `enumerated to depth N`) so the gap is recorded rather than mistaken for drift. Every check-in
+  resurfaces a `Coverage: deferred` doc for an explicit disposition (`runbooks/check-in.md`).
 - A **Version Log** table at the bottom: one row per change (version, date, STEP, what).
 
 ADRs are *not* versioned this way — they're dated, carry a Status (Accepted / Superseded /
