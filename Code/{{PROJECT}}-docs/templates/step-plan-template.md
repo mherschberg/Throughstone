@@ -1,6 +1,6 @@
 # {{PROJECT}} — STEP-{{N}} PLAN: {{STEP TITLE}}
 
-**Phase:** {{e.g. Phase 1 — MVP}}
+**Phase:** {{e.g. Phase 1 — MVP / POC / v1}}
 **Owner:** {{who is running this STEP}}        <!-- one owner for the whole STEP and all its substeps; also shown in prompts/STEP-index.md; solo: optional -->
 **Status:** Planned        <!-- Planned → In progress → Done; or Deferred / Abandoned (see METHOD.md §1) -->
 **Date:** {{DATE}}

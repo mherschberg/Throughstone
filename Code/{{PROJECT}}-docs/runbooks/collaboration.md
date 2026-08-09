@@ -247,8 +247,8 @@ reviewing, and recording it. The ADR template already carries the needed states
 `prompts/` spans all the code repos and is **never rewritten** (`METHOD.md` §5). Many
 contributors append to it:
 - On completion, each gathers their STEP's loose files from `Upcoming Prompts/` into a new
-  `step-NNNN/` folder in the phase (`prompts/001-mvp/step-NNNN/`) and adds a row to that
-  phase's `README.md`.
+  `step-NNNN/` folder in the phase folder (`prompts/001-<phase-name>/step-NNNN/`, created when
+  the phase's first STEP is archived) and adds a row to that phase's `README.md`.
 - Archived STEP folders are **write-once**, so they essentially never conflict. The only
   shared files touched on archival are the phase `README.md` and `prompts/STEP-index.md` — handle
   both with the your-row-only rule (§5).

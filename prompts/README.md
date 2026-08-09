@@ -22,7 +22,7 @@ repo (see `METHOD.md` §5).
 prompts/
 ├── README.md          ← this file (conventions + authoring recipe)
 ├── STEP-index.md      ← the living roadmap: every STEP, status, scope. Start here.
-└── 001-mvp/           ← Phase 1. Archived STEPs land here as they complete.
+└── 001-<phase-name>/  ← Phase 1, created when STEP-1 is archived; STEPs land here.
     ├── README.md      ← per-phase summary table
     └── step-NNNN/     ← one folder per completed STEP: its PLAN + all substep prompts
 ```
@@ -42,8 +42,9 @@ files into a new `step-NNNN/` folder** in the right phase here (see the recipe, 
   - Substep prompt: `{{PROJECT}}-STEP-N.M-PROMPT.md` (fractional substeps like `5a` are fine)
 - Each phase folder keeps a `README.md` summary table (from
   `Code/{{PROJECT}}-docs/templates/phase-readme-template.md`), updated by hand as STEPs complete.
-  Phase 1 (`001-mvp/`) ships seeded; create `002-<name>/README.md` from the template when
-  you open a new phase.
+  Every phase folder — Phase 1 included — is created when its first STEP is archived, named
+  `001-<phase-name>/` for the chosen phase (the kebab of the `## Phase 1 — <name>` heading in
+  `STEP-index.md`); create its `README.md` from the template at that point.
 
 ## From architecture to implementation
 
@@ -156,7 +157,10 @@ teammate will need later.
 6. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
-   in the phase folder in this repo and mark it **Done** in the index.
+   in the phase folder in this repo and mark it **Done** in the index. (If this is the phase's
+   first archived STEP the phase folder won't exist yet — create `001-<phase-name>/` and its
+   `README.md` from `phase-readme-template.md` first, naming it for the chosen phase; see
+   Conventions.)
    (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.) Then tell the user
    the next action — the next `Planned` STEP, or a **Check-in STEP** if one is due — via the
    next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10).

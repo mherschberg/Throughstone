@@ -48,7 +48,7 @@ treat it as resume unless `prompts/STEP-index.md` is still the bare `init.sh` se
 
 ## How this project is built
 This project follows the method in **`Code/{{PROJECT}}-docs/METHOD.md`** — read it. In short:
-- Work is **Phase ▸ STEP ▸ substep**. Phase 1 is the MVP. STEP numbers are global.
+- Work is **Phase ▸ STEP ▸ substep**. Phase 1 is the first milestone (an MVP for a new build). STEP numbers are global.
 - Not every change is a STEP. Small, well-understood, low-risk tickets or fixes can use the
   normal issue/branch/PR/test/commit flow. Promote to a STEP when the work needs planning,
   sequencing, coordination, architecture/doc review, or durable context for a future agent.

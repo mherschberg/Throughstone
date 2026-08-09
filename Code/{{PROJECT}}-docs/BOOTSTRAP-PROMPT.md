@@ -76,12 +76,22 @@ into `Code/{{PROJECT}}-docs/overview.md`. **Wait for confirmation.**
 
 ### Stage 1 — Roadmap  ▸ checkpoint
 Propose:
-- The **Phase plan** — what Phase 1 (the MVP) includes and, deliberately, excludes; a
-  rough sketch of later phases for things being deferred. (This is a sketch to align on
-  direction; the Phasing & Roadmap session formalizes the phase plan.)
+- **The Phase-1 milestone.** Phase 1 is the first release-level milestone — ask what *kind*
+  it is, leading with the recommendation: *"Is Phase 1 an MVP, POC, prototype, or full v1 —
+  or something else entirely?"* An **MVP** is the common first milestone for a new build, so
+  recommend it as the default; but a POC, a prototype, or a full v1 are all valid, so don't
+  assume. Record the chosen name: it fills the `## Phase 1 — <name>` heading in
+  `prompts/STEP-index.md` (replacing the `{{PHASE_1_NAME}}` placeholder `init.sh` left there),
+  and its kebab-case form later names the `001-<phase-name>/` archive folder created when
+  STEP-1 is archived (so a POC archives to `001-poc/`, a full v1 to `001-v1/`).
+- The **Phase plan** — what Phase 1 (your chosen first milestone) includes and, deliberately,
+  excludes; a rough sketch of later phases for things being deferred. (This is a sketch to
+  align on direction; the Phasing & Roadmap session formalizes the phase plan.)
 - **STEP-1 (architecture)** as the first and — for now — the *only* STEP in the index.
 Record **only STEP-1's row** in `prompts/STEP-index.md` (already seeded from
-`Code/{{PROJECT}}-docs/templates/step-index-seed.md` by `init.sh` — fill in that row).
+`Code/{{PROJECT}}-docs/templates/step-index-seed.md` by `init.sh` — fill in that row), and set
+the `## Phase 1 — <name>` heading to the chosen milestone name (replacing the
+`{{PHASE_1_NAME}}` placeholder and deleting the explanatory comment beneath it).
 **Don't add implementation STEP rows yet** — those are outlined later by the planning
 session, after STEP-1's review passes (`METHOD.md` §2). **Wait for the user to confirm
 scope** before continuing.

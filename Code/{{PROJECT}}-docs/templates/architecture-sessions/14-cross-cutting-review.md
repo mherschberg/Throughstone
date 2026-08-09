@@ -69,7 +69,7 @@ between "we have a pile of docs" and "we have a coherent architecture."
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?
 4. **Foreclosure check.** Walk the "Forecloses / tradeoff" entries across all docs. Does any
-   MVP shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
+   Phase-1 shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
    flag it — it may need a cheaper approach now.
 5. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
    **ADRs**? Write any that are missing (`templates/adr-template.md`).
@@ -89,12 +89,17 @@ between "we have a pile of docs" and "we have a coherent architecture."
   place, so it's where the index gets filled in.
 - A consolidated **Open Questions** list carried forward into the first implementation STEP.
 - Update `prompts/STEP-index.md`: mark substep 1.14 `Done` and mark the STEP-1 row `Done`
-  once the review is clean. STEP-1 is now ready to be archived (moved into
-  `prompts/001-mvp/step-0001/`) per `prompts/README.md`.
+  once the review is clean. STEP-1 is now ready to be archived: take the phase-folder name from
+  the `## Phase 1 — <name>` heading in `prompts/STEP-index.md` (kebab-case the name — e.g. `MVP`
+  → `mvp`, `POC` → `poc`), create the Phase-1 folder `prompts/001-<phase-name>/` with a
+  `README.md` from `templates/phase-readme-template.md` (this is its first STEP, so the folder
+  doesn't exist yet), then move the STEP-1 files into `prompts/001-<phase-name>/step-0001/` —
+  all per `prompts/README.md`.
 
 ## Next
 Once the review is clean, the architecture STEP is done — mark the STEP-1 row `Done` and archive
-it to `prompts/001-mvp/step-0001/` (`prompts/README.md`). The next action is to move into
+it to the Phase-1 folder `prompts/001-<phase-name>/step-0001/` (created from the `## Phase 1 — <name>`
+index heading — see the Output section and `prompts/README.md`). The next action is to move into
 building: **start a fresh chat** and run the **implementation planning session**
 (`templates/planning-session.md`, *"Run planning session: Phase-1 implementation roadmap"*) — it outlines the Phase-1
 implementation STEPs. See the next-action resolver (`METHOD.md` §10).

@@ -22,14 +22,18 @@ work into small runnable units, and keep a durable record of *what* the system i
 ## 1. The three tiers of work
 
 ```
-Phase            e.g. Phase 1 = "MVP"          a release-level milestone
+Phase            e.g. Phase 1 = "MVP" / "POC"  a release-level milestone
   └─ STEP        e.g. STEP-1, STEP-2, STEP-87  a unit of work with a PLAN
        └─ Substep  e.g. 1.1, 1.5a               a single self-contained task
 ```
 
-- **Phase** — a release-level container. *Phase 1 is your MVP.* Later phases (Phase 2,
-  Phase 3, …) are larger bodies of work you've deliberately deferred. Phases live as
-  folders: `prompts/001-mvp/`, `prompts/002-<name>/`.
+- **Phase** — a release-level container. *Phase 1 is your first release-level milestone —
+  often an MVP for a new build, but it may be a POC, a prototype, or a full v1 (the kind is
+  chosen at kickoff).* Later phases (Phase 2, Phase 3, …) are larger bodies of work you've
+  deliberately deferred. Phases live as folders named for the chosen phase:
+  `prompts/001-<phase-name>/` (e.g. `001-mvp/`), `prompts/002-<name>/` — the folder is created
+  when the phase's first STEP is archived, and the next-action resolver keys on the index rows
+  in `prompts/STEP-index.md`, not the folder names.
 
 - **STEP** — the main unit of work. Every STEP has a **PLAN** that lists its substeps,
   the decisions already locked, ground rules, and a definition of done. STEP numbers are
