@@ -99,7 +99,7 @@ patterns branch from there.
     right-to-left support. *Localization (l10n)* is **which languages/locales you actually
     ship** now. The trap is foreclosure: shipping English-only is fine, but *hardcoding*
     English everywhere is the expensive mistake — retrofitting i18n later means touching every
-    screen. MVP default: ship one locale, but route user-facing text through a strings layer
+    screen. First-release default: ship one locale, but route user-facing text through a strings layer
     from day one so adding a language later is a translation job, not a rewrite. Decide RTL
     in or out deliberately.
 13. **Motion & transitions**; **data visualization** (if charts).

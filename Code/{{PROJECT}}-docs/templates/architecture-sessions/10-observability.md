@@ -32,7 +32,7 @@ to measure, and what to alert on** now means you can actually operate the thing.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
-- Recommend a **lightweight default** for the MVP (structured logs + a few key metrics +
+- Recommend a **lightweight default** for a first release (structured logs + a few key metrics +
   health checks + error tracking) and scale up only where the system warrants it.
 - Be explicit about what must **not** be logged (secrets, PII).
 

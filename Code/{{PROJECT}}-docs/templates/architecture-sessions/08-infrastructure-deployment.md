@@ -39,7 +39,7 @@ how a small outage becomes permanent data loss.
 ## How this session works
 - One decision at a time; **wait** for answers.
 - Recommend the **lowest-operational-burden option that fits** (often a managed PaaS or
-  containers on a managed platform for an MVP), and flag cost and lock-in tradeoffs.
+  containers on a managed platform for a first release), and flag cost and lock-in tradeoffs.
 - Tie back to the Scaling & Performance and Security & Threat Model architecture docs where relevant.
 
 ## Decisions to make (in order)
@@ -49,8 +49,8 @@ how a small outage becomes permanent data loss.
    functions vs. managed app platform vs. plain VMs. Default to the simplest that meets the
    scaling needs from the Scaling & Performance architecture doc.
 3. **Build & deploy pipeline.** How code becomes a running version: CI builds, artifacts,
-   and how a deploy is triggered (and rolled back). Manual is OK for an MVP if it's written
-   down and repeatable — the optional `runbooks/release-deploy.md` checklist is where that
+   and how a deploy is triggered (and rolled back). Manual is OK for a first release if it's
+   written down and repeatable — the optional `runbooks/release-deploy.md` checklist is where that
    procedure lives operationally; this decision designs what it executes.
 4. **Infrastructure as code.** Terraform / Pulumi / provider tooling / none. How infra is
    provisioned reproducibly — even a single script beats clicking in a console.
@@ -63,8 +63,9 @@ how a small outage becomes permanent data loss.
    database, a third-party API). Name the **single points of failure** (this is the
    *availability* angle; the Scaling & Performance architecture doc named them for *load*) and pick an
    **availability target**: is a
-   few hours of downtime fine, or must this stay up? For an MVP, a single region with a fast
-   redeploy is often the right call — the point is to choose it knowingly, not by default.
+   few hours of downtime fine, or must this stay up? For a modest availability target, a single
+   region with a fast redeploy is often the right call — the point is to choose it knowingly, not
+   by default.
    Where it's cheap, prefer **graceful degradation** (read-only mode, a cached response, a
    clear "try again shortly") over a hard crash when a dependency is unavailable.
 8. **Backups & disaster recovery.** What's backed up, how often, and how long backups are

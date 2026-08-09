@@ -84,6 +84,18 @@ Propose:
   `prompts/STEP-index.md` (replacing the `{{PHASE_1_NAME}}` placeholder `init.sh` left there),
   and its kebab-case form later names the `001-<phase-name>/` archive folder created when
   STEP-1 is archived (so a POC archives to `001-poc/`, a full v1 to `001-v1/`).
+- **The release stage** — a *separate axis* from the milestone above. How widely and to whom
+  this first release ships (pre-launch → internal alpha → closed/invite-only beta → public
+  beta → GA): an **engineering calibration input** — how much robustness and polish the
+  architecture owes its audience — **not** the marketing launch plan. Ask it leading with the
+  recommendation: *"Where does the first release land — internal/pre-launch, a closed beta, or
+  public?"* Most new builds genuinely **start pre-launch**, so recommend that as the default; a
+  closed beta or a public launch are also valid, so don't assume. Record the answer on the
+  optional **"Release stage / launch target"** line in `Code/{{PROJECT}}-docs/overview.md` (a
+  short prose descriptor — e.g. `internal alpha`, `closed beta — ~50 invited users`,
+  `public GA`). It stays **independent** of the Phase-1 scope name above and of any doc
+  `Status`; the architecture sessions calibrate their *breadth* defaults to it, while *rigor*
+  stays keyed to what's at stake (`METHOD.md` §4).
 - The **Phase plan** — what Phase 1 (your chosen first milestone) includes and, deliberately,
   excludes; a rough sketch of later phases for things being deferred. (This is a sketch to
   align on direction; the Phasing & Roadmap session formalizes the phase plan.)

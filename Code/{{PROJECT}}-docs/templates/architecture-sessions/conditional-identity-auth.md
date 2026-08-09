@@ -47,7 +47,8 @@ Threat Model session.
 
 ## Decisions to make (in order)
 1. **Authentication methods.** Password, OAuth/social, SSO/SAML/OIDC, passwordless/magic
-   link, MFA. Which for the MVP, which later.
+   link, MFA. Which now, which later — keyed to what you're protecting (the threats and data
+   sensitivity), not the launch stage.
 2. **Identity provider — build vs. buy.** Managed (Auth0, Cognito, Clerk, Firebase,
    Keycloak self-host) vs. roll-your-own. Default: **buy**, unless there's a strong reason.
    Record the decision (an ADR).

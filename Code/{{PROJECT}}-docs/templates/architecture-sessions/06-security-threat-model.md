@@ -26,14 +26,15 @@ dependency-risk posture, and web-risk posture.
 ## Why this session matters
 "We're too small to be a target" is the most common — and most wrong — security
 assumption. Anything on the public internet gets probed automatically; attackers don't
-check your user count first. You don't need a fortress for an MVP, but you do need to know
-your **assets, your boundaries, and the threats you're choosing to accept**. This session
+check your user count first. You don't need a fortress for a *low* blast radius, but you do for
+a high one — either way, know your **assets, your boundaries, and the threats you're choosing to
+accept**. This session
 can end in a *deliberate, recorded* deferral — but deferral must be a decision, not an
 oversight.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
-- For each threat, recommend a **minimum viable mitigation** for the MVP and note the
+- For each threat, recommend a **mitigation matched to its blast radius** and note that
   **blast radius** if it's skipped.
 - Keep it concrete to *this* system — use the assets and boundaries from the
   Architecture Overview architecture doc and the Data Model architecture doc.
@@ -68,7 +69,7 @@ oversight.
    dependency vulnerabilities. What's handled by the framework vs. needs attention? (The
    dependency/supply-chain posture you set here is operationalized in
    `runbooks/dependency-supply-chain.md` — vetting new deps and auditing them on a cadence.)
-7. **Mitigate now vs. defer.** For each significant threat: mitigate in the MVP, or defer?
+7. **Mitigate now vs. defer.** For each significant threat: mitigate now, or defer?
    For every deferral, record the blast radius and **what triggers revisiting** (e.g.
    "before we accept real user data / payments / go public"). Add each accepted deferral to
    `registries/risks.yml`, or update the existing row if this session revisits it.
@@ -81,7 +82,7 @@ Write `architecture/06-security-threat-model.md` — the Security & Threat Model
 doc (use `templates/architecture-doc-template.md`). Body:
 - **Assets**
 - **Trust boundaries** (diagram or list)
-- **Threats → mitigations** table — threat | boundary | MVP mitigation | deferred / blast radius
+- **Threats → mitigations** table — threat | boundary | mitigation | deferred / blast radius
 - **AuthN/AuthZ posture**, **secrets & data protection**, **web-risk posture**
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Capture

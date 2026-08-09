@@ -29,15 +29,15 @@ code is promoted** gives you a safe path to production.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
-- Recommend the **fewest environments that give you safety** for the MVP (often local +
+- Recommend the **fewest environments that give you safety** for your launch stage (often local +
   one staging + prod), and flag what each adds in cost/maintenance.
 
 ## Decisions to make (in order)
 1. **Which environments.** Local/dev, CI (for automated tests), staging/pre-prod,
-   production. Which do you actually need for the MVP, and what is each *for*?
+   production. Which do you actually need for your launch stage, and what is each *for*?
 2. **Sandbox / demo environment?** Do you need a separate sandbox — for trying the product
    without real data, for demos, or for external integrators to test against? (Often *not*
-   needed at MVP; decide consciously.)
+   needed at a first release; decide consciously.)
 3. **Config & secrets per environment.** How configuration differs per environment
    (environment variables / config files — never secrets in code) and where each environment's
    secrets come from

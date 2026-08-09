@@ -26,16 +26,16 @@ bottleneck/scaling decisions, caching and async plans, load-test inputs, and don
 mitigations.
 
 ## Why this session matters
-The goal here is **not** to build for scale you don't have — it's to make sure the MVP,
-built for a handful of users, doesn't quietly *block* the scale you'll want later. The
+The goal here is **not** to build for scale you don't have — it's to make sure a first release,
+sized for your launch-stage load, doesn't quietly *block* the scale you'll want later. The
 classic trap: a shortcut that's invisible at 5 users (in-memory state, one big sync
 request, a single database doing everything) and a rewrite at 5,000. We decide which
 shortcuts are fine and which to avoid cheaply now.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
-- For each decision, recommend the **simplest thing that works for the MVP**, then state
-  explicitly whether it forecloses future scaling and the cheapest way to avoid that.
+- For each decision, recommend the **simplest thing that works for your launch-stage load**,
+  then state explicitly whether it forecloses future scaling and the cheapest way to avoid that.
 - Use real numbers from the user, not guesses.
 
 ## Decisions to make (in order)
@@ -48,7 +48,7 @@ shortcuts are fine and which to avoid cheaply now.
 4. **First bottleneck.** Under growth, what breaks first — the database, a single process,
    a third-party rate limit? Be specific; it's where future effort goes.
 5. **Scaling strategy.** Vertical (bigger box) vs. horizontal (more boxes); what can scale
-   independently. For an MVP, vertical is often fine — *if* the design stays
+   independently. At your launch-stage load, vertical is often fine — *if* the design stays
    horizontally-scalable when needed.
 6. **Caching & async.** Where caching helps (and how it's invalidated); what heavy work
    can move to a queue/background job instead of blocking a request.
