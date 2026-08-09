@@ -59,8 +59,16 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 
 ## What to work through (with the user)
 1. **Repo scaffolding.** What repos does the Architecture Overview architecture doc
-   (`architecture/*-architecture-overview.md`) / `registries/repos.yml` name? The first implementation STEP is
-   almost always *"scaffold the repos and the skeleton"* — create each code repo from
+   (`architecture/*-architecture-overview.md`) / `registries/repos.yml` name? On a first run none
+   of them exist yet, so you scaffold them all — the usual case. Just skip any that are
+   **already there:** a repo the architecture names is already there when it has a
+   `registries/repos.yml` row **with a filled-in README** (a real role one-liner + Overview, not
+   the template's placeholders), so don't re-create it. This only comes up on a **re-run** (a repo
+   you scaffolded in an earlier run is already registered) or when the project already has some of
+   these repos; if `registries/repos.yml` is absent or has no code-repo rows yet (that first run,
+   or a mono-repo), nothing is registered and every named repo scaffolds, exactly as before.
+   The first implementation STEP is almost always *"scaffold the repos and the skeleton"* —
+   create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
@@ -81,7 +89,9 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
    the repo is and the slice of the system it owns), and the repo gets a row in
    `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can
-   explain itself. Confirm the repo list and that they don't exist yet.
+   explain itself. Confirm the repo list with the user — on a first run they're all new; note any
+   that already exist (already registered with a filled-in README) so you scaffold only the new
+   ones.
 2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order.
    A typical shape:
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
