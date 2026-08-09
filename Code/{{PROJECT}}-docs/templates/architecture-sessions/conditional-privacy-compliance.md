@@ -75,7 +75,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
    This sharpens the retention answer from the Data Model architecture doc with the legal *must-delete* angle.
 6. **Data-subject rights.** How you'll satisfy access, export/portability, correction, and
    deletion ("right to be forgotten") requests — as an *operational process*, not a promise.
-   Manual is fine for an MVP **if it's written down** and someone owns it.
+   Manual is fine at low volume and low sensitivity **if it's written down** and someone owns it.
 7. **Data residency & sub-processors.** Where data physically lives (residency/sovereignty
    constraints) and which third parties (analytics, hosting, payment, email, AI APIs) receive
    personal data — your sub-processors — plus a transfer mechanism if data crosses borders.
@@ -83,7 +83,7 @@ deletion/export requests **now** keeps compliance a design property rather than 
 8. **Governance & accountability.** Who owns privacy, where the record-of-processing / data
    map lives and stays current, your **breach-notification** obligations (who you must notify
    and how fast), and the plan for a public **privacy policy** (and a DPA where required).
-   Lightweight for an MVP — but assigned to a name, not left ownerless.
+   Lightweight at low volume and low sensitivity — but assigned to a name, not left ownerless.
 
 ## Output
 Write `architecture/NN-privacy-compliance.md` (use `templates/architecture-doc-template.md`; NN per

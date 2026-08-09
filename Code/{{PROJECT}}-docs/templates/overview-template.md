@@ -39,6 +39,14 @@
 <!-- Roughly how many users / requests / records at launch? In a year? Is it a web app,
      a mobile/desktop app, an API/service, a CLI, or several? Who hosts it? -->
 
+## Release stage / launch target
+<!-- Optional. How widely and to whom this first release ships — pre-launch / internal
+     alpha / closed (invite-only) beta / public beta / GA. An engineering calibration input
+     (how much robustness and polish the architecture owes its audience), not a marketing
+     plan, and distinct from the Phase-1 milestone's scope name. A short prose descriptor:
+     e.g. "internal alpha", "closed beta — ~50 invited users", "public GA". Leave blank if
+     you're unsure — most new builds start pre-launch. -->
+
 ## Constraints & must-haves
 <!-- Regulatory or compliance needs, budget, timeline, team size & skills, languages or
      platforms you're committed to, systems you must integrate with or can't change. -->

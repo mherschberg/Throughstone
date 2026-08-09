@@ -23,7 +23,7 @@ Some early projects are **mono-repo-for-now**:
 - There is one repo.
 - `AGENTS.md`, `CLAUDE.md`, and `doctor.sh` are committed in that repo.
 - `setup-workspace.sh` is not needed. Clone the repo, open it, and continue at
-  [Read the project state](#3-read-the-project-state).
+  [Read the project state](#4-read-the-project-state).
 
 ## 2. Set up a multi-repo workspace
 

@@ -50,7 +50,7 @@ risks: []
 #     source: "architecture/06-security-threat-model.md"
 #     description: "Public endpoints launch without per-user rate limiting; details live in refs."
 #     impact: "Possible availability degradation from noisy clients or automated attacks."
-#     mitigation: "Framework-level request limits plus uptime alerting for MVP."
+#     mitigation: "Framework-level request limits plus uptime alerting for the initial launch."
 #     revisit_trigger: "Before public beta or before accepting untrusted user traffic."
 #     refs:
 #       - "architecture/06-security-threat-model.md#threats--mitigations"

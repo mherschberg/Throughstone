@@ -30,8 +30,8 @@ now prevents painful migrations and compliance surprises later.
 
 ## How this session works
 - One decision at a time; sketch the entities and relationships; **wait** for answers.
-- Recommend sensible defaults (e.g. surrogate UUID keys, a single relational DB for an
-  MVP) and flag what they foreclose.
+- Recommend sensible defaults (e.g. surrogate UUID keys, a single relational DB for a first
+  release) and flag what they foreclose.
 - Watch for hidden PII — push on anything that touches personal data.
 
 ## Decisions to make (in order)
@@ -41,8 +41,8 @@ now prevents painful migrations and compliance surprises later.
 2. **Ownership / source of truth.** For each entity, which component owns it (is the
    authoritative source). Critical once more than one component reads/writes it.
 3. **Storage choice(s).** Relational vs. document vs. key-value vs. blob — and whether it's
-   one shared database or one per component. Default: one relational DB for an MVP unless
-   there's a reason. Flag lock-in / scaling implications for the Scaling & Performance
+   one shared database or one per component. Default: one relational DB for a first release
+   unless there's a reason. Flag lock-in / scaling implications for the Scaling & Performance
    session.
 4. **Identifiers.** Surrogate keys (UUID/auto-increment) vs. natural keys; ID format and
    whether IDs are exposed publicly.
