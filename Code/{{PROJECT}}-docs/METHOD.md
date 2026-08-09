@@ -284,8 +284,25 @@ interesting trade-off, not the basics.
 
 > *Observability (Session 1.10):*
 > - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is angry users — and even then you can't tell why. The fix is leaving yourself a trail of breadcrumbs to answer 'what happened?'. For v1 I'd suggest just good logs plus an alert if the site goes down. Enough to start?"
-> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' Logs (what happened), metrics (is it healthy), alerts (tell me when it's not). For an MVP I'd default to structured logs + an error/uptime alert and add dashboards later. Start there?"
-> - **L3:** "Observability — logs/metrics/traces and alerting. SLOs now or later? I'd default to structured logging + error tracking + an uptime alert for the MVP and defer tracing/SLOs unless you're latency-sensitive."
+> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' Logs (what happened), metrics (is it healthy), alerts (tell me when it's not). For a first release I'd default to structured logs + an error/uptime alert and add dashboards later. Start there?"
+> - **L3:** "Observability — logs/metrics/traces and alerting. SLOs now or later? I'd default to structured logging + error tracking + an uptime alert for a first release and defer tracing/SLOs unless you're latency-sensitive."
+
+### Calibrating defaults to the project's facts
+Experience level (above) changes *how* a session asks; the project's own recorded facts change
+*what* it recommends. A session's default is **never** keyed to an assumed "MVP" — it reads the
+facts the brief and earlier sessions captured, and it **splits breadth from rigor**:
+
+- **Breadth** — how big and how public the system is (a modular monolith vs. microservices, one
+  locale vs. many, the fewest environments that are safe) — tracks the **release stage and
+  load** (`overview.md`'s *Release stage / launch target* and *Scale & shape*). An earlier,
+  narrower launch justifies a simpler default here.
+- **Rigor** — security controls, privacy process, availability — tracks **what's at stake**: the
+  blast radius and data sensitivity (`overview.md`'s *Sensitive data & risk*). An early release
+  stage is **never** a license to lower rigor on a high-stakes system: a closed beta that handles
+  health data or payments still owes its users real protection.
+
+So "for a first release" is a *breadth* default, set by stage and load — not a reason to thin out
+rigor, which the session keys to blast radius instead.
 
 ## 5. The prompt lifecycle
 

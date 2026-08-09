@@ -30,8 +30,8 @@ UI / Design System session and the conditional Native-app session apply.
 
 ## How this session works
 - One decision at a time; sketch a simple diagram when it clarifies; **wait** for answers.
-- Recommend a default (for most MVPs: a **modular monolith**, not microservices) and say
-  what it forecloses.
+- Recommend a default (for most first releases: a **modular monolith**, not microservices) and
+  say what it forecloses.
 - Keep it high-level — responsibilities and boundaries, not class-level detail.
 
 ## Decisions to make (in order)
