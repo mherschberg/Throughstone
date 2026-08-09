@@ -3,7 +3,7 @@
 > **How to run:** Once the architecture STEP (STEP-1) is complete and its
 > Cross-Cutting Review is clean, tell your agent *"run the planning session"*. Like the
 > architecture sessions it's an interview — it turns the locked architecture into the
-> **implementation STEPs** that build Phase 1. It only **outlines** them — a short scope
+> **implementation STEPs** that build the target phase — **Phase 1 on a new project**. It only **outlines** them — a short scope
 > each. Authoring the first STEP's PLAN and starting to code is the *next* action, in a fresh
 > chat (see "Next" below).
 >
@@ -23,12 +23,12 @@
 STEP-1 leaves you with a coherent architecture but no path into code. The instinct is to
 "just start building" — which is how the carefully-phased design gets ignored and the work
 sprawls. This session does the bridge deliberately: it reads what the architecture
-committed to for **Phase 1** and lays it out as an ordered list of buildable STEPs — a short
+committed to for **the target phase** and lays it out as an ordered list of buildable STEPs — a short
 outline each, not a detailed plan. It's the gate between "we know what to build" and "we're
 building it."
 
 It is **re-runnable** (in the spirit of `METHOD.md` §4 — here it revises the STEP outline,
-not an architecture doc). Run it once now to lay out the Phase-1 STEPs; re-run it when the
+not an architecture doc). Run it once now to lay out the target phase's STEPs; re-run it when the
 architecture changes and the remaining STEPs need re-planning.
 
 On a re-run, preserve roadmap history: never renumber or delete an existing STEP, and do not
@@ -43,7 +43,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
   Ask clarifying questions instead of guessing, and use the saved communication style in
   root `.throughstone/local-user.md` unless the user gives an explicit style instruction for
   this session.
-- Pull the Phase-1 scope from the Phasing & Roadmap architecture doc
+- **Target the first uncompleted phase** — the lowest-numbered roadmap phase whose STEPs
+  aren't all complete (from `prompts/STEP-index.md` and the Phasing & Roadmap doc),
+  **defaulting to Phase 1 on the first run**. A re-run after that phase is done targets the
+  next; everything below plans that one phase — **the target phase**.
+- Pull the target phase's scope from the Phasing & Roadmap architecture doc
   (`architecture/*-phasing-roadmap.md`) and the component
   boundaries from the Architecture Overview architecture doc
   (`architecture/*-architecture-overview.md`), plus the contract policy from
@@ -53,7 +57,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 - Keep STEPs **small and runnable** — each should be completable and reviewable on its own.
   Push back on a STEP that's really three STEPs.
 - **This session only outlines — it writes no code and no detailed plans.** The output is
-  the *list* of Phase-1 implementation STEPs, each in a couple of sentences. Each STEP's
+  the *list* of the target phase's implementation STEPs, each in a couple of sentences. Each STEP's
   detailed PLAN, substeps, and definition of done are written **later**, when you're about
   to run that STEP (`prompts/README.md` → "Recipe: adding a new STEP"; `METHOD.md` §5).
 
@@ -92,14 +96,14 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    explain itself. Confirm the repo list with the user — on a first run they're all new; note any
    that already exist (already registered with a filled-in README) so you scaffold only the new
    ones.
-2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order —
+2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
    **build or extend what this milestone needs, given what already exists.** On a first run
    nothing is built yet, so scaffolding and the core data layer come first and you build
    outward from there; that's the usual case, and the typical shape is:
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
    - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
-   - **One STEP per core capability** — each Phase-1 capability from the phase plan, built
+   - **One STEP per core capability** — each target-phase capability from the phase plan, built
      against the data layer and component boundaries.
    - **Integration / end-to-end** — wire the capabilities together; the launch-criteria
      path from the phase plan works end to end.
@@ -111,7 +115,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
    accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
    capability lands, not mid-feature — rather than mechanically on a fixed count. For a
-   Phase 1 with only a handful of STEPs, one check-in near the end (or none) is fine; use
+   target phase with only a handful of STEPs, one check-in near the end (or none) is fine; use
    judgment.
 4. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
    what it delivers and how it depends on the others. Roughly **2–3 sentences each** — a
@@ -124,7 +128,7 @@ mention the expected test tier in the STEP outline. Keep this at the outline lev
 detailed test plan belongs in the STEP PLAN when that STEP starts.
 
 ## Output
-- **Update `prompts/STEP-index.md`:** add a row for every Phase-1 implementation STEP —
+- **Update `prompts/STEP-index.md`:** add a row for every implementation STEP of the target phase —
   global STEP number, title, status `Planned`, and the short (2–3 sentence) outline as its
   scope — in dependency order after STEP-1. **That list is the whole deliverable.** On a
   re-run, follow the history-preserving rules above instead of adding duplicate rows.
