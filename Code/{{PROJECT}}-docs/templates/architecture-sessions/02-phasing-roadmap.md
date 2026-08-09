@@ -25,31 +25,33 @@ status.
 ## Why this session matters
 Mid-level developers tend to either build everything at once or never decide what comes
 later — both stall projects. Deciding the **phases** up front does two things: it shrinks
-the MVP to something you can actually ship, and it tells the architecture what it must
-*not* foreclose. Phase 1 is your MVP; everything you're deferring is a later phase, on
-purpose, recorded.
+Phase 1 to something you can actually ship, and it tells the architecture what it must
+*not* foreclose. Phase 1 is your first milestone — often an MVP, but it may be a POC, a
+prototype, or a full v1; everything you're deferring is a later phase, on purpose, recorded.
 
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
 - Pull from `overview.md` and the System Overview, Requirements & Non-Goals architecture doc
   first; don't re-ask what's settled.
 - Recommend a default for the project's stage, and flag what it rules out later.
-- Push back on a Phase 1 that's too big — "smallest thing that delivers the core value."
+- Push back on a Phase 1 that's too big — the smallest cut that delivers on its chosen goal.
 
 ## Decisions to make (in order)
-1. **Phase 1 (MVP) definition.** The smallest version that delivers the core value *and*
-   is usable/testable by a real user. What's the one-sentence goal of the MVP?
-2. **In scope for Phase 1.** The capabilities that must be in the MVP (cross-check against
+1. **Phase 1 definition.** What Phase 1 is, and its one-sentence goal. For an **MVP** (the
+   common first milestone) that's the smallest version that delivers the core value *and* is
+   usable/testable by a real user; a POC, prototype, or full v1 is scoped to that milestone's
+   goal instead. What's the one-sentence goal of Phase 1?
+2. **In scope for Phase 1.** The capabilities that must be in Phase 1 (cross-check against
    the "core capabilities" from the System Overview, Requirements & Non-Goals architecture
    doc). Keep it ruthless.
-3. **Deferred to later phases.** For each major thing you're *not* doing in the MVP, which
+3. **Deferred to later phases.** For each major thing you're *not* doing in Phase 1, which
    phase it lands in and *why* it's deferred (risk, capacity, dependency, unknowns).
 4. **Phase sequence & dependencies.** What must come before what? Sketch Phase 2, Phase 3
    at a high level — enough to know the direction, not a detailed plan.
-5. **Launch criteria for Phase 1.** Concretely, what has to be true to call the MVP done
+5. **Launch criteria for Phase 1.** Concretely, what has to be true to call Phase 1 done
    and ship it? (Ties to the success criteria from the System Overview, Requirements &
    Non-Goals architecture doc.)
-6. **Don't-foreclose list.** The future-phase capabilities the MVP architecture must not
+6. **Don't-foreclose list.** The future-phase capabilities the Phase-1 architecture must not
    block (e.g. multi-tenant, mobile, 100× scale). These become constraints for the other
    sessions — especially the Scaling & Performance and Architecture Overview & Component
    Boundaries sessions.
@@ -57,9 +59,9 @@ purpose, recorded.
 ## Output
 Write `architecture/02-phasing-roadmap.md` — the Phasing & Roadmap architecture doc (use
 `templates/architecture-doc-template.md`). Body:
-- **Phase 1 (MVP)** — goal, in-scope capabilities, launch criteria
+- **Phase 1** — goal, in-scope capabilities, launch criteria
 - **Later phases** — a short sketch of Phase 2+, each with its deferred items and rationale
-- **Don't-foreclose list** — constraints the MVP must respect
+- **Don't-foreclose list** — constraints Phase 1 must respect
 - **Phase dependency notes**
 
 Fill the **Decision Summary**, record **Open Questions**, start the **Version Log** at

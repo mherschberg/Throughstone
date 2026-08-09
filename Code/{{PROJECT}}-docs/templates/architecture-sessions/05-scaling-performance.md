@@ -52,7 +52,7 @@ shortcuts are fine and which to avoid cheaply now.
    horizontally-scalable when needed.
 6. **Caching & async.** Where caching helps (and how it's invalidated); what heavy work
    can move to a queue/background job instead of blocking a request.
-7. **Don't-foreclose review.** Walk the MVP shortcuts (single DB, in-memory state,
+7. **Don't-foreclose review.** Walk the Phase-1 shortcuts (single DB, in-memory state,
    synchronous calls, sticky sessions). For each: does it block horizontal scaling later,
    and is there a cheap way to keep the door open now (e.g. externalize session state,
    keep handlers stateless, put an abstraction at the boundary)?

@@ -1,6 +1,6 @@
 # Phase {{N}} — {{PHASE NAME}}
 
-> One-line goal of this phase. (Phase 1 is the MVP.) See `prompts/STEP-index.md` for the
+> One-line goal of this phase. (Phase 1 is your first milestone — an MVP for a new build.) See `prompts/STEP-index.md` for the
 > live roadmap and `Code/{{PROJECT}}-docs/architecture/*-phasing-roadmap.md` for the phase
 > plan.
 

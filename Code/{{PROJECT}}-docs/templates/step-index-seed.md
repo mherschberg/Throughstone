@@ -22,7 +22,11 @@ worked, and completed.
 > **Owner** = who's on it; **Repos** = the repos it expects to touch (a *projection* that may
 > change — it powers the overlap warning, it doesn't reserve anything). Solo, leave them blank.
 
-## Phase 1 — MVP
+## Phase 1 — {{PHASE_1_NAME}}
+<!-- {{PHASE_1_NAME}}: kickoff (BOOTSTRAP-PROMPT.md Stage 1) fills this with the chosen phase
+     name — MVP (the default) / POC / prototype / v1. Its kebab-case form later names the
+     001-<phase-name>/ archive folder, created when STEP-1 is archived. init.sh leaves the
+     placeholder as-is; Check 8 parses the table rows below, not this heading. -->
 
 | STEP | Title | Owner | Status | Repos (projection) | Scope (one line) |
 |------|-------|-------|--------|--------------------|------------------|
