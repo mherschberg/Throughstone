@@ -67,8 +67,8 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    you scaffolded in an earlier run is already registered) or when the project already has some of
    these repos; if `registries/repos.yml` is absent or has no code-repo rows yet (that first run,
    or a mono-repo), nothing is registered and every named repo scaffolds, exactly as before.
-   The first implementation STEP is almost always *"scaffold the repos and the skeleton"* —
-   create each new code repo from
+   When repos still need creating — a first run, the usual case — the first implementation
+   STEP is almost always *"scaffold the repos and the skeleton"*: create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
@@ -92,8 +92,10 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    explain itself. Confirm the repo list with the user — on a first run they're all new; note any
    that already exist (already registered with a filled-in README) so you scaffold only the new
    ones.
-2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order.
-   A typical shape:
+2. **The implementation STEP sequence.** Propose all the Phase-1 STEPs in dependency order —
+   **build or extend what this milestone needs, given what already exists.** On a first run
+   nothing is built yet, so scaffolding and the core data layer come first and you build
+   outward from there; that's the usual case, and the typical shape is:
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
    - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
@@ -101,8 +103,10 @@ STEP's PLAN with its owner rather than silently replacing its index row.
      against the data layer and component boundaries.
    - **Integration / end-to-end** — wire the capabilities together; the launch-criteria
      path from the phase plan works end to end.
-   Adjust to the actual project. Each STEP gets a global STEP number (continuing from
-   STEP-1).
+   On a **re-run**, or a later phase whose scaffold and core data layer already exist, start
+   from what's built and plan the STEPs that **extend** it, rather than re-scaffolding or
+   rebuilding what's already there. Adjust to the actual project. Each STEP gets a
+   global STEP number (continuing from STEP-1).
 3. **Interleave check-in STEPs.** Roughly **every 10–20 STEPs**, add a **Check-in STEP**
    that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
    accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
