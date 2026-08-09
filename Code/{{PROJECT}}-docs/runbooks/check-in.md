@@ -94,6 +94,48 @@ as ADRs. Its review checks the new decisions against the rest of the architectur
 returning to implementation, re-run the planning session if those decisions change the
 remaining roadmap.
 
+### Deferred-coverage sweep
+
+Some architecture docs deliberately leave a fat or fast-moving area only *partly* written up,
+marked `Coverage: deferred` (`METHOD.md` §6): the doc itself exists and is `Current`, but one
+payload was consciously postponed. This is distinct from a `Deferred` **session row** (an
+*optional* session that never ran, which the conditional-session sweep above owns) and from
+later-phase **scope** deferral: here the doc *did* run and exists, and only a sub-area inside it
+is unwritten. That deferral must be **resurfaced, not silently forgotten** —
+each check-in re-reads it and decides its fate, so the gap lives in the roadmap instead of resting
+on a passive line in a doc.
+
+Enumerate every **non-`Deprecated`** `architecture/NN-*.md` carrying `Coverage: deferred` (read the
+`Coverage:` field — don't hard-code a list). A `Status: Deprecated` doc is **listed as retired** by
+the index reconciliation above (`METHOD.md` §6) and is **never** surfaced here for backfill. For
+each deferred doc, weigh the postponed area against what the system now does and what the near-term
+roadmap will build, and record one explicit **disposition** in this check-in report:
+
+- **Backfill now — file a STEP.** The area is needed, or now cheap to finish. File a thin
+  architecture-only follow-up STEP that *finishes the existing doc* (below). Don't write the area
+  up inside the check-in.
+- **Still defer.** Nothing built or planned yet leans on the postponed area. Record *why* the
+  deferral still holds (and, if useful, what would end it); no STEP.
+- **Genuinely risky — seed it now.** Forward work is likely to lean on the un-enumerated part
+  before the next check-in. Don't defer again and don't leave it for a later sweep: file the
+  backfill as a `Planned` STEP **now** *and* add a `registries/risks.yml` row with a revisit
+  trigger, so the gap is both scheduled and tracked as an accepted risk until it lands.
+
+Before filing a backfill STEP, check for an existing `Planned` or `In progress` follow-up for the
+same doc; report and retain it if one exists — do not create a duplicate.
+
+A deferred-coverage backfill is a thin, architecture-only STEP, the same shape as a conditional
+follow-up: its PLAN has one substep that points directly at the deferred `architecture/NN-*.md`
+doc and names the section to finish, and it **reuses that doc's existing number** — it completes an
+existing doc, it does not add a new one. Unlike a conditional follow-up it does **not** take the
+`Conditional session:` title prefix: it is an ordinary `Planned` STEP the next-action resolver
+surfaces as normal planned implementation work (`METHOD.md` §10), not ahead of it. Give the row a
+descriptive title (e.g. `Deferred-coverage backfill: <doc topic>`) so a later check-in can find it.
+The session that runs it enumerates the postponed payload, clears or narrows the doc's `Coverage:`
+line (to `full` once the area is complete), updates related architecture docs and
+`architecture/README.md`, and records significant decisions as ADRs. Do not run the write-up inside
+the check-in itself.
+
 Beyond the architecture docs, sweep four things that rot just as quietly:
 - **Repo READMEs** — every code repo has one, its **Overview** still describes what the repo
   *is*, and the **Setup / Running / Testing** steps still work from a clean checkout. They're
@@ -152,6 +194,9 @@ Write a short **check-in report** under `reports/` in the docs hub. Use
   filed) — with the fixes applied and the bugs filed.
 - **Conditional coverage:** every discovered conditional-session template and its current
   disposition; list any whose trigger fired and the follow-up STEP created or already pending.
+- **Deferred coverage:** each non-`Deprecated` doc carrying `Coverage: deferred`, its recorded
+  disposition (backfill now / still defer / risk-seeded), and any backfill STEP filed or existing
+  one retained; a `Deprecated` such doc is noted as retired, not backfilled.
 - **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
   follow-up STEPs.
 - **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
