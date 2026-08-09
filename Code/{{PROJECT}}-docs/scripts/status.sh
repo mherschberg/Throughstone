@@ -18,10 +18,10 @@ ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 # File assumptions: the generated docs repo sits at Code/<project>-docs/, while the runtime
 # STEP index lives at the project root in prompts/STEP-index.md.
 #
-# THROUGHSTONE_STEP_INDEX is a maintainer-test seam for fixtures. Generated projects should
-# leave it unset and read the canonical prompts index.
+# THROUGHSTONE_STEP_INDEX and THROUGHSTONE_OVERVIEW are maintainer-test seams for fixtures.
+# Generated projects should leave them unset and read the canonical prompts index and overview.
 INDEX="${THROUGHSTONE_STEP_INDEX:-$ROOT/prompts/STEP-index.md}"
-OVERVIEW="$DOCS_DIR/overview.md"
+OVERVIEW="${THROUGHSTONE_OVERVIEW:-$DOCS_DIR/overview.md}"
 
 echo "Throughstone status — $ROOT"
 echo
@@ -216,17 +216,26 @@ fi
 
 # --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
 # Cadence is measured by highest indexed STEP minus the latest STEP whose title looks like a
-# check-in. The helper reports the 10-20 STEP window; METHOD.md remains authoritative.
+# check-in. The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
+# when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
+# at N+5; METHOD.md §10 remains authoritative for the resolver.
+cadence=20
+if [ -f "$OVERVIEW" ]; then
+  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[0-9]+' "$OVERVIEW" | head -1 | grep -oE '[0-9]+')"
+  if [ -n "$n" ] && [ "$n" -gt 0 ]; then cadence="$n"; fi
+fi
+due=$(( cadence - 5 ))
+over=$(( cadence + 5 ))
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))
-  if   [ "$since" -ge 20 ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>20); insert a Check-in STEP now."
-  elif [ "$since" -ge 10 ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the 10–20 window)."
-  else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( 10 - since ))–$(( 20 - since )) STEPs of headroom."
+  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>${over}); insert a Check-in STEP now."
+  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–${over} window)."
+  else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( due - since )) STEPs of headroom."
   fi
-elif [ "$maxnum" -ge 10 ]; then
-  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~10–20)."
+elif [ "$maxnum" -ge "$due" ]; then
+  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."
 else
-  ci="no Check-in STEP yet — fine (${maxnum} STEP(s) in; first due ~STEP-10–20)."
+  ci="no Check-in STEP yet — fine (${maxnum} STEP(s) in; first due ~STEP-${due}–${over})."
 fi
 
 # --- Output -------------------------------------------------------------------

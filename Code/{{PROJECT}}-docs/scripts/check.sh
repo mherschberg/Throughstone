@@ -16,6 +16,7 @@
 #   7. (multi-repo only) No stray files at the workspace root
 #   8. Architecture-session template numbers match the STEP-index seed
 #   9. Conditional-session templates expose the metadata generic review gates require
+#  10. overview.md's optional CHECK-IN-CADENCE marker, if present, is a positive integer
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/check.sh
 # Exit:   non-zero if any hard check FAILs; warnings alone do not fail the run.
@@ -381,6 +382,25 @@ else
   else
     hint "copy an existing conditional template's contract: explicit applicability, 'Run it by name', Output, Next, and both STEP-1 / late-follow-up PLAN, architecture-index, and active-substep bookkeeping. See METHOD.md §4."
   fi
+fi
+
+# --- 10. Check-in cadence marker (overview.md) --------------------------------
+hdr "10. Check-in cadence marker (overview.md)"
+# The optional `<!-- CHECK-IN-CADENCE: N -->` line in overview.md sets the check-in target N
+# (status.sh defaults to 20 when the line is absent). Warn — never fail — if the line is present
+# but N isn't a positive integer; its absence is always fine.
+if [ -f "$OVERVIEW" ]; then
+  if ! grep -qE 'CHECK-IN-CADENCE:' "$OVERVIEW"; then
+    pass "no CHECK-IN-CADENCE line — status.sh uses the default cadence of 20"
+  elif grep -qE 'CHECK-IN-CADENCE:[[:space:]]*[1-9][0-9]*([[:space:]]|-->|$)' "$OVERVIEW"; then
+    pass "CHECK-IN-CADENCE is a positive integer"
+  else
+    warn "overview.md CHECK-IN-CADENCE is not a positive integer — status.sh falls back to the default (20):"
+    printf '         %s\n' "$(grep -E 'CHECK-IN-CADENCE:' "$OVERVIEW" | head -1)"
+    hint "set it to a positive whole number of STEPs (e.g. <!-- CHECK-IN-CADENCE: 20 -->), or delete the line to accept the default."
+  fi
+else
+  pass "no overview.md yet (project not initialized?) — skipping check-in cadence check"
 fi
 
 # --- Summary ------------------------------------------------------------------

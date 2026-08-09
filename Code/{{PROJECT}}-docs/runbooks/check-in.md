@@ -1,7 +1,7 @@
 # Runbook — Periodic Check-In
 
-> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). Roughly **every
-> 10–20 STEPs** the roadmap should include a *Check-in STEP* whose job is to run this
+> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). About **every
+> 20 STEPs** (the project's cadence, adjustable) the roadmap should include a *Check-in STEP* whose job is to run this
 > runbook — the agent proposes one at a sensible breakpoint (e.g. after a capability lands,
 > not mid-feature). When you run that STEP, tell the agent *"run the check-in"* and it
 > follows this file.
@@ -207,4 +207,4 @@ Write a short **check-in report** under `reports/` in the docs hub. Use
 Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
 follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
 `adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
-STEP. Note when the next check-in is due (~10–20 STEPs out).
+STEP. Note when the next check-in is due (at the project's cadence).

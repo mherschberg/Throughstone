@@ -6,7 +6,7 @@
 >   `npm install` / `pip install` / `go get` / `cargo add` — tell your agent *"vet this
 >   dependency."*
 > - **Periodic audit** → run **Parts 2–3** on a cadence: it rides naturally on the **check-in**
->   (`runbooks/check-in.md`, every ~10–20 STEPs), and you also run it whenever a vulnerability
+>   (`runbooks/check-in.md`, at the project's cadence), and you also run it whenever a vulnerability
 >   advisory lands for something you use.
 >
 > **Optional and yours to customize.** Like the release runbook, this leaves the specific tools

@@ -6,6 +6,12 @@
      reads "not-started", opening this project in an AI agent starts the kickoff interview
      automatically; once "kickoff-complete", agents resume from prompts/STEP-index.md instead. -->
 
+<!-- CHECK-IN-CADENCE: 20 -->
+<!-- ^ Check-in cadence (optional): aim for a Check-in STEP about every this-many STEPs. 20 is the
+     recommended default — edit it for a tighter (e.g. 15) or looser (e.g. 50) rhythm, or delete the
+     line to accept 20. It stays a judgment-based guideline. See METHOD.md §5 for how status.sh uses
+     it (a heads-up 5 STEPs before the target, overdue 5 after). -->
+
 > This is the template for your project brief. `init.sh` creates
 > `Code/{{PROJECT}}-docs/overview.md` from it — **open that copy and fill it in** (1–2
 > pages). It's the seed your agent uses to kick off the project. You don't need every

@@ -3,7 +3,7 @@
 > **How to run:** This is an **operational procedure, not a STEP** (like the release runbook),
 > with two modes:
 > - **Scheduled rotation** → run the checklist (**Part 1**) on a cadence: it rides naturally on
->   the **check-in** (`runbooks/check-in.md`, every ~10–20 STEPs), and on each secret's own
+>   the **check-in** (`runbooks/check-in.md`, at the project's cadence), and on each secret's own
 >   expiry/rotation interval. Tell your agent *"rotate the secrets."*
 > - **Suspected leak / exposure** → an exposed credential is an emergency: run **Part 2** *now*.
 >   Tell your agent *"we may have leaked a secret"* (or *"rotate this credential"*).
