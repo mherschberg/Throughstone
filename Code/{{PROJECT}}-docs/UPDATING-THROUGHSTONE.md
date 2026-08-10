@@ -77,6 +77,19 @@ not fail the check.
 
 ### 1.7 migration
 
+**Upgrading from 1.6? Start here.** This release rewrites no project files. Only two defaults
+shift, and only once you pull the new tooling/templates: the doc-maturity ladder and the check-in
+cadence. Fast path:
+
+1. Pull the process docs + tooling as one review-required group (`METHOD.md`,
+   `runbooks/check-in.md`, `templates/planning-session.md`, `scripts/status.sh`, `scripts/check.sh`).
+2. Want the old check-in window (DUE 10 / OVERDUE 20)? Add `<!-- CHECK-IN-CADENCE: 15 -->` to
+   `overview.md`; otherwise omit it to take the new default of 20 (DUE 15 / OVERDUE 25).
+3. Optionally reinterpret old `Status: MVP` / `Status: Stable` architecture docs as
+   `Status: Current` (no forced change; `check.sh` keeps passing either way).
+4. Create `inputs/` and copy its `README.md` if you want the bring-your-own-docs drop point.
+5. Everything else is future-only or purely behavioral — the per-area detail below covers each.
+
 The **1.7 base refactors** generalize the method — flexible Phase-1 naming, decoupled
 doc metadata, a deferred-coverage check-in sweep, a recorded release stage, and existence-aware
 repo scaffolding — so it also fits later phases, re-runs, custom conventions, and existing
