@@ -56,6 +56,7 @@ This project follows the method in **`Code/{{PROJECT}}-docs/METHOD.md`** — rea
 - Durable docs live in `Code/{{PROJECT}}-docs/`:
   - `architecture/` — *what* the system is (versioned, living).
   - `adr/` — *why* it's that way (point-in-time decision records).
+  - `inputs/` — documents *you* provide that inform the design (specs, prior docs, UI designs); the sessions read from here.
 - The roadmap and status are in `prompts/STEP-index.md`.
 
 ## Architecture sessions  (how to run one)
@@ -69,8 +70,8 @@ interview the user one decision at a time, then write the output architecture do
 **"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
 <session label>" are all the user's go-ahead — begin in that same reply.** Don't
 acknowledge, summarize the file, restate the plan, or ask whether to start (no "Ready when
-you are"). Read root `.throughstone/local-user.md`, `overview.md`, and any earlier
-architecture docs silently, then immediately **ask the session's first question**,
+you are"). Read root `.throughstone/local-user.md`, `overview.md`, anything relevant in `inputs/`, and
+any earlier architecture docs silently, then immediately **ask the session's first question**,
 calibrated to the profile's experience level. The user types one short command and expects
 the first question back, not a confirmation prompt.
 
@@ -87,8 +88,10 @@ periodic check-in may also schedule a conditional later as a standalone
 `Conditional session: <topic>` follow-up STEP; in that mode, read its active PLAN for the
 exact invocation and output-doc number instead of reopening STEP-1.
 
-Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md` + earlier
-architecture docs), so context can be cleared between sessions — state lives in files.
+Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md`, anything
+relevant in `Code/{{PROJECT}}-docs/inputs/`, and earlier architecture docs), so context can be
+cleared between sessions — state lives in files. If the user provides a document in chat, save
+a copy into `inputs/` so later sessions and fresh chats can use it.
 
 When STEP-1 is complete (the Cross-Cutting Review passed), the user moves into building by
 saying **"run the planning session"** — read

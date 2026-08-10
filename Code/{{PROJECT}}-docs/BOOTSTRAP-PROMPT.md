@@ -27,6 +27,16 @@ right here in the chat — or to expand on the one-line description `init.sh` al
 `Code/{{PROJECT}}-docs/overview.md`** for their review. (If they'd rather paste or point you
 at a longer brief they already have, use that instead.)
 
+**Tell the user, up front, that they can bring documents they already have.** Anything that
+informs the design — a product spec or PRD, prior architecture or design docs, a protocol/API
+specification, UI designs or mockups, competitor and prior-art research — belongs in
+`Code/{{PROJECT}}-docs/inputs/`, and stays available to **every** architecture session from
+here on, not just this kickoff. If the user pastes a document or points you at one in chat,
+**save a copy into `inputs/`** (clear filename; original format is fine) so it persists for
+later sessions and fresh chats. The architecture sessions read the relevant inputs and build
+on them instead of re-deriving what the user already knows. See
+`Code/{{PROJECT}}-docs/inputs/README.md`.
+
 ## Work through these stages, pausing at each checkpoint
 
 The user may be a less-experienced developer. **Guide, don't assume.** Recommend sensible

@@ -7,6 +7,7 @@
 > the System Overview, Requirements & Non-Goals architecture doc and updates
 > `prompts/STEP-index.md`.
 > Have `overview.md` (your 1–2 page brief) available — the session starts from it.
+> **Already have a product spec, PRD, or requirements doc?** Put it in `inputs/` (or paste it / point me at it in chat and I'll save a copy there); I'll build on it instead of re-asking what it already answers.
 > **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default level of detail; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}
@@ -37,8 +38,9 @@ No code in this session. The output is a Markdown doc.
 ## How this session works
 1. **One decision at a time.** Ask, show 2–4 concrete options/examples where useful, then
    **wait for the answer**. Don't assume.
-2. **Start from what's known.** Pull everything you can from `overview.md` first; ask only
-   what's missing or ambiguous. Don't re-ask what the brief already answers.
+2. **Start from what's known.** Pull everything you can from `overview.md` and anything the
+   user put in `inputs/` first; ask only what's missing or ambiguous. Don't re-ask what the
+   brief or a provided document already answers.
 3. **Recommend, then flag the tradeoff.** Where there's a sensible default for a project at
    this stage, propose it — but say what it rules out later.
 4. **Push gently on vague answers.** "It should be fast" / "for everyone" → ask for
@@ -106,4 +108,4 @@ numbered core session, use `Run STEP-1.N: <Session label from the index>` (for e
 `Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
 conditional's template. See the next-action resolver in `METHOD.md` §10.
 
-**Begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more.
+**Begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more.

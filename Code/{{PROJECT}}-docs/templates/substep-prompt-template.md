@@ -21,6 +21,7 @@
                                       Stage 0, create it,
                                       and calibrate explanations/questions to it
        - overview.md                — project brief
+       - inputs/                    — specs & prior docs you provided (e.g. a protocol spec to build against)
        - architecture/README.md     — the architecture docs (what the system is)
        - adr/README.md              — the decision records (why it's that way)
        - coding-standards/README.md — the per-language standards

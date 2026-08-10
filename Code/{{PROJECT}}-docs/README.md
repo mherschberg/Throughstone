@@ -24,6 +24,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`AGENTS.md`](AGENTS.md) | Canonical agent context + the next-action resolver. |
 | [`ONBOARDING.md`](ONBOARDING.md) | New contributor setup guide for joining an existing project and starting the contributor's first STEP. |
 | [`UPDATING-THROUGHSTONE.md`](UPDATING-THROUGHSTONE.md) | How to compare and selectively adopt newer Throughstone scaffold/process changes after bootstrap. |
+| [`inputs/`](inputs/README.md) | Documents *you* bring that inform the design — specs, prior docs, UI designs, research. The architecture sessions read from here. |
 | [`architecture/`](architecture/README.md) | *What* the system is — living, versioned design docs (indexed). |
 | [`adr/`](adr/README.md) | *Why* it's that way — point-in-time decision records (indexed). |
 | [`coding-standards/`](coding-standards/README.md) | Per-language engineering standards (indexed). |

@@ -17,6 +17,10 @@
 > pages). It's the seed your agent uses to kick off the project. You don't need every
 > answer — the architecture sessions draw the rest out of you. Write what you know; leave a
 > `?` where you're unsure.
+>
+> **Already have design material** — a product spec, prior architecture or protocol docs, UI
+> designs? Put the actual documents in `inputs/` (see `inputs/README.md`); the sessions read
+> from there too, so you don't need to restate them here.
 
 ## In one sentence
 <!-- What is this, for whom? e.g. "A scheduling assistant that negotiates meeting times
@@ -67,4 +71,6 @@
 -
 
 ## Anything else
-<!-- Prior art, inspirations, a rough sketch, links, a competitor you're reacting to. -->
+<!-- Prior art, inspirations, a rough sketch, links, a competitor you're reacting to.
+     Have actual documents — specs, prior architecture/protocol docs, UI designs? Put them
+     in `inputs/` rather than pasting them here (see `inputs/README.md`). -->

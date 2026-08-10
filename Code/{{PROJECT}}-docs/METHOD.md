@@ -161,9 +161,22 @@ it interviews you one decision at a time, then writes the output doc and updates
 *"STEP-1.N"* and *"session N.M"* forms also work, with or without a leading "Run" and with
 or without `: <session label>`, but the labeled form gives chat/task UIs a clearer title.
 
-Each session reads what it needs (`overview.md` + earlier architecture docs) from disk, so
-**you can clear the chat / start fresh between sessions** — the state lives in files, not
-in the conversation. This keeps STEP-1's many sessions from piling up in one context.
+Each session reads what it needs (`overview.md`, anything relevant in `inputs/`, and earlier
+architecture docs) from disk, so **you can clear the chat / start fresh between sessions** —
+the state lives in files, not in the conversation. This keeps STEP-1's many sessions from
+piling up in one context.
+
+### Bringing documents you already have  *(the `inputs/` folder)*
+
+You don't have to start from a blank page. If you already have material that informs the
+design — a product spec or PRD, prior architecture or design docs, a protocol or API
+specification, UI designs, mockups or exported design files, competitor and prior-art
+research, diagrams — put it in `inputs/` (`Code/{{PROJECT}}-docs/inputs/`, any format). The
+architecture sessions read the relevant documents from there and build on them instead of
+re-deriving what you already know; hand a session a document **in chat** instead and it saves
+a copy into `inputs/` so it persists for later sessions and fresh chats. The folder is durable
+and **not STEP-1-only** — a later phase, a V2, or a check-in can drop in new inputs the same
+way. See `inputs/README.md`.
 
 ### Sessions are re-runnable
 A session isn't a one-time gate. If an assumption changes later — scaling needs grow, the

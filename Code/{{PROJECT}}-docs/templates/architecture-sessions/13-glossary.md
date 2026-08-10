@@ -71,7 +71,7 @@ conditional's template. See the next-action resolver in `METHOD.md` §10.
 **Begin now — in this same reply.** "STEP-1.13" or "session 1.13", with or without a leading
 "Run" and with or without ": Glossary", is your go-ahead, not a request for acknowledgement:
 don't say "ready when you are", don't recap this file, don't ask whether to start. Read
-`overview.md` and all the architecture docs silently. Then, in this one reply:
+`overview.md`, anything relevant in `inputs/`, and all the architecture docs silently. Then, in this one reply:
 **(1)** tell the user — in the one or two sentences from **What this session does** above —
 what you're about to do (plain language); then **(2)** immediately present the first batch of
 terms you've gathered (with proposed plain-language definitions) for them to confirm or
