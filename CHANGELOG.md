@@ -7,6 +7,33 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [1.7.1] - Unreleased
+
+A small follow-up that gives the **`inputs/` folder** (added in 1.7.0) a lifecycle, so brought-in
+documents don't quietly go stale as the generated `architecture/` docs supersede them.
+Greenfield-inert: a fresh project ships an empty ledger and behaves exactly as before.
+
+### Added
+- **Inputs index** (`Code/{{PROJECT}}-docs/inputs/inputs-index.md`) — a ledger that records, per
+  input, which parts a generated `architecture/` / `adr/` doc has superseded and which still hold
+  (section-level where the input's structure allows, whole-doc otherwise). It is written when an
+  input is imported and when a session captures its content.
+- **`inputs/archive/` retirement** — a fully-superseded input is *moved* there (a move, never an
+  edit or a delete); sessions read `inputs/` but not `inputs/archive/`, so a captured document stops
+  reading as current intent while it is kept for history.
+- **Check-in inputs sweep** — the periodic check-in reconciles the ledger against the architecture
+  docs, surfaces a newly-superseded input for a retire/keep decision (never auto-moving), and
+  records the outcome in the check-in report.
+
+### Changed
+- **Inputs are point-in-time; `architecture/` is the living truth.** Where a generated
+  `architecture/` or `adr/` doc covers the same ground as an input, the generated doc wins.
+  Architecture-grade inputs are lifted into `architecture/` promptly — a PRD synthesized, a
+  protocol/API spec or other finished doc copied or lightly reformatted — rather than left living in
+  `inputs/`. The system-overview, architecture-overview, substep, and implementation-planning
+  reminders now read live inputs (not `inputs/archive/`) and treat them as a starting point, not
+  current truth.
+
 ## [1.7.0] - 2026-08-10
 
 A **base-refactor** release that generalizes the method. It
@@ -373,6 +400,7 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[1.7.1]: https://github.com/mherschberg/Throughstone/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/mherschberg/Throughstone/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/mherschberg/Throughstone/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/mherschberg/Throughstone/compare/v1.4.0...v1.5.0
