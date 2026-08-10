@@ -176,7 +176,15 @@ architecture sessions read the relevant documents from there and build on them i
 re-deriving what you already know; hand a session a document **in chat** instead and it saves
 a copy into `inputs/` so it persists for later sessions and fresh chats. The folder is durable
 and **not STEP-1-only** — a later phase, a V2, or a check-in can drop in new inputs the same
-way. See `inputs/README.md`.
+way.
+
+These documents are **point-in-time**: a starting point, not the living source of truth. As the
+sessions capture an input's content into `architecture/` — synthesized for a PRD, or lifted as a
+near-verbatim copy for a spec or other finished doc — that generated doc becomes the truth and the
+captured parts go stale, so `inputs/` carries a small ledger (`inputs/inputs-index.md`) of what each
+input still holds vs. what's been superseded, and a fully-superseded input is retired to
+`inputs/archive/`, which sessions don't read. The periodic check-in reconciles this (§5). See
+`inputs/README.md`.
 
 ### Sessions are re-runnable
 A session isn't a one-time gate. If an assumption changes later — scaling needs grow, the

@@ -6,7 +6,7 @@
 > Reads `overview.md`, the System Overview, Requirements & Non-Goals architecture doc
 > (`architecture/*-system-overview.md`), and
 > the Phasing & Roadmap architecture doc (`architecture/*-phasing-roadmap.md`) first.
-> **Have existing architecture docs, system diagrams, or a protocol/API spec?** Put them in `inputs/` (or share them in chat and I'll save copies there); I'll design from them rather than starting cold.
+> **Have existing architecture docs, system diagrams, or a protocol/API spec?** Put them in `inputs/` (or share them in chat and I'll save copies there); I'll design from them rather than starting cold. These are point-in-time inputs: I read the live ones (not `inputs/archive/`), and where an `architecture/` doc already covers the same ground, that doc wins.
 > **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default level of detail; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}

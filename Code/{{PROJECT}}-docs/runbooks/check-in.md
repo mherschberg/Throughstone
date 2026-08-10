@@ -157,6 +157,38 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
   create missing source artifacts, and file follow-up STEPs for anything whose trigger has
   fired or whose severity is no longer acceptable.
 
+### Inputs sweep
+
+The `inputs/` folder holds **point-in-time** source documents (a PRD, a prior design doc, a
+protocol/API spec, UI designs); `architecture/` holds the living truth (`inputs/README.md`,
+`METHOD.md` §4). As the build captures that material into `architecture/`, an input's captured
+parts go stale — but nothing revisits `inputs/` between check-ins, so a superseded seed keeps
+reading as current intent until it's reconciled here.
+
+Read `inputs/inputs-index.md` — the ledger of which parts of which input are still `Live` vs.
+`Superseded` (`README.md` and `inputs-index.md` are guidance, not inputs). Reconcile it against the
+architecture docs, **treating only live inputs as current: `inputs/archive/` is history and is not
+swept**, the same way a `Status: Deprecated` doc is listed but not reconciled as live
+(`METHOD.md` §6):
+
+- **Drift into the index.** For each input file under `inputs/` (excluding `inputs/archive/`),
+  confirm it has row(s) in the ledger; add `Live` rows for anything imported but never recorded, and
+  flag ledger rows whose input file is gone.
+- **Newly superseded.** For each `Live` row, check whether a **`Current`** `architecture/` doc (or
+  an ADR) now covers that part. If it does, surface it and let the user disposition it: **mark
+  `Superseded`** (update the row, name the covering doc) or **keep `Live`** (still authoritative —
+  e.g. an external spec the design hasn't diverged from, or a seed not yet fully captured). If an
+  input is itself architecture-grade — a protocol/API spec, a formal contract, a finished design
+  doc — and still lives only in `inputs/`, flag it to be **lifted** into `architecture/` (often a
+  whole-file copy or a light reformat to match doc conventions), then marked `Superseded` here;
+  inputs are never the living home. (Use judgment, though — some inputs are better **referenced**
+  from `architecture/` and kept here, e.g. a large external standard you only partially implement;
+  that's one example, not the only one.)
+- **Retire the fully superseded.** When **every** row for an input is `Superseded`, offer to retire
+  it: **move the file to `inputs/archive/`** (sessions stop reading it) and leave its rows in the
+  ledger as the record. **Surface-and-decide — never auto-move or auto-delete a file;** a still-`Live`
+  input (e.g. an external contract the design still complies with) is never flagged as superseded.
+
 ### Security-review gate
 
 Nudge security deliberately, but do not turn every check-in into a full audit. Read
@@ -197,6 +229,9 @@ Write a short **check-in report** under `reports/` in the docs hub. Use
 - **Deferred coverage:** each non-`Deprecated` doc carrying `Coverage: deferred`, its recorded
   disposition (backfill now / still defer / risk-seeded), and any backfill STEP filed or existing
   one retained; a `Deprecated` such doc is noted as retired, not backfilled.
+- **Inputs:** live inputs reconciled against the architecture docs — rows newly marked `Superseded`
+  (with the covering doc), any input retired to `inputs/archive/`, and any import missing from
+  `inputs/inputs-index.md` that was added; `inputs/archive/` entries are noted as retired, not swept.
 - **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
   follow-up STEPs.
 - **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
