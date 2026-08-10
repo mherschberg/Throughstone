@@ -6,6 +6,13 @@
 # architecture docs before a design change. Update this whenever a repo is created. Tooling/CI
 # can read it to stay in sync. See METHOD.md §7.
 #
+# `location:` is where the repo lives — by default a `Code/*` sibling under the workspace root,
+# written workspace-root-relative (e.g. Code/{{PROJECT}}-api/). It MAY instead point OUTSIDE the
+# `Code/*` shell — an absolute path or any other arbitrary path — for a repo referenced in place
+# where it lives, rather than created as a sibling. setup-workspace.sh uses `location`
+# verbatim (clones from `remote` into it, or references it in place when there's no remote), so
+# keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
+#
 # Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
 # yet — this inventory describes the post-split (multi-repo) target.
 #
