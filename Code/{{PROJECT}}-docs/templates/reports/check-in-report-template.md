@@ -15,6 +15,7 @@
 | Repo READMEs | {{repos}} | {{none / summary}} | {{updated / follow-up}} |
 | Interface contracts | {{artifacts}} | {{none / summary}} | {{updated / follow-up}} |
 | Docstrings | {{areas}} | {{none / summary}} | {{updated / follow-up}} |
+| Inputs vs. architecture | {{inputs/inputs-index.md}} | {{none / rows superseded / retired to archive}} | {{index updated / archived / follow-up}} |
 
 ## Conditional Coverage
 
