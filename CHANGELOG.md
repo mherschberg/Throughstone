@@ -7,6 +7,101 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [1.7.0] - Unreleased
+
+A **base-refactor** release that generalizes the method. It
+removes assumptions baked in for brand-new, MVP-first projects, so the method also fits later
+phases, re-runs, custom conventions, and existing codebases. **Two opt-outable default shifts**
+(the doc-maturity ladder and the check-in cadence); nothing existing is force-migrated.
+
+### Added
+- Optional **`Coverage:`** field on architecture docs (`full` / `deferred` / `enumerated to
+  depth N`) — records a deliberately partial area without abusing `Status`.
+- **`inputs/` folder** (`Code/{{PROJECT}}-docs/inputs/`) — a durable home for documents *you*
+  provide that inform the design: product specs / PRDs, prior or external architecture/design
+  docs, protocol/API specifications, UI designs and mockups, prior-art research. The kickoff and
+  every architecture session read the relevant inputs and build on them instead of re-deriving
+  what you already know; a document handed to the agent in chat is saved into `inputs/` so it
+  persists across the fresh-chat-per-session model. Not STEP-1-only — later phases and check-ins
+  can add to it, and the implementation planning session and substep template point at it too.
+
+### Changed
+- **Architecture-doc metadata decoupled** into three independent header facts: **`Version`**
+  (identity; `major` = a breaking architectural change, no longer a maturity "era", so a house
+  version scheme is fine), **`Status`** (maturity), and optional **`Coverage`** (completeness).
+  The **doc-maturity ladder is redefined `Draft → Current → Deprecated`**, retiring the `MVP` and
+  `Stable` rungs; the periodic check-in no longer reconciles `Status: Deprecated` docs.
+- **Periodic check-in resurfaces deferred coverage:** the check-in now runs a **deferred-coverage
+  sweep** — every non-`Deprecated` architecture doc carrying `Coverage: deferred` gets an explicit
+  disposition each check-in (backfill now / still defer / seed a `Planned` backfill STEP + a
+  tracked `risks.yml` risk), and a thin architecture-only STEP finishes the doc when it's time. A
+  `Deprecated` deferred doc is listed as retired, never backfilled. Greenfield-invisible unless a
+  doc marks `Coverage: deferred`.
+- **Phase 1 is a chosen first milestone, not always an MVP:** Phase 1 is now defined as *the first
+  release-level milestone*, with its kind chosen at kickoff — **MVP / POC / prototype / v1**, MVP
+  recommended but no longer assumed. The chosen name drives both the phase label
+  (`## Phase 1 — <name>`) and the phase folder (`prompts/001-<phase-name>/`). The pre-named
+  `prompts/001-mvp/` folder is **no longer shipped** — the phase folder is created at STEP-1
+  archive time from the index heading's name (an MVP archives to `001-mvp/`, a POC to `001-poc/`),
+  with no `status.sh` / `check.sh` change (they key on index rows, not folder names). Greenfield
+  that takes the MVP suggestion is byte-identical; kickoff now asks one question instead of
+  assuming.
+- **Release/launch stage is a recorded project fact:** the method now separates a project's
+  **release stage** — how widely and to whom the system ships (pre-launch → internal → closed /
+  public beta → GA) — from Phase-1 *scope* (MVP / POC / v1) and doc *maturity* (Draft / Current /
+  Deprecated); the three no longer collapse into "MVP." `overview.md` gains an optional **Release
+  stage / launch target** line and kickoff asks it (leading with a pre-launch default). Architecture
+  sessions now calibrate their **breadth** defaults (how big / how public) to the recorded stage +
+  load and their **rigor** (security, privacy, availability) to blast radius / data sensitivity,
+  instead of an assumed "MVP" — an early stage is never a license to lower rigor on a high-stakes
+  system. Additive and opt-outable: the decisions and recommendations are unchanged if you take the
+  default, and `check.sh` never reads the line. No `status.sh` / `check.sh` / STEP-grammar change.
+- **Planning session scaffolds only unregistered repos:** the implementation planning session's
+  repo-scaffolding work-item is now **existence-aware** — it scaffolds each repo the architecture
+  names only if that repo isn't already registered in `registries/repos.yml` with a filled-in README;
+  an already-registered repo is **left in place, not re-created**. It degrades gracefully when
+  `repos.yml` is absent or has no code-repo rows (a mono-repo, or a greenfield first run) — nothing is
+  registered, so every named repo scaffolds exactly as before. Because it keys on the repo's actual
+  state (is it already registered?) rather than how the project began, it also stops a planning
+  **re-run** from proposing to re-scaffold an existing repo. Greenfield
+  first run is byte-identical; no `status.sh` / `check.sh` / STEP-grammar change.
+- **Planning STEP-shape is milestone-relative:** the implementation planning session's STEP sequence
+  is no longer written build-from-scratch. It now plans to **build or extend what the milestone needs,
+  in dependency order, given what already exists** — scaffolding and the core data layer come first
+  only when they don't exist yet (a first run), with the scaffold → data → capabilities → integration
+  sequence kept as the worked example for that case; a re-run or a later phase starts from what's built
+  and extends it. Like the existence-aware scaffolding above it keys on observable state (what's
+  already built), so it also fixes a latent greenfield **re-run / later-phase** case where the old
+  shape read as rebuild-from-scratch. Greenfield first run is byte-identical (nothing built → the same
+  scaffold-first outline); no `status.sh` / `check.sh` / STEP-grammar change.
+- **Planning session targets the first uncompleted phase:** the implementation planning session now
+  plans **the first uncompleted phase** — the lowest-numbered roadmap phase whose STEPs aren't all
+  complete (read from `prompts/STEP-index.md` + the Phasing & Roadmap doc) — instead of always
+  **Phase 1**, defaulting to Phase 1 on the first run. On a later phase or a re-run it reads *that*
+  phase's scope and outlines *its* STEPs, rather than being told to pull "Phase 1." Like the two
+  planning-session changes above it keys on observable state (which phase is done), so it also fixes a
+  latent greenfield **later-phase** case. Greenfield first run is byte-identical (the first uncompleted
+  phase is Phase 1 → the same outline); no `status.sh` / `check.sh` / STEP-grammar change.
+- **Check-in cadence is a project-selectable default:** the check-in rhythm — how often the roadmap
+  interleaves a **Check-in STEP** — was a hardwired 10–20 STEP window (`status.sh` flagged DUE at 10,
+  OVERDUE at 20). It is now a **project-selectable number N**, recommended **20**, recorded as an
+  optional `<!-- CHECK-IN-CADENCE: N -->` line in `overview.md`; `status.sh` reads it (defaulting to 20
+  when the line is absent) and flags a heads-up (DUE) at `N-5` and OVERDUE at `N+5`. This **deliberately
+  recenters the default** notice window from DUE 10 / OVERDUE 20 onto the target 20 (→ **DUE 15 /
+  OVERDUE 25**) — one of the two opt-outable default shifts noted above. Nothing is lost: 15 reproduces
+  the previous window (DUE 10 / OVERDUE 20) and any rhythm is one number away (50 → DUE 45 / OVERDUE 55).
+  The cadence stays a judgment-based guideline — only the default notice/overdue thresholds move, and
+  the human still places each check-in at a sensible breakpoint. `check.sh` warns (never fails) if the
+  marker is present but not a positive integer; no `status.sh` failure path and no STEP-grammar change.
+- **Workspace model accepts a repo registered in place:** a repo may be registered in
+  `registries/repos.yml` by a **`location:` outside the `Code/*` sibling shell** — an absolute or
+  otherwise arbitrary path — so a repo that lives elsewhere is referenced where it sits instead of
+  created as a `Code/*` sibling. `scripts/setup-workspace.sh` already honors `location:` verbatim
+  (cloning from `remote:` into it, or referencing the repo in place when there's no remote), so this
+  is a documentation clarification with no tooling change; branch-per-STEP and the overlap warning key
+  on repo identity, not location, so an in-place repo participates unchanged. The `Code/*` sibling
+  layout stays the default and greenfield is byte-unchanged.
+
 ## [1.6.0] - 2026-07-09
 
 A **release-readiness and operational discipline** release: it adds a structured security

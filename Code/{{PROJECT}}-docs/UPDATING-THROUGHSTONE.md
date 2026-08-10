@@ -75,6 +75,155 @@ During an update, treat those old `overview.md` sections as legacy project-state
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
 not fail the check.
 
+### 1.7 migration
+
+The **1.7 base refactors** generalize the method — flexible Phase-1 naming, decoupled
+doc metadata, a deferred-coverage check-in sweep, a recorded release stage, and existence-aware
+repo scaffolding — so it also fits later phases, re-runs, custom conventions, and existing
+codebases. Overall this is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
+rules apply unchanged.
+There are **two opt-outable default shifts** (the doc-maturity ladder and the check-in cadence);
+apply each area as a coherent review-required group, as with the legacy migration above.
+
+**Doc metadata & maturity ladder.**
+
+- *Templates for future use* (`templates/architecture-doc-template.md`): new architecture docs get
+  the `Draft → Current → Deprecated` comment and the optional `Coverage:` field; existing generated
+  docs are not rewritten.
+- *Process docs* (`METHOD.md` §6, `runbooks/check-in.md`): adopt the new Version / Status / Coverage
+  semantics and the "check-in skips `Status: Deprecated`" rule.
+- *Project state* (existing `architecture/*.md`): never auto-updated. A doc still carrying
+  `Status: MVP` or `Status: Stable` keeps passing `check.sh` (it validates the field's presence,
+  not its value), but those rungs are retired. Recommended one-time, manual reinterpretation:
+  `Status: MVP → Current`, `Status: Stable → Current`. Adopt `Deprecated` / `Coverage` where useful.
+  No forced change.
+
+**Deferred-coverage check-in sweep.**
+
+- *Process docs* (`runbooks/check-in.md`): the periodic check-in gains a deferred-coverage sweep. It
+  reads the `Coverage:` field above, so it only acts on docs marked `Coverage: deferred`; a project
+  that never defers coverage sees no change. No `status.sh` change.
+- *Project state* (existing `architecture/*.md`): never auto-updated. If a doc carries
+  `Coverage: deferred`, the next check-in surfaces it with a disposition (backfill / still defer /
+  seed a `Planned` STEP + `risks.yml` risk); a `Status: Deprecated` deferred doc is listed as
+  retired, never backfilled.
+
+**Flexible Phase-1 naming.**
+
+- *Templates for future use* (`templates/step-index-seed.md`, `templates/step-plan-template.md`,
+  `templates/phase-readme-template.md`, `templates/architecture-sessions/02-phasing-roadmap.md`,
+  `BOOTSTRAP-PROMPT.md`): new projects get the `{{PHASE_1_NAME}}` heading placeholder, the kickoff
+  milestone-kind question, and the milestone-general wording; existing generated files are not
+  rewritten.
+- *Process docs* (`METHOD.md` §1, `templates/architecture-sessions/14-cross-cutting-review.md`,
+  `runbooks/collaboration.md`, `prompts/README.md`): adopt the create-at-archive convention — the
+  Phase-1 folder is created from the `## Phase 1 — <name>` heading when STEP-1 is archived, not
+  shipped pre-named — and the reworded "Phase-1 shortcut" foreclosure phrase (also in
+  `templates/architecture-sessions/05-scaling-performance.md`).
+- *Project state* (an existing project's `prompts/001-mvp/` folder and its `## Phase 1 — MVP`
+  heading): never auto-updated. A project already on `001-mvp/` keeps it — the archive folder that
+  exists is the one STEP-1 landed in, and nothing renames it. New phases (Phase 2+) already create
+  their own folders. No forced change; `status.sh` / `check.sh` are unaffected (they key on index
+  rows, not folder names).
+
+**Release stage as a recorded fact.**
+
+- *Templates for future use* (`templates/overview-template.md`, `BOOTSTRAP-PROMPT.md`): new projects
+  get the optional **Release stage / launch target** line and a Stage-1 kickoff question (leading
+  with a pre-launch default); existing generated `overview.md` files are not rewritten.
+- *Process docs* (`METHOD.md` §4, `templates/architecture-sessions/03`, `04`, `05`, `06`, `07`, `08`,
+  `09`, `10`, `conditional-identity-auth.md`, `conditional-privacy-compliance.md`,
+  `registries/risks.yml`): sessions now calibrate their *breadth* defaults (how big / how public) to
+  the recorded release stage + load, and their *rigor* (security, privacy, availability) to blast
+  radius / data sensitivity — replacing the old "for an MVP" shorthand. The decisions reached and
+  docs produced are unchanged; only the framing moves off an assumed "MVP."
+- *Project state* (an existing project's `overview.md`): never auto-updated. Add the optional Release
+  stage line if it's useful — nothing requires it, and `check.sh` never reads it. The release stage
+  stays independent of the Phase-1 scope name and of doc `Status`; the three axes don't collide.
+
+**Existence-aware repo scaffolding.**
+
+- *Process docs* (`templates/planning-session.md`): the implementation planning session's
+  repo-scaffolding work-item now scaffolds a repo only if it isn't already registered in
+  `registries/repos.yml` with a filled-in README; an already-registered repo is left in place, not
+  re-created. Adopt the reworded work-item. No `status.sh` / `check.sh` change.
+- *Project state* (existing `registries/repos.yml` and existing repos): never auto-updated. Nothing is
+  rewritten. The change is behavioral — a planning re-run (or a planning pass over a project that
+  already has these repos) no longer proposes re-scaffolding a repo that's already registered; a first
+  run with no code-repo rows scaffolds everything exactly as before.
+
+**Milestone-relative planning STEP-shape.**
+
+- *Process docs* (`templates/planning-session.md`): the implementation planning session's STEP
+  sequence (work-item 2, plus work-item 1's "first STEP is scaffold" line) is now milestone-relative —
+  build or extend what the milestone needs, in dependency order, given what already exists, with the
+  scaffold → data → capabilities → integration shape kept as the worked example for a first run. Adopt
+  the reworded work-items. No `status.sh` / `check.sh` change.
+- *Project state* (an existing project's roadmap in `prompts/STEP-index.md`): never auto-updated.
+  Nothing is rewritten. The change is behavioral — a planning re-run or a later-phase plan now reads as
+  *extend what's built* rather than *rebuild from scratch*; a first run with nothing built produces the
+  same scaffold-first outline as before.
+
+**Target the first uncompleted phase in planning.**
+
+- *Process docs* (`templates/planning-session.md`): the implementation planning session now targets
+  **the first uncompleted phase** — the lowest-numbered roadmap phase whose STEPs aren't all complete —
+  instead of hardcoding **Phase 1** throughout; it defaults to Phase 1 on the first run. Adopt the
+  reworded references (nine "Phase 1" mentions → "the target phase") and the new bullet deriving the
+  phase from the roadmap. No `status.sh` / `check.sh` change.
+- *Project state* (an existing project's roadmap in `prompts/STEP-index.md`): never auto-updated.
+  Nothing is rewritten. The change is behavioral — once Phase 1 is complete, a planning re-run reads the
+  next phase's scope and outlines its STEPs instead of being pointed back at Phase 1; a first run still
+  targets Phase 1 with the same outline as before.
+
+**Project-selectable check-in cadence.**
+
+- *Templates for future use* (`templates/overview-template.md`): new projects get the optional,
+  documented `<!-- CHECK-IN-CADENCE: 20 -->` marker beside `PROJECT-STATUS`; existing generated
+  `overview.md` files are not rewritten.
+- *Process docs / tooling* (`scripts/status.sh`, `scripts/check.sh`, `METHOD.md` §5 + §10.7,
+  `AGENTS.md`, `templates/planning-session.md`, `runbooks/check-in.md`, `runbooks/README.md`,
+  `runbooks/secrets-rotation.md`, `runbooks/dependency-supply-chain.md`, `prompts/README.md`): the
+  check-in rhythm is reframed as "about every 20 STEPs (the project's cadence, adjustable)", and the
+  updated `status.sh` reads a `CHECK-IN-CADENCE` marker from `overview.md` (default 20), flagging a
+  heads-up (DUE) at `N-5` and OVERDUE at `N+5`. **This is a deliberate, opt-outable default shift:**
+  once you pull the new `status.sh`, its check-in nagging recenters from today's DUE 10 / OVERDUE 20 to
+  **DUE 15 / OVERDUE 25**. `check.sh` gains an optional warning (never a failure) if the marker is
+  present but not a positive integer.
+- *Project state* (an existing project's `overview.md`): never auto-updated, and no line is required.
+  To keep the **exact previous window** (DUE 10 / OVERDUE 20), add `<!-- CHECK-IN-CADENCE: 15 -->`; for
+  any other rhythm use that number (e.g. `50` → DUE 45 / OVERDUE 55); omit the line to take the new
+  default of 20. The cadence stays a judgment-based guideline — you still place each check-in at a
+  sensible breakpoint.
+
+**Workspace model accepts in-place repos.**
+
+- *Process docs* (`METHOD.md` §7, `registries/repos.yml` header): newly documented convention — a repo
+  may be registered by a `location:` **outside the `Code/*` shell** (an absolute or otherwise arbitrary
+  path), referenced in place, in addition to the created-as-sibling default. `scripts/setup-workspace.sh`
+  already honors `location:` verbatim (clones from `remote:` into it, or references the repo in place
+  when there's no remote), so there is **no tooling change** to pull. Keep `location:` and `remote:`
+  distinct — a clone URL belongs in `remote:`, never folded into `location:`.
+- *Project state* (existing `registries/repos.yml` and existing repos): never auto-updated. Nothing
+  changes and no line is required — the `Code/*` sibling layout stays the default and existing rows are
+  kept exactly as they are. Point a `location:` outside `Code/*` only if you want a repo referenced
+  where it already lives. No `status.sh` / `check.sh` change.
+
+**Bring-your-own inputs (`inputs/` folder).**
+
+- *New scaffold folder* (`Code/{{PROJECT}}-docs/inputs/` + its `README.md`): a durable drop point
+  for documents you already have (product specs, prior architecture/protocol docs, UI designs,
+  research). To adopt in an existing project, create the folder and copy `inputs/README.md` from
+  the newer scaffold; `init.sh` seeds it for new projects.
+- *Process docs* (`METHOD.md` §4, `AGENTS.md`, `BOOTSTRAP-PROMPT.md`, `README.md`,
+  `templates/overview-template.md`, all `templates/architecture-sessions/*`,
+  `templates/planning-session.md`, `templates/substep-prompt-template.md`): sessions now read
+  relevant `inputs/` documents alongside `overview.md`; the kickoff tells the user up front they
+  can bring documents; a doc provided in chat is saved into `inputs/`. Adopt the reworded
+  read-lists and the kickoff note. No `status.sh` / `check.sh` change.
+- *Project state* (your `inputs/` contents): entirely yours — nothing is auto-created or
+  rewritten. The folder is optional; a session reads what's there and ignores an empty folder.
+
 ## 3. Manual Mode
 
 This guide works today even without updater tooling, a project manifest, or an upstream update
