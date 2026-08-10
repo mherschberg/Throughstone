@@ -26,6 +26,9 @@ phases, re-runs, custom conventions, and existing codebases. **Two opt-outable d
   can add to it, and the implementation planning session and substep template point at it too.
 
 ### Changed
+- **Method version → 1.0** (from `0.4 (beta)`): with the base-refactor generalizations in this
+  release, the core method graduates from beta; the collaboration and scaffold-update layers keep
+  maturing.
 - **Architecture-doc metadata decoupled** into three independent header facts: **`Version`**
   (identity; `major` = a breaking architectural change, no longer a maturity "era", so a house
   version scheme is fine), **`Status`** (maturity), and optional **`Coverage`** (completeness).
@@ -370,6 +373,7 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[1.7.0]: https://github.com/mherschberg/Throughstone/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/mherschberg/Throughstone/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/mherschberg/Throughstone/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/mherschberg/Throughstone/compare/v1.3.0...v1.4.0

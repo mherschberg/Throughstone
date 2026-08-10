@@ -1,6 +1,6 @@
 # The Method
 
-**Method version: 0.4 (beta)** — still early; expect refinement, especially the collaboration and scaffold-update layers.
+**Method version: 1.0** — the core method is stable; expect continued refinement, especially in the collaboration and scaffold-update layers.
 
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
