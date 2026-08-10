@@ -7,7 +7,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
-## [1.7.1] - Unreleased
+## [1.7.1] - 2026-08-10
 
 A small follow-up that gives the **`inputs/` folder** (added in 1.7.0) a lifecycle, so brought-in
 documents don't quietly go stale as the generated `architecture/` docs supersede them.
