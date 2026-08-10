@@ -7,7 +7,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
-## [1.7.0] - Unreleased
+## [1.7.0] - 2026-08-10
 
 A **base-refactor** release that generalizes the method. It
 removes assumptions baked in for brand-new, MVP-first projects, so the method also fits later
