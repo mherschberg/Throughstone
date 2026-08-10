@@ -26,6 +26,9 @@ phases, re-runs, custom conventions, and existing codebases. **Two opt-outable d
   can add to it, and the implementation planning session and substep template point at it too.
 
 ### Changed
+- **Method version → 1.0** (from `0.4 (beta)`): with the base-refactor generalizations in this
+  release, the core method graduates from beta; the collaboration and scaffold-update layers keep
+  maturing.
 - **Architecture-doc metadata decoupled** into three independent header facts: **`Version`**
   (identity; `major` = a breaking architectural change, no longer a maturity "era", so a house
   version scheme is fine), **`Status`** (maturity), and optional **`Coverage`** (completeness).
