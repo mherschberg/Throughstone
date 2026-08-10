@@ -373,6 +373,7 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[1.7.0]: https://github.com/mherschberg/Throughstone/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/mherschberg/Throughstone/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/mherschberg/Throughstone/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/mherschberg/Throughstone/compare/v1.3.0...v1.4.0
