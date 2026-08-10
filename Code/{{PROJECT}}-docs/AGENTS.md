@@ -177,8 +177,8 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).
-- **Suggest a check-in every ~10–20 STEPs.** When about that many STEPs have passed since the
-  last check-in, proactively propose inserting a **Check-in STEP** that runs
+- **Suggest a check-in about every 20 STEPs (the project's cadence, adjustable).** When about that
+  many STEPs have passed since the last check-in, proactively propose inserting a **Check-in STEP** that runs
   `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways,
   conditional-session coverage, accepted-risk review, and a full test run). See `METHOD.md`
   §5.

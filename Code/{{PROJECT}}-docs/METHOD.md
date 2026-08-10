@@ -356,15 +356,20 @@ dedicated final verification substep; choose deliberately in the PLAN. A code-ch
 without tests needs a stated reason, not silence.
 
 ### Check-in STEPs
-Roughly **every 10–20 STEPs**, the roadmap includes a **Check-in STEP** — a full STEP whose
+About **every 20 STEPs** (the project's cadence, adjustable), the roadmap includes a **Check-in STEP** — a full STEP whose
 job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
 **both directions** (stale doc → fix the doc/write an ADR; code drifted from a still-correct
 doc → file a bug), re-evaluate every available conditional architecture session, review the
 accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
 implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
-capability lands, not mid-feature). Treat 10–20 as a guideline — pick the breakpoint by
-judgment. The agent should also **proactively suggest** inserting a check-in when about that
+capability lands, not mid-feature). Treat the cadence as a guideline — pick the breakpoint by
+judgment. **The cadence is a per-project setting** (recommended **20**): the target is recorded as
+`<!-- CHECK-IN-CADENCE: N -->` in `overview.md`, and any project can change it at any time — including
+one that pulls this scaffold into an existing codebase and wants a different rhythm. `status.sh` reads
+that value (defaulting to **20** when the line is absent) and flags a heads-up **5 STEPs before** the
+target and overdue **5 after** — so the default 20 gives a heads-up at 15 and overdue at 25. The agent
+should also **proactively suggest** inserting a check-in when about that
 many STEPs have passed since the last one. This is the periodic safety net; it's separate
 from the continuous rule that every substep updates the doc it changes.
 The completed check-in report is written to `reports/YYYY-MM-DD-step-NNNN-check-in-report.md`;
@@ -591,7 +596,7 @@ Resolve the next action top-down against the index — the first rule that match
    identify the lowest open substep and wait for that explicit substep command. When the last
    substep is done, run the STEP's review,
    then archive it (§5) and mark it `Done`.
-7. **~10–20 STEPs since the last check-in?** → propose a **Check-in STEP** at the next
+7. **~20 STEPs (the project's cadence) since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).
 8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
    notes** (use `templates/release-notes-template.md` if yes) and **any user-facing doc updates** (§5,
