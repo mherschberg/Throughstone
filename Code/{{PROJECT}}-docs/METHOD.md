@@ -310,7 +310,7 @@ rigor, which the session keys to blast radius instead.
 Upcoming Prompts/      ← the STEP you're working on now (work-in-progress)
         │  (STEP completes + review passes)
         ▼
-prompts/001-mvp/step-NNNN/ ← archived: STEP PLAN + all substep prompts, kept for the record
+prompts/001-<phase-name>/step-NNNN/ ← archived: STEP PLAN + all substep prompts, kept for the record
 ```
 
 - `prompts/STEP-index.md` is the **living roadmap** — every STEP, its status, one-line
