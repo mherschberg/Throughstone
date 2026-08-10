@@ -233,7 +233,7 @@
     </div>
     <div class="flow">
       <div class="flow-step"><div class="num">01</div><h3>Initialize</h3><p>Run the setup wizard once. It stamps the project name, license posture, repo layout, docs hub, prompts repo, and agent pointers.</p></div>
-      <div class="flow-step"><div class="num">02</div><h3>Kick off</h3><p>Tell the agent to read AGENTS.md. It interviews you, records the project brief, and prepares STEP-1 for architecture.</p></div>
+      <div class="flow-step"><div class="num">02</div><h3>Kick off</h3><p>Tell the agent to read AGENTS.md. It interviews you, records the project brief, and prepares STEP-1 for architecture. Bring existing specs, designs, or research and it builds on them.</p></div>
       <div class="flow-step"><div class="num">03</div><h3>Design first</h3><p>Architecture sessions capture scope, data, security, interfaces, testing, deployment, ADRs, and the cross-cutting review before app code starts.</p></div>
       <div class="flow-step"><div class="num">04</div><h3>Build in STEPs</h3><p>The planning session turns the locked architecture into implementation STEPs, each with substep prompts, verification, review, and archival.</p></div>
     </div>
@@ -350,7 +350,7 @@
       <p>The scaffold includes runbooks and registers for the maintenance work that often gets skipped until production exposes it.</p>
     </div>
     <div class="ops-grid">
-      <div class="op-card"><h3>Check-ins</h3><p>Every 10-20 STEPs, reconcile docs against code, re-check conditional sessions, review risks, and run the full test suite.</p></div>
+      <div class="op-card"><h3>Check-ins</h3><p>On a cadence you set (about every 20 STEPs), reconcile docs against code, re-check conditional sessions, review risks, and run the full test suite.</p></div>
       <div class="op-card"><h3>Release and rollback</h3><p>Prepare the rollback path before deploy, verify during a watch window, and make the return lever explicit.</p></div>
       <div class="op-card"><h3>Incidents</h3><p>Stabilize first, then run root-cause analysis, search for similar bugs, fix, harden, and write the postmortem.</p></div>
       <div class="op-card"><h3>Dependencies</h3><p>Vet packages before adding them and audit installed dependencies for vulnerabilities, licenses, and provenance.</p></div>
@@ -381,7 +381,7 @@
       <p>Throughstone is intentionally more structured than a blank chat. That is the point, and also the tradeoff.</p>
     </div>
     <div class="fit-grid">
-      <div class="fit-card"><h3>Good fit</h3><p>Products, internal tools, serious open-source projects, and AI-assisted builds where architecture, scaling, tests, security, future changes, or team handoff matter.</p></div>
+      <div class="fit-card"><h3>Good fit</h3><p>New projects or existing codebases you're bringing under control: products, internal tools, serious open-source projects, and AI-assisted builds where architecture, scaling, tests, security, future changes, or team handoff matter.</p></div>
       <div class="fit-card"><h3>Probably overkill</h3><p>Throwaway demos, quick scripts, school assignments, and prototypes you do not expect to maintain. For those, the process may cost more than it saves.</p></div>
       <div class="fit-card"><h3>Still needs experienced review</h3><p>Throughstone reduces project risk, but it does not make AI agents reliable by default. Production software still needs experienced review, especially around security, data, payments, and compliance.</p></div>
     </div>
