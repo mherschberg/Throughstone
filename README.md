@@ -254,6 +254,7 @@ your-project/                    ← workspace shell (per-machine, not a repo)
         ├── METHOD.md            ← the methodology — read this
         ├── BOOTSTRAP-PROMPT.md  ← the kickoff prompt
         ├── overview.md          ← your project brief (you create this)
+        ├── inputs/              ← documents you provide (specs, designs, research) — sessions read these
         ├── templates/           ← architecture docs, sessions, ADRs, STEP plans, READMEs
         ├── architecture/  adr/  coding-standards/  registries/  runbooks/
         └── scripts/             ← setup-workspace.sh (onboard a new developer's machine)
@@ -367,6 +368,9 @@ snippets. In short, Throughstone creates a project documentation hub under
 `Code/{{PROJECT}}-docs/` and a sibling `prompts/` history repo. The core files include:
 
 - `overview.md` — the project brief.
+- `inputs/` — a drop point for documents you already have (product specs, prior
+  architecture/design docs, UI mockups, research); the kickoff and architecture sessions read
+  and build on them.
 - `METHOD.md` and `AGENTS.md` — the process and agent instructions.
 - `prompts/STEP-index.md` — the roadmap of planned work.
 - `architecture/` — living architecture documents.
@@ -429,13 +433,18 @@ docs, ADRs, scoped STEPs, tests, and a roadmap instead of a mystery pile of gene
 
 ### Can I use this with an existing project?
 
-In theory it could work, but Throughstone was not designed or tested for that yet. We plan to
-add better support for existing projects in the future.
+Increasingly, yes. Throughstone began greenfield-first, and the 1.7 release removed the
+assumptions that got in the way of existing code: planning now scaffolds only repos that
+aren't already registered, plans against what's already built instead of rebuilding from
+scratch, targets the first unfinished phase rather than always Phase 1, and can register a
+repo that already lives outside the workspace. You can also drop your current design docs into
+`inputs/` and have the architecture sessions build on them.
 
-In the meantime, you could try creating the documentation and following the STEP process
-manually. If you do, first make sure your code is saved in a git repo so you can revert
-changes. Second, tell the LLM that you want to use Throughstone on an existing project and
-that it should take the process step by step manually, without deleting existing code.
+It is not yet a one-click import — there's no wizard that ingests an existing codebase for you.
+The practical path: run setup, create architecture docs and a roadmap for what you already have
+(leaning on `inputs/`), then adopt the STEP process going forward. Keep your code in git so
+changes are reversible, and tell the agent it's working on an existing project and must not
+delete or rewrite existing code without review.
 
 ### Can I change decisions later?
 
