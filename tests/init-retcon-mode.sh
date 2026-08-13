@@ -76,8 +76,8 @@ run_existing_case() {
   # 2. Stub STEP-1 PLAN seeded at the greenfield in-flight path, fully resolved.
   [ -f "$plan" ] || { echo "FAIL: $name did not seed $plan" >&2; return 1; }
   assert_file_contains "$plan" "Retcon baseline"
-  assert_file_contains "$plan" "| i1 |"          # the lowest open inventory substep
-  assert_file_contains "$plan" "| i5 |"
+  assert_file_contains "$plan" "| inv-1 |"          # the lowest open inventory substep
+  assert_file_contains "$plan" "| inv-5 |"
   if grep -Eq '\{\{(PROJECT|DATE)\}\}' "$plan"; then
     echo "FAIL: $name stub PLAN has unresolved placeholders" >&2
     grep -nE '\{\{(PROJECT|DATE)\}\}' "$plan" >&2
