@@ -1,10 +1,15 @@
 # {{PROJECT}} — Project Overview
 
 <!-- PROJECT-STATUS: not-started -->
-<!-- ^ Kickoff gate (do not delete this line). `init.sh` seeds it as "not-started". The agent
-     flips it to "kickoff-complete" at the end of the bootstrap (BOOTSTRAP-PROMPT.md). While it
-     reads "not-started", opening this project in an AI agent starts the kickoff interview
-     automatically; once "kickoff-complete", agents resume from prompts/STEP-index.md instead. -->
+<!-- ^ Kickoff gate (do not delete this line). One of three values:
+       • not-started      → `init.sh` seeds this for a new project; opening the project in an
+                            AI agent starts the kickoff interview (BOOTSTRAP-PROMPT.md).
+       • retcon           → `init.sh --mode=existing` seeds this when adopting an existing
+                            codebase; agents follow RETCON-PROMPT.md (reverse-engineer the
+                            baseline from the running code) instead of the kickoff interview.
+       • kickoff-complete → the architecture baseline exists; agents resume from
+                            prompts/STEP-index.md. Both the bootstrap and a completed retcon
+                            adoption flip the marker to this path-agnostic terminal value. -->
 
 <!-- CHECK-IN-CADENCE: 20 -->
 <!-- ^ Check-in cadence (optional): aim for a Check-in STEP about every this-many STEPs. 20 is the

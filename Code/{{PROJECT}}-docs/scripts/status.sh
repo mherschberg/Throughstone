@@ -36,6 +36,22 @@ if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: not-started' "$OVERVIEW"; then
   exit 0
 fi
 
+# --- Retcon gate (adopting an existing codebase) ------------------------------
+# While a project is being adopted from existing code, the STEP-1 resolver is RETCON-PROMPT.md,
+# not this script: progress lives in the in-flight STEP-1 PLAN (its inventory → per-asset →
+# session substeps), which is deliberately off the STEP-index grammar. So route there and stop —
+# don't try to resolve. The terminal `Done STEP-1` baseline that retcon eventually lands needs no
+# special case here; it resolves exactly like a greenfield baseline.
+if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: retcon' "$OVERVIEW"; then
+  echo "Where you are:  adopting an existing codebase (overview.md marker: retcon)."
+  echo
+  echo "Next action:"
+  echo "  → retcon in progress — follow Code/<project>-docs/RETCON-PROMPT.md. It resolves the"
+  echo "    lowest open substep in the in-flight STEP-1 PLAN (\"Upcoming Prompts/<project>-STEP-1-PLAN.md\")."
+  echo "    Open the project and say:  \"Read AGENTS.md and follow it.\""
+  exit 0
+fi
+
 if [ ! -f "$INDEX" ]; then
   echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
   echo

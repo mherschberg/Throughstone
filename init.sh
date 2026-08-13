@@ -154,6 +154,9 @@ set, in which case a missing required value is an error (useful for scripts/CI).
 Usage: ./init.sh [options]
 
 Options:
+  --mode=MODE           new | existing                 (default: new)
+                         "existing" adopts an existing codebase (retcon): same scaffold,
+                         but the agent reverse-engineers the baseline instead of interviewing it.
   --slug=SLUG            Project slug (lowercase kebab-case, e.g. acme-scheduler)
   --desc=TEXT           One-line description
   --license=NAME        mit | bsd-3 | apache-2.0 | private
@@ -174,7 +177,7 @@ Options:
   -y, --non-interactive Never prompt; error on any missing required value
   -h, --help            Show this help and exit
 
-Env vars (flags take precedence): INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
+Env vars (flags take precedence): INIT_MODE, INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
   INIT_LAYOUT, INIT_REGISTRIES, INIT_COLLAB, INIT_ADR_AUTHORITY, INIT_REMOTES,
   INIT_REMOTE_PROVIDER, INIT_OWNER, INIT_REMOTE_URL, INIT_DOCS_REMOTE,
   INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_TRUNK_BRANCH, INIT_NONINTERACTIVE.
@@ -185,6 +188,7 @@ USAGE
 # Every input starts as an env-supplied preset and may be overwritten by a flag below. Empty
 # means "not answered yet"; the question phase either prompts, applies a default, or errors in
 # --non-interactive mode.
+MODE_IN="${INIT_MODE:-}"
 SLUG_IN="${INIT_SLUG:-}";       DESC_IN="${INIT_DESC:-}"
 LICENSE_IN="${INIT_LICENSE:-}"; HOLDER_IN="${INIT_HOLDER:-}"
 LAYOUT_IN="${INIT_LAYOUT:-}";   REGISTRIES_IN="${INIT_REGISTRIES:-}"
@@ -198,6 +202,8 @@ NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --mode=*)          MODE_IN="${1#*=}" ;;
+    --mode)            MODE_IN="${2:-}"; shift ;;
     --slug=*)          SLUG_IN="${1#*=}" ;;
     --slug)            SLUG_IN="${2:-}"; shift ;;
     --desc=*)          DESC_IN="${1#*=}" ;;
@@ -262,6 +268,34 @@ say "Throughstone — setup"
 #
 # Defaults are conservative for automation: multi-repo, solo, private GitHub visibility, and
 # no remote creation unless requested.
+
+# New project vs. existing codebase. This is the one fork the installer makes: "new" is the
+# greenfield kickoff; "existing" adopts a codebase that already exists (retcon). Both set up the
+# same mechanical scaffold below — the only differences land at the end (section 5c): "existing"
+# sets PROJECT-STATUS to `retcon` and drops a stub STEP-1 PLAN, then stops so an agent can
+# reverse-engineer the baseline from the running code. It is asked, never auto-detected, because
+# repo discovery is the agent's job, not the installer's.
+if [ -n "$MODE_IN" ]; then
+  case "$(printf '%s' "$MODE_IN" | tr '[:upper:]' '[:lower:]')" in
+    new|greenfield|1)          MODE=new ;;
+    existing|retcon|adopt|2)   MODE=existing ;;
+    *) echo "init.sh: invalid --mode '$MODE_IN' (new | existing)." >&2; exit 2 ;;
+  esac
+elif [ "$NONINTERACTIVE" = "1" ]; then
+  MODE=new
+else
+  echo "Is this a new project, or are you adopting Throughstone into an existing codebase?"
+  echo "  1) New project        (greenfield — the agent interviews you to design it)"
+  echo "  2) Existing codebase  (retcon — the agent reads your code and reverse-engineers the baseline)"
+  while :; do
+    case "$(ask 'Choose 1 or 2' '1')" in
+      1) MODE=new; break ;;
+      2) MODE=existing; break ;;
+      *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
+    esac
+  done
+fi
+
 # Project slug — validated kebab-case whether supplied or prompted.
 SLUG="$SLUG_IN"
 if [ -n "$SLUG" ]; then
@@ -770,6 +804,31 @@ if [ ! -f "prompts/STEP-index.md" ]; then
   echo "  created prompts/STEP-index.md (seeded from template)"
 fi
 
+# --- 5c. Existing-codebase adoption (retcon) --------------------------------
+# "existing" mode reuses the whole scaffold above (the STEP index stays the greenfield-identical
+# seed — STEP-1 + 1.1–1.14, all Planned — so check.sh stays clean and status.sh's `retcon` branch
+# is the only new resolver logic). It adds just two things, then stops: flip the status marker to
+# `retcon`, and drop a stub STEP-1 PLAN whose substeps are the inventory work. All discovery — find
+# & register repos, classify docs, build the recon map, harvest the sessions — is agent-driven
+# behind RETCON-PROMPT.md, routed by the `retcon` status.
+if [ "$MODE" = "existing" ]; then
+  # Flip the kickoff gate from the seeded `not-started` to `retcon` (see overview-template.md).
+  perl -pi -e 's/<!-- PROJECT-STATUS: not-started -->/<!-- PROJECT-STATUS: retcon -->/' "$DOCS/overview.md"
+  echo "  retcon: PROJECT-STATUS set to 'retcon' (adopting an existing codebase)"
+  # Seed the stub STEP-1 PLAN at the SAME in-flight path greenfield uses, so the Cross-Cutting
+  # Review and later check-ins find it where they look. Its substeps are the inventory work;
+  # RETCON-PROMPT.md upgrades it by addition once the inventory is confirmed. {{PROJECT}} was
+  # already substituted in step 3; fill {{DATE}} with the adoption date here.
+  mkdir -p "$ROOT/Upcoming Prompts"
+  if [ -f "$DOCS/templates/retcon-step-1-plan-stub.md" ]; then
+    TODAY="$(date +%Y-%m-%d)" perl -pe 's/\Q{{DATE}}\E/$ENV{TODAY}/g' \
+      "$DOCS/templates/retcon-step-1-plan-stub.md" > "$ROOT/Upcoming Prompts/${SLUG}-STEP-1-PLAN.md"
+    echo "  retcon: seeded stub STEP-1 PLAN (Upcoming Prompts/${SLUG}-STEP-1-PLAN.md)"
+  else
+    echo "  retcon: WARNING — stub STEP-1 PLAN template missing; RETCON-PROMPT.md will create the PLAN." >&2
+  fi
+fi
+
 # --- 6. Initialise repo(s) --------------------------------------------------
 # write_gitignore DIR — write the shared baseline ignore file for each generated repo.
 # The contents are intentionally small: editor cruft, per-machine agent config, and local
@@ -977,7 +1036,30 @@ fi
 
 # --- 7. Done ----------------------------------------------------------------
 say "Done."
-cat <<EOF
+# The handoff command is identical in both modes ("Read AGENTS.md and follow it"); only what the
+# agent does next differs — greenfield kickoff interview vs. retcon adoption of existing code.
+if [ "$MODE" = "existing" ]; then
+  cat <<EOF
+
+Next step:
+  Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory
+  here, the way you normally launch it. Then send it one message:
+
+      Read AGENTS.md and follow it.
+
+  That's the whole handoff (same command for every project, every agent). This project is set
+  up to ADOPT your existing codebase (retcon): the agent reads the retcon front door
+  (RETCON-PROMPT.md), asks a few intake questions (where your repos/docs are, how deep to go),
+  then inventories your system and reverse-engineers the architecture baseline WITH you —
+  confirming what it finds rather than interviewing from a blank page.
+
+The agent builds a recon map of what you already have, then Throughstone-shaped architecture
+docs describing it; forward work starts at STEP-2 once that baseline lands. It creates your
+local communication profile in .throughstone/local-user.md along the way.
+You can delete this init.sh now — it has done its job.
+EOF
+else
+  cat <<EOF
 
 Next step:
   Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory
@@ -992,6 +1074,9 @@ Next step:
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
 You can delete this init.sh now — it has done its job.
+EOF
+fi
+cat <<EOF
 
 Recommended optional backup:
   You can start now; your project is saved locally with Git. For backup, sharing,

@@ -84,6 +84,7 @@ run_interactive_case() {
   (
     cd "$work"
     printf '%s' "$input" | ./init.sh \
+      --mode=new \
       --slug="$name" \
       --desc="License validation test" \
       --holder="Throughstone Test" \
@@ -361,6 +362,7 @@ run_public_proprietary_case() {
       GH_LOG="$gh_log" \
       GH_REMOTE_ROOT="$remote_root" \
       ./init.sh \
+        --mode=new \
         --slug="$cancel_name" \
         --desc="Public proprietary cancellation test" \
         --license=private \
@@ -559,7 +561,7 @@ grep -Fq \
 run_private_case \
   "license-private" \
   bash -c \
-  "printf '2\n' | ./init.sh --slug=license-private --desc='License validation test' --layout=multi --collab=solo --remotes=no"
+  "printf '2\n' | ./init.sh --mode=new --slug=license-private --desc='License validation test' --layout=multi --collab=solo --remotes=no"
 
 run_private_case \
   "license-private-flag" \

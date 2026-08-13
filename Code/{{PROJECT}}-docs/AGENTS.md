@@ -14,7 +14,7 @@
 ## First action — kickoff or resume?
 **Before doing anything else, decide which mode you're in** by reading the `PROJECT-STATUS`
 marker near the top of `Code/{{PROJECT}}-docs/overview.md` (the `<!-- PROJECT-STATUS: … -->`
-line). It has one of two values:
+line). It has one of three values:
 
 If `Code/{{PROJECT}}-docs/overview.md` does not exist, this is still the uninitialized
 template/download; tell the user to run `./init.sh` first, then come back with *"Read
@@ -29,7 +29,17 @@ AGENTS.md and follow it."*
   `Code/{{PROJECT}}-docs/overview.md` for review; seed it from the one-line description in
   *What is {{PROJECT}}* below). The user should not have to pre-write `overview.md` or paste a
   kickoff command. The bootstrap flips the marker to `kickoff-complete` when it finishes.
-- **`kickoff-complete` → Resume mode.** Kickoff already happened. **Do not re-run kickoff.**
+- **`retcon` → Adoption mode (existing codebase).** The project is being adopted from an
+  existing codebase, not designed from scratch. **Do not run the greenfield kickoff.** Read
+  `Code/{{PROJECT}}-docs/RETCON-PROMPT.md` and follow it: it is a single PLAN-driven resolver
+  over the in-flight **STEP-1 PLAN** (`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`, a stub
+  seeded by `init.sh` whose substeps are the inventory work) — resolve its **lowest open
+  substep**. Instead of interviewing the architecture cold, retcon reverse-engineers the
+  baseline *from the running code* (inventory → recon map → confirm, then harvest→confirm each
+  session). `RETCON-PROMPT.md` flips the marker to `kickoff-complete` when the baseline lands;
+  from that instant this is ordinary {{PROJECT}} and resumes from `prompts/STEP-index.md`.
+- **`kickoff-complete` → Resume mode.** Kickoff (or a completed retcon adoption) already
+  happened. **Do not re-run kickoff.**
   Pick up the next action via the next-action resolver (`METHOD.md` §10): **run
   `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`)** — it resolves §10 mechanically from disk and
   prints where you are, the next action, and the check-in cadence. Read
@@ -38,8 +48,20 @@ AGENTS.md and follow it."*
   isn't available (older project, no shell), fall back to reading the index and applying §10
   yourself.
 
-(If the marker is missing entirely — an older project predating it — fall back to inferring:
-treat it as resume unless `prompts/STEP-index.md` is still the bare `init.sh` seed.)
+These aren't four stages: `not-started` and `retcon` are **two in-progress paths to the same
+`kickoff-complete` terminal**. Greenfield needs no separate "kickoff-in-progress" marker because
+its long work — the STEP-1 architecture sessions — runs *after* `kickoff-complete` under
+`status.sh`; retcon's `retcon` *is* that in-progress marker, because its equivalent work runs
+*before* the terminal, resolved from the STEP-1 PLAN by `RETCON-PROMPT.md`.
+
+(If the marker is missing entirely — an older project predating it, or marker loss/corruption
+— infer from disk. **First check for an adoption in progress:** an in-flight
+`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (or an `Upcoming Prompts/retcon/` scratch folder)
+sitting over a still-bare `init.sh`-seed `prompts/STEP-index.md` means a **retcon** whose marker
+was lost — **restore `PROJECT-STATUS: retcon`** and follow `RETCON-PROMPT.md`. Both those signals
+are absent in a fresh greenfield checkout — `init.sh` writes no STEP-1 PLAN in new-project mode;
+the kickoff does. Otherwise treat it as **resume** unless `prompts/STEP-index.md` is still the
+bare `init.sh` seed, which means the greenfield kickoff never ran → **kickoff mode**.)
 
 ## What is {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
