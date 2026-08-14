@@ -32,9 +32,9 @@ The work runs in stages, each a set of PLAN substeps:
 - **Stage 1 — Intake** (`inv-1`) — frame the adoption. Below.
 - **Stage 2 — Map + plan** (`inv-2`…`inv-5`, then the per-asset substeps) — scan and inventory, draft
   the recon map, the user confirms it, upgrade this PLAN by addition, then document each asset. Below.
-- **Stage 3 — Harvest→confirm** the architecture sessions (`1.1`–`1.14`), then the Cross-Cutting
-  Review and land. *Forthcoming in the next build increment; until it lands, Stages 1–2 are the
-  resolvable work.*
+- **Stage 3 — Harvest→confirm** the architecture sessions `1.1`–`1.13`, then the Cross-Cutting
+  Review (`1.14`) and land. *Forthcoming in the next build increment; until it lands, Stages 1–2 are
+  the resolvable work.*
 
 When the baseline lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary `Done` row marked
 **RETCON**, `PROJECT-STATUS` flips to `kickoff-complete`, and from that instant this is ordinary
@@ -147,16 +147,17 @@ what is above**:
   This is a **tracker, not a second catalog** — no Location/Notes column: the descriptive detail
   (location, role, notes) stays in the recon map's frozen Inventory, and the deliverable each substep
   produces lands in `repos.yml` / the repo README / the recon-map detail (see below), never in the cell.
-- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror; these run the
-  harvest→confirm wrapper (Stage 3).
+- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror. `1.1`–`1.13` run
+  the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review + land, not a harvest.
 - **The `Conditional sessions considered` table** — seed it the way greenfield does (see the
   Conditional-sessions note in `templates/step-index-seed.md`), but from **code-visible surfaces**: a
   client/mobile surface → `conditional-native-app`, any authentication → `conditional-identity-auth`,
   PII → `conditional-privacy-compliance`. Seed now; refine as sessions harvest.
 
-**Seed `registries/risks.yml` from the confirmed map.** Give each genuinely-risky item in the map's
-**Confidence & Unknowns** / **Coverage & Confidence** sections a `risks.yml` row with a revisit
-trigger, so the check-in re-surfaces it. During adoption the risk lives in `risks.yml` **only** — do
+**Seed `registries/risks.yml` from the confirmed map.** Give each genuinely-risky item the map
+surfaces — in **Confidence & Unknowns**, **Coverage & Confidence**, **Tests & CI** (e.g. no tests or
+an empty CI gate on a shipped system), or anywhere else — a `risks.yml` row with a revisit trigger,
+so the check-in re-surfaces it. During adoption the risk lives in `risks.yml` **only** — do
 **not** add a `Planned` backfill STEP to `prompts/STEP-index.md`; the index stays at its greenfield
 seed until the baseline lands (see *How this prompt works*), when a deferred area becomes ordinary
 forward work like any other risk.
@@ -177,9 +178,13 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   point-in-time, the code wins on conflict) and write the Throughstone-shaped doc as a **pointer**
   where that fits. Architecture-grade docs get *lifted* into `architecture/` by their owning session
   later — that wiring is Stage 3; here, just land and classify them.
-- **Per resource** — feed the session that will own it, recording enough for its harvest to pick up:
-  data stores → `1.4`, infrastructure → `1.8`, environments → `1.9`, observability → `1.10`,
-  interface contracts → `1.11`.
+- **Per resource** — every non-repo, non-doc asset the inventory found gets a substep, feeding the
+  session that will own it (record enough for its harvest to pick up): data stores → `1.4`, services /
+  endpoints / interface surfaces → `1.11`, external integrations → `1.11`, infrastructure / deploy
+  surfaces / CI → `1.8`, environments → `1.9`, observability → `1.10`. **When in doubt, give it its
+  own substep** — a human can merge or dismiss one that turns out not to matter, but a resource with
+  no substep is easily forgotten. Group many-of-a-kind (e.g. 40 endpoints) into one substep to stay
+  legible; never silently drop a kind.
 
 When the per-asset substeps are done, the lowest open substep is the first architecture session
 (`1.1`) — **Stage 3, the per-session harvest→confirm wrapper** (RETCON-PROMPT's second half).

@@ -66,15 +66,38 @@ the way — not a pretty description a mature team already knows.
 | inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it. | Planned |
 | inv-5 | Upgrade this PLAN | Mark inv-1–inv-5 `Done` (this row included); **append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions + the `Conditional sessions considered` table; seed `registries/risks.yml` from the confirmed map's unknowns/coverage. | Planned |
 
+### Intake results (inv-1)
+<!-- WHAT THIS IS. The record of the four framing answers RETCON-PROMPT.md's Stage 1 (Intake)
+     collects before any scanning. Stage 1 fills these in place (replacing the {{placeholders}});
+     Stage 2 reads them — the locations tell it where to scan, the version convention tells it how to
+     stamp each doc's Version, and the depth posture is its default when it meets a fat payload.
+
+     Leave the placeholders until inv-1 runs. Two of the four are ALSO written to their permanent
+     homes — release stage to overview.md, the depth posture to the recon map's Coverage & Confidence
+     section — but they are echoed here so Stage 2 reads one working note instead of three files. This
+     block is the only free-text the agent adds above the marker; everything else above is init.sh's
+     seed, and the upgrade (inv-5) only appends below the marker. -->
+- **Locations:** {{repos / docs / resources — rough paths, URLs, hosts; and who can answer questions
+  about each}}
+- **Lifecycle / release stage:** {{pre-launch / shipped / mature — a short prose descriptor, e.g.
+  "public GA" or "internal alpha, ~20 users"; also written to `overview.md`}}
+- **House version convention:** {{the scheme docs should respect — calendar / product-line / semantic
+  / none; note per-repo if the repos differ}}
+- **Depth-dial posture:** {{the default for how hard to push fat payloads — Full (enumerate & confirm
+  everything) or economical when payloads are enormous; refined per fat payload in Stage 2/3, with the
+  human escalation as the real control}}
+
 <!-- ═══════════════════════════════════════════════════════════════════════════════
      Everything ABOVE is the seed init.sh dropped. Once the inventory is CONFIRMED
      (substep inv-4), RETCON-PROMPT.md UPGRADES this PLAN BY ADDITION — it does not rewrite
-     the above. It marks inv-1–inv-5 Done and APPENDS, below this line:
+     the above (the only in-place fill-ins there are Stage 1's Intake-results values and
+     flipping a substep's Status to Done). It marks inv-1–inv-5 Done and APPENDS, below this line:
        • the per-asset substeps — one row per repo/doc-set/resource in their own
          `# | Asset | Kind | Status` table (`asset-N` ids; same Status tracking as the inv-N
          table above), each documenting one asset so nothing is lost (a repo is not a 1.N
          session); resolve the lowest-open `asset-N` before 1.1;
-       • the in-scope architecture sessions 1.1–1.14 (the harvest→confirm wrapper);
+       • the in-scope architecture sessions 1.1–1.14 (1.1–1.13 harvest→confirm; 1.14 is the
+         Cross-Cutting Review + land, not a harvest);
        • the `Conditional sessions considered` table — seeded from code-visible surfaces
          (client surfaces, PII, auth) and refined as sessions harvest, exactly as
          greenfield seeds-then-refines it;
@@ -90,7 +113,7 @@ the way — not a pretty description a mature team already knows.
   local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. Don't copy
   either value into this PLAN.
 - **STEP-1 is docs-only — no application code.** Retcon may create Markdown and scaffolding
-  (a {{PROJECT}} README per adopted repo, `registries/` rows, `architecture/` docs), but never
+  (a Throughstone-shaped README per adopted repo, `registries/` rows, `architecture/` docs), but never
   rewrites the user's codebase. It adopts the existing one.
 - **Detect-then-confirm.** Propose an inventory; let the user correct it. Existing repos are
   registered **in place** by their real `location` (not relocated).
