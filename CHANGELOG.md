@@ -7,6 +7,29 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [Unreleased]
+
+Work toward the **2.0** line, which adds **existing-codebase adoption** ("retcon"): a new project can
+be stood up by reverse-engineering a running system instead of interviewing its architecture from
+scratch. Entries accumulate here as the capability lands. Everything below is **greenfield-inert** —
+a project stood up from scratch behaves exactly as before.
+
+### Added
+- **`throughstone:` field on repo rows** (`registries/repos.yml`) — records how the method relates to
+  each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
+  (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.
+  Both the greenfield and adoption front doors write it identically, so their repo inventories match.
+- **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
+  `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
+  inventory, stack per repo, services, data stores, integrations, existing-docs classification,
+  tests/CI, and a Coverage & Confidence ledger. The user confirms it before anything is built on it,
+  and it is frozen afterward. A greenfield project never produces one.
+- **Pre-answer-sheet convention** (`templates/retcon-preanswer-sheet.md`) — the per-session working
+  sheet an adoption's harvest writes: a drafted answer to each session decision, read from the running
+  code and provenance-tagged, confirmed with the user before the clean `architecture/` doc is written.
+  `init.sh` scaffolds an `Upcoming Prompts/retcon/` scratch home for these when adopting an existing
+  codebase.
+
 ## [1.7.1] - 2026-08-10
 
 A small follow-up that gives the **`inputs/` folder** (added in 1.7.0) a lifecycle, so brought-in
