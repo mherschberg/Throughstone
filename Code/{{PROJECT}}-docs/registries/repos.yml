@@ -19,22 +19,37 @@
 # Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
 # it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
 # for prompts/ + this docs hub. Solo with no remotes, it's optional.
+#
+# `throughstone:` (per row) records how the method relates to a repo. Every repo the method
+# maintains carries `managed`; a later version adds `external` for a repo that is only referenced,
+# not maintained (partial adoption). The field is inert today — nothing reads it yet — and
+# forward-compatible: it is written now so that future distinction is expressible without reshaping
+# the inventory. Both front doors write it the same way — a repo greenfield stands up and a repo
+# adopted from an existing codebase are both `managed` — so the two produce identical rows. For
+# compatibility with inventories written before this field existed, a missing value is read as
+# `managed`. (This per-row token is unrelated to the top-level `throughstone:` key in
+# `.throughstone/manifest.yml`, which versions the method itself — different file and scope, no
+# collision.)
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
     type: docs            # docs | service | library | app | infra | tests
+    throughstone: managed
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
+    throughstone: managed
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them and they
-  # are stamped from templates/repo-readme-template.md. Example:
+  # are stamped from templates/repo-readme-template.md. Give each new repo `throughstone: managed`
+  # like the rows above. Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
+  #   throughstone: managed
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."

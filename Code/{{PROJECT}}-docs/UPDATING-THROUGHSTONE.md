@@ -272,6 +272,24 @@ rules apply unchanged.
   touched or moved; they simply start `Live` in the ledger, and any retirement to `inputs/archive/`
   happens only when you decide it at a check-in.
 
+### 2.0 migration
+
+**Upgrading to 2.0?** 2.0 adds **existing-codebase adoption** — a new project can be stood up by
+reverse-engineering a running system instead of interviewing it from scratch. Most of it is new
+machinery a project already built with Throughstone never touches; this section collects the few
+things an existing project picks up on upgrade, added as each 2.0 change lands. Nothing here rewrites
+project files, and all of it is greenfield-inert.
+
+**`throughstone:` field on repo rows.** `registries/repos.yml` gains a per-row `throughstone:` field
+recording how the method relates to each repo — value `managed` today, with `external` reserved for a
+later partial-adoption feature. It is inert (nothing reads it yet), and a **missing value is read as
+`managed`**, so an un-upgraded inventory keeps working unchanged. To make your rows explicit — and
+ready for a future `external` — add `throughstone: managed` to each existing repo entry. That is a
+**safe additive edit**: it inserts one field and changes no existing data. `registries/repos.yml` is
+project state (a registry, like `inputs/inputs-index.md`), so this is **review-required and never
+auto-overwritten** — updater tooling adds the line to each row for your review rather than replacing
+the file. Pull the updated `registries/repos.yml` header (which documents the field) alongside it.
+
 ## 3. Manual Mode
 
 This guide works today even without updater tooling, a project manifest, or an upstream update
