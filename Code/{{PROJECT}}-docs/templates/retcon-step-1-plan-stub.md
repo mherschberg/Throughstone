@@ -64,18 +64,22 @@ the way — not a pretty description a mature team already knows.
 | inv-2 | Scan & inventory | A list of every repo, doc, and resource (data stores, services, integrations, CI, deploy surfaces); each existing doc classified with a trust level. | Planned |
 | inv-3 | Recon-map skeleton | A draft `reports/<date>-step-0001-recon-map.md` — inventory, stack per repo, entry points/services, data stores, integrations, existing-docs classification, test/CI presence, confidence/unknowns, and a **Coverage & Confidence** section. | Planned |
 | inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it. | Planned |
-| inv-5 | Upgrade this PLAN | Mark inv-1–inv-4 `Done`; **append** (never rewrite) the per-asset substeps + the in-scope `1.1`–`1.14` sessions + the `Conditional sessions considered` table. | Planned |
+| inv-5 | Upgrade this PLAN | Mark inv-1–inv-5 `Done` (this row included); **append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions + the `Conditional sessions considered` table; seed `registries/risks.yml` from the confirmed map's unknowns/coverage. | Planned |
 
 <!-- ═══════════════════════════════════════════════════════════════════════════════
      Everything ABOVE is the seed init.sh dropped. Once the inventory is CONFIRMED
      (substep inv-4), RETCON-PROMPT.md UPGRADES this PLAN BY ADDITION — it does not rewrite
      the above. It marks inv-1–inv-5 Done and APPENDS, below this line:
-       • the per-asset substeps — one per repo/doc-set/resource, free-form units, each
-         documenting one asset so nothing is lost (a repo is not a 1.N session);
+       • the per-asset substeps — one row per repo/doc-set/resource in their own
+         `# | Asset | Kind | Status` table (`asset-N` ids; same Status tracking as the inv-N
+         table above), each documenting one asset so nothing is lost (a repo is not a 1.N
+         session); resolve the lowest-open `asset-N` before 1.1;
        • the in-scope architecture sessions 1.1–1.14 (the harvest→confirm wrapper);
        • the `Conditional sessions considered` table — seeded from code-visible surfaces
          (client surfaces, PII, auth) and refined as sessions harvest, exactly as
-         greenfield seeds-then-refines it.
+         greenfield seeds-then-refines it;
+       • `registries/risks.yml` rows seeded from the confirmed map's Confidence & Unknowns /
+         Coverage & Confidence (genuinely-risky items only; STEP-index stays at its seed).
      That upgraded PLAN — at this same path, Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md —
      is the STEP-1 PLAN the Cross-Cutting Review's Check 1 and every future check-in read.
      See RETCON-PROMPT.md.
@@ -98,8 +102,9 @@ the way — not a pretty description a mature team already knows.
 ## Definition of done (inventory phase)
 - [ ] inv-1–inv-4 complete: intake recorded, everything inventoried, the recon map drafted and
       **confirmed by the user**.
-- [ ] inv-5 complete: this PLAN upgraded by addition — per-asset substeps + the in-scope 1.1–1.14
-      sessions + the `Conditional sessions considered` table appended; inv-1–inv-5 marked `Done`.
+- [ ] inv-5 complete: this PLAN upgraded by addition — per-asset substeps (`asset-N` id + Status) + the
+      in-scope 1.1–1.14 sessions + the `Conditional sessions considered` table appended; inv-1–inv-5
+      marked `Done`; `registries/risks.yml` seeded from the confirmed map (STEP-index untouched).
 - [ ] Next action is the lowest open **appended** substep (the per-session harvest→confirm wrapper).
       The overall STEP-1 baseline lands later, after the Cross-Cutting Review (see the retcon
       baseline note above).

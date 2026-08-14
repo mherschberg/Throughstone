@@ -130,11 +130,23 @@ rather than guessing it into fact.
 
 ### `inv-5` — Upgrade this PLAN by addition
 The confirmed map now fixes both the asset list and which sessions apply. Edit
-`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: mark `inv-1`…`inv-4` **Done**, and **below the upgrade
-marker append — never rewrite what is above**:
+`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: mark `inv-1`…`inv-5` **Done** (this substep included,
+so a resumed agent doesn't re-run the upgrade), and **below the upgrade marker append — never rewrite
+what is above**:
 
-- **Per-asset substeps** — one free-form unit per asset, so nothing is lost: one per **repo**, plus
-  one per **doc-set** and per **resource**.
+- **Per-asset substeps** — the confirmed **Inventory** (from the recon map) projected into work
+  units: one **row per asset**, tracked in their own table below the marker (its own columns — not
+  the `inv-N` table's — but the same `Planned` · `In progress` · `Done` Status convention, so a
+  resumed agent can tell which are left). Number them `asset-1`, `asset-2`, … in discovery order — one
+  per **repo**, one per **doc-set** (related docs grouped), one per **resource**:
+
+  | # | Asset | Kind | Status |
+  |---|-------|------|--------|
+  | `asset-1` | {{name}} | repo / doc-set / resource | Planned |
+
+  This is a **tracker, not a second catalog** — no Location/Notes column: the descriptive detail
+  (location, role, notes) stays in the recon map's frozen Inventory, and the deliverable each substep
+  produces lands in `repos.yml` / the repo README / the recon-map detail (see below), never in the cell.
 - **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror; these run the
   harvest→confirm wrapper (Stage 3).
 - **The `Conditional sessions considered` table** — seed it the way greenfield does (see the
@@ -142,10 +154,20 @@ marker append — never rewrite what is above**:
   client/mobile surface → `conditional-native-app`, any authentication → `conditional-identity-auth`,
   PII → `conditional-privacy-compliance`. Seed now; refine as sessions harvest.
 
-Then resolve the lowest open appended substep — the first per-asset substep.
+**Seed `registries/risks.yml` from the confirmed map.** Give each genuinely-risky item in the map's
+**Confidence & Unknowns** / **Coverage & Confidence** sections a `risks.yml` row with a revisit
+trigger, so the check-in re-surfaces it. During adoption the risk lives in `risks.yml` **only** — do
+**not** add a `Planned` backfill STEP to `prompts/STEP-index.md`; the index stays at its greenfield
+seed until the baseline lands (see *How this prompt works*), when a deferred area becomes ordinary
+forward work like any other risk.
+
+**Resolution order.** Resolve the **lowest-open `asset-N`** per-asset substep first; only when every
+`asset-N` is `Done` does the lowest open substep become the first architecture session (`1.1`, Stage
+3). So the next action now is the first per-asset substep, `asset-1`.
 
 ### The per-asset substeps (depth)
-Resolve each in turn (lowest open). Reading one asset at a time keeps even a 20-repo system legible.
+Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
+asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
 - **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`, and
   `throughstone: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
