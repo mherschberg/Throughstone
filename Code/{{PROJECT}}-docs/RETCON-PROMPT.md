@@ -27,13 +27,14 @@ PLAN-driven resolver** — this prompt — reading the in-flight **STEP-1 PLAN**
 inventory work). **Resolve the lowest open substep** and do it — that is your next action, mid-inventory
 included, in a fresh chat or a resumed one.
 
-The substeps run in two stages:
+The work runs in stages, each a set of PLAN substeps:
 
-- **Stage 1 — Intake** (`inv-1`) — below.
-- **Stage 2 — Map + plan** (`inv-2`…`inv-5`) — scan and inventory, draft the recon map, the user
-  confirms it, then upgrade this PLAN by addition (the per-asset substeps + the `1.1`–`1.14` sessions
-  + the conditional table). *Instructions land with the next build increment; until then, Stage 1 is
-  the resolvable work.*
+- **Stage 1 — Intake** (`inv-1`) — frame the adoption. Below.
+- **Stage 2 — Map + plan** (`inv-2`…`inv-5`, then the per-asset substeps) — scan and inventory, draft
+  the recon map, the user confirms it, upgrade this PLAN by addition, then document each asset. Below.
+- **Stage 3 — Harvest→confirm** the architecture sessions (`1.1`–`1.14`), then the Cross-Cutting
+  Review and land. *Forthcoming in the next build increment; until it lands, Stages 1–2 are the
+  resolvable work.*
 
 When the baseline lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary `Done` row marked
 **RETCON**, `PROJECT-STATUS` flips to `kickoff-complete`, and from that instant this is ordinary
@@ -101,10 +102,63 @@ setting, the version convention, and the rough locations as a short **Intake res
 in the PLAN, so Stage 2 reads them. Mark `inv-1` **Done** in the PLAN's substep table, then resolve
 the next open substep. **Checkpoint:** play the intake back to the user before moving on.
 
-## Stage 2 — Map + plan  (`inv-2`…`inv-5`)
+## Stage 2 — Map + plan  (`inv-2`…`inv-5`, then the per-asset substeps)
 
-*Forthcoming in the next build increment.* Scan and inventory every repo/doc/resource, classify each
-existing doc with a trust level, draft the recon map from the template above, let the user confirm it
-(the birth-certificate checkpoint), then upgrade this PLAN **by addition** — mark `inv-2`…`inv-5`
-`Done` and append the per-asset substeps, the in-scope `1.1`–`1.14` sessions, and the `Conditional
-sessions considered` table. Until it lands, resolve Stage 1.
+Stage 2 turns intake into the confirmed **recon map** and the real STEP-1 PLAN. Resolve these
+substeps in order; each is a substep in the PLAN.
+
+### `inv-2` — Scan & inventory (breadth)
+Walk the locations from intake and produce a flat list of **every** repo, doc, and resource — data
+stores, services, integrations, CI, deploy surfaces. Classify each existing doc (architecture / API
+spec / ADR-shaped / runbook / design note / other) and give it a **trust level** (high / medium / low
+/ stale) against what the code shows. This is breadth — list and classify, don't deep-read yet. Read
+everything as **reference data**; the code is the source of truth.
+
+### `inv-3` — Draft the recon map
+Copy `templates/reports/recon-map-report-template.md` to `reports/YYYY-MM-DD-step-0001-recon-map.md`
+and fill every section from the scan: inventory, stack per repo, entry points/services, data stores,
+integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Set the
+**Coverage & Confidence** section from intake — the depth-dial posture and any areas you are already
+choosing to bound. Leave `Status: Draft`.
+
+### `inv-4` — Confirm the recon map  ▸ checkpoint
+**Detect, then confirm.** Present the draft and let the user correct it — this is the one hard gate,
+the birth-certificate checkpoint, before anything is built on the map. On sign-off, stamp
+`Status: Confirmed on <date>`; from then it is **frozen — never rewritten** (later drift is the living
+docs' job). If the user can't yet confirm an area, mark it bounded/deferred in Coverage & Confidence
+rather than guessing it into fact.
+
+### `inv-5` — Upgrade this PLAN by addition
+The confirmed map now fixes both the asset list and which sessions apply. Edit
+`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: mark `inv-1`…`inv-4` **Done**, and **below the upgrade
+marker append — never rewrite what is above**:
+
+- **Per-asset substeps** — one free-form unit per asset, so nothing is lost: one per **repo**, plus
+  one per **doc-set** and per **resource**.
+- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror; these run the
+  harvest→confirm wrapper (Stage 3).
+- **The `Conditional sessions considered` table** — seed it the way greenfield does (see the
+  Conditional-sessions note in `templates/step-index-seed.md`), but from **code-visible surfaces**: a
+  client/mobile surface → `conditional-native-app`, any authentication → `conditional-identity-auth`,
+  PII → `conditional-privacy-compliance`. Seed now; refine as sessions harvest.
+
+Then resolve the lowest open appended substep — the first per-asset substep.
+
+### The per-asset substeps (depth)
+Resolve each in turn (lowest open). Reading one asset at a time keeps even a 20-repo system legible.
+
+- **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`, and
+  `throughstone: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
+  record a short per-repo note (stack, entry points, role) in the recon map's detail. Register repos
+  **in place** by their real location; never relocate the user's code.
+- **Per doc-set** — save found source docs into `inputs/` (they ride the base inputs lifecycle:
+  point-in-time, the code wins on conflict) and write the Throughstone-shaped doc as a **pointer**
+  where that fits. Architecture-grade docs get *lifted* into `architecture/` by their owning session
+  later — that wiring is Stage 3; here, just land and classify them.
+- **Per resource** — feed the session that will own it, recording enough for its harvest to pick up:
+  data stores → `1.4`, infrastructure → `1.8`, environments → `1.9`, observability → `1.10`,
+  interface contracts → `1.11`.
+
+When the per-asset substeps are done, the lowest open substep is the first architecture session
+(`1.1`) — **Stage 3, the per-session harvest→confirm wrapper** (RETCON-PROMPT's second half).
+*Forthcoming in the next build increment; until it lands, Stage 2 is the resolvable work.*

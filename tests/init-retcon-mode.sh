@@ -115,6 +115,7 @@ run_existing_case() {
     return 1
   fi
   assert_file_contains "$docs/RETCON-PROMPT.md" "Stage 1 — Intake"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Upgrade this PLAN by addition"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
