@@ -290,6 +290,13 @@ project state (a registry, like `inputs/inputs-index.md`), so this is **review-r
 auto-overwritten** — updater tooling adds the line to each row for your review rather than replacing
 the file. Pull the updated `registries/repos.yml` header (which documents the field) alongside it.
 
+**Recon-map report template.** A new `templates/reports/recon-map-report-template.md` (plus a short
+"Recon Map Report" section in `reports/README.md`) ships for existing-codebase adoption — the
+point-in-time map an adoption produces at STEP-1. It is **future-only and greenfield-inert**: a
+project already built with Throughstone produces no recon map and needs to do nothing. Pull the new
+template and the `reports/README.md` addition if you want them available for adopting another
+codebase later; otherwise there is no action.
+
 ## 3. Manual Mode
 
 This guide works today even without updater tooling, a project manifest, or an upstream update
