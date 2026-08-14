@@ -297,6 +297,12 @@ project already built with Throughstone produces no recon map and needs to do no
 template and the `reports/README.md` addition if you want them available for adopting another
 codebase later; otherwise there is no action.
 
+**Pre-answer-sheet convention.** A new `templates/retcon-preanswer-sheet.md` ships, and `init.sh`
+now scaffolds an `Upcoming Prompts/retcon/` scratch folder when it adopts an existing codebase — the
+home for the transient per-session sheets the harvest writes. Both are **adoption-only and
+greenfield-inert**: an existing project generated no such folder and needs none. Pull the new
+template if you may adopt another codebase later; otherwise there is no action.
+
 ## 3. Manual Mode
 
 This guide works today even without updater tooling, a project manifest, or an upstream update

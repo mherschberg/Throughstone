@@ -86,6 +86,11 @@ run_existing_case() {
   grep -Eq '\*\*Date:\*\* [0-9]{4}-[0-9]{2}-[0-9]{2}' "$plan" \
     || { echo "FAIL: $name stub PLAN date not stamped" >&2; return 1; }
 
+  # 2b. Pre-answer-sheet scratch folder scaffolded (a home for Stage-3 sheets + a marker-loss signal).
+  [ -d "$work/Upcoming Prompts/retcon" ] \
+    || { echo "FAIL: $name did not scaffold Upcoming Prompts/retcon/" >&2; return 1; }
+  assert_file_contains "$work/Upcoming Prompts/retcon/README.md" "pre-answer sheet"
+
   # 3. STEP index stays byte-identical to the greenfield seed (slug-substituted).
   diff <(sed "s/{{PROJECT}}/$name/g" "$docs/templates/step-index-seed.md") \
        "$work/prompts/STEP-index.md" >/dev/null \
@@ -154,6 +159,10 @@ run_new_case() {
   assert_file_contains "$work/Code/$name-docs/overview.md" "PROJECT-STATUS: not-started"
   if ls "$work/Upcoming Prompts/"*STEP-1-PLAN.md >/dev/null 2>&1; then
     echo "FAIL: $name (new mode) unexpectedly seeded a STEP-1 PLAN" >&2
+    return 1
+  fi
+  if [ -d "$work/Upcoming Prompts/retcon" ]; then
+    echo "FAIL: $name (new mode) scaffolded the retcon scratch folder — would misrecover as retcon" >&2
     return 1
   fi
   assert_file_contains "$TMP_ROOT/$name.out" "interview you, propose a roadmap"
