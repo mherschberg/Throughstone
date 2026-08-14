@@ -108,6 +108,14 @@ run_existing_case() {
   assert_file_contains "$TMP_ROOT/$name-status.out" "marker: retcon"
   assert_file_contains "$TMP_ROOT/$name-status.out" "RETCON-PROMPT.md"
 
+  # 5b. The routing target itself ships, substituted (it is what status.sh/AGENTS.md point at).
+  [ -f "$docs/RETCON-PROMPT.md" ] || { echo "FAIL: $name missing RETCON-PROMPT.md" >&2; return 1; }
+  if grep -Eq '\{\{PROJECT\}\}' "$docs/RETCON-PROMPT.md"; then
+    echo "FAIL: $name RETCON-PROMPT.md has unresolved {{PROJECT}} placeholder" >&2
+    return 1
+  fi
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Stage 1 — Intake"
+
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
   assert_file_contains "$TMP_ROOT/$name.out" "ADOPT your existing codebase"
