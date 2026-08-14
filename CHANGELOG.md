@@ -15,6 +15,16 @@ scratch. Entries accumulate here as the capability lands. Everything below is **
 a project stood up from scratch behaves exactly as before.
 
 ### Added
+- **Existing-codebase adoption front door** (`init.sh` → `RETCON-PROMPT.md`) — `init.sh` now opens with
+  a new-vs-existing question (`--mode=new|existing`, or `INIT_MODE`; default `new`). On **existing**, it
+  stands up the same scaffold as a greenfield project but in **adoption ("retcon") mode**: it sets
+  `PROJECT-STATUS: retcon`, seeds the greenfield-identical STEP index, and drops a stub **STEP-1 PLAN**
+  whose substeps are the inventory work. `scripts/status.sh` and `AGENTS.md` recognize the `retcon`
+  status and route a fresh agent to a new **`RETCON-PROMPT.md`** resolver, which reverse-engineers the
+  architecture baseline from the running code (inventory → recon map → per-session harvest, each decision
+  confirmed with you) instead of interviewing it from scratch — landing at a `Done STEP-1` baseline
+  equivalent to a greenfield one, from which the ordinary forward flow continues. **Default mode is
+  `new`**; a project stood up from scratch never enters this path and is unchanged.
 - **`throughstone:` field on repo rows** (`registries/repos.yml`) — records how the method relates to
   each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
   (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.

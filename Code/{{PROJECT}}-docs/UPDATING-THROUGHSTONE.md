@@ -274,11 +274,14 @@ rules apply unchanged.
 
 ### 2.0 migration
 
-**Upgrading to 2.0?** 2.0 adds **existing-codebase adoption** — a new project can be stood up by
-reverse-engineering a running system instead of interviewing it from scratch. Most of it is new
-machinery a project already built with Throughstone never touches; this section collects the few
-things an existing project picks up on upgrade, added as each 2.0 change lands. Nothing here rewrites
-project files, and all of it is greenfield-inert.
+**Upgrading to 2.0?** 2.0 adds **existing-codebase adoption** — `init.sh` now asks new-vs-existing at
+the start, and on *existing* stands up the scaffold in an adoption ("retcon") mode that
+reverse-engineers the architecture baseline from a running system (via the new `RETCON-PROMPT.md`
+resolver) instead of interviewing it from scratch. Most of it — the front door, the resolver, and the
+adoption-only templates — is new machinery a project already built with Throughstone never touches;
+you get it automatically when you pull 2.0 and re-run `init.sh` to adopt a new codebase, with nothing
+to migrate. This section collects the few things an *existing* project picks up on upgrade, added as
+each 2.0 change lands. Nothing here rewrites project files, and all of it is greenfield-inert.
 
 **`throughstone:` field on repo rows.** `registries/repos.yml` gains a per-row `throughstone:` field
 recording how the method relates to each repo — value `managed` today, with `external` reserved for a
