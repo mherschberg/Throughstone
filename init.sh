@@ -827,6 +827,23 @@ if [ "$MODE" = "existing" ]; then
   else
     echo "  retcon: WARNING — stub STEP-1 PLAN template missing; RETCON-PROMPT.md will create the PLAN." >&2
   fi
+  # Scaffold the pre-answer-sheet scratch folder. RETCON-PROMPT.md's per-session harvest (Stage 3)
+  # drops one transient sheet per in-scope session here; seeding it now gives that a home and makes
+  # the AGENTS.md marker-loss fallback signal reliable from adoption start.
+  mkdir -p "$ROOT/Upcoming Prompts/retcon"
+  cat > "$ROOT/Upcoming Prompts/retcon/README.md" <<'RETCON_SCRATCH_README'
+# Retcon scratch — pre-answer sheets
+
+Transient working folder for **retcon adoption** (see `RETCON-PROMPT.md`). During the per-session
+harvest, each in-scope architecture session gets a **pre-answer sheet** here — one drafted answer per
+decision, with provenance tags — which the confirm pass consumes before the clean `architecture/`
+doc is written. Start each sheet from your docs hub's `templates/retcon-preanswer-sheet.md`.
+
+Scratch, not project history: these sheets are not committed, and they are discarded when STEP-1
+lands. Their presence here (alongside the in-flight STEP-1 PLAN) is also how a fresh agent detects a
+retcon in progress if the `PROJECT-STATUS` marker is ever lost.
+RETCON_SCRATCH_README
+  echo "  retcon: scaffolded pre-answer-sheet scratch (Upcoming Prompts/retcon/)"
 fi
 
 # --- 6. Initialise repo(s) --------------------------------------------------
