@@ -129,6 +129,12 @@ error/corruption and re-run paths, not normal operation.
   apply (the UI session on an API-only system) is marked `N/A` — accepted by `check.sh` and skipped
   by the next-action resolver — but the legend listed only the five STEP states, so the one place a
   reader checks before writing a status didn't describe a value the file legitimately contains.
+- **A `Coverage:` line could be a bare word that told a later reader nothing.** The field records
+  that a doc deliberately describes only part of its area, and every check-in resurfaces it for a
+  decision — but `METHOD.md` §6 and the architecture doc template both showed it as a lone token
+  (`deferred`), so the reader who meets it months later can't tell whether the gap blocks them, and
+  the check-in has nothing to weigh. Both now require one sentence: what is missing, how big it is,
+  and what it means for someone building on the doc.
 
 ## [1.7.1] - 2026-08-10
 

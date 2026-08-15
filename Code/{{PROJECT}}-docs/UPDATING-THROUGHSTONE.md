@@ -327,8 +327,8 @@ produced.
   hand; pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. No `status.sh` /
   `check.sh` change, no project state touched.
 
-**Two guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
-Both are documentation, so nothing you already produced is rewritten and no behavior changes.
+**Three guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
+All are documentation, so nothing you already produced is rewritten and no behavior changes.
 
 - **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which
@@ -341,6 +341,14 @@ Both are documentation, so nothing you already produced is rewritten and no beha
   but the legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional:
   copy the added line into your project's index if you want the legend to describe everything the
   file may contain.
+- **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
+  `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
+  token (`deferred`), which tells a reader arriving months later nothing about whether the gap
+  blocks what they are building — and gives the check-in that resurfaces it nothing to weigh. Both
+  now ask for what is missing, how big it is, and what it means for someone building on the doc.
+  Pull `METHOD.md` §6 with the doc template. **One thing to check:** if an architecture doc of yours
+  already carries a bare `Coverage:` value, expand it the next time that doc is touched — nothing
+  rewrites it for you.
 
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
