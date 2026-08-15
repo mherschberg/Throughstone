@@ -239,9 +239,10 @@ apply each area as a coherent review-required group, as with the legacy migratio
 
 ### 1.7.2 migration
 
-**Templates and guidance text only — no behavior changes, and nothing you already produced is
-rewritten.** Two edits to `templates/architecture-sessions/*.md` and three documentation fixes, all
-*Templates for future use* under §2, so they affect work you do after pulling them.
+**Templates, guidance text, and one guard added to a helper script — nothing you already produced
+is rewritten.** Edits to `templates/architecture-sessions/*.md`, documentation fixes, and a refusal
+added to `scripts/apply-project-license.sh`, all *Templates for future use* under §2, so they
+affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
@@ -278,9 +279,24 @@ rewritten.** Two edits to `templates/architecture-sessions/*.md` and three docum
   header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
+- **The project license is applied only to repos the method creates.** `METHOD.md` §7 already let a
+  repo be **registered in place** — referenced where it sits, rather than created under `Code/` —
+  but every instruction around `scripts/apply-project-license.sh` was written as though every repo
+  were one the method had just scaffolded. Pointed at a repo that existed beforehand, the helper
+  would give it the project's `LICENSE` and a `LICENSING.md` asserting that license over the whole
+  repository. It now **refuses** a target that already states its own terms (`COPYING`, `NOTICE`,
+  `LICENSE.md`, `LICENSE-<id>`, …) before writing anything, and `METHOD.md` §7, `AGENTS.md`, the
+  planning session, and the repo README template state the rule: **the method records licensing; it
+  never establishes licensing for code it did not create.** No effect on repos you scaffolded
+  through the method — they carry none of those files, and re-running the helper on one behaves
+  exactly as before. **One thing to check:** if you have registered an existing repo in place and
+  ran the helper on it, look at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner,
+  whether they say what you intend.
 
-Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4 and §6, `inputs/README.md`,
-`templates/architecture-doc-template.md`, and `runbooks/check-in.md` as a group. Nothing else is affected: no `status.sh` /
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGENTS.md`,
+`inputs/README.md`, `templates/architecture-doc-template.md`, `templates/planning-session.md`,
+`templates/repo-readme-template.md`, `runbooks/check-in.md`, and
+`scripts/apply-project-license.sh` as a group. Nothing else is affected: no `status.sh` /
 `check.sh` change, no project state touched.
 
 ### 1.7.1 migration

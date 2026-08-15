@@ -420,6 +420,65 @@ run_missing_canonical_license_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# run_pre_existing_licensing_case — a repo that already states its own licensing must be refused
+# before anything is written. This is the created-vs-registered-in-place boundary: the method
+# records licensing for a repo it did not create, and never applies a posture to it.
+run_pre_existing_licensing_case() {
+  local name="license-pre-existing"
+  local work="$TMP_ROOT/$name"
+  local marker target status written
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Pre-existing licensing test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  # Each marker is a way a repo states its own terms without a plain LICENSE file, so none can be
+  # mistaken for this helper's own earlier run. Without the guard, every one of these targets
+  # would take an MIT LICENSE plus a LICENSING.md asserting MIT over the whole repository.
+  for marker in COPYING NOTICE COPYRIGHT LICENSE.md LICENSE-APACHE; do
+    target="$work/Code/$name-$(printf '%s' "$marker" | tr '[:upper:].' '[:lower:]-')"
+    mkdir -p "$target"
+    printf 'pre-existing terms\n' > "$target/$marker"
+    set +e
+    "$work/Code/$name-docs/scripts/apply-project-license.sh" \
+      "$target" >"$TMP_ROOT/$name-$marker.out" 2>&1
+    status=$?
+    set -e
+
+    [ "$status" -eq 1 ] || {
+      echo "FAIL: helper did not refuse a target carrying $marker" >&2
+      return 1
+    }
+    grep -Fq "target already states its own licensing" "$TMP_ROOT/$name-$marker.out" || {
+      echo "FAIL: refusal for $marker did not name the rule" >&2
+      return 1
+    }
+    grep -Fq "$marker" "$TMP_ROOT/$name-$marker.out" || {
+      echo "FAIL: refusal for $marker did not name the file it found" >&2
+      return 1
+    }
+    # The refusal happens before the first copy, so the target keeps only what it arrived with.
+    for written in LICENSE LICENSE-THROUGHSTONE LICENSING.md; do
+      [ ! -e "$target/$written" ] || {
+        echo "FAIL: helper wrote $written into a target carrying $marker" >&2
+        return 1
+      }
+    done
+  done
+
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 # run_private_mono_case — the single repo retains and explains Throughstone's notice at root
 # without creating a project LICENSE for proprietary code.
 run_private_mono_case() {
@@ -599,6 +658,11 @@ run_public_proprietary_case
 run_invalid_visibility_case
 run_manual_multi_remote_case
 run_missing_canonical_license_case
+
+# --- Repos the method did not create -------------------------------------------
+# A repo registered in place keeps the licensing its owner set; the helper must refuse it rather
+# than write a license claim over code the method did not author.
+run_pre_existing_licensing_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------
 # Bad license input and missing license templates are detected before template files,
