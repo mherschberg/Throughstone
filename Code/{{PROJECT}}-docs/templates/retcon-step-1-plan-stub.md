@@ -105,7 +105,11 @@ the way — not a pretty description a mature team already knows.
        • the in-scope architecture sessions 1.1–1.14 in their own table carrying the same
          Planned/In progress/Done Status column as the inv-N/asset-N tables (session progress
          lives here in the PLAN while STEP-index stays at its greenfield seed); 1.1–1.13
-         harvest→confirm; 1.14 is the Cross-Cutting Review + land, not a harvest;
+         harvest→confirm; 1.14 is the Cross-Cutting Review + land, not a harvest. Rows go in
+         RUN order, which floats Phasing (1.2) to the end, after 1.13 — it is the one purely
+         forward session, so it runs on the finished descriptive set and names the forward
+         milestone (it also fills {{PHASE_1_NAME}} in prompts/STEP-index.md, the single edit
+         adoption makes to that file before landing);
        • the `Conditional sessions considered` table — seeded from code-visible surfaces
          (client surfaces, PII, auth) and refined as sessions harvest, exactly as
          greenfield seeds-then-refines it; every `Include` ALSO gets a lettered row

@@ -198,6 +198,13 @@ marking.) The appends:
   | Substep | Session | Status |
   |---------|---------|--------|
   | `1.1` | {{session name}} | Planned |
+
+  **Write the rows in run order, and float Phasing (`1.2`) to the end** — after `1.13`, immediately
+  before `1.14`. Every other session has an as-built half to harvest; Phasing is purely forward
+  (*what comes next*), so running it in numeric position would ask you to plan a roadmap before the
+  system it plans for has been described. Floated, it runs on the finished descriptive set. The
+  numbers don't change — `1.2` is still `1.2`, and its doc is still `architecture/02-*` — only its
+  position in this table does, and this table is what the harvest walks.
 - **The `Conditional sessions considered` table** — mirror the `Conditional sessions considered`
   table greenfield authors from `templates/step-plan-template.md` (its columns and its seeded rows),
   but decide each row from **code-visible surfaces**: a client/mobile surface →
@@ -219,12 +226,14 @@ an empty CI gate on a shipped system), or anywhere else — a `risks.yml` row wi
 so the check-in re-surfaces it. During adoption the risk lives in `risks.yml` **only** — do
 **not** add a `Planned` backfill STEP to `prompts/STEP-index.md`; the index stays at its greenfield
 seed until the baseline lands (see *How this prompt works*), when a deferred area becomes ordinary
-forward work like any other risk.
+forward work like any other risk. **One edit to the index is allowed before landing** — floated `1.2`
+fills the `{{PHASE_1_NAME}}` placeholder in its `## Phase 1 — …` heading (Stage 3), because landing
+reads the archive folder name from that heading. No row, status, or STEP is touched.
 
 **Resolution order.** Resolve the **lowest-open `asset-N`** per-asset substep first; only when every
-`asset-N` is `Done` does the lowest open substep become the first architecture session — the
-**lowest-open `1.N`** (Status ≠ `Done`), starting at `1.1` (Stage 3). So the next action now is the
-first per-asset substep, `asset-1`.
+`asset-N` is `Done` does the next action become the first architecture session — the **first open row
+in the session table**, read top to bottom, which starts at `1.1` (Stage 3). So the next action now
+is the first per-asset substep, `asset-1`.
 
 ### The per-asset substeps (depth)
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
@@ -266,10 +275,12 @@ point of retcon, and it is why the session templates are used here as *reference
 run: their decision lists say what an area must settle, and your code says how this system settled it.
 
 ### Resolving and tracking sessions
-**Resolve the lowest-open row** in the PLAN's session table — Status not `Done`, `N/A`, or
-`Deferred` — and run the loop below for it. That table holds the fixed `1.1`–`1.14` set **and the
-lettered rows for any conditional the map included** (`1.6a`, `1.7b`, …), so a conditional is
-resolved in place like any other session.
+**Resolve the first open row** in the PLAN's session table — reading top to bottom, the first whose
+Status is not `Done`, `N/A`, or `Deferred` — and run the loop below for it. **Table order, not
+session number, is what governs**: `inv-5` wrote the rows in run order, which floats Phasing (`1.2`)
+to the end (see below). The table holds the fixed `1.1`–`1.14` set **and the lettered rows for any
+conditional the map included** (`1.6a`, `1.7b`, …), so a conditional is resolved in place like any
+other session.
 
 **Run them strictly serially — harvest, confirm, and write one session before starting the next.**
 Do **not** batch: harvesting several sessions up front and confirming them later looks more efficient
@@ -406,8 +417,36 @@ The doc states **what the system is**. Provenance and confidence stay in the she
 into it: no "harvested from", no per-sentence sourcing, no confidence hedges. Drift and debt the
 harvest surfaced *are* content — record them as reality plus a flagged gap, with a `risks.yml` row.
 
-Then mark the session's row `Done` in the PLAN and resolve the next lowest-open `1.N`. Leave the
-sheet in place — it is transient scratch, discarded when STEP-1 lands, not archived as history.
+Then mark the session's row `Done` in the PLAN and resolve the next open row. Leave the sheet in
+place — it is transient scratch, discarded when STEP-1 lands, not archived as history.
+
+### Four sessions need a word about the float
+Floating Phasing changes what three earlier sessions can read, and gives Phasing itself a different
+job. Nothing about their templates changes — these are the notes the wrapper adds when it runs them.
+
+- **`1.3` Architecture Overview and `1.5` Scaling & Performance** canonically read the Phasing doc,
+  which doesn't exist yet. Harvest both from the code, and treat their forward *"don't foreclose the
+  roadmap"* input as **moot** here: this system already made its choices, and a foreclosure you find
+  is an as-built fact to record, not a decision to steer. Carry the question of whether those choices
+  still fit the roadmap to `1.14`, where the now-written Phasing doc can be read against them. `1.5`
+  also loses its usual growth input from Phasing, so **ask the user directly** what growth to expect
+  — that one is forward-intent, and only they can answer it.
+- **`1.13` Glossary** canonically reads *all* the architecture docs produced so far, and under the
+  float that set excludes Phasing. That's fine and deliberate: the Glossary's job here is the
+  **as-built vocabulary**, which is complete without it. Phasing's forward-milestone terms fold in at
+  `1.14`, whose Consistency check already flags Glossary drift — so no term is lost, and the Glossary
+  isn't blocked waiting on a doc about the future.
+- **`1.2` Phasing itself** runs last, on the finished descriptive set, and is a **forward-intent
+  session end to end** — there is no as-built half to harvest, so run it as a near-normal interview
+  (step 2). Two things make it more than an ordinary session under adoption. It names the **forward
+  milestone**: what this system's next release-level milestone is, given everything the baseline just
+  described. And it fills the **`{{PHASE_1_NAME}}` placeholder** in `prompts/STEP-index.md`'s
+  `## Phase 1 — {{PHASE_1_NAME}}` heading — the one edit to that file adoption makes before landing,
+  because the heading is where landing reads the archive folder name (`prompts/001-<phase-name>/`).
+  Leaving the placeholder unresolved would strand the baseline at archive time.
+
+> `1.14`'s side of this — reconciling Phasing against `1.3`/`1.5` once all three exist, and turning
+> foreclosure into gap analysis — belongs to the Cross-Cutting Review, in the increment below.
 
 > **When you reach `1.14` and Stage 4 is not present in this prompt, STOP.** Report that the
 > architecture baseline (Stages 1–3) is complete — every in-scope session harvested, confirmed, and

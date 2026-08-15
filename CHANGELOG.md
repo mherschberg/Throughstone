@@ -63,6 +63,12 @@ error/corruption and re-run paths, not normal operation.
   - **Nothing is skipped silently.** A conditional session the map includes is tracked and harvested
     like any other, and a session whose area your system doesn't have (a UI session on an API-only
     service) is recorded `N/A` or `Deferred` with a reason read from the code.
+  - **Roadmap planning runs last.** Every session but one has an as-built half to read; Phasing is
+    purely forward, so adoption floats it to the end, after the rest of the baseline exists. It plans
+    on the finished description of your system rather than ahead of it, names your next milestone, and
+    fills the Phase-1 name the STEP index needs before the baseline can be archived. The sessions that
+    normally read Phasing harvest from the code instead and carry the "does this still fit the
+    roadmap?" question to the Cross-Cutting Review.
   - **A deferral is presented as a trade, not a checkbox.** When an area is too large to read
     exhaustively, adoption stops and tells you what deferring costs — this part of the baseline stays
     incomplete, and work leaning on it is less reliable until backfilled — before you choose. The
