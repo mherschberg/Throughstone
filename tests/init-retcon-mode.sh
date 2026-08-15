@@ -281,12 +281,51 @@ run_marker_recovery_negative_case() {
   fi
 }
 
+# run_missing_stub_case — a corrupt/incomplete scaffold download (the stub STEP-1 PLAN template is
+# absent). init.sh must abort BEFORE flipping the status marker rather than ship a `retcon` project
+# with no PLAN: the marker routes every agent to RETCON-PROMPT.md, which reads the stub as a
+# precondition and cannot regenerate it, so a marker-without-PLAN state would dead-end the resolver.
+run_missing_stub_case() {
+  local name="retcon-nostub"
+  local work="$TMP_ROOT/$name"
+  local overview="$work/Code/$name-docs/overview.md"
+
+  copy_template "$work"
+  rm -f "$work/Code/{{PROJECT}}-docs/templates/retcon-step-1-plan-stub.md"
+  if (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --mode=existing \
+      --slug="$name" \
+      --desc="Missing stub template" \
+      --license=private \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1; then
+    echo "FAIL: init.sh accepted a missing stub STEP-1 PLAN template" >&2
+    return 1
+  fi
+
+  assert_file_contains "$TMP_ROOT/$name.out" "stub STEP-1 PLAN template is missing"
+  # The load-bearing marker must NOT have been flipped — no half-adopted `retcon` state ships.
+  ! grep -Fq "PROJECT-STATUS: retcon" "$overview" \
+    || { echo "FAIL: $name flipped the marker despite the missing stub template" >&2; return 1; }
+  # And no PLAN was seeded at the in-flight path.
+  if ls "$work/Upcoming Prompts/"*STEP-1-PLAN.md >/dev/null 2>&1; then
+    echo "FAIL: $name seeded a STEP-1 PLAN despite the missing template" >&2
+    return 1
+  fi
+}
+
 run_existing_case "retcon-multi" multi
 run_existing_case "retcon-mono"  mono
 run_existing_env_case
 run_new_case "green-explicit" --mode=new
 run_new_case "green-default"
 run_invalid_mode_case
+run_missing_stub_case
 run_marker_recovery_case
 run_marker_recovery_negative_case
 
