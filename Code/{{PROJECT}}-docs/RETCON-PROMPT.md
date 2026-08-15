@@ -149,8 +149,10 @@ done) — never rewrite the seed above.** Do the appends *first*, then mark `inv
 the completion flag. If a
 resumed agent finds `inv-5` still open, the upgrade was interrupted — re-run it **idempotently**:
 append only the blocks (asset table, `1.1`–`1.14` sessions, conditional table, `risks.yml` rows) not
-already present, then mark `inv-5` **Done**. (`inv-1`…`inv-4` are already `Done` from as-you-go
-marking.) The appends:
+already present — and for the asset table, reconcile **row by row** against the frozen recon-map
+Inventory: append an `asset-N` row for **every** Inventory asset that lacks one (an earlier run may
+have written the table header and some rows but not all). Then mark `inv-5` **Done**. (`inv-1`…`inv-4`
+are already `Done` from as-you-go marking.) The appends:
 
 - **Per-asset substeps** — the confirmed **Inventory** (from the recon map) projected into work
   units: one **row per asset**, tracked in their own appended table (its own columns — not
@@ -207,10 +209,12 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   record a short per-repo note (stack, entry points, role) in that README — its living home, which the
   owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
   **in place** by their real location; never relocate the user's code.
-- **Per doc-set** — save found source docs into `inputs/` (they ride the base inputs lifecycle:
-  point-in-time, the code wins on conflict) and write the Throughstone-shaped doc as a **pointer**
-  where that fits. Architecture-grade docs get *lifted* into `architecture/` by their owning session
-  later — that wiring is Stage 3; here, just land and classify them.
+- **Per doc-set** — copy the found source docs into `inputs/` and add an `inputs/inputs-index.md` row
+  (`Live`) for each, per the base inputs lifecycle (point-in-time; the code wins on conflict). Their
+  classification and trust already live in the frozen recon map — don't restate them. That is the
+  whole Stage-2 deliverable for a doc-set: **land and record, nothing more.** Architecture-grade docs
+  (a finished design doc, a protocol/API spec) get *lifted* into `architecture/` later by their owning
+  session — that wiring is Stage 3, not here.
 - **Per resource** — every non-repo, non-doc asset the inventory found gets a substep, feeding the
   session that will own it (record enough for its harvest to pick up): data stores → `1.4`; API /
   interface surfaces (HTTP/RPC endpoints, published contracts) → `1.11`; other runnable surfaces
@@ -226,3 +230,11 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
 When the per-asset substeps are done, the lowest open substep is the first architecture session
 (`1.1`) — **Stage 3, the per-session harvest→confirm wrapper** (RETCON-PROMPT's second half).
 *Forthcoming in the next build increment; until it lands, Stage 2 is the resolvable work.*
+
+> **When you reach `1.1` and Stage 3 is not present in this prompt, STOP.** Report that the inventory
+> baseline (Stages 1–2) is complete and the harvest→confirm sessions are pending a future build
+> increment, then wait. **Do NOT** run the architecture sessions from
+> `templates/architecture-sessions/` — those are the greenfield **cold-interview** files, and running
+> one against an adopted codebase would interview the architecture from scratch, exactly what retcon
+> exists to avoid. (When Stage 3 lands it will drive `1.1`–`1.13` as a harvest that reads those files
+> as reference data, never by triggering their interview.)
