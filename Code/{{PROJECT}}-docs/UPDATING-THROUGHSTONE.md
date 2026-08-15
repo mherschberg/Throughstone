@@ -239,9 +239,9 @@ apply each area as a coherent review-required group, as with the legacy migratio
 
 ### 1.7.2 migration
 
-**Session templates only — no project files change.** Two edits to
-`templates/architecture-sessions/*.md`, both *Templates for future use* under §2, so they affect
-sessions you run after pulling them and rewrite nothing you already produced.
+**Templates and guidance text only — no behavior changes, and nothing you already produced is
+rewritten.** Two edits to `templates/architecture-sessions/*.md` and two documentation fixes, all
+*Templates for future use* under §2, so they affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
@@ -255,9 +255,18 @@ sessions you run after pulling them and rewrite nothing you already produced.
   items are. If you have **customized session templates or added your own**, adopt the same heading so
   generic readers find your work list too — `METHOD.md` §4 documents the skeleton, and it is the only
   change you might want to make by hand.
+- **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
+  told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
+  check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
+  that guards it. Pull the updated `inputs/README.md`. If you have **already lifted** a document,
+  run `scripts/check.sh`: check 4 names any doc missing a field.
+- **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
+  apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
+  legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
+  added line into your project's index if you want the legend to describe what the file may contain.
 
-Pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. Nothing else is affected:
-no `status.sh` / `check.sh` change, no project state touched.
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, and `inputs/README.md` as a group.
+Nothing else is affected: no `status.sh` / `check.sh` change, no project state touched.
 
 ### 1.7.1 migration
 
