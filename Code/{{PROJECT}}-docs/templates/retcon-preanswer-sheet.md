@@ -1,6 +1,6 @@
 # {{PROJECT}} — Pre-answer sheet: {{N.N — session name}}
 
-**Session:** `{{templates/architecture-sessions/NN-....md}}`   <!-- the in-scope session this sheet harvests -->
+**Session:** `{{templates/architecture-sessions/NN-....md}}`   <!-- the in-scope harvest session (1.1–1.13) this sheet covers -->
 **Harvested:** {{YYYY-MM-DD}}
 **Sources read:** {{the confirmed recon map + which per-asset docs / inputs / code paths}}
 **Status:** {{Harvested → Confirmed}}   <!-- Harvested when the answers are drafted from reality;
@@ -9,7 +9,8 @@
 <!-- WHAT THIS IS. A pre-answer sheet is retcon's per-session hand-off: instead of interviewing a
      session cold, the harvest DRAFTS an answer to each of that session's decisions FROM REALITY
      (the confirmed recon map, the per-asset docs, and the running code), and the confirm pass then
-     walks every decision with the user. One sheet per in-scope architecture session, keyed to that
+     walks every decision with the user. One sheet per in-scope harvest session (`1.1`–`1.13`; `1.14`
+     is the Cross-Cutting Review + land, not a harvest), keyed to that
      session's decision list — NOT a pre-written draft of the doc (a draft doc anchors the user and
      forces provenance into the final doc).
 
@@ -27,8 +28,9 @@
      2. CONFIRM (with the user): walk each row proportionate to confidence × consequence — a
         from-code answer gets a fast "right?", a low-confidence or load-bearing one a real
         discussion — and record the outcome in Confirm. Then write the clean `architecture/` doc at
-        the chosen Version/Status: confirmed → plain fact; deferred → `Coverage: deferred` + a
-        `registries/risks.yml` row.
+        its `Version` and `Status`. Record each decision by its Confirm outcome — independently of
+        those two doc axes: a confirmed decision as plain fact; a decision left unconfirmed as
+        `Coverage: deferred` with a `registries/risks.yml` row.
 
      TRANSIENT. Provenance and confidence live ONLY here — they never leak into the clean doc. The
      sheet is scratch in `Upcoming Prompts/retcon/`; it is discarded when STEP-1 lands (not archived
