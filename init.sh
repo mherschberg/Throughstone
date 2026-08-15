@@ -162,7 +162,8 @@ Options:
   --license=NAME        mit | bsd-3 | apache-2.0 | private
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
-  --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
+  --registries=yes|no   Keep registries/ (mono-repo only; default: yes; always kept
+                         with --mode=existing, which records repos and risks there)
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
   --trunk-branch=NAME   Generated repo trunk branch     (default: main)
