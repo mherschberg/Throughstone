@@ -281,7 +281,9 @@ resolver) instead of interviewing it from scratch. Most of it — the front door
 adoption-only templates — is new machinery a project already built with Throughstone never touches;
 you get it automatically when you pull 2.0 and re-run `init.sh` to adopt a new codebase, with nothing
 to migrate. This section collects the few things an *existing* project picks up on upgrade, added as
-each 2.0 change lands. Nothing here rewrites project files, and all of it is greenfield-inert.
+each 2.0 change lands. Nothing here rewrites project files. The adoption machinery is
+greenfield-inert; the couple of general robustness fixes at the end change only error/corruption and
+re-run paths, never normal operation.
 
 **`throughstone:` field on repo rows.** `registries/repos.yml` gains a per-row `throughstone:` field
 recording how the method relates to each repo — value `managed` today, with `external` reserved for a
@@ -305,6 +307,20 @@ now scaffolds an `Upcoming Prompts/retcon/` scratch folder when it adopts an exi
 home for the transient per-session sheets the harvest writes. Both are **adoption-only and
 greenfield-inert**: an existing project generated no such folder and needs none. Pull the new
 template if you may adopt another codebase later; otherwise there is no action.
+
+**`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
+picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or
+corrupted), the helper now reports the status as *indeterminate* and points at the `AGENTS.md` "First
+action" decision, rather than falling through and possibly misreporting "Run STEP-1.1". **No action,
+and no change in normal operation** — a project with a valid marker (every healthy project) sees
+identical output. Pull the updated `scripts/status.sh` to get it.
+
+**`init.sh` fresh-template guard (general safety).** `init.sh` now refuses to run unless it is a fresh
+template checkout — it keys on the `THROUGHSTONE-TEMPLATE-GUARD` sentinel in the root
+`AGENTS.md`/`CLAUDE.md` that setup strips — stopping a destructive second run inside an
+already-initialized project or a run on top of an unrelated repo. This affects **only re-runs of the
+bootstrap**: an existing project already finished `init.sh` and never runs it again, so there is
+**nothing to do**. It matters only if you later download 2.0 to adopt or start another codebase.
 
 ## 3. Manual Mode
 

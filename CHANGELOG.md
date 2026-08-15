@@ -11,8 +11,10 @@ any project built with it.
 
 Work toward the **2.0** line, which adds **existing-codebase adoption** ("retcon"): a new project can
 be stood up by reverse-engineering a running system instead of interviewing its architecture from
-scratch. Entries accumulate here as the capability lands. Everything below is **greenfield-inert** —
-a project stood up from scratch behaves exactly as before.
+scratch. Entries accumulate here as the capability lands. The adoption capability is
+**greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before;
+the few general robustness fixes under **Changed** touch only error/corruption and re-run paths, not
+normal operation.
 
 ### Added
 - **Existing-codebase adoption front door** (`init.sh` → `RETCON-PROMPT.md`) — `init.sh` now opens with
@@ -41,6 +43,20 @@ a project stood up from scratch behaves exactly as before.
   code and provenance-tagged, confirmed with the user before the clean `architecture/` doc is written.
   `init.sh` scaffolds an `Upcoming Prompts/retcon/` scratch home for these when adopting an existing
   codebase.
+
+### Changed
+- **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
+  carries no recognized `PROJECT-STATUS` value (`not-started` / `retcon` / `kickoff-complete` — a lost
+  or corrupted marker), the helper now reports the status as **indeterminate** and points at the
+  `AGENTS.md` "First action" decision, instead of confidently resolving the index (which on a bare seed
+  could misreport "Run STEP-1.1" — wrong both for a pre-kickoff greenfield and for a retcon whose marker
+  was lost). Normal operation, with a valid marker, is unchanged; this hardens greenfield and adoption
+  alike.
+- **`init.sh` refuses to run outside a fresh template checkout.** The one-time bootstrap is destructive
+  (it removes `.git` and template-only files), so it now checks for the template sentinel in the root
+  pointers before doing anything and stops with a clear message if it is absent — preventing a
+  second run inside an already-initialized project (which could delete the generated repo's history)
+  or a run on top of an unrelated repo. A first run on a fresh download is unaffected.
 
 ## [1.7.1] - 2026-08-10
 
