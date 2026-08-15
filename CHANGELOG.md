@@ -63,6 +63,14 @@ error/corruption and re-run paths, not normal operation.
   - **Nothing is skipped silently.** A conditional session the map includes is tracked and harvested
     like any other, and a session whose area your system doesn't have (a UI session on an API-only
     service) is recorded `N/A` or `Deferred` with a reason read from the code.
+  - **Your existing documents get used, not just filed.** Adoption copies every document it finds
+    into `inputs/`, then the session covering that area acts on it: a finished spec or still-true
+    design doc is **lifted** into `architecture/` as the living copy (the original stays as
+    provenance), a PRD or research note is synthesized into the doc being written, and the
+    `inputs-index.md` ledger records what has been superseded and what still holds. Where a document
+    disagrees with the code, the code wins and the disagreement is written down as staleness rather
+    than averaged away. Nothing is retired without you — a fully-superseded input is offered for
+    archiving, never moved automatically.
   - **Roadmap planning runs last.** Every session but one has an as-built half to read; Phasing is
     purely forward, so adoption floats it to the end, after the rest of the baseline exists. It plans
     on the finished description of your system rather than ahead of it, names your next milestone, and
