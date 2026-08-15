@@ -40,7 +40,12 @@ language the same way. It's short, but it prevents a lot of drift.
   meaning (e.g. "user" vs. "account" vs. "member"; "job" vs. "task").
 - Keep definitions tight and align entity names with the Data Model architecture doc.
 
-## What to produce (work through these)
+## Decisions to make (in order)
+
+> Each item below is a batch of terms to work through with the user; the decision in each is the
+> canonical definition and name. (Every session template uses this heading, so anything reading a
+> session file finds its work list in the same place.)
+
 1. **Domain terms.** The nouns and concepts specific to this project, each with a one- to
    two-sentence definition.
 2. **Entities.** The data model entities, defined consistently.
@@ -68,11 +73,15 @@ a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for
 `Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
 conditional's template. See the next-action resolver in `METHOD.md` §10.
 
-**Begin now — in this same reply.** "STEP-1.13" or "session 1.13", with or without a leading
-"Run" and with or without ": Glossary", is your go-ahead, not a request for acknowledgement:
-don't say "ready when you are", don't recap this file, don't ask whether to start. Read
-`overview.md`, anything relevant in `inputs/`, and all the architecture docs silently. Then, in this one reply:
-**(1)** tell the user — in the one or two sentences from **What this session does** above —
-what you're about to do (plain language); then **(2)** immediately present the first batch of
-terms you've gathered (with proposed plain-language definitions) for them to confirm or
-correct. That orientation plus the first batch is your entire first reply — nothing more.
+**If you were sent here to run this session, begin now — in this same reply.** "STEP-1.13" or
+"session 1.13", with or without a leading "Run" and with or without ": Glossary", is your
+go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this
+file, don't ask whether to start. Read `overview.md`, anything relevant in `inputs/`, and all
+the architecture docs silently. Then, in this one reply: **(1)** tell the user — in the one or
+two sentences from **What this session does** above — what you're about to do (plain language);
+then **(2)** immediately present the first batch of terms you've gathered (with proposed
+plain-language definitions) for them to confirm or correct. That orientation plus the first
+batch is your entire first reply — nothing more. **If you were not sent here to run it — you
+are reading this file to harvest its decisions from existing code, to check whether a
+conditional applies, or to review coverage — this paragraph is not addressed to you.** Use the
+file as reference material and follow whatever sent you here.

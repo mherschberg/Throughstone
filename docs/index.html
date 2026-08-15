@@ -87,11 +87,14 @@
 
   /* process */
   .process{background:var(--paper);}
-  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
   .flow-step{background:var(--lime);border:1px solid #e8ddc8;border-radius:8px;padding:22px;min-width:0;}
   .flow-step .num{font-family:var(--mono);color:var(--ochreD);font-size:14px;margin-bottom:12px;}
   .flow-step h3{font-size:20px;margin-bottom:8px;}
   .flow-step p{color:var(--mortar);font-size:17px;margin:0;}
+  .flow-note{margin-top:30px;max-width:860px;}
+  .flow-note .eyebrow{font-size:13px;}
+  .flow-note p{color:var(--mortar);font-size:18px;line-height:1.5;margin:8px 0 0;}
 
   /* artifacts */
   .artifacts{background:var(--lime);border-top:1px solid #ece2cf;border-bottom:1px solid #ece2cf;}
@@ -232,10 +235,13 @@
       <p>Throughstone keeps the agent from starting with code. It first turns the idea into durable project state, then builds against that state in reviewable units.</p>
     </div>
     <div class="flow">
-      <div class="flow-step"><div class="num">01</div><h3>Initialize</h3><p>Run the setup wizard once. It stamps the project name, license posture, repo layout, docs hub, prompts repo, and agent pointers.</p></div>
-      <div class="flow-step"><div class="num">02</div><h3>Kick off</h3><p>Tell the agent to read AGENTS.md. It interviews you, records the project brief, and prepares STEP-1 for architecture. Bring existing specs, designs, or research and it builds on them.</p></div>
-      <div class="flow-step"><div class="num">03</div><h3>Design first</h3><p>Architecture sessions capture scope, data, security, interfaces, testing, deployment, ADRs, and the cross-cutting review before app code starts.</p></div>
-      <div class="flow-step"><div class="num">04</div><h3>Build in STEPs</h3><p>The planning session turns the locked architecture into implementation STEPs, each with substep prompts, verification, review, and archival.</p></div>
+      <div class="flow-step"><div class="num">01</div><h3>Design first</h3><p>Point the agent at AGENTS.md to kick off: it interviews you, then the architecture sessions capture scope, data, security, interfaces, testing, deployment, and ADRs before any app code.</p></div>
+      <div class="flow-step"><div class="num">02</div><h3>Build in STEPs</h3><p>The planning session turns the locked architecture into implementation STEPs, each a focused substep prompt with verification, review, and archival.</p></div>
+      <div class="flow-step"><div class="num">03</div><h3>Check-ins</h3><p>On a cadence you set (about every 20 STEPs), reconcile the docs against the code, re-check risks, and run the full suite so drift can't pile up.</p></div>
+    </div>
+    <div class="flow-note">
+      <div class="eyebrow">Beyond the build</div>
+      <p>Throughstone covers the full SDLC — the architecture sessions and runbooks plan for deployment, monitoring, releases, and incidents, not just first delivery.</p>
     </div>
   </div>
 </section>
@@ -347,7 +353,7 @@
     <div class="sec-head">
       <div class="eyebrow">Operational discipline</div>
       <h2>Throughstone keeps pressure on the project after the first plan.</h2>
-      <p>The scaffold includes runbooks and registers for the maintenance work that often gets skipped until production exposes it.</p>
+      <p>Design isn't just architecture. Throughstone plans for the full lifecycle — deployment, releases, incidents, and dependencies — with runbooks and registers for the maintenance work that often gets skipped until production exposes it.</p>
     </div>
     <div class="ops-grid">
       <div class="op-card"><h3>Check-ins</h3><p>On a cadence you set (about every 20 STEPs), reconcile docs against code, re-check conditional sessions, review risks, and run the full test suite.</p></div>
