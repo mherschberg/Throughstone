@@ -189,8 +189,8 @@ marking.) The appends:
   doc (see below) — never in the cell.
 - **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror, in their own
   appended table with the **same `Planned` · `In progress` · `Done` Status convention** as the
-  `inv-N` and `asset-N` tables, so a resumed agent resolves the lowest-open session across a chat
-  boundary. Session progress lives **here in the PLAN**: during adoption `prompts/STEP-index.md` is
+  `inv-N` and `asset-N` tables, so a resumed agent resolves the right session across a chat boundary
+  (Stage 3 gives the two-step rule: an `In progress` row first, then table order). Session progress lives **here in the PLAN**: during adoption `prompts/STEP-index.md` is
   held at its greenfield seed (see the risks.yml paragraph below), so it cannot track which session is
   done. `1.1`–`1.13` run the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review +
   land, not a harvest.
@@ -280,12 +280,24 @@ point of retcon, and it is why the session templates are used here as *reference
 run: their decision lists say what an area must settle, and your code says how this system settled it.
 
 ### Resolving and tracking sessions
-**Resolve the first open row** in the PLAN's session table — reading top to bottom, the first whose
-Status is not `Done`, `N/A`, or `Deferred` — and run the loop below for it. **Table order, not
-session number, is what governs**: `inv-5` wrote the rows in run order, which floats Phasing (`1.2`)
-to the end (see below). The table holds the fixed `1.1`–`1.14` set **and the lettered rows for any
-conditional the map included** (`1.6a`, `1.7b`, …), so a conditional is resolved in place like any
-other session.
+Resolve the next session from the PLAN's session table in two steps, in this order:
+
+1. **An `In progress` row wins, wherever it sits.** It means a session was started and interrupted,
+   and its sheet is sitting half-walked in `Upcoming Prompts/retcon/` — finish that one (see
+   *Resuming* below).
+2. **Otherwise take the first open row** — reading top to bottom, the first whose Status is not
+   `Done`, `N/A`, or `Deferred`.
+
+The order matters because rows can appear **above** the session you are working on: a conditional
+included late (PII surfacing at `1.10`, say) gets its lettered row next to the core session that owns
+it, which by then is already `Done` and sits higher in the table. On the plain top-to-bottom rule a
+resumed chat would jump to that new row and strand the half-harvested session below it, whose sheet
+holds confirmations the user already gave. Finish the started one, then let table order take over.
+
+**Table order, not session number, is what governs** the second step: `inv-5` wrote the rows in run
+order, which floats Phasing (`1.2`) to the end (see below). The table holds the fixed `1.1`–`1.14`
+set **and the lettered rows for any conditional the map included** (`1.6a`, `1.7b`, …), so a
+conditional is resolved in place like any other session.
 
 **Run them strictly serially — harvest, confirm, and write one session before starting the next.**
 Do **not** batch: harvesting several sessions up front and confirming them later looks more efficient
