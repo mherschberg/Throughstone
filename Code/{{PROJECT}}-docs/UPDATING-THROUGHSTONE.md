@@ -237,28 +237,6 @@ apply each area as a coherent review-required group, as with the legacy migratio
 - *Project state* (your `inputs/` contents): entirely yours — nothing is auto-created or
   rewritten. The folder is optional; a session reads what's there and ignores an empty folder.
 
-### 1.7.2 migration
-
-**Session templates only — no project files change.** Two edits to
-`templates/architecture-sessions/*.md`, both *Templates for future use* under §2, so they affect
-sessions you run after pulling them and rewrite nothing you already produced.
-
-- **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
-  here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
-  invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first
-  question back exactly as before. What changes is a file *read* for another purpose (the
-  Cross-Cutting Review checking conditional applicability, the check-in re-evaluating them): those
-  readers are now told the go-ahead isn't theirs, instead of relying on their own instructions to
-  outweigh it.
-- **One work-list heading.** The Glossary and Cross-Cutting Review templates now head their work list
-  `## Decisions to make (in order)`, matching the other fifteen, each with a note explaining what its
-  items are. If you have **customized session templates or added your own**, adopt the same heading so
-  generic readers find your work list too — `METHOD.md` §4 documents the skeleton, and it is the only
-  change you might want to make by hand.
-
-Pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. Nothing else is affected:
-no `status.sh` / `check.sh` change, no project state touched.
-
 ### 1.7.1 migration
 
 **Upgrading from 1.7.0?** A small follow-up that gives the `inputs/` folder a lifecycle. It rewrites
@@ -329,6 +307,36 @@ now scaffolds an `Upcoming Prompts/retcon/` scratch folder when it adopts an exi
 home for the transient per-session sheets the harvest writes. Both are **adoption-only and
 greenfield-inert**: an existing project generated no such folder and needs none. Pull the new
 template if you may adopt another codebase later; otherwise there is no action.
+
+**Session templates: the go-ahead is now conditional, and the work-list heading is uniform (not
+adoption-specific).** Two edits to `templates/architecture-sessions/*.md`, both *Templates for future
+use* under §2, so they affect sessions you run after pulling them and rewrite nothing you already
+produced.
+
+- Each session file's closing paragraph now opens "If you were sent here to run this session…" and
+  ends by releasing a reader who wasn't. Invoking a session normally is unchanged — you type
+  `Run STEP-1.N` and get the first question back exactly as before. What changes is a file *read* for
+  another purpose (the Cross-Cutting Review checking conditional applicability, the check-in
+  re-evaluating them): those readers are now told the go-ahead isn't theirs, instead of relying on
+  their own instructions to outweigh it. `METHOD.md` §4 states the rule, and `AGENTS.md`'s session
+  runner points at it.
+- The Glossary and Cross-Cutting Review templates now head their work list
+  `## Decisions to make (in order)`, matching the other fifteen, each with a note explaining what its
+  items are. If you have **customized session templates or added your own**, adopt the same heading so
+  generic readers find your work list too. That is the only change here you might want to make by
+  hand; pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. No `status.sh` /
+  `check.sh` change, no project state touched.
+
+**Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
+reads each architecture-session template as reference data, drafts every decision from the running
+code, confirms them with you, and writes the clean `architecture/` doc. It reuses what your project
+already has — the session templates unchanged, `templates/architecture-doc-template.md` for the
+output, `registries/risks.yml` for anything deferred, and the method's own substep statuses
+(`In progress`, `Deferred`, `N/A`) for tracking — and adds no new machinery, so what it produces is
+an ordinary Throughstone baseline rather than an adoption-shaped one. **Adoption-only and
+greenfield-inert:** a project already built with Throughstone ran those sessions as interviews and has
+nothing to migrate. The one related change that is *not* adoption-specific — the conditional go-ahead
+and the uniform work-list heading — is the entry above.
 
 **`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
 picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or

@@ -116,6 +116,12 @@ run_existing_case() {
   fi
   assert_file_contains "$docs/RETCON-PROMPT.md" "Stage 1 — Intake"
   assert_file_contains "$docs/RETCON-PROMPT.md" "Upgrade this PLAN by addition"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Stage 3 — Harvest→confirm"
+  # The harvest writes architecture docs from the shared template, so they carry Version / Status /
+  # Version Log and the landed baseline passes its own check.sh check 4.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "templates/architecture-doc-template.md"
+  # The work list is addressed by the one heading every session template now uses (1.7.2 contract).
+  assert_file_contains "$docs/RETCON-PROMPT.md" "## Decisions to make (in order)"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
