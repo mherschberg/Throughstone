@@ -93,9 +93,10 @@ Presence and shape of the safety net per repo — not a quality verdict, just wh
 
 ## Confidence & Unknowns
 
-What is still uncertain after the breadth pass — open questions, low-confidence reads, and areas
-not yet opened. Genuinely-risky unknowns are pushed to `registries/risks.yml` with a revisit
-trigger; the check-in re-surfaces them.
+What is still uncertain after the breadth pass — open questions and low-confidence reads that need a
+**next move** (harvest, or ask the user). A *deliberate* depth-dial deferral is not an unknown: it
+goes in **Coverage & Confidence** below, not here. Genuinely-risky unknowns are pushed to
+`registries/risks.yml` with a revisit trigger; the check-in re-surfaces them.
 
 | Unknown / low-confidence area | Why it matters | Confidence | Next move |
 |-------------------------------|----------------|------------|-----------|

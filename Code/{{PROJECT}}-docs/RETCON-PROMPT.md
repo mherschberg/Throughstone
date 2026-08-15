@@ -147,12 +147,14 @@ The confirmed map now fixes both the asset list and which sessions apply. Edit
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: **append at the END of the PLAN (after Definition of
 done) — never rewrite the seed above.** Do the appends *first*, then mark `inv-5` **Done** last, as
 the completion flag. If a
-resumed agent finds `inv-5` still open, the upgrade was interrupted — re-run it **idempotently**:
-append only the blocks (asset table, `1.1`–`1.14` sessions, conditional table, `risks.yml` rows) not
-already present — and for the asset table, reconcile **row by row** against the frozen recon-map
-Inventory: append an `asset-N` row for **every** Inventory asset that lacks one (an earlier run may
-have written the table header and some rows but not all). Then mark `inv-5` **Done**. (`inv-1`…`inv-4`
-are already `Done` from as-you-go marking.) The appends:
+resumed agent finds `inv-5` still open, the upgrade was interrupted — re-run it **idempotently**,
+reconciling each block **row by row** rather than treating a present table header as a complete block
+(an earlier run may have written a header and some rows but not all): append an `asset-N` row for
+**every** frozen recon-map Inventory asset that lacks one; append any missing **session** row so the
+table holds the full fixed `1.1`–`1.14` set (a dropped tail would silently skip the Cross-Cutting
+Review); append any missing **conditional** row from the seeded set; and add any `risks.yml` row not
+already present. Then mark `inv-5` **Done**. (`inv-1`…`inv-4` are already `Done` from as-you-go
+marking.) The appends:
 
 - **Per-asset substeps** — the confirmed **Inventory** (from the recon map) projected into work
   units: one **row per asset**, tracked in their own appended table (its own columns — not
@@ -209,8 +211,9 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   record a short per-repo note (stack, entry points, role) in that README — its living home, which the
   owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
   **in place** by their real location; never relocate the user's code.
-- **Per doc-set** — copy the found source docs into `inputs/` and add an `inputs/inputs-index.md` row
-  (`Live`) for each, per the base inputs lifecycle (point-in-time; the code wins on conflict). Their
+- **Per doc-set** — copy the found source docs into `inputs/` and add each one's
+  `inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle (point-in-time; the code
+  wins on conflict). Their
   classification and trust already live in the frozen recon map — don't restate them. That is the
   whole Stage-2 deliverable for a doc-set: **land and record, nothing more.** Architecture-grade docs
   (a finished design doc, a protocol/API spec) get *lifted* into `architecture/` later by their owning
