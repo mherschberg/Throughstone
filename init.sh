@@ -337,7 +337,21 @@ DESC="$(want "$DESC_IN" 'One-line description')"
 # License — accept a friendly token from --license, else ask the two-part question. The durable
 # result is PROJECT_LICENSE_ID, written later to .throughstone/project-license so generated
 # helpers can distinguish proprietary projects from missing LICENSE files.
+#
+# When adopting an existing codebase the question needs its scope said out loud. The repos being
+# adopted already answer "open source or proprietary?" — possibly differently from each other —
+# and a user reading the bare question reasonably thinks they are recording that fact about their
+# code. They are not: this selection covers the documentation hub being created here and anything
+# the method creates later, and their existing repos keep the licensing their owners set (the
+# method records licensing, it never establishes it for code it did not create). The same scope
+# governs the copyright-holder answer below, which is why the note precedes both.
 LICENSE_CHOICE=""
+if [ "$MODE" = "existing" ] && [ -z "$LICENSE_IN" ] && [ "$NONINTERACTIVE" != "1" ]; then
+  echo
+  echo "  The next two answers cover the documentation hub Throughstone is creating for you,"
+  echo "  and any repo it creates later — NOT the code you're adopting. Your existing repos keep"
+  echo "  whatever licensing they already have; the agent records what it finds, never changes it."
+fi
 if [ -n "$LICENSE_IN" ]; then
   normalize_license_choice "$LICENSE_IN" \
     || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2; }

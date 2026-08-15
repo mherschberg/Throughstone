@@ -101,7 +101,10 @@ error/corruption and re-run paths, not normal operation.
     third-party terms — and nothing writes a `LICENSE` into a repo you already had. The license you
     pick at install time covers this method's own artifacts and anything it creates for you, so a
     repo whose license differs from it is not a problem to fix, and adopted repos carrying several
-    different licenses is a normal result rather than an inconsistency.
+    different licenses is a normal result rather than an inconsistency. `init.sh` now says that at
+    the point it asks: when you're adopting, the license and copyright-holder questions state up
+    front that they cover the documentation hub being created and anything created later, not the
+    code you're bringing — so you aren't answering about repos that already have their own answer.
 
 ### Changed
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
