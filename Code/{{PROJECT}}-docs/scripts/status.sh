@@ -52,6 +52,29 @@ if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: retcon' "$OVERVIEW"; then
   exit 0
 fi
 
+# --- Missing / unrecognized marker guard --------------------------------------
+# The three recognized PROJECT-STATUS values are not-started, retcon, and kickoff-complete (see
+# overview-template.md). If overview.md exists but carries none of them, the marker was lost or
+# corrupted. Do NOT fall through and confidently resolve the index: a bare seed would misreport
+# "Run STEP-1.1", which is wrong both for a pre-kickoff greenfield (should run kickoff) and for a
+# retcon whose marker was lost (should restore the marker and follow RETCON-PROMPT.md). Say it's
+# indeterminate and point at the AGENTS.md "First action" decision, which restores the marker from
+# disk (status.sh stays a helper; the agent does the recovery).
+if [ -f "$OVERVIEW" ] \
+  && ! grep -qE 'PROJECT-STATUS: (not-started|retcon|kickoff-complete)' "$OVERVIEW"; then
+  echo "Where you are:  indeterminate — overview.md has no recognized PROJECT-STATUS marker"
+  echo "                (expected one of: not-started, retcon, kickoff-complete)."
+  echo
+  echo "Next action:"
+  echo "  → the kickoff marker is missing or corrupted. Restore it via the AGENTS.md \"First action —"
+  echo "    kickoff or resume?\" decision, which infers the mode from disk. In short: an in-flight"
+  echo "    \"Upcoming Prompts/<project>-STEP-1-PLAN.md\" (or an \"Upcoming Prompts/retcon/\" folder) over a"
+  echo "    still-bare STEP-index seed means a retcon whose marker was lost → restore \"PROJECT-STATUS:"
+  echo "    retcon\" and follow RETCON-PROMPT.md; a bare seed with no such PLAN means kickoff never ran"
+  echo "    → \"not-started\"; otherwise → \"kickoff-complete\" (resume). Then re-run status.sh."
+  exit 0
+fi
+
 if [ ! -f "$INDEX" ]; then
   echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
   echo
