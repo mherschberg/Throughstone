@@ -161,6 +161,12 @@ that selection against the docs hub's canonical `LICENSE`, copies the project li
 for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
+**Run it only on a repo you create.** A repo **registered in place** — one that existed before
+this project did — keeps whatever licensing its owner set: read it, record it in the repo's
+`registries/repos.yml` entry, and leave it alone. The method records licensing; it never
+establishes licensing for code it did not create (`METHOD.md` §7), so do not apply the posture
+to such a repo, and do not treat a difference between it and the bootstrap selection as
+something to reconcile. The helper refuses a target that already states its own licensing.
 `scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
 the root pointers). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
 `./doctor.sh links` are thin shortcuts to the docs hub's `scripts/status.sh`,

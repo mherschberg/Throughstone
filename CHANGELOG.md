@@ -149,6 +149,18 @@ error/corruption and re-run paths, not normal operation.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **The project license could be applied to a repo the method didn't create.** `METHOD.md` §7 lets a
+  repo be **registered in place** — referenced where it already sits instead of created under
+  `Code/` — but every instruction around `scripts/apply-project-license.sh` was written for a repo
+  the method had just scaffolded, and the helper itself checked only for a plain `LICENSE`. A repo
+  stating its terms any other way — `COPYING`, `NOTICE`, `LICENSE.md`, `LICENSE-<id>` — would take
+  the project's `LICENSE` and a `LICENSING.md` asserting that license over the entire repository,
+  written from an answer given at install time about code the method never authored. The helper now
+  refuses such a target before writing anything, and `METHOD.md` §7 states the rule the refusal
+  enforces — **the method records licensing; it never establishes licensing for code it did not
+  create** — with `AGENTS.md`, the planning session, and the repo README template all pointing at
+  it. A repo the method creates carries none of those files, so nothing about scaffolding a new
+  repo changes.
 
 ## [1.7.1] - 2026-08-10
 

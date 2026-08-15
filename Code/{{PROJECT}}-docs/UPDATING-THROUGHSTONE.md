@@ -327,8 +327,8 @@ produced.
   hand; pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. No `status.sh` /
   `check.sh` change, no project state touched.
 
-**Four guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
-All are documentation, so nothing you already produced is rewritten and no behavior changes.
+**Guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
+All but the last are documentation only; nothing you already produced is rewritten.
 
 - **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which
@@ -356,6 +356,20 @@ All are documentation, so nothing you already produced is rewritten and no behav
   field, and its value is now a sentence. It takes any `Coverage:` field whose value isn't `full`.
   Pull `runbooks/check-in.md` with the two files above; if an earlier check-in reported no deferred
   coverage, it is worth re-running the sweep once by hand.
+- **The project license is applied only to repos the method creates.** `METHOD.md` §7 already let a
+  repo be **registered in place** — referenced where it sits, rather than created under `Code/` —
+  but every instruction around `scripts/apply-project-license.sh` was written as though every repo
+  were one the method had just scaffolded. Pointed at a repo that existed beforehand, the helper
+  would give it the project's `LICENSE` and a `LICENSING.md` asserting that license over the whole
+  repository. It now **refuses** a target that already states its own terms (`COPYING`, `NOTICE`,
+  `LICENSE.md`, `LICENSE-<id>`, …) before writing anything, and `METHOD.md` §7, `AGENTS.md`, the
+  planning session, and the repo README template state the rule: **the method records licensing; it
+  never establishes licensing for code it did not create.** Pull those five files with
+  `scripts/apply-project-license.sh`. No effect on repos you scaffolded through the method — they
+  carry none of those files, and re-running the helper on one behaves exactly as before. **One
+  thing to check:** if you have registered an existing repo in place and ran the helper on it, look
+  at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner, whether they say what you
+  intend.
 
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
