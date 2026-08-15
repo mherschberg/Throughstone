@@ -223,7 +223,11 @@ marking.) The appends:
 **Seed `registries/risks.yml` from the confirmed map.** Give each genuinely-risky item the map
 surfaces — in **Confidence & Unknowns**, **Coverage & Confidence**, **Tests & CI** (e.g. no tests or
 an empty CI gate on a shipped system), or anywhere else — a `risks.yml` row with a revisit trigger,
-so the check-in re-surfaces it. During adoption the risk lives in `risks.yml` **only** — do
+so the check-in re-surfaces it. **Write rows into the file's own `risks:` list, in the shape its
+commented example documents** (`id`, `status`, `title`, `category`, `severity`, `owner`, `opened`,
+`source`, `description`, `impact`, `mitigation`, `revisit_trigger`, `refs`) — the file ships as
+`risks: []` with that example beneath it. Nothing validates this registry mechanically, so a row
+invented in a different shape stays broken until a human reads it. During adoption the risk lives in `risks.yml` **only** — do
 **not** add a `Planned` backfill STEP to `prompts/STEP-index.md`; the index stays at its greenfield
 seed until the baseline lands (see *How this prompt works*), when a deferred area becomes ordinary
 forward work like any other risk. **One edit to the index is allowed before landing** — floated `1.2`
@@ -389,7 +393,7 @@ Record each outcome in the sheet's **Confirm** column: *confirmed as-is*, *corre
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
 user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
 risky rather than merely incomplete — a `registries/risks.yml` row with a revisit trigger, so the
-periodic check-in re-surfaces it. During adoption the risk lives in `risks.yml` only: do **not** add
+periodic check-in re-surfaces it (in that file's documented row shape, as at `inv-5`). During adoption the risk lives in `risks.yml` only: do **not** add
 a backfill STEP to `prompts/STEP-index.md`, which is held at its greenfield seed until the baseline
 lands, at which point a deferred area becomes ordinary forward work like any other risk.
 
