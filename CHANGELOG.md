@@ -95,6 +95,13 @@ error/corruption and re-run paths, not normal operation.
     warning then follows the gap: the doc's `Coverage:` line says what is missing, how big it is, and
     what it means for someone building on it (never a bare "deferred"), and a genuinely risky gap gets
     a `risks.yml` row the periodic check-in re-surfaces.
+  - **Your repos' licensing is recorded, never set.** Adoption registers every repo where it already
+    sits, so each one's licensing stays its owner's: the recon map records what each repo actually
+    says — the identifier and the file it came from, `none stated` where nothing does, plus vendored
+    third-party terms — and nothing writes a `LICENSE` into a repo you already had. The license you
+    pick at install time covers this method's own artifacts and anything it creates for you, so a
+    repo whose license differs from it is not a problem to fix, and adopted repos carrying several
+    different licenses is a normal result rather than an inconsistency.
 
 ### Changed
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but

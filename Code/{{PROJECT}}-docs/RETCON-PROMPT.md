@@ -143,7 +143,8 @@ is complete.
 
 ### `inv-3` — Draft the recon map
 Copy `templates/reports/recon-map-report-template.md` to `reports/YYYY-MM-DD-step-0001-recon-map.md`
-and fill every section from the scan: inventory, stack per repo, entry points/services, data stores,
+and fill every section from the scan: inventory, stack per repo (including each repo's licensing
+**as found** — recorded, never set), entry points/services, data stores,
 integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Propose a
 **Scope** for each Inventory row (`adopt` unless the code says otherwise) — the user settles it at
 `inv-4`; a draft proposal is not the decision. Stamp the
@@ -285,6 +286,18 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   record a short per-repo note (stack, entry points, role) in that README — its living home, which the
   owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
   **in place** by their real location; never relocate the user's code.
+  **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
+  its owner's and the method only records it (`METHOD.md` §7: the method records licensing; it
+  never establishes licensing for code it did not create). Concretely: do **not** run
+  `scripts/apply-project-license.sh` against any of these repos — it will refuse one that states
+  its own terms, and the ones it would not refuse are exactly the repos that would silently gain a
+  `LICENSE` and a `LICENSING.md` claiming it over code you did not write. The repo's licensing
+  went into the recon map's **Stack Per Repo** row at `inv-3`; that record is the whole of the
+  work here. The license chosen at install time governs this method's own artifacts — the docs hub
+  and anything it later creates — not the code being adopted, so a repo whose license differs from
+  it is **not a finding**, several adopted repos may carry several different licenses, and none of
+  that is reconciled. If the user raises relicensing, it is their act on their repo: say what you
+  observed and stop there.
 - **Per doc-set** — copy the found source docs into `inputs/` and add each one's
   `inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle (point-in-time; the code
   wins on conflict). Their
