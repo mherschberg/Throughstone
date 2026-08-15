@@ -240,7 +240,7 @@ apply each area as a coherent review-required group, as with the legacy migratio
 ### 1.7.2 migration
 
 **Templates and guidance text only — no behavior changes, and nothing you already produced is
-rewritten.** Two edits to `templates/architecture-sessions/*.md` and two documentation fixes, all
+rewritten.** Two edits to `templates/architecture-sessions/*.md` and three documentation fixes, all
 *Templates for future use* under §2, so they affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
@@ -264,9 +264,17 @@ rewritten.** Two edits to `templates/architecture-sessions/*.md` and two documen
   apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
   legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
   added line into your project's index if you want the legend to describe what the file may contain.
+- **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
+  `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
+  token (`deferred`), which tells a reader arriving months later nothing about whether the gap
+  blocks them — and gives the check-in that resurfaces it nothing to weigh. Both now ask for what is
+  missing, how big it is, and what it means for someone building on the doc. **One thing to check:**
+  if any of your architecture docs already carries a bare `Coverage:` value, expand it the next time
+  that doc is touched; nothing rewrites it for you.
 
-Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, and `inputs/README.md` as a group.
-Nothing else is affected: no `status.sh` / `check.sh` change, no project state touched.
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4 and §6, `inputs/README.md`, and
+`templates/architecture-doc-template.md` as a group. Nothing else is affected: no `status.sh` /
+`check.sh` change, no project state touched.
 
 ### 1.7.1 migration
 
