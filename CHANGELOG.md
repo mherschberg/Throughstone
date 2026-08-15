@@ -7,6 +7,29 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). V
 refer to the **Throughstone scaffold** (the method, templates, runbooks, and tooling), not to
 any project built with it.
 
+## [Unreleased]
+
+### Changed
+- **A session template's go-ahead now fires on being *invoked*, not on being *read*.** Every
+  `templates/architecture-sessions/*.md` closed with "Begin now — in this same reply", which treated
+  the act of opening the file as the user's go-ahead. But session files are read by more than the
+  agent running the session: the Cross-Cutting Review enumerates every conditional to check
+  applicability, the periodic check-in re-evaluates them, and a reader that only wants a session's
+  work list has no business starting an interview. The paragraph now opens **"If you were sent here
+  to run this session…"** and closes by releasing a reader who wasn't — same behavior when a session
+  is actually invoked, no reliance on the reader's own framing to resist the instruction otherwise.
+- **One work-list heading across every session template.** `13-glossary.md` used "What to produce
+  (work through these)" and `14-cross-cutting-review.md` used "What to check"; both now use
+  **`## Decisions to make (in order)`**, like the other fifteen, with a note under the heading saying
+  what that session's items actually are (term batches; checks that may surface a decision). Anything
+  reading a session file now finds the work list under one name instead of learning a per-file name.
+  `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
+  maintainer test enforces it.
+
+### Fixed
+- **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
+  every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
+
 ## [1.7.1] - 2026-08-10
 
 A small follow-up that gives the **`inputs/` folder** (added in 1.7.0) a lifecycle, so brought-in

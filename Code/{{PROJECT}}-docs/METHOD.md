@@ -198,6 +198,15 @@ the project learns; it's not a sign something went wrong the first time.
 ### Adding a session
 The session set is yours to extend — and the two kinds differ sharply in cost.
 
+**Either kind keeps the shared session skeleton**, in this order: `About` · `What this session
+does` · `Why this session matters` · `How this session works` · `Decisions to make (in order)` ·
+`Output` · `Next`, closing with the go-ahead paragraph. The work-list heading is
+`## Decisions to make (in order)` **even when the session's items aren't literally decisions** — the
+Glossary works through term batches, the Cross-Cutting Review through checks, and both say so in a
+note under the heading. Keeping one heading means anything that reads a session file — the review's
+conditional gate, the periodic check-in, adoption's harvest — finds the work list in the same place
+instead of learning a new name per file.
+
 **A conditional session does not renumber the standard sessions.** Conditionals are lettered
 substeps (`1.6c`, `1.7b`), so adding one leaves the numbered core intact. To add one:
 1. Write `templates/architecture-sessions/conditional-<topic>.md` — copy an existing conditional
