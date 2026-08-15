@@ -330,6 +330,28 @@ adopted repo", not "not needed". Both are ordinary substep statuses in this meth
 carries them into the index unchanged. If it's a conditional, mirror the same disposition in the
 PLAN's *Conditional sessions considered* table.
 
+**An asset the harvest finds that the map missed.** Expect this: `inv-2` was a breadth scan, and a
+harvest reads its area far deeper, so `1.4` turns up an unlisted datastore or `1.8` a third deploy
+target. The confirmed Inventory is frozen — **do not edit it** — but a found asset is not a
+bookkeeping curiosity either. A repo that never reaches `registries/repos.yml` is missing from the
+baseline itself. So:
+
+- **Tell the user when you meet it**, at the confirm pass for the session that found it. This is a
+  correction to the birth certificate they signed, and it is their call whether it is in scope at all
+  (an abandoned service in the same account may not be).
+- **Append an `asset-N` row** to the per-asset table — continuing the numbering, never renumbering —
+  and do that asset's ordinary per-asset work: the `repos.yml` row and stamped README for a repo, the
+  `inputs/` copy and ledger row for a doc, the routing note for a resource.
+- **Do it once the session in flight is `Done`**, not by interrupting it. The "every `asset-N` before
+  the first session" rule describes the hand-off out of Stage 2; a late one slots in at the next
+  session boundary, which keeps the serial rule intact.
+- **Add a `registries/risks.yml` row** the first time it happens, with a revisit trigger — the
+  confirmed inventory turned out not to be exhaustive, the frozen map can't say so itself, and the
+  check-in is what re-surfaces it. One row for the pattern, not one per asset.
+
+Where the discovery changes what the doc you are writing says, that is ordinary content: record the
+reality, and flag the gap.
+
 `1.14` is the Cross-Cutting Review + land, not a harvest — see the note at the end of this stage.
 
 **Some sessions carry an extra note.** The loop below is the same for every session, but a few need
