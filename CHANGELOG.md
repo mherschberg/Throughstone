@@ -63,10 +63,18 @@ error/corruption and re-run paths, not normal operation.
   - **Nothing is skipped silently.** A conditional session the map includes is tracked and harvested
     like any other, and a session whose area your system doesn't have (a UI session on an API-only
     service) is recorded `N/A` or `Deferred` with a reason read from the code.
+  - **You decide what's in scope, and a UI that exists is described, not re-chosen.** A scan of a
+    real system turns up things you don't want adopted — an abandoned service, a dead prototype —
+    so the confirm gate settles each asset as adopted or excluded, and only the adopted ones become
+    work; an excluded one stays recorded as found-and-dismissed. And where a new project's UI
+    session offers you palettes and type scales to choose from, an adoption reads the ones your
+    product already ships and writes them down.
   - **Your existing documents get used, not just filed.** Adoption copies every document it finds
     into `inputs/`, then the session covering that area acts on it: a finished spec or still-true
     design doc is **lifted** into `architecture/` as the living copy (the original stays as
-    provenance), a PRD or research note is synthesized into the doc being written, and the
+    provenance), a PRD or research note is synthesized into the doc being written, decision records
+    your team actually wrote are adopted into `adr/` with their original dates and registered there,
+    a still-accurate runbook lands in `runbooks/`, and the
     `inputs-index.md` ledger records what has been superseded and what still holds. Where a document
     disagrees with the code, the code wins and the disagreement is written down as staleness rather
     than averaged away. Nothing is retired without you — a fully-superseded input is offered for

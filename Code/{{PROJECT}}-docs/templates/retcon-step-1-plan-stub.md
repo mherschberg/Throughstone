@@ -68,7 +68,7 @@ the way — not a pretty description a mature team already knows.
 | inv-1 | Intake | Depth dial set; rough repo/doc/resource locations, the project's lifecycle stage, and any house version convention recorded (RETCON-PROMPT.md Stage 1). | Planned |
 | inv-2 | Scan & inventory | A list of every repo, doc, and resource (data stores, services, integrations, CI, deploy surfaces, environments, observability); each existing doc classified with a trust level. | Planned |
 | inv-3 | Recon-map skeleton | A draft `reports/<date>-step-0001-recon-map.md` — inventory, stack per repo, entry points/services, data stores, integrations, existing-docs classification, test/CI presence, confidence/unknowns, and a **Coverage & Confidence** section. | Planned |
-| inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it. | Planned |
+| inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it; each asset also marked `adopt` or `excluded — reason`. | Planned |
 | inv-5 | Upgrade this PLAN | **Append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions (`1.N` id + Status) + the `Conditional sessions considered` table; seed `registries/risks.yml` from the confirmed map's unknowns/coverage; then mark `inv-5` `Done` last (inv-1–inv-4 already `Done` from as-you-go marking). | Planned |
 
 ### Intake results (inv-1)
@@ -98,7 +98,9 @@ the way — not a pretty description a mature team already knows.
      UPGRADES this PLAN BY ADDITION — it does not rewrite any of it (the only in-place fill-ins are
      Stage 1's Intake-results values and flipping a substep's Status to Done — done as each substep
      completes, inv-5 marked last). It APPENDS, at the END of this PLAN (after Definition of done):
-       • the per-asset substeps — one row per repo/doc-set/resource in their own
+       • the per-asset substeps — one row per ADOPTED repo/doc-set/resource (the Inventory
+         rows the user marked `adopt` at inv-4; an `excluded` one stays recorded in the map
+         and gets no substep) in their own
          `# | Asset | Kind | Status` table (`asset-N` ids; same Status tracking as the inv-N
          table above), each documenting one asset so nothing is lost (a repo is not a 1.N
          session); resolve the lowest-open `asset-N` before 1.1;
@@ -138,7 +140,7 @@ the way — not a pretty description a mature team already knows.
 
 ## Definition of done (inventory phase)
 - [ ] inv-1–inv-4 complete: intake recorded, everything inventoried, the recon map drafted and
-      **confirmed by the user**.
+      **confirmed by the user** — including each asset's scope (`adopt` / `excluded — reason`).
 - [ ] inv-5 complete: this PLAN upgraded by addition — per-asset substeps (`asset-N` id + Status) + the
       in-scope 1.1–1.14 sessions (`1.N` id + Status) + the `Conditional sessions considered` table appended; `inv-5` marked
       `Done` last (inv-1–inv-4 already `Done` from as-you-go marking); `registries/risks.yml` seeded

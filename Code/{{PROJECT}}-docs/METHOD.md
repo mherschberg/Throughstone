@@ -163,10 +163,10 @@ or without `: <session label>`, but the labeled form gives chat/task UIs a clear
 
 **When a session's interview actually starts** — the rule every reader of these files keys on: a
 session interviews you only when an agent was **sent to run that session** *and* the project is not
-mid-adoption (`overview.md` shows `PROJECT-STATUS: retcon`). Every other reading takes the file as
-reference material. That covers the Cross-Cutting Review enumerating each conditional, the periodic
-check-in re-evaluating them, and adoption harvesting a session's decisions from existing code — none
-of which should trigger an interview. The rule is enforced in two places: each session file's closing
+mid-adoption (that is, `overview.md` does **not** show `PROJECT-STATUS: retcon`). Every other
+reading takes the file as reference material. That covers the Cross-Cutting Review enumerating each
+conditional, the periodic check-in re-evaluating them, and adoption harvesting a session's decisions
+from existing code — none of which should trigger an interview. The rule is enforced in two places: each session file's closing
 paragraph (which fires only for an agent sent to run it) and `AGENTS.md`'s session runner (which
 holds the adoption half, since an adopting project *is* being asked to run the session).
 
