@@ -126,8 +126,9 @@ and fill every section from the scan: inventory, stack per repo, entry points/se
 integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Stamp the
 front matter too — **Reviewed commit(s)** (the `repo@sha` state this map describes) and **Depth dial**
 — so the snapshot is pinned to an exact point in time. Set the **Coverage & Confidence** section from
-intake — the depth-dial posture and any areas you are already choosing to bound. Leave `Status: Draft`.
-Mark `inv-3` **Done** once the draft is written.
+intake — the depth-dial posture and any areas you are already choosing to bound. Write the **Summary**
+last — a few sentences on what the system is, the shape of the inventory, and the biggest unknowns.
+Leave `Status: Draft`. Mark `inv-3` **Done** once the draft is written.
 
 ### `inv-4` — Confirm the recon map  ▸ checkpoint
 **Detect, then confirm.** Present the draft and let the user correct it — this is the one hard gate,
@@ -165,8 +166,17 @@ marking.) The appends:
   (location, role, notes) stays in the recon map's frozen Inventory, and the deliverable each substep
   produces lands in its living home — `repos.yml`, the repo README, or an `architecture/` / `inputs/`
   doc (see below) — never in the cell.
-- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror. `1.1`–`1.13` run
-  the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review + land, not a harvest.
+- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror, in their own
+  appended table with the **same `Planned` · `In progress` · `Done` Status convention** as the
+  `inv-N` and `asset-N` tables, so a resumed agent resolves the lowest-open session across a chat
+  boundary. Session progress lives **here in the PLAN**: during adoption `prompts/STEP-index.md` is
+  held at its greenfield seed (see the risks.yml paragraph below), so it cannot track which session is
+  done. `1.1`–`1.13` run the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review +
+  land, not a harvest.
+
+  | Substep | Session | Status |
+  |---------|---------|--------|
+  | `1.1` | {{session name}} | Planned |
 - **The `Conditional sessions considered` table** — mirror the `Conditional sessions considered`
   table greenfield authors from `templates/step-plan-template.md` (its columns and its seeded rows),
   but decide each row from **code-visible surfaces**: a client/mobile surface →
@@ -184,8 +194,9 @@ seed until the baseline lands (see *How this prompt works*), when a deferred are
 forward work like any other risk.
 
 **Resolution order.** Resolve the **lowest-open `asset-N`** per-asset substep first; only when every
-`asset-N` is `Done` does the lowest open substep become the first architecture session (`1.1`, Stage
-3). So the next action now is the first per-asset substep, `asset-1`.
+`asset-N` is `Done` does the lowest open substep become the first architecture session — the
+**lowest-open `1.N`** (Status ≠ `Done`), starting at `1.1` (Stage 3). So the next action now is the
+first per-asset substep, `asset-1`.
 
 ### The per-asset substeps (depth)
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the

@@ -25,7 +25,10 @@ When adoption lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary
 `prompts/STEP-index.md` marked **RETCON**, with the scope *"Retcon baseline — reverse-engineered
 from existing code; adopted {{DATE}}; forward work starts at STEP-2."* It archives greenfield-style
 into `prompts/001-<milestone>/step-0001/` (the folder name converges with greenfield), and a
-one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}"*).
+one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}"*). Landing also
+flips the STEP-index `1.1`–`1.14` architecture-session substeps to `Done` (they were held at the
+greenfield `Planned` seed while session progress lived here in the PLAN), so the landed project
+resolves like a greenfield baseline instead of re-running the sessions.
 To the resolver it is an ordinary architecture baseline needing no new logic: forward
 implementation starts at **STEP-2**, and the first forward planning session inserts a **baseline
 check-in** as STEP-2 — the full test suite this docs-only STEP-1 deliberately skips.
@@ -54,8 +57,9 @@ the way — not a pretty description a mature team already knows.
   `inputs/inputs-index.md` tracks what still holds vs. what observed reality has superseded).
 
 ## Substeps — the inventory work
-> Free-form inventory units (not the `1.1`–`1.14` session mirror, and not parsed by `status.sh` —
-> real progress lives here in the PLAN). Resolve the **lowest open** one, and mark it `Done` the moment
+> PLAN-local inventory substeps — tracked in the table below by Status, not the `1.1`–`1.14` session
+> mirror, and not parsed by `status.sh` (real progress lives here in the PLAN). Resolve the **lowest
+> open** one, and mark it `Done` the moment
 > its work completes (before resolving the next) so a resumed chat lands right. `RETCON-PROMPT.md`
 > drives each; see it for the detail.
 
@@ -65,7 +69,7 @@ the way — not a pretty description a mature team already knows.
 | inv-2 | Scan & inventory | A list of every repo, doc, and resource (data stores, services, integrations, CI, deploy surfaces, environments, observability); each existing doc classified with a trust level. | Planned |
 | inv-3 | Recon-map skeleton | A draft `reports/<date>-step-0001-recon-map.md` — inventory, stack per repo, entry points/services, data stores, integrations, existing-docs classification, test/CI presence, confidence/unknowns, and a **Coverage & Confidence** section. | Planned |
 | inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it. | Planned |
-| inv-5 | Upgrade this PLAN | **Append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions + the `Conditional sessions considered` table; seed `registries/risks.yml` from the confirmed map's unknowns/coverage; then mark `inv-5` `Done` last (inv-1–inv-4 already `Done` from as-you-go marking). | Planned |
+| inv-5 | Upgrade this PLAN | **Append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions (`1.N` id + Status) + the `Conditional sessions considered` table; seed `registries/risks.yml` from the confirmed map's unknowns/coverage; then mark `inv-5` `Done` last (inv-1–inv-4 already `Done` from as-you-go marking). | Planned |
 
 ### Intake results (inv-1)
 <!-- WHAT THIS IS. The record of the four framing answers RETCON-PROMPT.md's Stage 1 (Intake)
@@ -98,8 +102,10 @@ the way — not a pretty description a mature team already knows.
          `# | Asset | Kind | Status` table (`asset-N` ids; same Status tracking as the inv-N
          table above), each documenting one asset so nothing is lost (a repo is not a 1.N
          session); resolve the lowest-open `asset-N` before 1.1;
-       • the in-scope architecture sessions 1.1–1.14 (1.1–1.13 harvest→confirm; 1.14 is the
-         Cross-Cutting Review + land, not a harvest);
+       • the in-scope architecture sessions 1.1–1.14 in their own table carrying the same
+         Planned/In progress/Done Status column as the inv-N/asset-N tables (session progress
+         lives here in the PLAN while STEP-index stays at its greenfield seed); 1.1–1.13
+         harvest→confirm; 1.14 is the Cross-Cutting Review + land, not a harvest;
        • the `Conditional sessions considered` table — seeded from code-visible surfaces
          (client surfaces, PII, auth) and refined as sessions harvest, exactly as
          greenfield seeds-then-refines it;
@@ -128,7 +134,7 @@ the way — not a pretty description a mature team already knows.
 - [ ] inv-1–inv-4 complete: intake recorded, everything inventoried, the recon map drafted and
       **confirmed by the user**.
 - [ ] inv-5 complete: this PLAN upgraded by addition — per-asset substeps (`asset-N` id + Status) + the
-      in-scope 1.1–1.14 sessions + the `Conditional sessions considered` table appended; `inv-5` marked
+      in-scope 1.1–1.14 sessions (`1.N` id + Status) + the `Conditional sessions considered` table appended; `inv-5` marked
       `Done` last (inv-1–inv-4 already `Done` from as-you-go marking); `registries/risks.yml` seeded
       from the confirmed map (STEP-index untouched).
 - [ ] Next action is the lowest open **appended** substep — the first per-asset substep (`asset-1`),
