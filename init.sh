@@ -792,6 +792,13 @@ fi
 if [ ! -f "$DOCS/overview.md" ]; then
   cp "$DOCS/templates/overview-template.md" "$DOCS/overview.md"
   echo "  created $DOCS/overview.md (fill it in)"
+  # The seeded PROJECT-STATUS marker is what AGENTS.md/status.sh route on — and the literal that
+  # retcon's §5c flips. If the template's marker text ever drifts, that routing silently breaks
+  # (and §5c's substitution would no-op), so verify the seed took before anything depends on it.
+  grep -q '<!-- PROJECT-STATUS: not-started -->' "$DOCS/overview.md" || {
+    echo "init.sh: overview.md is missing the seeded '<!-- PROJECT-STATUS: not-started -->' marker" >&2
+    echo "        (overview-template.md may have drifted). Aborting before the project ships mis-routed." >&2
+    exit 1; }
 fi
 
 # --- 5b. Seed the STEP index ------------------------------------------------
@@ -814,6 +821,15 @@ fi
 if [ "$MODE" = "existing" ]; then
   # Flip the kickoff gate from the seeded `not-started` to `retcon` (see overview-template.md).
   perl -pi -e 's/<!-- PROJECT-STATUS: not-started -->/<!-- PROJECT-STATUS: retcon -->/' "$DOCS/overview.md"
+  # This flip is the single most load-bearing line in retcon: it is what routes every agent and
+  # status.sh into adoption. A silent no-op (marker text drifted, so the substitution matched
+  # nothing) would ship `not-started` and run the greenfield kickoff against existing code — so
+  # verify it took, mirroring the precondition guard on the stub-PLAN write just below.
+  grep -q '<!-- PROJECT-STATUS: retcon -->' "$DOCS/overview.md" || {
+    echo "init.sh: failed to set the retcon PROJECT-STATUS marker in overview.md" >&2
+    echo "        (overview-template.md may have drifted). Aborting so the project does not ship" >&2
+    echo "        routed to the greenfield kickoff instead of retcon adoption." >&2
+    exit 1; }
   echo "  retcon: PROJECT-STATUS set to 'retcon' (adopting an existing codebase)"
   # Seed the stub STEP-1 PLAN at the SAME in-flight path greenfield uses, so the Cross-Cutting
   # Review and later check-ins find it where they look. Its substeps are the inventory work;

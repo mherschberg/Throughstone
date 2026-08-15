@@ -89,6 +89,11 @@ with or without the session label (preferred with the label, e.g.
 interview the user one decision at a time, then write the output architecture doc and update
 `prompts/STEP-index.md`. No copy-paste, no special commands.
 
+> **Adoption exception:** if `overview.md` reads `PROJECT-STATUS: retcon`, do **not** cold-interview a
+> session here — the project is adopting an existing codebase. Follow `RETCON-PROMPT.md` instead; it
+> reads the session files as reference data to harvest from the running code, never by triggering
+> their interview.
+
 **"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
 <session label>" are all the user's go-ahead — begin in that same reply.** Don't
 acknowledge, summarize the file, restate the plan, or ask whether to start (no "Ready when

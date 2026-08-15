@@ -20,8 +20,11 @@
         then confirm — propose the inventory and let the user fix it. Editing is expected here, and
         ONLY here: while it is Draft.
      2. ONCE CONFIRMED IT IS FROZEN — never rewritten (confirmation seals it, and stamps the date).
-        Later reality-drift is the living docs' job (architecture/, registries/), not an edit to this
-        snapshot.
+        What confirmation locks is the INVENTORY — the complete list of assets — the clean point the
+        rest of Stage 2 is scoped from; a later-discovered asset is a recorded finding, not a silent
+        edit. Per-asset DETAIL is not frozen here: it deepens in the living docs this map feeds (repo
+        READMEs, architecture/, registries/), and deferred exploration rides the depth dial. Later
+        reality-drift is the living docs' job, not an edit to this snapshot.
 
      WHAT IT FEEDS (it is a seed, not a living artifact): the confirmed map seeds `registries/repos.yml`
      (one row per repo), the thin `architecture/` docs the sessions harvest, and — from Confidence &
@@ -38,7 +41,7 @@ Every repo, doc, and resource discovered — the breadth pass. One row per asset
 
 | Asset | Kind | Location | Notes |
 |-------|------|----------|-------|
-| {{name}} | {{repo / doc / data store / service / integration / CI / deploy surface / other}} | {{path / URL / host}} | {{one line — role, ownership, anything notable}} |
+| {{name}} | {{repo / doc / data store / service / integration / CI / deploy surface / environment / observability / other}} | {{path / URL / host}} | {{one line — role, ownership, anything notable}} |
 
 ## Stack Per Repo
 
@@ -90,9 +93,10 @@ Presence and shape of the safety net per repo — not a quality verdict, just wh
 
 ## Confidence & Unknowns
 
-What is still uncertain after the breadth pass — open questions, low-confidence reads, and areas
-not yet opened. Genuinely-risky unknowns are pushed to `registries/risks.yml` with a revisit
-trigger; the check-in re-surfaces them.
+What is still uncertain after the breadth pass — open questions and low-confidence reads that need a
+**next move** (harvest, or ask the user). A *deliberate* depth-dial deferral is not an unknown: it
+goes in **Coverage & Confidence** below, not here. Genuinely-risky unknowns are pushed to
+`registries/risks.yml` with a revisit trigger; the check-in re-surfaces them.
 
 | Unknown / low-confidence area | Why it matters | Confidence | Next move |
 |-------------------------------|----------------|------------|-----------|
@@ -100,9 +104,10 @@ trigger; the check-in re-surfaces them.
 
 ## Coverage & Confidence
 
-The frozen, dated record of how thoroughly this run read the system — the run-level "skimmed ≠
-covered" ledger (the first of three altitudes; the others are `registries/risks.yml` and each
-doc's `Coverage` / `Status`). Never asserted-but-shallow: an area is either read or listed here as
+The frozen, dated record of **what this run mapped and what it deliberately left for later** — the
+run-level coverage ledger of covered-vs-deferred, not a thoroughness score (some reading is deferred
+by design). The first of three altitudes; the others are `registries/risks.yml` and each doc's
+`Coverage` / `Status`. Never asserted-but-shallow: an area is either mapped here or listed as
 deferred, with a plain "what's missing and why it matters."
 
 - **Depth-dial setting:** {{the fat-payload depth chosen at intake, and why}}

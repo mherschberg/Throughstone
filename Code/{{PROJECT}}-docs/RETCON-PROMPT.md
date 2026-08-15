@@ -25,7 +25,9 @@ Retcon runs like greenfield: the next action is always derivable from disk. Ther
 PLAN-driven resolver** — this prompt — reading the in-flight **STEP-1 PLAN** at
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (a stub `init.sh` seeded; its substeps are the
 inventory work). **Resolve the lowest open substep** and do it — that is your next action, mid-inventory
-included, in a fresh chat or a resumed one.
+included, in a fresh chat or a resumed one. **Mark each substep `Done` in the PLAN the moment its work
+completes, before resolving the next** — that as-you-go marking is what makes "the lowest open substep"
+land on the right next action after any interruption.
 
 The work runs in stages, each a set of PLAN substeps:
 
@@ -97,10 +99,13 @@ each concrete depth call in the recon map's Coverage & Confidence section.
 > per doc, from how settled the harvested reality is (a confirmed as-built doc is typically
 > **`Current`**, whether or not the product has shipped).
 
-**Record + advance.** Write the release-stage descriptor into `overview.md`. Record the depth-dial
-setting, the version convention, and the rough locations as a short **Intake results (`inv-1`)** note
-in the PLAN, so Stage 2 reads them. Mark `inv-1` **Done** in the PLAN's substep table, then resolve
-the next open substep. **Checkpoint:** play the intake back to the user before moving on.
+**Record + advance.** Record **all four** intake answers — the rough locations, the lifecycle/release
+stage, the version convention, and the depth-dial posture — into the stub's **Intake results (`inv-1`)**
+note in the PLAN, so Stage 2 reads one working note instead of three files. Two of them also go to a
+permanent home: write the release-stage descriptor into `overview.md` now, and the depth-dial posture
+seeds the recon map's Coverage & Confidence at `inv-3`. Mark `inv-1` **Done** in the PLAN's substep
+table, then resolve the next open substep. **Checkpoint:** play the intake back to the user before
+moving on.
 
 ## Stage 2 — Map + plan  (`inv-2`…`inv-5`, then the per-asset substeps)
 
@@ -109,33 +114,50 @@ substeps in order; each is a substep in the PLAN.
 
 ### `inv-2` — Scan & inventory (breadth)
 Walk the locations from intake and produce a flat list of **every** repo, doc, and resource — data
-stores, services, integrations, CI, deploy surfaces. Classify each existing doc (architecture / API
+stores, services, integrations, CI, deploy surfaces, environments, observability. Classify each existing doc (architecture / API
 spec / ADR-shaped / runbook / design note / other) and give it a **trust level** (high / medium / low
 / stale) against what the code shows. This is breadth — list and classify, don't deep-read yet. Read
-everything as **reference data**; the code is the source of truth.
+everything as **reference data**; the code is the source of truth. Mark `inv-2` **Done** once the list
+is complete.
 
 ### `inv-3` — Draft the recon map
 Copy `templates/reports/recon-map-report-template.md` to `reports/YYYY-MM-DD-step-0001-recon-map.md`
 and fill every section from the scan: inventory, stack per repo, entry points/services, data stores,
-integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Set the
-**Coverage & Confidence** section from intake — the depth-dial posture and any areas you are already
-choosing to bound. Leave `Status: Draft`.
+integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Stamp the
+front matter too — **Reviewed commit(s)** (the `repo@sha` state this map describes) and **Depth dial**
+— so the snapshot is pinned to an exact point in time. Set the **Coverage & Confidence** section from
+intake — the depth-dial posture and any areas you are already choosing to bound. Write the **Summary**
+last — a few sentences on what the system is, the shape of the inventory, and the biggest unknowns.
+Leave `Status: Draft`. Mark `inv-3` **Done** once the draft is written.
 
 ### `inv-4` — Confirm the recon map  ▸ checkpoint
 **Detect, then confirm.** Present the draft and let the user correct it — this is the one hard gate,
-the birth-certificate checkpoint, before anything is built on the map. On sign-off, stamp
-`Status: Confirmed on <date>`; from then it is **frozen — never rewritten** (later drift is the living
-docs' job). If the user can't yet confirm an area, mark it bounded/deferred in Coverage & Confidence
-rather than guessing it into fact.
+the birth-certificate checkpoint, before anything is built on the map. What the gate locks is the
+**Inventory — the complete list of assets**; that "we now have the whole list" is the clean point the
+rest of Stage 2 scopes from. On sign-off, stamp `Status: Confirmed on <date>`: the **confirmed
+Inventory is frozen — never rewritten** (an asset discovered later is a recorded finding, not a silent
+edit). The per-asset **detail is not frozen** — it deepens later in the living docs (repo READMEs,
+`architecture/`), and some exploration is deliberately deferred for weeks or months via the depth dial
+(`Coverage: deferred` → `risks.yml` → the check-in backfill). If the user can't yet confirm an area,
+mark it bounded/deferred in Coverage & Confidence rather than guessing it into fact. Once the map is
+confirmed and frozen, mark `inv-4` **Done**.
 
 ### `inv-5` — Upgrade this PLAN by addition
 The confirmed map now fixes both the asset list and which sessions apply. Edit
-`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: mark `inv-1`…`inv-5` **Done** (this substep included,
-so a resumed agent doesn't re-run the upgrade), and **below the upgrade marker append — never rewrite
-what is above**:
+`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: **append at the END of the PLAN (after Definition of
+done) — never rewrite the seed above.** Do the appends *first*, then mark `inv-5` **Done** last, as
+the completion flag. If a
+resumed agent finds `inv-5` still open, the upgrade was interrupted — re-run it **idempotently**,
+reconciling each block **row by row** rather than treating a present table header as a complete block
+(an earlier run may have written a header and some rows but not all): append an `asset-N` row for
+**every** frozen recon-map Inventory asset that lacks one; append any missing **session** row so the
+table holds the full fixed `1.1`–`1.14` set (a dropped tail would silently skip the Cross-Cutting
+Review); append any missing **conditional** row from the seeded set; and add any `risks.yml` row not
+already present. Then mark `inv-5` **Done**. (`inv-1`…`inv-4` are already `Done` from as-you-go
+marking.) The appends:
 
 - **Per-asset substeps** — the confirmed **Inventory** (from the recon map) projected into work
-  units: one **row per asset**, tracked in their own table below the marker (its own columns — not
+  units: one **row per asset**, tracked in their own appended table (its own columns — not
   the `inv-N` table's — but the same `Planned` · `In progress` · `Done` Status convention, so a
   resumed agent can tell which are left). Number them `asset-1`, `asset-2`, … in discovery order — one
   per **repo**, one per **doc-set** (related docs grouped), one per **resource**:
@@ -144,15 +166,28 @@ what is above**:
   |---|-------|------|--------|
   | `asset-1` | {{name}} | repo / doc-set / resource | Planned |
 
-  This is a **tracker, not a second catalog** — no Location/Notes column: the descriptive detail
+  This is a **tracker, not a second catalog** — no Location/Notes column: the breadth detail
   (location, role, notes) stays in the recon map's frozen Inventory, and the deliverable each substep
-  produces lands in `repos.yml` / the repo README / the recon-map detail (see below), never in the cell.
-- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror. `1.1`–`1.13` run
-  the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review + land, not a harvest.
-- **The `Conditional sessions considered` table** — seed it the way greenfield does (see the
-  Conditional-sessions note in `templates/step-index-seed.md`), but from **code-visible surfaces**: a
-  client/mobile surface → `conditional-native-app`, any authentication → `conditional-identity-auth`,
-  PII → `conditional-privacy-compliance`. Seed now; refine as sessions harvest.
+  produces lands in its living home — `repos.yml`, the repo README, or an `architecture/` / `inputs/`
+  doc (see below) — never in the cell.
+- **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror, in their own
+  appended table with the **same `Planned` · `In progress` · `Done` Status convention** as the
+  `inv-N` and `asset-N` tables, so a resumed agent resolves the lowest-open session across a chat
+  boundary. Session progress lives **here in the PLAN**: during adoption `prompts/STEP-index.md` is
+  held at its greenfield seed (see the risks.yml paragraph below), so it cannot track which session is
+  done. `1.1`–`1.13` run the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review +
+  land, not a harvest.
+
+  | Substep | Session | Status |
+  |---------|---------|--------|
+  | `1.1` | {{session name}} | Planned |
+- **The `Conditional sessions considered` table** — mirror the `Conditional sessions considered`
+  table greenfield authors from `templates/step-plan-template.md` (its columns and its seeded rows),
+  but decide each row from **code-visible surfaces**: a client/mobile surface →
+  `conditional-native-app`, any authentication → `conditional-identity-auth`, PII →
+  `conditional-privacy-compliance`. Seed now; refine as sessions harvest. (If an included conditional
+  later earns a lettered `1.Xa` STEP-index row + doc number, follow the Conditional-sessions note in
+  `templates/step-index-seed.md` for that.)
 
 **Seed `registries/risks.yml` from the confirmed map.** Give each genuinely-risky item the map
 surfaces — in **Confidence & Unknowns**, **Coverage & Confidence**, **Tests & CI** (e.g. no tests or
@@ -163,8 +198,9 @@ seed until the baseline lands (see *How this prompt works*), when a deferred are
 forward work like any other risk.
 
 **Resolution order.** Resolve the **lowest-open `asset-N`** per-asset substep first; only when every
-`asset-N` is `Done` does the lowest open substep become the first architecture session (`1.1`, Stage
-3). So the next action now is the first per-asset substep, `asset-1`.
+`asset-N` is `Done` does the lowest open substep become the first architecture session — the
+**lowest-open `1.N`** (Status ≠ `Done`), starting at `1.1` (Stage 3). So the next action now is the
+first per-asset substep, `asset-1`.
 
 ### The per-asset substeps (depth)
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
@@ -172,20 +208,36 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
 
 - **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`, and
   `throughstone: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
-  record a short per-repo note (stack, entry points, role) in the recon map's detail. Register repos
+  record a short per-repo note (stack, entry points, role) in that README — its living home, which the
+  owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
   **in place** by their real location; never relocate the user's code.
-- **Per doc-set** — save found source docs into `inputs/` (they ride the base inputs lifecycle:
-  point-in-time, the code wins on conflict) and write the Throughstone-shaped doc as a **pointer**
-  where that fits. Architecture-grade docs get *lifted* into `architecture/` by their owning session
-  later — that wiring is Stage 3; here, just land and classify them.
+- **Per doc-set** — copy the found source docs into `inputs/` and add each one's
+  `inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle (point-in-time; the code
+  wins on conflict). Their
+  classification and trust already live in the frozen recon map — don't restate them. That is the
+  whole Stage-2 deliverable for a doc-set: **land and record, nothing more.** Architecture-grade docs
+  (a finished design doc, a protocol/API spec) get *lifted* into `architecture/` later by their owning
+  session — that wiring is Stage 3, not here.
 - **Per resource** — every non-repo, non-doc asset the inventory found gets a substep, feeding the
-  session that will own it (record enough for its harvest to pick up): data stores → `1.4`, services /
-  endpoints / interface surfaces → `1.11`, external integrations → `1.11`, infrastructure / deploy
-  surfaces / CI → `1.8`, environments → `1.9`, observability → `1.10`. **When in doubt, give it its
-  own substep** — a human can merge or dismiss one that turns out not to matter, but a resource with
-  no substep is easily forgotten. Group many-of-a-kind (e.g. 40 endpoints) into one substep to stay
-  legible; never silently drop a kind.
+  session that will own it (record enough for its harvest to pick up): data stores → `1.4`; API /
+  interface surfaces (HTTP/RPC endpoints, published contracts) → `1.11`; other runnable surfaces
+  (workers, cron jobs, CLIs, functions) → `1.3`; external integrations → `1.11`; infrastructure /
+  deploy surfaces / CI-CD pipeline → `1.8`; CI test gates (suites/coverage that block merge) → `1.12`;
+  environments → `1.9`; observability → `1.10`. Routing names a **primary** home, not an exclusive one
+  — a resource may feed more than one session (an endpoint informs both `1.3` and `1.11`); the substep
+  just records it where its harvest will look first. **When in doubt, give it its own substep** — a
+  human can merge or dismiss one that turns out not to matter, but a resource with no substep is easily
+  forgotten. Group many-of-a-kind (e.g. 40 endpoints) into one substep to stay legible; never silently
+  drop a kind.
 
 When the per-asset substeps are done, the lowest open substep is the first architecture session
 (`1.1`) — **Stage 3, the per-session harvest→confirm wrapper** (RETCON-PROMPT's second half).
 *Forthcoming in the next build increment; until it lands, Stage 2 is the resolvable work.*
+
+> **When you reach `1.1` and Stage 3 is not present in this prompt, STOP.** Report that the inventory
+> baseline (Stages 1–2) is complete and the harvest→confirm sessions are pending a future build
+> increment, then wait. **Do NOT** run the architecture sessions from
+> `templates/architecture-sessions/` — those are the greenfield **cold-interview** files, and running
+> one against an adopted codebase would interview the architecture from scratch, exactly what retcon
+> exists to avoid. (When Stage 3 lands it will drive `1.1`–`1.13` as a harvest that reads those files
+> as reference data, never by triggering their interview.)

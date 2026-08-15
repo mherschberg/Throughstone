@@ -21,10 +21,12 @@ a project stood up from scratch behaves exactly as before.
   `PROJECT-STATUS: retcon`, seeds the greenfield-identical STEP index, and drops a stub **STEP-1 PLAN**
   whose substeps are the inventory work. `scripts/status.sh` and `AGENTS.md` recognize the `retcon`
   status and route a fresh agent to a new **`RETCON-PROMPT.md`** resolver, which reverse-engineers the
-  architecture baseline from the running code (inventory → recon map → per-session harvest, each decision
-  confirmed with you) instead of interviewing it from scratch — landing at a `Done STEP-1` baseline
-  equivalent to a greenfield one, from which the ordinary forward flow continues. **Default mode is
-  `new`**; a project stood up from scratch never enters this path and is unchanged.
+  architecture baseline from the running code instead of interviewing it from scratch — running the
+  intake, inventorying every repo/doc/resource, drafting a recon map you confirm, and writing the real
+  STEP-1 plan. The per-session harvest→confirm and the land at a `Done STEP-1` baseline (equivalent to a
+  greenfield one, from which the ordinary forward flow continues) arrive in the remaining 2.0
+  increments. **Default mode is `new`**; a project stood up from scratch never enters this path and is
+  unchanged.
 - **`throughstone:` field on repo rows** (`registries/repos.yml`) — records how the method relates to
   each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
   (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.
@@ -33,7 +35,7 @@ a project stood up from scratch behaves exactly as before.
   `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
   inventory, stack per repo, services, data stores, integrations, existing-docs classification,
   tests/CI, and a Coverage & Confidence ledger. The user confirms it before anything is built on it,
-  and it is frozen afterward. A greenfield project never produces one.
+  and its confirmed inventory is frozen afterward. A greenfield project never produces one.
 - **Pre-answer-sheet convention** (`templates/retcon-preanswer-sheet.md`) — the per-session working
   sheet an adoption's harvest writes: a drafted answer to each session decision, read from the running
   code and provenance-tagged, confirmed with the user before the clean `architecture/` doc is written.
