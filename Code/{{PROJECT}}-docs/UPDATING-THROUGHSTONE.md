@@ -327,6 +327,21 @@ produced.
   hand; pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. No `status.sh` /
   `check.sh` change, no project state touched.
 
+**Two guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
+Both are documentation, so nothing you already produced is rewritten and no behavior changes.
+
+- **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
+  told you to add the `Version` / `Status` header and omitted the **Version Log**, which
+  `scripts/check.sh` check 4 also requires of every numbered architecture doc — so a spec lifted by
+  following the instruction exactly could fail the check meant to guard it. Pull the updated
+  `inputs/README.md`. **One thing to check:** if you have already lifted a document, run
+  `scripts/check.sh` — check 4 names any doc missing a field.
+- **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
+  apply is marked `N/A`, which `check.sh` has always accepted and the next-action resolver skips on,
+  but the legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional:
+  copy the added line into your project's index if you want the legend to describe everything the
+  file may contain.
+
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
 code, confirms them with you, and writes the clean `architecture/` doc. It reuses what your project

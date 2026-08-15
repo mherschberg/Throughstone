@@ -120,6 +120,15 @@ error/corruption and re-run paths, not normal operation.
 ### Fixed
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
+- **Lifting a document into `architecture/` could fail the check that guards it.**
+  `inputs/README.md` told you to add the `Version` / `Status` header when lifting a spec or finished
+  design doc, but omitted the **Version Log** — which `scripts/check.sh` check 4 requires of every
+  numbered architecture doc, and which a document written outside the method almost never arrives
+  with. All three fields are now named at the point of the lift.
+- **The STEP index's status legend didn't mention `N/A`.** A substep whose area structurally doesn't
+  apply (the UI session on an API-only system) is marked `N/A` — accepted by `check.sh` and skipped
+  by the next-action resolver — but the legend listed only the five STEP states, so the one place a
+  reader checks before writing a status didn't describe a value the file legitimately contains.
 
 ## [1.7.1] - 2026-08-10
 
