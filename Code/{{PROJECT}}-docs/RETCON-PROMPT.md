@@ -189,8 +189,8 @@ marking.) The appends:
   doc (see below) — never in the cell.
 - **The in-scope architecture sessions `1.1`–`1.14`** — the STEP-1 substep mirror, in their own
   appended table with the **same `Planned` · `In progress` · `Done` Status convention** as the
-  `inv-N` and `asset-N` tables, so a resumed agent resolves the lowest-open session across a chat
-  boundary. Session progress lives **here in the PLAN**: during adoption `prompts/STEP-index.md` is
+  `inv-N` and `asset-N` tables, so a resumed agent resolves the right session across a chat boundary
+  (Stage 3 gives the two-step rule: an `In progress` row first, then table order). Session progress lives **here in the PLAN**: during adoption `prompts/STEP-index.md` is
   held at its greenfield seed (see the risks.yml paragraph below), so it cannot track which session is
   done. `1.1`–`1.13` run the harvest→confirm wrapper (Stage 3); `1.14` is the Cross-Cutting Review +
   land, not a harvest.
@@ -280,12 +280,24 @@ point of retcon, and it is why the session templates are used here as *reference
 run: their decision lists say what an area must settle, and your code says how this system settled it.
 
 ### Resolving and tracking sessions
-**Resolve the first open row** in the PLAN's session table — reading top to bottom, the first whose
-Status is not `Done`, `N/A`, or `Deferred` — and run the loop below for it. **Table order, not
-session number, is what governs**: `inv-5` wrote the rows in run order, which floats Phasing (`1.2`)
-to the end (see below). The table holds the fixed `1.1`–`1.14` set **and the lettered rows for any
-conditional the map included** (`1.6a`, `1.7b`, …), so a conditional is resolved in place like any
-other session.
+Resolve the next session from the PLAN's session table in two steps, in this order:
+
+1. **An `In progress` row wins, wherever it sits.** It means a session was started and interrupted,
+   and its sheet is sitting half-walked in `Upcoming Prompts/retcon/` — finish that one (see
+   *Resuming* below).
+2. **Otherwise take the first open row** — reading top to bottom, the first whose Status is not
+   `Done`, `N/A`, or `Deferred`.
+
+The order matters because rows can appear **above** the session you are working on: a conditional
+included late (PII surfacing at `1.10`, say) gets its lettered row next to the core session that owns
+it, which by then is already `Done` and sits higher in the table. On the plain top-to-bottom rule a
+resumed chat would jump to that new row and strand the half-harvested session below it, whose sheet
+holds confirmations the user already gave. Finish the started one, then let table order take over.
+
+**Table order, not session number, is what governs** the second step: `inv-5` wrote the rows in run
+order, which floats Phasing (`1.2`) to the end (see below). The table holds the fixed `1.1`–`1.14`
+set **and the lettered rows for any conditional the map included** (`1.6a`, `1.7b`, …), so a
+conditional is resolved in place like any other session.
 
 **Run them strictly serially — harvest, confirm, and write one session before starting the next.**
 Do **not** batch: harvesting several sessions up front and confirming them later looks more efficient
@@ -305,10 +317,12 @@ and to **`Done`** when its doc is written; those are the same values the `inv-N`
 tables use.
 
 **Resuming an `In progress` session: read its sheet, never restart it.** The sheet in
-`Upcoming Prompts/retcon/` is the state — its **`Status`** (`Harvested` vs `Confirmed`) says which
-half you were in, and its **`Confirm`** column says which rows you had already walked with the user.
-Continue from the first unfilled row. **Never overwrite an existing sheet**: a re-harvest throws away
-the user's confirmations, which are the expensive part.
+`Upcoming Prompts/retcon/` is the state — its **`Status`** says which half you finished (`Harvested`
+once every row has a drafted answer, `Confirmed` once the confirm pass has walked every row; still
+the unfilled placeholder means the harvest itself was interrupted), and its **`Confirm`** column says
+which rows you had already walked with the user. Continue from the first unfilled row. **Never
+overwrite an existing sheet**: a re-harvest throws away the user's confirmations, which are the
+expensive part.
 
 **A session whose area doesn't exist.** Some sessions carry their own applicability note (the UI
 session on an API-only system, for instance). Don't invent a doc for an area the code doesn't have,
@@ -318,7 +332,34 @@ adopted repo", not "not needed". Both are ordinary substep statuses in this meth
 carries them into the index unchanged. If it's a conditional, mirror the same disposition in the
 PLAN's *Conditional sessions considered* table.
 
+**An asset the harvest finds that the map missed.** Expect this: `inv-2` was a breadth scan, and a
+harvest reads its area far deeper, so `1.4` turns up an unlisted datastore or `1.8` a third deploy
+target. The confirmed Inventory is frozen — **do not edit it** — but a found asset is not a
+bookkeeping curiosity either. A repo that never reaches `registries/repos.yml` is missing from the
+baseline itself. So:
+
+- **Tell the user when you meet it**, at the confirm pass for the session that found it. This is a
+  correction to the birth certificate they signed, and it is their call whether it is in scope at all
+  (an abandoned service in the same account may not be).
+- **Append an `asset-N` row** to the per-asset table — continuing the numbering, never renumbering —
+  and do that asset's ordinary per-asset work: the `repos.yml` row and stamped README for a repo, the
+  `inputs/` copy and ledger row for a doc, the routing note for a resource.
+- **Do it once the session in flight is `Done`**, not by interrupting it. The "every `asset-N` before
+  the first session" rule describes the hand-off out of Stage 2; a late one slots in at the next
+  session boundary, which keeps the serial rule intact.
+- **Add a `registries/risks.yml` row** the first time it happens, with a revisit trigger — the
+  confirmed inventory turned out not to be exhaustive, the frozen map can't say so itself, and the
+  check-in is what re-surfaces it. One row for the pattern, not one per asset.
+
+Where the discovery changes what the doc you are writing says, that is ordinary content: record the
+reality, and flag the gap.
+
 `1.14` is the Cross-Cutting Review + land, not a harvest — see the note at the end of this stage.
+
+**Some sessions carry an extra note.** The loop below is the same for every session, but a few need
+something it alone doesn't give them — a brief to fill, or a consequence of running Phasing last.
+Those notes are the last two subsections of this stage; **check whether the row you just resolved has
+one before you start it.**
 
 ### 1. Read the session file as reference data
 Open `templates/architecture-sessions/NN-<topic>.md` (or the `conditional-*.md` the PLAN's conditional
@@ -333,10 +374,25 @@ table included) and take from it:
 
 **Do not run the session.** Its closing paragraph is addressed to an agent that was *sent to run*
 that session, and says so; you are reading the file to harvest it, so that paragraph is not your
-instruction. Two more things belong to the interview,
-not to you: its **`## Next`** hand-off (the resolver here is this PLAN, not the STEP index) and any
-instruction to mark a substep `Done` in `prompts/STEP-index.md` — during adoption the index is held
-at its greenfield seed, and session progress lives in the PLAN (step 5 below).
+instruction. Its **`## Next`** hand-off isn't either — the resolver here is this PLAN, not the STEP
+index.
+
+**And leave `prompts/STEP-index.md` alone entirely.** During adoption the index is held at its
+greenfield seed and all session progress lives in the PLAN (step 5 below), so *every* index
+instruction a session template carries is redirected here — not just the familiar "mark this substep
+`Done`." The session files ask for three different index edits, and all three land in the PLAN
+instead:
+
+| The session says | You do this instead |
+|------------------|---------------------|
+| mark my substep `Done` (every session) — or `Deferred` (`1.6`) | flip the row in the PLAN's **session table** |
+| mark *another* session's row `Deferred` / `N/A` (`1.3` dispositions the UI / Design System row) | flip **that session's** row in the PLAN's session table, with the one-line reason from the code, exactly as *A session whose area doesn't exist* above describes — then mirror it in the *Conditional sessions considered* table if it is a conditional |
+| add a lettered conditional row, e.g. `1.7a` (`1.3`) | append the lettered row to the PLAN's session table (see `inv-5`), and record the decision in the PLAN's *Conditional sessions considered* table |
+| reflect the phase plan in the roadmap (`1.2`) | the phase plan is the **`architecture/02-*` doc's** content; the index gets nothing but the `{{PHASE_1_NAME}}` fill described under the float below |
+
+The single exception in the whole adoption is that `{{PHASE_1_NAME}}` fill. No row, status, STEP, or
+phase heading is touched before landing — landing is what reconciles the index, in one pass, against
+the PLAN it can then trust.
 
 ### 2. Pick the shape — as-built, or forward-intent
 Most sessions are **as-built**: the code already answers them (component boundaries, data model,
@@ -379,6 +435,9 @@ Add rows the template never listed when the system raises decisions the generic 
 Mark a decision `unknown` rather than inventing an answer: an honest gap survives the confirm pass,
 a plausible fabrication may not.
 
+When every row has a drafted answer, **stamp the sheet `Status: Harvested`** before you go to the
+user. That stamp is what a resumed chat reads to tell a finished harvest from an interrupted one.
+
 ### 4. Confirm with the user  ▸ checkpoint
 Walk **every** row, proportionate to **confidence × consequence**: a high-confidence from-code
 answer gets a fast "this is what the code does — right?", while a low-confidence or load-bearing one
@@ -388,7 +447,9 @@ between — but when a session is **resumed after a gap**, reconcile the sheet a
 picking a side.
 
 Record each outcome in the sheet's **Confirm** column: *confirmed as-is*, *corrected: …*, or
-*deferred*. Never leave a row unwalked.
+*deferred* — as you walk each row, not in a batch afterwards, so an interrupted confirm pass leaves
+an honest record of where it stopped. Never leave a row unwalked. Once every row has an outcome,
+**stamp the sheet `Status: Confirmed`**.
 
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
 user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
@@ -415,8 +476,9 @@ against them needs checking first."* A reader who meets that line months later c
 blocks them; a bare word tells them nothing and gets ignored.
 
 Follow the session's `Output` section for the body, the doc number, and its filename — with the two
-carve-outs already stated: no `prompts/STEP-index.md` bookkeeping, and **no ADR for a harvested
-decision** (only a user-directed one, with their approval).
+carve-outs already stated: **no edit to `prompts/STEP-index.md`**, whichever of its edits that
+section asks for (step 1), and **no ADR for a harvested decision** (only a user-directed one, with
+their approval).
 
 The doc states **what the system is**. Provenance and confidence stay in the sheet and never leak
 into it: no "harvested from", no per-sentence sourcing, no confidence hedges. Drift and debt the
@@ -438,11 +500,15 @@ rule of precedence.
 - **A finished, authoritative doc gets lifted** — a protocol or API spec, an interface contract, a
   design doc that is still true. Copy it into `architecture/` (whole-file, or a light reformat to fit
   the doc conventions) rather than leaving `architecture/` pointing at `inputs/`; from then on the
-  `architecture/` copy is the living version and the original stays in `inputs/` as provenance. Two
-  practical consequences: a lifted doc that takes a numbered `architecture/NN-*.md` slot **needs the
-  `Version` / `Status` / `Version Log` header** like any other architecture doc (`check.sh` check 4
-  reads every numbered doc, however it got there), and a large external standard you don't own is the
-  case where you **reference instead of lift**, per the same base rule.
+  `architecture/` copy is the living version and the original stays in `inputs/` as provenance. Three
+  practical consequences. Every `architecture/` doc is `NN-kebab-title.md`, so a lift needs a number:
+  take the **next free number above the core block**, the same rule a conditional session's output
+  doc follows (`METHOD.md` §4) — never a `01`–`14` slot, which belongs to the session that owns it and
+  would collide with the doc you are about to write. It **needs the `Version` / `Status` /
+  `Version Log` header** like any other architecture doc (`check.sh` check 4 reads every numbered
+  doc, however it got there) — a whole-file copy of a spec rarely arrives with one, so add it. And a
+  large external standard you don't own is the case where you **reference instead of lift**, per the
+  same base rule.
 - **A PRD, prior design doc, or research note is synthesized, not lifted** — you read it, and what
   survives appears in the doc you write. The input doesn't come across verbatim.
 - **Update the ledger either way.** Flip that input's `inputs-index.md` row to record what
@@ -452,9 +518,36 @@ rule of precedence.
   — say so and let the user decide, exactly as the periodic check-in does. Retiring is a move, never
   an edit or a delete, and never automatic.
 
-### Four sessions need a word about the float
-Floating Phasing changes what three earlier sessions can read, and gives Phasing itself a different
-job. Nothing about their templates changes — these are the notes the wrapper adds when it runs them.
+### `1.1` also fills in `overview.md`
+Greenfield gets its **project brief** from the kickoff interview: `BOOTSTRAP-PROMPT.md` asks who this
+is for, what it does, what it deliberately doesn't, and writes `Code/{{PROJECT}}-docs/overview.md`.
+Adoption skips that interview by design — so unless `1.1` fills the brief, the project lands with
+`overview.md` still the blank template, section comments and *"open that copy and fill it in"*
+scaffolding and all. That file is the first thing every later session, the planning session, and
+every check-in reads, so leaving it blank is not a cosmetic gap.
+
+`1.1` is where the content already exists. Its decision list *is* the brief's material — problem,
+users, success criteria, scope and non-goals, constraints, risks — and by the end of step 5 all of it
+has been harvested from the code, walked with the user, and written into
+`architecture/01-system-overview.md`. So after that doc is written, **transcribe it down into
+`overview.md`**: fill each brief section from the confirmed doc, in plain language, and delete the
+template's explanatory comments and its "this is the template" preamble as you go. Where the brief
+asks something the doc genuinely doesn't answer yet, say so in a short line rather than inventing it
+(*"~40 internal users today; growth expectations covered at 1.5"*) — later sessions deepen
+`architecture/`, and nothing comes back to rewrite this file.
+
+Three things to leave exactly as they are: the `PROJECT-STATUS` and `CHECK-IN-CADENCE` marker
+comments (live machinery — `status.sh` and `AGENTS.md` read them), and the **Release stage / launch
+target** line, which Stage 1 already wrote from intake.
+
+This is a **transcription, not a second interview** — every answer was confirmed row by row minutes
+ago, so don't re-ask any of it. Show the user the filled brief once and let them correct the voice:
+it is their document, and it is the one artifact here written for a human arriving cold rather than
+for the method.
+
+### The sessions that need a word about the float
+Floating Phasing changes what the earlier sessions that read it can read, and gives Phasing itself a
+different job. Nothing about their templates changes — these are the notes the wrapper adds when it runs them.
 
 - **`1.3` Architecture Overview and `1.5` Scaling & Performance** canonically read the Phasing doc,
   which doesn't exist yet. Harvest both from the code, and treat their forward *"don't foreclose the

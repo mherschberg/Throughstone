@@ -23,10 +23,12 @@ worked, and completed.
 > change — it powers the overlap warning, it doesn't reserve anything). Solo, leave them blank.
 
 ## Phase 1 — {{PHASE_1_NAME}}
-<!-- {{PHASE_1_NAME}}: kickoff (BOOTSTRAP-PROMPT.md Stage 1) fills this with the chosen phase
-     name — MVP (the default) / POC / prototype / v1. Its kebab-case form later names the
-     001-<phase-name>/ archive folder, created when STEP-1 is archived. init.sh leaves the
-     placeholder as-is; Check 8 parses the table rows below, not this heading. -->
+<!-- {{PHASE_1_NAME}}: filled with the chosen phase name — MVP (the default) / POC / prototype /
+     v1 — by whichever front door the project came through: kickoff (BOOTSTRAP-PROMPT.md Stage 1)
+     for a new project, or the Phasing session (RETCON-PROMPT.md Stage 3) when adopting an existing
+     codebase, where it is the one edit made to this file before the baseline lands. Its kebab-case
+     form later names the 001-<phase-name>/ archive folder, created when STEP-1 is archived.
+     init.sh leaves the placeholder as-is; Check 8 parses the table rows below, not this heading. -->
 
 | STEP | Title | Owner | Status | Repos (projection) | Scope (one line) |
 |------|-------|-------|--------|--------------------|------------------|

@@ -3,8 +3,10 @@
 **Session:** `{{templates/architecture-sessions/NN-....md}}`   <!-- the in-scope harvest session (1.1–1.13) this sheet covers -->
 **Harvested:** {{YYYY-MM-DD}}
 **Sources read:** {{the confirmed recon map + which per-asset docs / inputs / code paths}}
-**Status:** {{Harvested → Confirmed}}   <!-- Harvested when the answers are drafted from reality;
-                                            Confirmed once the confirm pass has walked every row. -->
+**Status:** {{Harvested → Confirmed}}   <!-- Stamp Harvested once EVERY row has a drafted answer;
+                                            Confirmed once the confirm pass has walked every row.
+                                            Leave the placeholder until then: an unstamped sheet is
+                                            how a resumed chat recognizes an interrupted harvest. -->
 
 <!-- WHAT THIS IS. A pre-answer sheet is retcon's per-session hand-off: instead of interviewing a
      session cold, the harvest DRAFTS an answer to each of that session's decisions FROM REALITY

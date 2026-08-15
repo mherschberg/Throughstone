@@ -122,6 +122,12 @@ run_existing_case() {
   assert_file_contains "$docs/RETCON-PROMPT.md" "templates/architecture-doc-template.md"
   # The work list is addressed by the one heading every session template now uses (1.7.2 contract).
   assert_file_contains "$docs/RETCON-PROMPT.md" "## Decisions to make (in order)"
+  # The STEP index is held at its seed for the whole adoption: session templates ask for several
+  # different edits to it, and all of them are redirected to the PLAN. Landing reconciles the index.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "leave \`prompts/STEP-index.md\` alone entirely"
+  # Adoption skips the kickoff interview, so a session fills the project brief instead — otherwise
+  # the project lands with overview.md still the blank template every later session reads first.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "also fills in \`overview.md\`"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).

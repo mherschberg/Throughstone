@@ -71,6 +71,10 @@ error/corruption and re-run paths, not normal operation.
     disagrees with the code, the code wins and the disagreement is written down as staleness rather
     than averaged away. Nothing is retired without you — a fully-superseded input is offered for
     archiving, never moved automatically.
+  - **You still end up with a project brief.** A new project writes `overview.md` during the kickoff
+    interview; an adopted one skips that interview, so the System Overview session writes the brief
+    instead — from the answers it just confirmed with you, once its architecture doc is written. It is
+    the file every later session, the planning session, and every check-in opens first.
   - **Roadmap planning runs last.** Every session but one has an as-built half to read; Phasing is
     purely forward, so adoption floats it to the end, after the rest of the baseline exists. It plans
     on the finished description of your system rather than ahead of it, names your next milestone, and

@@ -29,7 +29,8 @@
      WHAT IT FEEDS (it is a seed, not a living artifact): the confirmed map seeds `registries/repos.yml`
      (one row per repo), the thin `architecture/` docs the sessions harvest, and — from Confidence &
      Unknowns below — `registries/risks.yml`. Session harvests read the CONFIRMED map (plus the
-     per-asset docs), never each other's sheets, which is what lets them run independently.
+     per-asset docs), never each other's working sheets; each reads its predecessors' CONFIRMED
+     architecture docs, which is why the harvests run one session at a time and not in a batch.
 
      Fill every section from the running code (the source of truth); existing docs, memory, and
      original intent are secondary evidence that may be stale. Where a section does not apply, keep
