@@ -30,26 +30,43 @@
 # `managed`. (This per-row token is unrelated to the top-level `throughstone:` key in
 # `.throughstone/manifest.yml`, which versions the method itself — different file and scope, no
 # collision.)
+#
+# `license:` (per row) records what a repo is licensed under, so the inventory can show the
+# licensing picture across every repo at once — something no single LICENSE file can, and the fact
+# that starts mattering as soon as the repos here do not share one license. It is a RECORD, never
+# an instruction: the repo's own license file is authoritative and this line is a copy that can
+# drift, so trust the repo when they disagree and fix the line. For a repo the method CREATES it is
+# the posture from `.throughstone/project-license` (the value init.sh writes below). For a repo
+# REGISTERED IN PLACE — one that existed before this project did — it is whatever that repo already
+# says, written down as found: an identifier and the file it came from (`GPL-2.0 (COPYING)`), or
+# `none stated` when the repo says nothing, which is a fact worth recording rather than a gap to
+# fill. Never set a license for such a repo; see METHOD.md §7 — the method records licensing, it
+# never establishes licensing for code it did not create. A missing value means "not recorded", not
+# "same as everything else", and repos legitimately carrying different licenses is a normal
+# inventory rather than an inconsistency to reconcile.
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
     type: docs            # docs | service | library | app | infra | tests
     throughstone: managed
+    license: "{{PROJECT_LICENSE}}"
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
     throughstone: managed
+    license: "{{PROJECT_LICENSE}}"
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them and they
   # are stamped from templates/repo-readme-template.md. Give each new repo `throughstone: managed`
-  # like the rows above. Example:
+  # and a `license:` like the rows above. Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
   #   throughstone: managed
+  #   license: "MIT"
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."

@@ -783,6 +783,14 @@ mkdir -p "$ROOT/.throughstone"
 # even when proprietary projects intentionally have no project LICENSE.
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 
+# The repo inventory records what each repo is licensed under, so fill the seed rows with the same
+# posture. These two repos are ones init.sh creates, so the posture IS their license. A repo
+# registered in place later records what that repo already says instead (registries/repos.yml).
+grep -rlF '{{PROJECT_LICENSE}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  PROJECT_LICENSE_ID="$PROJECT_LICENSE_ID" perl -pi -e \
+    's/\Q{{PROJECT_LICENSE}}\E/$ENV{PROJECT_LICENSE_ID}/g' "$f"
+done
+
 # description: fill {{PROJECT_DESCRIPTION}} EVERYWHERE it appears (AGENTS.md + every
 # architecture/planning-session "About" blurb) so no literal placeholder is left dangling.
 # The one-liner is just a seed — the kickoff can later expand any of these from overview.md.

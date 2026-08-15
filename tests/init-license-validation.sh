@@ -133,6 +133,9 @@ run_interactive_case() {
   [ -f "$work/Code/$name-api/LICENSING.md" ]
   grep -Fq "does not replace or alter the project license" \
     "$work/Code/$name-api/LICENSING.md"
+  # The inventory rows record the same posture the helper applies.
+  assert_registry_license "$name" "$work" \
+    "$(cat "$work/Code/$name-docs/.throughstone/project-license")"
   "$work/Code/$name-docs/scripts/apply-project-license.sh" \
     "$work/Code/$name-api" >"$TMP_ROOT/$name-code-license-repeat.out"
 
@@ -219,6 +222,8 @@ run_private_case() {
   grep -Fq "Project-authored content in this repository is proprietary" \
     "$work/Code/$name-api/LICENSING.md"
   grep -Fq "does not grant permission" "$work/Code/$name-api/LICENSING.md"
+  # Proprietary is a posture, not an absence: the inventory records it like any other value.
+  assert_registry_license "$name" "$work" "Proprietary"
 
   assert_maintainer_tests_removed "$name" "$work"
   ! grep -Fq "Copyright holder" "$TMP_ROOT/$name.out"
@@ -420,6 +425,27 @@ run_missing_canonical_license_case() {
     "$TMP_ROOT/$name-helper.out"
   [ -z "$(find "$target" -mindepth 1 -print -quit)" ]
   assert_maintainer_tests_removed "$name" "$work"
+}
+
+# assert_registry_license NAME WORK EXPECTED — the repo inventory records what each repo it
+# created is licensed under, and no placeholder survives bootstrap. The value must match the
+# durable posture: two records that disagree are worse than one.
+assert_registry_license() {
+  local name="$1" work="$2" expected="$3" reg="$2/Code/$1-docs/registries/repos.yml"
+
+  # Whole-line match: the file also carries a commented example row, which is not a record.
+  [ "$(grep -Fxc "    license: \"$expected\"" "$reg")" -eq 2 ] || {
+    echo "FAIL: $name did not record license \"$expected\" on both seed rows of $reg" >&2
+    return 1
+  }
+  if grep -rq '{{PROJECT_LICENSE}}' "$work" --exclude-dir=.git; then
+    echo "FAIL: $name left an unresolved {{PROJECT_LICENSE}} placeholder" >&2
+    return 1
+  fi
+  grep -Fxq "$expected" "$work/Code/$name-docs/.throughstone/project-license" || {
+    echo "FAIL: $name registry license disagrees with the durable posture" >&2
+    return 1
+  }
 }
 
 # run_pre_existing_licensing_case — a repo that already states its own licensing must be refused

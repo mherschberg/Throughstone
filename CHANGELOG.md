@@ -34,6 +34,15 @@ error/corruption and re-run paths, not normal operation.
   each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
   (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.
   Both the greenfield and adoption front doors write it identically, so their repo inventories match.
+- **`license:` field on repo inventory rows** (`registries/repos.yml`) — records what each repo is
+  licensed under, so the inventory shows the licensing picture across every repo at once, which no
+  single `LICENSE` file can and which starts mattering as soon as a project's repos don't share one
+  license. For a repo the method creates it is the bootstrap posture, written by `init.sh` on the
+  seed rows; for an adopted repo it is what that repo already says, recorded as found — an
+  identifier and the file it came from, or `none stated`. It is a record, never an instruction: the
+  repo's own license file stays authoritative, a missing value means "not recorded" so existing
+  inventories are unaffected, and repos carrying different licenses is a normal inventory rather
+  than an inconsistency to reconcile.
 - **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
   `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
   inventory, stack per repo, services, data stores, integrations, existing-docs classification,

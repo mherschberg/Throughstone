@@ -371,6 +371,15 @@ All but the last are documentation only; nothing you already produced is rewritt
   at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner, whether they say what you
   intend.
 
+**Repo inventory gains a `license:` field (not adoption-specific).** `registries/repos.yml` rows can
+now record what each repo is licensed under — the bootstrap posture for a repo the method created,
+whatever the repo already says for one registered in place. It exists because a project whose repos
+don't share a single license has nowhere else to show that, and it is a record rather than an
+instruction: the repo's own license file stays authoritative. **Optional, additive,
+review-required** like any registry change, and a missing value reads as "not recorded", so an
+inventory without the field keeps working untouched. Backfill by hand if you want the licensing
+picture in one place; don't let tooling rewrite `repos.yml`, which is project state.
+
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
 code, confirms them with you, and writes the clean `architecture/` doc. It reuses what your project
