@@ -281,8 +281,8 @@ session boundary. Stage 3's two-step rule governs from `1.1` onward.
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
 asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
-- **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`, and
-  `throughstone: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
+- **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`,
+  `throughstone: managed`, and `license:` — see below), stamp a Throughstone README from `templates/repo-readme-template.md`, and
   record a short per-repo note (stack, entry points, role) in that README — its living home, which the
   owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
   **in place** by their real location; never relocate the user's code.
@@ -291,9 +291,13 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   never establishes licensing for code it did not create). Concretely: do **not** run
   `scripts/apply-project-license.sh` against any of these repos — it will refuse one that states
   its own terms, and the ones it would not refuse are exactly the repos that would silently gain a
-  `LICENSE` and a `LICENSING.md` claiming it over code you did not write. The repo's licensing
-  went into the recon map's **Stack Per Repo** row at `inv-3`; that record is the whole of the
-  work here. The license chosen at install time governs this method's own artifacts — the docs hub
+  `LICENSE` and a `LICENSING.md` claiming it over code you did not write. Recording it **is** the
+  work here, in two places with two jobs: the recon map's **Stack Per Repo** row already captured
+  it at `inv-3` as part of the frozen point-in-time snapshot, and this row's `license:` field is
+  the **living** copy that stays current as the repo changes. Copy it across as found — same
+  identifier, same source file, `none stated` where the repo says nothing — rather than
+  re-deriving it, so the two records can't disagree from the day they are written. The license
+  chosen at install time governs this method's own artifacts — the docs hub
   and anything it later creates — not the code being adopted, so a repo whose license differs from
   it is **not a finding**, several adopted repos may carry several different licenses, and none of
   that is reconciled. If the user raises relicensing, it is their act on their repo: say what you

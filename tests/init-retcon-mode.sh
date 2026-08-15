@@ -153,6 +153,11 @@ run_existing_case() {
     "Licensing (as found)"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing is recorded as found, never set here"
+  # The frozen map is the snapshot; the inventory row is the living copy. Both must be asked for,
+  # and asked for as a copy — deriving the row separately is how two records start disagreeing.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "this row's \`license:\` field is"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Copy it across as found"
+  assert_file_contains "$docs/registries/repos.yml" "\`license:\` (per row) records"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
