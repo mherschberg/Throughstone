@@ -142,6 +142,17 @@ run_existing_case() {
   # The UI session's option-page procedure is for deciding a design system, not describing one that
   # already ships.
   assert_file_contains "$docs/RETCON-PROMPT.md" "documents the design system that already exists"
+  # Every adopted repo is registered in place, so the method records its licensing and never sets
+  # it. Losing either half is silent: the prohibition is the only thing standing between the
+  # README stamp comment's license instruction and someone's production repo, and the recon-map
+  # column is the record that makes "record it" an actual place rather than a sentiment.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Never license an adopted repo"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "\`scripts/apply-project-license.sh\` against any of these repos"
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
+    "Licensing (as found)"
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
+    "Licensing is recorded as found, never set here"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).

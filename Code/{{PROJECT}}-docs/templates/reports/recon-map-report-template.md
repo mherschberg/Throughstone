@@ -52,9 +52,20 @@ PLAN upgrade projects only the `adopt` rows into work.
 
 ## Stack Per Repo
 
-| Repo | Languages | Frameworks / runtimes | Build / package manager | Notes |
-|------|-----------|-----------------------|-------------------------|-------|
-| {{repo}} | {{langs}} | {{frameworks, runtime versions}} | {{tool}} | {{monorepo? generated code? notable pins}} |
+**Licensing is recorded as found, never set here.** These repos existed before the method reached
+them, so each one's licensing is its owner's, and the method's job is to write down what is
+already true (`METHOD.md` §7). Read the repo root — `LICENSE`, `COPYING`, `NOTICE`, `LICENSE.md`,
+`LICENSE-<id>` — plus the `license` field in its package metadata (`package.json`,
+`pyproject.toml`, `Cargo.toml`, `*.gemspec`, …), and note vendored third-party trees that carry
+their own terms. Record what you find: an identifier and the file it came from
+(`GPL-2.0 (COPYING)`), or `none stated` when the repo says nothing, which is itself a fact worth
+recording rather than a gap to fill. Where the repo's own files disagree with each other, say so
+instead of picking a winner. Nothing here is compared against, or reconciled with, the license
+chosen at install time.
+
+| Repo | Languages | Frameworks / runtimes | Build / package manager | Licensing (as found) | Notes |
+|------|-----------|-----------------------|-------------------------|----------------------|-------|
+| {{repo}} | {{langs}} | {{frameworks, runtime versions}} | {{tool}} | {{identifier (file it came from) / none stated; + vendored terms}} | {{monorepo? generated code? notable pins}} |
 
 ## Entry Points & Services
 
