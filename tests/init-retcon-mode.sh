@@ -158,6 +158,14 @@ run_existing_case() {
   assert_file_contains "$docs/RETCON-PROMPT.md" "this row's \`license:\` field is"
   assert_file_contains "$docs/RETCON-PROMPT.md" "Copy it across as found"
   assert_file_contains "$docs/registries/repos.yml" "\`license:\` (per row) records"
+  # The three places that tell a reader to record an in-place repo's licensing must name the field
+  # that holds it. They are deliberately field-free on the 1.7.x line, where no such field exists,
+  # so a later forward-merge can quietly reintroduce the vaguer wording here.
+  assert_file_contains "$docs/METHOD.md" \
+    "\`registries/repos.yml\` \`license:\` field (an identifier"
+  assert_file_contains "$docs/AGENTS.md" "repo's \`registries/repos.yml\` \`license:\` field"
+  assert_file_contains "$docs/templates/planning-session.md" \
+    "\`registries/repos.yml\` \`license:\` field and move on"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
