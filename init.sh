@@ -259,6 +259,23 @@ preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
+# --- 0c. Fresh-template guard -----------------------------------------------
+# init.sh is a one-time bootstrap that crosses a destructive boundary below (it removes .git and
+# template-only files). It must run from a fresh, unpacked template checkout — never a second time
+# in an already-initialized project (a re-run would delete a mono repo's history, then fail), and
+# never on top of an unrelated repo. The root pointers (AGENTS.md / CLAUDE.md) carry a
+# THROUGHSTONE-TEMPLATE-GUARD block that step 3 strips during initialization; it is a stable
+# sentinel because it contains no {{PROJECT}} token, so — unlike the docs-hub directory name — it
+# is never rewritten by placeholder substitution (init.sh substitutes its own {{PROJECT}} too).
+# Its absence means this is not a fresh template. Refuse now, before anything is deleted.
+if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" 2>/dev/null; then
+  echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
+  echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
+  echo "  not run on an already-initialized project or an unrelated repo — that would delete history." >&2
+  echo "  If you are starting over, re-download the template into a fresh, empty folder and run it there." >&2
+  exit 2
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
@@ -290,7 +307,12 @@ else
   while :; do
     case "$(ask 'Choose 1 or 2' '1')" in
       1) MODE=new; break ;;
-      2) MODE=existing; break ;;
+      2) MODE=existing
+         echo
+         echo "  Adopting an existing codebase: keep running this from the downloaded Throughstone"
+         echo "  folder (a fresh directory), NOT from inside your existing repo. Your code stays"
+         echo "  where it is — the agent registers your repos in place later and never rewrites them."
+         break ;;
       *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
     esac
   done
@@ -819,30 +841,43 @@ fi
 # & register repos, classify docs, build the recon map, harvest the sessions — is agent-driven
 # behind RETCON-PROMPT.md, routed by the `retcon` status.
 if [ "$MODE" = "existing" ]; then
-  # Flip the kickoff gate from the seeded `not-started` to `retcon` (see overview-template.md).
+  # Order matters here: seed the stub STEP-1 PLAN FIRST, then flip the status marker. The `retcon`
+  # marker is a promise that the resolver (RETCON-PROMPT.md) has an in-flight PLAN to resolve —
+  # RETCON-PROMPT.md reads that PLAN as a precondition and cannot rebuild it — so the marker must
+  # never be set unless the PLAN it points at exists.
+  #
+  # Seed the stub STEP-1 PLAN at the SAME in-flight path greenfield uses, so the Cross-Cutting
+  # Review and later check-ins find it where they look. Its substeps are the inventory work;
+  # RETCON-PROMPT.md upgrades it by addition once the inventory is confirmed. {{PROJECT}} was
+  # already substituted in step 3; fill {{DATE}} with the adoption date here.
+  mkdir -p "$ROOT/Upcoming Prompts"
+  # The stub template ships with the scaffold and step 3 never removes it, so a missing one means
+  # the download is incomplete or corrupt. Abort loudly BEFORE flipping the marker rather than
+  # shipping a `retcon` project with no PLAN — that state would route every agent to
+  # RETCON-PROMPT.md and then dead-end it (nothing to resolve, and no way to regenerate the stub).
+  if [ ! -f "$DOCS/templates/retcon-step-1-plan-stub.md" ]; then
+    echo "init.sh: the retcon stub STEP-1 PLAN template is missing:" >&2
+    echo "        $DOCS/templates/retcon-step-1-plan-stub.md" >&2
+    echo "        Your scaffold download looks incomplete — re-download the Throughstone template" >&2
+    echo "        and rerun ./init.sh. (The marker was not flipped; nothing routes to retcon yet.)" >&2
+    exit 1
+  fi
+  TODAY="$(date +%Y-%m-%d)" perl -pe 's/\Q{{DATE}}\E/$ENV{TODAY}/g' \
+    "$DOCS/templates/retcon-step-1-plan-stub.md" > "$ROOT/Upcoming Prompts/${SLUG}-STEP-1-PLAN.md"
+  echo "  retcon: seeded stub STEP-1 PLAN (Upcoming Prompts/${SLUG}-STEP-1-PLAN.md)"
+  # With the PLAN in place, flip the kickoff gate from the seeded `not-started` to `retcon` (see
+  # overview-template.md). This flip is the single most load-bearing line in retcon: it is what
+  # routes every agent and status.sh into adoption. A silent no-op (marker text drifted, so the
+  # substitution matched nothing) would ship `not-started` and run the greenfield kickoff against
+  # existing code — so verify it took, mirroring the precondition guard on the seeded overview
+  # marker in §5.
   perl -pi -e 's/<!-- PROJECT-STATUS: not-started -->/<!-- PROJECT-STATUS: retcon -->/' "$DOCS/overview.md"
-  # This flip is the single most load-bearing line in retcon: it is what routes every agent and
-  # status.sh into adoption. A silent no-op (marker text drifted, so the substitution matched
-  # nothing) would ship `not-started` and run the greenfield kickoff against existing code — so
-  # verify it took, mirroring the precondition guard on the stub-PLAN write just below.
   grep -q '<!-- PROJECT-STATUS: retcon -->' "$DOCS/overview.md" || {
     echo "init.sh: failed to set the retcon PROJECT-STATUS marker in overview.md" >&2
     echo "        (overview-template.md may have drifted). Aborting so the project does not ship" >&2
     echo "        routed to the greenfield kickoff instead of retcon adoption." >&2
     exit 1; }
   echo "  retcon: PROJECT-STATUS set to 'retcon' (adopting an existing codebase)"
-  # Seed the stub STEP-1 PLAN at the SAME in-flight path greenfield uses, so the Cross-Cutting
-  # Review and later check-ins find it where they look. Its substeps are the inventory work;
-  # RETCON-PROMPT.md upgrades it by addition once the inventory is confirmed. {{PROJECT}} was
-  # already substituted in step 3; fill {{DATE}} with the adoption date here.
-  mkdir -p "$ROOT/Upcoming Prompts"
-  if [ -f "$DOCS/templates/retcon-step-1-plan-stub.md" ]; then
-    TODAY="$(date +%Y-%m-%d)" perl -pe 's/\Q{{DATE}}\E/$ENV{TODAY}/g' \
-      "$DOCS/templates/retcon-step-1-plan-stub.md" > "$ROOT/Upcoming Prompts/${SLUG}-STEP-1-PLAN.md"
-    echo "  retcon: seeded stub STEP-1 PLAN (Upcoming Prompts/${SLUG}-STEP-1-PLAN.md)"
-  else
-    echo "  retcon: WARNING — stub STEP-1 PLAN template missing; RETCON-PROMPT.md will create the PLAN." >&2
-  fi
   # Scaffold the pre-answer-sheet scratch folder. RETCON-PROMPT.md's per-session harvest (Stage 3)
   # drops one transient sheet per in-scope session here; seeding it now gives that a home and makes
   # the AGENTS.md marker-loss fallback signal reliable from adoption start.
