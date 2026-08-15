@@ -259,6 +259,23 @@ preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
+# --- 0c. Fresh-template guard -----------------------------------------------
+# init.sh is a one-time bootstrap that crosses a destructive boundary below (it removes .git and
+# template-only files). It must run from a fresh, unpacked template checkout — never a second time
+# in an already-initialized project (a re-run would delete a mono repo's history, then fail), and
+# never on top of an unrelated repo. The root pointers (AGENTS.md / CLAUDE.md) carry a
+# THROUGHSTONE-TEMPLATE-GUARD block that step 3 strips during initialization; it is a stable
+# sentinel because it contains no {{PROJECT}} token, so — unlike the docs-hub directory name — it
+# is never rewritten by placeholder substitution (init.sh substitutes its own {{PROJECT}} too).
+# Its absence means this is not a fresh template. Refuse now, before anything is deleted.
+if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" 2>/dev/null; then
+  echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
+  echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
+  echo "  not run on an already-initialized project or an unrelated repo — that would delete history." >&2
+  echo "  If you are starting over, re-download the template into a fresh, empty folder and run it there." >&2
+  exit 2
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
