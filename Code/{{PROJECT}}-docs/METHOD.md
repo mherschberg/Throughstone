@@ -4,8 +4,9 @@
 
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
-> retained as `LICENSE-THROUGHSTONE` in this docs hub. Your own application code is under the
-> open-source license you chose at setup or remains private/proprietary. For open-source
+> retained as `LICENSE-THROUGHSTONE` in this docs hub. Application code this project creates is
+> under the open-source license you chose at setup or remains private/proprietary; a repo that
+> existed before this project keeps the licensing its owner set (§7). For open-source
 > projects, the docs hub's `LICENSE` is the canonical project-license file copied into each
 > application-code repo when that repo is created. The durable selection is recorded separately
 > in `.throughstone/project-license`, so a missing license file cannot silently change it.
@@ -478,8 +479,12 @@ what it is** — its role and the slice of the system it owns — stamped from t
 filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
 its root for its internal design. **Every application-code repo the method *creates* also inherits
-the project-license posture established by `init.sh`:** read the authoritative selection from the
-docs hub's `.throughstone/project-license`. For an open-source selection, the docs hub must have
+the license posture established by `init.sh`:** read the authoritative selection from the docs
+hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
+and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which
+in a project built from scratch is everything, and in a project that also references code it did
+not create is exactly that subset. It is not a claim about code the method didn't write. For an
+open-source selection, the docs hub must have
 a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
 `Proprietary`, the new repo gets no project `LICENSE`. Do not copy `LICENSE-THROUGHSTONE` into
 application-code repos that contain no Throughstone-authored material. Repos scaffolded through
@@ -490,8 +495,9 @@ this method do contain the Throughstone-authored README and CI starter, so
 **The method records licensing; it never establishes licensing for code it did not create.** A
 repo **registered in place** (below) existed before the method reached it, so it already has an
 owner and a licensing status — a `LICENSE`, a `COPYING`, a `NOTICE`, vendored third-party terms,
-or a deliberate absence. Read what it uses and **record** it, in its `repos.yml` entry and
-wherever the architecture docs describe it; never apply a posture to it. A divergence from the
+or a deliberate absence. Read what it uses and **record** it as found — in the repo inventory
+entry that describes it, and wherever the architecture docs cover it; never apply a posture to
+it. A divergence from the
 `init.sh` selection is not an error to fix: that selection governs the method's own artifacts and
 the repos it creates, and several in-place repos may legitimately carry several different
 licenses. Choosing or changing a license for an existing repo is its owner's act, taken

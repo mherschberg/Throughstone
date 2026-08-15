@@ -292,8 +292,14 @@ affect work you do after pulling them.
   exactly as before. **One thing to check:** if you have registered an existing repo in place and
   ran the helper on it, look at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner,
   whether they say what you intend.
-
-Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGENTS.md`,
+- **`.throughstone/project-license` is described more narrowly.** The posture file was called "the
+  project license" everywhere, but it only ever governed **Throughstone-authored and method-created
+  material** — your docs hub, `prompts/`, and any repo the method creates. Nothing about the file
+  changes; the wording around it does, in `METHOD.md` §7, `AGENTS.md`, `README.md`, the planning
+  session, and the helper's header. Pull them with the group below. **One thing to check:** if a
+  repo of yours was registered in place rather than created by the method, its licensing is its
+  own — record what it actually uses beside its inventory entry rather than assuming the posture.
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGENTS.md`, `README.md`,
 `inputs/README.md`, `templates/architecture-doc-template.md`, `templates/planning-session.md`,
 `templates/repo-readme-template.md`, `runbooks/check-in.md`, and
 `scripts/apply-project-license.sh` as a group. Nothing else is affected: no `status.sh` /
