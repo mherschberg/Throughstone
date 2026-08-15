@@ -44,6 +44,25 @@ error/corruption and re-run paths, not normal operation.
   code and provenance-tagged, confirmed with the user before the clean `architecture/` doc is written.
   `init.sh` scaffolds an `Upcoming Prompts/retcon/` scratch home for these when adopting an existing
   codebase.
+- **Adoption harvests the architecture sessions instead of interviewing them** (`RETCON-PROMPT.md`
+  Stage 3). For each in-scope session, adoption reads the session template as reference data, drafts
+  an answer to every decision **from the running code** into that session's pre-answer sheet, confirms
+  each answer with you proportionate to confidence and consequence, then writes the clean
+  `architecture/` doc from the shared doc template. Decisions the code cannot answer — intent, scope,
+  what comes next — are asked directly, as greenfield would. Anything left unconfirmed is recorded as
+  `Coverage: deferred` with a tracked risk rather than guessed into fact, and provenance stays in the
+  working sheet, never in the architecture doc. Also true of the harvest:
+  - **It never invents decision records.** A decision the harvest read out of your code is described
+    in the doc's Decision Summary, never written up as an ADR — that would date and rationalize a
+    choice nobody stated. If *you* make a decision during adoption, or tell it that one was made and
+    what drove it, it says so and asks before recording an ADR.
+  - **Sessions run one at a time and survive interruption.** Each session is harvested, confirmed, and
+    written before the next begins, so every harvest reads its predecessors' confirmed docs instead of
+    drafts. A session in progress resumes from its sheet — the confirmations you already gave are
+    never re-asked or overwritten.
+  - **Nothing is skipped silently.** A conditional session the map includes is tracked and harvested
+    like any other, and a session whose area your system doesn't have (a UI session on an API-only
+    service) is recorded `N/A` or `Deferred` with a reason read from the code.
 
 ### Changed
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but

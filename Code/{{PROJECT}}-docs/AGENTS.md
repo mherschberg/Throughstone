@@ -29,7 +29,7 @@ AGENTS.md and follow it."*
   `Code/{{PROJECT}}-docs/overview.md` for review; seed it from the one-line description in
   *What is {{PROJECT}}* below). The user should not have to pre-write `overview.md` or paste a
   kickoff command. The bootstrap flips the marker to `kickoff-complete` when it finishes.
-- **`retcon` → Adoption mode (existing codebase).** The project is being adopted from an
+- **`retcon` → adopting an existing codebase.** The project is being adopted from an
   existing codebase, not designed from scratch. **Do not run the greenfield kickoff.** Read
   `Code/{{PROJECT}}-docs/RETCON-PROMPT.md` and follow it: it is a single PLAN-driven resolver
   over the in-flight **STEP-1 PLAN** (`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`, a stub
@@ -89,10 +89,9 @@ with or without the session label (preferred with the label, e.g.
 interview the user one decision at a time, then write the output architecture doc and update
 `prompts/STEP-index.md`. No copy-paste, no special commands.
 
-> **Adoption exception:** if `overview.md` reads `PROJECT-STATUS: retcon`, do **not** cold-interview a
-> session here — the project is adopting an existing codebase. Follow `RETCON-PROMPT.md` instead; it
-> reads the session files as reference data to harvest from the running code, never by triggering
-> their interview.
+> **Retcon exception:** if `overview.md` reads `PROJECT-STATUS: retcon`, do **not** interview a
+> session here — the project is adopting an existing codebase. Follow `RETCON-PROMPT.md` instead.
+> (`METHOD.md` §4, *Running a session*, states the full rule for when a session's interview starts.)
 
 **"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
 <session label>" are all the user's go-ahead — begin in that same reply.** Don't

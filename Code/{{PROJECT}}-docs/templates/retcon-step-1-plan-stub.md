@@ -108,7 +108,9 @@ the way — not a pretty description a mature team already knows.
          harvest→confirm; 1.14 is the Cross-Cutting Review + land, not a harvest;
        • the `Conditional sessions considered` table — seeded from code-visible surfaces
          (client surfaces, PII, auth) and refined as sessions harvest, exactly as
-         greenfield seeds-then-refines it;
+         greenfield seeds-then-refines it; every `Include` ALSO gets a lettered row
+         (1.6a, 1.7b, …) in the session table above, since that table is what the harvest
+         resolves while STEP-index is held at its seed;
        • `registries/risks.yml` rows seeded from the confirmed map's Confidence & Unknowns /
          Coverage & Confidence (genuinely-risky items only; STEP-index stays at its seed).
      That upgraded PLAN — at this same path, Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md —
