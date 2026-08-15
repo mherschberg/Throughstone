@@ -268,12 +268,19 @@ rewritten.** Two edits to `templates/architecture-sessions/*.md` and three docum
   `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
   token (`deferred`), which tells a reader arriving months later nothing about whether the gap
   blocks them — and gives the check-in that resurfaces it nothing to weigh. Both now ask for what is
-  missing, how big it is, and what it means for someone building on the doc. **One thing to check:**
+  missing, how big it is, and what it means for someone building on the doc, written as an ordinary
+  bold header field (`**Coverage:** deferred — …`). **One thing to check:**
   if any of your architecture docs already carries a bare `Coverage:` value, expand it the next time
   that doc is touched; nothing rewrites it for you.
+- **The deferred-coverage sweep now reads the field instead of matching a phrase.**
+  `runbooks/check-in.md` told the sweep to enumerate docs "carrying `Coverage: deferred`", a literal
+  string that a doc written from the template never contains — the field is bold, like every other
+  header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
+  `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
+  it is worth re-running the sweep once by hand.
 
-Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4 and §6, `inputs/README.md`, and
-`templates/architecture-doc-template.md` as a group. Nothing else is affected: no `status.sh` /
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4 and §6, `inputs/README.md`,
+`templates/architecture-doc-template.md`, and `runbooks/check-in.md` as a group. Nothing else is affected: no `status.sh` /
 `check.sh` change, no project state touched.
 
 ### 1.7.1 migration
