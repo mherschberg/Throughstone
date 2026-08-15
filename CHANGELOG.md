@@ -70,6 +70,23 @@ any project built with it.
   posture into repos it had no business licensing. `METHOD.md` §7, `AGENTS.md`, the planning
   session, the helper's own header, and both licensing banners now say the narrower thing, which
   is what was always true.
+- **"Stamp a README into each repo" had no rule for a repo the method didn't create.**
+  `templates/repo-readme-template.md` said to stamp a copy "into each code repo as it's created",
+  and `METHOD.md` §7 said every repo's README is stamped from it "when the repo is scaffolded" —
+  but §7 also lets a repo be **registered in place**, and such a repo already has a README, usually
+  its most-read file and often linked from outside. Read literally, the instruction says to
+  overwrite it. A repo registered in place is now **augmented** rather than stamped: add only a
+  short `Role in <project>` section naming what the repo is within the system, propose it before
+  writing into a repo the method didn't create, and leave every existing section alone — everything
+  else in the template is something a working repo already documents, better, from having been run.
+  A declined proposal is a complete outcome, since the same information lives in the architecture
+  doc and the `repos.yml` row. The rule keys on whether a README already exists rather than on how
+  the repo got here — where a registered-in-place repo has none, there is nothing to preserve, so
+  its README is written from the full template: that one file, with nothing else about the repo
+  scaffolded, and still proposed first. Two readers of that rule were corrected with it: `METHOD.md`
+  §7's layout paragraph said service repos are stamped from the template full stop, and the
+  check-in's README sweep assumed every repo README was stamped by the method at creation — so it
+  would have reported an augmented repo, or one whose owner declined the addition, as a gap.
 
 ## [1.7.1] - 2026-08-10
 
