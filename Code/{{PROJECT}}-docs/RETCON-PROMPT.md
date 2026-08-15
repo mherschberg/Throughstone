@@ -358,8 +358,8 @@ reality, and flag the gap.
 
 **Some sessions carry an extra note.** The loop below is the same for every session, but a few need
 something it alone doesn't give them — a brief to fill, or a consequence of running Phasing last.
-Those notes are at the end of this stage, each headed by the session it belongs to; **check whether
-the row you just resolved has one before you start it.**
+Those notes are the last two subsections of this stage; **check whether the row you just resolved has
+one before you start it.**
 
 ### 1. Read the session file as reference data
 Open `templates/architecture-sessions/NN-<topic>.md` (or the `conditional-*.md` the PLAN's conditional
@@ -476,8 +476,9 @@ against them needs checking first."* A reader who meets that line months later c
 blocks them; a bare word tells them nothing and gets ignored.
 
 Follow the session's `Output` section for the body, the doc number, and its filename — with the two
-carve-outs already stated: no `prompts/STEP-index.md` bookkeeping, and **no ADR for a harvested
-decision** (only a user-directed one, with their approval).
+carve-outs already stated: **no edit to `prompts/STEP-index.md`**, whichever of its edits that
+section asks for (step 1), and **no ADR for a harvested decision** (only a user-directed one, with
+their approval).
 
 The doc states **what the system is**. Provenance and confidence stay in the sheet and never leak
 into it: no "harvested from", no per-sentence sourcing, no confidence hedges. Drift and debt the
