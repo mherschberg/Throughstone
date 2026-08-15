@@ -320,6 +320,11 @@ PLAN's *Conditional sessions considered* table.
 
 `1.14` is the Cross-Cutting Review + land, not a harvest — see the note at the end of this stage.
 
+**Some sessions carry an extra note.** The loop below is the same for every session, but a few need
+something it alone doesn't give them — a brief to fill, or a consequence of running Phasing last.
+Those notes are at the end of this stage, each headed by the session it belongs to; **check whether
+the row you just resolved has one before you start it.**
+
 ### 1. Read the session file as reference data
 Open `templates/architecture-sessions/NN-<topic>.md` (or the `conditional-*.md` the PLAN's conditional
 table included) and take from it:
@@ -467,9 +472,36 @@ rule of precedence.
   — say so and let the user decide, exactly as the periodic check-in does. Retiring is a move, never
   an edit or a delete, and never automatic.
 
-### Four sessions need a word about the float
-Floating Phasing changes what three earlier sessions can read, and gives Phasing itself a different
-job. Nothing about their templates changes — these are the notes the wrapper adds when it runs them.
+### `1.1` also fills in `overview.md`
+Greenfield gets its **project brief** from the kickoff interview: `BOOTSTRAP-PROMPT.md` asks who this
+is for, what it does, what it deliberately doesn't, and writes `Code/{{PROJECT}}-docs/overview.md`.
+Adoption skips that interview by design — so unless `1.1` fills the brief, the project lands with
+`overview.md` still the blank template, section comments and *"open that copy and fill it in"*
+scaffolding and all. That file is the first thing every later session, the planning session, and
+every check-in reads, so leaving it blank is not a cosmetic gap.
+
+`1.1` is where the content already exists. Its decision list *is* the brief's material — problem,
+users, success criteria, scope and non-goals, constraints, risks — and by the end of step 5 all of it
+has been harvested from the code, walked with the user, and written into
+`architecture/01-system-overview.md`. So after that doc is written, **transcribe it down into
+`overview.md`**: fill each brief section from the confirmed doc, in plain language, and delete the
+template's explanatory comments and its "this is the template" preamble as you go. Where the brief
+asks something the doc genuinely doesn't answer yet, say so in a short line rather than inventing it
+(*"~40 internal users today; growth expectations covered at 1.5"*) — later sessions deepen
+`architecture/`, and nothing comes back to rewrite this file.
+
+Three things to leave exactly as they are: the `PROJECT-STATUS` and `CHECK-IN-CADENCE` marker
+comments (live machinery — `status.sh` and `AGENTS.md` read them), and the **Release stage / launch
+target** line, which Stage 1 already wrote from intake.
+
+This is a **transcription, not a second interview** — every answer was confirmed row by row minutes
+ago, so don't re-ask any of it. Show the user the filled brief once and let them correct the voice:
+it is their document, and it is the one artifact here written for a human arriving cold rather than
+for the method.
+
+### The sessions that need a word about the float
+Floating Phasing changes what the earlier sessions that read it can read, and gives Phasing itself a
+different job. Nothing about their templates changes — these are the notes the wrapper adds when it runs them.
 
 - **`1.3` Architecture Overview and `1.5` Scaling & Performance** canonically read the Phasing doc,
   which doesn't exist yet. Harvest both from the code, and treat their forward *"don't foreclose the
