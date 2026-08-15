@@ -43,7 +43,13 @@ any project built with it.
   decision — but `METHOD.md` §6 and the architecture doc template both showed it as a lone token
   (`deferred`), so the reader who meets it months later can't tell whether the gap blocks them, and
   the check-in has nothing to weigh. Both now require one sentence: what is missing, how big it is,
-  and what it means for someone building on the doc.
+  and what it means for someone building on the doc, written as an ordinary bold header field
+  (`**Coverage:** deferred — …`).
+- **The deferred-coverage sweep looked for a string the docs don't contain.** `runbooks/check-in.md`
+  told the check-in to enumerate architecture docs "carrying `Coverage: deferred`" — but the field is
+  written like every other header field, so the literal phrase never appears, and now that its value
+  is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
+  takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
 
 ## [1.7.1] - 2026-08-10
 

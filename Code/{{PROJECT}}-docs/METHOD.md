@@ -444,12 +444,16 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
 - **`Coverage:`** *(optional)* — how completely the doc describes its area. Omit it (or `full`)
   when the doc fully covers the area; mark a deliberately fat or partial area `deferred` (or
   `enumerated to depth N`) so the gap is recorded rather than mistaken for drift. **Never leave it
-  a bare word.** Write the line as one sentence — what is missing, how big it is, and what it means
-  for someone building on this doc: *"`Coverage: deferred` — 40 of ~600 tables enumerated; the rest
-  are named but their columns and relations are unread, so anything designed against them needs
-  checking first."* A reader meeting that line months later can tell whether it blocks them; a bare
-  token tells them nothing and gets ignored. Every check-in resurfaces a `Coverage: deferred` doc
-  for an explicit disposition (`runbooks/check-in.md`).
+  a bare word.** It is a header field like the others, and its value is one sentence — what is
+  missing, how big it is, and what it means for someone building on this doc:
+
+  `**Coverage:** deferred — 40 of ~600 tables enumerated; the rest are named but their columns and
+  relations are unread, so anything designed against them needs checking first.`
+
+  A reader meeting that line months later can tell whether it blocks them; a bare token tells them
+  nothing and gets ignored. Because the value is a sentence, anything looking for deferred coverage
+  **reads the field and compares it to `full`** rather than searching for a fixed phrase — that is
+  how the check-in's deferred-coverage sweep resurfaces these docs (`runbooks/check-in.md`).
 - A **Version Log** table at the bottom: one row per change (version, date, STEP, what).
 
 ADRs are *not* versioned this way — they're dated, carry a Status (Accepted / Superseded /
