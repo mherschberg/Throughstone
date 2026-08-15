@@ -317,10 +317,12 @@ and to **`Done`** when its doc is written; those are the same values the `inv-N`
 tables use.
 
 **Resuming an `In progress` session: read its sheet, never restart it.** The sheet in
-`Upcoming Prompts/retcon/` is the state — its **`Status`** (`Harvested` vs `Confirmed`) says which
-half you were in, and its **`Confirm`** column says which rows you had already walked with the user.
-Continue from the first unfilled row. **Never overwrite an existing sheet**: a re-harvest throws away
-the user's confirmations, which are the expensive part.
+`Upcoming Prompts/retcon/` is the state — its **`Status`** says which half you finished (`Harvested`
+once every row has a drafted answer, `Confirmed` once the confirm pass has walked every row; still
+the unfilled placeholder means the harvest itself was interrupted), and its **`Confirm`** column says
+which rows you had already walked with the user. Continue from the first unfilled row. **Never
+overwrite an existing sheet**: a re-harvest throws away the user's confirmations, which are the
+expensive part.
 
 **A session whose area doesn't exist.** Some sessions carry their own applicability note (the UI
 session on an API-only system, for instance). Don't invent a doc for an area the code doesn't have,
@@ -433,6 +435,9 @@ Add rows the template never listed when the system raises decisions the generic 
 Mark a decision `unknown` rather than inventing an answer: an honest gap survives the confirm pass,
 a plausible fabrication may not.
 
+When every row has a drafted answer, **stamp the sheet `Status: Harvested`** before you go to the
+user. That stamp is what a resumed chat reads to tell a finished harvest from an interrupted one.
+
 ### 4. Confirm with the user  ▸ checkpoint
 Walk **every** row, proportionate to **confidence × consequence**: a high-confidence from-code
 answer gets a fast "this is what the code does — right?", while a low-confidence or load-bearing one
@@ -442,7 +447,9 @@ between — but when a session is **resumed after a gap**, reconcile the sheet a
 picking a side.
 
 Record each outcome in the sheet's **Confirm** column: *confirmed as-is*, *corrected: …*, or
-*deferred*. Never leave a row unwalked.
+*deferred* — as you walk each row, not in a batch afterwards, so an interrupted confirm pass leaves
+an honest record of where it stopped. Never leave a row unwalked. Once every row has an outcome,
+**stamp the sheet `Status: Confirmed`**.
 
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
 user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
