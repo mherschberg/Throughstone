@@ -499,11 +499,15 @@ rule of precedence.
 - **A finished, authoritative doc gets lifted** — a protocol or API spec, an interface contract, a
   design doc that is still true. Copy it into `architecture/` (whole-file, or a light reformat to fit
   the doc conventions) rather than leaving `architecture/` pointing at `inputs/`; from then on the
-  `architecture/` copy is the living version and the original stays in `inputs/` as provenance. Two
-  practical consequences: a lifted doc that takes a numbered `architecture/NN-*.md` slot **needs the
-  `Version` / `Status` / `Version Log` header** like any other architecture doc (`check.sh` check 4
-  reads every numbered doc, however it got there), and a large external standard you don't own is the
-  case where you **reference instead of lift**, per the same base rule.
+  `architecture/` copy is the living version and the original stays in `inputs/` as provenance. Three
+  practical consequences. Every `architecture/` doc is `NN-kebab-title.md`, so a lift needs a number:
+  take the **next free number above the core block**, the same rule a conditional session's output
+  doc follows (`METHOD.md` §4) — never a `01`–`14` slot, which belongs to the session that owns it and
+  would collide with the doc you are about to write. It **needs the `Version` / `Status` /
+  `Version Log` header** like any other architecture doc (`check.sh` check 4 reads every numbered
+  doc, however it got there) — a whole-file copy of a spec rarely arrives with one, so add it. And a
+  large external standard you don't own is the case where you **reference instead of lift**, per the
+  same base rule.
 - **A PRD, prior design doc, or research note is synthesized, not lifted** — you read it, and what
   survives appears in the doc you write. The input doesn't come across verbatim.
 - **Update the ledger either way.** Flip that input's `inputs-index.md` row to record what
