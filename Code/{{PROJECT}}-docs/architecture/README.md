@@ -19,7 +19,9 @@ Most of these are produced by the **architecture sessions** during STEP-1
 > Filled in and reconciled by the **Cross-Cutting Review** once the docs exist, and kept
 > current at each **check-in** (`../runbooks/check-in.md`). Each doc's own
 > header is the authoritative Version/Status; this table is a convenience map. During STEP-1,
-> `prompts/STEP-index.md` is the live view of which sessions have produced their docs.
+> `prompts/STEP-index.md` is the live view of which sessions have produced their docs — except while
+> a project is adopting an existing codebase, where the index is held at its seed and the in-flight
+> STEP-1 PLAN carries that view instead (`RETCON-PROMPT.md`).
 
 | # | Doc | Version | Status |
 |---|-----|---------|--------|

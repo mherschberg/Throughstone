@@ -47,7 +47,11 @@ When the baseline lands (after the Cross-Cutting Review), STEP-1 becomes an ordi
 
 ## Read first
 1. `Code/{{PROJECT}}-docs/METHOD.md` — the methodology (doc genres, sessions, naming). Internalize it.
-2. `Code/{{PROJECT}}-docs/overview.md` — what the user says this system is.
+2. `Code/{{PROJECT}}-docs/overview.md` — normally still the blank template at this point: adoption
+   skips the kickoff interview that fills it, and `1.1` writes the brief near the end (Stage 3). The
+   one-line description the user gave `init.sh` is in this docs hub's `AGENTS.md` (*What is
+   {{PROJECT}}*) — read that for the seed, and read `overview.md` for the release-stage line once
+   Stage 1 has written it.
 3. `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` — the in-flight PLAN you resolve; read its
    *Decisions already locked* and *Ground rules*.
 4. `Code/{{PROJECT}}-docs/templates/reports/recon-map-report-template.md` — the artifact Stage 2 produces.
@@ -212,8 +216,9 @@ marking.) The appends:
   `conditional-privacy-compliance`. Seed now; refine as sessions harvest.
 
   **Every `Include` also gets a lettered row in the session table above** — `1.6a`, `1.7b`, … placed
-  next to the core session that owns it, with the same Status column, and named in the conditional
-  table's decision cell so the two agree. Without that row nothing ever resolves it: Stage 3 walks
+  next to the core session that owns it, with the same Status column, and written into the
+  conditional table's **`Substep / reason / revisit trigger`** cell (the `Decision` cell holds
+  `Include` / `Deferred` / `N/A` and nothing else) so the two agree. Without that row nothing ever resolves it: Stage 3 walks
   the session table, and `prompts/STEP-index.md` — where greenfield puts the lettered substep — is
   held at its seed until landing. Assign its output-doc number by the rule in that conditional's own
   template, and follow the Conditional-sessions note in `templates/step-index-seed.md` when landing
@@ -227,7 +232,18 @@ so the check-in re-surfaces it. **Write rows into the file's own `risks:` list, 
 commented example documents** (`id`, `status`, `title`, `category`, `severity`, `owner`, `opened`,
 `source`, `description`, `impact`, `mitigation`, `revisit_trigger`, `refs`) — the file ships as
 `risks: []` with that example beneath it. Nothing validates this registry mechanically, so a row
-invented in a different shape stays broken until a human reads it. During adoption the risk lives in `risks.yml` **only** — do
+invented in a different shape stays broken until a human reads it.
+
+**What `source` and `refs` point at here.** That file's recording rule wants every row anchored to a
+durable artifact that carries the detail, and tells you to *create* one first if none exists —
+naming an ADR or a follow-up STEP among the options. Adoption has neither available: no ADR for
+anything harvested, and no new row in `prompts/STEP-index.md`. It doesn't need them, because the
+artifact already exists. For a row seeded here, it is the **confirmed recon map** —
+`reports/<date>-step-0001-recon-map.md`, plus the section that surfaced the item (Confidence &
+Unknowns, Coverage & Confidence, Tests & CI) — which is a dated report under `reports/`, exactly the
+genre that rule's last clause allows. For a row opened later, at a session's confirm pass, it is the
+`architecture/` doc that session writes, plus its `Coverage:` line (Stage 3, step 4). Write no ADR
+and no STEP to satisfy the registry. During adoption the risk lives in `risks.yml` **only** — do
 **not** add a `Planned` backfill STEP to `prompts/STEP-index.md`; the index stays at its greenfield
 seed until the baseline lands (see *How this prompt works*), when a deferred area becomes ordinary
 forward work like any other risk. **One edit to the index is allowed before landing** — floated `1.2`
@@ -238,6 +254,12 @@ reads the archive folder name from that heading. No row, status, or STEP is touc
 `asset-N` is `Done` does the next action become the first architecture session — the **first open row
 in the session table**, read top to bottom, which starts at `1.1` (Stage 3). So the next action now
 is the first per-asset substep, `asset-1`.
+
+That rule describes the hand-off **out of Stage 2**, and it does not send the resolver backwards
+later. Once Stage 3 has started, an `asset-N` row appended mid-stage — a harvest found an asset the
+map missed (Stage 3, *An asset the harvest finds that the map missed*) — does **not** outrank the
+session in flight: an `In progress` session finishes first, and the late asset is worked at the next
+session boundary. Stage 3's two-step rule governs from `1.1` onward.
 
 ### The per-asset substeps (depth)
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
@@ -380,19 +402,21 @@ index.
 **And leave `prompts/STEP-index.md` alone entirely.** During adoption the index is held at its
 greenfield seed and all session progress lives in the PLAN (step 5 below), so *every* index
 instruction a session template carries is redirected here — not just the familiar "mark this substep
-`Done`." The session files ask for three different index edits, and all three land in the PLAN
-instead:
+`Done`." These are the shapes the session files ask for today, and every one of them lands in the
+PLAN instead — a session that asks for something not listed here is redirected the same way:
 
 | The session says | You do this instead |
 |------------------|---------------------|
 | mark my substep `Done` (every session) — or `Deferred` (`1.6`) | flip the row in the PLAN's **session table** |
+| note the open questions carried forward (`1.1`) | nothing goes in the index — they belong in the **Open Questions** table of the `architecture/` doc you are writing, which the doc template already carries |
 | mark *another* session's row `Deferred` / `N/A` (`1.3` dispositions the UI / Design System row) | flip **that session's** row in the PLAN's session table, with the one-line reason from the code, exactly as *A session whose area doesn't exist* above describes — then mirror it in the *Conditional sessions considered* table if it is a conditional |
 | add a lettered conditional row, e.g. `1.7a` (`1.3`) | append the lettered row to the PLAN's session table (see `inv-5`), and record the decision in the PLAN's *Conditional sessions considered* table |
 | reflect the phase plan in the roadmap (`1.2`) | the phase plan is the **`architecture/02-*` doc's** content; the index gets nothing but the `{{PHASE_1_NAME}}` fill described under the float below |
 
-The single exception in the whole adoption is that `{{PHASE_1_NAME}}` fill. No row, status, STEP, or
-phase heading is touched before landing — landing is what reconciles the index, in one pass, against
-the PLAN it can then trust.
+The single exception in the whole adoption is that `{{PHASE_1_NAME}}` fill — the phase name, and the
+scaffolding comment beneath it, and nothing else. No row, no status, no STEP, and no other part of
+the file is touched before landing — landing is what reconciles the index, in one pass, against the
+PLAN it can then trust.
 
 ### 2. Pick the shape — as-built, or forward-intent
 Most sessions are **as-built**: the code already answers them (component boundaries, data model,
@@ -422,7 +446,10 @@ about the acceptable-risk posture. Never interview what the code can answer; nev
 human can.
 
 ### 3. Harvest — draft every answer from reality
-Copy `templates/retcon-preanswer-sheet.md` to `Upcoming Prompts/retcon/<N.N>-<session>.md` — **unless
+Copy `templates/retcon-preanswer-sheet.md` to `Upcoming Prompts/retcon/<substep>-<session>.md`,
+naming it from the substep id exactly as that row carries it — a lettered conditional keeps its
+letter (`1.7b-native-app.md`), the same way `prompts/README.md` names a substep prompt
+`STEP-N.M-PROMPT.md` and treats a fractional substep like `5a` as an ordinary id. **Unless
 a sheet for this session already exists, in which case continue it** (see *Resuming* above) — and
 fill one row per decision: the **drafted answer**, its **provenance** (every source that informed it — a
 code path, a doc in `inputs/` with its trust level, the user's memory, or `inferred` / `unknown`),
@@ -454,7 +481,16 @@ an honest record of where it stopped. Never leave a row unwalked. Once every row
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
 user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
 risky rather than merely incomplete — a `registries/risks.yml` row with a revisit trigger, so the
-periodic check-in re-surfaces it (in that file's documented row shape, as at `inv-5`). During adoption the risk lives in `risks.yml` only: do **not** add
+periodic check-in re-surfaces it (in that file's documented row shape, and pointing at the artifacts
+named at `inv-5`).
+
+**A deferral taken here is not a harvested decision, and it is not automatically an ADR.** It is a
+live choice the user makes during adoption, so the no-reconstructed-ADRs rule doesn't apply to it —
+but its record is the `Coverage:` line plus the `risks.yml` row, and that is normally the whole
+record. Some session templates say otherwise: `1.6` Security asks you to capture every contested or
+deferred decision as an ADR, "deferrals especially". Under adoption, treat that the way step 2 treats
+any user-directed decision — propose it, don't assume it (*"want me to record that deferral as an
+ADR?"*), and take a no gracefully. The `Coverage:` line and the risk row are written either way. During adoption the risk lives in `risks.yml` only: do **not** add
 a backfill STEP to `prompts/STEP-index.md`, which is held at its greenfield seed until the baseline
 lands, at which point a deferred area becomes ordinary forward work like any other risk.
 
@@ -469,11 +505,10 @@ don't claim. `Status` reflects how settled the harvested reality is — a confir
 normally **`Current`**, whether or not the product has shipped.
 
 Where step 4 deferred something, add a `Coverage:` line **as a header field** (the template's comment
-shows where) — and **never a bare `deferred`**. It reads as one sentence: what is missing, how big it
-is, and what it means for someone building on this doc. *"`Coverage: deferred` — 40 of ~600 tables
-enumerated; the rest are named but their columns and relations are unread, so anything designed
-against them needs checking first."* A reader who meets that line months later can tell whether it
-blocks them; a bare word tells them nothing and gets ignored.
+shows where and gives the shape) — one sentence saying what is missing, how big it is, and what it
+means for someone building on this doc, **never a bare `deferred`**. That is the ordinary rule for
+the field (`METHOD.md` §6), not an adoption one; it just carries more weight here, because a
+baseline read out of a large existing system defers more than a greenfield one does.
 
 Follow the session's `Output` section for the body, the doc number, and its filename — with the two
 carve-outs already stated: **no edit to `prompts/STEP-index.md`**, whichever of its edits that
@@ -493,6 +528,11 @@ recorded, nothing more*. Acting on one is this session's job, for the documents 
 The base inputs lifecycle already says how (`inputs/README.md`); adoption only adds *when*, and one
 rule of precedence.
 
+The recon map already classified each document and recorded a **Disposition** for it. Those words
+map onto the rules below: *ingest* → **lift** or **adopt**, *point-at* → **reference**, *summarize* →
+**synthesize**, *flag stale* → record the drift as content. The map named the intent; these bullets
+say what it means in practice.
+
 - **The code still wins.** An input is secondary evidence, whatever its trust level in the recon map.
   Where it disagrees with what you read in the code, the code is the answer — and the disagreement
   itself is **content**: record the reality, and flag the doc as stale in that respect. Do not quietly
@@ -504,13 +544,30 @@ rule of precedence.
   practical consequences. Every `architecture/` doc is `NN-kebab-title.md`, so a lift needs a number:
   take the **next free number above the core block**, the same rule a conditional session's output
   doc follows (`METHOD.md` §4) — never a `01`–`14` slot, which belongs to the session that owns it and
-  would collide with the doc you are about to write. It **needs the `Version` / `Status` /
+  would collide with the doc you are about to write. **Free means unused on disk *and* unclaimed in
+  the PLAN.** An included conditional was given its output-doc number back at `inv-5`, long before it
+  runs, so that number is spoken for even though no file carries it yet; skip it, and skip any number
+  an earlier lift took. Record the number you take beside that input's row the way a conditional's is
+  recorded, so the next lift and the next conditional both see it. It **needs the `Version` / `Status` /
   `Version Log` header** like any other architecture doc (`check.sh` check 4 reads every numbered
   doc, however it got there) — a whole-file copy of a spec rarely arrives with one, so add it. And a
   large external standard you don't own is the case where you **reference instead of lift**, per the
   same base rule.
 - **A PRD, prior design doc, or research note is synthesized, not lifted** — you read it, and what
   survives appears in the doc you write. The input doesn't come across verbatim.
+- **A real decision record is adopted into `adr/`, not synthesized away.** A team that wrote ADRs (or
+  a dated decisions log) wrote them *at the time*, first-hand — that is evidence, not reconstruction,
+  so the no-fabricated-history rule doesn't bar it; the rule bars inventing a record for a choice
+  nobody wrote down. Copy each into `adr/` under this project's numbering, keep its original date and
+  author, register it in `adr/README.md` (`check.sh` check 5 reconciles the two), and say in the doc
+  that it predates adoption. Judgment: only for a record that was actually ratified and still
+  describes a live decision. Something merely ADR-*shaped* — an unratified rationale note, a
+  superseded proposal — is a design note: **synthesize** it. Either way the decision itself appears in
+  your doc's **Decision Summary**, which is where a reader looks for "this is how it is".
+- **A runbook is operational content, not architecture.** If it still matches what the code and infra
+  do, it belongs in `runbooks/`; if it doesn't, leave it in `inputs/` flagged stale and record the
+  real procedure where the owning session's doc covers it. Don't fold a procedure into an
+  `architecture/` doc to avoid deciding.
 - **Update the ledger either way.** Flip that input's `inputs-index.md` row to record what
   `architecture/` has now superseded and what still holds, so a later session builds on current
   material rather than re-reading a stale seed.
@@ -568,7 +625,10 @@ different job. Nothing about their templates changes — these are the notes the
   described. And it fills the **`{{PHASE_1_NAME}}` placeholder** in `prompts/STEP-index.md`'s
   `## Phase 1 — {{PHASE_1_NAME}}` heading — the one edit to that file adoption makes before landing,
   because the heading is where landing reads the archive folder name (`prompts/001-<phase-name>/`).
-  Leaving the placeholder unresolved would strand the baseline at archive time.
+  Leaving the placeholder unresolved would strand the baseline at archive time. Do it exactly as the
+  kickoff does at the same heading (`BOOTSTRAP-PROMPT.md`): set the name **and delete the
+  explanatory comment beneath it**, so an adopted index and a greenfield one of the same age read
+  the same.
 
 > `1.14`'s side of this — reconciling Phasing against `1.3`/`1.5` once all three exist, and turning
 > foreclosure into gap analysis — belongs to the Cross-Cutting Review, in the increment below.

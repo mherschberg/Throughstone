@@ -128,6 +128,13 @@ run_existing_case() {
   # Adoption skips the kickoff interview, so a session fills the project brief instead — otherwise
   # the project lands with overview.md still the blank template every later session reads first.
   assert_file_contains "$docs/RETCON-PROMPT.md" "also fills in \`overview.md\`"
+  # A lifted doc and an included conditional's output doc draw numbers from the same pool above the
+  # core block, but a conditional's is assigned in the PLAN long before any file carries it — so
+  # "free" has to mean unclaimed, not merely absent from disk.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Free means unused on disk"
+  # Every doc kind the recon map classifies needs a destination; a real decision record keeps its
+  # own genre instead of being synthesized into an architecture doc.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "adopted into \`adr/\`, not synthesized away"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
