@@ -87,7 +87,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    for an open-source selection, and copies that file unchanged. For `Proprietary`, no project
    `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
    and CI starter are retained Throughstone-authored scaffold material, and writes
-   `LICENSING.md` to make clear that notice is not the application-code license. Repository
+   `LICENSING.md` to make clear that notice is not the application-code license. **Run it only on
+   repos you create** — a repo **registered in place**, which existed before this project did,
+   keeps the licensing its owner set (`METHOD.md` §7: the method records licensing, it never
+   establishes licensing for code it did not create). Record what such a repo uses and move on;
+   the helper refuses it. Repository
    visibility is separate: when adding a remote for each code repo, choose private or public
    deliberately rather than inferring it from the license. Publishing a proprietary repo makes
    its source visible without granting open-source reuse rights, so call that out explicitly.

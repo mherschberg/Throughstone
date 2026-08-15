@@ -6,6 +6,13 @@
 # extra license file cannot silently change whether the generated project is open-source or
 # proprietary. This helper is for newly scaffolded application-code repos that retain
 # Throughstone-authored README / CI material.
+#
+# It applies only to a repo the method CREATES. A repo that existed before the method reached it
+# — registered in place by its registries/repos.yml `location:` — already has an owner and a
+# licensing status, and setting a license for it is that owner's act, not the method's: read what
+# it already uses and record it, never apply. The pre-existing-licensing check below refuses such
+# a target, so pointing this helper at the wrong kind of repo fails loudly instead of writing a
+# license claim over code the method did not author.
 
 set -euo pipefail
 
@@ -24,6 +31,25 @@ if [ ! -d "$TARGET" ]; then
   echo "apply-project-license.sh: target directory does not exist: $TARGET" >&2
   exit 2
 fi
+
+# find_pre_existing_licensing TARGET — list root-level licensing files this helper never writes.
+# Reads: TARGET's root directory entries.
+# Writes: nothing (prints one path per line).
+# Returns: 0 always; empty output means the target carries no such file.
+#
+# A repo the method creates carries none of these, so this is inert on the path the helper is
+# for. A repo that predates the method may carry any of them — COPYING for a GPL project, NOTICE
+# for a project with attribution obligations, LICENSE.md/LICENSE-<id> for the many projects that
+# name the file differently. Plain LICENSE is deliberately not listed: verify_compatible already
+# rejects a differing one, and an identical one is this helper's own idempotent re-run.
+find_pre_existing_licensing() {
+  find "$1" -mindepth 1 -maxdepth 1 \
+    \( -iname 'COPYING*' -o -iname 'COPYRIGHT*' -o -iname 'NOTICE*' \
+       -o -iname 'LICENCE*' -o -iname 'LICENSE.*' -o -iname 'LICENSE-*' \
+       -o -iname 'LICENSES' \) \
+    ! -name 'LICENSE-THROUGHSTONE' \
+    -print 2>/dev/null | LC_ALL=C sort
+}
 
 # verify_compatible SOURCE TARGET LABEL — reject an existing target with different content.
 # Reads: SOURCE and TARGET, if TARGET exists.
@@ -50,6 +76,23 @@ copy_if_missing() {
     echo "$label: $target"
   fi
 }
+
+# Refuse a repo that already states its own licensing, before reading the posture or writing
+# anything. This is the guard against the destructive case: a target with no plain LICENSE but a
+# COPYING or NOTICE would otherwise take the project's LICENSE and a LICENSING.md asserting that
+# license over the whole repository — a claim about code the method did not write.
+PRE_EXISTING_LICENSING="$(find_pre_existing_licensing "$TARGET")"
+if [ -n "$PRE_EXISTING_LICENSING" ]; then
+  echo "apply-project-license.sh: target already states its own licensing:" >&2
+  printf '%s\n' "$PRE_EXISTING_LICENSING" | while IFS= read -r found; do
+    echo "  $found" >&2
+  done
+  echo "apply-project-license.sh: this helper applies the project posture to repos this method" >&2
+  echo "        creates. A repo that already existed keeps the licensing its owner set — record" >&2
+  echo "        what it uses (in the repo inventory and its architecture docs) rather than" >&2
+  echo "        applying a license to it. Nothing was written." >&2
+  exit 1
+fi
 
 # The posture file is written during bootstrap and must contain one of the supported
 # project-license IDs. It decides the licensing path; LICENSE files are validated against it,
