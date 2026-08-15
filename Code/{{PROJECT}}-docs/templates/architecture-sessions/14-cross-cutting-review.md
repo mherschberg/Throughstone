@@ -38,7 +38,13 @@ between "we have a pile of docs" and "we have a coherent architecture."
   affected docs and bumping their version logs). Surface anything that needs a *decision*
   rather than a fix.
 
-## What to check
+## Decisions to make (in order)
+
+> Each item below is a check, not a decision this session makes on its own. A check may surface
+> something that needs the user's decision — record it as a finding and take it to the session or
+> ADR that owns it. (Every session template uses this heading, so anything reading a session file
+> finds its work list in the same place.)
+
 1. **Conditional-session gate.** Enumerate every
    `templates/architecture-sessions/conditional-*.md` file — do not use a hard-coded topic
    list. For each template, read its applicability rule and invocation, then compare that
@@ -104,14 +110,18 @@ building: **start a fresh chat** and run the **implementation planning session**
 (`templates/planning-session.md`, *"Run planning session: Phase-1 implementation roadmap"*) — it outlines the Phase-1
 implementation STEPs. See the next-action resolver (`METHOD.md` §10).
 
-**Begin now — in this same reply.** "STEP-1.14" or "session 1.14", with or without a leading
-"Run" and with or without ": Cross-Cutting Review", is your go-ahead, not a request for
-acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to
-start. Read root `.throughstone/local-user.md`, all the STEP-1 architecture docs and ADRs,
-every `conditional-*.md` template, the STEP-1 PLAN, and `prompts/STEP-index.md` silently. If
-the profile is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it,
-then continue. Run the conditional-session gate before the rest of the review. Then, in this
-one reply: **(1)** tell the user — in the one or two sentences from **What this session does**
-above — what you're about to do, calibrated to the local profile; then **(2)** report the
-gate result and your first findings (issues by severity, anything needing the user's
-decision). That orientation plus the first findings is your first reply.
+**If you were sent here to run this session, begin now — in this same reply.** "STEP-1.14" or
+"session 1.14", with or without a leading "Run" and with or without ": Cross-Cutting Review",
+is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't
+recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, all the
+STEP-1 architecture docs and ADRs, every `conditional-*.md` template, the STEP-1 PLAN, and
+`prompts/STEP-index.md` silently. If the profile is missing, ask the two local-profile
+questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Run the
+conditional-session gate before the rest of the review. Then, in this one reply: **(1)** tell
+the user — in the one or two sentences from **What this session does** above — what you're
+about to do, calibrated to the local profile; then **(2)** report the gate result and your
+first findings (issues by severity, anything needing the user's decision). That orientation
+plus the first findings is your first reply. **If you were not sent here to run it — you are
+reading this file to harvest its decisions from existing code, to check whether a conditional
+applies, or to review coverage — this paragraph is not addressed to you.** Use the file as
+reference material and follow whatever sent you here.

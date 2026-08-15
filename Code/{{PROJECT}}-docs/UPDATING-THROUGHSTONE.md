@@ -237,6 +237,28 @@ apply each area as a coherent review-required group, as with the legacy migratio
 - *Project state* (your `inputs/` contents): entirely yours — nothing is auto-created or
   rewritten. The folder is optional; a session reads what's there and ignores an empty folder.
 
+### 1.7.2 migration
+
+**Session templates only — no project files change.** Two edits to
+`templates/architecture-sessions/*.md`, both *Templates for future use* under §2, so they affect
+sessions you run after pulling them and rewrite nothing you already produced.
+
+- **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
+  here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
+  invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first
+  question back exactly as before. What changes is a file *read* for another purpose (the
+  Cross-Cutting Review checking conditional applicability, the check-in re-evaluating them): those
+  readers are now told the go-ahead isn't theirs, instead of relying on their own instructions to
+  outweigh it.
+- **One work-list heading.** The Glossary and Cross-Cutting Review templates now head their work list
+  `## Decisions to make (in order)`, matching the other fifteen, each with a note explaining what its
+  items are. If you have **customized session templates or added your own**, adopt the same heading so
+  generic readers find your work list too — `METHOD.md` §4 documents the skeleton, and it is the only
+  change you might want to make by hand.
+
+Pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. Nothing else is affected:
+no `status.sh` / `check.sh` change, no project state touched.
+
 ### 1.7.1 migration
 
 **Upgrading from 1.7.0?** A small follow-up that gives the `inputs/` folder a lifecycle. It rewrites
