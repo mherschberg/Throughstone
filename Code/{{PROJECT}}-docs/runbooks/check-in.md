@@ -105,8 +105,11 @@ is unwritten. That deferral must be **resurfaced, not silently forgotten** —
 each check-in re-reads it and decides its fate, so the gap lives in the roadmap instead of resting
 on a passive line in a doc.
 
-Enumerate every **non-`Deprecated`** `architecture/NN-*.md` carrying `Coverage: deferred` (read the
-`Coverage:` field — don't hard-code a list). A `Status: Deprecated` doc is **listed as retired** by
+Enumerate every **non-`Deprecated`** `architecture/NN-*.md` whose **`Coverage:` field** says
+anything other than `full` — **read the field, don't grep for a phrase**. The doc writes it as a
+header field and its value is a sentence (`**Coverage:** deferred — 40 of ~600 tables enumerated;
+…`), so a literal search for "Coverage: deferred" matches nothing; a doc with no `Coverage:` line
+at all is fully covered and not swept. A `Status: Deprecated` doc is **listed as retired** by
 the index reconciliation above (`METHOD.md` §6) and is **never** surfaced here for backfill. For
 each deferred doc, weigh the postponed area against what the system now does and what the near-term
 roadmap will build, and record one explicit **disposition** in this check-in report:
@@ -226,7 +229,7 @@ Write a short **check-in report** under `reports/` in the docs hub. Use
   filed) — with the fixes applied and the bugs filed.
 - **Conditional coverage:** every discovered conditional-session template and its current
   disposition; list any whose trigger fired and the follow-up STEP created or already pending.
-- **Deferred coverage:** each non-`Deprecated` doc carrying `Coverage: deferred`, its recorded
+- **Deferred coverage:** each non-`Deprecated` doc whose `Coverage:` field is not `full`, its recorded
   disposition (backfill now / still defer / risk-seeded), and any backfill STEP filed or existing
   one retained; a `Deprecated` such doc is noted as retired, not backfilled.
 - **Inputs:** live inputs reconciled against the architecture docs — rows newly marked `Superseded`

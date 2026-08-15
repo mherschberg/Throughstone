@@ -327,7 +327,7 @@ produced.
   hand; pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. No `status.sh` /
   `check.sh` change, no project state touched.
 
-**Three guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
+**Four guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
 All are documentation, so nothing you already produced is rewritten and no behavior changes.
 
 - **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
@@ -345,10 +345,17 @@ All are documentation, so nothing you already produced is rewritten and no behav
   `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
   token (`deferred`), which tells a reader arriving months later nothing about whether the gap
   blocks what they are building — and gives the check-in that resurfaces it nothing to weigh. Both
-  now ask for what is missing, how big it is, and what it means for someone building on the doc.
+  now ask for what is missing, how big it is, and what it means for someone building on the doc,
+  written as an ordinary bold header field (`**Coverage:** deferred — …`).
   Pull `METHOD.md` §6 with the doc template. **One thing to check:** if an architecture doc of yours
   already carries a bare `Coverage:` value, expand it the next time that doc is touched — nothing
   rewrites it for you.
+- **The deferred-coverage sweep now reads that field instead of matching a phrase.**
+  `runbooks/check-in.md` told the sweep to enumerate docs "carrying `Coverage: deferred`", a literal
+  string a doc written from the template never contains — the field is bold, like every other header
+  field, and its value is now a sentence. It takes any `Coverage:` field whose value isn't `full`.
+  Pull `runbooks/check-in.md` with the two files above; if an earlier check-in reported no deferred
+  coverage, it is worth re-running the sweep once by hand.
 
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
