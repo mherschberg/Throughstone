@@ -249,8 +249,9 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   wins on conflict). Their
   classification and trust already live in the frozen recon map — don't restate them. That is the
   whole Stage-2 deliverable for a doc-set: **land and record, nothing more.** Architecture-grade docs
-  (a finished design doc, a protocol/API spec) get *lifted* into `architecture/` later by their owning
-  session — that wiring is Stage 3, not here.
+  (a finished design doc, a protocol/API spec) get *lifted* into `architecture/` by their owning
+  session in Stage 3 (*The existing docs this session owns*) — not here, because which session owns a
+  document only becomes clear once that session is reading its area against the code.
 - **Per resource** — every non-repo, non-doc asset the inventory found gets a substep, feeding the
   session that will own it (record enough for its harvest to pick up): data stores → `1.4`; API /
   interface surfaces (HTTP/RPC endpoints, published contracts) → `1.11`; other runnable surfaces
@@ -419,6 +420,33 @@ harvest surfaced *are* content — record them as reality plus a flagged gap, wi
 
 Then mark the session's row `Done` in the PLAN and resolve the next open row. Leave the sheet in
 place — it is transient scratch, discarded when STEP-1 lands, not archived as history.
+
+### The existing docs this session owns
+Stage 2 copied every found document into `inputs/` and gave it an `inputs-index.md` row — *landed and
+recorded, nothing more*. Acting on one is this session's job, for the documents covering its area.
+The base inputs lifecycle already says how (`inputs/README.md`); adoption only adds *when*, and one
+rule of precedence.
+
+- **The code still wins.** An input is secondary evidence, whatever its trust level in the recon map.
+  Where it disagrees with what you read in the code, the code is the answer — and the disagreement
+  itself is **content**: record the reality, and flag the doc as stale in that respect. Do not quietly
+  average the two, and do not "fix" the input.
+- **A finished, authoritative doc gets lifted** — a protocol or API spec, an interface contract, a
+  design doc that is still true. Copy it into `architecture/` (whole-file, or a light reformat to fit
+  the doc conventions) rather than leaving `architecture/` pointing at `inputs/`; from then on the
+  `architecture/` copy is the living version and the original stays in `inputs/` as provenance. Two
+  practical consequences: a lifted doc that takes a numbered `architecture/NN-*.md` slot **needs the
+  `Version` / `Status` / `Version Log` header** like any other architecture doc (`check.sh` check 4
+  reads every numbered doc, however it got there), and a large external standard you don't own is the
+  case where you **reference instead of lift**, per the same base rule.
+- **A PRD, prior design doc, or research note is synthesized, not lifted** — you read it, and what
+  survives appears in the doc you write. The input doesn't come across verbatim.
+- **Update the ledger either way.** Flip that input's `inputs-index.md` row to record what
+  `architecture/` has now superseded and what still holds, so a later session builds on current
+  material rather than re-reading a stale seed.
+- **Don't retire anything yourself.** A fully-superseded input is a *candidate* for `inputs/archive/`
+  — say so and let the user decide, exactly as the periodic check-in does. Retiring is a move, never
+  an edit or a delete, and never automatic.
 
 ### Four sessions need a word about the float
 Floating Phasing changes what three earlier sessions can read, and gives Phasing itself a different
