@@ -37,9 +37,11 @@ inputs is only *how* it gets there:
 - A **protocol / API spec, or another finished, authoritative doc** is often already in final form.
   Don't leave it living here with `../architecture/` merely *pointing* at it — **lift it into
   `../architecture/` as soon as it's in play.** That lift may be a **whole-file copy, or a light
-  reformat** to follow the doc conventions (add the `Version`/`Status` header, fit the naming). From
-  then on the architecture copy is the living version you keep true, and the original stays here as
-  provenance.
+  reformat** to follow the doc conventions: fit the naming, and add the **`Version`**, **`Status`**,
+  and **`Version Log`** header fields every architecture doc carries — `scripts/check.sh` requires
+  all three of a numbered doc however it got there, and a document written outside the method almost
+  never arrives with them. From then on the architecture copy is the living version you keep true,
+  and the original stays here as provenance.
   - *Use judgment, though:* lifting isn't always the right move — sometimes you **reference** the
     input from `../architecture/` and keep it here, long-lived and `Live`, instead of copying it in.
     A large external standard you don't own and only partially implement (a long RFC/ISO) is the
