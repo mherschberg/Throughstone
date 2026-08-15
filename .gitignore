@@ -11,8 +11,11 @@
 
 # Maintainer-only notes (handoffs, design memos) — not part of the published template.
 .dev/
-marketing/outreach-targets.md
-marketing/tech-media-ai-coding-writer-outreach.md
+# Maintainer-only marketing & launch material (outreach lists, Product Hunt assets, decks) —
+# local scratch, not part of the published template. Ignore the whole tree so newly added
+# launch files don't leak into the repo or into test fixtures (copy_template overlays untracked
+# files) and trip the workspace-root hygiene check.
+marketing/
 # Local maintainer scratch list of outstanding improvements — not part of the published template.
 TODO.md
 
