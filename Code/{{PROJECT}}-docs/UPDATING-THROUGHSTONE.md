@@ -308,6 +308,15 @@ home for the transient per-session sheets the harvest writes. Both are **adoptio
 greenfield-inert**: an existing project generated no such folder and needs none. Pull the new
 template if you may adopt another codebase later; otherwise there is no action.
 
+**Adoption check on the architecture-session templates.** Every
+`templates/architecture-sessions/*.md` gains a short note above its "Begin now" go-ahead: under
+`PROJECT-STATUS: retcon` the file is reference data for `RETCON-PROMPT.md` to harvest from, and the
+session is not started cold. Sessions run **in place** from these templates, so the note is live as
+soon as you pull them — but it is **gated on a status your project never holds** (an existing project
+is `kickoff-complete`), so running a session, re-running one, or adding a conditional behaves exactly
+as before. **No action**; pull the updated session templates with the rest of 2.0 if you may adopt
+another codebase later.
+
 **`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
 picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or
 corrupted), the helper now reports the status as *indeterminate* and points at the `AGENTS.md` "First

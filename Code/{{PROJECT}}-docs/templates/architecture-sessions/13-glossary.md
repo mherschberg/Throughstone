@@ -68,6 +68,10 @@ a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for
 `Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
 conditional's template. See the next-action resolver in `METHOD.md` §10.
 
+> **Adoption check.** If `overview.md` reads `PROJECT-STATUS: retcon`, the "Begin now" go-ahead
+> below does **not** apply — this file is reference data for `RETCON-PROMPT.md` to harvest from,
+> not a session to start cold.
+
 **Begin now — in this same reply.** "STEP-1.13" or "session 1.13", with or without a leading
 "Run" and with or without ": Glossary", is your go-ahead, not a request for acknowledgement:
 don't say "ready when you are", don't recap this file, don't ask whether to start. Read

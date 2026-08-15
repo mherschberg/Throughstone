@@ -85,4 +85,8 @@ bookkeeping instead of modifying STEP-1; re-run the planning session before more
 implementation work if these decisions change the remaining roadmap. Tell the user to
 **start a fresh chat** for the next action from the resolver in `METHOD.md` §10.
 
+> **Adoption check.** If `overview.md` reads `PROJECT-STATUS: retcon`, the "Begin now" go-ahead
+> below does **not** apply — this file is reference data for `RETCON-PROMPT.md` to harvest from,
+> not a session to start cold.
+
 **Begin now — in this same reply.** "run the identity-auth session" is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md`, anything relevant in `inputs/`, the relevant architecture docs, and any active follow-up PLAN silently; the PLAN determines the execution mode and output-doc number when this is not part of STEP-1. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more.

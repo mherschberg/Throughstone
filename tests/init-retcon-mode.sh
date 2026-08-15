@@ -6,6 +6,9 @@
 #   - Existing mode sets PROJECT-STATUS: retcon, seeds the stub STEP-1 PLAN at the greenfield
 #     in-flight path, keeps the STEP index greenfield-identical, and leaves check.sh clean; a
 #     fresh agent is routed to RETCON-PROMPT.md (status.sh).
+#   - Every architecture-session template carries the adoption check, above its "Begin now"
+#     go-ahead and byte-identical across all of them — so a session file read under adoption
+#     cannot fire its cold interview, and the 17 copies cannot drift apart.
 #   - New mode (explicit and default) is unchanged: PROJECT-STATUS: not-started, no stub PLAN,
 #     the greenfield kickoff message.
 #   - An invalid --mode fails before the destructive bootstrap boundary.
@@ -116,6 +119,41 @@ run_existing_case() {
   fi
   assert_file_contains "$docs/RETCON-PROMPT.md" "Stage 1 — Intake"
   assert_file_contains "$docs/RETCON-PROMPT.md" "Upgrade this PLAN by addition"
+
+  # 5c. Every architecture-session template carries the adoption check, and it sits ABOVE that
+  #     file's "Begin now" go-ahead — an agent reading the file top-down must meet the gate before
+  #     the instruction that fires the cold interview.
+  local session guard_line begin_line sessions=0 guard_sig="" sig
+  for session in "$docs"/templates/architecture-sessions/*.md; do
+    sessions=$((sessions + 1))
+    # `|| true` so a missing match reports below instead of tripping `set -e` silently.
+    guard_line="$(grep -n -m1 -F 'Adoption check' "$session" | cut -d: -f1 || true)"
+    begin_line="$(grep -n -m1 -F '**Begin now' "$session" | cut -d: -f1 || true)"
+    if [ -z "$guard_line" ]; then
+      echo "FAIL: $name $(basename "$session") has no adoption check before its go-ahead" >&2
+      return 1
+    fi
+    if [ -n "$begin_line" ] && [ "$guard_line" -gt "$begin_line" ]; then
+      echo "FAIL: $name $(basename "$session") adoption check sits below its go-ahead" >&2
+      return 1
+    fi
+    # One uniform block, not 17 copies free to drift: compare each file's check byte for byte
+    # against the first one seen. Presence alone would pass a file whose wording had been edited
+    # into something weaker — or contradictory — while every other file kept the original.
+    sig="$(awk '/^> \*\*Adoption check\./ { inblock = 1 }
+                inblock && /^>/          { print; next }
+                inblock                  { exit }' "$session" | cksum)"
+    if [ -z "$guard_sig" ]; then
+      guard_sig="$sig"
+    elif [ "$sig" != "$guard_sig" ]; then
+      echo "FAIL: $name $(basename "$session") adoption check differs from the other sessions" >&2
+      return 1
+    fi
+  done
+  if [ "$sessions" -eq 0 ]; then
+    echo "FAIL: $name no architecture-session templates to check" >&2
+    return 1
+  fi
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).

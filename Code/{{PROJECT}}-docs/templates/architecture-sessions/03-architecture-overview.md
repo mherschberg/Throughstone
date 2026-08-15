@@ -92,4 +92,8 @@ a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for
 conditional's template. This session may have marked the UI / Design System row `N/A` or
 added a Native-app row, so trust the index. See the next-action resolver in `METHOD.md` §10.
 
+> **Adoption check.** If `overview.md` reads `PROJECT-STATUS: retcon`, the "Begin now" go-ahead
+> below does **not** apply — this file is reference data for `RETCON-PROMPT.md` to harvest from,
+> not a session to start cold.
+
 **Begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more.

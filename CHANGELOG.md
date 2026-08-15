@@ -13,8 +13,8 @@ Work toward the **2.0** line, which adds **existing-codebase adoption** ("retcon
 be stood up by reverse-engineering a running system instead of interviewing its architecture from
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before;
-the few general robustness fixes under **Changed** touch only error/corruption and re-run paths, not
-normal operation.
+every entry under **Changed** is either gated on the adoption status or a general robustness fix that
+touches only error/corruption and re-run paths, not normal operation.
 
 ### Added
 - **Existing-codebase adoption front door** (`init.sh` → `RETCON-PROMPT.md`) — `init.sh` now opens with
@@ -45,6 +45,13 @@ normal operation.
   codebase.
 
 ### Changed
+- **Architecture-session templates defer to the adoption resolver.** Each
+  `templates/architecture-sessions/*.md` now carries a short adoption check above its "Begin now"
+  go-ahead: when `overview.md` reads `PROJECT-STATUS: retcon`, the session is **not** started cold —
+  the file is reference data that `RETCON-PROMPT.md` harvests from the running code. Without it, an
+  adoption that opened a session file to read its decision list would hit an instruction telling it to
+  interview the architecture from scratch, the very thing adoption exists to avoid. The check is gated
+  on a status only an adopted project holds, so greenfield sessions are unchanged.
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
   carries no recognized `PROJECT-STATUS` value (`not-started` / `retcon` / `kickoff-complete` — a lost
   or corrupted marker), the helper now reports the status as **indeterminate** and points at the
