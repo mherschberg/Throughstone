@@ -180,6 +180,14 @@ error/corruption and re-run paths, not normal operation.
   create** — with `AGENTS.md`, the planning session, and the repo README template all pointing at
   it. A repo the method creates carries none of those files, so nothing about scaffolding a new
   repo changes.
+- **`.throughstone/project-license` was described more broadly than it acts.** It was called "the
+  project-license posture" and "the authoritative selection" everywhere, but it only ever governs
+  **Throughstone-authored and method-created material** — the docs hub, `prompts/`, and any repo
+  the method creates. In a project built entirely from scratch those are the same set; in one that
+  also references code it did not create they are not, and the wider reading is what sent the
+  posture into repos it had no business licensing. `METHOD.md` §7, `AGENTS.md`, the planning
+  session, the helper's own header, and both licensing banners now say the narrower thing, which
+  is what was always true.
 
 ## [1.7.1] - 2026-08-10
 

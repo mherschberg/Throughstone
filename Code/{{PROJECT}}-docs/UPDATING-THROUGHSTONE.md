@@ -370,6 +370,14 @@ All but the last are documentation only; nothing you already produced is rewritt
   thing to check:** if you have registered an existing repo in place and ran the helper on it, look
   at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner, whether they say what you
   intend.
+- **`.throughstone/project-license` is described more narrowly.** The posture file was called "the
+  project license" everywhere, but it only ever governed **Throughstone-authored and method-created
+  material** — your docs hub, `prompts/`, and any repo the method creates. Nothing about the file
+  changes; the wording around it does, in `METHOD.md` §7, `AGENTS.md`, `README.md`, the planning
+  session, and the helper's header, and both licensing banners stop claiming the license covers
+  application code the project did not create. **One thing to check:** if a repo of yours was
+  registered in place rather than created by the method, its licensing is its own — record what it
+  actually uses in its `license:` field rather than assuming the posture.
 
 **Repo inventory gains a `license:` field (not adoption-specific).** `registries/repos.yml` rows can
 now record what each repo is licensed under — the bootstrap posture for a repo the method created,

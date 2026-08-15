@@ -81,17 +81,18 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
    the `.env` / `.secrets/` secret-file block so local secrets never get committed). Apply the
-   project-license posture too: run
+   license posture too: run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` for every new code
-   repo. It reads `.throughstone/project-license`, requires the canonical docs-hub `LICENSE`
+   repo. It reads `.throughstone/project-license` — which covers Throughstone-authored and
+   method-created material, not code the method didn't write — requires the canonical docs-hub `LICENSE`
    for an open-source selection, and copies that file unchanged. For `Proprietary`, no project
    `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
    and CI starter are retained Throughstone-authored scaffold material, and writes
    `LICENSING.md` to make clear that notice is not the application-code license. **Run it only on
    repos you create** — a repo **registered in place**, which existed before this project did,
    keeps the licensing its owner set (`METHOD.md` §7: the method records licensing, it never
-   establishes licensing for code it did not create). Record what such a repo uses and move on;
-   the helper refuses it. Repository
+   establishes licensing for code it did not create). Record what such a repo uses where its
+   inventory entry describes it and move on; the helper refuses it. Repository
    visibility is separate: when adding a remote for each code repo, choose private or public
    deliberately rather than inferring it from the license. Publishing a proprietary repo makes
    its source visible without granting open-source reuse rights, so call that out explicitly.

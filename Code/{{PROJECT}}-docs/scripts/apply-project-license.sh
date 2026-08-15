@@ -4,7 +4,9 @@
 #
 # The posture file is the durable source of truth, separate from LICENSE, so a missing or
 # extra license file cannot silently change whether the generated project is open-source or
-# proprietary. This helper is for newly scaffolded application-code repos that retain
+# proprietary. It records the license for THROUGHSTONE-AUTHORED AND METHOD-CREATED material —
+# the docs hub, prompts/, and any repo the method creates — not for code the method did not
+# write. This helper is for newly scaffolded application-code repos that retain
 # Throughstone-authored README / CI material.
 #
 # It applies only to a repo the method CREATES. A repo that existed before the method reached it
