@@ -158,6 +158,17 @@ run_existing_case() {
   assert_file_contains "$docs/RETCON-PROMPT.md" "this row's \`license:\` field is"
   assert_file_contains "$docs/RETCON-PROMPT.md" "Copy it across as found"
   assert_file_contains "$docs/registries/repos.yml" "\`license:\` (per row) records"
+  # An adopted repo's README is the user's most-read file and there is no helper that can refuse
+  # an overwrite — it is one file write — so both halves are pinned: never stamp, and the bounded
+  # thing that may be added instead, only with a yes.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "Where a README already exists, augment it; never stamp over it"
+  # ...and that the no-README case is not left to inference.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "offer to write one from the template"
+  # Substituted, like every other {{PROJECT}} in the shipped file — asserting the raw placeholder
+  # here would pass on a template that never got substituted.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "\`## Role in $name\` section"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "wait for a yes"
   # The three places that tell a reader to record an in-place repo's licensing must name the field
   # that holds it. They are deliberately field-free on the 1.7.x line, where no such field exists,
   # so a later forward-merge can quietly reintroduce the vaguer wording here.
