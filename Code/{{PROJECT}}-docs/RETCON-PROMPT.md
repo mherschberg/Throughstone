@@ -333,10 +333,25 @@ table included) and take from it:
 
 **Do not run the session.** Its closing paragraph is addressed to an agent that was *sent to run*
 that session, and says so; you are reading the file to harvest it, so that paragraph is not your
-instruction. Two more things belong to the interview,
-not to you: its **`## Next`** hand-off (the resolver here is this PLAN, not the STEP index) and any
-instruction to mark a substep `Done` in `prompts/STEP-index.md` — during adoption the index is held
-at its greenfield seed, and session progress lives in the PLAN (step 5 below).
+instruction. Its **`## Next`** hand-off isn't either — the resolver here is this PLAN, not the STEP
+index.
+
+**And leave `prompts/STEP-index.md` alone entirely.** During adoption the index is held at its
+greenfield seed and all session progress lives in the PLAN (step 5 below), so *every* index
+instruction a session template carries is redirected here — not just the familiar "mark this substep
+`Done`." The session files ask for three different index edits, and all three land in the PLAN
+instead:
+
+| The session says | You do this instead |
+|------------------|---------------------|
+| mark my substep `Done` (every session) — or `Deferred` (`1.6`) | flip the row in the PLAN's **session table** |
+| mark *another* session's row `Deferred` / `N/A` (`1.3` dispositions the UI / Design System row) | flip **that session's** row in the PLAN's session table, with the one-line reason from the code, exactly as *A session whose area doesn't exist* above describes — then mirror it in the *Conditional sessions considered* table if it is a conditional |
+| add a lettered conditional row, e.g. `1.7a` (`1.3`) | append the lettered row to the PLAN's session table (see `inv-5`), and record the decision in the PLAN's *Conditional sessions considered* table |
+| reflect the phase plan in the roadmap (`1.2`) | the phase plan is the **`architecture/02-*` doc's** content; the index gets nothing but the `{{PHASE_1_NAME}}` fill described under the float below |
+
+The single exception in the whole adoption is that `{{PHASE_1_NAME}}` fill. No row, status, STEP, or
+phase heading is touched before landing — landing is what reconciles the index, in one pass, against
+the PLAN it can then trust.
 
 ### 2. Pick the shape — as-built, or forward-intent
 Most sessions are **as-built**: the code already answers them (component boundaries, data model,
