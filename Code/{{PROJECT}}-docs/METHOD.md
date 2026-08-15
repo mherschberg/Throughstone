@@ -504,9 +504,10 @@ this method do contain the Throughstone-authored README and CI starter, so
 **The method records licensing; it never establishes licensing for code it did not create.** A
 repo **registered in place** (below) existed before the method reached it, so it already has an
 owner and a licensing status — a `LICENSE`, a `COPYING`, a `NOTICE`, vendored third-party terms,
-or a deliberate absence. Read what it uses and **record** it as found — in the repo inventory
-entry that describes it, and wherever the architecture docs cover it; never apply a posture to
-it. A divergence from the
+or a deliberate absence. Read what it uses and **record** it as found — in its
+`registries/repos.yml` `license:` field (an identifier and the file it came from, or `none
+stated`), and wherever the architecture docs cover it; never apply a posture to it. A divergence
+from the
 `init.sh` selection is not an error to fix: that selection governs the method's own artifacts and
 the repos it creates, and several in-place repos may legitimately carry several different
 licenses. Choosing or changing a license for an existing repo is its owner's act, taken

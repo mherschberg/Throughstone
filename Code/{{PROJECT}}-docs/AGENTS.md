@@ -164,8 +164,8 @@ for open-source projects, and creates no project `LICENSE` for proprietary proje
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
 **Run it only on a repo you create.** A repo **registered in place** — one that existed before
-this project did — keeps whatever licensing its owner set: read it, record it as found beside
-that repo's `registries/repos.yml` entry, and leave it alone. The method records licensing; it never
+this project did — keeps whatever licensing its owner set: read it, record it as found in that
+repo's `registries/repos.yml` `license:` field, and leave it alone. The method records licensing; it never
 establishes licensing for code it did not create (`METHOD.md` §7), so do not apply the posture
 to such a repo, and do not treat a difference between it and the bootstrap selection as
 something to reconcile. The helper refuses a target that already states its own licensing.
