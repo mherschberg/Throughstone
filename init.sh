@@ -290,7 +290,12 @@ else
   while :; do
     case "$(ask 'Choose 1 or 2' '1')" in
       1) MODE=new; break ;;
-      2) MODE=existing; break ;;
+      2) MODE=existing
+         echo
+         echo "  Adopting an existing codebase: keep running this from the downloaded Throughstone"
+         echo "  folder (a fresh directory), NOT from inside your existing repo. Your code stays"
+         echo "  where it is — the agent registers your repos in place later and never rewrites them."
+         break ;;
       *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
     esac
   done
