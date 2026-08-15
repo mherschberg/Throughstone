@@ -63,6 +63,12 @@ error/corruption and re-run paths, not normal operation.
   - **Nothing is skipped silently.** A conditional session the map includes is tracked and harvested
     like any other, and a session whose area your system doesn't have (a UI session on an API-only
     service) is recorded `N/A` or `Deferred` with a reason read from the code.
+  - **A deferral is presented as a trade, not a checkbox.** When an area is too large to read
+    exhaustively, adoption stops and tells you what deferring costs — this part of the baseline stays
+    incomplete, and work leaning on it is less reliable until backfilled — before you choose. The
+    warning then follows the gap: the doc's `Coverage:` line says what is missing, how big it is, and
+    what it means for someone building on it (never a bare "deferred"), and a genuinely risky gap gets
+    a `risks.yml` row the periodic check-in re-surfaces.
 
 ### Changed
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
