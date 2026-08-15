@@ -183,6 +183,55 @@ run_existing_env_case() {
     || { echo "FAIL: $name (env) did not seed the stub PLAN" >&2; return 1; }
 }
 
+# run_license_scope_note_case — the interactive license/holder questions say what they cover when
+# adopting an existing codebase, and say nothing extra when starting from scratch. Without the
+# note the questions read as "what is your code licensed under?", which is not what they set:
+# a user answering about their existing repos would be choosing the docs hub's license instead.
+run_license_scope_note_case() {
+  local name="retcon-license-note" green="green-license-note"
+  local work="$TMP_ROOT/$name" green_work="$TMP_ROOT/$green"
+  local note="NOT the code you're adopting"
+
+  # Answers, in order: mode=existing, open source, MIT, copyright holder.
+  copy_template "$work"
+  (
+    cd "$work"
+    printf '2\n1\n1\nThroughstone Test\n' | ./init.sh \
+      --slug="$name" \
+      --desc="Adoption license scope note" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  assert_file_contains "$TMP_ROOT/$name.out" "$note"
+  # The note must precede the questions it scopes — after the fact it explains nothing.
+  [ "$(grep -n "$note" "$TMP_ROOT/$name.out" | head -1 | cut -d: -f1)" \
+    -lt "$(grep -n "Is this project open source" "$TMP_ROOT/$name.out" | head -1 | cut -d: -f1)" ] || {
+    echo "FAIL: $name printed the scope note after the license question" >&2
+    return 1
+  }
+  assert_file_contains "$work/Code/$name-docs/overview.md" "PROJECT-STATUS: retcon"
+
+  # Greenfield creates every repo it licenses, so there is nothing to scope and no note.
+  copy_template "$green_work"
+  (
+    cd "$green_work"
+    printf '1\n1\n1\nThroughstone Test\n' | ./init.sh \
+      --slug="$green" \
+      --desc="Greenfield license question" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$green.out" 2>&1
+
+  if grep -Fq "$note" "$TMP_ROOT/$green.out"; then
+    echo "FAIL: $green printed the adoption license-scope note" >&2
+    return 1
+  fi
+  assert_file_contains "$green_work/Code/$green-docs/overview.md" "PROJECT-STATUS: not-started"
+}
+
 # run_new_case NAME EXTRA_ARGS... — greenfield must be untouched (marker, no PLAN, message).
 run_new_case() {
   local name="$1"; shift
@@ -359,6 +408,7 @@ run_missing_stub_case() {
 run_existing_case "retcon-multi" multi
 run_existing_case "retcon-mono"  mono
 run_existing_env_case
+run_license_scope_note_case
 run_new_case "green-explicit" --mode=new
 run_new_case "green-default"
 run_invalid_mode_case
