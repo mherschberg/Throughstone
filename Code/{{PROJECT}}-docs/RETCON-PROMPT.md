@@ -97,6 +97,20 @@ under the same posture. When a payload would blow the budget, **escalate — ask
 or defer; that human check is the actual control, not a silent cap. Record the posture, and record
 each concrete depth call in the recon map's Coverage & Confidence section.
 
+**Deferring is a real choice, so present it as one.** Whenever you escalate, say plainly what
+deferring costs before the user answers: this area of the baseline stays incomplete, and forward work
+that leans on it is less reliable until someone backfills it. Name the area and the risk in ordinary
+terms — *"I'd be describing 40 of ~600 tables; anything we build on the other 560 is guesswork until
+we go back"* — not a procedural note about coverage fields. A user who defers with that in front of
+them has made an engineering trade; one who defers after "shall I mark this deferred?" has been
+walked past a decision.
+
+Each deferral then carries that warning forward at two more moments — **in the doc**, where the
+`Coverage:` line says what is missing and why it matters, and **later**, through a `risks.yml` row
+that the periodic check-in re-surfaces. Keep it proportionate: loud at the choice and whenever
+someone starts building on the area, quiet-but-present elsewhere. A warning repeated everywhere
+becomes noise, and noise is how a deferral turns into a silent gap.
+
 > **Keep the three axes separate — do not cross-wire them.** Lifecycle → the `overview.md`
 > release-stage line. House convention → **`Version`**. Doc **`Status`** is neither: it is set later,
 > per doc, from how settled the harvested reality is (a confirmed as-built doc is typically
@@ -341,8 +355,9 @@ a sheet for this session already exists, in which case continue it** (see *Resum
 fill one row per decision: the **drafted answer**, its **provenance** (every source that informed it — a
 code path, a doc in `inputs/` with its trust level, the user's memory, or `inferred` / `unknown`),
 and your **confidence**. Read the code; use the confirmed recon map and the per-asset notes for
-orientation. This step is **human-free** — the one exception is a payload too big to enumerate
-under the depth-dial posture, where you stop and ask rather than silently sampling.
+orientation. This step is **human-free** — the one exception is a payload too big to enumerate under
+the depth-dial posture, where you stop and escalate rather than silently sampling: state the cost of
+deferring, in this system's terms, and let the user choose (Stage 1, *Deferring is a real choice*).
 
 Add rows the template never listed when the system raises decisions the generic list didn't foresee.
 Mark a decision `unknown` rather than inventing an answer: an honest gap survives the confirm pass,
@@ -357,8 +372,14 @@ between — but when a session is **resumed after a gap**, reconcile the sheet a
 picking a side.
 
 Record each outcome in the sheet's **Confirm** column: *confirmed as-is*, *corrected: …*, or
-*deferred* — and a deferred decision gets `Coverage: deferred` on the doc plus a `registries/risks.yml`
-row with a revisit trigger, so the check-in resurfaces it. Never leave a row unwalked.
+*deferred*. Never leave a row unwalked.
+
+**Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
+user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
+risky rather than merely incomplete — a `registries/risks.yml` row with a revisit trigger, so the
+periodic check-in re-surfaces it. During adoption the risk lives in `risks.yml` only: do **not** add
+a backfill STEP to `prompts/STEP-index.md`, which is held at its greenfield seed until the baseline
+lands, at which point a deferred area becomes ordinary forward work like any other risk.
 
 ### 5. Write the clean doc, then mark the session `Done`
 Write the `architecture/` doc the session's `## Output` section names, from
@@ -368,9 +389,14 @@ own check). `Version` follows the house convention recorded at intake — and wh
 **none**, keep the template's starting `v0.1.0` rather than inventing a higher number: the doc is new
 even though the system is not, and a bigger version implies a revision history these docs deliberately
 don't claim. `Status` reflects how settled the harvested reality is — a confirmed as-built doc is
-normally **`Current`**, whether or not the product has shipped. Where step 4 deferred something, add
-a `Coverage:` line **as a header field** (the template's comment shows where) naming what is missing
-and why it matters.
+normally **`Current`**, whether or not the product has shipped.
+
+Where step 4 deferred something, add a `Coverage:` line **as a header field** (the template's comment
+shows where) — and **never a bare `deferred`**. It reads as one sentence: what is missing, how big it
+is, and what it means for someone building on this doc. *"`Coverage: deferred` — 40 of ~600 tables
+enumerated; the rest are named but their columns and relations are unread, so anything designed
+against them needs checking first."* A reader who meets that line months later can tell whether it
+blocks them; a bare word tells them nothing and gets ignored.
 
 Follow the session's `Output` section for the body, the doc number, and its filename — with the two
 carve-outs already stated: no `prompts/STEP-index.md` bookkeeping, and **no ADR for a harvested
