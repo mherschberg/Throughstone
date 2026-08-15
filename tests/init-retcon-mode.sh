@@ -135,6 +135,13 @@ run_existing_case() {
   # Every doc kind the recon map classifies needs a destination; a real decision record keeps its
   # own genre instead of being synthesized into an architecture doc.
   assert_file_contains "$docs/RETCON-PROMPT.md" "adopted into \`adr/\`, not synthesized away"
+  # A breadth scan finds things that shouldn't be adopted, so the confirm gate settles scope and the
+  # PLAN upgrade projects only the adopted rows into work.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Complete is not the same as in scope"
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" "excluded — <reason>"
+  # The UI session's option-page procedure is for deciding a design system, not describing one that
+  # already ships.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "documents the design system that already exists"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).

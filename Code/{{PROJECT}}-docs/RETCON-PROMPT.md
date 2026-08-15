@@ -48,10 +48,10 @@ When the baseline lands (after the Cross-Cutting Review), STEP-1 becomes an ordi
 ## Read first
 1. `Code/{{PROJECT}}-docs/METHOD.md` — the methodology (doc genres, sessions, naming). Internalize it.
 2. `Code/{{PROJECT}}-docs/overview.md` — normally still the blank template at this point: adoption
-   skips the kickoff interview that fills it, and `1.1` writes the brief near the end (Stage 3). The
-   one-line description the user gave `init.sh` is in this docs hub's `AGENTS.md` (*What is
-   {{PROJECT}}*) — read that for the seed, and read `overview.md` for the release-stage line once
-   Stage 1 has written it.
+   skips the kickoff interview that fills it, and the brief is written later, by `1.1`, the first
+   architecture session (Stage 3). The one-line description the user gave `init.sh` is in this docs
+   hub's `AGENTS.md` (*What is {{PROJECT}}*) — read that for the seed, and read `overview.md` for
+   the release-stage line once Stage 1 has written it.
 3. `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` — the in-flight PLAN you resolve; read its
    *Decisions already locked* and *Ground rules*.
 4. `Code/{{PROJECT}}-docs/templates/reports/recon-map-report-template.md` — the artifact Stage 2 produces.
@@ -144,7 +144,9 @@ is complete.
 ### `inv-3` — Draft the recon map
 Copy `templates/reports/recon-map-report-template.md` to `reports/YYYY-MM-DD-step-0001-recon-map.md`
 and fill every section from the scan: inventory, stack per repo, entry points/services, data stores,
-integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Stamp the
+integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Propose a
+**Scope** for each Inventory row (`adopt` unless the code says otherwise) — the user settles it at
+`inv-4`; a draft proposal is not the decision. Stamp the
 front matter too — **Reviewed commit(s)** (the `repo@sha` state this map describes) and **Depth dial**
 — so the snapshot is pinned to an exact point in time. Set the **Coverage & Confidence** section from
 intake — the depth-dial posture and any areas you are already choosing to bound. Write the **Summary**
@@ -155,7 +157,14 @@ Leave `Status: Draft`. Mark `inv-3` **Done** once the draft is written.
 **Detect, then confirm.** Present the draft and let the user correct it — this is the one hard gate,
 the birth-certificate checkpoint, before anything is built on the map. What the gate locks is the
 **Inventory — the complete list of assets**; that "we now have the whole list" is the clean point the
-rest of Stage 2 scopes from. On sign-off, stamp `Status: Confirmed on <date>`: the **confirmed
+rest of Stage 2 scopes from.
+
+**Complete is not the same as in scope, so settle both here.** A breadth scan of a real account
+turns up things that shouldn't be adopted — an abandoned service, a dead prototype, a repo another
+team owns. Walk the Inventory with the user and set each row's **Scope**: `adopt`, or
+`excluded — <reason>`. Excluded rows stay in the map (found-and-dismissed is a finding, and it stops
+the next scan from re-raising them); only `adopt` rows become work at `inv-5`. Ask rather than
+assume — "still in use?" is a question the code often can't answer. On sign-off, stamp `Status: Confirmed on <date>`: the **confirmed
 Inventory is frozen — never rewritten** (an asset discovered later is a recorded finding, not a silent
 edit). The per-asset **detail is not frozen** — it deepens later in the living docs (repo READMEs,
 `architecture/`), and some exploration is deliberately deferred for weeks or months via the depth dial
@@ -171,14 +180,16 @@ the completion flag. If a
 resumed agent finds `inv-5` still open, the upgrade was interrupted — re-run it **idempotently**,
 reconciling each block **row by row** rather than treating a present table header as a complete block
 (an earlier run may have written a header and some rows but not all): append an `asset-N` row for
-**every** frozen recon-map Inventory asset that lacks one; append any missing **session** row so the
+**every** frozen recon-map Inventory asset marked `adopt` that lacks one — and none for an
+`excluded` row, in either the first run or a re-run; append any missing **session** row so the
 table holds the full fixed `1.1`–`1.14` set (a dropped tail would silently skip the Cross-Cutting
 Review); append any missing **conditional** row from the seeded set, plus the lettered session row
 each `Include` needs; and add any `risks.yml` row not already present. Then mark `inv-5` **Done**. (`inv-1`…`inv-4` are already `Done` from as-you-go
 marking.) The appends:
 
-- **Per-asset substeps** — the confirmed **Inventory** (from the recon map) projected into work
-  units: one **row per asset**, tracked in their own appended table (its own columns — not
+- **Per-asset substeps** — the confirmed **Inventory** (from the recon map), its `adopt` rows
+  projected into work
+  units: one **row per adopted asset**, tracked in their own appended table (its own columns — not
   the `inv-N` table's — but the same `Planned` · `In progress` · `Done` Status convention, so a
   resumed agent can tell which are left). Number them `asset-1`, `asset-2`, … in discovery order — one
   per **repo**, one per **doc-set** (related docs grouped), one per **resource**:
@@ -211,9 +222,13 @@ marking.) The appends:
   position in this table does, and this table is what the harvest walks.
 - **The `Conditional sessions considered` table** — mirror the `Conditional sessions considered`
   table greenfield authors from `templates/step-plan-template.md` (its columns and its seeded rows),
-  but decide each row from **code-visible surfaces**: a client/mobile surface →
-  `conditional-native-app`, any authentication → `conditional-identity-auth`, PII →
-  `conditional-privacy-compliance`. Seed now; refine as sessions harvest.
+  but decide each row from **code-visible surfaces**, scoped as tightly as the rows themselves: a
+  **mobile or desktop app** — a shipped client binary, not a web front end →
+  `conditional-native-app`; **user accounts, login, or access control** — not a service-to-service
+  key → `conditional-identity-auth`; **personal or regulated data** → `conditional-privacy-compliance`.
+  A styled web UI with none of those is a `1.7` question, not a conditional — the same line `1.3`
+  draws. Seed now; refine as sessions harvest. Each false `Include` costs a whole harvest session
+  and a row nobody later deletes, so decide it, don't hedge it.
 
   **Every `Include` also gets a lettered row in the session table above** — `1.6a`, `1.7b`, … placed
   next to the core session that owns it, with the same Status column, and written into the
@@ -363,9 +378,12 @@ baseline itself. So:
 - **Tell the user when you meet it**, at the confirm pass for the session that found it. This is a
   correction to the birth certificate they signed, and it is their call whether it is in scope at all
   (an abandoned service in the same account may not be).
-- **Append an `asset-N` row** to the per-asset table — continuing the numbering, never renumbering —
-  and do that asset's ordinary per-asset work: the `repos.yml` row and stamped README for a repo, the
-  `inputs/` copy and ledger row for a doc, the routing note for a resource.
+- **If they adopt it, append an `asset-N` row** to the per-asset table — continuing the numbering,
+  never renumbering — and do that asset's ordinary per-asset work: the `repos.yml` row and README
+  note for a repo, the `inputs/` copy and ledger row for a doc, the routing note for a resource. **If
+  they exclude it**, it gets no row and no work; record it as a one-line note beside the per-asset
+  table (*"found at `1.8`: staging-2 deploy target, excluded — decommissioned"*), the same
+  found-and-dismissed record an `excluded` Inventory row carries, since the frozen map can't take it.
 - **Do it once the session in flight is `Done`**, not by interrupting it. The "every `asset-N` before
   the first session" rule describes the hand-off out of Stage 2; a late one slots in at the next
   session boundary, which keeps the serial rule intact.
@@ -379,9 +397,9 @@ reality, and flag the gap.
 `1.14` is the Cross-Cutting Review + land, not a harvest — see the note at the end of this stage.
 
 **Some sessions carry an extra note.** The loop below is the same for every session, but a few need
-something it alone doesn't give them — a brief to fill, or a consequence of running Phasing last.
-Those notes are the last two subsections of this stage; **check whether the row you just resolved has
-one before you start it.**
+something it alone doesn't give them — a brief to fill, a session whose procedure assumes nothing
+exists yet, or a consequence of running Phasing last. Those notes are the subsections that follow
+the loop; **check whether the row you just resolved has one before you start it.**
 
 ### 1. Read the session file as reference data
 Open `templates/architecture-sessions/NN-<topic>.md` (or the `conditional-*.md` the PLAN's conditional
@@ -446,17 +464,19 @@ about the acceptable-risk posture. Never interview what the code can answer; nev
 human can.
 
 ### 3. Harvest — draft every answer from reality
-Copy `templates/retcon-preanswer-sheet.md` to `Upcoming Prompts/retcon/<substep>-<session>.md`,
-naming it from the substep id exactly as that row carries it — a lettered conditional keeps its
-letter (`1.7b-native-app.md`), the same way `prompts/README.md` names a substep prompt
-`STEP-N.M-PROMPT.md` and treats a fractional substep like `5a` as an ordinary id. **Unless
-a sheet for this session already exists, in which case continue it** (see *Resuming* above) — and
+Copy `templates/retcon-preanswer-sheet.md` to `Upcoming Prompts/retcon/<substep>-<session>.md` —
+**unless a sheet for this session already exists, in which case continue it** (see *Resuming*
+above) — and
 fill one row per decision: the **drafted answer**, its **provenance** (every source that informed it — a
 code path, a doc in `inputs/` with its trust level, the user's memory, or `inferred` / `unknown`),
 and your **confidence**. Read the code; use the confirmed recon map and the per-asset notes for
 orientation. This step is **human-free** — the one exception is a payload too big to enumerate under
 the depth-dial posture, where you stop and escalate rather than silently sampling: state the cost of
 deferring, in this system's terms, and let the user choose (Stage 1, *Deferring is a real choice*).
+
+Name the sheet from the substep id exactly as its row in the PLAN carries it — a lettered
+conditional keeps its letter (`1.7b-native-app.md`), the same way `prompts/README.md` names a
+substep prompt `STEP-N.M-PROMPT.md` and treats a fractional substep like `5a` as an ordinary id.
 
 Add rows the template never listed when the system raises decisions the generic list didn't foresee.
 Mark a decision `unknown` rather than inventing an answer: an honest gap survives the confirm pass,
@@ -490,9 +510,11 @@ but its record is the `Coverage:` line plus the `risks.yml` row, and that is nor
 record. Some session templates say otherwise: `1.6` Security asks you to capture every contested or
 deferred decision as an ADR, "deferrals especially". Under adoption, treat that the way step 2 treats
 any user-directed decision — propose it, don't assume it (*"want me to record that deferral as an
-ADR?"*), and take a no gracefully. The `Coverage:` line and the risk row are written either way. During adoption the risk lives in `risks.yml` only: do **not** add
-a backfill STEP to `prompts/STEP-index.md`, which is held at its greenfield seed until the baseline
-lands, at which point a deferred area becomes ordinary forward work like any other risk.
+ADR?"*), and take a no gracefully. The `Coverage:` line and the risk row are written either way.
+
+During adoption the risk lives in `risks.yml` only: do **not** add a backfill STEP to
+`prompts/STEP-index.md`, which is held at its greenfield seed until the baseline lands, at which
+point a deferred area becomes ordinary forward work like any other risk.
 
 ### 5. Write the clean doc, then mark the session `Done`
 Write the `architecture/` doc the session's `## Output` section names, from
@@ -560,8 +582,13 @@ say what it means in practice.
   so the no-fabricated-history rule doesn't bar it; the rule bars inventing a record for a choice
   nobody wrote down. Copy each into `adr/` under this project's numbering, keep its original date and
   author, register it in `adr/README.md` (`check.sh` check 5 reconciles the two), and say in the doc
-  that it predates adoption. Judgment: only for a record that was actually ratified and still
-  describes a live decision. Something merely ADR-*shaped* — an unratified rationale note, a
+  that it predates adoption. It carries **`Accepted`** — the status means the system is living with
+  this decision, which is exactly what you verified against the code; where the code shows the
+  decision was later reversed, it is `Superseded by …` and names what replaced it. Reshape it into
+  `templates/adr-template.md`'s sections only where that is lossless: a record that resists the
+  shape keeps its original body under the standard header, since what you are preserving is
+  first-hand testimony, not a format. Judgment: only for a record that was actually ratified and
+  still describes a live decision. Something merely ADR-*shaped* — an unratified rationale note, a
   superseded proposal — is a design note: **synthesize** it. Either way the decision itself appears in
   your doc's **Decision Summary**, which is where a reader looks for "this is how it is".
 - **A runbook is operational content, not architecture.** If it still matches what the code and infra
@@ -601,6 +628,23 @@ This is a **transcription, not a second interview** — every answer was confirm
 ago, so don't re-ask any of it. Show the user the filled brief once and let them correct the voice:
 it is their document, and it is the one artifact here written for a human arriving cold rather than
 for the method.
+
+### `1.7` documents the design system that already exists
+Read `1.7`'s `## How this session works` as an *interview procedure*, not as its lens, and don't
+follow it here. It tells a greenfield run to generate rendered HTML option pages in a temporary
+`ui-design/` folder, offer three or four labelled directions per decision, and wait for the user to
+pick — machinery for reaching a decision nobody has made yet. This system already made them: the
+palette, the type scale, the spacing, the component set, the navigation pattern are all sitting in
+the code, the stylesheets, the design tokens, or the component library.
+
+So harvest and **document what is there**. Its decision list is still the right work list — walk it,
+read each answer out of the code, and confirm it. **No option pages, no `ui-design/` folder, no
+asking the user to choose** anything the product already ships. Accessibility and localization are
+harvested the same way: record what the code actually does, not what it should do.
+
+Where the code genuinely has no answer — no accessibility story, no localization, no documented
+component set — that is a **gap to record**, exactly like any other as-built gap: state the reality,
+flag it, and let the forward work decide. Don't design it now; a baseline describes.
 
 ### The sessions that need a word about the float
 Floating Phasing changes what the earlier sessions that read it can read, and gives Phasing itself a

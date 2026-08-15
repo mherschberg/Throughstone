@@ -400,7 +400,11 @@ else
 fi
 
 # registries/ is always kept in multi-repo because setup-workspace.sh and remote recording use
-# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained.
+# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained —
+# EXCEPT when adopting an existing codebase, where the registries are working state rather than
+# inventory: RETCON-PROMPT.md registers every adopted repo in repos.yml and seeds risks.yml from
+# the confirmed recon map, so pruning them strands the adoption partway through with no
+# instruction. Validate the flag either way, then override, so a bad value is still an error.
 KEEP_REGISTRIES=1
 if [ "$LAYOUT" = "2" ]; then
   if [ -n "$REGISTRIES_IN" ]; then
@@ -409,8 +413,12 @@ if [ "$LAYOUT" = "2" ]; then
       n|no|false|0) KEEP_REGISTRIES=0 ;;
       *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
     esac
-  elif [ "$NONINTERACTIVE" != "1" ]; then
+  elif [ "$NONINTERACTIVE" != "1" ] && [ "$MODE" != "existing" ]; then
     yesno "Include registries/ (repo inventory; useful for multi-repo)?" || KEEP_REGISTRIES=0
+  fi
+  if [ "$MODE" = "existing" ] && [ "$KEEP_REGISTRIES" = "0" ]; then
+    KEEP_REGISTRIES=1
+    echo "  note: keeping registries/ — adopting an existing codebase records repos and risks there."
   fi
 fi
 

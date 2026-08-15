@@ -40,9 +40,15 @@
 
 Every repo, doc, and resource discovered — the breadth pass. One row per asset.
 
-| Asset | Kind | Location | Notes |
-|-------|------|----------|-------|
-| {{name}} | {{repo / doc / data store / service / integration / CI / deploy surface / environment / observability / other}} | {{path / URL / host}} | {{one line — role, ownership, anything notable}} |
+**Scope** is the user's call at the confirm gate, not the scan's: `adopt` means this asset is
+brought under the method and gets a work substep; `excluded — <reason>` means it was found and
+deliberately left out (an abandoned service, a dead prototype, someone else's repo). An excluded
+row **stays here** — that it was seen and dismissed is exactly what this record is for — but the
+PLAN upgrade projects only the `adopt` rows into work.
+
+| Asset | Kind | Location | Scope | Notes |
+|-------|------|----------|-------|-------|
+| {{name}} | {{repo / doc / data store / service / integration / CI / deploy surface / environment / observability / other}} | {{path / URL / host}} | {{adopt / excluded — reason}} | {{one line — role, ownership, anything notable}} |
 
 ## Stack Per Repo
 
