@@ -860,7 +860,14 @@ fi
 # --- 4. Prune optional pieces -----------------------------------------------
 # runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
 # AGENTS.md and METHOD.md reference.
-[ "$KEEP_REGISTRIES" = "0" ] && rm -rf "$DOCS/registries" && echo "  pruned registries/"
+if [ "$KEEP_REGISTRIES" = "0" ]; then
+  rm -rf "$DOCS/registries"
+  # The docs hub README indexes every directory it ships, so pruning the directory without
+  # pruning its row leaves a link to a file that is not there — which scripts/links.sh reports
+  # as a hard failure on the generated project's very first run. Drop the row with the directory.
+  perl -ni -e 'print unless m{^\| \[`registries/`\]}' "$DOCS/README.md"
+  echo "  pruned registries/"
+fi
 
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.

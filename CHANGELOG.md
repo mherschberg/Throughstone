@@ -182,6 +182,29 @@ error/corruption and re-run paths, not normal operation.
   the prompt.** It lived inside the interactive branch, so `--mode=existing` and `INIT_MODE` — the
   two paths most likely to be scripted, and no less able to be run from the wrong place — printed
   nothing. It is now said once, however the mode arrived.
+- **`init.sh` would destroy an existing repository it was run inside, and had no guard at all.**
+  Extract the download into your own repo and run it there — a natural thing to do, and more so
+  since `METHOD.md` §7 began letting a repo be **registered in place**, which gives a user with an
+  existing repo every reason to be holding the template near it. In multi-repo layout that
+  **deleted the repository's `.git`** outright: no longer a repository, no replacement commit,
+  nothing to recover without a remote. In mono-repo layout it replaced the history with a bootstrap
+  commit, wrote a project `LICENSE` next to whatever terms the repo already stated, and added a
+  `LICENSING.md` asserting that license over the whole repository — the exact claim
+  `scripts/apply-project-license.sh` refuses, arriving by the one path that never calls it.
+  `init.sh` now refuses before removing anything, in two cases: a checkout that is not a fresh
+  template (the root pointers' sentinel is gone, so this is an already-initialized project), and a
+  directory whose Git history is not the template's own. A template in a plain folder, a cloned or
+  committed template, and the mono-repo empty-origin reuse flow (`git init` plus a remote, nothing
+  committed yet) all initialize exactly as before.
+- **Declining `registries/` left the docs hub with a broken link on its first run.** A mono-repo
+  project can answer no to the repo inventory, and `init.sh` removed the directory — but the docs
+  hub `README.md` indexes every directory it ships, and its `registries/` row stayed. So the
+  generated project failed `scripts/links.sh` before anyone had touched it. The row is now removed
+  with the directory. Related, in the same configuration: the rules for a repo **registered in
+  place** named the `repos.yml` row flatly as the place a declined README's information still
+  lives, which is a promise a project without an inventory cannot keep. `METHOD.md` §7, the repo
+  README template, and the check-in's README sweep now lead with the architecture doc and treat the
+  row as conditional on the project keeping one.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
 - **Lifting a document into `architecture/` could fail the check that guards it.**
@@ -251,6 +274,32 @@ error/corruption and re-run paths, not normal operation.
   now never installed into a registered-in-place repo; what that repo already runs is recorded in
   the Test Strategy doc instead, and moving it onto the standard gate is a change its owners make
   deliberately.
+- **Four create-only instructions didn't say where they stop.** The rules for a repo **registered
+  in place** are settled — augment its README rather than stamp it, never install the CI gate,
+  never apply the project license, place the Throughstone notice only where the method's own
+  material landed — but each was stated in the file that *defines* it and not in every file an
+  agent has open while doing the work. Four such sites, all of them leaves:
+  - The **repo README template** ended its in-place licensing rule at "do NOT run
+    `apply-project-license.sh`" and never mentioned `--notice-only` — which is exactly what the
+    repo is owed once the README addition the same template orders two paragraphs earlier is
+    accepted. Read as written it forbade the call. On the branch where the owners **decline**,
+    doing nothing was the right outcome, so it gave a correct result half the time and left no
+    trace the other half.
+  - **A repo with no README** is written from the template, and nothing told that path to leave
+    out the **Licensing** section, which describes a repo the method created. Reachable and false
+    rather than merely unhelpful: in a repo that already has its own `LICENSING.md`,
+    `--notice-only` correctly refuses the differing file and writes neither it nor the notice — so
+    the repo was left with a brand-new README asserting a `LICENSE-THROUGHSTONE` that isn't there.
+    That section is now dropped on that path, as it already was when augmenting.
+  - **`templates/ci/code-repo-ci.yml`** — the file actually being copied, and the last thing read
+    before the copy — still said "stamp this into each code repo". Nothing contradicted it and the
+    caveat sat one hop away in the two files that point at it, but the failure mode is replacing
+    the workflow that gates someone's merges.
+  - **`registries/repos.yml`**'s comment sits at the point where an agent writes a repo row, and
+    said repos listed there "are stamped from `templates/repo-readme-template.md`" full stop —
+    false for the registered-in-place row directly beneath it.
+
+  A new maintainer test pins all four in the generated project.
 
 ### Added
 - **`--notice-only` mode for `scripts/apply-project-license.sh`** — places `LICENSE-THROUGHSTONE`

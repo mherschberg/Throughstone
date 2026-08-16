@@ -584,6 +584,26 @@ run_notice_only_case() {
   set -e
   [ "$status" -eq 2 ] || { echo "FAIL: unknown option was not rejected" >&2; return 1; }
 
+  # The notice is only placed if an instruction tells an agent to place it. Of the files that
+  # state the in-place licensing rule, this template is the one an agent has open while doing the
+  # work that creates the obligation — it is where the README addition is ordered, and the only
+  # place all three per-repo actions are stated together. It said "do NOT run it" and stopped,
+  # which is right on the declined branch and silently wrong on the accepted one, so nothing
+  # surfaced the gap. Asserted against the SUBSTITUTED path: the raw placeholder would pass on a
+  # template that never got substituted.
+  local repo_readme="$work/Code/$name-docs/templates/repo-readme-template.md"
+  grep -Fq "Code/$name-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>" \
+    "$repo_readme" || {
+    echo "FAIL: repo README template does not tell an in-place repo to place the notice" >&2
+    return 1
+  }
+  # The other half of the branch. A declined addition leaves nothing Throughstone-authored in the
+  # repo, so losing this half would put a notice on a repo that holds no material it covers.
+  grep -Fq "is in the repo and nothing is owed" "$repo_readme" || {
+    echo "FAIL: repo README template does not keep the notice off a declined repo" >&2
+    return 1
+  }
+
   assert_maintainer_tests_removed "$name" "$work"
 }
 
