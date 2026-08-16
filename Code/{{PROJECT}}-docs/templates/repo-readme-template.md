@@ -13,7 +13,11 @@
   AUGMENT a repo REGISTERED IN PLACE — one that existed before this project did — WHEN IT ALREADY
   HAS A README. The rule keys on whether that file exists, not on how the repo got here: a
   registered-in-place repo with no README has nothing to preserve, so write its README from this
-  template. That creates the one file; nothing else about such a repo is scaffolded, and it is
+  template — every section except **Licensing**, which describes a repo the method created and is
+  dropped here for the same reason it is never added when augmenting: no project `LICENSE` is
+  applied to such a repo, so that section would describe files it does not have. `--notice-only`
+  (below) writes the only licensing statement the method puts in such a repo.
+  That creates the one file; nothing else about such a repo is scaffolded, and it is
   still offered rather than assumed, since it is the user's repo.
 
   Where a README does exist it is usually the repo's most-read file, often linked from outside
@@ -30,7 +34,8 @@
   never stamp the Licensing section below into it (that describes a repo the method created).
   Show the exact text and where it will go, and get agreement before writing into someone
   else's repo; if they decline, that is a complete outcome — the same information already lives
-  in the repo's architecture doc and its `registries/repos.yml` row.
+  in the repo's architecture doc, and in its `registries/repos.yml` row where the project keeps
+  an inventory.
 
   For a repo this method CREATES, stamp the CI gate named by the Test Strategy architecture doc
   too: drop `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill
@@ -52,6 +57,16 @@
   (`LICENSE`, `COPYING`, `NOTICE`, package metadata, vendored third-party terms, or a deliberate
   absence), record that, and leave its licensing alone — including when it differs from the
   bootstrap selection, which governs only this method's own artifacts and the repos it creates.
+
+  What such a repo may still be owed is the notice. If the README addition above was accepted —
+  a `Role in {{PROJECT}}` section, or a README written from this template for a repo that had
+  none — that material is Throughstone-authored, so run
+  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>`. It
+  places `LICENSE-THROUGHSTONE` and a `LICENSING.md` naming only what the notice covers, writes
+  no project `LICENSE`, and makes no claim about the rest of the repository — which is why it is
+  allowed here when the plain invocation above is not. If the addition was declined, nothing
+  Throughstone-authored is in the repo and nothing is owed: a notice pointing at absent material
+  only misleads a later reader.
 -->
 
 ## Overview

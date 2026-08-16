@@ -253,6 +253,55 @@ preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
+# --- 0c. Fresh-template guard -----------------------------------------------
+# init.sh is a one-time bootstrap that crosses a destructive boundary below (it removes .git and
+# template-only files). It must run from a fresh, unpacked template checkout — never a second time
+# in an already-initialized project (a re-run would delete a mono repo's history, then fail), and
+# never on top of a repository it did not create. Both refusals happen here, before anything is
+# removed.
+#
+# First: the root pointers (AGENTS.md / CLAUDE.md) carry a THROUGHSTONE-TEMPLATE-GUARD block that
+# step 3 strips during initialization. It is a stable sentinel because it contains no {{PROJECT}}
+# token, so — unlike the docs-hub directory name — placeholder substitution never rewrites it. Its
+# absence means this is not a fresh template.
+if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" 2>/dev/null; then
+  echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
+  echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
+  echo "  not run on an already-initialized project or an unrelated repo — that would delete history." >&2
+  echo "  If you are starting over, re-download the template into a fresh, empty folder and run it there." >&2
+  exit 2
+fi
+
+# Second, and the half that covers *someone else's* repository. The sentinel above proves these
+# files came from the template; it does not prove the template is the only thing here. Extracted
+# INTO an existing repository it is still present and still reads "fresh", while the destructive
+# step below removes that repository's .git — its entire history — and, in mono layout, re-inits and
+# writes a project LICENSE plus a LICENSING.md asserting it over code this method did not author.
+# That is the claim scripts/apply-project-license.sh refuses outright; nothing should be able to
+# make it here instead.
+#
+# What separates the cases is HISTORY, and it needs no list of template paths. What this refusal
+# protects is commits; a work tree that has none has nothing to lose. So: refuse only where HEAD
+# resolves, and only where HEAD's own AGENTS.md does not carry the sentinel.
+#   - template in a plain folder            -> not a work tree, proceeds
+#   - template cloned or committed          -> HEAD's AGENTS.md carries the sentinel, proceeds
+#   - `git init` + an empty origin, no commit yet, the mono-repo origin-reuse flow in section 4
+#                                           -> no HEAD, proceeds
+#   - extracted over a repo with history    -> HEAD is theirs, refused
+# Read HEAD rather than the working file, which the extraction just overwrote, and rather than the
+# index, which is empty in the origin-reuse flow and would fail an untracked-file test.
+if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1 \
+   && ! git -C "$ROOT" show HEAD:./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD'; then
+  echo "init.sh: this template is sitting inside an existing Git repository." >&2
+  echo "  $(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)" >&2
+  echo "  init.sh is one-time and destructive: it would remove that repository's .git — its whole" >&2
+  echo "  history — and in mono-repo layout write a project LICENSE over code it did not author." >&2
+  echo "  Extract the template into a fresh, empty folder OUTSIDE this repository and run it there;" >&2
+  echo "  a repo that already exists is referenced where it sits (METHOD.md §7), never moved into" >&2
+  echo "  the workspace. Nothing was changed." >&2
+  exit 2
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
@@ -735,7 +784,14 @@ fi
 # --- 4. Prune optional pieces -----------------------------------------------
 # runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
 # AGENTS.md and METHOD.md reference.
-[ "$KEEP_REGISTRIES" = "0" ] && rm -rf "$DOCS/registries" && echo "  pruned registries/"
+if [ "$KEEP_REGISTRIES" = "0" ]; then
+  rm -rf "$DOCS/registries"
+  # The docs hub README indexes every directory it ships, so pruning the directory without
+  # pruning its row leaves a link to a file that is not there — which scripts/links.sh reports
+  # as a hard failure on the generated project's very first run. Drop the row with the directory.
+  perl -ni -e 'print unless m{^\| \[`registries/`\]}' "$DOCS/README.md"
+  echo "  pruned registries/"
+fi
 
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.

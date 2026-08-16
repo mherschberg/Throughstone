@@ -484,11 +484,12 @@ README already exists and is usually its most-read file, so the template is not 
 add only the missing piece — a short `Role in <project>` section naming what the repo is within
 the system, with a link to its architecture doc — and leave every section the repo already has
 untouched. Propose the text and where it goes before writing into a repo the method didn't create;
-a decline is a complete outcome, since the same information lives in the architecture doc and the
-`repos.yml` row. The rule keys on whether a README already exists, not on how the repo got here:
+a decline is a complete outcome, since the same information lives in the architecture doc — and in
+the `repos.yml` row where the project keeps an inventory, which a mono-repo project may not. The rule keys on whether a README already exists, not on how the repo got here:
 where a registered-in-place repo has **no** README there is nothing to preserve, so write it from
-the full template — that creates the one file, and nothing else about the repo is scaffolded,
-still proposed before it is written. **Every application-code repo the method *creates* also inherits
+the template — every section but Licensing, which describes a repo the method created and is left
+out here as it is when augmenting. That creates the one file, and nothing else about the repo is
+scaffolded, still proposed before it is written. **Every application-code repo the method *creates* also inherits
 the license posture established by `init.sh`:** read the authoritative selection from the docs
 hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
 and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which
