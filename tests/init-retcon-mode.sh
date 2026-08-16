@@ -153,6 +153,16 @@ run_existing_case() {
     "Licensing (as found)"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing is recorded as found, never set here"
+  # A user who has just chosen the project's license should hear where their own repos don't match
+  # it — once, at the checkpoint where they chose and the licensing column is in front of them.
+  # Both halves are pinned because either one alone is a failure mode: without the telling, the
+  # method silently knows something the user would want; without the bound, an agent re-raises it
+  # at every repo and turns a one-line observation into pressure to relicense.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "say once where their own repos don't match"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "recorded, not reconciled"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "do not re-raise it here"
   # The frozen map is the snapshot; the inventory row is the living copy. Both must be asked for,
   # and asked for as a copy — deriving the row separately is how two records start disagreeing.
   assert_file_contains "$docs/RETCON-PROMPT.md" "this row's \`license:\` field is"

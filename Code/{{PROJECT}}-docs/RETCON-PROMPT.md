@@ -194,6 +194,14 @@ install time there is nothing open, and the helper will say so. If the user woul
 later, that is a fine answer too — the posture stays `Unset`, and nothing needs it until the
 project creates its first repo, which is where `apply-project-license.sh` will ask for it.
 
+**Then say once where their own repos don't match, and stop.** This is the moment for it: the
+answer is fresh and the licensing column is on screen. Name them plainly — *"you chose MIT;
+`billing-api` is Apache-2.0 (LICENSE) and `legacy-etl` states nothing"* — and leave it there.
+Nothing is reconciled and nothing is written into those repos: the choice just made covers this
+method's material, not theirs. What comes of it is the user's call on their own code. Say it here
+so the per-repo substeps don't have to raise it eight more times; if every repo already matches,
+say nothing at all rather than reporting a clean comparison nobody asked for.
+
 Once the map is confirmed and frozen, mark `inv-4` **Done**.
 
 ### `inv-5` — Upgrade this PLAN by addition
@@ -348,12 +356,17 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   it at `inv-3` as part of the frozen point-in-time snapshot, and this row's `license:` field is
   the **living** copy that stays current as the repo changes. Copy it across as found — same
   identifier, same source file, `none stated` where the repo says nothing — rather than
-  re-deriving it, so the two records can't disagree from the day they are written. The license
-  chosen at install time governs this method's own artifacts — the docs hub
-  and anything it later creates — not the code being adopted, so a repo whose license differs from
-  it is **not a finding**, several adopted repos may carry several different licenses, and none of
-  that is reconciled. If the user raises relicensing, it is their act on their repo: say what you
-  observed and stop there.
+  re-deriving it, so the two records can't disagree from the day they are written.
+  **A repo whose licensing differs from the project's is recorded, not reconciled.** The project's
+  license — chosen at `inv-4` — governs this method's own artifacts, the docs hub and anything it
+  later creates. The adopted repos are not measured against it and never take it. Any divergence
+  was already named once at `inv-4`, when the user chose with the map's licensing column in front
+  of them; do not re-raise it here, repo by repo, and do not open a finding or a risk row for it.
+  Several adopted repos legitimately carrying several different licenses is a normal inventory,
+  and a repo with no `LICENSE` at all is the ordinary state of private code, not a gap. Write the
+  row and move on. If the user asks for a repo's licensing to be changed, that is their act on
+  their repo: propose the exact file and wait for a yes, the same as any other write into a repo
+  this method did not create.
 - **Per doc-set** — copy the found source docs into `inputs/` and add each one's
   `inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle (point-in-time; the code
   wins on conflict). Their
