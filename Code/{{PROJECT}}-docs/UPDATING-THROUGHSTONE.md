@@ -382,6 +382,17 @@ All but the last are documentation only; nothing you already produced is rewritt
   `registries/repos.yml` — now quote the general rule rather than a licensing-specific one. Pull
   those five with `METHOD.md`. **One thing to check:** nothing; if you have local edits quoting the
   old licensing sentence, they are still true, just narrower than the rule they came from.
+- **Adoption never touches a repo's remote or its visibility.** `RETCON-PROMPT.md` had no rule for
+  either — it did not mention remotes at all — while adoption is the circumstance where the mistake
+  is easiest and least recoverable: many repos in flight across a codebase the method did not
+  write. It now says it outright, beside the never-install-CI rule it sits next to: create no remote
+  for a repo that has one, repoint no existing one, and change no repository's visibility in either
+  direction for any reason; record the URL the repo already has in its `remote:` field and leave
+  the repo alone. A request to publish a specific repo is a go-ahead for **that repo only** — never
+  standing, never extended to a sibling. Pull `RETCON-PROMPT.md` with `METHOD.md` §7, which carries
+  the general form of both rules. **One thing to check:** if a repo's visibility was changed during
+  an adoption, look at it now — a repo that was made public stays retrievable regardless of what it
+  is set to today.
 - **The recon map records whether each repo explains itself, and a decline can be standing.**
   Adoption's one offer to a repo it did not create is the framing its README probably lacks, and
   which repos need it was rediscovered one at a time at the moment of writing into each. The map's

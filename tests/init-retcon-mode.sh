@@ -167,6 +167,16 @@ run_existing_case() {
   # A decline carries to the remaining repos; a yes never does.
   assert_file_contains "$docs/RETCON-PROMPT.md" "**And a no can stand for the rest.**"
   assert_file_contains "$docs/RETCON-PROMPT.md" "a yes is never carried"
+  # Remotes and visibility. The file said nothing at all about either — it had zero occurrences of
+  # "remote" — while adoption is the exact circumstance where the mistake is easiest and worst: a
+  # stranger's private codebase, many repos in flight, and no undo once one is published. Both the
+  # never-touch rule and the scope of a go-ahead are pinned; a go-ahead that silently covered
+  # siblings would be the whole failure, dressed as permission.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "**Never touch an adopted repo's remote, and never change its visibility.**"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "change no repository's visibility, in either direction, for any reason"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "never a standing one, never extended to a"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing is recorded as found, never set here"
   # A user who has just chosen the project's license should hear where their own repos don't match

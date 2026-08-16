@@ -358,6 +358,19 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   deletes it. These repos already have CI; the recon map's **Tests & CI** section recorded what
   each one runs, and session `1.12` writes that up. Bringing a repo onto the standard gate is a
   change its owners decide on later, not a side effect of adoption.
+  **Never touch an adopted repo's remote, and never change its visibility.** Every repo here
+  already lives somewhere and is already private or public — both somebody's decision, made before
+  this project existed. So create no remote for it, repoint no existing one, and
+  **change no repository's visibility, in either direction, for any reason.** Adoption has no
+  business doing it: nothing here needs a remote created, and a repo's audience is not something a
+  scan can infer.
+  Put the URL it already has in its `remote:` field so `scripts/setup-workspace.sh` can find it,
+  and leave the repo alone (`METHOD.md` §7). **If the user asks for a repo to be published, that is
+  an explicit go-ahead for that repo and nothing else** — never a standing one, never extended to a
+  sibling, and worth confirming once more before it happens, because publishing a repository hands
+  its entire history to forks, caches, and crawlers and making it private again retrieves none of
+  it. Adoption is the exact circumstance where this matters most: you are working across a stranger's
+  private codebase, at speed, with more repos in flight than anyone is tracking closely.
   **Place the Throughstone notice only if something Throughstone-authored landed.** If the README
   addition was accepted, that section is BSD-3-Clause scaffold material, so run
   `scripts/apply-project-license.sh --notice-only <repo-path>` — it writes `LICENSE-THROUGHSTONE`
