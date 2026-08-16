@@ -24,9 +24,16 @@ at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-r
 
 ## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
 
-The test gate for a code repo. When you scaffold a code repo (stamping its README from
-`templates/repo-readme-template.md`), also drop this into that repo's `.github/workflows/ci.yml` and fill in
+The test gate for a code repo the method **creates**. When you scaffold one (stamping its README
+from `templates/repo-readme-template.md`), also drop this into that repo's `.github/workflows/ci.yml` and fill in
 the toolchain + test command for its stack — examples for Node / Python / Go / Rust are inlined.
+
+**Never install it into a repo registered in place.** A repo that existed before this project did
+has its own CI, and this file is deliberately failing-until-configured (below) — so landing it
+there either overwrites the workflow that actually gates their merges, or adds a second one that
+fails every build until somebody deletes it. Record what that repo already runs, in the Test
+Strategy architecture doc, and leave its pipeline alone. Bringing an in-place repo onto this gate
+is a deliberate change its owners make, as its own STEP, not a side effect of adopting the method.
 
 It **fails until configured** on purpose: an unconfigured gate that silently passes is worse than
 none. Replace the `Configure me` step (which `exit 1`s) with your real setup + test command.

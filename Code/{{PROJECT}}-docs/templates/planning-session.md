@@ -109,7 +109,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    probably lacks, and what to do keys on whether a README is there. **If it has one:** add a
    short `Role in {{PROJECT}}` section and leave every existing section alone — never stamp the
    template over it. **If it has none:** write its README from the template. Either way it is the
-   user's repo, so show them what you intend to add and where, and wait for a yes.
+   user's repo, so show them what you intend to add and where, and wait for a yes. **Its CI is
+   its own** — never install `templates/ci/code-repo-ci.yml` into it; record what it runs in the
+   Test Strategy doc. If the README addition is accepted, run
+   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>` to place the
+   Throughstone notice for that retained material; if it was declined, nothing is owed.
    Confirm the repo list with the user — on a first run they're all new; note any
    that already exist (registered and present, by either of the tests above) so you scaffold only
    the new ones.

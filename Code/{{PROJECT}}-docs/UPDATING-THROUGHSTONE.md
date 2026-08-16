@@ -309,6 +309,16 @@ affect work you do after pulling them.
   method: those are still stamped from the full template.
   **One thing to check:** if you registered an existing repo in place and its README was replaced
   with the template, its previous content is in that repo's git history.
+- **The CI gate is never installed into a repo you registered in place, and the Throughstone
+  notice has its own mode.** `templates/ci/code-repo-ci.yml` fails until configured — right for a
+  new repo, wrong for one that already has CI, where it would replace or duplicate the workflow
+  that gates your merges. It is now for created repos only; record what an in-place repo runs in
+  the Test Strategy doc instead. Separately, where the method leaves Throughstone-authored
+  material in such a repo (the `Role in <project>` README section), place its notice with
+  `scripts/apply-project-license.sh --notice-only <repo>` — it writes `LICENSE-THROUGHSTONE` plus a
+  `LICENSING.md` that disclaims the rest of the repository, and never a project `LICENSE`. **One
+  thing to check:** if you registered a repo in place and dropped the CI template into it, decide
+  with its owners whether that workflow should stay.
 
 Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGENTS.md`, `README.md`,
 `inputs/README.md`, `templates/architecture-doc-template.md`, `templates/planning-session.md`,
