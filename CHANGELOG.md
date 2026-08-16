@@ -40,7 +40,6 @@ any project built with it.
   the rules don't reach, explicitly not as a substitute for following them where they do or for
   fixing a gap once one is found. No effect on a repo the method creates, which is settled and
   unchanged.
-
 - **The interactive project-type question now defaults to private / proprietary.** It defaulted to
   open source, so pressing Enter past it — and Enter again at the license menu, which pre-selects
   the first entry — stood a project up under MIT without the user ever naming a license. That is
@@ -52,6 +51,20 @@ any project built with it.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **The record that justifies leaving an in-place repo's CI alone had nowhere to go.** The rules
+  are settled: the starter gate in `templates/ci/code-repo-ci.yml` fails until configured, so it is
+  never installed into a repo the method did not create — and four files (`METHOD.md` §7,
+  `templates/ci/README.md`, the repo README template, and the upgrade notes) all say to record what
+  that repo's pipeline runs **in the Test Strategy architecture doc** instead. The Test Strategy
+  session was never told to record it and had no slot in its output to record it into, so the
+  record they promise was left to an agent to invent a home for or skip. Skipped, the resulting doc
+  describes only the repos the method created — which reads, to anyone later, as though the others
+  have no CI at all, the exact opposite of why they were left alone. Session 12 now covers it in
+  its CI-gates decision and carries an **Existing pipelines** output section (one row per repo
+  registered in place: what its CI runs, where it's configured), with a note that a repo registered
+  after the session first ran is added by editing the doc and bumping its version rather than
+  re-running the session. The section is omitted when a project has no such repo, which is every
+  project built from scratch.
 - **`init.sh` would destroy an existing repository it was run inside, and had no guard at all.**
   Extract the download into your own repo and run it there — a natural thing to do, and more so
   since `METHOD.md` §7 began letting a repo be **registered in place**, which gives a user with an

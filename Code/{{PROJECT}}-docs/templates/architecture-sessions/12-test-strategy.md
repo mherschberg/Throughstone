@@ -57,6 +57,17 @@ where the pieces have to work *together*.
    wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
    `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
+   **A repo registered in place already has CI, and keeps it.** The starter gate is for repos this
+   method creates; it is never installed into one that existed beforehand, because it fails until
+   configured, so landing it there either replaces the workflow that gates their merges or breaks
+   every build until somebody deletes it (`METHOD.md` §7, `templates/ci/README.md`). What this
+   session owes such a repo is the **record**: what its pipeline runs today and where that is
+   configured. Write it down here rather than leaving it out — a Test Strategy doc that describes
+   only the repos the method created reads, to anyone later, as though the others have no CI at
+   all, which is the opposite of why they were left alone. Bringing one onto the standard gate is
+   a change its owners decide on, as its own STEP, not a side effect of adopting the method.
+   A repo registered in place after this session first ran is added the same way, by editing this
+   doc and bumping its version (`METHOD.md` §6) — the session does not need re-running for it.
 7. **Coverage tooling and reporting.** For each real implementation language, choose the
    coverage tool and where its report appears. Default durable coverage/test summaries to
    `reports/test-results/` in the docs hub for meaningful runs such as check-ins, releases,
@@ -104,6 +115,9 @@ Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc 
 - **Test data & isolation**, **mocking strategy**
 - **System/e2e testing** (and its home in a multi-repo setup)
 - **CI gates** — what blocks merge / deploy
+- **Existing pipelines** — one row per repo **registered in place**: repo | what its CI runs today |
+  where it's configured | notes. These are recorded, never replaced. Omit the section when the
+  project has no such repo, which is the usual case for a project built from scratch
 - **Coding standards** — link the per-language file(s) in `coding-standards/` that apply
 
 When durable Markdown summaries are written, start them from
