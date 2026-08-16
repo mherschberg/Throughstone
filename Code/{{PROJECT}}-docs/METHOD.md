@@ -529,12 +529,22 @@ project is actually missing. Per artifact that means:
   repository. Where the addition was declined, nothing Throughstone-authored is there and nothing
   is owed; do not copy `LICENSE-THROUGHSTONE` into a repo that holds none of it.
 - **Remote and visibility — its owners'.** A repo that predates the method already lives somewhere
-  and is already private or public, and both were somebody's decision. Do not create a remote for
-  one that has one, and do not repoint an existing remote. Record `remote:` in
-  `registries/repos.yml` as the cloneable URL the repo already has, so
-  `scripts/setup-workspace.sh` can find it, and change nothing about the repo itself.
+  and is already private or public, and both were somebody's decision. Do not repoint an existing
+  remote. Record `remote:` in `registries/repos.yml` as the cloneable URL the repo already has, so
+  `scripts/setup-workspace.sh` can find it, and change nothing about the repo itself. **A remote is
+  created only when the user asks for one** — for any repo, this one or a new one. That is already
+  how the method works where it creates repos: `init.sh` sets up no remotes unless asked, and asks
+  before it does. So a repo with **no** remote is not missing one; it is a repo whose owners have
+  not put it on a server, and creating one would push their code somewhere they did not choose.
+  Record it as local and move on.
 
-Every write above is **proposed before it happens** — show the exact text and where it goes, and
+**Exactly two of those five put a file in the repo: the README addition, and the Throughstone
+notice that follows it when the addition is accepted.** The other three are things the method
+*doesn't* do — it does not install CI, does not set licensing, does not touch a remote or a
+visibility setting — so there is nothing to propose for them and nothing to decline. Everything
+below is about those two.
+
+Each is **proposed before it happens** — show the exact text and where it goes, and
 wait for an answer. A decline is a complete outcome, not a gap: the same information lives in the
 architecture doc — and in the `repos.yml` row where the project keeps an inventory, which a
 mono-repo project may not.
@@ -580,10 +590,13 @@ you are doing, stop and ask; a question costs one message, and there is no undo 
 
 **When the rules above don't settle it, ask.** They cover the cases the method has met: a repo it
 creates, and one registered in place that has a README, has none, or whose owners decline the
-addition. A real project produces ones they don't obviously reach — a repo the method created that
-another team has since taken over, a README that is half boilerplate, a repo whose own files
-disagree about its license, a notice `scripts/apply-project-license.sh --notice-only` refuses to
-place after the README text has already landed. Where it is genuinely unclear which side of the
+addition. A real project produces ones they don't obviously reach. **These are examples, not a
+list to complete** — the point is the habit, and any rule above can produce a case it doesn't
+reach: a repo the method created that another team has since taken over, a README that is half
+boilerplate, a repo whose own files disagree about its license, a notice
+`scripts/apply-project-license.sh --notice-only` refuses to place after the README text has
+already landed, a repo that is already public and whose owners hadn't realized it, a remote
+pointing at a host the team abandoned two migrations ago. Where it is genuinely unclear which side of the
 created / registered-in-place line a repo sits on, or what a rule above means for it, **stop and
 ask, and write nothing into that repo until you have an answer**. Not writing is recoverable;
 writing into a repo the method did not create is the failure this section exists to prevent, and

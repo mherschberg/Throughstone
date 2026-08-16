@@ -279,6 +279,16 @@ affect work you do after pulling them.
   header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
+- **A remote is created only when you ask for one, and the in-place rules read straight.** Three
+  wording fixes in §7, no behavior change. *Remotes:* the rule said "do not create a remote for a
+  repo that has one", implying you could create one for a repo that has none — it now covers every
+  repo the same way, matching what `init.sh` already does (no remotes unless asked). *The gate:*
+  "every write above is proposed" sat over five bullets of which only two are writes, so it now
+  names them — the README addition and the Throughstone notice that follows it — and says the other
+  three are things the method doesn't do. *The fallback:* its case list was README- and
+  licensing-only and read as exhaustive; it is now explicitly illustrative and includes a
+  visibility and a remote example. Pull `METHOD.md` §7 with `templates/planning-session.md` and
+  `templates/repo-readme-template.md`. **One thing to check:** nothing.
 - **An accepted change to a repo you already had is committed on a branch and left there.** §7 said
   to propose the `Role in <project>` section and wait for a yes, and then said nothing about what
   happens after the file changes on disk — no branch, no commit, no push. The obvious continuation

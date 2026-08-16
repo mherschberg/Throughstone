@@ -130,6 +130,27 @@ run_case() {
   # Every write into such a repo goes through one gate, stated once for all the artifacts.
   assert_contains "$docs/METHOD.md" "proposed before it happens" \
     "METHOD.md §7 no longer gates every write into an in-place repo on proposing it first"
+  # Only two of the five put a file in the repo. The gate read as though all five were proposals,
+  # which made the decline rules below it parse oddly — declining CI or licensing is not a thing,
+  # because the method never offered to do them. Naming the two keeps the gate about what it gates.
+  assert_contains "$docs/METHOD.md" \
+    "**Exactly two of those five put a file in the repo: the README addition, and the Throughstone" \
+    "METHOD.md §7 does not say which of the five artifacts actually put a file in the repo"
+  # A remote is created only on request — the same answer for a created repo and an in-place one.
+  # Stated only as "do not create a remote for one that has one", it implied you may create one for
+  # a repo that has none, which is pushing somebody's code to a host they never picked.
+  assert_contains "$docs/METHOD.md" "**A remote is" \
+    "METHOD.md §7 does not require a request before a remote is created"
+  assert_contains "$docs/METHOD.md" "is not missing one; it is a repo whose owners have" \
+    "METHOD.md §7 still reads a repo with no remote as missing one"
+  assert_contains "$planning" "**A remote is" \
+    "planning session does not require a request before a remote is created"
+  # The fallback's case list is illustrative. It enumerated only README and licensing cases and
+  # would need an edit per artifact added, which is how it fell behind two of them.
+  assert_contains "$docs/METHOD.md" "**These are examples, not a" \
+    "METHOD.md §7's fallback still reads as an exhaustive list of cases"
+  assert_contains "$readme_tpl" "license, notice, remote, or visibility" \
+    "repo README template's fallback does not cover remote or visibility"
   # And a yes settles the TEXT, not how it reaches their trunk. Four files told an agent to write
   # the Role section and none said what happens next, so the obvious continuation was to commit on
   # whatever branch was out — usually main on a running system — and push. Both halves are pinned:

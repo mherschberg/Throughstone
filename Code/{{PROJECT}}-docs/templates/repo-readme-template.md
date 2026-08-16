@@ -93,7 +93,7 @@
 
   EVERYTHING ABOVE SPLITS ON ONE QUESTION: did this method create this repo, or did the repo get
   here first? Where that is genuinely unclear, or where the answer doesn't settle what to do with
-  this repo's README, CI, license, or notice, ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER
+  this repo's README, CI, license, notice, remote, or visibility, ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER
   (`METHOD.md` §7). The question costs one message; the wrong write lands in a repo this method
   does not own. That is a fallback for a case these rules don't reach, not a substitute for
   following them where they do.

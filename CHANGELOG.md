@@ -147,6 +147,19 @@ any project built with it.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **A remote is created only when you ask for one.** §7 said "do not create a remote for a repo
+  that has one", which by implication permitted creating one for a repo that has none — pushing
+  code to a host its owners never picked. The rule now covers every repo the same way, and it is
+  what the method already did where it creates repos: `init.sh` sets up no remotes unless asked,
+  and asks before it does. A repo registered without a remote is not missing one.
+- **The gate said "every write above is proposed" over five bullets, only two of which are
+  writes.** The README addition and the Throughstone notice that follows it put a file in the
+  repo; CI, licensing, and remote/visibility are things the method *doesn't* do, so there is
+  nothing to propose or decline for them. §7 now names the two, which is also what makes the
+  decline rules below it parse.
+- **The ask-when-unclear fallback listed only README and licensing cases.** It read as an
+  exhaustive list and had fallen behind two artifacts; it is now explicitly illustrative, with a
+  visibility and a remote example among them, so it stops needing an edit per rule added.
 - **Nothing said what happened after an accepted change was written into a repo you already had.**
   Four files told an agent to propose the `Role in <project>` section and wait for a yes, and none
   said what to do once the file changed on disk — no branch, no commit, no push. The obvious
