@@ -281,19 +281,46 @@ fi
 # make it here instead.
 #
 # What separates the cases is HISTORY, and it needs no list of template paths. What this refusal
-# protects is commits; a work tree that has none has nothing to lose. So: refuse only where HEAD
-# resolves, and only where HEAD's own AGENTS.md does not carry the sentinel.
+# protects is work its owner cannot get back — and a repository can be holding that in more than
+# one place. Asking git a single question about a single one of them is how the first version of
+# this guard let a live repository through: it asked what HEAD points at, and a repository whose
+# HEAD is unborn is still holding every commit made on its other branches.
+#
+# So ask several independent questions and refuse if ANY of them says yes. None has to be certain
+# on its own; between them they cover the places a repository keeps work that step 3 would delete.
+#   1. HEAD resolves, and HEAD's own AGENTS.md does not carry the sentinel — committed history,
+#      and it is not this template's.
+#   2. HEAD does not resolve, but the repository already holds refs — branches, tags, remote
+#      tracking, a stash. `git checkout --orphan` inside a working repo lands exactly here: no
+#      commit under HEAD, every earlier commit still on the branch it was made on.
+#   3. Nothing is committed anywhere, but files are staged and the staged AGENTS.md is not the
+#      template's — work that so far exists only in the index.
+# Each reads a different store, and each reads the repository rather than the working files, which
+# the extraction just overwrote.
 #   - template in a plain folder            -> not a work tree, proceeds
 #   - template cloned or committed          -> HEAD's AGENTS.md carries the sentinel, proceeds
+#   - template staged, not yet committed     -> the staged AGENTS.md carries it, proceeds
 #   - `git init` + an empty origin, no commit yet, the mono-repo origin-reuse flow in section 4
-#                                           -> no HEAD, proceeds
-#   - extracted over a repo with history    -> HEAD is theirs, refused
-# Read HEAD rather than the working file, which the extraction just overwrote, and rather than the
-# index, which is empty in the origin-reuse flow and would fail an untracked-file test.
-if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1 \
-   && ! git -C "$ROOT" show HEAD:./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD'; then
+#                                           -> no HEAD, no refs, nothing staged, proceeds
+#   - extracted over a repo with history    -> refused by 1
+#   - extracted onto an orphan branch       -> refused by 2
+#   - extracted over staged, uncommitted work -> refused by 3
+BOOTSTRAP_GUARD_REASON=""
+if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+  if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
+    git -C "$ROOT" show HEAD:./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD' \
+      || BOOTSTRAP_GUARD_REASON="its committed history is not this template's"
+  elif git -C "$ROOT" show-ref --quiet 2>/dev/null; then
+    BOOTSTRAP_GUARD_REASON="it holds commits on branches or tags that HEAD is not currently on"
+  elif [ -n "$(git -C "$ROOT" ls-files 2>/dev/null)" ] \
+       && ! git -C "$ROOT" show :./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD'; then
+    BOOTSTRAP_GUARD_REASON="it has staged files that are not this template's"
+  fi
+fi
+if [ -n "$BOOTSTRAP_GUARD_REASON" ]; then
   echo "init.sh: this template is sitting inside an existing Git repository." >&2
   echo "  $(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)" >&2
+  echo "  Refusing because $BOOTSTRAP_GUARD_REASON." >&2
   echo "  init.sh is one-time and destructive: it would remove that repository's .git — its whole" >&2
   echo "  history — and in mono-repo layout write a project LICENSE over code it did not author." >&2
   echo "  Extract the template into a fresh, empty folder OUTSIDE this repository and run it there;" >&2

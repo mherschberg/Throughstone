@@ -38,9 +38,15 @@ any project built with it.
   `scripts/apply-project-license.sh` refuses, arriving by the one path that never calls it.
   `init.sh` now refuses before removing anything, in two cases: a checkout that is not a fresh
   template (the root pointers' sentinel is gone, so this is an already-initialized project), and a
-  directory whose Git history is not the template's own. A template in a plain folder, a cloned or
-  committed template, and the mono-repo empty-origin reuse flow (`git init` plus a remote, nothing
-  committed yet) all initialize exactly as before.
+  directory that already holds work of its own. That second case asks three questions rather than
+  one, because a repository keeps work in more than one place and each of these is invisible to the
+  check that catches the others: commits under `HEAD`; commits on branches or tags `HEAD` is not
+  currently on (`git checkout --orphan` leaves `HEAD` unborn while every earlier commit stays on
+  its branch, so a HEAD-only check reads a live repository as empty); and files staged but never
+  committed. Any one of them refuses. A template in a plain folder, a cloned or committed template,
+  a template staged but not yet committed, and the mono-repo empty-origin reuse flow (`git init`
+  plus a remote, nothing committed yet) all initialize exactly as before, and each refusal now says
+  which check fired.
 - **Declining `registries/` left the docs hub with a broken link on its first run.** A mono-repo
   project can answer no to the repo inventory, and `init.sh` removed the directory — but the docs
   hub `README.md` indexes every directory it ships, and its `registries/` row stayed. So the
