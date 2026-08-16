@@ -347,8 +347,9 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   If the user declined the README addition, nothing Throughstone-authored is in the repo and
   nothing is owed — placing a notice for absent material would only confuse a later reader.
   **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
-  its owner's and the method only records it (`METHOD.md` §7: the method records licensing; it
-  never establishes licensing for code it did not create). Concretely: do **not** run
+  its owner's and the method only records it — the same rule that leaves its README augmented and
+  its CI alone (`METHOD.md` §7: a repo the method did not create keeps what it already has).
+  Concretely: do **not** run
   `scripts/apply-project-license.sh` against any of these repos — it will refuse one that states
   its own terms, and the ones it would not refuse are exactly the repos that would silently gain a
   `LICENSE` and a `LICENSING.md` claiming it over code you did not write. Recording it **is** the

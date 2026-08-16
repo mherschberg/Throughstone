@@ -96,6 +96,24 @@ run_case() {
   local repos="$docs/registries/repos.yml"
   local check_in="$docs/runbooks/check-in.md"
 
+  # --- One rule, not four. README, CI, licensing, and the notice are the same rule applied to four
+  # artifacts: a repo the method did not create keeps what it already has. Licensing had grown its
+  # own doctrine paragraph, which is how the method ended up restating the same argument in eight
+  # files and why the next artifact to hit this boundary would have needed a ninth. The heading is
+  # pinned because it is what the consumers cite; drop it and their pointers go stale silently.
+  assert_contains "$docs/METHOD.md" \
+    "**A repo the method did *not* create keeps what it already has.**" \
+    "METHOD.md §7 lost the single rule the per-artifact consequences hang off"
+  assert_contains "$docs/METHOD.md" "This is one rule, not four" \
+    "METHOD.md §7 no longer says the per-artifact rules are one rule"
+  # Licensing is one of those consequences now, not a separate doctrine with its own rationale.
+  assert_absent "$docs/METHOD.md" \
+    "**The method records licensing; it never establishes licensing for code it did not create.**" \
+    "METHOD.md §7 still gives licensing its own rule instead of one line under the general one"
+  # Every write into such a repo goes through one gate, stated once for all four artifacts.
+  assert_contains "$docs/METHOD.md" "proposed before it happens" \
+    "METHOD.md §7 no longer gates every write into an in-place repo on proposing it first"
+
   # --- The README. Stamp what the method creates; augment what it registers, keyed on whether the
   # file exists. The substituted section name doubles as the placeholder check.
   assert_contains "$readme_tpl" "STAMP this into a repo the method CREATES" \

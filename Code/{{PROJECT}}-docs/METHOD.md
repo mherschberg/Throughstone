@@ -490,52 +490,57 @@ check-in report under `reports/` — then add the register row. **Every repo car
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
-its root for its internal design. **A repo registered in place is *augmented*, not stamped.** Its
-README already exists and is usually its most-read file, so the template is not copied over it:
-add only the missing piece — a short `Role in <project>` section naming what the repo is within
-the system, with a link to its architecture doc — and leave every section the repo already has
-untouched. Propose the text and where it goes before writing into a repo the method didn't create;
-a decline is a complete outcome, since the same information lives in the architecture doc — and in
-the `repos.yml` row where the project keeps an inventory, which a mono-repo project may not. The rule keys on whether a README already exists, not on how the repo got here:
-where a registered-in-place repo has **no** README there is nothing to preserve, so write it from
-the template — every section but Licensing, which describes a repo the method created and is left
-out here as it is when augmenting. That creates the one file, and nothing else about the repo is
-scaffolded, still proposed before it is written. **Every application-code repo the method *creates* also inherits
-the license posture established by `init.sh`:** read the authoritative selection from the docs
+its root for its internal design. **Every application-code repo the method *creates* also inherits
+the license posture and the CI gate.** Read the authoritative license selection from the docs
 hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
 and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which
 in a project built from scratch is everything, and in a project that also references code it did
 not create is exactly that subset. It is not a claim about code the method didn't write. For an
-open-source selection, the docs hub must have
-a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
-`Proprietary`, the new repo gets no project `LICENSE`. **A repo registered in place gets neither
-that posture nor the CI gate** — its pipeline is its own, and `templates/ci/code-repo-ci.yml`
-fails until configured, so installing it would replace or break what already gates that repo's
-merges. Record what it runs instead. What such a repo *may* be owed is the notice: where the
-method leaves Throughstone-authored material behind — the `Role in <project>` section, or a README
-written from the template for a repo that had none — run
-`scripts/apply-project-license.sh --notice-only <repo>`, which places `LICENSE-THROUGHSTONE` and a
-`LICENSING.md` that names only what the notice covers and disclaims the rest of the repository. If
-the owners declined the addition, nothing Throughstone-authored is there and nothing is owed. Do
-not copy `LICENSE-THROUGHSTONE` into
-application-code repos that contain no Throughstone-authored material. Repos scaffolded through
-this method do contain the Throughstone-authored README and CI starter, so
-`scripts/apply-project-license.sh` copies `LICENSE-THROUGHSTONE` and writes a visible
-`LICENSING.md` that distinguishes retained scaffold material from project-authored code.
+open-source selection, the docs hub must have a matching canonical `LICENSE`, which is copied
+unchanged to the new repo root; for `Proprietary`, the new repo gets no project `LICENSE`.
+`scripts/apply-project-license.sh` does that, and also copies `LICENSE-THROUGHSTONE` and writes a
+visible `LICENSING.md` — a scaffolded repo *does* hold Throughstone-authored material, the README
+and CI starter, and its notice has to stay distinguishable from the project's own license grant.
 
-**The method records licensing; it never establishes licensing for code it did not create.** A
-repo **registered in place** (below) existed before the method reached it, so it already has an
-owner and a licensing status — a `LICENSE`, a `COPYING`, a `NOTICE`, vendored third-party terms,
-or a deliberate absence. Read what it uses and **record** it as found — in its
-`registries/repos.yml` `license:` field (an identifier and the file it came from, or `none
-stated`), and wherever the architecture docs cover it; never apply a posture to it. A divergence
-from the
-`init.sh` selection is not an error to fix: that selection governs the method's own artifacts and
-the repos it creates, and several in-place repos may legitimately carry several different
-licenses. Choosing or changing a license for an existing repo is its owner's act, taken
-deliberately by them — never a side effect of adding the method to it. So
-`scripts/apply-project-license.sh` is run **only on a repo the method creates**; it refuses a
-target that already states its own licensing.
+**A repo the method did *not* create keeps what it already has.** This is one rule, not four. Such
+a repo — **registered in place** (below) — existed before the method reached it, and its owners
+already decided how it is documented, gated, and licensed. Adding this method to a project is not
+an occasion to overturn any of those decisions; the job is to record them and supply only what the
+project is actually missing. Per artifact that means:
+
+- **README — augmented, never stamped over.** It already exists and is usually the repo's
+  most-read file, so the template is not copied onto it: add only the missing piece — a short
+  `Role in <project>` section naming what the repo is within the system, with a link to its
+  architecture doc — and leave every section the repo already has untouched. The rule keys on
+  whether a README is there, not on how the repo got here: where a registered-in-place repo has
+  **no** README there is nothing to preserve, so write it from the
+  template — every section but Licensing, which describes a repo the method created and is left
+  out here as it is when augmenting. That is the one file; nothing else about the repo is
+  scaffolded.
+- **CI — its own.** `templates/ci/code-repo-ci.yml` fails until configured, so installing it would
+  replace or break whatever already gates that repo's merges. Record what it runs instead.
+- **Licensing — recorded as found.** The repo already has a licensing status: a `LICENSE`, a
+  `COPYING`, a `NOTICE`, vendored third-party terms, or a deliberate absence. Read what it uses
+  and record it — in its `registries/repos.yml` `license:` field (an identifier and the file it
+  came from, or `none stated`), and wherever the architecture docs cover it. A divergence from the
+  project's own selection is not an error to fix: that selection governs the method's artifacts and
+  the repos it creates, and several in-place repos may legitimately carry several different
+  licenses. It is worth telling the owners about once, where they can act on it, and that is the
+  whole of it. So `scripts/apply-project-license.sh` is run **only on a repo the method creates**;
+  it refuses a target that already states its own licensing.
+- **The Throughstone notice — only where something Throughstone-authored landed.** That is the one
+  thing such a repo may still be owed: where the method leaves its own material behind — the
+  `Role in <project>` section, or a README written from the template for a repo that had none —
+  run `scripts/apply-project-license.sh --notice-only <repo>`, which places `LICENSE-THROUGHSTONE`
+  and a `LICENSING.md` that names only what the notice covers and disclaims the rest of the
+  repository. Where the addition was declined, nothing Throughstone-authored is there and nothing
+  is owed; do not copy `LICENSE-THROUGHSTONE` into a repo that holds none of it.
+
+Every write above is **proposed before it happens** — show the exact text and where it goes, and
+wait for an answer. A decline is a complete outcome, not a gap: the same information lives in the
+architecture doc — and in the `repos.yml` row where the project keeps an inventory, which a
+mono-repo project may not. Choosing or changing what any of these say for an existing repo is its
+owners' act, taken deliberately by them, never a side effect of adding the method to it.
 
 **When the rules above don't settle it, ask.** They cover the cases the method has met: a repo it
 creates, and one registered in place that has a README, has none, or whose owners decline the

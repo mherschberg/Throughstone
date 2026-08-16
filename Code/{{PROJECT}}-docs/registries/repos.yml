@@ -43,8 +43,8 @@
 # REGISTERED IN PLACE — one that existed before this project did — it is whatever that repo already
 # says, written down as found: an identifier and the file it came from (`GPL-2.0 (COPYING)`), or
 # `none stated` when the repo says nothing, which is a fact worth recording rather than a gap to
-# fill. Never set a license for such a repo; see METHOD.md §7 — the method records licensing, it
-# never establishes licensing for code it did not create. A missing value means "not recorded", not
+# fill. Never set a license for such a repo; see METHOD.md §7 — a repo the method did not create
+# keeps what it already has, licensing included. A missing value means "not recorded", not
 # "same as everything else", and repos legitimately carrying different licenses is a normal
 # inventory rather than an inconsistency to reconcile.
 #
