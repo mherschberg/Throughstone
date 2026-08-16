@@ -56,6 +56,17 @@ any project built with it.
   lives, which is a promise a project without an inventory cannot keep. `METHOD.md` §7, the repo
   README template, and the check-in's README sweep now lead with the architecture doc and treat the
   row as conditional on the project keeping one.
+- **The check-in's README sweep had no case for the README the method writes into a repo it did
+  not create.** Where a repo **registered in place** has no README, the method writes one from the
+  full template — that is the settled rule. The sweep in `runbooks/check-in.md` knew only two
+  kinds: a repo the method created (check its Overview) and one registered in place, which "owns
+  its own README" (check its `Role in <project>` section). A written-from-template README is
+  neither. It has no `Role in <project>` heading — that section exists only on the augment path —
+  so the sweep either reported its absence as a gap, proposing a second write into a repo the
+  method didn't create, or filed the file under "declined" and stopped checking the one README
+  there the method is answerable for. The sweep now branches on the same thing the writing rule
+  branches on — whether a README was already there — and checks a written-from-template one the
+  way a created repo's is checked. A declined addition is still not a gap to close.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
 - **Lifting a document into `architecture/` could fail the check that guards it.**
