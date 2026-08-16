@@ -277,6 +277,37 @@ if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md"
   exit 2
 fi
 
+# Second half of the same guard, and the half that covers *someone else's* repo. The sentinel above
+# proves these files came from the template; it does not prove the template is the only thing here.
+# Extracted INTO an existing repository it is still present and still reads "fresh", while the
+# destructive step below removes that repository's .git — its entire history — and, in mono layout,
+# re-inits and writes a project LICENSE plus a LICENSING.md asserting it over code this method did
+# not author. That is the claim scripts/apply-project-license.sh refuses outright; nothing should be
+# able to make it here instead. Adoption makes this the likely mistake rather than an exotic one:
+# --mode=existing is aimed at the one population that has a repository to run it inside.
+#
+# What separates the cases is HISTORY, and it needs no list of template paths. What this refusal
+# protects is commits; a work tree that has none has nothing to lose. So: refuse only where HEAD
+# resolves, and only where HEAD's own AGENTS.md does not carry the sentinel.
+#   - template in a plain folder            -> not a work tree, proceeds
+#   - template cloned or committed          -> HEAD's AGENTS.md carries the sentinel, proceeds
+#   - `git init` + an empty origin, no commit yet, the mono-repo origin-reuse flow in section 4
+#                                           -> no HEAD, proceeds
+#   - extracted over a repo with history    -> HEAD is theirs, refused
+# Read HEAD rather than the working file, which the extraction just overwrote, and rather than the
+# index, which is empty in the origin-reuse flow and would fail an untracked-file test.
+if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1 \
+   && ! git -C "$ROOT" show HEAD:./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD'; then
+  echo "init.sh: this template is sitting inside an existing Git repository." >&2
+  echo "  $(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)" >&2
+  echo "  init.sh is one-time and destructive: it would remove that repository's .git — its whole" >&2
+  echo "  history — and in mono-repo layout write a project LICENSE over code it did not author." >&2
+  echo "  Your code is never moved into Throughstone. Extract the template into a fresh, empty" >&2
+  echo "  folder OUTSIDE this repository and run it there; the agent registers your repos in place" >&2
+  echo "  afterwards, where they already live. Nothing was changed." >&2
+  exit 2
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
@@ -308,15 +339,22 @@ else
   while :; do
     case "$(ask 'Choose 1 or 2' '1')" in
       1) MODE=new; break ;;
-      2) MODE=existing
-         echo
-         echo "  Adopting an existing codebase: keep running this from the downloaded Throughstone"
-         echo "  folder (a fresh directory), NOT from inside your existing repo. Your code stays"
-         echo "  where it is — the agent registers your repos in place later and never rewrites them."
-         break ;;
+      2) MODE=existing; break ;;
       *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
     esac
   done
+fi
+
+# Said once, however the mode arrived. It used to sit inside the interactive branch above, so the
+# two paths most likely to be scripted — --mode=existing and INIT_MODE — never printed it, and they
+# are no less able to be run from the wrong directory. The work-tree guard in 0c is what actually
+# refuses that; this is the part that says where the code is supposed to stay, which the guard
+# cannot infer.
+if [ "$MODE" = "existing" ]; then
+  echo
+  echo "  Adopting an existing codebase: run this from the downloaded Throughstone folder (a fresh"
+  echo "  directory), NOT from inside your existing repo. Your code stays where it is — the agent"
+  echo "  registers your repos in place later and never rewrites or relocates them."
 fi
 
 # Project slug — validated kebab-case whether supplied or prompted.

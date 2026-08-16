@@ -166,6 +166,22 @@ error/corruption and re-run paths, not normal operation.
   maintainer test enforces it.
 
 ### Fixed
+- **`init.sh` would destroy an existing repository it was run inside.** Extract the download into
+  your own repo and run it — the mistake adoption invites, since `--mode=existing` is aimed at the
+  one population that has a repository — and the fresh-template guard saw the template's own
+  sentinel, agreed it was fresh, and continued past the destructive boundary. In multi-repo layout
+  that **deleted the repository's `.git`** outright; in mono-repo layout it replaced the history
+  with a bootstrap commit, wrote a project `LICENSE` next to whatever terms the repo already
+  stated, and added a `LICENSING.md` asserting that license over the whole repository — the exact
+  claim `scripts/apply-project-license.sh` refuses, arriving by the one path that never calls it.
+  The guard now also refuses a directory whose Git history is not the template's own, before
+  anything is removed, and says where the code is meant to stay instead. A template in a plain
+  folder, a cloned template, and the mono-repo empty-origin reuse flow (`git init` plus a remote,
+  nothing committed yet) all initialize exactly as before.
+- **Adoption's "run this from a fresh directory" notice only appeared when the mode was chosen at
+  the prompt.** It lived inside the interactive branch, so `--mode=existing` and `INIT_MODE` — the
+  two paths most likely to be scripted, and no less able to be run from the wrong place — printed
+  nothing. It is now said once, however the mode arrived.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
 - **Lifting a document into `architecture/` could fail the check that guards it.**

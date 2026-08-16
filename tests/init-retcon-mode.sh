@@ -184,11 +184,39 @@ run_existing_case() {
   assert_file_contains "$docs/AGENTS.md" "repo's \`registries/repos.yml\` \`license:\` field"
   assert_file_contains "$docs/templates/planning-session.md" \
     "\`registries/repos.yml\` \`license:\` field and move on"
+  # The header states the field correctly; this is the comment at the point where a row is actually
+  # written, and every adopted repo's row is written there. It used to say "a `license:` like the
+  # rows above" — and the rows above carry the install-time posture, so an agent registering a
+  # GPL repo was being shown MIT as the pattern. Both halves pinned: the instruction, and a
+  # worked in-place example, since an example is what gets copied.
+  assert_file_contains "$docs/registries/repos.yml" \
+    "takes whatever that repo itself already says, copied as found"
+  assert_file_contains "$docs/registries/repos.yml" "license: \"GPL-2.0 (COPYING)\""
+  if grep -Fq "a \`license:\` like the rows above" "$docs/registries/repos.yml"; then
+    echo "FAIL: $name still points an in-place repo's license: at the project posture" >&2
+    return 1
+  fi
+  # The same comment must not claim every repo listed there is stamped from the README template.
+  assert_file_contains "$docs/registries/repos.yml" "REGISTERED IN PLACE is listed"
+  # Mono-repo + adoption is a real combination this test exercises (run_existing_case runs both
+  # layouts). The file's mono note says its rows are "folders inside the single repo, not separate
+  # repos yet" — true of what the method creates, false of every row an adoption writes, and this
+  # inventory holds both kinds at once. Scoped now, and pinned because the note reads perfectly
+  # sensible on its own and only goes wrong next to a registered-in-place row.
+  assert_file_contains "$docs/registries/repos.yml" \
+    "as its own repo, at its own \`location\`, and stays there"
 
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
   assert_file_contains "$TMP_ROOT/$name.out" "ADOPT your existing codebase"
   ! grep -Fq "interview you, propose a roadmap" "$TMP_ROOT/$name.out"
+
+  # 7. Where the user's code stays is said on EVERY path into adoption. This run is the flag path
+  #    (--mode=existing, non-interactive) — the one that used to print nothing, because the notice
+  #    lived inside the interactive prompt's branch. The work-tree guard refuses running from
+  #    inside their repo; only this says where the code is meant to stay instead.
+  assert_file_contains "$TMP_ROOT/$name.out" "NOT from inside your existing repo"
+  assert_file_contains "$TMP_ROOT/$name.out" "never rewrites or relocates them"
 }
 
 # run_existing_env_case — the same fork via the INIT_MODE env var instead of the flag.
