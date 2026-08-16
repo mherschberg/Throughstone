@@ -466,8 +466,9 @@ Projects are typically **multi-repo**: the workspace folder is *not* itself a re
 inside it, `prompts/` is one repo and each thing under `Code/` (including
 `{{PROJECT}}-docs`) is its own **sibling** repo. Nothing sits "above" those repos except a
 per-machine shell. The `init.sh` wizard sets this up for the first developer; service repos
-aren't created at bootstrap — they're stamped from
-`Code/{{PROJECT}}-docs/templates/repo-readme-template.md` once the architecture names them. (Or choose
+aren't created at bootstrap — the ones this method creates are stamped from
+`Code/{{PROJECT}}-docs/templates/repo-readme-template.md` once the architecture names them, and
+one that already exists is registered in place instead (below). (Or choose
 mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
 `registries/repos.yml` is the canonical inventory. `registries/risks.yml` is the canonical
 accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
@@ -478,7 +479,16 @@ check-in report under `reports/` — then add the register row. **Every repo car
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
-its root for its internal design. **Every application-code repo the method *creates* also inherits
+its root for its internal design. **A repo registered in place is *augmented*, not stamped.** Its
+README already exists and is usually its most-read file, so the template is not copied over it:
+add only the missing piece — a short `Role in <project>` section naming what the repo is within
+the system, with a link to its architecture doc — and leave every section the repo already has
+untouched. Propose the text and where it goes before writing into a repo the method didn't create;
+a decline is a complete outcome, since the same information lives in the architecture doc and the
+`repos.yml` row. The rule keys on whether a README already exists, not on how the repo got here:
+where a registered-in-place repo has **no** README there is nothing to preserve, so write it from
+the full template — that creates the one file, and nothing else about the repo is scaffolded,
+still proposed before it is written. **Every application-code repo the method *creates* also inherits
 the license posture established by `init.sh`:** read the authoritative selection from the docs
 hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
 and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which

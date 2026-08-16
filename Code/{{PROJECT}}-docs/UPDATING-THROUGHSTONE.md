@@ -298,7 +298,18 @@ affect work you do after pulling them.
   changes; the wording around it does, in `METHOD.md` §7, `AGENTS.md`, `README.md`, the planning
   session, and the helper's header. Pull them with the group below. **One thing to check:** if a
   repo of yours was registered in place rather than created by the method, its licensing is its
-  own — record what it actually uses beside its inventory entry rather than assuming the posture.
+  own — record what it actually uses beside its inventory entry rather than assuming the posture.- **A repo you registered in place is augmented, not stamped.** `templates/repo-readme-template.md`
+  told you to stamp a copy into each repo "as it's created", which is the only case it considered —
+  so pointed at a repo that already existed, the instruction reads as "overwrite its README". That
+  repo's README is usually its most-read file. It now gets a short `Role in <project>` section
+  added instead, proposed before anything is written, with every existing section left alone. The
+  rule keys on whether a README is already there, not on how the repo got here: where a registered
+  repo has none, its README is written from the full template — that one file, with nothing else
+  about the repo scaffolded. No change for repos you scaffold through the
+  method: those are still stamped from the full template.
+  **One thing to check:** if you registered an existing repo in place and its README was replaced
+  with the template, its previous content is in that repo's git history.
+
 Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGENTS.md`, `README.md`,
 `inputs/README.md`, `templates/architecture-doc-template.md`, `templates/planning-session.md`,
 `templates/repo-readme-template.md`, `runbooks/check-in.md`, and

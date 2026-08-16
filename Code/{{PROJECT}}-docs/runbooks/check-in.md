@@ -140,10 +140,14 @@ line (to `full` once the area is complete), updates related architecture docs an
 the check-in itself.
 
 Beyond the architecture docs, sweep four things that rot just as quietly:
-- **Repo READMEs** — every code repo has one, its **Overview** still describes what the repo
-  *is*, and the **Setup / Running / Testing** steps still work from a clean checkout. They're
-  stamped once at repo creation and otherwise never re-checked, so they're usually the stalest
-  doc a new contributor or agent hits first (and any `ARCHITECTURE.md` still matches the design).
+- **Repo READMEs** — every code repo still explains what it *is*, and its **Setup / Running /
+  Testing** steps still work from a clean checkout. They are written once and otherwise never
+  re-checked, so they're usually the stalest doc a new contributor or agent hits first (and any
+  `ARCHITECTURE.md` still matches the design). A repo the method **created** carries the full
+  template, so check its **Overview**. A repo **registered in place** owns its own README: check
+  that the `Role in {{PROJECT}}` section still describes the repo's place in the system, and leave
+  the rest to its owners. If that section was declined, or the repo has no README, that is not a
+  gap to close here — the framing lives in its architecture doc and its `repos.yml` row (`METHOD.md` §7).
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. A

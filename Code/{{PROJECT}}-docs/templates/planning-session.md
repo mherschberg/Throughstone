@@ -69,7 +69,9 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    of them exist yet, so you scaffold them all — the usual case. Just skip any that are
    **already there:** a repo the architecture names is already there when it has a
    `registries/repos.yml` row **with a filled-in README** (a real role one-liner + Overview, not
-   the template's placeholders), so don't re-create it. This only comes up on a **re-run** (a repo
+   the template's placeholders), so don't re-create it. A repo **registered in place** is likewise
+   already there: it exists, and its README is its own — a thin one, or none, is not a reason to
+   scaffold over it. This only comes up on a **re-run** (a repo
    you scaffolded in an earlier run is already registered) or when the project already has some of
    these repos; if `registries/repos.yml` is absent or has no code-repo rows yet (that first run,
    or a mono-repo), nothing is registered and every named repo scaffolds, exactly as before.
@@ -100,9 +102,17 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
    the repo is and the slice of the system it owns), and the repo gets a row in
    `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can
-   explain itself. Confirm the repo list with the user — on a first run they're all new; note any
-   that already exist (already registered with a filled-in README) so you scaffold only the new
-   ones.
+   explain itself.
+   **A repo registered in place is not scaffolded at all.** Everything above describes creating a
+   repo, and this one already exists — so it is not created, and the license helper is not run on
+   it (above). The one thing it may still be owed is the role-and-place framing its README
+   probably lacks, and what to do keys on whether a README is there. **If it has one:** add a
+   short `Role in {{PROJECT}}` section and leave every existing section alone — never stamp the
+   template over it. **If it has none:** write its README from the template. Either way it is the
+   user's repo, so show them what you intend to add and where, and wait for a yes.
+   Confirm the repo list with the user — on a first run they're all new; note any
+   that already exist (registered and present, by either of the tests above) so you scaffold only
+   the new ones.
 2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
    **build or extend what this milestone needs, given what already exists.** On a first run
    nothing is built yet, so scaffolding and the core data layer come first and you build
