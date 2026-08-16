@@ -479,6 +479,117 @@ run_pre_existing_licensing_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# run_licensing_evidence_case — the guard above tests root filenames, which is where the method's
+# OWN prose says licensing is only partly kept. METHOD.md §7, the repo README template, and the
+# recon map template all tell an agent to read "a LICENSE, a COPYING, a NOTICE, package metadata,
+# vendored third-party terms". A guard that reads only root filenames misses two of those, and the
+# repos it misses are ordinary: a JavaScript or Rust package whose license lives in its manifest,
+# and a monorepo that licenses per package. Each of those would take the project's LICENSE and a
+# LICENSING.md asserting it over the whole repository.
+#
+# Both directions matter. A guard that refuses everything would break the path the helper exists
+# for — a repo the method just created, which may already be carrying installed dependencies with
+# licenses of their own — so the must-proceed table is as load-bearing as the must-refuse one.
+run_licensing_evidence_case() {
+  local name="license-evidence"
+  local work="$TMP_ROOT/$name"
+  local helper target status written label rel body
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Licensing evidence test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  helper="$work/Code/$name-docs/scripts/apply-project-license.sh"
+
+  # build_target LABEL RELPATH BODY — a bare repo stating its terms exactly one way.
+  build_target() {
+    target="$TMP_ROOT/$name-target"
+    rm -rf "$target"
+    mkdir -p "$target/$(dirname "$2")"
+    printf '%s\n' "$3" > "$target/$2"
+  }
+
+  # Each of these is a repo saying something about its licensing. None has a root licensing
+  # FILENAME, so every one of them passed the original guard.
+  while IFS='|' read -r label rel body; do
+    [ -n "$label" ] || continue
+    build_target "$label" "$rel" "$body"
+    set +e
+    "$helper" "$target" >"$TMP_ROOT/$name-$label.out" 2>&1
+    status=$?
+    set -e
+    [ "$status" -eq 1 ] || {
+      echo "FAIL: helper did not refuse a repo stating its license via $label" >&2
+      return 1
+    }
+    grep -Fq "target already states its own licensing" "$TMP_ROOT/$name-$label.out" || {
+      echo "FAIL: refusal for $label did not name the rule" >&2
+      return 1
+    }
+    grep -Fq "$(basename "$rel")" "$TMP_ROOT/$name-$label.out" || {
+      echo "FAIL: refusal for $label did not name the evidence it found" >&2
+      return 1
+    }
+    for written in LICENSE LICENSE-THROUGHSTONE LICENSING.md; do
+      [ ! -e "$target/$written" ] || {
+        echo "FAIL: helper wrote $written into a repo stating its license via $label" >&2
+        return 1
+      }
+    done
+  done <<'EVIDENCE'
+npm-manifest|package.json|{"name":"svc","license":"GPL-3.0"}
+npm-legacy-array|package.json|{"name":"svc","licenses":[{"type":"MIT"}]}
+composer-manifest|composer.json|{"name":"acme/svc","license":"LGPL-2.1"}
+cargo-manifest|Cargo.toml|license = "AGPL-3.0"
+pyproject-manifest|pyproject.toml|license = "Apache-2.0"
+setupcfg-manifest|setup.cfg|license = MPL-2.0
+gemspec-manifest|svc.gemspec|Gem::Specification.new { |s| s.license = "MPL-2.0" }
+gradle-manifest|build.gradle|license = 'EPL-2.0'
+maven-manifest|pom.xml|<project><licenses><license><name>Apache-2.0</name></license></licenses></project>
+monorepo-package|packages/api/LICENSE|GNU General Public License v3
+vendored-tree|third_party/zlib/LICENSE|zlib License
+EVIDENCE
+
+  # The other direction. A repo the method creates says nothing about its licensing, and must
+  # still be served — including one that already has dependencies installed, whose licenses belong
+  # to somebody else and say nothing about this repo. A guard that refuses these is an outage on
+  # the only path this helper is for.
+  while IFS='|' read -r label rel body; do
+    [ -n "$label" ] || continue
+    build_target "$label" "$rel" "$body"
+    set +e
+    "$helper" "$target" >"$TMP_ROOT/$name-$label.out" 2>&1
+    status=$?
+    set -e
+    [ "$status" -eq 0 ] || {
+      echo "FAIL: helper refused a repo that states no licensing of its own ($label)" >&2
+      cat "$TMP_ROOT/$name-$label.out" >&2
+      return 1
+    }
+    [ -f "$target/LICENSE" ] || {
+      echo "FAIL: helper did not apply the project license for $label" >&2
+      return 1
+    }
+  done <<'NOEVIDENCE'
+manifest-without-license|package.json|{"name":"svc","version":"1.0.0"}
+manifest-empty-license|package.json|{"name":"svc","license":""}
+manifest-license-file-key|package.json|{"name":"svc","licenseFile":"docs/terms.txt"}
+installed-dependency|node_modules/left-pad/LICENSE|MIT License
+plain-source-file|src/main.js|export const x = 1;
+NOEVIDENCE
+
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 # run_notice_only_case — the one thing a repo the method did not create may still be owed. Where
 # the method leaves Throughstone-authored material behind, --notice-only places the notice and a
 # companion that disclaims the rest of the repository. It must work on exactly the target the full
@@ -763,6 +874,8 @@ run_missing_canonical_license_case
 # A repo registered in place keeps the licensing its owner set; the helper must refuse it rather
 # than write a license claim over code the method did not author.
 run_pre_existing_licensing_case
+# ...including the two places a repo states its terms that are not a root filename at all.
+run_licensing_evidence_case
 # ...and the one thing such a repo may still be owed, when the method leaves material behind.
 run_notice_only_case
 

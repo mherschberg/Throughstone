@@ -15,7 +15,12 @@
 # licensing status, and setting a license for it is that owner's act, not the method's: read what
 # it already uses and record it, never apply. The pre-existing-licensing check below refuses such
 # a target, so pointing this helper at the wrong kind of repo fails loudly instead of writing a
-# license claim over code the method did not author.
+# license claim over code the method did not author. It looks wherever METHOD.md §7 says licensing
+# lives — root files, nested trees, package metadata — but it can only catch a repo that SAYS
+# something. METHOD.md §7 counts "a deliberate absence" as a licensing status too, and a repo that
+# states nothing is indistinguishable from one just created. So this is a backstop against a
+# misdirected invocation, not the control: the rule that this is run only on a repo the method
+# creates is the control, and where that is unclear the answer is to ask (METHOD.md §7).
 #
 # --notice-only serves the one thing such a repo may still be owed. Where the method leaves
 # Throughstone-authored material behind — a role-and-place section added to an existing README, or
@@ -63,23 +68,74 @@ if [ ! -d "$TARGET" ]; then
   exit 2
 fi
 
-# find_pre_existing_licensing TARGET — list root-level licensing files this helper never writes.
-# Reads: TARGET's root directory entries.
+# find_pre_existing_licensing TARGET — list evidence that TARGET already states its own licensing.
+# Reads: TARGET's root entries, its nested trees, and its root package metadata.
 # Writes: nothing (prints one path per line).
-# Returns: 0 always; empty output means the target carries no such file.
+# Returns: 0 always; empty output means the target says nothing about its licensing.
 #
-# A repo the method creates carries none of these, so this is inert on the path the helper is
-# for. A repo that predates the method may carry any of them — COPYING for a GPL project, NOTICE
-# for a project with attribution obligations, LICENSE.md/LICENSE-<id> for the many projects that
-# name the file differently. Plain LICENSE is deliberately not listed: verify_compatible already
-# rejects a differing one, and an identical one is this helper's own idempotent re-run.
+# A repo the method creates carries none of this, so it is inert on the path the helper is for. A
+# repo that predates the method may carry any of it, and it looks in three places because that is
+# where METHOD.md §7, the repo README template, and the recon map template all tell an agent to
+# read: "a LICENSE, a COPYING, a NOTICE, package metadata, vendored third-party terms".
+#
+#   1. Root filenames — COPYING for a GPL project, NOTICE for attribution obligations,
+#      LICENSE.md / LICENSE-<id> for the many projects that name the file differently.
+#   2. The same names further down — a monorepo licenses per package (packages/*/LICENSE), and a
+#      vendored tree carries the terms it arrived under. Depth-limited and pruned of the
+#      directories that hold installed dependencies rather than the repo's own code.
+#   3. A license field in root package metadata. Plenty of repos state their license only there.
+#
+# Plain root LICENSE is deliberately still not listed: verify_compatible already rejects a
+# differing one, and an identical one is this helper's own idempotent re-run.
+#
+# It answers "does this repo say anything about its licensing", never "which license" — a backstop
+# for an invocation the prose already forbids, not a detector. Anything it reports is a refusal,
+# so it errs toward refusing: being wrong here costs a question, and being wrong the other way
+# writes a license claim over code the method did not author.
 find_pre_existing_licensing() {
-  find "$1" -mindepth 1 -maxdepth 1 \
-    \( -iname 'COPYING*' -o -iname 'COPYRIGHT*' -o -iname 'NOTICE*' \
-       -o -iname 'LICENCE*' -o -iname 'LICENSE.*' -o -iname 'LICENSE-*' \
-       -o -iname 'LICENSES' \) \
-    ! -name 'LICENSE-THROUGHSTONE' \
-    -print 2>/dev/null | LC_ALL=C sort
+  local target="$1"
+  {
+    find "$target" -mindepth 1 -maxdepth 1 \
+      \( -iname 'COPYING*' -o -iname 'COPYRIGHT*' -o -iname 'NOTICE*' \
+         -o -iname 'LICENCE*' -o -iname 'LICENSE.*' -o -iname 'LICENSE-*' \
+         -o -iname 'LICENSES' \) \
+      ! -name 'LICENSE-THROUGHSTONE' \
+      -print 2>/dev/null
+
+    # Nested licensing. -prune drops installed dependency trees — those are somebody else's copies
+    # rather than a statement about this repo, and a repo the method DID create can be carrying
+    # them by the time this runs. It keeps deliberately vendored source trees, which are exactly
+    # the "vendored third-party terms" METHOD.md §7 names. The prune must be able to see a
+    # directory to skip it, so this find starts at the root and the root's own files are dropped
+    # afterwards (they belong to the first find, which deliberately ignores a plain LICENSE).
+    find "$target" -maxdepth 4 \
+      \( -name '.git' -o -name 'node_modules' -o -name '.venv' -o -name 'venv' \
+         -o -name 'site-packages' -o -name 'target' -o -path '*/vendor/bundle' \) -prune \
+      -o \( -iname 'COPYING' -o -iname 'COPYING.*' -o -iname 'LICENSE' -o -iname 'LICENCE' \
+            -o -iname 'LICENSE.*' -o -iname 'LICENCE.*' \) \
+         ! -name 'LICENSE-THROUGHSTONE' -print 2>/dev/null \
+      | while IFS= read -r found; do
+          [ "$(dirname "$found")" = "$target" ] || printf '%s\n' "$found"
+        done
+
+    # A license field in root package metadata. Matched loosely on purpose: any of these files
+    # carrying a populated license key is a repo saying something about its terms.
+    local manifest
+    for manifest in "$target"/package.json "$target"/pyproject.toml "$target"/setup.cfg \
+                    "$target"/Cargo.toml "$target"/composer.json "$target"/*.gemspec \
+                    "$target"/build.gradle "$target"/pom.xml; do
+      [ -f "$manifest" ] || continue
+      # Two shapes: a key/value pair (JSON quotes the key, so allow a quote before the separator;
+      # TOML and Gradle use `=`; npm's legacy form is a `licenses` array), and an XML <license>
+      # element for pom.xml. A populated value is required, so an empty license field reads as
+      # saying nothing.
+      if grep -Eiq \
+        '(^|[^A-Za-z_-])licen[cs]es?["'"'"']?[[:space:]]*[:=][^[:alnum:]]*[[:alnum:]]|<licen[cs]es?[[:space:]>]' \
+           "$manifest" 2>/dev/null; then
+        printf '%s\n' "$manifest"
+      fi
+    done
+  } | LC_ALL=C sort -u
 }
 
 # verify_compatible SOURCE TARGET LABEL — reject an existing target with different content.
