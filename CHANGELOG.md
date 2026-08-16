@@ -87,6 +87,26 @@ any project built with it.
   §7's layout paragraph said service repos are stamped from the template full stop, and the
   check-in's README sweep assumed every repo README was stamped by the method at creation — so it
   would have reported an augmented repo, or one whose owner declined the addition, as a gap.
+- **The CI gate could be installed into a repo the method didn't create.**
+  `templates/ci/README.md` and the repo README template both said to drop
+  `templates/ci/code-repo-ci.yml` into a repo's `.github/workflows/ci.yml` when scaffolding it —
+  with no rule for a repo **registered in place**, which has its own CI. That file is deliberately
+  **failing-until-configured**, so landing it in an existing repo either replaces the workflow that
+  gates its merges or adds a second one that fails every build until somebody deletes it. It is
+  now never installed into a registered-in-place repo; what that repo already runs is recorded in
+  the Test Strategy doc instead, and moving it onto the standard gate is a change its owners make
+  deliberately.
+
+### Added
+- **`--notice-only` mode for `scripts/apply-project-license.sh`** — places `LICENSE-THROUGHSTONE`
+  and a companion `LICENSING.md` in a repo the method did *not* create, for the one case such a
+  repo needs it: the method left Throughstone-authored material behind (the `Role in <project>`
+  README section, or a README written from the template for a repo that had none). That material
+  is BSD-3-Clause and needs its notice, but the notice alone in someone else's repo invites the
+  wrong conclusion — so the companion names only what it covers and explicitly disclaims the rest
+  of the repository. It writes no project `LICENSE` and makes no claim about the repo's own code,
+  which is why it is allowed on a target the full mode refuses. Nothing is owed, and nothing is
+  written, when the owners declined the addition.
 
 ## [1.7.1] - 2026-08-10
 

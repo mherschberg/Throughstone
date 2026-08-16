@@ -496,7 +496,16 @@ in a project built from scratch is everything, and in a project that also refere
 not create is exactly that subset. It is not a claim about code the method didn't write. For an
 open-source selection, the docs hub must have
 a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
-`Proprietary`, the new repo gets no project `LICENSE`. Do not copy `LICENSE-THROUGHSTONE` into
+`Proprietary`, the new repo gets no project `LICENSE`. **A repo registered in place gets neither
+that posture nor the CI gate** — its pipeline is its own, and `templates/ci/code-repo-ci.yml`
+fails until configured, so installing it would replace or break what already gates that repo's
+merges. Record what it runs instead. What such a repo *may* be owed is the notice: where the
+method leaves Throughstone-authored material behind — the `Role in <project>` section, or a README
+written from the template for a repo that had none — run
+`scripts/apply-project-license.sh --notice-only <repo>`, which places `LICENSE-THROUGHSTONE` and a
+`LICENSING.md` that names only what the notice covers and disclaims the rest of the repository. If
+the owners declined the addition, nothing Throughstone-authored is there and nothing is owed. Do
+not copy `LICENSE-THROUGHSTONE` into
 application-code repos that contain no Throughstone-authored material. Repos scaffolded through
 this method do contain the Throughstone-authored README and CI starter, so
 `scripts/apply-project-license.sh` copies `LICENSE-THROUGHSTONE` and writes a visible

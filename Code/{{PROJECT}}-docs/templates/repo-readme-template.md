@@ -32,9 +32,12 @@
   else's repo; if they decline, that is a complete outcome — the same information already lives
   in the repo's architecture doc and its `registries/repos.yml` row.
 
-  Stamp the CI gate named by the Test Strategy architecture doc too: drop
-  `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill in its
-  stack's test command (see `templates/ci/README.md`).
+  For a repo this method CREATES, stamp the CI gate named by the Test Strategy architecture doc
+  too: drop `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill
+  in its stack's test command (see `templates/ci/README.md`). For a repo REGISTERED IN PLACE,
+  never install it — that repo has its own CI, and the template gate fails until configured, so it
+  would either replace what gates their merges or fail every build until removed. Record what the
+  repo already runs and leave its pipeline alone.
 
   For a repo this method CREATES, apply the project license established at bootstrap by running
   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <this-repo-path>`. It copies the

@@ -479,6 +479,86 @@ run_pre_existing_licensing_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# run_notice_only_case — the one thing a repo the method did not create may still be owed. Where
+# the method leaves Throughstone-authored material behind, --notice-only places the notice and a
+# companion that disclaims the rest of the repository. It must work on exactly the target the full
+# mode refuses, and must never write a project LICENSE or a claim about the repository's content.
+run_notice_only_case() {
+  local name="license-notice-only"
+  local work="$TMP_ROOT/$name" target status
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Notice-only test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  local helper="$work/Code/$name-docs/scripts/apply-project-license.sh"
+  target="$work/Code/$name-legacy"
+  mkdir -p "$target"
+  printf 'GPLv2 terms\n' > "$target/COPYING"
+
+  # The full mode refuses this target; the notice mode is defined by being allowed on it.
+  set +e
+  "$helper" "$target" >"$TMP_ROOT/$name-full.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 1 ] || { echo "FAIL: full mode did not refuse the in-place target" >&2; return 1; }
+
+  "$helper" --notice-only "$target" >"$TMP_ROOT/$name-notice.out"
+  cmp -s "$work/Code/$name-docs/LICENSE-THROUGHSTONE" "$target/LICENSE-THROUGHSTONE" || {
+    echo "FAIL: --notice-only did not place the Throughstone notice" >&2
+    return 1
+  }
+  # The whole point: no project LICENSE, and no claim about the repository's own content.
+  [ ! -e "$target/LICENSE" ] || {
+    echo "FAIL: --notice-only wrote a project LICENSE" >&2
+    return 1
+  }
+  grep -Fq "does not license, alter, or make any claim about anything else" "$target/LICENSING.md" || {
+    echo "FAIL: --notice-only companion does not disclaim the rest of the repository" >&2
+    return 1
+  }
+  if grep -Fq "Project-authored content in this repository is licensed under" "$target/LICENSING.md"; then
+    echo "FAIL: --notice-only wrote the project-license claim meant for created repos" >&2
+    return 1
+  fi
+  # The repo's own licensing file is untouched.
+  grep -Fxq "GPLv2 terms" "$target/COPYING" || {
+    echo "FAIL: --notice-only disturbed the target's own licensing file" >&2
+    return 1
+  }
+
+  # Idempotent, and the flag is accepted on either side of the target.
+  "$helper" "$target" --notice-only >"$TMP_ROOT/$name-notice-repeat.out"
+
+  # A differing companion must be refused rather than overwritten.
+  printf 'different summary\n' > "$target/LICENSING.md"
+  set +e
+  "$helper" --notice-only "$target" >"$TMP_ROOT/$name-notice-conflict.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 1 ] || { echo "FAIL: --notice-only overwrote a differing LICENSING.md" >&2; return 1; }
+  grep -Fq "refusing to overwrite different licensing summary" "$TMP_ROOT/$name-notice-conflict.out"
+
+  # An unknown flag is an error, not a silently ignored argument.
+  set +e
+  "$helper" --nonsense "$target" >"$TMP_ROOT/$name-badflag.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 2 ] || { echo "FAIL: unknown option was not rejected" >&2; return 1; }
+
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 # run_private_mono_case — the single repo retains and explains Throughstone's notice at root
 # without creating a project LICENSE for proprietary code.
 run_private_mono_case() {
@@ -663,6 +743,8 @@ run_missing_canonical_license_case
 # A repo registered in place keeps the licensing its owner set; the helper must refuse it rather
 # than write a license claim over code the method did not author.
 run_pre_existing_licensing_case
+# ...and the one thing such a repo may still be owed, when the method leaves material behind.
+run_notice_only_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------
 # Bad license input and missing license templates are detected before template files,
