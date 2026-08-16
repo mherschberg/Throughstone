@@ -37,6 +37,14 @@
   in the repo's architecture doc, and in its `registries/repos.yml` row where the project keeps
   an inventory.
 
+  ON A YES, COMMIT IT ON A BRANCH AND STOP. A yes settles what the text says, not how it should
+  reach their trunk — every team has its own answer to that. So make a branch, commit only the
+  file(s) you proposed (name them; never `git add -A`, which sweeps up whatever they had in
+  progress), and tell them the branch and commit. NEVER push, open a pull request, merge, or
+  commit onto whatever branch is checked out — that is usually `main` on a running system. If the
+  working tree already has uncommitted changes to that file, stop and say so instead of committing
+  around them.
+
   A DECLINE MAY BE STANDING. With several repos registered in place this same proposal goes to
   the same people repo after repo, and someone who has already said no is not asking to be asked
   again for each remaining one. So on a decline, establish whether it covers this repo or the

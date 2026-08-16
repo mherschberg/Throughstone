@@ -147,6 +147,20 @@ any project built with it.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **Nothing said what happened after an accepted change was written into a repo you already had.**
+  Four files told an agent to propose the `Role in <project>` section and wait for a yes, and none
+  said what to do once the file changed on disk — no branch, no commit, no push. The obvious
+  continuation was to commit onto whatever branch was checked out (usually `main` on a running
+  system) and push it. A yes settles what the text should say, not how it reaches a trunk; that is
+  the team's own process. The method now creates a branch, commits **only the file(s) proposed** —
+  never `git add -A`, which would sweep up work in progress — reports the branch and commit, and
+  stops. No push, no pull request, no merge, and no committing around uncommitted changes to the
+  same file.
+- **`ARCHITECTURE.md` could be added to a repo the method didn't create.** §7 stated it unscoped in
+  its general repo paragraph, and the comment suggesting one sits in the repo README template's
+  Overview section — which is what an in-place repo with no README gets written from, and adopted
+  repos are exactly the ones with real internal complexity. Now scoped to repos the method creates;
+  an in-place repo's internal design goes in the docs hub's `architecture/` instead.
 - **A repo's remote and visibility had no rule, and publishing was never stated as needing a
   go-ahead.** §7 listed what the method does to a repo it did not create — README, CI, licensing,
   the Throughstone notice — and covered remotes and visibility only by the general "a repo

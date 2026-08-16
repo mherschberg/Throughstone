@@ -478,8 +478,10 @@ decision/section, ADR, issue/follow-up STEP, incident report under `reports/inci
 check-in report under `reports/` — then add the register row. **Every repo carries a README explaining
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
-`registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
-its root for its internal design. **Every application-code repo the method *creates* also inherits
+`registries/repos.yml`); a repo **the method creates** with real internal complexity adds an
+`ARCHITECTURE.md` at its root for its internal design. Not every repo gets one — it is a judgment
+call about complexity, not part of the scaffold — and a repo the method did not create never gets
+one, since that is a file appearing at the root of somebody else's repository (below). **Every application-code repo the method *creates* also inherits
 the license posture and the CI gate.** Read the authoritative license selection from the docs
 hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
 and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which
@@ -491,7 +493,7 @@ unchanged to the new repo root; for `Proprietary`, the new repo gets no project 
 visible `LICENSING.md` — a scaffolded repo *does* hold Throughstone-authored material, the README
 and CI starter, and its notice has to stay distinguishable from the project's own license grant.
 
-**A repo the method did *not* create keeps what it already has.** This is one rule, not four. Such
+**A repo the method did *not* create keeps what it already has.** This is one rule, not five. Such
 a repo — **registered in place** (below) — existed before the method reached it, and its owners
 already decided how it is documented, gated, and licensed. Adding this method to a project is not
 an occasion to overturn any of those decisions; the job is to record them and supply only what the
@@ -505,7 +507,10 @@ project is actually missing. Per artifact that means:
   **no** README there is nothing to preserve, so write it from the
   template — every section but Licensing, which describes a repo the method created and is left
   out here as it is when augmenting. That is the one file; nothing else about the repo is
-  scaffolded.
+  scaffolded — including the `ARCHITECTURE.md` the template's Overview comment suggests for a
+  complex repo, which is exactly the kind of repo being adopted. An in-place repo's internal design
+  is written up in the docs hub's `architecture/`, where the project's own docs live, not as a new
+  file at the root of a repository the method does not own.
 - **CI — its own.** `templates/ci/code-repo-ci.yml` fails until configured, so installing it would
   replace or break whatever already gates that repo's merges. Record what it runs instead.
 - **Licensing — recorded as found.** The repo already has a licensing status: a `LICENSE`, a
@@ -532,7 +537,20 @@ project is actually missing. Per artifact that means:
 Every write above is **proposed before it happens** — show the exact text and where it goes, and
 wait for an answer. A decline is a complete outcome, not a gap: the same information lives in the
 architecture doc — and in the `repos.yml` row where the project keeps an inventory, which a
-mono-repo project may not. **A decline may be standing.** Where several repos are registered in
+mono-repo project may not.
+
+**An accepted write is committed and left there. It is never pushed.** A yes settles what the text
+should say; it does not say anything about how that change should reach the repo's trunk, and every
+team has its own answer — a PR, a review, a signed commit, a CI gate, a release train. So make the
+edit on a **branch** created for it, commit **only the file(s) proposed** (name them explicitly;
+never `git add -A`, which would sweep up whatever the owners had in progress), and stop. Then tell
+them the branch and the commit, and let them take it through their own process. Do not push, do not
+open a pull request, do not merge, and do not commit onto whatever branch happened to be checked
+out — that branch is often `main` on a running system, and often has someone else's work on it. If
+the working tree already has uncommitted changes to a file being touched, stop and say so rather
+than committing around them. This is the last unguarded step in the list above: everything before
+it decides *what* goes into somebody else's repository, and this decides how far the method carries
+it, which is exactly as far as a local commit they can inspect, amend, or delete. **A decline may be standing.** Where several repos are registered in
 place, the same proposal is put to the same owners repeatedly, and someone who has said no once is
 not asking to be asked again for every remaining repo — so when a proposal is declined, establish
 whether that answer covers this repo or the rest of them, and where it is standing, stop proposing

@@ -111,8 +111,14 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    it (above). The one thing it may still be owed is the role-and-place framing its README
    probably lacks, and what to do keys on whether a README is there. **If it has one:** add a
    short `Role in {{PROJECT}}` section and leave every existing section alone — never stamp the
-   template over it. **If it has none:** write its README from the template. Either way it is the
-   user's repo, so show them what you intend to add and where, and wait for a yes. **Its CI is
+   template over it. **If it has none:** write its README from the template — that one file, and
+   not the `ARCHITECTURE.md` its Overview comment suggests for a complex repo; an in-place repo's
+   internal design is written up in the docs hub's `architecture/`, not as a new file at its root.
+   Either way it is the user's repo, so show them what you intend to add and where, and wait for a
+   yes. **On a yes, commit it on a branch and stop** — commit only the file you proposed, never
+   `git add -A`, and **never push, open a PR, or merge**. Tell them the branch and commit and let
+   them take it through their own process; how a change reaches their trunk is theirs to decide
+   (`METHOD.md` §7). **Its CI is
    its own** — never install `templates/ci/code-repo-ci.yml` into it; record what it runs in the
    Test Strategy doc. **Its remote and its visibility are its own too** — it already lives
    somewhere and is already private or public, so create no remote for it, repoint no existing one,
