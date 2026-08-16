@@ -147,6 +147,16 @@ any project built with it.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **The same proposal was put to a repo's owners once per repo, after they had already declined.**
+  Every write into a repo registered in place is proposed before it happens, and the text differs
+  per repo, so the gate itself is right. But the question behind it — do you want this in your
+  repos at all? — is the same one every time, and nothing said whether a "no" covered that repo or
+  the practice. A project with several in-place repos therefore re-asked someone who had answered.
+  A decline now establishes which it is, and a standing one stops the proposals and records that
+  those repos document themselves. It carries one way only: a yes is never reused, since the next
+  repo's text is its own proposal and nobody has seen it yet. `METHOD.md` §7 and
+  `templates/repo-readme-template.md` both say so, the latter being the file open at the moment of
+  the write.
 - **The project license could be applied to a repo the method didn't create.** `METHOD.md` §7 lets a
   repo be **registered in place** — referenced where it already sits instead of created under
   `Code/` — but every instruction around `scripts/apply-project-license.sh` was written for a repo
