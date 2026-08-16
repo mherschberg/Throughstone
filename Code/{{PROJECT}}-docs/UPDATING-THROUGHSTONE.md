@@ -279,6 +279,18 @@ affect work you do after pulling them.
   header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
+- **Licensing is no longer its own rule.** `METHOD.md` §7 had grown a separate doctrine paragraph
+  for licensing — "the method records licensing; it never establishes licensing for code it did not
+  create" — sitting alongside separate rules for the README, for CI, and for the Throughstone
+  notice. They were always the same rule applied to four artifacts: **a repo the method did not
+  create keeps what it already has.** §7 now states that once, with the four as consequences under
+  it and one gate covering all of them (propose the exact text, wait for an answer). **No behavior
+  changes** — every individual rule says what it said, and the helpers are untouched. What changes
+  is that the rationale lives in one place instead of being re-derived in each, and the files that
+  cite it — `AGENTS.md`, the planning session, and the repo README template — now quote the general
+  rule rather than a licensing-specific one. Pull those three with `METHOD.md`. **One thing to
+  check:** nothing; if you have local edits quoting the old licensing sentence, they are still
+  true, just narrower than the rule they came from.
 - **The project license is applied only to repos the method creates.** `METHOD.md` §7 already let a
   repo be **registered in place** — referenced where it sits, rather than created under `Code/` —
   but every instruction around `scripts/apply-project-license.sh` was written as though every repo

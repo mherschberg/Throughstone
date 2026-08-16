@@ -155,10 +155,10 @@ any project built with it.
   the project's `LICENSE` and a `LICENSING.md` asserting that license over the entire repository,
   written from an answer given at install time about code the method never authored. The helper now
   refuses such a target before writing anything, and `METHOD.md` §7 states the rule the refusal
-  enforces — **the method records licensing; it never establishes licensing for code it did not
-  create** — with `AGENTS.md`, the planning session, and the repo README template all pointing at
-  it. A repo the method creates carries none of those files, so nothing about scaffolding a new
-  repo changes.
+  enforces — **a repo the method did not create keeps what it already has**, licensing along with
+  its README and its CI — with `AGENTS.md`, the planning session, and the repo README template all
+  pointing at it. A repo the method creates carries none of those files, so nothing about
+  scaffolding a new repo changes.
 - **`.throughstone/project-license` was described more broadly than it acts.** It was called "the
   project-license posture" and "the authoritative selection" everywhere, but it only ever governs
   **Throughstone-authored and method-created material** — the docs hub, `prompts/`, and any repo

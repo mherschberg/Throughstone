@@ -52,8 +52,8 @@
   between the two licenses explicit.
 
   For a repo REGISTERED IN PLACE — one that existed before this project did — do NOT run it.
-  That repo already has an owner and a licensing status; the method records licensing, it never
-  establishes licensing for code it did not create (`METHOD.md` §7). Read what the repo uses
+  That repo already has an owner and a licensing status; a repo the method did not create keeps
+  what it already has, licensing included (`METHOD.md` §7). Read what the repo uses
   (`LICENSE`, `COPYING`, `NOTICE`, package metadata, vendored third-party terms, or a deliberate
   absence), record that, and leave its licensing alone — including when it differs from the
   bootstrap selection, which governs only this method's own artifacts and the repos it creates.
