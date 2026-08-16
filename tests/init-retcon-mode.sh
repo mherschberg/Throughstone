@@ -206,6 +206,30 @@ run_existing_case() {
   assert_file_contains "$docs/registries/repos.yml" \
     "as its own repo, at its own \`location\`, and stays there"
 
+  # 5b. The repo README template, in an ADOPTION-generated project.
+  # `RETCON-PROMPT.md` states these rules for the resolver and is pinned above, but the template's
+  # own comment is the file an agent has open while writing into someone's repo — it is what the
+  # resolver, METHOD.md §7 and the planning session all point at by name. Every existing assertion
+  # on that comment reads a project generated with the default mode, so on the path where these
+  # rules decide what happens to a repo the method did not create, nothing checked that the file
+  # shipped carrying them. That is not the same guarantee: the docs hub an adoption produces is
+  # assembled by the same installer but selected for by a different flag, and the rules are base
+  # text, so a forward merge is free to erode them here without failing a greenfield assertion.
+  local readme_tpl="$docs/templates/repo-readme-template.md"
+  # Stamp what the method creates; augment what it registers, keyed on whether a README exists.
+  assert_file_contains "$readme_tpl" "STAMP this into a repo the method CREATES"
+  assert_file_contains "$readme_tpl" "## Role in $name"
+  # The no-README path writes the template minus Licensing — that section describes a created repo,
+  # and adoption is precisely where a repo with no README gets one written from this file.
+  assert_file_contains "$readme_tpl" "every section except **Licensing**"
+  # CI is never installed into a repo the method did not create.
+  assert_file_contains "$readme_tpl" "never install it — that repo has its own CI"
+  # The notice is owed where Throughstone-authored material landed, and only there. Substituted,
+  # so an unsubstituted template cannot satisfy it.
+  assert_file_contains "$readme_tpl" \
+    "Code/$name-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>"
+  assert_file_contains "$readme_tpl" "is in the repo and nothing is owed"
+
   # 6. The bootstrap hand-off explains adoption, not the greenfield interview.
   #    Key on a distinctive phrase, not the substring "retcon" (which may sit inside the slug).
   assert_file_contains "$TMP_ROOT/$name.out" "ADOPT your existing codebase"
