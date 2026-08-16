@@ -7,6 +7,12 @@
 # README from templates/repo-readme-template.md), then fill in the toolchain + test command for that
 # repo's stack. The job below FAILS on purpose until you do — an unconfigured gate that silently
 # passes is worse than none. Replace the final step with one of the examples (or your own).
+#
+# Only into a repo the method CREATES. Never into a repo REGISTERED IN PLACE: that repo has its own
+# CI, and because this file fails until configured, landing it there either replaces the workflow
+# that gates their merges or fails every build until somebody deletes it. Record what that repo
+# already runs, in the Test Strategy architecture doc, and leave its pipeline alone
+# (templates/ci/README.md §2, METHOD.md §7).
 
 name: ci
 
