@@ -46,9 +46,13 @@ copy_template() {
 }
 
 # assert_contains FILE NEEDLE MESSAGE — the generated file must state the rule.
+#
+# `--` before the needle: a needle that starts with "-" (a Markdown list item, say) is otherwise
+# read by grep as an option bundle, and grep exits non-zero on the usage error — so the assertion
+# fails no matter what the file says, and a bite check on it proves nothing.
 assert_contains() {
   local file="$1" needle="$2" message="$3"
-  grep -Fq "$needle" "$file" || {
+  grep -Fq -- "$needle" "$file" || {
     echo "FAIL: $message" >&2
     echo "       expected in $file: $needle" >&2
     return 1
@@ -60,7 +64,7 @@ assert_contains() {
 # would still pass, which is how a rule ends up stated two ways in one file.
 assert_absent() {
   local file="$1" needle="$2" message="$3"
-  if grep -Fq "$needle" "$file"; then
+  if grep -Fq -- "$needle" "$file"; then
     echo "FAIL: $message" >&2
     echo "       still present in $file: $needle" >&2
     return 1
@@ -128,6 +132,17 @@ run_case() {
     "CI README does not carry the never-install rule"
   assert_contains "$readme_tpl" "never install it — that repo has its own CI" \
     "repo README template does not carry the never-install rule"
+  # Four files send that repo's existing pipeline to the Test Strategy session to be recorded. The
+  # session had no instruction to record it and no slot in its output to record it into, so the
+  # record they promise had nowhere to land — and a Test Strategy doc listing only the repos the
+  # method created reads as though the others have no CI, which is the reverse of why they were
+  # left alone. Both halves pinned: the instruction, and the output row it writes into.
+  assert_contains "$docs/templates/architecture-sessions/12-test-strategy.md" \
+    "**A repo registered in place already has CI, and keeps it.**" \
+    "the Test Strategy session does not tell you to record an in-place repo's pipeline"
+  assert_contains "$docs/templates/architecture-sessions/12-test-strategy.md" \
+    "- **Existing pipelines** — one row per repo **registered in place**" \
+    "the Test Strategy session has no output slot for an in-place repo's pipeline"
 
   # --- The project license and the notice. The method records licensing; it never establishes it
   # for code it did not create — but where its own material lands, the notice is owed.
