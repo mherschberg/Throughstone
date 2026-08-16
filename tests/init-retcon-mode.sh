@@ -198,6 +198,29 @@ run_existing_case() {
   fi
   # The same comment must not claim every repo listed there is stamped from the README template.
   assert_file_contains "$docs/registries/repos.yml" "REGISTERED IN PLACE is listed"
+  # The created-repo example beside it says "the posture, as on the rows above", so it has to BE
+  # the posture — it carries {{PROJECT_LICENSE}}, which init.sh substitutes wherever it appears,
+  # the seed rows included. That example is what an agent copies when it registers a repo, so a
+  # literal identifier there would be copied into every row of a project that chose something
+  # else. This case builds with --license=private, which is why a literal cannot pass by
+  # coincidence: the example must read Proprietary, and MIT — the likeliest thing for someone to
+  # type into an example — must not appear anywhere in the file.
+  assert_file_contains "$docs/registries/repos.yml" "license: \"Proprietary\""
+  if grep -Fq 'license: "MIT"' "$docs/registries/repos.yml"; then
+    echo "FAIL: $name shows MIT in the repo inventory of a project that chose Proprietary" >&2
+    return 1
+  fi
+  if grep -Fq '{{PROJECT_LICENSE}}' "$docs/registries/repos.yml"; then
+    echo "FAIL: $name left the license placeholder unsubstituted in the repo inventory" >&2
+    return 1
+  fi
+  # ...while the in-place example must NOT track the posture. Its whole job is to show a repo
+  # carrying something else, so templating both examples would delete the contrast that makes the
+  # rule legible.
+  if ! grep -Fq 'license: "GPL-2.0 (COPYING)"' "$docs/registries/repos.yml"; then
+    echo "FAIL: $name lost the in-place example that differs from the project posture" >&2
+    return 1
+  fi
   # Mono-repo + adoption is a real combination this test exercises (run_existing_case runs both
   # layouts). The file's mono note says its rows are "folders inside the single repo, not separate
   # repos yet" — true of what the method creates, false of every row an adoption writes, and this

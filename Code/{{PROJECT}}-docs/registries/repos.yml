@@ -76,7 +76,7 @@ repos:
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
   #   throughstone: managed
-  #   license: "MIT"                                       # the posture, as on the rows above
+  #   license: "{{PROJECT_LICENSE}}"                       # the posture, as on the rows above
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."
   #
