@@ -169,8 +169,19 @@ run_case() {
   # section — which an in-place repo with no README gets written from.
   assert_contains "$docs/METHOD.md" "a repo **the method creates** with real internal complexity" \
     "METHOD.md §7 still tells any repo with internal complexity to add an ARCHITECTURE.md"
-  assert_contains "$docs/METHOD.md" "not as a new" \
+  assert_contains "$docs/METHOD.md" "not as a second new" \
     "METHOD.md §7 does not send an in-place repo's internal design to the docs hub instead"
+  # The template is the file an agent has open while writing a README for an in-place repo that had
+  # none, and its Overview comment called for an ARCHITECTURE.md unconditionally — so §7 said one
+  # thing and the file in front of the agent said another. Scoping §7 alone would leave the
+  # contradiction exactly where it does the damage.
+  assert_contains "$readme_tpl" "For a repo THIS METHOD CREATED with real internal complexity" \
+    "repo README template still calls for an ARCHITECTURE.md in any complex repo"
+  assert_contains "$readme_tpl" "NOT for a repo REGISTERED IN PLACE, including one whose README" \
+    "repo README template does not rule out an ARCHITECTURE.md for an in-place repo"
+  # A repo that brought its own ARCHITECTURE.md keeps it — read and link, never rewrite.
+  assert_contains "$readme_tpl" "it is theirs: read it, link it from the" \
+    "repo README template does not say an in-place repo's own ARCHITECTURE.md is left alone"
 
   # --- The README. Stamp what the method creates; augment what it registers, keyed on whether the
   # file exists. The substituted section name doubles as the placeholder check.

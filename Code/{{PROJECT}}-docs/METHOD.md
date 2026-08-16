@@ -507,10 +507,12 @@ project is actually missing. Per artifact that means:
   **no** README there is nothing to preserve, so write it from the
   template — every section but Licensing, which describes a repo the method created and is left
   out here as it is when augmenting. That is the one file; nothing else about the repo is
-  scaffolded — including the `ARCHITECTURE.md` the template's Overview comment suggests for a
-  complex repo, which is exactly the kind of repo being adopted. An in-place repo's internal design
-  is written up in the docs hub's `architecture/`, where the project's own docs live, not as a new
-  file at the root of a repository the method does not own.
+  scaffolded — in particular no `ARCHITECTURE.md`, which the template calls for in a *created*
+  repo with real internal complexity and which adopted repos, being exactly that kind of repo,
+  would otherwise attract. An in-place repo's internal design is written up in the docs hub's
+  `architecture/`, where the project's own docs live, not as a second new file at the root of a
+  repository the method does not own. Where such a repo already has an `ARCHITECTURE.md`, it is
+  its owners': read it, link it, leave it.
 - **CI — its own.** `templates/ci/code-repo-ci.yml` fails until configured, so installing it would
   replace or break whatever already gates that repo's merges. Record what it runs instead.
 - **Licensing — recorded as found.** The repo already has a licensing status: a `LICENSE`, a

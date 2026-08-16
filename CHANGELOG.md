@@ -170,10 +170,13 @@ any project built with it.
   stops. No push, no pull request, no merge, and no committing around uncommitted changes to the
   same file.
 - **`ARCHITECTURE.md` could be added to a repo the method didn't create.** §7 stated it unscoped in
-  its general repo paragraph, and the comment suggesting one sits in the repo README template's
+  its general repo paragraph, and the comment calling for one sits in the repo README template's
   Overview section — which is what an in-place repo with no README gets written from, and adopted
-  repos are exactly the ones with real internal complexity. Now scoped to repos the method creates;
-  an in-place repo's internal design goes in the docs hub's `architecture/` instead.
+  repos are exactly the ones with real internal complexity. **Both** now scope it to repos the
+  method creates: scoping §7 alone would have left the contradiction in the file an agent actually
+  has open while writing into somebody else's repository. An in-place repo's internal design goes
+  in the docs hub's `architecture/` instead, and where such a repo already has an `ARCHITECTURE.md`
+  of its own it is read and linked, never rewritten.
 - **A repo's remote and visibility had no rule, and publishing was never stated as needing a
   go-ahead.** §7 listed what the method does to a repo it did not create — README, CI, licensing,
   the Throughstone notice — and covered remotes and visibility only by the general "a repo

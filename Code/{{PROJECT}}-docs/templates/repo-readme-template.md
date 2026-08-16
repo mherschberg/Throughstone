@@ -106,10 +106,18 @@
      (link that for the full picture). This section is required — a repo without it doesn't
      explain itself.
 
-     For a repo with real internal complexity, a README paragraph isn't enough: add an
-     `ARCHITECTURE.md` at the repo root for its internal design — the main modules, key
-     flows, and *why* it's built this way (the codebase-level counterpart to the hub's
-     system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo. -->
+     For a repo THIS METHOD CREATED with real internal complexity, a README paragraph isn't
+     enough: add an `ARCHITECTURE.md` at the repo root for its internal design — the main
+     modules, key flows, and *why* it's built this way (the codebase-level counterpart to the
+     hub's system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo.
+
+     NOT for a repo REGISTERED IN PLACE, including one whose README you are writing from this
+     template because it had none. That would be a second new file at the root of somebody
+     else's repository, and adopted repos are exactly the ones with real internal complexity, so
+     this is the paragraph most likely to be read the wrong way. Their internal design is written
+     up in the docs hub's `architecture/` instead (`METHOD.md` §7). If such a repo already has an
+     `ARCHITECTURE.md` of its own, it is theirs: read it, link it from the `Role in {{PROJECT}}`
+     section if useful, and leave it alone. -->
 
 ## Licensing
 
