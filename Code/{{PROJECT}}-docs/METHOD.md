@@ -535,6 +535,19 @@ deliberately by them — never a side effect of adding the method to it. So
 `scripts/apply-project-license.sh` is run **only on a repo the method creates**; it refuses a
 target that already states its own licensing.
 
+**When the rules above don't settle it, ask.** They cover the cases the method has met: a repo it
+creates, and one registered in place that has a README, has none, or whose owners decline the
+addition. A real project produces ones they don't obviously reach — a repo the method created that
+another team has since taken over, a README that is half boilerplate, a repo whose own files
+disagree about its license, a notice `scripts/apply-project-license.sh --notice-only` refuses to
+place after the README text has already landed. Where it is genuinely unclear which side of the
+created / registered-in-place line a repo sits on, or what a rule above means for it, **stop and
+ask, and write nothing into that repo until you have an answer**. Not writing is recoverable;
+writing into a repo the method did not create is the failure this section exists to prevent, and
+the question costs one message. This is a fallback for a case the rules don't reach — not an
+alternative to reading them where they do settle it, and not a reason to leave a gap in them
+unfixed once one is found.
+
 **Where a repo lives — created as a sibling, or registered in place.** By default a repo is
 **created as a `Code/*` sibling** under the workspace root, and its `registries/repos.yml`
 `location:` is that workspace-relative sibling path — the layout `init.sh` and the scaffolding

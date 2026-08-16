@@ -9,6 +9,14 @@
 #     generated repo's history, then fail partway through);
 #   - running init on top of an unrelated repo.
 # Both must be refused BEFORE the destructive boundary, leaving any existing history intact.
+#
+# The second footgun needs more than one question asked of git, because a repository holds work in
+# more than one store, and each of these cases is invisible to the check that catches the others:
+#   1. committed history under HEAD       (cases 3, 4, 6)
+#   2. commits on refs HEAD is not on     (case 7 — `git checkout --orphan`, HEAD unborn)
+#   3. work staged but never committed    (case 8 — no HEAD, no refs)
+# Each has a matching must-PROCEED case, because a guard that over-fires is its own outage:
+# 5 (committed template), 5b (git init + empty origin), 6b (template staged, not committed).
 
 set -euo pipefail
 export LC_ALL=C
@@ -156,5 +164,70 @@ if init_once "$shadowed" --mode=existing --layout=mono --registries=yes >"$TMP_R
 fi
 [ "$(git -C "$shadowed" rev-parse HEAD)" = "$shadowed_commit" ] \
   || { echo "FAIL: init.sh destroyed history in the shadowed-AGENTS.md case" >&2; exit 1; }
+
+# --- 6b. The template staged but not yet committed still initializes. -------------------------
+# Signal 3 below reads the index, so it has to tell "their work is staged" from "the template is
+# staged". Someone who runs `git init` and `git add -A` before initializing is in the second case
+# and must not be refused. Without this, signal 3 could be written as "anything staged" and would
+# break a flow a step short of case 5.
+staged_template="$TMP_ROOT/staged-template"
+copy_template "$staged_template"
+( cd "$staged_template" && git init -q && git add -A )
+init_once "$staged_template" --layout=multi --registries=yes >"$TMP_ROOT/staged-template.out" 2>&1 \
+  || { echo "FAIL: guard blocked a template staged but not yet committed" >&2; cat "$TMP_ROOT/staged-template.out" >&2; exit 1; }
+[ -d "$staged_template/Code/acme-docs" ] || { echo "FAIL: staged-template flow did not initialize" >&2; exit 1; }
+
+# --- 7. An orphan branch over a live repo is refused. -----------------------------------------
+# The hole the HEAD-only guard left. `git checkout --orphan` leaves HEAD unborn while every commit
+# stays on the branch it was made on, so "does HEAD resolve" answers no and the repository reads as
+# empty — and step 3 then deletes .git and all of it. Nothing about this case is visible through
+# HEAD; it is visible through refs, which is why the guard asks more than one question.
+orphaned="$TMP_ROOT/orphaned"
+mkdir -p "$orphaned"
+( cd "$orphaned" && git init -q && printf 'years of work\n' > src.txt && git add -A \
+    && git -c user.name=t -c user.email=t@e commit -qm "existing codebase" )
+orphaned_commit="$(git -C "$orphaned" rev-parse HEAD)"
+( cd "$orphaned" && git checkout -q --orphan throughstone && git rm -rq --cached . && rm -f src.txt )
+git -C "$orphaned" rev-parse --verify HEAD >/dev/null 2>&1 \
+  && { echo "FAIL: test setup wrong — HEAD still resolves, so this is not the orphan case" >&2; exit 1; }
+copy_template "$orphaned"
+if init_once "$orphaned" --layout=mono --registries=yes >"$TMP_ROOT/orphaned.out" 2>&1; then
+  echo "FAIL: init.sh ran on an orphan branch inside a repo that still holds commits" >&2
+  cat "$TMP_ROOT/orphaned.out" >&2
+  exit 1
+fi
+[ -d "$orphaned/.git" ] || { echo "FAIL: init.sh deleted .git in the orphan-branch case" >&2; exit 1; }
+[ "$(git -C "$orphaned" rev-list --all --count)" = "1" ] \
+  || { echo "FAIL: init.sh destroyed commits in the orphan-branch case" >&2; exit 1; }
+# Branch-name agnostic: init.defaultBranch varies by host, so assert that some ref still points at
+# the original commit rather than naming main or master.
+git -C "$orphaned" for-each-ref --format='%(objectname)' | grep -qFx "$orphaned_commit" \
+  || { echo "FAIL: the orphan-branch case lost the branch holding its history" >&2; exit 1; }
+
+# --- 8. Work that exists only in the index is refused. ----------------------------------------
+# A repo whose owner ran `git init` and `git add` but has not committed yet has no HEAD and no refs,
+# so signals 1 and 2 both say nothing. The work is real and unrecoverable once .git goes.
+staged_only="$TMP_ROOT/staged-only"
+mkdir -p "$staged_only"
+( cd "$staged_only" && git init -q && printf 'not committed yet\n' > src.txt && git add -A )
+copy_template "$staged_only"
+if init_once "$staged_only" --layout=mono --registries=yes >"$TMP_ROOT/staged-only.out" 2>&1; then
+  echo "FAIL: init.sh ran on top of staged, uncommitted work" >&2
+  cat "$TMP_ROOT/staged-only.out" >&2
+  exit 1
+fi
+[ -d "$staged_only/.git" ] || { echo "FAIL: init.sh deleted .git in the staged-only case" >&2; exit 1; }
+git -C "$staged_only" ls-files --error-unmatch src.txt >/dev/null 2>&1 \
+  || { echo "FAIL: init.sh dropped staged work before refusing" >&2; exit 1; }
+grep -Fxq "not committed yet" "$staged_only/src.txt" \
+  || { echo "FAIL: init.sh disturbed the staged file's content" >&2; exit 1; }
+
+# --- 9. Every refusal names which check fired. -------------------------------------------------
+# Three signals with one message is a support problem: the user cannot tell whether they hit a
+# stale branch, a stray index, or the wrong folder entirely.
+for out in extracted orphaned staged-only; do
+  grep -Fq "Refusing because" "$TMP_ROOT/$out.out" \
+    || { echo "FAIL: the $out refusal did not say which check fired" >&2; cat "$TMP_ROOT/$out.out" >&2; exit 1; }
+done
 
 echo "init.sh fresh-template guard: PASS"

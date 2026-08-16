@@ -164,6 +164,21 @@ error/corruption and re-run paths, not normal operation.
   reading a session file now finds the work list under one name instead of learning a per-file name.
   `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
   maintainer test enforces it.
+- **Where the create-vs-registered-in-place rules don't settle a case, the answer is now to ask
+  rather than to improvise.** Everything the method does to a repo — stamp or augment its README,
+  install CI or leave its pipeline alone, apply the project license or record what it already
+  says, place the Throughstone notice or owe nothing — splits on whether the method created that
+  repo. Those rules enumerate the cases the method has met, and a real project produces ones they
+  don't reach: a repo the method created that another team has since taken over, a README that is
+  half boilerplate, a repo whose own files disagree about its license, a notice
+  `--notice-only` refuses to place after the README text has already landed. `METHOD.md` §7 and
+  the repo README template now close with the same fallback — where it is genuinely unclear which
+  side of that line a repo sits on, or what a rule means for it, **ask, and write nothing into
+  that repo until there is an answer**. Not writing is recoverable; writing into a repo the method
+  did not create is the failure those rules exist to prevent. It is stated as a fallback for cases
+  the rules don't reach, explicitly not as a substitute for following them where they do or for
+  fixing a gap once one is found. No effect on a repo the method creates, which is settled and
+  unchanged.
 
 ### Fixed
 - **`init.sh` would destroy an existing repository it was run inside.** Extract the download into
@@ -193,9 +208,15 @@ error/corruption and re-run paths, not normal operation.
   `scripts/apply-project-license.sh` refuses, arriving by the one path that never calls it.
   `init.sh` now refuses before removing anything, in two cases: a checkout that is not a fresh
   template (the root pointers' sentinel is gone, so this is an already-initialized project), and a
-  directory whose Git history is not the template's own. A template in a plain folder, a cloned or
-  committed template, and the mono-repo empty-origin reuse flow (`git init` plus a remote, nothing
-  committed yet) all initialize exactly as before.
+  directory that already holds work of its own. That second case asks three questions rather than
+  one, because a repository keeps work in more than one place and each of these is invisible to the
+  check that catches the others: commits under `HEAD`; commits on branches or tags `HEAD` is not
+  currently on (`git checkout --orphan` leaves `HEAD` unborn while every earlier commit stays on
+  its branch, so a HEAD-only check reads a live repository as empty); and files staged but never
+  committed. Any one of them refuses. A template in a plain folder, a cloned or committed template,
+  a template staged but not yet committed, and the mono-repo empty-origin reuse flow (`git init`
+  plus a remote, nothing committed yet) all initialize exactly as before, and each refusal now says
+  which check fired.
 - **Declining `registries/` left the docs hub with a broken link on its first run.** A mono-repo
   project can answer no to the repo inventory, and `init.sh` removed the directory — but the docs
   hub `README.md` indexes every directory it ships, and its `registries/` row stayed. So the
@@ -205,6 +226,17 @@ error/corruption and re-run paths, not normal operation.
   lives, which is a promise a project without an inventory cannot keep. `METHOD.md` §7, the repo
   README template, and the check-in's README sweep now lead with the architecture doc and treat the
   row as conditional on the project keeping one.
+- **The check-in's README sweep had no case for the README the method writes into a repo it did
+  not create.** Where a repo **registered in place** has no README, the method writes one from the
+  full template — that is the settled rule. The sweep in `runbooks/check-in.md` knew only two
+  kinds: a repo the method created (check its Overview) and one registered in place, which "owns
+  its own README" (check its `Role in <project>` section). A written-from-template README is
+  neither. It has no `Role in <project>` heading — that section exists only on the augment path —
+  so the sweep either reported its absence as a gap, proposing a second write into a repo the
+  method didn't create, or filed the file under "declined" and stopped checking the one README
+  there the method is answerable for. The sweep now branches on the same thing the writing rule
+  branches on — whether a README was already there — and checks a written-from-template one the
+  way a created repo's is checked. A declined addition is still not a gap to close.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
 - **Lifting a document into `architecture/` could fail the check that guards it.**

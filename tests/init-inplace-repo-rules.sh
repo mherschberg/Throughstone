@@ -90,6 +90,7 @@ run_case() {
   local ci_workflow="$docs/templates/ci/code-repo-ci.yml"
   local ci_readme="$docs/templates/ci/README.md"
   local repos="$docs/registries/repos.yml"
+  local check_in="$docs/runbooks/check-in.md"
 
   # --- The README. Stamp what the method creates; augment what it registers, keyed on whether the
   # file exists. The substituted section name doubles as the placeholder check.
@@ -106,6 +107,18 @@ run_case() {
     "METHOD.md §7 does not drop Licensing when writing a missing README"
   assert_absent "$docs/METHOD.md" "the full template — that creates the one file" \
     "METHOD.md §7 still orders the full template for a repo the method did not create"
+  # The check-in reads that rule back months later, so it needs the same two branches. A sweep that
+  # knows only "augmented" looks for a Role section the write-from-template path never produces,
+  # and either reports its absence as a gap — writing into the repo a second time — or files the
+  # file under "declined" and stops checking the one README there the method is answerable for.
+  assert_contains "$check_in" "check only that the \`Role in $name\` section" \
+    "check-in README sweep does not scope the Role-section check to an augmented repo"
+  assert_contains "$check_in" "**One that had none** carries a README the method" \
+    "check-in README sweep has no branch for a README the method wrote for an in-place repo"
+  assert_contains "$check_in" "**Overview** the same way, and still scaffold nothing else there" \
+    "check-in README sweep does not check that written README the way a created repo's is checked"
+  assert_absent "$check_in" "A repo **registered in place** owns its own README" \
+    "check-in README sweep still says every in-place repo owns its own README"
 
   # --- CI. The gate fails until configured, so there is no safe way to land it in a running repo.
   # The rule belongs on the artifact being copied, not only in the files that point at it.
@@ -131,8 +144,25 @@ run_case() {
   assert_absent "$repos" "as the architecture names them and they" \
     "repo inventory comment still says every repo listed here is stamped"
 
+  # --- The fallback. Every rule above enumerates cases, and three rounds of review each turned up
+  # one nobody had enumerated. What an agent does with the next such case is the thing worth
+  # pinning: ask, and write nothing meanwhile. It has to ship in the file being read at the moment
+  # of the write, not only in the file that defines it.
+  assert_contains "$docs/METHOD.md" "**When the rules above don't settle it, ask.**" \
+    "METHOD.md §7 has no fallback for a case the create-vs-in-place rules do not reach"
+  assert_contains "$docs/METHOD.md" \
+    "ask, and write nothing into that repo until you have an answer" \
+    "METHOD.md §7's fallback does not say to hold off writing while asking"
+  assert_contains "$readme_tpl" \
+    "ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER" \
+    "repo README template does not carry the ask-when-unclear fallback"
+  # The fallback must not read as permission to stop maintaining the rules themselves — that is how
+  # a catch-all turns into a reason to leave the next gap unfixed.
+  assert_contains "$docs/METHOD.md" "not a reason to leave a gap in them" \
+    "METHOD.md §7's fallback does not rule itself out as a substitute for fixing the rules"
+
   # Nothing above may pass on an unsubstituted template.
-  ! grep -R '{{PROJECT}}' "$readme_tpl" "$ci_workflow" "$ci_readme" "$repos" >/dev/null || {
+  ! grep -R '{{PROJECT}}' "$readme_tpl" "$ci_workflow" "$ci_readme" "$repos" "$check_in" >/dev/null || {
     echo "FAIL: generated files still carry the {{PROJECT}} placeholder" >&2
     return 1
   }
