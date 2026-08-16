@@ -720,6 +720,46 @@ run_private_case \
   bash -c \
   "printf '2\n' | ./init.sh --slug=license-private --desc='License validation test' --layout=multi --collab=solo --remotes=no"
 
+# Pressing Enter past the project-type question must land on proprietary, never on an
+# open-source posture. Publishing someone's code under a license they never chose is not
+# recoverable by editing a file afterwards, while a project that starts proprietary can be
+# opened by its owner whenever they decide to. That makes the DEFAULT itself the thing under
+# test, so this case asserts it directly and says what broke — the shared helper's bare
+# assertions would fail this silently, which is no use to whoever reverts the default by
+# accident later.
+private_default_work="$TMP_ROOT/license-private-default"
+copy_template "$private_default_work"
+(
+  cd "$private_default_work"
+  printf '\n' | ./init.sh \
+    --slug=license-private-default \
+    --desc="License validation test" \
+    --layout=multi --collab=solo --remotes=no
+) >"$TMP_ROOT/license-private-default.out" 2>&1 || {
+  echo "FAIL: accepting the default project type did not complete a bootstrap" >&2
+  tail -5 "$TMP_ROOT/license-private-default.out" >&2
+  exit 1
+}
+private_default_posture="$private_default_work/Code/license-private-default-docs/.throughstone/project-license"
+[ -f "$private_default_posture" ] || {
+  echo "FAIL: accepting the default project type wrote no license posture at all" >&2
+  exit 1
+}
+[ "$(cat "$private_default_posture")" = "Proprietary" ] || {
+  echo "FAIL: pressing Enter at the project-type question chose '$(cat "$private_default_posture")'," >&2
+  echo "      not Proprietary — the default must never grant an open-source license" >&2
+  exit 1
+}
+for unexpected in \
+  "$private_default_work/Code/license-private-default-docs/LICENSE" \
+  "$private_default_work/prompts/LICENSE"; do
+  [ ! -e "$unexpected" ] || {
+    echo "FAIL: the default project type created a project LICENSE at $unexpected" >&2
+    exit 1
+  }
+done
+assert_maintainer_tests_removed "license-private-default" "$private_default_work"
+
 run_private_case \
   "license-private-flag" \
   ./init.sh \

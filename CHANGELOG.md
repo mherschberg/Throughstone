@@ -41,6 +41,16 @@ any project built with it.
   fixing a gap once one is found. No effect on a repo the method creates, which is settled and
   unchanged.
 
+- **The interactive project-type question now defaults to private / proprietary.** It defaulted to
+  open source, so pressing Enter past it — and Enter again at the license menu, which pre-selects
+  the first entry — stood a project up under MIT without the user ever naming a license. That is
+  the wrong direction for a default to fail in: publishing code under a license nobody chose is not
+  undone by editing a file afterwards, while a project that starts proprietary can be opened by its
+  owner whenever they decide to. An open-source posture is now reached only by typing `1`, which
+  matches what `--non-interactive` already required (an explicit `--license`, no default) and the
+  private default already used for repository visibility. Nothing else changes: both answers behave
+  exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
+
 ### Fixed
 - **`init.sh` would destroy an existing repository it was run inside, and had no guard at all.**
   Extract the download into your own repo and run it there — a natural thing to do, and more so
