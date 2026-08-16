@@ -82,4 +82,79 @@ fi
   || { echo "FAIL: init.sh damaged an unrelated repo before refusing" >&2; exit 1; }
 [ -f "$unrelated/keep.txt" ] || { echo "FAIL: init.sh removed unrelated files before refusing" >&2; exit 1; }
 
+# --- 4. The WHOLE template extracted into an existing repo is refused. ------------------------
+# Case 3 drops init.sh alone, so there is no AGENTS.md and the sentinel check catches it. The
+# mistake people actually make is extracting the whole download into their repo — and then the
+# sentinel is present, says "fresh", and the destructive step removes THEIR .git. Adoption makes
+# this the likely error rather than an exotic one: --mode=existing is aimed at exactly the people
+# who have a repository to run it inside. Mono layout is the worst shape (it re-inits and writes a
+# project LICENSE plus a LICENSING.md asserting it over their code), so test that one.
+extracted="$TMP_ROOT/extracted"
+mkdir -p "$extracted"
+( cd "$extracted" && git init -q && printf 'GPLv2 terms\n' > COPYING && printf 'ours\n' > src.txt \
+    && git add -A && git -c user.name=t -c user.email=t@e commit -qm "existing codebase" )
+extracted_commit="$(git -C "$extracted" rev-parse HEAD)"
+copy_template "$extracted"          # the download, unpacked on top of their repo
+if init_once "$extracted" --mode=existing --layout=mono --registries=yes >"$TMP_ROOT/extracted.out" 2>&1; then
+  echo "FAIL: init.sh ran inside an existing repo with the template extracted into it" >&2
+  cat "$TMP_ROOT/extracted.out" >&2
+  exit 1
+fi
+grep -Fq "sitting inside an existing Git repository" "$TMP_ROOT/extracted.out" \
+  || { echo "FAIL: refusal did not name the reason" >&2; cat "$TMP_ROOT/extracted.out" >&2; exit 1; }
+[ "$(git -C "$extracted" rev-parse HEAD)" = "$extracted_commit" ] \
+  || { echo "FAIL: init.sh destroyed the existing repo's history before refusing" >&2; exit 1; }
+# Nothing written. Assert on paths only init creates — Code/ and prompts/ ship with the template,
+# so the extraction alone leaves them and testing those would pass no matter what init did.
+for must_be_absent in LICENSING.md .throughstone Code/acme-docs; do
+  [ ! -e "$extracted/$must_be_absent" ] \
+    || { echo "FAIL: init.sh wrote $must_be_absent into an existing repo before refusing" >&2; exit 1; }
+done
+[ -d "$extracted/Code/{{PROJECT}}-docs" ] \
+  || { echo "FAIL: init.sh renamed the template docs hub before refusing" >&2; exit 1; }
+grep -Fxq "GPLv2 terms" "$extracted/COPYING" \
+  || { echo "FAIL: init.sh disturbed the existing repo's own licensing file" >&2; exit 1; }
+
+# --- 5. A template that is its own checkout still initializes (the guard must not over-fire). --
+# Clone or download, the template may itself be a work tree. What separates it from case 4 is the
+# INDEX: its own AGENTS.md is tracked, sentinel and all. Without this case the fix in 4 could be
+# written as "refuse inside any work tree", which would break every cloned template.
+checkout="$TMP_ROOT/checkout"
+copy_template "$checkout"
+( cd "$checkout" && git init -q && git add -A \
+    && git -c user.name=t -c user.email=t@e commit -qm "throughstone template" )
+init_once "$checkout" --mode=existing --layout=multi --registries=yes >"$TMP_ROOT/checkout.out" 2>&1 \
+  || { echo "FAIL: guard blocked a template that is its own git checkout" >&2; cat "$TMP_ROOT/checkout.out" >&2; exit 1; }
+[ -d "$checkout/Code/acme-docs" ] || { echo "FAIL: template checkout did not initialize" >&2; exit 1; }
+
+# --- 5b. `git init` + an empty origin, nothing committed, still initializes. ------------------
+# The mono-repo origin-reuse flow (section 4 of init.sh): the user creates an empty repo on their
+# host, runs `git init` in the template folder and points origin at it, then initializes. That is a
+# work tree with no commits and an untracked AGENTS.md — indistinguishable from case 4 by tracking,
+# and completely different by history. Guarding on "is AGENTS.md tracked" breaks this flow; guarding
+# on HEAD does not, which is why the guard reads HEAD.
+empty_origin="$TMP_ROOT/empty-origin"
+copy_template "$empty_origin"
+( cd "$empty_origin" && git init -q && git remote add origin "$TMP_ROOT/empty-origin.git" )
+git init --bare -q "$TMP_ROOT/empty-origin.git"
+init_once "$empty_origin" --mode=new --layout=mono --registries=yes >"$TMP_ROOT/empty-origin.out" 2>&1 \
+  || { echo "FAIL: guard blocked the empty-root-origin reuse flow" >&2; cat "$TMP_ROOT/empty-origin.out" >&2; exit 1; }
+[ -d "$empty_origin/Code/acme-docs" ] || { echo "FAIL: empty-origin flow did not initialize" >&2; exit 1; }
+
+# --- 6. A repo that tracks an AGENTS.md of its own is still refused. --------------------------
+# The sentinel must be read from the index, not the working file the extraction just overwrote.
+# Testing the working file would pass here and delete their history.
+shadowed="$TMP_ROOT/shadowed"
+mkdir -p "$shadowed"
+( cd "$shadowed" && git init -q && printf 'our own agent notes\n' > AGENTS.md \
+    && git add -A && git -c user.name=t -c user.email=t@e commit -qm "existing codebase" )
+shadowed_commit="$(git -C "$shadowed" rev-parse HEAD)"
+copy_template "$shadowed"
+if init_once "$shadowed" --mode=existing --layout=mono --registries=yes >"$TMP_ROOT/shadowed.out" 2>&1; then
+  echo "FAIL: init.sh ran inside a repo carrying its own tracked AGENTS.md" >&2
+  exit 1
+fi
+[ "$(git -C "$shadowed" rev-parse HEAD)" = "$shadowed_commit" ] \
+  || { echo "FAIL: init.sh destroyed history in the shadowed-AGENTS.md case" >&2; exit 1; }
+
 echo "init.sh fresh-template guard: PASS"

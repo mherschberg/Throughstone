@@ -14,7 +14,10 @@
 # keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
 #
 # Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
-# yet — this inventory describes the post-split (multi-repo) target.
+# yet — this inventory describes the post-split (multi-repo) target. That applies to the rows the
+# method creates. A row for a repo REGISTERED IN PLACE is not one of them: that repo already exists
+# as its own repo, at its own `location`, and stays there — it is not a folder in this one and not
+# waiting on a split. A mono-repo project that adopts an existing codebase holds both kinds at once.
 #
 # Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
 # it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
@@ -60,13 +63,27 @@ repos:
     license: "{{PROJECT_LICENSE}}"
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
-  # Service / app / library repos get added here as the architecture names them and they
-  # are stamped from templates/repo-readme-template.md. Give each new repo `throughstone: managed`
-  # and a `license:` like the rows above. Example:
+  # Service / app / library repos get added here as the architecture names them. A repo the method
+  # CREATES is stamped from templates/repo-readme-template.md; a repo REGISTERED IN PLACE is listed
+  # here like any other but scaffolded in none of these ways — see METHOD.md §7. Give every repo
+  # `throughstone: managed`. `license:` is the one field that differs by which kind it is: a repo
+  # the method creates takes the project posture, like the rows above; a repo registered in place
+  # takes whatever that repo itself already says, copied as found — never the posture, and never a
+  # value you picked for it. One example of each:
+  #
+  # Created by the method — a Code/* sibling, carrying the project posture:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
   #   throughstone: managed
-  #   license: "MIT"
+  #   license: "MIT"                                       # the posture, as on the rows above
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
+  #   description: "..."
+  #
+  # Registered in place — its real location, and its own licensing recorded as found:
+  # - name: "legacy-billing"
+  #   location: "/srv/src/legacy-billing/"
+  #   type: service
+  #   throughstone: managed
+  #   license: "GPL-2.0 (COPYING)"                         # what THAT repo says; `none stated` if nothing
   #   description: "..."
