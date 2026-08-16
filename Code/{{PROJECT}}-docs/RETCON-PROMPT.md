@@ -170,8 +170,31 @@ Inventory is frozen — never rewritten** (an asset discovered later is a record
 edit). The per-asset **detail is not frozen** — it deepens later in the living docs (repo READMEs,
 `architecture/`), and some exploration is deliberately deferred for weeks or months via the depth dial
 (`Coverage: deferred` → `risks.yml` → the check-in backfill). If the user can't yet confirm an area,
-mark it bounded/deferred in Coverage & Confidence rather than guessing it into fact. Once the map is
-confirmed and frozen, mark `inv-4` **Done**.
+mark it bounded/deferred in Coverage & Confidence rather than guessing it into fact.
+
+**Answer the project-license question here.** `init.sh --mode=existing` left it open on purpose:
+at install time nobody had read the codebase, so the question had nothing to answer it from, and
+`.throughstone/project-license` holds `Unset`. Now it does — **Stack Per Repo** has each adopted
+repo's licensing as found, and the user is already reading the map. So ask once, with that in
+front of them: *what licenses this documentation hub and anything the method creates later?*
+Offer what the repos say as the default — if they agree on one license, propose it; if they carry
+several, or none states anything, say so and ask. Be explicit that the answer covers **this
+method's own material and nothing else**: it is not applied to the adopted repos, which keep the
+licensing their owners set. Then run it in once:
+
+```
+Code/{{PROJECT}}-docs/scripts/set-project-license.sh <mit|bsd-3|apache-2.0|private> [--holder "<name>"]
+```
+
+That writes the posture, the docs hub's canonical `LICENSE` for an open-source answer, and the
+`LICENSING.md` and inventory rows for the repos `init.sh` created — the files it left saying the
+license had not been chosen yet. Commit the result in each repo it touched. It answers the
+question once and refuses to change an answer already given; if the user supplied `--license` at
+install time there is nothing open, and the helper will say so. If the user would rather decide
+later, that is a fine answer too — the posture stays `Unset`, and nothing needs it until the
+project creates its first repo, which is where `apply-project-license.sh` will ask for it.
+
+Once the map is confirmed and frozen, mark `inv-4` **Done**.
 
 ### `inv-5` — Upgrade this PLAN by addition
 The confirmed map now fixes both the asset list and which sessions apply. Edit

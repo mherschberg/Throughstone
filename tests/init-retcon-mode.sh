@@ -289,37 +289,57 @@ run_existing_env_case() {
     || { echo "FAIL: $name (env) did not seed the stub PLAN" >&2; return 1; }
 }
 
-# run_license_scope_note_case — the interactive license/holder questions say what they cover when
-# adopting an existing codebase, and say nothing extra when starting from scratch. Without the
-# note the questions read as "what is your code licensed under?", which is not what they set:
-# a user answering about their existing repos would be choosing the docs hub's license instead.
-run_license_scope_note_case() {
-  local name="retcon-license-note" green="green-license-note"
+# run_deferred_license_case — adoption does not ask the license question at install time, and
+# greenfield still does. Asked here it would arrive before anybody has read the codebase, with
+# nothing to answer it from, and it reads as "what is your code licensed under?" — which is not
+# what it sets. Adoption leaves the posture Unset and the recon-map checkpoint asks it instead.
+run_deferred_license_case() {
+  local name="retcon-license-deferred" green="green-license-question"
   local work="$TMP_ROOT/$name" green_work="$TMP_ROOT/$green"
-  local note="NOT the code you're adopting"
+  local question="Is this project open source"
 
-  # Answers, in order: mode=existing, open source, MIT, copyright holder.
+  # The only answer offered is the mode. Reaching the end without a license prompt is the point:
+  # a stray prompt would consume no input and the run would fail or hang instead of completing.
   copy_template "$work"
   (
     cd "$work"
-    printf '2\n1\n1\nThroughstone Test\n' | ./init.sh \
+    printf '2\n' | ./init.sh \
       --slug="$name" \
-      --desc="Adoption license scope note" \
+      --desc="Adoption defers the license question" \
       --layout=multi \
       --collab=solo \
       --remotes=no
   ) >"$TMP_ROOT/$name.out" 2>&1
 
-  assert_file_contains "$TMP_ROOT/$name.out" "$note"
-  # The note must precede the questions it scopes — after the fact it explains nothing.
-  [ "$(grep -n "$note" "$TMP_ROOT/$name.out" | head -1 | cut -d: -f1)" \
-    -lt "$(grep -n "Is this project open source" "$TMP_ROOT/$name.out" | head -1 | cut -d: -f1)" ] || {
-    echo "FAIL: $name printed the scope note after the license question" >&2
+  if grep -Fq "$question" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name asked the license question before reading the codebase" >&2
+    return 1
+  fi
+  assert_file_contains "$TMP_ROOT/$name.out" "asked later, once the agent has read your repos"
+
+  # Unset is a real value, not an empty file: helpers must tell "not chosen yet" from truncated.
+  local posture="$work/Code/$name-docs/.throughstone/project-license"
+  grep -Fxq "Unset" "$posture" || {
+    echo "FAIL: $name did not leave the posture Unset: $(cat "$posture" 2>&1)" >&2
     return 1
   }
+  # No license is chosen, so none is rendered — and the placeholder summary says so rather than
+  # leaving a reader to infer a posture nobody selected.
+  if [ -e "$work/Code/$name-docs/LICENSE" ]; then
+    echo "FAIL: $name wrote a project LICENSE with no license chosen" >&2
+    return 1
+  fi
+  assert_file_contains "$work/Code/$name-docs/LICENSING.md" "has not chosen its license yet"
+  assert_file_contains "$work/Code/$name-docs/registries/repos.yml" 'license: "Unset"'
   assert_file_contains "$work/Code/$name-docs/overview.md" "PROJECT-STATUS: retcon"
 
-  # Greenfield creates every repo it licenses, so there is nothing to scope and no note.
+  # The checkpoint that asks the question must name the helper that answers it.
+  assert_file_contains "$work/Code/$name-docs/RETCON-PROMPT.md" \
+    "Answer the project-license question here"
+  assert_file_contains "$work/Code/$name-docs/RETCON-PROMPT.md" \
+    "scripts/set-project-license.sh"
+
+  # Greenfield creates every repo it licenses and has nothing to read first, so it still asks.
   copy_template "$green_work"
   (
     cd "$green_work"
@@ -331,11 +351,109 @@ run_license_scope_note_case() {
       --remotes=no
   ) >"$TMP_ROOT/$green.out" 2>&1
 
-  if grep -Fq "$note" "$TMP_ROOT/$green.out"; then
-    echo "FAIL: $green printed the adoption license-scope note" >&2
+  assert_file_contains "$TMP_ROOT/$green.out" "$question"
+  grep -Fxq "MIT" "$green_work/Code/$green-docs/.throughstone/project-license" || {
+    echo "FAIL: $green did not record the license chosen at install time" >&2
+    return 1
+  }
+  assert_file_contains "$green_work/Code/$green-docs/overview.md" "PROJECT-STATUS: not-started"
+}
+
+# run_set_project_license_case — the helper the checkpoint runs. It answers the question once:
+# it renders the license, settles every file init.sh left deferred, and refuses to change an
+# answer already given (relicensing is a deliberate act across repos already stamped, not a
+# flag flip). apply-project-license.sh must also refuse to stamp a repo before the answer exists.
+run_set_project_license_case() {
+  local name="retcon-license-set"
+  local work="$TMP_ROOT/$name" docs
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --mode=existing \
+      --slug="$name" \
+      --desc="Answering the deferred license question" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  docs="$work/Code/$name-docs"
+
+  # A repo created before the question is answered has no posture to inherit. The refusal must
+  # name the unanswered question, not read as a corrupt file.
+  mkdir -p "$work/early-repo"
+  if "$docs/scripts/apply-project-license.sh" "$work/early-repo" >"$TMP_ROOT/$name.early" 2>&1; then
+    echo "FAIL: $name stamped a repo before the project chose a license" >&2
     return 1
   fi
-  assert_file_contains "$green_work/Code/$green-docs/overview.md" "PROJECT-STATUS: not-started"
+  assert_file_contains "$TMP_ROOT/$name.early" "has not chosen its license yet"
+  if [ -e "$work/early-repo/LICENSE" ] || [ -e "$work/early-repo/LICENSING.md" ]; then
+    echo "FAIL: $name wrote into the target it refused" >&2
+    return 1
+  fi
+
+  # An open-source answer needs a holder for the copyright line; without one nothing is written.
+  if "$docs/scripts/set-project-license.sh" mit >"$TMP_ROOT/$name.noholder" 2>&1; then
+    echo "FAIL: $name rendered an open-source license with no copyright holder" >&2
+    return 1
+  fi
+  grep -Fxq "Unset" "$docs/.throughstone/project-license" || {
+    echo "FAIL: $name changed the posture on a rejected answer" >&2
+    return 1
+  }
+
+  "$docs/scripts/set-project-license.sh" mit --holder "Acme Corp" >"$TMP_ROOT/$name.set" 2>&1 || {
+    echo "FAIL: $name could not answer the deferred license question" >&2
+    return 1
+  }
+  grep -Fxq "MIT" "$docs/.throughstone/project-license" || {
+    echo "FAIL: $name did not record the answer" >&2
+    return 1
+  }
+  assert_file_contains "$docs/LICENSE" "Copyright (c)"
+  assert_file_contains "$docs/LICENSE" "Acme Corp"
+  assert_file_contains "$docs/LICENSING.md" "licensed under MIT"
+  assert_file_contains "$docs/registries/repos.yml" 'license: "MIT"'
+  # Every repo init.sh created carries the same terms, byte for byte.
+  cmp -s "$docs/LICENSE" "$work/prompts/LICENSE" || {
+    echo "FAIL: $name left the generated repos under different license text" >&2
+    return 1
+  }
+  if grep -rlF 'license: "Unset"' "$docs/registries" >/dev/null 2>&1; then
+    echo "FAIL: $name left an unanswered row in the repo inventory" >&2
+    return 1
+  fi
+  if grep -Fq "has not chosen its license yet" "$docs/LICENSING.md"; then
+    echo "FAIL: $name left the deferred licensing summary in place" >&2
+    return 1
+  fi
+
+  # Re-running with the same answer is a no-op; a different one is a relicensing and is refused.
+  "$docs/scripts/set-project-license.sh" mit --holder "Acme Corp" >"$TMP_ROOT/$name.again" 2>&1 || {
+    echo "FAIL: $name failed on an idempotent re-run" >&2
+    return 1
+  }
+  if "$docs/scripts/set-project-license.sh" private >"$TMP_ROOT/$name.change" 2>&1; then
+    echo "FAIL: $name relicensed a project through the answer-once helper" >&2
+    return 1
+  fi
+  assert_file_contains "$TMP_ROOT/$name.change" "already MIT"
+  grep -Fxq "MIT" "$docs/.throughstone/project-license" || {
+    echo "FAIL: $name changed the posture on a refused relicensing" >&2
+    return 1
+  }
+
+  # With the question answered, the repo that was refused earlier stamps normally.
+  "$docs/scripts/apply-project-license.sh" "$work/early-repo" >"$TMP_ROOT/$name.late" 2>&1 || {
+    echo "FAIL: $name could not stamp a repo after the license was chosen" >&2
+    return 1
+  }
+  cmp -s "$docs/LICENSE" "$work/early-repo/LICENSE" || {
+    echo "FAIL: $name stamped different license text than the canonical copy" >&2
+    return 1
+  }
 }
 
 # run_new_case NAME EXTRA_ARGS... — greenfield must be untouched (marker, no PLAN, message).
@@ -514,7 +632,8 @@ run_missing_stub_case() {
 run_existing_case "retcon-multi" multi
 run_existing_case "retcon-mono"  mono
 run_existing_env_case
-run_license_scope_note_case
+run_deferred_license_case
+run_set_project_license_case
 run_new_case "green-explicit" --mode=new
 run_new_case "green-default"
 run_invalid_mode_case

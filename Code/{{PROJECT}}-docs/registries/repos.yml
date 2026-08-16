@@ -47,6 +47,12 @@
 # never establishes licensing for code it did not create. A missing value means "not recorded", not
 # "same as everything else", and repos legitimately carrying different licenses is a normal
 # inventory rather than an inconsistency to reconcile.
+#
+# `Unset` on a created repo's row is its own answer: a project that adopted an existing codebase
+# defers the license question until the codebase has been read, so these rows say so until the
+# recon-map checkpoint answers it and `scripts/set-project-license.sh` rewrites them. It never
+# appears on a registered-in-place row — that row records what the repo itself says, which is
+# `none stated` when the answer is nothing.
 
 repos:
   - name: "{{PROJECT}}-docs"
