@@ -60,8 +60,9 @@ already true (`METHOD.md` §7). Read the repo root — `LICENSE`, `COPYING`, `NO
 their own terms. Record what you find: an identifier and the file it came from
 (`GPL-2.0 (COPYING)`), or `none stated` when the repo says nothing, which is itself a fact worth
 recording rather than a gap to fill. Where the repo's own files disagree with each other, say so
-instead of picking a winner. Nothing here is compared against, or reconciled with, the license
-chosen at install time.
+instead of picking a winner. This column is what the project's own license question is answered
+from at `inv-4` — read it, name where the repos differ from the answer once, and reconcile
+nothing: the project's license covers the method's material, and each repo here keeps its own.
 
 | Repo | Languages | Frameworks / runtimes | Build / package manager | Licensing (as found) | Notes |
 |------|-----------|-----------------------|-------------------------|----------------------|-------|

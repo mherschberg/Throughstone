@@ -370,6 +370,35 @@ All but the last are documentation only; nothing you already produced is rewritt
   thing to check:** if you have registered an existing repo in place and ran the helper on it, look
   at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner, whether they say what you
   intend.
+- **Licensing is no longer its own rule.** `METHOD.md` §7 had grown a separate doctrine paragraph
+  for licensing — "the method records licensing; it never establishes licensing for code it did not
+  create" — sitting alongside separate rules for the README, for CI, and for the Throughstone
+  notice. They were always the same rule applied to four artifacts: **a repo the method did not
+  create keeps what it already has.** §7 now states that once, with the four as consequences under
+  it and one gate covering all of them (propose the exact text, wait for an answer). **No behavior
+  changes** — every individual rule says what it said, and the helpers are untouched. What changes
+  is that the rationale lives in one place instead of being re-derived in each, and the files that
+  cite it — `AGENTS.md`, `RETCON-PROMPT.md`, the planning session, the repo README template, and
+  `registries/repos.yml` — now quote the general rule rather than a licensing-specific one. Pull
+  those five with `METHOD.md`. **One thing to check:** nothing; if you have local edits quoting the
+  old licensing sentence, they are still true, just narrower than the rule they came from.
+- **Adoption chooses its license after reading the codebase, not at install time.**
+  `init.sh --mode=existing` used to ask the license question up front, alongside the greenfield
+  flow. At that moment nobody has read the repos yet, so the question arrives with nothing to
+  answer it from — and phrased as "is this project open source or private?" it reads as a question
+  about the code being adopted, which is not what it sets. It is now **deferred**: adoption leaves
+  `.throughstone/project-license` holding `Unset` and asks once at the recon-map checkpoint
+  (`inv-4`), where each repo's licensing has just been recorded and is in front of you. A new
+  helper answers it — `scripts/set-project-license.sh <license> [--holder NAME]` — writing the
+  posture, the canonical `LICENSE`, and the `LICENSING.md` and inventory rows that init left
+  saying the license had not been chosen. It answers once and refuses to change an answer already
+  given. `scripts/apply-project-license.sh` refuses an `Unset` posture and names the checkpoint
+  that settles it. **Greenfield is unchanged** — it creates everything it licenses and has nothing
+  to read first, so it still asks at setup. `--license=NAME` still decides at install time in
+  either mode and defers nothing; in adoption it is now optional rather than required under
+  `--non-interactive`. Pull `init.sh`, both `scripts/*-project-license.sh`, `RETCON-PROMPT.md`,
+  and `registries/repos.yml`. **One thing to check:** nothing to do for an existing project — your
+  posture is already chosen, and the helper will tell you so if you run it.
 - **`.throughstone/project-license` is described more narrowly.** The posture file was called "the
   project license" everywhere, but it only ever governed **Throughstone-authored and method-created
   material** — your docs hub, `prompts/`, and any repo the method creates. Nothing about the file

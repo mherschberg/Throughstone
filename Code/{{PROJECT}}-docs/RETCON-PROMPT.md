@@ -170,8 +170,39 @@ Inventory is frozen — never rewritten** (an asset discovered later is a record
 edit). The per-asset **detail is not frozen** — it deepens later in the living docs (repo READMEs,
 `architecture/`), and some exploration is deliberately deferred for weeks or months via the depth dial
 (`Coverage: deferred` → `risks.yml` → the check-in backfill). If the user can't yet confirm an area,
-mark it bounded/deferred in Coverage & Confidence rather than guessing it into fact. Once the map is
-confirmed and frozen, mark `inv-4` **Done**.
+mark it bounded/deferred in Coverage & Confidence rather than guessing it into fact.
+
+**Answer the project-license question here.** `init.sh --mode=existing` left it open on purpose:
+at install time nobody had read the codebase, so the question had nothing to answer it from, and
+`.throughstone/project-license` holds `Unset`. Now it does — **Stack Per Repo** has each adopted
+repo's licensing as found, and the user is already reading the map. So ask once, with that in
+front of them: *what licenses this documentation hub and anything the method creates later?*
+Offer what the repos say as the default — if they agree on one license, propose it; if they carry
+several, or none states anything, say so and ask. Be explicit that the answer covers **this
+method's own material and nothing else**: it is not applied to the adopted repos, which keep the
+licensing their owners set. Then run it in once:
+
+```
+Code/{{PROJECT}}-docs/scripts/set-project-license.sh <mit|bsd-3|apache-2.0|private> [--holder "<name>"]
+```
+
+That writes the posture, the docs hub's canonical `LICENSE` for an open-source answer, and the
+`LICENSING.md` and inventory rows for the repos `init.sh` created — the files it left saying the
+license had not been chosen yet. Commit the result in each repo it touched. It answers the
+question once and refuses to change an answer already given; if the user supplied `--license` at
+install time there is nothing open, and the helper will say so. If the user would rather decide
+later, that is a fine answer too — the posture stays `Unset`, and nothing needs it until the
+project creates its first repo, which is where `apply-project-license.sh` will ask for it.
+
+**Then say once where their own repos don't match, and stop.** This is the moment for it: the
+answer is fresh and the licensing column is on screen. Name them plainly — *"you chose MIT;
+`billing-api` is Apache-2.0 (LICENSE) and `legacy-etl` states nothing"* — and leave it there.
+Nothing is reconciled and nothing is written into those repos: the choice just made covers this
+method's material, not theirs. What comes of it is the user's call on their own code. Say it here
+so the per-repo substeps don't have to raise it eight more times; if every repo already matches,
+say nothing at all rather than reporting a clean comparison nobody asked for.
+
+Once the map is confirmed and frozen, mark `inv-4` **Done**.
 
 ### `inv-5` — Upgrade this PLAN by addition
 The confirmed map now fixes both the asset list and which sessions apply. Edit
@@ -316,8 +347,9 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   If the user declined the README addition, nothing Throughstone-authored is in the repo and
   nothing is owed — placing a notice for absent material would only confuse a later reader.
   **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
-  its owner's and the method only records it (`METHOD.md` §7: the method records licensing; it
-  never establishes licensing for code it did not create). Concretely: do **not** run
+  its owner's and the method only records it — the same rule that leaves its README augmented and
+  its CI alone (`METHOD.md` §7: a repo the method did not create keeps what it already has).
+  Concretely: do **not** run
   `scripts/apply-project-license.sh` against any of these repos — it will refuse one that states
   its own terms, and the ones it would not refuse are exactly the repos that would silently gain a
   `LICENSE` and a `LICENSING.md` claiming it over code you did not write. Recording it **is** the
@@ -325,12 +357,17 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   it at `inv-3` as part of the frozen point-in-time snapshot, and this row's `license:` field is
   the **living** copy that stays current as the repo changes. Copy it across as found — same
   identifier, same source file, `none stated` where the repo says nothing — rather than
-  re-deriving it, so the two records can't disagree from the day they are written. The license
-  chosen at install time governs this method's own artifacts — the docs hub
-  and anything it later creates — not the code being adopted, so a repo whose license differs from
-  it is **not a finding**, several adopted repos may carry several different licenses, and none of
-  that is reconciled. If the user raises relicensing, it is their act on their repo: say what you
-  observed and stop there.
+  re-deriving it, so the two records can't disagree from the day they are written.
+  **A repo whose licensing differs from the project's is recorded, not reconciled.** The project's
+  license — chosen at `inv-4` — governs this method's own artifacts, the docs hub and anything it
+  later creates. The adopted repos are not measured against it and never take it. Any divergence
+  was already named once at `inv-4`, when the user chose with the map's licensing column in front
+  of them; do not re-raise it here, repo by repo, and do not open a finding or a risk row for it.
+  Several adopted repos legitimately carrying several different licenses is a normal inventory,
+  and a repo with no `LICENSE` at all is the ordinary state of private code, not a gap. Write the
+  row and move on. If the user asks for a repo's licensing to be changed, that is their act on
+  their repo: propose the exact file and wait for a yes, the same as any other write into a repo
+  this method did not create.
 - **Per doc-set** — copy the found source docs into `inputs/` and add each one's
   `inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle (point-in-time; the code
   wins on conflict). Their

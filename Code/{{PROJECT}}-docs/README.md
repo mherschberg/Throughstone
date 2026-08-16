@@ -32,13 +32,14 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`) and accepted risk / tech-debt index (`risks.yml`) (indexed). |
 | [`reports/`](reports/README.md) | Durable review and operational reports, including check-in, incident, security review, and test-result reports. |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
-| [`scripts/`](scripts/) | Setup and doctor helpers — status, structural checks, stale-link checks, workspace setup, and project-license propagation. |
+| [`scripts/`](scripts/) | Setup and doctor helpers — status, structural checks, stale-link checks, workspace setup, and choosing and propagating the project license. |
 
 > Built with **Throughstone**. The scaffold files (`METHOD.md`, `templates/`, `runbooks/`,
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
 > `LICENSE-THROUGHSTONE`. Your application code and project docs are yours. What this project
-> creates is under the open-source license you chose at setup or kept private/proprietary; a repo
-> that existed beforehand keeps the licensing its owner set. For open-source projects,
+> creates is under the open-source license you chose or kept private/proprietary — chosen at setup,
+> or at the recon-map checkpoint for a project that adopted an existing codebase and read its repos
+> first. A repo that existed beforehand keeps the licensing its owner set. For open-source projects,
 > this repo's `LICENSE` is the canonical project-license file copied unchanged into each
 > application-code repo when it is created. `.throughstone/project-license` records the durable
 > selection independently, and the repo-scaffolding helper validates the two before copying.

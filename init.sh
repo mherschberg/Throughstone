@@ -167,6 +167,9 @@ Options:
   --slug=SLUG            Project slug (lowercase kebab-case, e.g. acme-scheduler)
   --desc=TEXT           One-line description
   --license=NAME        mit | bsd-3 | apache-2.0 | private
+                         With --mode=existing this is optional: left off, the question is
+                         asked at the recon-map checkpoint, once each repo's licensing
+                         has been read. Supplied, it decides now and nothing is deferred.
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
   --registries=yes|no   Keep registries/ (mono-repo only; default: yes; always kept
@@ -410,31 +413,34 @@ DESC="$(want "$DESC_IN" 'One-line description')"
 # result is PROJECT_LICENSE_ID, written later to .throughstone/project-license so generated
 # helpers can distinguish proprietary projects from missing LICENSE files.
 #
-# When adopting an existing codebase the question needs its scope said out loud. The repos being
-# adopted already answer "open source or proprietary?" — possibly differently from each other —
-# and a user reading the bare question reasonably thinks they are recording that fact about their
-# code. They are not: this selection covers the documentation hub being created here and anything
-# the method creates later, and their existing repos keep the licensing their owners set (the
-# method records licensing, it never establishes it for code it did not create). The same scope
-# governs the copyright-holder answer below, which is why the note precedes both.
+# Adoption defers the question rather than asking it here. At this moment nobody has read the
+# codebase yet, so the question arrives with nothing to answer it from — while the repos being
+# adopted already carry the answer in their own files. Asked here it also reads as "what is your
+# code licensed under?", which is not what it sets. So --mode=existing leaves the posture Unset
+# and the adoption flow asks once at the recon-map checkpoint, with each repo's licensing in front
+# of the user and what was found as the default. An explicit --license still wins: a caller who
+# has already decided is not made to wait for a scan to confirm it.
 LICENSE_CHOICE=""
-if [ "$MODE" = "existing" ] && [ -z "$LICENSE_IN" ] && [ "$NONINTERACTIVE" != "1" ]; then
-  echo
-  echo "  The next two answers cover the documentation hub Throughstone is creating for you,"
-  echo "  and any repo it creates later — NOT the code you're adopting. Your existing repos keep"
-  echo "  whatever licensing they already have; the agent records what it finds, never changes it."
-fi
 if [ -n "$LICENSE_IN" ]; then
   normalize_license_choice "$LICENSE_IN" \
     || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2; }
   LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
+elif [ "$MODE" = "existing" ]; then
+  LICENSE_CHOICE="deferred"
+  echo
+  echo "  Project license: asked later, once the agent has read your repos. The recon map records"
+  echo "  what each one is licensed under, and the question is put to you there with that in hand."
+  echo "  It covers this documentation hub and anything the method creates later; your existing"
+  echo "  repos keep whatever licensing they already have."
 elif [ "$NONINTERACTIVE" = "1" ]; then
   echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2
 else
   choose_license_interactively
 fi
+# The holder only exists to render a license template. A deferred posture renders none yet, so the
+# question travels with the license question to the recon-map checkpoint.
 HOLDER=""
-if [ "$LICENSE_CHOICE" != "private" ]; then
+if [ "$LICENSE_CHOICE" != "private" ] && [ "$LICENSE_CHOICE" != "deferred" ]; then
   HOLDER="$(want "$HOLDER_IN" 'Copyright holder (name or org)')"
 fi
 LICENSE_TEMPLATE_NAME=""
@@ -454,6 +460,11 @@ case "$LICENSE_CHOICE" in
     ;;
   private)
     PROJECT_LICENSE_ID="Proprietary"
+    ;;
+  deferred)
+    # Adoption only. A real value, not an empty file: helpers must be able to tell "not chosen
+    # yet" from a truncated or missing posture, and say which one they are looking at.
+    PROJECT_LICENSE_ID="Unset"
     ;;
   *)
     echo "init.sh: internal error: unsupported license choice '$LICENSE_CHOICE'." >&2
@@ -790,6 +801,24 @@ WARNING
     exit 2
   fi
 fi
+# The same hazard as the warning above, reached from the other direction: publishing before the
+# license question has been answered puts the content in public with no grant attached. Unlike
+# proprietary, this one is temporary — answering the question at the recon-map checkpoint settles
+# it — so the remedy offered is to publish then, not to choose now with nothing read yet.
+if [ "$MK_REMOTES" = "1" ] \
+  && [ "$REMOTE_VISIBILITY" = "public" ] \
+  && [ "$LICENSE_CHOICE" = "deferred" ]; then
+  cat >&2 <<'WARNING'
+WARNING: public visibility before the project license is chosen publishes this content with no
+license granting anyone the right to use it. The question is answered at the recon-map
+checkpoint; --license=NAME decides it now instead, or keep these repos private until then.
+WARNING
+  if [ "$NONINTERACTIVE" != "1" ] \
+    && ! yesno "Continue with public repositories before the license is chosen?"; then
+    echo "init.sh: public repository creation cancelled." >&2
+    exit 2
+  fi
+fi
 
 # --- 2. Untether from the template origin -----------------------------------
 # Destructive bootstrap boundary. Everything above this line is validation and choice
@@ -856,8 +885,10 @@ mkdir -p "$ROOT/.throughstone"
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 
 # The repo inventory records what each repo is licensed under, so fill the seed rows with the same
-# posture. These two repos are ones init.sh creates, so the posture IS their license. A repo
-# registered in place later records what that repo already says instead (registries/repos.yml).
+# posture. These two repos are ones init.sh creates, so the posture IS their license — including
+# when it is still `Unset`, which is the honest value until the question is answered and
+# scripts/set-project-license.sh rewrites both. A repo registered in place later records what that
+# repo already says instead (registries/repos.yml).
 grep -rlF '{{PROJECT_LICENSE}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
   PROJECT_LICENSE_ID="$PROJECT_LICENSE_ID" perl -pi -e \
     's/\Q{{PROJECT_LICENSE}}\E/$ENV{PROJECT_LICENSE_ID}/g' "$f"
@@ -1035,9 +1066,13 @@ GI
 # Proprietary projects skip LICENSE creation; LICENSE-THROUGHSTONE remains separate and covers
 # only retained scaffold material. In mono-repo mode the docs hub also keeps the canonical copy
 # so apply-project-license.sh has the same source of truth as multi-repo projects.
+#
+# A deferred posture writes nothing for the same reason a proprietary one doesn't: there is no
+# license to render. scripts/set-project-license.sh writes it when the question is answered.
 stamp_license() {
   local src
   [ "$LICENSE_CHOICE" = "private" ] && return 0
+  [ "$LICENSE_CHOICE" = "deferred" ] && return 0
   src="$DOCS/templates/licenses/$LICENSE_TEMPLATE_NAME"
   [ -f "$src" ] || {
     echo "init.sh: project license template disappeared during setup: $src" >&2
@@ -1056,7 +1091,20 @@ stamp_license() {
 # Every generated repo gets LICENSING.md so readers do not mistake LICENSE-THROUGHSTONE for the
 # project's license grant.
 write_licensing_summary() {
-  if [ "$LICENSE_CHOICE" = "private" ]; then
+  if [ "$LICENSE_CHOICE" = "deferred" ]; then
+    # Says the true thing for the window it covers. Silence would read as "proprietary", which
+    # nobody has chosen yet; the default-closed wording keeps that window safe either way.
+    cat > "$1/LICENSING.md" <<'EOF'
+# Licensing
+
+This project has not chosen its license yet. It is chosen once the codebase has been read —
+the recon map records what each adopted repo is licensed under, and the question is put to the
+project's owner there. Until then no project `LICENSE` is provided and no permission to copy,
+modify, or distribute this content is granted.
+
+`LICENSE-THROUGHSTONE` applies only to retained Throughstone-authored scaffold material.
+EOF
+  elif [ "$LICENSE_CHOICE" = "private" ]; then
     cat > "$1/LICENSING.md" <<'EOF'
 # Licensing
 

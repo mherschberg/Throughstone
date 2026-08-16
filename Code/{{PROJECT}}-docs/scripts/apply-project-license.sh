@@ -233,6 +233,17 @@ case "$PROJECT_LICENSE_ID" in
   Proprietary)
     PROJECT_IS_OPEN_SOURCE=0
     ;;
+  Unset)
+    # A project that adopted an existing codebase defers the license question to the recon-map
+    # checkpoint, where the repos' own licensing is on the table to answer it from. Reaching here
+    # means a repo is being scaffolded before that happened — so say which question is unanswered
+    # and where it gets answered, rather than failing as though the file were corrupt.
+    echo "apply-project-license.sh: this project has not chosen its license yet." >&2
+    echo "        Adoption defers the question to the recon-map checkpoint, which answers it with" >&2
+    echo "        scripts/set-project-license.sh. Run that first; this helper stamps the answer." >&2
+    echo "        Nothing was written." >&2
+    exit 1
+    ;;
   *)
     echo "apply-project-license.sh: invalid project-license posture in $POLICY_FILE: $PROJECT_LICENSE_ID" >&2
     exit 1
