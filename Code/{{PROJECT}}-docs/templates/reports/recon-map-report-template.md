@@ -64,9 +64,18 @@ instead of picking a winner. This column is what the project's own license quest
 from at `inv-4` — read it, name where the repos differ from the answer once, and reconcile
 nothing: the project's license covers the method's material, and each repo here keeps its own.
 
-| Repo | Languages | Frameworks / runtimes | Build / package manager | Licensing (as found) | Notes |
-|------|-----------|-----------------------|-------------------------|----------------------|-------|
-| {{repo}} | {{langs}} | {{frameworks, runtime versions}} | {{tool}} | {{identifier (file it came from) / none stated; + vendored terms}} | {{monorepo? generated code? notable pins}} |
+**Whether each repo explains itself is recorded the same way.** Adoption's one offer to a repo it
+did not create is the framing its README probably lacks — a `Role in <project>` section where a
+README exists, the file itself where none does (`METHOD.md` §7). Which of those a repo needs is a
+fact about the repo, so read it here rather than rediscovering it one repo at a time later: does a
+`README` exist at all, and if it does, does it say what this repo is *within the system* — not
+just what it does on its own. Record one of `role stated`, `README, no role`, or `none`. Like the
+licensing column this is a record, not a verdict: a repo whose README explains it perfectly needs
+nothing, and `none` on a small internal library is a fact, not a failing.
+
+| Repo | Languages | Frameworks / runtimes | Build / package manager | Licensing (as found) | Docs (as found) | Notes |
+|------|-----------|-----------------------|-------------------------|----------------------|-----------------|-------|
+| {{repo}} | {{langs}} | {{frameworks, runtime versions}} | {{tool}} | {{identifier (file it came from) / none stated; + vendored terms}} | {{role stated / README, no role / none}} | {{monorepo? generated code? notable pins}} |
 
 ## Entry Points & Services
 
