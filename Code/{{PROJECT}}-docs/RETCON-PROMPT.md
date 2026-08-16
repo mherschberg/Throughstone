@@ -352,9 +352,11 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   whatever branch happens to be checked out — on an adopted repo that is usually `main`. If the
   working tree already has uncommitted changes to that file, say so and leave it rather than
   committing around them (`METHOD.md` §7). Writing a repo's README from the template where it had
-  none is the same: that one file, on a branch, committed and left — and **not** the
-  `ARCHITECTURE.md` the template's Overview comment suggests for a complex repo, which every
-  adopted repo is. Its internal design goes in the docs hub's `architecture/`, not at its root.
+  none is the same: that one file, on a branch, committed and left — and **not** an
+  `ARCHITECTURE.md` alongside it. The template calls for one in a repo *this method created* with
+  real internal complexity; every adopted repo is that kind of repo and none of them is that kind
+  of repo's owner, so its internal design goes in the docs hub's `architecture/`, not at its root.
+  A repo that already has an `ARCHITECTURE.md` of its own keeps it — read it, link it, leave it.
   **And a no can stand for the rest.** This same proposal reaches the same people once per repo,
   which in a fourteen-repo system is fourteen times — so on a decline, ask whether it covers this
   repo or all of them, and where it is standing, stop proposing and record the remaining repos as
