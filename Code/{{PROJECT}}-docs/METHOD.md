@@ -535,6 +535,11 @@ project is actually missing. Per artifact that means:
   and a `LICENSING.md` that names only what the notice covers and disclaims the rest of the
   repository. Where the addition was declined, nothing Throughstone-authored is there and nothing
   is owed; do not copy `LICENSE-THROUGHSTONE` into a repo that holds none of it.
+- **Remote and visibility — its owners'.** A repo that predates the method already lives somewhere
+  and is already private or public, and both were somebody's decision. Do not create a remote for
+  one that has one, and do not repoint an existing remote. Record `remote:` in
+  `registries/repos.yml` as the cloneable URL the repo already has, so
+  `scripts/setup-workspace.sh` can find it, and change nothing about the repo itself.
 
 Every write above is **proposed before it happens** — show the exact text and where it goes, and
 wait for an answer. A decline is a complete outcome, not a gap: the same information lives in the
@@ -548,6 +553,22 @@ it runs: it is the answer that is being reused, never the permission, so a yes f
 nothing about the next, whose text is its own proposal. Choosing or changing what any of these say
 for an existing repo is its owners' act, taken deliberately by them, never a side effect of adding
 the method to it.
+
+**Nothing is made public without the user saying so, in words, for that thing.** This is not part
+of the list above — it governs every repo, the ones the method creates as much as the ones it
+finds. Making a repository public, publishing a package or a release, or putting anything else
+where strangers can read it happens **only** on an explicit go-ahead. Never infer it: not from an
+open-source license (a repo can be MIT and unpublished), not from a sibling repo being public, not
+from a remote being created, and not from a project describing itself as open source. Where no
+answer has been given, the answer is private — `init.sh` defaults that way for exactly this reason,
+and a public choice there is typed, never defaulted into.
+
+The rule is absolute because the mistake is the one that cannot be walked back. Every other error
+in this section writes a file, and a file can be reverted. Publishing hands a repository's whole
+history — every commit, every key ever committed and later removed, every customer name in a
+fixture — to forks, caches, and crawlers, and it does so in less time than it takes to notice.
+Setting the repo private again retrieves none of it. So when visibility is even adjacent to what
+you are doing, stop and ask; a question costs one message, and there is no undo on the other side.
 
 **When the rules above don't settle it, ask.** They cover the cases the method has met: a repo it
 creates, and one registered in place that has a README, has none, or whose owners decline the

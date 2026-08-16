@@ -331,6 +331,20 @@ error/corruption and re-run paths, not normal operation.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **A repo's remote and visibility had no rule, and publishing was never stated as needing a
+  go-ahead.** §7 listed what the method does to a repo it did not create — README, CI, licensing,
+  the Throughstone notice — and covered remotes and visibility only by the general "a repo
+  registered in place is not scaffolded at all". A general statement followed by a list reads as
+  covering the list; that is the same gap that once let the license helper assume every repo was
+  one the method had scaffolded, and it left the one action here that cannot be reverted with
+  nothing pinning it. **Remote and visibility are now stated as the repo's owners':** no remote is
+  created for a repo that has one, no existing remote is repointed, no visibility is changed, and
+  the URL the repo already has is recorded in its `remote:` field instead. **And a separate,
+  broader rule now covers every repo, created ones included: nothing is made public without an
+  explicit go-ahead** — never inferred from an open-source license, a public sibling repo, or a
+  project describing itself as open source, and private wherever no answer was given. `init.sh`
+  already defaulted to private and still does; no tooling changed. The planning session and the
+  repo README template carry both rules to where the scaffolding actually happens.
 - **The same proposal was put to a repo's owners once per repo, after they had already declined.**
   Every write into a repo registered in place is proposed before it happens, and the text differs
   per repo, so the gate itself is right. But the question behind it — do you want this in your
