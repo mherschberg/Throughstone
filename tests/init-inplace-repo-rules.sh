@@ -131,6 +131,23 @@ run_case() {
   assert_absent "$repos" "as the architecture names them and they" \
     "repo inventory comment still says every repo listed here is stamped"
 
+  # --- The fallback. Every rule above enumerates cases, and three rounds of review each turned up
+  # one nobody had enumerated. What an agent does with the next such case is the thing worth
+  # pinning: ask, and write nothing meanwhile. It has to ship in the file being read at the moment
+  # of the write, not only in the file that defines it.
+  assert_contains "$docs/METHOD.md" "**When the rules above don't settle it, ask.**" \
+    "METHOD.md §7 has no fallback for a case the create-vs-in-place rules do not reach"
+  assert_contains "$docs/METHOD.md" \
+    "ask, and write nothing into that repo until you have an answer" \
+    "METHOD.md §7's fallback does not say to hold off writing while asking"
+  assert_contains "$readme_tpl" \
+    "ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER" \
+    "repo README template does not carry the ask-when-unclear fallback"
+  # The fallback must not read as permission to stop maintaining the rules themselves — that is how
+  # a catch-all turns into a reason to leave the next gap unfixed.
+  assert_contains "$docs/METHOD.md" "not a reason to leave a gap in them" \
+    "METHOD.md §7's fallback does not rule itself out as a substitute for fixing the rules"
+
   # Nothing above may pass on an unsubstituted template.
   ! grep -R '{{PROJECT}}' "$readme_tpl" "$ci_workflow" "$ci_readme" "$repos" >/dev/null || {
     echo "FAIL: generated files still carry the {{PROJECT}} placeholder" >&2
