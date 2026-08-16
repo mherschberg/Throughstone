@@ -124,6 +124,16 @@ error/corruption and re-run paths, not normal operation.
     observation, not a gate: nothing asks for a blanket yes before any text exists, because the
     text is what you are agreeing to. And a decline can stand for the rest, so you say no once
     rather than once per repo.
+  - **Your repos are never published, and their remotes are never touched.** Adoption said nothing
+    about either — every repo it registers already lives somewhere and is already private or
+    public, both decisions made before the project existed. It now says so outright: no remote is
+    created for a repo that has one, no existing remote is repointed, and **no repository's
+    visibility is changed, in either direction, for any reason.** The URL a repo already has is
+    recorded in its inventory row so `scripts/setup-workspace.sh` can find it, and nothing about
+    the repo itself is touched. If you ask for a repo to be published, that is a go-ahead for that
+    repo and nothing else — never standing, never extended to a sibling. Adoption is where this
+    matters most: many repos in flight across a codebase the method didn't write, and publishing
+    is the one action here with no undo.
   - **Your CI is left alone, and the Throughstone notice follows what was actually added.**
     Adoption never installs Throughstone's CI workflow into a repo you already have — that gate
     fails until configured, so in a running system it would either replace the workflow gating your
