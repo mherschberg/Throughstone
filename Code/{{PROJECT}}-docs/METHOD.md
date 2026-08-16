@@ -539,8 +539,15 @@ project is actually missing. Per artifact that means:
 Every write above is **proposed before it happens** — show the exact text and where it goes, and
 wait for an answer. A decline is a complete outcome, not a gap: the same information lives in the
 architecture doc — and in the `repos.yml` row where the project keeps an inventory, which a
-mono-repo project may not. Choosing or changing what any of these say for an existing repo is its
-owners' act, taken deliberately by them, never a side effect of adding the method to it.
+mono-repo project may not. **A decline may be standing.** Where several repos are registered in
+place, the same proposal is put to the same owners repeatedly, and someone who has said no once is
+not asking to be asked again for every remaining repo — so when a proposal is declined, establish
+whether that answer covers this repo or the rest of them, and where it is standing, stop proposing
+and record that those repos document themselves. Ask that once, not per repo — and note which way
+it runs: it is the answer that is being reused, never the permission, so a yes for one repo says
+nothing about the next, whose text is its own proposal. Choosing or changing what any of these say
+for an existing repo is its owners' act, taken deliberately by them, never a side effect of adding
+the method to it.
 
 **When the rules above don't settle it, ask.** They cover the cases the method has met: a repo it
 creates, and one registered in place that has a README, has none, or whose owners decline the

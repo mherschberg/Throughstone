@@ -37,6 +37,13 @@
   in the repo's architecture doc, and in its `registries/repos.yml` row where the project keeps
   an inventory.
 
+  A DECLINE MAY BE STANDING. With several repos registered in place this same proposal goes to
+  the same people repo after repo, and someone who has already said no is not asking to be asked
+  again for each remaining one. So on a decline, establish whether it covers this repo or the
+  rest — and where it is standing, stop proposing and record that those repos document
+  themselves. Ask that once, not per repo. The permission is never what carries forward, only
+  the refusal: a yes for one repo says nothing about the next, whose text is its own proposal.
+
   For a repo this method CREATES, stamp the CI gate named by the Test Strategy architecture doc
   too: drop `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill
   in its stack's test command (see `templates/ci/README.md`). For a repo REGISTERED IN PLACE,
