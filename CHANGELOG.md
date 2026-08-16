@@ -25,6 +25,21 @@ any project built with it.
   reading a session file now finds the work list under one name instead of learning a per-file name.
   `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
   maintainer test enforces it.
+- **Where the create-vs-registered-in-place rules don't settle a case, the answer is now to ask
+  rather than to improvise.** Everything the method does to a repo — stamp or augment its README,
+  install CI or leave its pipeline alone, apply the project license or record what it already
+  says, place the Throughstone notice or owe nothing — splits on whether the method created that
+  repo. Those rules enumerate the cases the method has met, and a real project produces ones they
+  don't reach: a repo the method created that another team has since taken over, a README that is
+  half boilerplate, a repo whose own files disagree about its license, a notice
+  `--notice-only` refuses to place after the README text has already landed. `METHOD.md` §7 and
+  the repo README template now close with the same fallback — where it is genuinely unclear which
+  side of that line a repo sits on, or what a rule means for it, **ask, and write nothing into
+  that repo until there is an answer**. Not writing is recoverable; writing into a repo the method
+  did not create is the failure those rules exist to prevent. It is stated as a fallback for cases
+  the rules don't reach, explicitly not as a substitute for following them where they do or for
+  fixing a gap once one is found. No effect on a repo the method creates, which is settled and
+  unchanged.
 
 ### Fixed
 - **`init.sh` would destroy an existing repository it was run inside, and had no guard at all.**

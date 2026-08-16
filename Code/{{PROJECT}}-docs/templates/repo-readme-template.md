@@ -67,6 +67,13 @@
   allowed here when the plain invocation above is not. If the addition was declined, nothing
   Throughstone-authored is in the repo and nothing is owed: a notice pointing at absent material
   only misleads a later reader.
+
+  EVERYTHING ABOVE SPLITS ON ONE QUESTION: did this method create this repo, or did the repo get
+  here first? Where that is genuinely unclear, or where the answer doesn't settle what to do with
+  this repo's README, CI, license, or notice, ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER
+  (`METHOD.md` §7). The question costs one message; the wrong write lands in a repo this method
+  does not own. That is a fallback for a case these rules don't reach, not a substitute for
+  following them where they do.
 -->
 
 ## Overview
