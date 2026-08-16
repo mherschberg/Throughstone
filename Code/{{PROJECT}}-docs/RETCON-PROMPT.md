@@ -302,6 +302,19 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   writing into a repo they own. **A no is a complete answer, not a gap:** the same information is
   already in the recon map, the repo's `architecture/` doc, and its `repos.yml` row, so record
   that the repo documents itself and move on.
+  **Never install CI into an adopted repo.** `templates/ci/code-repo-ci.yml` is the gate for a repo
+  the method creates, and it is failing-until-configured by design — so dropping it into a running
+  system either replaces the workflow that gates their merges or fails every build until someone
+  deletes it. These repos already have CI; the recon map's **Tests & CI** section recorded what
+  each one runs, and session `1.12` writes that up. Bringing a repo onto the standard gate is a
+  change its owners decide on later, not a side effect of adoption.
+  **Place the Throughstone notice only if something Throughstone-authored landed.** If the README
+  addition was accepted, that section is BSD-3-Clause scaffold material, so run
+  `scripts/apply-project-license.sh --notice-only <repo-path>` — it writes `LICENSE-THROUGHSTONE`
+  and a `LICENSING.md` scoped to that material, disclaiming the rest of the repo, and never a
+  project `LICENSE`. Do **not** run the helper without that flag; it will refuse, and correctly.
+  If the user declined the README addition, nothing Throughstone-authored is in the repo and
+  nothing is owed — placing a notice for absent material would only confuse a later reader.
   **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
   its owner's and the method only records it (`METHOD.md` §7: the method records licensing; it
   never establishes licensing for code it did not create). Concretely: do **not** run

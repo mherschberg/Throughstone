@@ -169,6 +169,13 @@ run_existing_case() {
   # here would pass on a template that never got substituted.
   assert_file_contains "$docs/RETCON-PROMPT.md" "\`## Role in $name\` section"
   assert_file_contains "$docs/RETCON-PROMPT.md" "wait for a yes"
+  # CI is the one thing adoption must never install: the shipped gate fails until configured, so
+  # in a running system it either replaces the real gate or reddens every build.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Never install CI into an adopted repo"
+  # The notice follows the README decision rather than the repo: owed only if material landed, and
+  # placeable only through the mode that writes no project LICENSE.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "\`scripts/apply-project-license.sh --notice-only <repo-path>\`"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "nothing Throughstone-authored is in the repo and"
   # The three places that tell a reader to record an in-place repo's licensing must name the field
   # that holds it. They are deliberately field-free on the 1.7.x line, where no such field exists,
   # so a later forward-merge can quietly reintroduce the vaguer wording here.
