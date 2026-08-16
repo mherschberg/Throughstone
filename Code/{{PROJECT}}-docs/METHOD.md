@@ -550,7 +550,9 @@ out — that branch is often `main` on a running system, and often has someone e
 the working tree already has uncommitted changes to a file being touched, stop and say so rather
 than committing around them. This is the last unguarded step in the list above: everything before
 it decides *what* goes into somebody else's repository, and this decides how far the method carries
-it, which is exactly as far as a local commit they can inspect, amend, or delete. **A decline may be standing.** Where several repos are registered in
+it, which is exactly as far as a local commit they can inspect, amend, or delete.
+
+**A decline may be standing.** Where several repos are registered in
 place, the same proposal is put to the same owners repeatedly, and someone who has said no once is
 not asking to be asked again for every remaining repo — so when a proposal is declined, establish
 whether that answer covers this repo or the rest of them, and where it is standing, stop proposing
