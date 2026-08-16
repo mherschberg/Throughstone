@@ -115,6 +115,16 @@ error/corruption and re-run paths, not normal operation.
     What decides this is whether a README is already there, not that the repo was adopted: where a
     repo has none, adoption offers to write one from the template — that one file, since adopting
     a repo scaffolds nothing else in it.
+  - **Your CI is left alone, and the Throughstone notice follows what was actually added.**
+    Adoption never installs Throughstone's CI workflow into a repo you already have — that gate
+    fails until configured, so in a running system it would either replace the workflow gating your
+    merges or redden every build until someone removed it. What each repo already runs was recorded
+    in the recon map and is written up by the Test Strategy session; moving a repo onto the
+    standard gate stays a decision you make later. And the Throughstone notice is placed only where
+    Throughstone-authored material actually landed: if you accepted the `Role in <project>` README
+    section, the repo gets `LICENSE-THROUGHSTONE` plus a `LICENSING.md` scoped to that material and
+    disclaiming everything else — never a project `LICENSE`. If you declined, nothing was added, so
+    nothing is claimed.
   - **Your repos' licensing is recorded, never set.** Adoption registers every repo where it already
     sits, so each one's licensing stays its owner's: the recon map records what each repo actually
     says — the identifier and the file it came from, `none stated` where nothing does, plus vendored
