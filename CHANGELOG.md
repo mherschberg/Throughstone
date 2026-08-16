@@ -131,12 +131,22 @@ error/corruption and re-run paths, not normal operation.
     sits, so each one's licensing stays its owner's: the recon map records what each repo actually
     says — the identifier and the file it came from, `none stated` where nothing does, plus vendored
     third-party terms — and nothing writes a `LICENSE` into a repo you already had. The license you
-    pick at install time covers this method's own artifacts and anything it creates for you, so a
-    repo whose license differs from it is not a problem to fix, and adopted repos carrying several
-    different licenses is a normal result rather than an inconsistency. `init.sh` now says that at
-    the point it asks: when you're adopting, the license and copyright-holder questions state up
-    front that they cover the documentation hub being created and anything created later, not the
-    code you're bringing — so you aren't answering about repos that already have their own answer.
+    pick covers this method's own artifacts and anything it creates for you, so adopted repos
+    carrying several different licenses is a normal result rather than an inconsistency to
+    reconcile.
+  - **The license question is asked after your codebase has been read, not before.** In adoption,
+    `init.sh` no longer asks it at install time — at that point nobody has read your repos, so the
+    question arrives with nothing to answer it from, and phrased as "open source or private?" it
+    reads as being about the code you're bringing rather than about the docs hub being created.
+    Adoption now leaves the choice open and asks once at the recon-map checkpoint, where each repo's
+    licensing has just been recorded and is in front of you, offering what your repos say as the
+    default. A new `scripts/set-project-license.sh` answers it in one command — the posture, the
+    canonical `LICENSE`, and the files init left saying the license had not been chosen — and
+    answers it once, refusing to change an answer already given. Until then no `LICENSE` is written
+    and nothing is claimed. Where your repos differ from what you chose, you're told once, at that
+    checkpoint, and nothing is reconciled or written into them. **Greenfield is unchanged** — it
+    creates everything it licenses and has nothing to read first, so it still asks at setup, and
+    `--license=NAME` still decides at install time in either mode.
 
 ### Changed
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
@@ -312,10 +322,10 @@ error/corruption and re-run paths, not normal operation.
   the project's `LICENSE` and a `LICENSING.md` asserting that license over the entire repository,
   written from an answer given at install time about code the method never authored. The helper now
   refuses such a target before writing anything, and `METHOD.md` §7 states the rule the refusal
-  enforces — **the method records licensing; it never establishes licensing for code it did not
-  create** — with `AGENTS.md`, the planning session, and the repo README template all pointing at
-  it. A repo the method creates carries none of those files, so nothing about scaffolding a new
-  repo changes.
+  enforces — **a repo the method did not create keeps what it already has**, licensing along with
+  its README and its CI — with `AGENTS.md`, the planning session, and the repo README template all
+  pointing at it. A repo the method creates carries none of those files, so nothing about
+  scaffolding a new repo changes.
 - **`.throughstone/project-license` was described more broadly than it acts.** It was called "the
   project-license posture" and "the authoritative selection" everywhere, but it only ever governs
   **Throughstone-authored and method-created material** — the docs hub, `prompts/`, and any repo
