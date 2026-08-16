@@ -144,7 +144,8 @@ is complete.
 ### `inv-3` — Draft the recon map
 Copy `templates/reports/recon-map-report-template.md` to `reports/YYYY-MM-DD-step-0001-recon-map.md`
 and fill every section from the scan: inventory, stack per repo (including each repo's licensing
-**as found** — recorded, never set), entry points/services, data stores,
+**as found** — recorded, never set — and whether its README says what the repo is *within the
+system*), entry points/services, data stores,
 integrations, existing-docs classification + trust, tests/CI, and the confidence/unknowns. Propose a
 **Scope** for each Inventory row (`adopt` unless the code says otherwise) — the user settles it at
 `inv-4`; a draft proposal is not the decision. Stamp the
@@ -201,6 +202,16 @@ Nothing is reconciled and nothing is written into those repos: the choice just m
 method's material, not theirs. What comes of it is the user's call on their own code. Say it here
 so the per-repo substeps don't have to raise it eight more times; if every repo already matches,
 say nothing at all rather than reporting a clean comparison nobody asked for.
+
+**Say what the docs column adds up to, too.** The **Docs (as found)** column has just recorded, per
+repo, whether it explains its place in the system — so give the user the shape of it in one line
+before Stage 2 starts working through them: *"11 of your 14 repos have a README that doesn't say
+what it is within the system; 3 have none at all."* That is the whole of it here. **Do not turn it
+into a gate** — do not ask now whether they want READMEs touched, and do not collect a blanket yes.
+Each repo's addition is proposed with its own text when its substep comes up, because the text is
+what they are agreeing to and none of it is written yet. This line exists so that when those
+proposals start arriving they are expected and their number is known, rather than appearing one at
+a time from nowhere. If they decline early on, `METHOD.md` §7 lets that decline stand for the rest.
 
 Once the map is confirmed and frozen, mark `inv-4` **Done**.
 
@@ -333,6 +344,14 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   writing into a repo they own. **A no is a complete answer, not a gap:** the same information is
   already in the recon map, the repo's `architecture/` doc, and its `repos.yml` row, so record
   that the repo documents itself and move on.
+  **And a no can stand for the rest.** This same proposal reaches the same people once per repo,
+  which in a fourteen-repo system is fourteen times — so on a decline, ask whether it covers this
+  repo or all of them, and where it is standing, stop proposing and record the remaining repos as
+  documenting themselves (`METHOD.md` §7). Ask that once. It runs one way: a yes is never carried
+  forward, because the next repo's text is its own proposal and they haven't seen it.
+  Which repos need what is already known — the map's **Docs (as found)** column recorded it at
+  `inv-3` and `inv-4` said the shape out loud — so this arrives expected rather than as a surprise
+  fourteen times over.
   **Never install CI into an adopted repo.** `templates/ci/code-repo-ci.yml` is the gate for a repo
   the method creates, and it is failing-until-configured by design — so dropping it into a running
   system either replaces the workflow that gates their merges or fails every build until someone

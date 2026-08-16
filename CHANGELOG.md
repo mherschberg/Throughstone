@@ -116,7 +116,14 @@ error/corruption and re-run paths, not normal operation.
     repo's architecture doc, and its inventory row — and nothing else in the README is touched.
     What decides this is whether a README is already there, not that the repo was adopted: where a
     repo has none, adoption offers to write one from the template — that one file, since adopting
-    a repo scaffolds nothing else in it.
+    a repo scaffolds nothing else in it. **You are told the shape of this before it starts, and
+    asked once if you don't want it.** The recon map's new **Docs (as found)** column records, per
+    repo, whether it explains its place in the system, so confirming the map also tells you what
+    is coming — *"11 of your 14 repos have a README that doesn't say what it is within the system;
+    3 have none"* — instead of proposals arriving one at a time from nowhere. That line is an
+    observation, not a gate: nothing asks for a blanket yes before any text exists, because the
+    text is what you are agreeing to. And a decline can stand for the rest, so you say no once
+    rather than once per repo.
   - **Your CI is left alone, and the Throughstone notice follows what was actually added.**
     Adoption never installs Throughstone's CI workflow into a repo you already have — that gate
     fails until configured, so in a running system it would either replace the workflow gating your

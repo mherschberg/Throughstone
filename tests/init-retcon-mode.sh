@@ -151,6 +151,22 @@ run_existing_case() {
     "\`scripts/apply-project-license.sh\` against any of these repos"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing (as found)"
+  # Whether a repo explains its place in the system is a fact about the repo, recorded once during
+  # the scan like its licensing — not rediscovered per repo at the moment of writing into it. The
+  # column is what lets inv-4 say the shape out loud and the substeps arrive expected.
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
+    "Docs (as found)"
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
+    "role stated / README, no role / none"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "Say what the docs column adds up to"
+  # The line is an observation, never a gate. A blanket yes collected before any text exists would
+  # be consent to writes nobody has seen — the opposite of what the per-repo proposal is for — so
+  # both halves are pinned: say the shape, and do not turn it into an approval.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "**Do not turn it"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "do not collect a blanket yes"
+  # A decline carries to the remaining repos; a yes never does.
+  assert_file_contains "$docs/RETCON-PROMPT.md" "**And a no can stand for the rest.**"
+  assert_file_contains "$docs/RETCON-PROMPT.md" "a yes is never carried"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing is recorded as found, never set here"
   # A user who has just chosen the project's license should hear where their own repos don't match

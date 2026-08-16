@@ -382,6 +382,18 @@ All but the last are documentation only; nothing you already produced is rewritt
   `registries/repos.yml` — now quote the general rule rather than a licensing-specific one. Pull
   those five with `METHOD.md`. **One thing to check:** nothing; if you have local edits quoting the
   old licensing sentence, they are still true, just narrower than the rule they came from.
+- **The recon map records whether each repo explains itself, and a decline can be standing.**
+  Adoption's one offer to a repo it did not create is the framing its README probably lacks, and
+  which repos need it was rediscovered one at a time at the moment of writing into each. The map's
+  **Stack Per Repo** table gains a **Docs (as found)** column — `role stated` / `README, no role` /
+  `none` — recorded during the scan like the licensing column beside it, and the recon-map
+  checkpoint says the total out loud so the per-repo proposals arrive expected. That line is
+  deliberately **not** a gate: no blanket yes is collected before any text exists, and each repo's
+  addition is still proposed with its own text and still waits. What changes for someone who does
+  not want it is that a decline can now stand for the remaining repos (`METHOD.md` §7) instead of
+  being re-asked per repo. Pull `templates/reports/recon-map-report-template.md` with
+  `RETCON-PROMPT.md`. **One thing to check:** a recon map already written has no such column —
+  leave it alone, since a confirmed map is frozen; the per-repo work reads the repo itself anyway.
 - **Adoption chooses its license after reading the codebase, not at install time.**
   `init.sh --mode=existing` used to ask the license question up front, alongside the greenfield
   flow. At that moment nobody has read the repos yet, so the question arrives with nothing to
