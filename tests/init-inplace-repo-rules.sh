@@ -141,6 +141,21 @@ run_case() {
     "check-in README sweep does not check that written README the way a created repo's is checked"
   assert_absent "$check_in" "A repo **registered in place** owns its own README" \
     "check-in README sweep still says every in-place repo owns its own README"
+  # A decline carries forward; a yes does not. The gate is per repo because the text is per repo,
+  # but the QUESTION behind it is the same one every time — so a project with several in-place
+  # repos put the same proposal to the same owners repo after repo, and someone who had already
+  # said no got asked again for each remaining one. Both directions are pinned: that a decline can
+  # be standing, and that permission is never what carries (a yes for one repo says nothing about
+  # the next, whose text nobody has seen).
+  assert_contains "$docs/METHOD.md" "**A decline may be standing.**" \
+    "METHOD.md §7 re-asks every in-place repo's owners after they have already declined"
+  assert_contains "$docs/METHOD.md" \
+    "it is the answer that is being reused, never the permission" \
+    "METHOD.md §7's standing decline does not rule out carrying a yes forward"
+  assert_contains "$readme_tpl" "A DECLINE MAY BE STANDING." \
+    "repo README template does not carry the standing-decline rule to the point of the write"
+  assert_contains "$readme_tpl" "The permission is never what carries forward, only" \
+    "repo README template's standing decline does not rule out carrying a yes forward"
 
   # --- CI. The gate fails until configured, so there is no safe way to land it in a running repo.
   # The rule belongs on the artifact being copied, not only in the files that point at it.

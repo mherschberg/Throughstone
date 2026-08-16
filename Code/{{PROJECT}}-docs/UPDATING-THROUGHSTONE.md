@@ -279,6 +279,16 @@ affect work you do after pulling them.
   header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
+- **A decline can be standing, so you are not asked once per repo.** Every write into a repo
+  registered in place is proposed first, which is right — but the *question* behind each proposal
+  is the same one every time, so a project with several such repos put it to the same owners repo
+  after repo, and someone who had already said no got asked again for each remaining one. Nothing
+  about the gate changes: the text is still shown and still waits for an answer, because the text
+  differs per repo. What is added is that a decline now establishes whether it covers this repo or
+  the rest, and a standing one stops the proposals and records that those repos document
+  themselves. It runs one way only — a yes is never carried forward, since the next repo's text is
+  its own proposal. Pull `METHOD.md` §7 with `templates/repo-readme-template.md`. **One thing to
+  check:** nothing; this only removes repeat asking.
 - **Licensing is no longer its own rule.** `METHOD.md` §7 had grown a separate doctrine paragraph
   for licensing — "the method records licensing; it never establishes licensing for code it did not
   create" — sitting alongside separate rules for the README, for CI, and for the Throughstone
