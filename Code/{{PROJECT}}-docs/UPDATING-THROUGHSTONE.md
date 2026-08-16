@@ -379,6 +379,20 @@ All but the last are documentation only; nothing you already produced is rewritt
   registered in place rather than created by the method, its licensing is its own — record what it
   actually uses in its `license:` field rather than assuming the posture.
 
+- **A repo registered in place is augmented, not stamped.** `templates/repo-readme-template.md`
+  told you to stamp a copy into each repo "as it's created", which is the only case it considered —
+  so pointed at a repo that already existed, the instruction reads as "overwrite its README", and
+  that README is usually the repo's most-read file. Such a repo now gets a short
+  `Role in <project>` section added instead, proposed before anything is written, with every
+  existing section left alone. The rule keys on whether a README is already there, not on how the
+  repo got here: where a registered repo has none, its README is written from the full template —
+  that one file, with nothing else about the repo scaffolded. No change for repos you scaffold
+  through the method: those are still stamped from the full template. Two readers of the rule were
+  corrected with it — `METHOD.md` §7's layout paragraph, and the check-in's repo-README sweep,
+  which assumed every README was stamped by the method at creation and so would have reported an
+  augmented repo as a gap. **One thing to check:** if you registered an existing repo in place and
+  its README was replaced with the template, its previous content is in that repo's git history.
+
 **Repo inventory gains a `license:` field (not adoption-specific).** `registries/repos.yml` rows can
 now record what each repo is licensed under — the bootstrap posture for a repo the method created,
 whatever the repo already says for one registered in place. It exists because a project whose repos

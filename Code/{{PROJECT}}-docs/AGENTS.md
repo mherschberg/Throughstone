@@ -152,7 +152,13 @@ pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 `registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has deep internals). **Before working in a repo, read its README
-first** — the same way you read the architecture docs before a design change.
+first** — the same way you read the architecture docs before a design change. A repo the method
+creates is **stamped** from `templates/repo-readme-template.md`. For a repo **registered in
+place**, the rule keys on whether a README is already there: if it is, **augment** — add a short
+`Role in {{PROJECT}}` section and nothing else, and never rewrite a section the repo already has;
+if the repo has none, write one from the template. Either way you are writing into the user's
+repo, so propose it before you do (`METHOD.md` §7). Nothing else about a registered-in-place repo
+is scaffolded — it already exists.
 When creating an application-code repo, also apply the license posture recorded at
 bootstrap by running
 `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>`. The authoritative
