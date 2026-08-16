@@ -180,6 +180,16 @@ error/corruption and re-run paths, not normal operation.
   fixing a gap once one is found. No effect on a repo the method creates, which is settled and
   unchanged.
 
+- **The interactive project-type question now defaults to private / proprietary.** It defaulted to
+  open source, so pressing Enter past it — and Enter again at the license menu, which pre-selects
+  the first entry — stood a project up under MIT without the user ever naming a license. That is
+  the wrong direction for a default to fail in: publishing code under a license nobody chose is not
+  undone by editing a file afterwards, while a project that starts proprietary can be opened by its
+  owner whenever they decide to. An open-source posture is now reached only by typing `1`, which
+  matches what `--non-interactive` already required (an explicit `--license`, no default) and the
+  private default already used for repository visibility. Nothing else changes: both answers behave
+  exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
+
 ### Fixed
 - **`init.sh` would destroy an existing repository it was run inside.** Extract the download into
   your own repo and run it — the mistake adoption invites, since `--mode=existing` is aimed at the
@@ -217,6 +227,25 @@ error/corruption and re-run paths, not normal operation.
   a template staged but not yet committed, and the mono-repo empty-origin reuse flow (`git init`
   plus a remote, nothing committed yet) all initialize exactly as before, and each refusal now says
   which check fired.
+- **The licensing backstop only looked at root filenames, so it missed most of the places the
+  method itself says licensing lives.** `scripts/apply-project-license.sh` refuses a target that
+  already states its own terms — the guard against handing a repo the method did not create a
+  project `LICENSE` and a `LICENSING.md` asserting it over the whole repository. It checked root
+  filenames (`COPYING`, `NOTICE`, `LICENSE.md`, …) and nothing else, while `METHOD.md` §7, the
+  repo README template, and the recon map template all tell an agent that licensing also lives in
+  **package metadata** and **vendored third-party terms**. So a GPL-3.0 npm package, an AGPL Rust
+  crate, an Apache `pyproject.toml`, a monorepo licensing per package, and a vendored source tree
+  all sailed past it: measured, each took the project's `LICENSE` plus a `LICENSING.md` naming the
+  wrong license over someone else's code. The check now reads all three places — root filenames,
+  the same names in nested trees, and a populated `license` field in root package metadata
+  (`package.json` including the legacy array form, `pyproject.toml`, `setup.cfg`, `Cargo.toml`,
+  `composer.json`, `*.gemspec`, `build.gradle`, `pom.xml`). Installed dependency trees
+  (`node_modules/`, `.venv/`, `site-packages/`, `target/`, `vendor/bundle`) are skipped: those
+  carry somebody else's licenses and say nothing about this repo, and a repo the method **did**
+  create may well have them by the time the helper runs. It answers only "does this repo say
+  anything about its licensing", never "which license", and it stays a backstop rather than the
+  control — a repo that states nothing is indistinguishable from one just created, so the rule
+  that the helper runs only on a repo the method creates is still what governs.
 - **Declining `registries/` left the docs hub with a broken link on its first run.** A mono-repo
   project can answer no to the repo inventory, and `init.sh` removed the directory — but the docs
   hub `README.md` indexes every directory it ships, and its `registries/` row stayed. So the

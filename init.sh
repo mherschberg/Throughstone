@@ -67,14 +67,21 @@ validate_trunk_branch() {
 # Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
 # skip project LICENSE creation later.
+#
+# The default is PRIVATE / PROPRIETARY, and it is the conservative answer rather than the common
+# one. Pressing Enter past this question must not grant the world a license to the user's code:
+# publishing is a deliberate act with consequences that are hard to take back, while a project
+# that starts proprietary can be opened later by its owner at any time. So an open-source posture
+# is only ever reached by typing 1 — the same reason --non-interactive refuses to run without an
+# explicit --license, and the same direction as the private default for repository visibility.
 choose_license_interactively() {
   local project_type license_input
 
   while :; do
     echo "Is this project open source or private/proprietary?"
     echo "  1) Open source"
-    echo "  2) Private / proprietary"
-    project_type="$(ask 'Choose 1 or 2' '1')"
+    echo "  2) Private / proprietary   (default)"
+    project_type="$(ask 'Choose 1 or 2' '2')"
     case "$project_type" in
       1) break ;;
       2)
