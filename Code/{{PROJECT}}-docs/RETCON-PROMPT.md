@@ -282,10 +282,26 @@ Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark
 asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
 - **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`,
-  `throughstone: managed`, and `license:` — see below), stamp a Throughstone README from `templates/repo-readme-template.md`, and
-  record a short per-repo note (stack, entry points, role) in that README — its living home, which the
-  owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
+  `throughstone: managed`, and `license:` — see below) and **augment** its README (below).
+  Record a short per-repo note (stack, entry points, role) in the repo's `architecture/` docs and
+  its inventory row as they are written — never back into the frozen recon map. Register repos
   **in place** by their real location; never relocate the user's code.
+  **Where a README already exists, augment it; never stamp over it.** The rule keys on whether
+  that file is there, not on the fact that the repo was adopted — where an adopted repo has **no**
+  README there is nothing to preserve, so offer to write one from the template. That is the one
+  file; adopting a repo scaffolds nothing else in it. Most do have one, though, and it is usually
+  the repo's most-read file — so `templates/repo-readme-template.md` is **not** copied in
+  (`METHOD.md` §7: a repo registered in place is augmented, not stamped). Everything in that
+  template except the role one-liner is something a running system already documents — setup,
+  tests, configuration — written by the people who operate it; re-deriving it from your code read
+  would replace what is accurate with what is inferred. What these repos usually lack is the one
+  thing adoption is producing: the repo's place in the system. So add exactly that, as a short
+  `## Role in {{PROJECT}}` section — the one-liner, two or three sentences on the slice of the
+  system this repo owns, and links to its `architecture/` doc and the docs hub — and change
+  nothing else. **Show the user the exact text and where it will go, and wait for a yes** before
+  writing into a repo they own. **A no is a complete answer, not a gap:** the same information is
+  already in the recon map, the repo's `architecture/` doc, and its `repos.yml` row, so record
+  that the repo documents itself and move on.
   **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
   its owner's and the method only records it (`METHOD.md` §7: the method records licensing; it
   never establishes licensing for code it did not create). Concretely: do **not** run

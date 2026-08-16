@@ -104,6 +104,17 @@ error/corruption and re-run paths, not normal operation.
     warning then follows the gap: the doc's `Coverage:` line says what is missing, how big it is, and
     what it means for someone building on it (never a bare "deferred"), and a genuinely risky gap gets
     a `risks.yml` row the periodic check-in re-surfaces.
+  - **Your repos' READMEs are added to, never overwritten.** A repo you already have has a README,
+    usually its most-read file, so adoption does not stamp the Throughstone template over it.
+    Everything in that template except the role one-liner is something a running system already
+    documents — setup, tests, configuration — written by the people who operate it. What such a
+    repo usually lacks is what adoption is producing: its place in the system. So it offers exactly
+    that, a short `Role in <project>` section, shows you the text and where it would go, and waits
+    for your yes. Declining is a complete answer — the same information is in the recon map, the
+    repo's architecture doc, and its inventory row — and nothing else in the README is touched.
+    What decides this is whether a README is already there, not that the repo was adopted: where a
+    repo has none, adoption offers to write one from the template — that one file, since adopting
+    a repo scaffolds nothing else in it.
   - **Your repos' licensing is recorded, never set.** Adoption registers every repo where it already
     sits, so each one's licensing stays its owner's: the recon map records what each repo actually
     says — the identifier and the file it came from, `none stated` where nothing does, plus vendored
