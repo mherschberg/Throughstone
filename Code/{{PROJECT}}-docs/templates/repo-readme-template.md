@@ -51,6 +51,14 @@
   would either replace what gates their merges or fail every build until removed. Record what the
   repo already runs and leave its pipeline alone.
 
+  NOTHING IS MADE PUBLIC WITHOUT THE USER SAYING SO. For a repo REGISTERED IN PLACE this is
+  absolute — it already lives somewhere and is already private or public, so create no remote for
+  it, repoint no existing one, and never change its visibility. For a repo this method CREATES,
+  public is a typed answer and never an inference: not from an open-source license, not from a
+  sibling repo being public, not from the project calling itself open source. With no answer given,
+  private. Publishing is the one mistake here that cannot be reverted — it hands the repo's whole
+  history to forks, caches, and crawlers before anyone notices (`METHOD.md` §7).
+
   For a repo this method CREATES, apply the project license established at bootstrap by running
   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <this-repo-path>`. It copies the
   docs hub's canonical `LICENSE` unchanged for open-source projects. Proprietary projects

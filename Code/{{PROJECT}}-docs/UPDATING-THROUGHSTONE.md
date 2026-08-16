@@ -279,6 +279,22 @@ affect work you do after pulling them.
   header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
+- **Nothing is made public without you saying so, and an in-place repo's remote is left alone.**
+  §7 listed what happens to a repo the method did not create — its README, its CI, its licensing,
+  the Throughstone notice — and said nothing about its remote or its visibility. The general
+  "a repo registered in place is not scaffolded at all" was meant to cover them, but a general
+  statement followed by a list reads as covering the list, which is the same gap that once let the
+  license helper assume every repo was one the method had scaffolded. Two rules now say it
+  outright. **Remote and visibility are the repo's owners':** create no remote for a repo that has
+  one, repoint no existing one, change no visibility; record the URL it already has in its
+  `remote:` field and leave the repo alone. **And nothing is made public without an explicit
+  go-ahead** — for any repo, including ones the method creates. Public is never inferred from an
+  open-source license, a public sibling, or a project describing itself as open source; with no
+  answer given the answer is private. `init.sh` already defaulted that way, so no tooling changes;
+  what changes is that the rule is stated where an agent reads it. Pull `METHOD.md` §7 with
+  `templates/planning-session.md` and `templates/repo-readme-template.md`. **One thing to check:**
+  if a repo you registered in place had its visibility changed while adopting it, that is worth
+  looking at now — publishing cannot be undone, and a repo made public stays retrievable.
 - **A decline can be standing, so you are not asked once per repo.** Every write into a repo
   registered in place is proposed first, which is right — but the *question* behind each proposal
   is the same one every time, so a project with several such repos put it to the same owners repo

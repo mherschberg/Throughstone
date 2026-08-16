@@ -95,6 +95,7 @@ run_case() {
   local ci_readme="$docs/templates/ci/README.md"
   local repos="$docs/registries/repos.yml"
   local check_in="$docs/runbooks/check-in.md"
+  local planning="$docs/templates/planning-session.md"
 
   # --- One rule, not four. README, CI, licensing, and the notice are the same rule applied to four
   # artifacts: a repo the method did not create keeps what it already has. Licensing had grown its
@@ -156,6 +157,32 @@ run_case() {
     "repo README template does not carry the standing-decline rule to the point of the write"
   assert_contains "$readme_tpl" "The permission is never what carries forward, only" \
     "repo README template's standing decline does not rule out carrying a yes forward"
+
+  # --- Remote and visibility. The fifth artifact, and the only one whose failure cannot be
+  # reverted: publishing hands a repo's whole history to forks, caches, and crawlers before anyone
+  # notices, and setting it private again retrieves none of it. Every other rule here writes a file
+  # that `git revert` undoes. It was also the one artifact §7 enumerated nothing for, which is the
+  # exact shape of the original defect — a general "not scaffolded at all" followed by a list, read
+  # as covering only what the list named.
+  assert_contains "$docs/METHOD.md" "**Remote and visibility — its owners'.**" \
+    "METHOD.md §7 has no rule for an in-place repo's remote and visibility"
+  assert_contains "$docs/METHOD.md" \
+    "**Nothing is made public without the user saying so, in words, for that thing.**" \
+    "METHOD.md §7 does not state the publishing rule for every repo, created ones included"
+  # Inference is the failure mode worth naming: a license, a sibling, or a self-description is not
+  # an answer about visibility, and treating one as an answer is how a private repo gets published.
+  assert_contains "$docs/METHOD.md" "Never infer it: not from an" \
+    "METHOD.md §7's publishing rule does not rule out inferring public from a license or sibling"
+  assert_contains "$readme_tpl" "NOTHING IS MADE PUBLIC WITHOUT THE USER SAYING SO." \
+    "repo README template does not carry the publishing rule to the point of scaffolding"
+  assert_contains "$planning" "take public only from an" \
+    "planning session lets a repo be created public without an explicit go-ahead"
+  assert_contains "$planning" "**Its remote and its visibility are its own too**" \
+    "planning session's in-place paragraph says nothing about remotes or visibility"
+  # The same paragraph scoped .gitignore to new repos and .env.example to "each repo" — the loose
+  # half would have an agent writing into a repo the method did not create.
+  assert_absent "$planning" "into each repo as its" \
+    "planning session still copies .env.example into every repo, not only the ones it creates"
 
   # --- CI. The gate fails until configured, so there is no safe way to land it in a running repo.
   # The rule belongs on the artifact being copied, not only in the files that point at it.

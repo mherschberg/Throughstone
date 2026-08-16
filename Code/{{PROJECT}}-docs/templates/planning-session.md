@@ -79,7 +79,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    STEP is almost always *"scaffold the repos and the skeleton"*: create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
-   named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
+   named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each new code repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
    the `.env` / `.secrets/` secret-file block so local secrets never get committed). Apply the
@@ -95,9 +95,12 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    keeps the licensing its owner set (`METHOD.md` §7: a repo the method did not create keeps what
    it already has — README, CI, and licensing alike). Record what such a repo uses where its
    inventory entry describes it and move on; the helper refuses it. Repository
-   visibility is separate: when adding a remote for each code repo, choose private or public
-   deliberately rather than inferring it from the license. Publishing a proprietary repo makes
-   its source visible without granting open-source reuse rights, so call that out explicitly.
+   visibility is separate: when adding a remote for a repo **you are creating**, choose private or
+   public deliberately rather than inferring it from the license — and **take public only from an
+   explicit go-ahead**, never from an open-source license, a public sibling repo, or the project
+   describing itself as open source. With no answer given, create it private: that is reversible
+   and publishing is not (`METHOD.md` §7). Publishing a proprietary repo also makes its source
+   visible without granting open-source reuse rights, so call that out explicitly.
    **Each
    repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
    the repo is and the slice of the system it owns), and the repo gets a row in
@@ -111,7 +114,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    template over it. **If it has none:** write its README from the template. Either way it is the
    user's repo, so show them what you intend to add and where, and wait for a yes. **Its CI is
    its own** — never install `templates/ci/code-repo-ci.yml` into it; record what it runs in the
-   Test Strategy doc. If the README addition is accepted, run
+   Test Strategy doc. **Its remote and its visibility are its own too** — it already lives
+   somewhere and is already private or public, so create no remote for it, repoint no existing one,
+   and **never change its visibility**. Record the cloneable URL it already has in its `remote:`
+   field so `scripts/setup-workspace.sh` can find it, and change nothing about the repo. If the
+   README addition is accepted, run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>` to place the
    Throughstone notice for that retained material; if it was declined, nothing is owed.
    Confirm the repo list with the user — on a first run they're all new; note any
