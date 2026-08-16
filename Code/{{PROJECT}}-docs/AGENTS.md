@@ -158,7 +158,11 @@ place**, the rule keys on whether a README is already there: if it is, **augment
 `Role in {{PROJECT}}` section and nothing else, and never rewrite a section the repo already has;
 if the repo has none, write one from the template. Either way you are writing into the user's
 repo, so propose it before you do (`METHOD.md` §7). Nothing else about a registered-in-place repo
-is scaffolded — it already exists.
+is scaffolded — it already exists, and in particular the CI gate is never installed into one (its
+pipeline is its own). If the README addition is accepted, that leaves Throughstone-authored
+material in the repo, so place its notice with
+`Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>`; if it was
+declined, nothing is owed.
 When creating an application-code repo, also apply the license posture recorded at
 bootstrap by running
 `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>`. The authoritative

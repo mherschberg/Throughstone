@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# apply-project-license.sh TARGET_REPO — apply the bootstrap-selected project-license posture.
+# apply-project-license.sh [--notice-only] TARGET_REPO — apply the bootstrap-selected
+# project-license posture, or place only the Throughstone notice.
 #
 # The posture file is the durable source of truth, separate from LICENSE, so a missing or
 # extra license file cannot silently change whether the generated project is open-source or
@@ -15,6 +16,13 @@
 # it already uses and record it, never apply. The pre-existing-licensing check below refuses such
 # a target, so pointing this helper at the wrong kind of repo fails loudly instead of writing a
 # license claim over code the method did not author.
+#
+# --notice-only serves the one thing such a repo may still be owed. Where the method leaves
+# Throughstone-authored material behind — a role-and-place section added to an existing README, or
+# a README written from the template for a repo that had none — that material is BSD-3-Clause and
+# needs its notice. This mode places LICENSE-THROUGHSTONE and a LICENSING.md that names only what
+# the notice covers and disclaims everything else. It writes no project LICENSE and makes no claim
+# about the repository's own code, which is why it is allowed on a repo the full mode refuses.
 
 set -euo pipefail
 
@@ -22,11 +30,32 @@ set -euo pipefail
 # Code/<project>-docs/scripts/ after initialization; derive the docs hub without resolving
 # the placeholder in this template checkout.
 DOCS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TARGET="${1:-}"
 POLICY_FILE="$DOCS_ROOT/.throughstone/project-license"
 
+# Flags before or after the target, so callers need not remember an order.
+TARGET=""
+NOTICE_ONLY=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --notice-only) NOTICE_ONLY=1 ;;
+    -*)
+      echo "apply-project-license.sh: unknown option: $1" >&2
+      echo "usage: $0 [--notice-only] TARGET_REPO" >&2
+      exit 2
+      ;;
+    *)
+      if [ -n "$TARGET" ]; then
+        echo "apply-project-license.sh: unexpected extra argument: $1" >&2
+        exit 2
+      fi
+      TARGET="$1"
+      ;;
+  esac
+  shift
+done
+
 if [ -z "$TARGET" ]; then
-  echo "usage: $0 TARGET_REPO" >&2
+  echo "usage: $0 [--notice-only] TARGET_REPO" >&2
   exit 2
 fi
 if [ ! -d "$TARGET" ]; then
@@ -78,6 +107,43 @@ copy_if_missing() {
     echo "$label: $target"
   fi
 }
+
+# --notice-only stops here. It never reads the posture, never writes a project LICENSE, and is
+# therefore allowed on a repo that states its own terms — the case the guard below exists to
+# refuse. Its LICENSING.md is deliberately not the one the full mode writes: that one names the
+# project license and asserts it over the repository's content, which would be a claim about code
+# the method did not author.
+if [ "$NOTICE_ONLY" = "1" ]; then
+  if [ ! -f "$DOCS_ROOT/LICENSE-THROUGHSTONE" ]; then
+    echo "apply-project-license.sh: missing Throughstone notice: $DOCS_ROOT/LICENSE-THROUGHSTONE" >&2
+    exit 1
+  fi
+  NOTICE_SUMMARY="$(mktemp "${TMPDIR:-/tmp}/throughstone-notice.XXXXXX")"
+  trap 'rm -f "$NOTICE_SUMMARY"' EXIT
+  cat > "$NOTICE_SUMMARY" <<'EOF'
+# Licensing
+
+This repository was not created by Throughstone; a project that uses Throughstone registered it
+in place. `LICENSE-THROUGHSTONE` covers **only** the Throughstone-authored scaffold material
+retained here — for example a role-and-place section added to the README.
+
+It does not license, alter, or make any claim about anything else in this repository. Everything
+else remains under this repository's own terms, wherever they are stated.
+EOF
+  # Validate both targets before writing either, so a repo is never left half-updated.
+  verify_compatible \
+    "$DOCS_ROOT/LICENSE-THROUGHSTONE" \
+    "$TARGET/LICENSE-THROUGHSTONE" \
+    "Throughstone license"
+  verify_compatible "$NOTICE_SUMMARY" "$TARGET/LICENSING.md" "licensing summary"
+  copy_if_missing \
+    "$DOCS_ROOT/LICENSE-THROUGHSTONE" \
+    "$TARGET/LICENSE-THROUGHSTONE" \
+    "Throughstone license"
+  copy_if_missing "$NOTICE_SUMMARY" "$TARGET/LICENSING.md" "licensing summary"
+  echo "project license: not applied (--notice-only; this repository's licensing is its own)"
+  exit 0
+fi
 
 # Refuse a repo that already states its own licensing, before reading the posture or writing
 # anything. This is the guard against the destructive case: a target with no plain LICENSE but a
