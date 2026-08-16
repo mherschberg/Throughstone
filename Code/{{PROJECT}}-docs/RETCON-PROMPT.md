@@ -344,6 +344,17 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   writing into a repo they own. **A no is a complete answer, not a gap:** the same information is
   already in the recon map, the repo's `architecture/` doc, and its `repos.yml` row, so record
   that the repo documents itself and move on.
+  **On a yes, commit it on a branch and stop.** The yes was about the text, not about how that
+  change should reach their trunk — this is a running system with a review process you did not
+  design. So make a branch in that repo, commit **only the file you proposed** (name it; never
+  `git add -A`, which would sweep up whatever they had in progress), tell them the branch and the
+  commit, and stop there. **Never push, open a pull request, or merge**, and never commit onto
+  whatever branch happens to be checked out — on an adopted repo that is usually `main`. If the
+  working tree already has uncommitted changes to that file, say so and leave it rather than
+  committing around them (`METHOD.md` §7). Writing a repo's README from the template where it had
+  none is the same: that one file, on a branch, committed and left — and **not** the
+  `ARCHITECTURE.md` the template's Overview comment suggests for a complex repo, which every
+  adopted repo is. Its internal design goes in the docs hub's `architecture/`, not at its root.
   **And a no can stand for the rest.** This same proposal reaches the same people once per repo,
   which in a fourteen-repo system is fourteen times — so on a decline, ask whether it covers this
   repo or all of them, and where it is standing, stop proposing and record the remaining repos as

@@ -382,6 +382,17 @@ All but the last are documentation only; nothing you already produced is rewritt
   `registries/repos.yml` — now quote the general rule rather than a licensing-specific one. Pull
   those five with `METHOD.md`. **One thing to check:** nothing; if you have local edits quoting the
   old licensing sentence, they are still true, just narrower than the rule they came from.
+- **An accepted README addition is committed on a branch and left there.** `RETCON-PROMPT.md` told
+  the agent to show you the text and wait for a yes, then said nothing about the file afterwards —
+  no branch, no commit, no push. On an adopted repo the obvious continuation is a commit on
+  whichever branch is checked out, usually `main`, followed by a push. It now makes a branch,
+  commits only the file it proposed, reports the branch and commit, and stops; never pushes, opens
+  a PR, or merges; and leaves the file alone if it already has uncommitted changes. A README
+  written from the template for a repo that had none follows the same path, and never brings an
+  `ARCHITECTURE.md` with it — an adopted repo's internal design is written up in the docs hub's
+  `architecture/`. Pull `RETCON-PROMPT.md` with `METHOD.md` §7. **One thing to check:** if an
+  earlier adoption committed such a change onto a shared branch or pushed it, that commit is still
+  there and is worth reviewing like any other.
 - **Adoption never touches a repo's remote or its visibility.** `RETCON-PROMPT.md` had no rule for
   either — it did not mention remotes at all — while adoption is the circumstance where the mistake
   is easiest and least recoverable: many repos in flight across a codebase the method did not
