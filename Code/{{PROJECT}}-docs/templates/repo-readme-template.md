@@ -38,9 +38,14 @@
   an inventory.
 
   ON A YES, COMMIT IT ON A BRANCH AND STOP. A yes settles what the text says, not how it should
-  reach their trunk — every team has its own answer to that. So make a branch, commit only the
-  file(s) you proposed (name them; never `git add -A`, which sweeps up whatever they had in
-  progress), and tell them the branch and commit. NEVER push, open a pull request, merge, or
+  reach their trunk — every team has its own answer to that. Place the notice first (below), then
+  make a branch and
+  commit every file the method just wrote into that repo — the README file you proposed, and the
+  `LICENSE-THROUGHSTONE` and `LICENSING.md` the notice mode placed alongside it. Name each path;
+  never `git add -A`, which sweeps up whatever they had in progress. One branch, one commit,
+  everything Throughstone put there, so the addition and the notice explaining it can't be
+  separated by whatever the owners do next. Then tell them the branch and commit. NEVER push, open
+  a pull request, merge, or
   commit onto whatever branch is checked out — that is usually `main` on a running system. If the
   working tree already has uncommitted changes to that file, stop and say so instead of committing
   around them.
@@ -87,7 +92,9 @@
   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>`. It
   places `LICENSE-THROUGHSTONE` and a `LICENSING.md` naming only what the notice covers, writes
   no project `LICENSE`, and makes no claim about the rest of the repository — which is why it is
-  allowed here when the plain invocation above is not. If the addition was declined, nothing
+  allowed here when the plain invocation above is not. Run it before the branch commit above, so
+  those two files go in with the README change rather than being left untracked in their working
+  tree after you have stopped. If the addition was declined, nothing
   Throughstone-authored is in the repo and nothing is owed: a notice pointing at absent material
   only misleads a later reader.
 

@@ -51,6 +51,23 @@ any project built with it.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **An accepted README addition landed without the notice that explains it.** Two files go into a
+  repo registered in place when its owners accept the `Role in <project>` section: the README, and
+  the `LICENSE-THROUGHSTONE` / `LICENSING.md` that `apply-project-license.sh --notice-only` places
+  to mark that section as Throughstone-authored. Only the README is ever proposed — the notice
+  follows automatically and is deliberately not a second question — so the landing rule's
+  instruction to commit "only the file(s) proposed" covered one of the two, and the notice mode was
+  described as running *after* the commit. In practice the branch handed to the owners carried the
+  README alone, the two notice files were left untracked in their working tree after the agent had
+  been told to stop, and the addition merged into their trunk with nothing saying where it came
+  from — while the stray files waited for the next `git add -A` to sweep them into an unrelated
+  commit, the exact accident the landing rule warns about two sentences earlier. The notice is now
+  placed **before** the commit, and the commit covers **every file the method just wrote into that
+  repo**, each path named explicitly, still never `git add -A`. One branch, one commit, so the
+  addition and its notice cannot be separated by whatever the owners do next. `METHOD.md` §7, the
+  repo README template, and the planning session all state it that way; the rules on never pushing,
+  never committing onto the checked-out branch, and stopping if the file already has uncommitted
+  changes are unchanged. No effect on a repo the method creates.
 - **The record that justifies leaving an in-place repo's CI alone had nowhere to go.** The rules
   are settled: the starter gate in `templates/ci/code-repo-ci.yml` fails until configured, so it is
   never installed into a repo the method did not create — and four files (`METHOD.md` §7,

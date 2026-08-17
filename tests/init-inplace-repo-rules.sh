@@ -168,11 +168,36 @@ run_case() {
     "**An accepted write is committed and left there. It is never pushed.**" \
     "METHOD.md §7 does not say how an accepted write into an in-place repo lands"
   assert_contains "$docs/METHOD.md" "never \`git add -A\`, which would sweep up whatever the" \
-    "METHOD.md §7 does not scope the commit to the files that were proposed"
+    "METHOD.md §7 does not scope the commit to the files it names"
   assert_contains "$readme_tpl" "ON A YES, COMMIT IT ON A BRANCH AND STOP." \
     "repo README template does not carry the landing rule to the point of the write"
-  assert_contains "$planning" "**On a yes, commit it on a branch and stop**" \
+  assert_contains "$planning" "**On a yes, place the notice, then commit both on a branch and stop.**" \
     "planning session does not say how an accepted write into an in-place repo lands"
+  # The commit covers the WRITE, not the PROPOSAL. Two things land on an accepted addition — the
+  # README file, and the LICENSE-THROUGHSTONE / LICENSING.md the notice mode places — but only the
+  # README is ever proposed, so a commit scoped to "the file(s) proposed" carried one of the two.
+  # Measured: the branch held README.md alone and the two notice files sat untracked in the owners'
+  # working tree after the agent had been told to stop, so the addition merged without the notice
+  # that explains it and the next `git add -A` anyone ran swept them into an unrelated commit.
+  # Pinned in all three files: an agent following any one of them alone must still land both.
+  for f in "$docs/METHOD.md" "$readme_tpl" "$planning"; do
+    assert_contains "$f" "commit every file the method just wrote into that repo" \
+      "$(basename "$f") scopes the landing commit to the proposal, not to everything written"
+  done
+  assert_absent "$docs/METHOD.md" "commit **only the file(s) proposed**" \
+    "METHOD.md §7 still scopes the landing commit to the file that was proposed"
+  assert_absent "$readme_tpl" "file(s) you proposed (name them; never \`git add -A\`" \
+    "repo README template still scopes the landing commit to the file that was proposed"
+  assert_absent "$planning" "commit only the file you proposed, never" \
+    "planning session still scopes the landing commit to the file that was proposed"
+  # ORDER, not just scope. The notice mode has to run before the commit, or its two files are
+  # written after the agent has stopped and there is nothing left to put them on a branch. Both
+  # files that sequence the two steps say so; the planning session states them in order instead.
+  assert_contains "$docs/METHOD.md" \
+    "repository. Run it **before** the commit below, so the notice rides the same branch as the" \
+    "METHOD.md §7 does not place the Throughstone notice before the landing commit"
+  assert_contains "$readme_tpl" "Run it before the branch commit above, so" \
+    "repo README template does not place the Throughstone notice before the landing commit"
   # ARCHITECTURE.md is a write at the root of somebody else's repository. It was stated unscoped in
   # §7's general repo paragraph, and the template comment suggesting it is inside the Overview
   # section — which an in-place repo with no README gets written from.

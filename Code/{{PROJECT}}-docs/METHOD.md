@@ -529,7 +529,10 @@ project is actually missing. Per artifact that means:
   `Role in <project>` section, or a README written from the template for a repo that had none —
   run `scripts/apply-project-license.sh --notice-only <repo>`, which places `LICENSE-THROUGHSTONE`
   and a `LICENSING.md` that names only what the notice covers and disclaims the rest of the
-  repository. Where the addition was declined, nothing Throughstone-authored is there and nothing
+  repository. Run it **before** the commit below, so the notice rides the same branch as the
+  material it covers; placing it afterwards leaves two untracked files in somebody else's working
+  tree and merges the addition without the notice that explains it. Where the addition was
+  declined, nothing Throughstone-authored is there and nothing
   is owed; do not copy `LICENSE-THROUGHSTONE` into a repo that holds none of it.
 - **Remote and visibility — its owners'.** A repo that predates the method already lives somewhere
   and is already private or public, and both were somebody's decision. Visibility is governed by
@@ -559,8 +562,12 @@ mono-repo project may not.
 **An accepted write is committed and left there. It is never pushed.** A yes settles what the text
 should say; it does not say anything about how that change should reach the repo's trunk, and every
 team has its own answer — a PR, a review, a signed commit, a CI gate, a release train. So make the
-edit on a **branch** created for it, commit **only the file(s) proposed** (name them explicitly;
-never `git add -A`, which would sweep up whatever the owners had in progress), and stop. Then tell
+edit on a **branch** created for it, and
+commit every file the method just wrote into that repo — the addition that was proposed, and
+the `LICENSE-THROUGHSTONE` and `LICENSING.md` the notice mode placed alongside it. Name each
+path explicitly; never `git add -A`, which would sweep up whatever the owners had in progress.
+One branch, one commit, everything Throughstone put there — so whichever way the owners take it,
+the material and the notice that explains it travel together. Then stop, and tell
 them the branch and the commit, and let them take it through their own process. Do not push, do not
 open a pull request, do not merge, and do not commit onto whatever branch happened to be checked
 out — that branch is often `main` on a running system, and often has someone else's work on it. If
