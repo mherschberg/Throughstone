@@ -190,9 +190,10 @@ run_existing_case() {
   # An ARCHITECTURE.md at an adopted repo's root is a file appearing in somebody else's repository,
   # and the template comment suggesting one is inside the Overview section a README-less repo gets
   # written from. Adopted repos are exactly the ones with real internal complexity.
-  assert_file_contains "$docs/RETCON-PROMPT.md" "and **not** an"
   assert_file_contains "$docs/RETCON-PROMPT.md" \
-    "A repo that already has an \`ARCHITECTURE.md\` of its own keeps it"
+    "complexity **that this method created**, and adoption creates none: these repos have the"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "docs hub's \`architecture/\`, never as a second new file at its root. Where a repo already has an"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing is recorded as found, never set here"
   # A user who has just chosen the project's license should hear where their own repos don't match
