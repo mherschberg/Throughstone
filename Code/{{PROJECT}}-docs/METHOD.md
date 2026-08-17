@@ -481,8 +481,9 @@ filled in when the repo is scaffolded (with a matching one-line `description` in
 `registries/repos.yml`); a repo **the method creates** with real internal complexity adds an
 `ARCHITECTURE.md` at its root for its internal design. Not every repo gets one — it is a judgment
 call about complexity, not part of the scaffold — and a repo the method did not create never gets
-one, since that is a file appearing at the root of somebody else's repository (below). **Every application-code repo the method *creates* also inherits
-the license posture and the CI gate.** Read the authoritative license selection from the docs
+one, since that is a file appearing at the root of somebody else's repository (below).
+**Every application-code repo the method *creates* also inherits the license posture and the CI
+gate.** Read the authoritative license selection from the docs
 hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
 and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which
 in a project built from scratch is everything, and in a project that also references code it did
@@ -531,23 +532,27 @@ project is actually missing. Per artifact that means:
   repository. Where the addition was declined, nothing Throughstone-authored is there and nothing
   is owed; do not copy `LICENSE-THROUGHSTONE` into a repo that holds none of it.
 - **Remote and visibility — its owners'.** A repo that predates the method already lives somewhere
-  and is already private or public, and both were somebody's decision. Do not repoint an existing
-  remote. Record `remote:` in `registries/repos.yml` as the cloneable URL the repo already has, so
-  `scripts/setup-workspace.sh` can find it, and change nothing about the repo itself. **A remote is
-  created only when the user asks for one** — for any repo, this one or a new one. That is already
-  how the method works where it creates repos: `init.sh` sets up no remotes unless asked, and asks
-  before it does. So a repo with **no** remote is not missing one; it is a repo whose owners have
-  not put it on a server, and creating one would push their code somewhere they did not choose.
-  Record it as local and move on.
+  and is already private or public, and both were somebody's decision. Visibility is governed by
+  the publishing rule below, which covers every repo; this bullet is about the remote.
+  **A repo's remote changes only when the user asks: never created, repointed, or removed as a
+  side effect of anything here.** That is already how the method works where it creates repos —
+  `init.sh` sets up no remotes unless asked, and asks before it does — so it is one answer for
+  every repo rather than a special case for this one. A repo with **no** remote is therefore not
+  missing one; it is a repo whose owners have not put it on a server, and creating one would push
+  their code somewhere they did not choose. Record `remote:` in `registries/repos.yml` as the
+  cloneable URL the repo already has, so `scripts/setup-workspace.sh` can find it, or record it as
+  local where there is none — and change nothing about the repo itself.
 
 **Exactly two of those five put a file in the repo: the README addition, and the Throughstone
-notice that follows it when the addition is accepted.** The other three are things the method
-*doesn't* do — it does not install CI, does not set licensing, does not touch a remote or a
-visibility setting — so there is nothing to propose for them and nothing to decline. Everything
-below is about those two.
+notice that follows it.** The other three are things the method *doesn't* do — it does not install
+CI, does not set licensing, does not touch a remote or a visibility setting — so there is nothing
+to propose for them and nothing to decline. Of the two, only the **README addition** is put to the
+owners. The notice follows from it automatically and is not asked about separately: it exists to
+mark material they have just agreed to take, so a second question about it would be asking
+permission to label what they already said yes to.
 
-Each is **proposed before it happens** — show the exact text and where it goes, and
-wait for an answer. A decline is a complete outcome, not a gap: the same information lives in the
+**That addition is proposed before it happens** — show the exact text and where it goes, and wait
+for an answer. A decline is a complete outcome, not a gap: the same information lives in the
 architecture doc — and in the `repos.yml` row where the project keeps an inventory, which a
 mono-repo project may not.
 
@@ -560,12 +565,12 @@ them the branch and the commit, and let them take it through their own process. 
 open a pull request, do not merge, and do not commit onto whatever branch happened to be checked
 out — that branch is often `main` on a running system, and often has someone else's work on it. If
 the working tree already has uncommitted changes to a file being touched, stop and say so rather
-than committing around them. This is the last unguarded step in the list above: everything before
-it decides *what* goes into somebody else's repository, and this decides how far the method carries
-it, which is exactly as far as a local commit they can inspect, amend, or delete.
+than committing around them. The rules above decide *what* goes into somebody else's repository;
+this one decides how far the method carries it, which is exactly as far as a local commit they can
+inspect, amend, or delete.
 
-**A decline may be standing.** Where several repos are registered in
-place, the same proposal is put to the same owners repeatedly, and someone who has said no once is
+**A decline may be standing.** Where several repos are registered in place, the same proposal is
+put to the same owners repeatedly, and someone who has said no once is
 not asking to be asked again for every remaining repo — so when a proposal is declined, establish
 whether that answer covers this repo or the rest of them, and where it is standing, stop proposing
 and record that those repos document themselves. Ask that once, not per repo — and note which way
@@ -598,8 +603,9 @@ reach: a repo the method created that another team has since taken over, a READM
 boilerplate, a repo whose own files disagree about its license, a notice
 `scripts/apply-project-license.sh --notice-only` refuses to place after the README text has
 already landed, a repo that is already public and whose owners hadn't realized it, a remote
-pointing at a host the team abandoned two migrations ago. Where it is genuinely unclear which side of the
-created / registered-in-place line a repo sits on, or what a rule above means for it, **stop and
+pointing at a host the team abandoned two migrations ago.
+Where it is genuinely unclear which side of the created / registered-in-place line a repo sits on,
+or what a rule above means for it, **stop and
 ask, and write nothing into that repo until you have an answer**. Not writing is recoverable;
 writing into a repo the method did not create is the failure this section exists to prevent, and
 the question costs one message. This is a fallback for a case the rules don't reach — not an

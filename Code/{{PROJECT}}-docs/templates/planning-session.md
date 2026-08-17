@@ -95,10 +95,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    keeps the licensing its owner set (`METHOD.md` §7: a repo the method did not create keeps what
    it already has — README, CI, and licensing alike). Record what such a repo uses where its
    inventory entry describes it and move on; the helper refuses it. Repository
-   visibility is separate — and comes up only if remotes are being added at all. **A remote is
-   created only when the user asks for one**, for any repo: `init.sh` sets none up unless asked, and
-   a repo already registered without one is not missing a remote, it is a repo its owners have not
-   put on a server (`METHOD.md` §7). When adding a remote for a repo **you are creating**, choose private or
+   visibility is separate, and comes up only if remotes are being added at all.
+   **A remote is created only when the user asks for one**, for any repo: `init.sh` sets none up
+   unless asked, and a repo already registered without one is not missing a remote — it is a repo
+   its owners have not put on a server (`METHOD.md` §7).
+   When adding a remote for a repo **you are creating**, choose private or
    public deliberately rather than inferring it from the license — and **take public only from an
    explicit go-ahead**, never from an open-source license, a public sibling repo, or the project
    describing itself as open source. With no answer given, create it private: that is reversible

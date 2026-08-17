@@ -136,19 +136,28 @@ run_case() {
   assert_contains "$docs/METHOD.md" \
     "**Exactly two of those five put a file in the repo: the README addition, and the Throughstone" \
     "METHOD.md §7 does not say which of the five artifacts actually put a file in the repo"
-  # A remote is created only on request — the same answer for a created repo and an in-place one.
+  # Of those two, only the README addition is asked about. The notice follows automatically — it
+  # marks material the owners just agreed to take, so asking again would be asking permission to
+  # label what they already said yes to. Pinned because "two writes" reads as "two questions".
+  assert_contains "$docs/METHOD.md" "owners. The notice follows from it automatically and is not" \
+    "METHOD.md §7 turns the Throughstone notice into a second question of its own"
+  # A remote changes only on request — the same answer for a created repo and an in-place one.
   # Stated only as "do not create a remote for one that has one", it implied you may create one for
-  # a repo that has none, which is pushing somebody's code to a host they never picked.
-  assert_contains "$docs/METHOD.md" "**A remote is" \
-    "METHOD.md §7 does not require a request before a remote is created"
-  assert_contains "$docs/METHOD.md" "is not missing one; it is a repo whose owners have" \
+  # a repo that has none, which is pushing somebody's code to a host they never picked. All three
+  # verbs are named because forbidding only one of them is what produced that reading.
+  assert_contains "$docs/METHOD.md" \
+    "**A repo's remote changes only when the user asks: never created, repointed, or removed as a" \
+    "METHOD.md §7 does not require a request before a repo's remote changes"
+  assert_contains "$docs/METHOD.md" "missing one; it is a repo whose owners have not put it on a" \
     "METHOD.md §7 still reads a repo with no remote as missing one"
-  assert_contains "$planning" "**A remote is" \
+  assert_contains "$planning" "**A remote is created only when the user asks for one**" \
     "planning session does not require a request before a remote is created"
   # The fallback's case list is illustrative. It enumerated only README and licensing cases and
   # would need an edit per artifact added, which is how it fell behind two of them.
   assert_contains "$docs/METHOD.md" "**These are examples, not a" \
     "METHOD.md §7's fallback still reads as an exhaustive list of cases"
+  assert_contains "$docs/METHOD.md" "a repo that is already public and whose owners hadn't" \
+    "METHOD.md §7's fallback carries no case from the visibility rule"
   assert_contains "$readme_tpl" "license, notice, remote, or visibility" \
     "repo README template's fallback does not cover remote or visibility"
   # And a yes settles the TEXT, not how it reaches their trunk. Four files told an agent to write
@@ -169,7 +178,8 @@ run_case() {
   # section — which an in-place repo with no README gets written from.
   assert_contains "$docs/METHOD.md" "a repo **the method creates** with real internal complexity" \
     "METHOD.md §7 still tells any repo with internal complexity to add an ARCHITECTURE.md"
-  assert_contains "$docs/METHOD.md" "not as a second new" \
+  assert_contains "$docs/METHOD.md" \
+    "\`architecture/\`, where the project's own docs live, not as a second new file at the root of a" \
     "METHOD.md §7 does not send an in-place repo's internal design to the docs hub instead"
   # The template is the file an agent has open while writing a README for an in-place repo that had
   # none, and its Overview comment called for an ARCHITECTURE.md unconditionally — so §7 said one
