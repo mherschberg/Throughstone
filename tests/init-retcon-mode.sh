@@ -177,6 +177,23 @@ run_existing_case() {
   assert_file_contains "$docs/RETCON-PROMPT.md" \
     "change no repository's visibility, in either direction, for any reason"
   assert_file_contains "$docs/RETCON-PROMPT.md" "never a standing one, never extended to a"
+  # What happens after the yes. The prompt told an agent to write into a running system's repo and
+  # said nothing about branch, commit, or push — so the obvious continuation was a commit on
+  # whatever branch was out (main, on an adopted repo) and a push to their remote. The method now
+  # stops at a local commit on a branch they can inspect, amend, or delete.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "**On a yes, commit it on a branch and stop.**"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "**Never push, open a pull request, or merge**"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "which would sweep up whatever they had in progress"
+  # An ARCHITECTURE.md at an adopted repo's root is a file appearing in somebody else's repository,
+  # and the template comment suggesting one is inside the Overview section a README-less repo gets
+  # written from. Adopted repos are exactly the ones with real internal complexity.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "complexity **that this method created**, and adoption creates none: these repos have the"
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "docs hub's \`architecture/\`, never as a second new file at its root. Where a repo already has an"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing is recorded as found, never set here"
   # A user who has just chosen the project's license should hear where their own repos don't match

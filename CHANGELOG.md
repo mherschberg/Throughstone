@@ -124,6 +124,17 @@ error/corruption and re-run paths, not normal operation.
     observation, not a gate: nothing asks for a blanket yes before any text exists, because the
     text is what you are agreeing to. And a decline can stand for the rest, so you say no once
     rather than once per repo.
+  - **An accepted README addition is committed on a branch and left for you.** Adoption told the
+    agent to show you the text and wait for a yes, then said nothing about what happens to the
+    file — so the obvious next move was a commit on whatever branch was checked out, which on a
+    repo you already run is usually `main`, and a push to your remote. Your yes was about the
+    text, not about how a change reaches your trunk; that is your review process, not the
+    method's. It now makes a branch, commits **only the file it proposed** (never `git add -A`,
+    which would sweep up work in progress), tells you the branch and commit, and stops — no push,
+    no pull request, no merge. If that file already has uncommitted changes, it says so and leaves
+    it alone. The same goes for a README written from the template where a repo had none: one
+    file, on a branch — and never an `ARCHITECTURE.md` at your repo's root, which is where the
+    template's Overview comment would otherwise point. That write-up goes in the docs hub.
   - **Your repos are never published, and their remotes are never touched.** Adoption said nothing
     about either — every repo it registers already lives somewhere and is already private or
     public, both decisions made before the project existed. It now says so outright: no remote is
