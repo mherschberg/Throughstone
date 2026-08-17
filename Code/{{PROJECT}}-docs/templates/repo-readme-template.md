@@ -37,6 +37,14 @@
   in the repo's architecture doc, and in its `registries/repos.yml` row where the project keeps
   an inventory.
 
+  ON A YES, COMMIT IT ON A BRANCH AND STOP. A yes settles what the text says, not how it should
+  reach their trunk — every team has its own answer to that. So make a branch, commit only the
+  file(s) you proposed (name them; never `git add -A`, which sweeps up whatever they had in
+  progress), and tell them the branch and commit. NEVER push, open a pull request, merge, or
+  commit onto whatever branch is checked out — that is usually `main` on a running system. If the
+  working tree already has uncommitted changes to that file, stop and say so instead of committing
+  around them.
+
   A DECLINE MAY BE STANDING. With several repos registered in place this same proposal goes to
   the same people repo after repo, and someone who has already said no is not asking to be asked
   again for each remaining one. So on a decline, establish whether it covers this repo or the
@@ -85,7 +93,7 @@
 
   EVERYTHING ABOVE SPLITS ON ONE QUESTION: did this method create this repo, or did the repo get
   here first? Where that is genuinely unclear, or where the answer doesn't settle what to do with
-  this repo's README, CI, license, or notice, ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER
+  this repo's README, CI, license, notice, remote, or visibility, ASK THE USER AND WRITE NOTHING UNTIL THEY ANSWER
   (`METHOD.md` §7). The question costs one message; the wrong write lands in a repo this method
   does not own. That is a fallback for a case these rules don't reach, not a substitute for
   following them where they do.
@@ -98,10 +106,22 @@
      (link that for the full picture). This section is required — a repo without it doesn't
      explain itself.
 
-     For a repo with real internal complexity, a README paragraph isn't enough: add an
-     `ARCHITECTURE.md` at the repo root for its internal design — the main modules, key
-     flows, and *why* it's built this way (the codebase-level counterpart to the hub's
-     system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo. -->
+     An `ARCHITECTURE.md` at the repo root splits the same way everything above does — on
+     whether this method created the repo. Check that before reading either branch:
+
+     A REPO THIS METHOD CREATED, with real internal complexity, gets one: a README paragraph
+     isn't enough, so add an `ARCHITECTURE.md` at the root for its internal design — the main
+     modules, key flows, and *why* it's built this way (the codebase-level counterpart to the
+     hub's system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo;
+     it is a judgment call about complexity, not something every repo gets.
+
+     A REPO REGISTERED IN PLACE NEVER GETS ONE — not even when you are writing its README from
+     this template because it had none. That would be a second new file at the root of somebody
+     else's repository, and adopted repos are exactly the ones with real internal complexity, so
+     this is the paragraph most likely to be read the wrong way. Their internal design is written
+     up in the docs hub's `architecture/` instead (`METHOD.md` §7). If such a repo already has an
+     `ARCHITECTURE.md` of its own, it is theirs: read it, link it from the `Role in {{PROJECT}}`
+     section if useful, and leave it alone. -->
 
 ## Licensing
 

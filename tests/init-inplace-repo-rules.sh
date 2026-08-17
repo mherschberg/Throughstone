@@ -97,23 +97,105 @@ run_case() {
   local check_in="$docs/runbooks/check-in.md"
   local planning="$docs/templates/planning-session.md"
 
-  # --- One rule, not four. README, CI, licensing, and the notice are the same rule applied to four
-  # artifacts: a repo the method did not create keeps what it already has. Licensing had grown its
-  # own doctrine paragraph, which is how the method ended up restating the same argument in eight
-  # files and why the next artifact to hit this boundary would have needed a ninth. The heading is
-  # pinned because it is what the consumers cite; drop it and their pointers go stale silently.
+  # --- One rule, not five. README, CI, licensing, the notice, and remote/visibility are the same
+  # rule applied to five artifacts: a repo the method did not create keeps what it already has.
+  # Licensing had grown its own doctrine paragraph, which is how the same argument ended up
+  # restated in file after file. The heading is pinned because it is what the consumers cite; drop
+  # it and their pointers go stale silently.
+  #
+  # The COUNT is checked against the bullets rather than asserted as a literal. A literal is how
+  # this went wrong once already: remote/visibility was added as a fifth bullet while the sentence
+  # still said "not four", and the assertion pinned the stale number, so the test agreed with the
+  # error instead of catching it. Counting the list means the next bullet either updates the
+  # sentence or fails here.
   assert_contains "$docs/METHOD.md" \
     "**A repo the method did *not* create keeps what it already has.**" \
     "METHOD.md §7 lost the single rule the per-artifact consequences hang off"
-  assert_contains "$docs/METHOD.md" "This is one rule, not four" \
-    "METHOD.md §7 no longer says the per-artifact rules are one rule"
+  local claimed bullets
+  claimed="$(sed -n 's/.*This is one rule, not \([a-z]*\)\..*/\1/p' "$docs/METHOD.md")"
+  bullets="$(sed -n '/A repo the method did \*not\* create keeps/,/^Every write above/p' \
+    "$docs/METHOD.md" | grep -c '^- \*\*')"
+  case "$bullets" in
+    3) expected=three ;; 4) expected=four ;; 5) expected=five ;;
+    6) expected=six ;;  7) expected=seven ;; *) expected="(unhandled: $bullets)" ;;
+  esac
+  [ "$claimed" = "$expected" ] || {
+    echo "FAIL: METHOD.md §7 says \"not $claimed\" but lists $bullets per-artifact bullets" >&2
+    return 1
+  }
   # Licensing is one of those consequences now, not a separate doctrine with its own rationale.
   assert_absent "$docs/METHOD.md" \
     "**The method records licensing; it never establishes licensing for code it did not create.**" \
     "METHOD.md §7 still gives licensing its own rule instead of one line under the general one"
-  # Every write into such a repo goes through one gate, stated once for all four artifacts.
+  # Every write into such a repo goes through one gate, stated once for all the artifacts.
   assert_contains "$docs/METHOD.md" "proposed before it happens" \
     "METHOD.md §7 no longer gates every write into an in-place repo on proposing it first"
+  # Only two of the five put a file in the repo. The gate read as though all five were proposals,
+  # which made the decline rules below it parse oddly — declining CI or licensing is not a thing,
+  # because the method never offered to do them. Naming the two keeps the gate about what it gates.
+  assert_contains "$docs/METHOD.md" \
+    "**Exactly two of those five put a file in the repo: the README addition, and the Throughstone" \
+    "METHOD.md §7 does not say which of the five artifacts actually put a file in the repo"
+  # Of those two, only the README addition is asked about. The notice follows automatically — it
+  # marks material the owners just agreed to take, so asking again would be asking permission to
+  # label what they already said yes to. Pinned because "two writes" reads as "two questions".
+  assert_contains "$docs/METHOD.md" "owners. The notice follows from it automatically and is not" \
+    "METHOD.md §7 turns the Throughstone notice into a second question of its own"
+  # A remote changes only on request — the same answer for a created repo and an in-place one.
+  # Stated only as "do not create a remote for one that has one", it implied you may create one for
+  # a repo that has none, which is pushing somebody's code to a host they never picked. All three
+  # verbs are named because forbidding only one of them is what produced that reading.
+  assert_contains "$docs/METHOD.md" \
+    "**A repo's remote changes only when the user asks: never created, repointed, or removed as a" \
+    "METHOD.md §7 does not require a request before a repo's remote changes"
+  assert_contains "$docs/METHOD.md" "missing one; it is a repo whose owners have not put it on a" \
+    "METHOD.md §7 still reads a repo with no remote as missing one"
+  assert_contains "$planning" "**A remote is created only when the user asks for one**" \
+    "planning session does not require a request before a remote is created"
+  # The fallback's case list is illustrative. It enumerated only README and licensing cases and
+  # would need an edit per artifact added, which is how it fell behind two of them.
+  assert_contains "$docs/METHOD.md" "**These are examples, not a" \
+    "METHOD.md §7's fallback still reads as an exhaustive list of cases"
+  assert_contains "$docs/METHOD.md" "a repo that is already public and whose owners hadn't" \
+    "METHOD.md §7's fallback carries no case from the visibility rule"
+  assert_contains "$readme_tpl" "license, notice, remote, or visibility" \
+    "repo README template's fallback does not cover remote or visibility"
+  # And a yes settles the TEXT, not how it reaches their trunk. Four files told an agent to write
+  # the Role section and none said what happens next, so the obvious continuation was to commit on
+  # whatever branch was out — usually main on a running system — and push. Both halves are pinned:
+  # the commit is made and left, and nothing leaves the machine.
+  assert_contains "$docs/METHOD.md" \
+    "**An accepted write is committed and left there. It is never pushed.**" \
+    "METHOD.md §7 does not say how an accepted write into an in-place repo lands"
+  assert_contains "$docs/METHOD.md" "never \`git add -A\`, which would sweep up whatever the" \
+    "METHOD.md §7 does not scope the commit to the files that were proposed"
+  assert_contains "$readme_tpl" "ON A YES, COMMIT IT ON A BRANCH AND STOP." \
+    "repo README template does not carry the landing rule to the point of the write"
+  assert_contains "$planning" "**On a yes, commit it on a branch and stop**" \
+    "planning session does not say how an accepted write into an in-place repo lands"
+  # ARCHITECTURE.md is a write at the root of somebody else's repository. It was stated unscoped in
+  # §7's general repo paragraph, and the template comment suggesting it is inside the Overview
+  # section — which an in-place repo with no README gets written from.
+  assert_contains "$docs/METHOD.md" "a repo **the method creates** with real internal complexity" \
+    "METHOD.md §7 still tells any repo with internal complexity to add an ARCHITECTURE.md"
+  assert_contains "$docs/METHOD.md" \
+    "\`architecture/\`, where the project's own docs live, not as a second new file at the root of a" \
+    "METHOD.md §7 does not send an in-place repo's internal design to the docs hub instead"
+  # The template is the file an agent has open while writing a README for an in-place repo that had
+  # none, and its Overview comment called for an ARCHITECTURE.md unconditionally — so §7 said one
+  # thing and the file in front of the agent said another. Scoping §7 alone would leave the
+  # contradiction exactly where it does the damage.
+  # Both branches lead with their scope, in the same caps-led shape as STAMP/AUGMENT above. The
+  # affirmative used to open the paragraph with its qualifier fifteen words ahead of the verb, so
+  # a reader hit "add an ARCHITECTURE.md at the repo root" while still holding the scope — which
+  # is how this reads as a contradiction with the prohibition below it.
+  assert_contains "$readme_tpl" "A REPO THIS METHOD CREATED, with real internal complexity, gets one" \
+    "repo README template still calls for an ARCHITECTURE.md before naming which repos it means"
+  assert_contains "$readme_tpl" "A REPO REGISTERED IN PLACE NEVER GETS ONE" \
+    "repo README template does not rule out an ARCHITECTURE.md for an in-place repo"
+  # A repo that brought its own ARCHITECTURE.md keeps it — read and link, never rewrite.
+  assert_contains "$readme_tpl" "it is theirs: read it, link it from the" \
+    "repo README template does not say an in-place repo's own ARCHITECTURE.md is left alone"
 
   # --- The README. Stamp what the method creates; augment what it registers, keyed on whether the
   # file exists. The substituted section name doubles as the placeholder check.
