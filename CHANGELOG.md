@@ -30,6 +30,18 @@ error/corruption and re-run paths, not normal operation.
   greenfield one, from which the ordinary forward flow continues) arrive in the remaining 2.0
   increments. **Default mode is `new`**; a project stood up from scratch never enters this path and is
   unchanged.
+- **Adoption states the principle its intake rules come from** (`RETCON-PROMPT.md`) — the individual
+  rules were all in place (your README is added to, your CI is left alone, your licensing is
+  recorded, your remotes and visibility are untouched), but nothing said what they had in common, so
+  a case none of them named had no answer. Adoption now opens by saying it: it is **additive** —
+  nearly everything it produces is new and lands where nothing was, so that the method can be used
+  from here forward — and the intake is not a pass over your prior work. Your code is read, never
+  rewritten. Where it would touch something you already own, it asks and waits for a yes, for that
+  file, in that repo, with the exact text in front of you; and where it meets something it did not
+  create that no rule covers, it asks rather than acting and explaining afterwards. **This is the
+  posture of the adoption, not of the project it produces** — it ends when the baseline lands, and
+  from there forward STEPs implement against that baseline and change these repos like any others,
+  which is the point of bringing a legacy system under the method in the first place.
 - **`throughstone:` field on repo rows** (`registries/repos.yml`) — records how the method relates to
   each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
   (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.

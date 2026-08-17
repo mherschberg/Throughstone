@@ -19,6 +19,27 @@ original intent are secondary evidence that may be stale — settle every diverg
 code, recording reality *plus* any drift/debt, never re-deciding. **No fabricated history, no
 reconstructed ADRs** (a *forward* decision made during adoption may be a normal ADR).
 
+**Permission, not forgiveness — for the intake.** Adoption is **additive**. Nearly everything it
+produces is new and lands where nothing was — the `architecture/` baseline, the STEP process, the
+registries, the recon map — so that ordinary {{PROJECT}} can run from here forward. The intake is not
+a pass over the team's prior work: their code is read and never rewritten, and what they already have
+stays theirs. The few places where the two would meet are handled the same way every time — **ask,
+and wait for a yes**, for that file, in that repo, with the exact text in front of them. A repo's
+README, its licensing, its CI, its remote, its visibility: there is a rule below for each, and those
+rules are this principle applied, not the extent of it. **When you meet something you did not create
+and nothing here says what to do, ask** — never act now and explain after. You are moving quickly
+through a codebase someone else built and still runs, describing it rather than working on it, and
+nothing has been agreed yet; the question costs a message, and the change nobody agreed to costs
+their trust in the whole baseline.
+
+**This is the posture of the adoption, and it ends when the baseline lands.** It is not a permanent
+stance toward these repos, and it is not a mode the project carries around afterwards. Adopting a
+legacy system is precisely so that {{PROJECT}} can change it — once STEP-1 is `Done` and
+`PROJECT-STATUS` flips, forward STEPs implement against the baseline and edit these repos like any
+others, under the ordinary method. Do not carry this restraint past the land, and do not read it back
+into `METHOD.md`: what it governs is a point-in-time intake, taken before there is an architecture to
+work from or a single agreement in place.
+
 ## How this prompt works — one resolver
 
 Retcon runs like greenfield: the next action is always derivable from disk. There is **one
