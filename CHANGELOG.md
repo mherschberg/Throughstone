@@ -141,12 +141,17 @@ error/corruption and re-run paths, not normal operation.
     file — so the obvious next move was a commit on whatever branch was checked out, which on a
     repo you already run is usually `main`, and a push to your remote. Your yes was about the
     text, not about how a change reaches your trunk; that is your review process, not the
-    method's. It now makes a branch, commits **only the file it proposed** (never `git add -A`,
-    which would sweep up work in progress), tells you the branch and commit, and stops — no push,
-    no pull request, no merge. If that file already has uncommitted changes, it says so and leaves
-    it alone. The same goes for a README written from the template where a repo had none: one
-    file, on a branch — and never an `ARCHITECTURE.md` at your repo's root, which is where the
-    template's Overview comment would otherwise point. That write-up goes in the docs hub.
+    method's. It now places the Throughstone notice for that section first, then makes a branch and
+    commits **every file it just wrote into that repo** — the README addition plus the
+    `LICENSE-THROUGHSTONE` and `LICENSING.md` marking it as scaffold material — naming each path
+    and never `git add -A`,
+    which would sweep up work in progress; then tells you the branch and commit, and stops — no push,
+    no pull request, no merge. One branch, one commit, so the section and the notice explaining it
+    cannot be separated by whatever you do with that branch. If that file already has uncommitted
+    changes, it says so and leaves
+    it alone. The same goes for a README written from the template where a repo had none: that
+    file and its notice, on a branch — and never an `ARCHITECTURE.md` at your repo's root, which is
+    where the template's Overview comment would otherwise point. That write-up goes in the docs hub.
   - **Your repos are never published, and their remotes are never touched.** Adoption said nothing
     about either — every repo it registers already lives somewhere and is already private or
     public, both decisions made before the project existed. It now says so outright: no remote is

@@ -187,6 +187,28 @@ run_existing_case() {
     "**Never push, open a pull request, or merge**"
   assert_file_contains "$docs/RETCON-PROMPT.md" \
     "which would sweep up whatever they had in progress"
+  # The commit covers everything the method wrote, not just the file that was proposed. An accepted
+  # addition leaves the README plus the two files --notice-only places, and only the README is ever
+  # proposed — so a commit scoped to the proposal handed the owners a branch carrying the section
+  # without the notice that explains it, and left the other two untracked in their working tree at
+  # the point the agent had been told to stop.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "commit every file the method just wrote into that repo"
+  # Which means the notice mode runs BEFORE the commit. Its paragraph is placed ahead of the
+  # landing paragraph so the resolver reads in the order it is meant to execute; an agent working
+  # top-to-bottom that hits the commit first has already stopped by the time it reaches the notice.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "Run it **now**, before the commit below, so those two files go in with the README change; run"
+  local notice_line landing_line
+  notice_line="$(grep -n -F -- "**Place the Throughstone notice only if something Throughstone-authored landed.**" \
+    "$docs/RETCON-PROMPT.md" | head -1 | cut -d: -f1)"
+  landing_line="$(grep -n -F -- "**On a yes, commit it on a branch and stop.**" \
+    "$docs/RETCON-PROMPT.md" | head -1 | cut -d: -f1)"
+  [ -n "$notice_line" ] && [ -n "$landing_line" ] && [ "$notice_line" -lt "$landing_line" ] || {
+    echo "FAIL: $name RETCON-PROMPT.md states the landing commit before the notice that rides on it" >&2
+    echo "       notice at line ${notice_line:-none}, landing commit at line ${landing_line:-none}" >&2
+    return 1
+  }
   # An ARCHITECTURE.md at an adopted repo's root is a file appearing in somebody else's repository,
   # and the template comment suggesting one is inside the Overview section a README-less repo gets
   # written from. Adopted repos are exactly the ones with real internal complexity.
