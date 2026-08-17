@@ -185,9 +185,13 @@ run_case() {
   # none, and its Overview comment called for an ARCHITECTURE.md unconditionally — so §7 said one
   # thing and the file in front of the agent said another. Scoping §7 alone would leave the
   # contradiction exactly where it does the damage.
-  assert_contains "$readme_tpl" "For a repo THIS METHOD CREATED with real internal complexity" \
-    "repo README template still calls for an ARCHITECTURE.md in any complex repo"
-  assert_contains "$readme_tpl" "NOT for a repo REGISTERED IN PLACE, including one whose README" \
+  # Both branches lead with their scope, in the same caps-led shape as STAMP/AUGMENT above. The
+  # affirmative used to open the paragraph with its qualifier fifteen words ahead of the verb, so
+  # a reader hit "add an ARCHITECTURE.md at the repo root" while still holding the scope — which
+  # is how this reads as a contradiction with the prohibition below it.
+  assert_contains "$readme_tpl" "A REPO THIS METHOD CREATED, with real internal complexity, gets one" \
+    "repo README template still calls for an ARCHITECTURE.md before naming which repos it means"
+  assert_contains "$readme_tpl" "A REPO REGISTERED IN PLACE NEVER GETS ONE" \
     "repo README template does not rule out an ARCHITECTURE.md for an in-place repo"
   # A repo that brought its own ARCHITECTURE.md keeps it — read and link, never rewrite.
   assert_contains "$readme_tpl" "it is theirs: read it, link it from the" \

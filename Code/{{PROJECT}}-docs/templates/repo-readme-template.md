@@ -106,13 +106,17 @@
      (link that for the full picture). This section is required — a repo without it doesn't
      explain itself.
 
-     For a repo THIS METHOD CREATED with real internal complexity, a README paragraph isn't
-     enough: add an `ARCHITECTURE.md` at the repo root for its internal design — the main
-     modules, key flows, and *why* it's built this way (the codebase-level counterpart to the
-     hub's system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo.
+     An `ARCHITECTURE.md` at the repo root splits the same way everything above does — on
+     whether this method created the repo. Check that before reading either branch:
 
-     NOT for a repo REGISTERED IN PLACE, including one whose README you are writing from this
-     template because it had none. That would be a second new file at the root of somebody
+     A REPO THIS METHOD CREATED, with real internal complexity, gets one: a README paragraph
+     isn't enough, so add an `ARCHITECTURE.md` at the root for its internal design — the main
+     modules, key flows, and *why* it's built this way (the codebase-level counterpart to the
+     hub's system-wide `architecture/` docs) — and link it from here. Skip it for a simple repo;
+     it is a judgment call about complexity, not something every repo gets.
+
+     A REPO REGISTERED IN PLACE NEVER GETS ONE — not even when you are writing its README from
+     this template because it had none. That would be a second new file at the root of somebody
      else's repository, and adopted repos are exactly the ones with real internal complexity, so
      this is the paragraph most likely to be read the wrong way. Their internal design is written
      up in the docs hub's `architecture/` instead (`METHOD.md` §7). If such a repo already has an
