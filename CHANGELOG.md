@@ -147,6 +147,40 @@ any project built with it.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **A repo's remote changes only when you ask.** §7 said "do not create a remote for a repo that
+  has one", which by implication permitted creating one for a repo that has none — pushing code to
+  a host its owners never picked — and said nothing about removing one. The rule now names all
+  three verbs (never created, repointed, or removed as a side effect) and covers every repo the
+  same way, which is what the method already did where it creates them: `init.sh` sets up no
+  remotes unless asked, and asks before it does. A repo registered without a remote is not missing
+  one; it is recorded as local.
+- **The gate said "every write above is proposed" over five bullets, only two of which are
+  writes.** The README addition and the Throughstone notice that follows it put a file in the
+  repo; CI, licensing, and remote/visibility are things the method *doesn't* do, so there is
+  nothing to propose or decline for them. §7 now names the two — and says that only the README
+  addition is actually put to the repo's owners, since the notice follows automatically from an
+  addition they have already accepted rather than being a second question. That is also what makes
+  the decline rules below the gate parse.
+- **The ask-when-unclear fallback listed only README and licensing cases.** It read as an
+  exhaustive list and had fallen behind two artifacts; it is now explicitly illustrative, with a
+  visibility and a remote example among them, so it stops needing an edit per rule added.
+- **Nothing said what happened after an accepted change was written into a repo you already had.**
+  Four files told an agent to propose the `Role in <project>` section and wait for a yes, and none
+  said what to do once the file changed on disk — no branch, no commit, no push. The obvious
+  continuation was to commit onto whatever branch was checked out (usually `main` on a running
+  system) and push it. A yes settles what the text should say, not how it reaches a trunk; that is
+  the team's own process. The method now creates a branch, commits **only the file(s) proposed** —
+  never `git add -A`, which would sweep up work in progress — reports the branch and commit, and
+  stops. No push, no pull request, no merge, and no committing around uncommitted changes to the
+  same file.
+- **`ARCHITECTURE.md` could be added to a repo the method didn't create.** §7 stated it unscoped in
+  its general repo paragraph, and the comment calling for one sits in the repo README template's
+  Overview section — which is what an in-place repo with no README gets written from, and adopted
+  repos are exactly the ones with real internal complexity. **Both** now scope it to repos the
+  method creates: scoping §7 alone would have left the contradiction in the file an agent actually
+  has open while writing into somebody else's repository. An in-place repo's internal design goes
+  in the docs hub's `architecture/` instead, and where such a repo already has an `ARCHITECTURE.md`
+  of its own it is read and linked, never rewritten.
 - **A repo's remote and visibility had no rule, and publishing was never stated as needing a
   go-ahead.** §7 listed what the method does to a repo it did not create — README, CI, licensing,
   the Throughstone notice — and covered remotes and visibility only by the general "a repo

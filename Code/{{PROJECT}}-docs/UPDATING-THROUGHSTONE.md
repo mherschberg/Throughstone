@@ -279,6 +279,38 @@ affect work you do after pulling them.
   header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
+- **A repo's remote changes only when you ask, and the in-place rules read straight.** Three
+  wording fixes in §7, no behavior change. *Remotes:* the rule said "do not create a remote for a
+  repo that has one", implying you could create one for a repo that has none, and said nothing
+  about removing one — it now names all three verbs (never created, repointed, or removed as a
+  side effect) and covers every repo the same way, matching what `init.sh` already does (no
+  remotes unless asked). *The gate:* "every write above is proposed" sat over five bullets of
+  which only two are writes, so it now names them — the README addition and the Throughstone
+  notice that follows it — says the other three are things the method doesn't do, and says that
+  only the README addition is put to the repo's owners, the notice following automatically from an
+  addition they already accepted. *The fallback:* its case list was README- and licensing-only and
+  read as exhaustive; it is now explicitly illustrative and includes a visibility and a remote
+  example. Pull `METHOD.md` §7 with `templates/planning-session.md` and
+  `templates/repo-readme-template.md`. **One thing to check:** nothing.
+- **An accepted change to a repo you already had is committed on a branch and left there.** §7 said
+  to propose the `Role in <project>` section and wait for a yes, and then said nothing about what
+  happens after the file changes on disk — no branch, no commit, no push. The obvious continuation
+  was to commit onto whatever branch was checked out, which on a running system is usually `main`,
+  and push it to their remote. A yes settles what the text should say; it says nothing about how
+  that change should reach a trunk, and every team has its own answer. So the method now makes a
+  branch, commits **only the file(s) proposed** (never `git add -A`, which would sweep up work in
+  progress), tells you the branch and commit, and stops — no push, no pull request, no merge. If
+  the working tree already has uncommitted changes to that file, it stops and says so instead.
+  Pull `METHOD.md` §7 with `templates/planning-session.md` and `templates/repo-readme-template.md`.
+  **One thing to check:** if an earlier run committed such a change onto a shared branch or pushed
+  it, that commit is still there and is worth reviewing like any other.
+- **An `ARCHITECTURE.md` is never added to a repo you already had.** §7 said "a repo with real
+  internal complexity adds an `ARCHITECTURE.md` at its root" in its general repo paragraph, without
+  scoping it — and the comment suggesting one lives in the repo README template's Overview section,
+  which is exactly what gets written for an in-place repo that has no README. Adopted repos are
+  also exactly the ones with real internal complexity. It is now scoped to repos the method
+  creates; an in-place repo's internal design is written up in the docs hub's `architecture/`
+  instead. **One thing to check:** nothing, unless a run added such a file to a repo of yours.
 - **Nothing is made public without you saying so, and an in-place repo's remote is left alone.**
   §7 listed what happens to a repo the method did not create — its README, its CI, its licensing,
   the Throughstone notice — and said nothing about its remote or its visibility. The general
@@ -309,8 +341,8 @@ affect work you do after pulling them.
   for licensing — "the method records licensing; it never establishes licensing for code it did not
   create" — sitting alongside separate rules for the README, for CI, and for the Throughstone
   notice. They were always the same rule applied to four artifacts: **a repo the method did not
-  create keeps what it already has.** §7 now states that once, with the four as consequences under
-  it and one gate covering all of them (propose the exact text, wait for an answer). **No behavior
+  create keeps what it already has.** §7 now states that once, with each of them as a consequence
+  under it and one gate covering all of them (propose the exact text, wait for an answer). **No behavior
   changes** — every individual rule says what it said, and the helpers are untouched. What changes
   is that the rationale lives in one place instead of being re-derived in each, and the files that
   cite it — `AGENTS.md`, the planning session, and the repo README template — now quote the general

@@ -95,7 +95,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    keeps the licensing its owner set (`METHOD.md` §7: a repo the method did not create keeps what
    it already has — README, CI, and licensing alike). Record what such a repo uses where its
    inventory entry describes it and move on; the helper refuses it. Repository
-   visibility is separate: when adding a remote for a repo **you are creating**, choose private or
+   visibility is separate, and comes up only if remotes are being added at all.
+   **A remote is created only when the user asks for one**, for any repo: `init.sh` sets none up
+   unless asked, and a repo already registered without one is not missing a remote — it is a repo
+   its owners have not put on a server (`METHOD.md` §7).
+   When adding a remote for a repo **you are creating**, choose private or
    public deliberately rather than inferring it from the license — and **take public only from an
    explicit go-ahead**, never from an open-source license, a public sibling repo, or the project
    describing itself as open source. With no answer given, create it private: that is reversible
@@ -111,8 +115,14 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    it (above). The one thing it may still be owed is the role-and-place framing its README
    probably lacks, and what to do keys on whether a README is there. **If it has one:** add a
    short `Role in {{PROJECT}}` section and leave every existing section alone — never stamp the
-   template over it. **If it has none:** write its README from the template. Either way it is the
-   user's repo, so show them what you intend to add and where, and wait for a yes. **Its CI is
+   template over it. **If it has none:** write its README from the template — that one file, and
+   not the `ARCHITECTURE.md` its Overview comment suggests for a complex repo; an in-place repo's
+   internal design is written up in the docs hub's `architecture/`, not as a new file at its root.
+   Either way it is the user's repo, so show them what you intend to add and where, and wait for a
+   yes. **On a yes, commit it on a branch and stop** — commit only the file you proposed, never
+   `git add -A`, and **never push, open a PR, or merge**. Tell them the branch and commit and let
+   them take it through their own process; how a change reaches their trunk is theirs to decide
+   (`METHOD.md` §7). **Its CI is
    its own** — never install `templates/ci/code-repo-ci.yml` into it; record what it runs in the
    Test Strategy doc. **Its remote and its visibility are its own too** — it already lives
    somewhere and is already private or public, so create no remote for it, repoint no existing one,
