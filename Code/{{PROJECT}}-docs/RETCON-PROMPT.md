@@ -365,15 +365,29 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   writing into a repo they own. **A no is a complete answer, not a gap:** the same information is
   already in the recon map, the repo's `architecture/` doc, and its `repos.yml` row, so record
   that the repo documents itself and move on.
+  **Place the Throughstone notice only if something Throughstone-authored landed.** If the README
+  addition was accepted, that section is BSD-3-Clause scaffold material, so run
+  `scripts/apply-project-license.sh --notice-only <repo-path>` — it writes `LICENSE-THROUGHSTONE`
+  and a `LICENSING.md` scoped to that material, disclaiming the rest of the repo, and never a
+  project `LICENSE`. Do **not** run the helper without that flag; it will refuse, and correctly.
+  Run it **now**, before the commit below, so those two files go in with the README change; run
+  afterwards they are written into their working tree at the point you have already stopped, and
+  the addition reaches their trunk with nothing saying where it came from.
+  If the user declined the README addition, nothing Throughstone-authored is in the repo and
+  nothing is owed — placing a notice for absent material would only confuse a later reader.
   **On a yes, commit it on a branch and stop.** The yes was about the text, not about how that
   change should reach their trunk — this is a running system with a review process you did not
-  design. So make a branch in that repo, commit **only the file you proposed** (name it; never
-  `git add -A`, which would sweep up whatever they had in progress), tell them the branch and the
+  design. So make a branch in that repo, and
+  commit every file the method just wrote into that repo — the README file you proposed, and the
+  `LICENSE-THROUGHSTONE` and `LICENSING.md` the notice mode placed alongside it. Name each path;
+  never `git add -A`, which would sweep up whatever they had in progress. One branch, one commit,
+  everything Throughstone put there, so the addition and the notice explaining it cannot be
+  separated by whatever they do next. Then tell them the branch and the
   commit, and stop there. **Never push, open a pull request, or merge**, and never commit onto
   whatever branch happens to be checked out — on an adopted repo that is usually `main`. If the
   working tree already has uncommitted changes to that file, say so and leave it rather than
   committing around them (`METHOD.md` §7). Writing a repo's README from the template where it had
-  none is the same: that one file, on a branch, committed and left — and **not** an
+  none is the same: that file and its notice, on a branch, committed and left — and **not** an
   `ARCHITECTURE.md` alongside it. The template calls for one in a repo with real internal
   complexity **that this method created**, and adoption creates none: these repos have the
   complexity and other people own them. So an adopted repo's internal design is written up in the
@@ -407,13 +421,6 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   its entire history to forks, caches, and crawlers and making it private again retrieves none of
   it. Adoption is the exact circumstance where this matters most: you are working across a stranger's
   private codebase, at speed, with more repos in flight than anyone is tracking closely.
-  **Place the Throughstone notice only if something Throughstone-authored landed.** If the README
-  addition was accepted, that section is BSD-3-Clause scaffold material, so run
-  `scripts/apply-project-license.sh --notice-only <repo-path>` — it writes `LICENSE-THROUGHSTONE`
-  and a `LICENSING.md` scoped to that material, disclaiming the rest of the repo, and never a
-  project `LICENSE`. Do **not** run the helper without that flag; it will refuse, and correctly.
-  If the user declined the README addition, nothing Throughstone-authored is in the repo and
-  nothing is owed — placing a notice for absent material would only confuse a later reader.
   **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
   its owner's and the method only records it — the same rule that leaves its README augmented and
   its CI alone (`METHOD.md` §7: a repo the method did not create keeps what it already has).

@@ -403,6 +403,33 @@ else
   pass "no overview.md yet (project not initialized?) — skipping check-in cadence check"
 fi
 
+hdr "11. Project license posture (.throughstone/project-license)"
+# Adoption defers the license question: init.sh --mode=existing writes `Unset` and the recon-map
+# checkpoint answers it with scripts/set-project-license.sh, once the repos' own licensing has been
+# read. That deferral is legitimate, so this is a WARN and never a FAIL — but nothing else reports
+# it, and an Unset posture is not inert: scripts/apply-project-license.sh refuses to stamp any repo
+# while it stands, so a project left this way quietly cannot create a licensed repo. Say it here so
+# the open question is visible on every run rather than discovered at the first refusal.
+POSTURE_FILE="$DOCS_DIR/.throughstone/project-license"
+if [ -f "$POSTURE_FILE" ]; then
+  POSTURE="$(head -n 1 "$POSTURE_FILE" | tr -d '[:space:]')"
+  case "$POSTURE" in
+    Unset)
+      warn "the project's license has not been chosen yet (posture: Unset)"
+      hint "answer it with scripts/set-project-license.sh <license> [--holder NAME]; until then apply-project-license.sh refuses to stamp a repo"
+      ;;
+    "")
+      warn ".throughstone/project-license is empty — the license posture cannot be read"
+      hint "restore it with the project's license id, or scripts/set-project-license.sh if it was never answered"
+      ;;
+    *)
+      pass "project license posture recorded ($POSTURE)"
+      ;;
+  esac
+else
+  pass "no .throughstone/project-license yet (project not initialized?) — skipping license posture check"
+fi
+
 # --- Summary ------------------------------------------------------------------
 hdr "Summary"
 printf '  %d fail(s), %d warning(s)\n' "$fails" "$warns"

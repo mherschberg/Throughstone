@@ -136,17 +136,40 @@ error/corruption and re-run paths, not normal operation.
     observation, not a gate: nothing asks for a blanket yes before any text exists, because the
     text is what you are agreeing to. And a decline can stand for the rest, so you say no once
     rather than once per repo.
+  - **A generated repo is never left out of the license answer in silence.** Which repos
+    `scripts/set-project-license.sh` settled was decided by a marker string inside each one's
+    `LICENSING.md`. A repo whose copy had been edited or deleted matched nothing and was skipped
+    without a word — the posture was written and the inventory rewritten, while that repo kept no
+    `LICENSE` and nothing recording why. It could not be fixed afterwards either: a second run is
+    refused as an answer already given, and `apply-project-license.sh` refuses a target whose
+    `LICENSING.md` differs. Membership is now decided by what the directory *is* — its own Git
+    work tree, which is also what tells the mono and multi layouts apart — and the state of its
+    `LICENSING.md` decides what happens to it: a missing one is written, a deferred one replaced,
+    and one somebody rewrote is left untouched and named in a closing report, with what to do
+    about it. A project nobody has tampered with sees no change.
+  - **`scripts/check.sh` reports an unanswered license question.** Adoption defers it deliberately,
+    so nothing was wrong with an `Unset` posture — but nothing reported it either, and it is not
+    inert: `apply-project-license.sh` refuses to stamp any repo while it stands, so a project left
+    that way could not create a licensed repo and the first sign of it was that refusal. A new
+    check names the posture on every run: a **warning** while it is `Unset` (with the helper that
+    answers it), a pass once it is answered, and a warning if the file is empty rather than
+    unanswered. It is never a failure — deferring is a legitimate state, not drift.
   - **An accepted README addition is committed on a branch and left for you.** Adoption told the
     agent to show you the text and wait for a yes, then said nothing about what happens to the
     file — so the obvious next move was a commit on whatever branch was checked out, which on a
     repo you already run is usually `main`, and a push to your remote. Your yes was about the
     text, not about how a change reaches your trunk; that is your review process, not the
-    method's. It now makes a branch, commits **only the file it proposed** (never `git add -A`,
-    which would sweep up work in progress), tells you the branch and commit, and stops — no push,
-    no pull request, no merge. If that file already has uncommitted changes, it says so and leaves
-    it alone. The same goes for a README written from the template where a repo had none: one
-    file, on a branch — and never an `ARCHITECTURE.md` at your repo's root, which is where the
-    template's Overview comment would otherwise point. That write-up goes in the docs hub.
+    method's. It now places the Throughstone notice for that section first, then makes a branch and
+    commits **every file it just wrote into that repo** — the README addition plus the
+    `LICENSE-THROUGHSTONE` and `LICENSING.md` marking it as scaffold material — naming each path
+    and never `git add -A`,
+    which would sweep up work in progress; then tells you the branch and commit, and stops — no push,
+    no pull request, no merge. One branch, one commit, so the section and the notice explaining it
+    cannot be separated by whatever you do with that branch. If that file already has uncommitted
+    changes, it says so and leaves
+    it alone. The same goes for a README written from the template where a repo had none: that
+    file and its notice, on a branch — and never an `ARCHITECTURE.md` at your repo's root, which is
+    where the template's Overview comment would otherwise point. That write-up goes in the docs hub.
   - **Your repos are never published, and their remotes are never touched.** Adoption said nothing
     about either — every repo it registers already lives somewhere and is already private or
     public, both decisions made before the project existed. It now says so outright: no remote is

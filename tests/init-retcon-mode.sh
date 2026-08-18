@@ -187,6 +187,28 @@ run_existing_case() {
     "**Never push, open a pull request, or merge**"
   assert_file_contains "$docs/RETCON-PROMPT.md" \
     "which would sweep up whatever they had in progress"
+  # The commit covers everything the method wrote, not just the file that was proposed. An accepted
+  # addition leaves the README plus the two files --notice-only places, and only the README is ever
+  # proposed — so a commit scoped to the proposal handed the owners a branch carrying the section
+  # without the notice that explains it, and left the other two untracked in their working tree at
+  # the point the agent had been told to stop.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "commit every file the method just wrote into that repo"
+  # Which means the notice mode runs BEFORE the commit. Its paragraph is placed ahead of the
+  # landing paragraph so the resolver reads in the order it is meant to execute; an agent working
+  # top-to-bottom that hits the commit first has already stopped by the time it reaches the notice.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "Run it **now**, before the commit below, so those two files go in with the README change; run"
+  local notice_line landing_line
+  notice_line="$(grep -n -F -- "**Place the Throughstone notice only if something Throughstone-authored landed.**" \
+    "$docs/RETCON-PROMPT.md" | head -1 | cut -d: -f1)"
+  landing_line="$(grep -n -F -- "**On a yes, commit it on a branch and stop.**" \
+    "$docs/RETCON-PROMPT.md" | head -1 | cut -d: -f1)"
+  [ -n "$notice_line" ] && [ -n "$landing_line" ] && [ "$notice_line" -lt "$landing_line" ] || {
+    echo "FAIL: $name RETCON-PROMPT.md states the landing commit before the notice that rides on it" >&2
+    echo "       notice at line ${notice_line:-none}, landing commit at line ${landing_line:-none}" >&2
+    return 1
+  }
   # An ARCHITECTURE.md at an adopted repo's root is a file appearing in somebody else's repository,
   # and the template comment suggesting one is inside the Overview section a README-less repo gets
   # written from. Adopted repos are exactly the ones with real internal complexity.
@@ -509,6 +531,113 @@ run_set_project_license_case() {
   }
 }
 
+# run_license_marker_tamper_case — no generated repo is skipped in silence.
+#
+# Which repos this helper settles used to be decided by a marker string inside each one's
+# LICENSING.md. A repo whose copy had been deleted or edited matched nothing and was skipped
+# without a word: the posture was written and the inventory rewritten, while that repo kept no
+# LICENSE and no record of why. Unrecoverable afterwards — a second run is refused as an answer
+# already given, and apply-project-license.sh refuses a target whose LICENSING.md differs.
+#
+# Membership is decided by what the directory is (its own git work tree), and the state of its
+# LICENSING.md decides what happens: a missing one is written, a deferred one replaced, an edited
+# one left alone and named. Both halves are asserted, because recovering the deleted case by
+# overwriting the edited one would be a worse bug than the one being fixed.
+run_license_marker_tamper_case() {
+  local name deleted edited docs
+
+  # (a) LICENSING.md deleted from prompts/ — the repo is still settled.
+  name="retcon-license-marker-deleted"
+  deleted="$TMP_ROOT/$name"
+  copy_template "$deleted"
+  ( cd "$deleted" && ./init.sh --non-interactive --mode=existing --slug="$name" \
+      --desc="Marker deleted" --layout=multi --collab=solo --remotes=no ) >"$TMP_ROOT/$name.out" 2>&1
+  docs="$deleted/Code/$name-docs"
+  rm -f "$deleted/prompts/LICENSING.md"
+  "$docs/scripts/set-project-license.sh" mit --holder "Acme Corp" >"$TMP_ROOT/$name.set" 2>&1 || {
+    echo "FAIL: $name failed after its LICENSING.md was deleted" >&2
+    return 1
+  }
+  [ -f "$deleted/prompts/LICENSE" ] || {
+    echo "FAIL: $name left a generated repo unlicensed after its LICENSING.md was deleted" >&2
+    return 1
+  }
+  [ -f "$deleted/prompts/LICENSING.md" ] || {
+    echo "FAIL: $name did not restore the licensing summary it had to rewrite anyway" >&2
+    return 1
+  }
+
+  # (b) LICENSING.md rewritten by hand — left alone, and said out loud.
+  name="retcon-license-marker-edited"
+  edited="$TMP_ROOT/$name"
+  copy_template "$edited"
+  ( cd "$edited" && ./init.sh --non-interactive --mode=existing --slug="$name" \
+      --desc="Marker edited" --layout=multi --collab=solo --remotes=no ) >"$TMP_ROOT/$name.out" 2>&1
+  docs="$edited/Code/$name-docs"
+  printf '# Licensing\n\nTBD - ask legal.\n' > "$edited/prompts/LICENSING.md"
+  "$docs/scripts/set-project-license.sh" mit --holder "Acme Corp" >"$TMP_ROOT/$name.set" 2>&1 || {
+    echo "FAIL: $name failed on a hand-edited licensing summary" >&2
+    return 1
+  }
+  assert_file_contains "$TMP_ROOT/$name.set" "were NOT settled"
+  # Named by repo-relative path: the helper reports physical paths, and a fixture under a symlinked
+  # temp dir would never match the logical one this test holds.
+  assert_file_contains "$TMP_ROOT/$name.set" "$name/prompts/LICENSING.md"
+  grep -Fq "ask legal" "$edited/prompts/LICENSING.md" || {
+    echo "FAIL: $name overwrote a licensing summary somebody had written" >&2
+    return 1
+  }
+  # And the repos it could settle are still settled — the report is not an abort.
+  grep -Fq "has not chosen its license yet" "$docs/LICENSING.md" && {
+    echo "FAIL: $name stopped settling the other repos when one was reported" >&2
+    return 1
+  }
+
+  # (c) An untampered project reports nothing — the warning must not fire on the normal path.
+  grep -Fq "were NOT settled" "$TMP_ROOT/retcon-license-marker-deleted.set" && {
+    echo "FAIL: $name reported an unsettled repo on a project with none" >&2
+    return 1
+  }
+  return 0
+}
+
+# run_posture_visibility_case — an Unset posture is reported by check.sh.
+#
+# Adoption defers the license question, which is legitimate, so this is a warning and never a
+# failure. But nothing reported it at all: a project could sit Unset indefinitely while
+# apply-project-license.sh refused to stamp any repo, and the first sign of it was that refusal.
+run_posture_visibility_case() {
+  local name="retcon-posture-visible"
+  local work="$TMP_ROOT/$name" docs
+  copy_template "$work"
+  ( cd "$work" && ./init.sh --non-interactive --mode=existing --slug="$name" \
+      --desc="Posture visibility" --layout=multi --collab=solo --remotes=no ) >"$TMP_ROOT/$name.out" 2>&1
+  docs="$work/Code/$name-docs"
+
+  bash "$docs/scripts/check.sh" >"$TMP_ROOT/$name.deferred" 2>&1 || {
+    echo "FAIL: $name turned a legitimate deferral into a check.sh failure" >&2
+    return 1
+  }
+  assert_file_contains "$TMP_ROOT/$name.deferred" "has not been chosen yet"
+  assert_file_contains "$TMP_ROOT/$name.deferred" "scripts/set-project-license.sh"
+
+  # Once answered, the warning goes away rather than becoming permanent noise.
+  "$docs/scripts/set-project-license.sh" apache-2.0 --holder "Acme Corp" >"$TMP_ROOT/$name.set" 2>&1 || {
+    echo "FAIL: $name could not answer the deferred question" >&2
+    return 1
+  }
+  bash "$docs/scripts/check.sh" >"$TMP_ROOT/$name.answered" 2>&1 || {
+    echo "FAIL: $name check.sh failed after the license was chosen" >&2
+    return 1
+  }
+  if grep -Fq "has not been chosen yet" "$TMP_ROOT/$name.answered"; then
+    echo "FAIL: $name still warns about the posture after it was answered" >&2
+    return 1
+  fi
+  assert_file_contains "$TMP_ROOT/$name.answered" "project license posture recorded (Apache-2.0)"
+  return 0
+}
+
 # run_new_case NAME EXTRA_ARGS... — greenfield must be untouched (marker, no PLAN, message).
 run_new_case() {
   local name="$1"; shift
@@ -687,6 +816,8 @@ run_existing_case "retcon-mono"  mono
 run_existing_env_case
 run_deferred_license_case
 run_set_project_license_case
+run_license_marker_tamper_case
+run_posture_visibility_case
 run_new_case "green-explicit" --mode=new
 run_new_case "green-default"
 run_invalid_mode_case

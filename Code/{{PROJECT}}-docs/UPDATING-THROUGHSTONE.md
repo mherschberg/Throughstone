@@ -385,8 +385,10 @@ All but the last are documentation only; nothing you already produced is rewritt
 - **An accepted README addition is committed on a branch and left there.** `RETCON-PROMPT.md` told
   the agent to show you the text and wait for a yes, then said nothing about the file afterwards —
   no branch, no commit, no push. On an adopted repo the obvious continuation is a commit on
-  whichever branch is checked out, usually `main`, followed by a push. It now makes a branch,
-  commits only the file it proposed, reports the branch and commit, and stops; never pushes, opens
+  whichever branch is checked out, usually `main`, followed by a push. It now places the
+  Throughstone notice first, then makes a branch, commits every file it just wrote into that repo
+  — the README addition plus the `LICENSE-THROUGHSTONE` and `LICENSING.md` the notice mode placed
+  — reports the branch and commit, and stops; never pushes, opens
   a PR, or merges; and leaves the file alone if it already has uncommitted changes. A README
   written from the template for a repo that had none follows the same path, and never brings an
   `ARCHITECTURE.md` with it — an adopted repo's internal design is written up in the docs hub's
