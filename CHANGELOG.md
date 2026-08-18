@@ -51,6 +51,22 @@ any project built with it.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **`init.sh` still destroyed a repository whose work had never been added to Git.** The bootstrap
+  guard asks three questions — does HEAD resolve, do any refs exist, is anything staged — and a
+  repository created with `git init` (usually with a remote added) whose files have never been
+  `git add`ed answers "no" to all three while holding the whole project as untracked files. That
+  is a fourth store none of the three reads, and it is the one state indistinguishable from the
+  empty repository the mono-repo origin-reuse flow legitimately runs in. Measured: `init.sh`
+  proceeded, and in mono-repo layout wrote a project `LICENSE` beside the repository's own
+  `COPYING`, added a `LICENSING.md` asserting that license over their code, swept their source
+  into a bootstrap commit, and replaced the `.git` holding their origin — the same outcome the
+  guard already refuses for committed and staged work, and the same claim
+  `scripts/apply-project-license.sh` refuses on sight, arriving again by the one path that never
+  calls it. A fourth signal now refuses when nothing is committed, staged, or on a branch but the
+  working tree holds entries the template does not ship, and names them so it is clear the
+  refusal came from the user's own files. Origin-reuse is unaffected: a folder holding only the
+  template still initializes. A maintainer test pins the entry list against the template's real
+  top level, so a top-level file added later fails there rather than silently refusing real runs.
 - **An accepted README addition landed without the notice that explains it.** Two files go into a
   repo registered in place when its owners accept the `Role in <project>` section: the README, and
   the `LICENSE-THROUGHSTONE` / `LICENSING.md` that `apply-project-license.sh --notice-only` places
