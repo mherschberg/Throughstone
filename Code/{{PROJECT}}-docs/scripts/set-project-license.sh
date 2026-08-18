@@ -125,21 +125,82 @@ if [ "$PROJECT_IS_OPEN_SOURCE" = "1" ]; then
   fi
 fi
 
-# generated_repos — print each directory holding a LICENSING.md this project has not settled yet.
+# is_generated_repo DIR — true when DIR is a repo init.sh created, rather than a folder inside one.
+# Reads: DIR's git metadata.
+# Writes: nothing.
+# Returns: 0 when DIR is the top level of its own work tree.
+#
+# This is what tells the layouts apart without being told which one is in use. Multi-repo makes the
+# docs hub and prompts/ their own repos and leaves the workspace root a plain shell; mono-repo makes
+# the root the one repo, so the docs hub inside it reports the root as its top level, not itself.
+# Both sides are compared as PHYSICAL paths: `git rev-parse --show-toplevel` resolves symlinks,
+# and a logical `pwd` does not, so on a system whose temp or home path is a symlink the two never
+# match and every repo looks like a folder inside another one.
+is_generated_repo() {
+  local top
+  top="$(git -C "$1" rev-parse --show-toplevel 2>/dev/null)" || return 1
+  top="$(cd "$top" 2>/dev/null && pwd -P)" || return 1
+  [ "$top" = "$(cd "$1" && pwd -P)" ]
+}
+
+# generated_repos — print each generated repo this answer should settle.
 # Reads: the docs hub, its sibling prompts/, and the workspace root.
 # Writes: nothing (prints one path per line).
 # Returns: 0 always.
 #
-# Those three are every directory init.sh can turn into a generated repo: multi-repo makes the docs
-# hub and prompts/ repos, mono-repo makes the workspace root one. Selecting by the marker rather
-# than by layout means this stays correct whichever one the project used, and skips a directory
-# that is not a generated repo — the marker is only ever written by init.sh's deferred path.
+# Those three are every directory init.sh can turn into a generated repo. Selection used to key on
+# the deferred marker inside LICENSING.md, which silently skipped any repo whose copy had been
+# edited or deleted: the posture was written, the inventory rewritten, and that repo was left with
+# no LICENSE and no mention of it — unrecoverable afterwards, since a second run is refused as an
+# answer already given and apply-project-license.sh refuses a target whose LICENSING.md differs.
+#
+# So membership is decided by what the directory IS, and the state of its LICENSING.md decides what
+# happens to it: a missing one is written (a generated repo is owed it either way), a deferred one
+# is replaced, and one that is neither is left alone and reported by unsettled_repos below. A repo
+# is never skipped without saying so.
 generated_repos() {
   local dir
   for dir in "$DOCS_ROOT" "$DOCS_ROOT/../../prompts" "$DOCS_ROOT/../.."; do
+    [ -d "$dir" ] || continue
+    is_generated_repo "$dir" || continue
+    if [ -f "$dir/LICENSING.md" ] && ! grep -Fq "$DEFERRED_MARKER" "$dir/LICENSING.md"; then
+      settled_licensing_matches "$dir" || continue
+    fi
+    ( cd "$dir" && pwd -P )
+  done
+}
+
+# settled_licensing_matches DIR — true when DIR/LICENSING.md is already the summary this answer
+# would write, i.e. a re-run rather than something a person edited.
+# Reads: DIR/LICENSING.md, PROJECT_LICENSE_ID, PROJECT_IS_OPEN_SOURCE.
+# Writes: a temp file, removed before returning.
+# Returns: 0 when the existing file is byte-identical to the settled form.
+settled_licensing_matches() {
+  local probe rc
+  probe="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-probe.XXXXXX")"
+  write_licensing_summary "$probe"
+  cmp -s "$probe/LICENSING.md" "$1/LICENSING.md"; rc=$?
+  rm -rf "$probe"
+  return "$rc"
+}
+
+# unsettled_repos — print each generated repo this answer must not touch and did not settle.
+# Reads: the same three candidates.
+# Writes: nothing (prints one path per line).
+# Returns: 0 always.
+#
+# Only one case reaches here: a generated repo whose LICENSING.md is neither the deferred text nor
+# the settled one, which means somebody wrote it. Overwriting it would destroy that; saying nothing
+# is what this whole change exists to stop.
+unsettled_repos() {
+  local dir
+  for dir in "$DOCS_ROOT" "$DOCS_ROOT/../../prompts" "$DOCS_ROOT/../.."; do
+    [ -d "$dir" ] || continue
+    is_generated_repo "$dir" || continue
     [ -f "$dir/LICENSING.md" ] || continue
-    grep -Fq "$DEFERRED_MARKER" "$dir/LICENSING.md" || continue
-    ( cd "$dir" && pwd )
+    grep -Fq "$DEFERRED_MARKER" "$dir/LICENSING.md" && continue
+    settled_licensing_matches "$dir" && continue
+    ( cd "$dir" && pwd -P )
   done
 }
 
@@ -221,4 +282,24 @@ EOF
 if [ "$PROJECT_IS_OPEN_SOURCE" = "0" ]; then
   echo "project license: Proprietary (no LICENSE created)"
 fi
+
+# A generated repo whose LICENSING.md somebody rewrote is the one thing this cannot settle without
+# destroying their text. It is reported rather than skipped, because the answer has now been given
+# and cannot be given again — leaving a repo out of it quietly is how one ends up with no LICENSE
+# and nothing recording that.
+UNSETTLED="$(unsettled_repos)"
+if [ -n "$UNSETTLED" ]; then
+  echo "" >&2
+  echo "set-project-license.sh: these generated repos were NOT settled — their LICENSING.md has" >&2
+  echo "        been edited, and overwriting it would discard what someone wrote there:" >&2
+  printf '%s\n' "$UNSETTLED" | while IFS= read -r repo; do
+    [ -n "$repo" ] || continue
+    echo "  $repo/LICENSING.md" >&2
+  done
+  echo "        The project's license is now $PROJECT_LICENSE_ID and this helper answers once, so" >&2
+  echo "        re-running will not pick them up. Bring each into line by hand: state" >&2
+  echo "        $PROJECT_LICENSE_ID in that file, and for an open-source posture copy" >&2
+  echo "        $DOCS_ROOT/LICENSE to the repo root." >&2
+fi
+
 echo "Commit these changes in each repo they touched."
