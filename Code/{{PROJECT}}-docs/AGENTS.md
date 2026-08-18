@@ -131,7 +131,14 @@ creates is **stamped** from `templates/repo-readme-template.md`. For a repo **re
 place**, the rule keys on whether a README is already there: if it is, **augment** — add a short
 `Role in {{PROJECT}}` section and nothing else, and never rewrite a section the repo already has;
 if the repo has none, write one from the template. Either way you are writing into the user's
-repo, so propose it before you do (`METHOD.md` §7). Nothing else about a registered-in-place repo
+repo, so propose it before you do (`METHOD.md` §7) — and where its README
+already says what the repo is within the system, nothing is missing, so propose nothing.
+**Whichever way it goes, record
+it in that repo's `registries/repos.yml` row as its `readme:` value** (`stamped` / `augmented` /
+`written` / `role-stated` / `declined` / `not-proposed`; the registry header defines each). That
+value is what the periodic check-in reads to know how much of each README the method is answerable
+for, and it is the only record that a decline was ever given.
+Nothing else about a registered-in-place repo
 is scaffolded — it already exists, and in particular the CI gate is never installed into one (its
 pipeline is its own). If the README addition is accepted, that leaves Throughstone-authored
 material in the repo, so place its notice with

@@ -113,7 +113,7 @@ run_case() {
     "METHOD.md §7 lost the single rule the per-artifact consequences hang off"
   local claimed bullets
   claimed="$(sed -n 's/.*This is one rule, not \([a-z]*\)\..*/\1/p' "$docs/METHOD.md")"
-  bullets="$(sed -n '/A repo the method did \*not\* create keeps/,/^Every write above/p' \
+  bullets="$(sed -n '/A repo the method did \*not\* create keeps/,/^\*\*Exactly two of those five/p' \
     "$docs/METHOD.md" | grep -c '^- \*\*')"
   case "$bullets" in
     3) expected=three ;; 4) expected=four ;; 5) expected=five ;;
@@ -243,7 +243,8 @@ run_case() {
   # file under "declined" and stops checking the one README there the method is answerable for.
   assert_contains "$check_in" "check only that the \`Role in $name\` section" \
     "check-in README sweep does not scope the Role-section check to an augmented repo"
-  assert_contains "$check_in" "**One that had none** carries a README the method" \
+  assert_contains "$check_in" \
+    "- \`written\` — a repo **registered in place** that had no README, so the method wrote the file" \
     "check-in README sweep has no branch for a README the method wrote for an in-place repo"
   assert_contains "$check_in" "**Overview** the same way, and still scaffold nothing else there" \
     "check-in README sweep does not check that written README the way a created repo's is checked"
@@ -326,6 +327,81 @@ run_case() {
   assert_absent "$repos" "as the architecture names them and they" \
     "repo inventory comment still says every repo listed here is stamped"
 
+  # --- The `readme:` field. Three files told an agent to record a declined README addition "in the
+  # repo's repos.yml row" and the row had nothing to record it in, so the outcome lived only in the
+  # conversation that produced it. Months later the check-in below branches on that fact and could
+  # not tell a refusal from a proposal nobody had made — so it either re-proposed into a repo whose
+  # owners had already said no, or filed a real gap under "declined" and stopped checking.
+  #
+  # The vocabulary is pinned value by value because each one exists to make a distinction some
+  # consumer acts on, and dropping any of them silently restores the ambiguity: `stamped`/`written`
+  # are Throughstone-authored files, `augmented` is one section of somebody else's, and the last
+  # three all mean "nothing was written" while telling a later reader to do three different things.
+  for value in stamped augmented written role-stated declined not-proposed; do
+    assert_contains "$repos" "#   $value" \
+      "repo inventory header does not define the \`readme: $value\` value"
+  done
+  # Every row carries it, including the two the bootstrap writes — the field is on every repo, not
+  # only the registered-in-place ones, so a sweep never has to work out which kind a row is first.
+  [ "$(grep -c '^    readme: stamped$' "$repos")" = 2 ] || {
+    echo "FAIL: the bootstrap repo rows do not both carry \`readme: stamped\`" >&2
+    return 1
+  }
+  # A missing value must not default to anything. Reading it as `stamped` hides a repo nobody
+  # asked; reading it as `not-proposed` re-opens a question the owners already answered.
+  assert_contains "$repos" "# A missing value means NOT RECORDED" \
+    "repo inventory header lets a missing \`readme:\` default instead of meaning not recorded"
+  # The standing decline's destination. This is the finding the field closes: METHOD.md says to
+  # record that the remaining repos document themselves, and until now said nowhere.
+  assert_contains "$repos" "# A STANDING decline" \
+    "repo inventory header does not say where a standing decline is recorded"
+  assert_contains "$docs/METHOD.md" \
+    "and there. A standing decline held only in the conversation is gone by the next session, and" \
+    "METHOD.md §7 still leaves a standing decline with nowhere durable to live"
+  # The decline paragraph named the row; it has to name the field in it, and say when to write it.
+  assert_contains "$docs/METHOD.md" \
+    "architecture doc — and in the repo's \`repos.yml\` row, whose \`readme:\` field records the answer as" \
+    "METHOD.md §7's declined-README fallback does not name the field that records it"
+  assert_absent "$docs/METHOD.md" \
+    "architecture doc — and in the repo's \`repos.yml\` row." \
+    "METHOD.md §7 still points a decline at a row with no field to hold it"
+  # Both files an agent has open at the moment of the write must say to record the outcome —
+  # following either one alone has to be enough.
+  assert_contains "$readme_tpl" "RECORD THE OUTCOME IN THAT REPO'S INVENTORY ROW" \
+    "repo README template does not tell you to record the README outcome in the inventory row"
+  assert_contains "$planning" \
+    "**Record how it went in that repo's \`registries/repos.yml\` row**" \
+    "planning session does not record an in-place repo's README outcome in its inventory row"
+  assert_contains "$planning" "\`readme: stamped\` (the whole file is" \
+    "planning session does not record a created repo's README as the method's own"
+  # A README that already states the repo's place needs no addition. Every file that describes the
+  # augment branch says so now, because "add only the missing piece" reads as "add it" when the
+  # piece is not missing — and the outcome has a value of its own so it is not filed as a decline.
+  for f in "$docs/METHOD.md" "$readme_tpl" "$planning" "$docs/AGENTS.md"; do
+    assert_contains "$f" "already says what the repo is within the system" \
+      "$(basename "$f") does not exempt a README that already states the repo's place"
+  done
+  # The check-in reads the field rather than re-deriving the history from the repo, which is what
+  # it could not do. Each branch is pinned: the two Throughstone-authored values, the augmented
+  # one, the two settled ones, the one open one, and the unrecorded row.
+  assert_contains "$check_in" "read its \`readme:\` field in" \
+    "check-in README sweep does not read the inventory field that records what the method wrote"
+  assert_contains "$check_in" \
+    "- \`not-proposed\` — the one value that means something is still open" \
+    "check-in README sweep cannot tell an unproposed README addition from a declined one"
+  assert_contains "$check_in" "**Do not re-propose a" \
+    "check-in README sweep does not keep a declined repo from being proposed to again"
+  assert_contains "$check_in" "- **no value at all** — the row predates this field" \
+    "check-in README sweep has no branch for a row written before the field existed"
+  assert_absent "$check_in" "If the addition was declined," \
+    "check-in README sweep still lumps a declined repo in with one that has no README"
+  # The worked examples teach the field, and a single created-repo example teaches half of it —
+  # `readme:` is precisely the field whose value differs by which kind of repo the row describes.
+  assert_contains "$repos" "  #   readme: stamped" \
+    "repo inventory's created-repo example does not carry the field"
+  assert_contains "$repos" "  #   readme: declined" \
+    "repo inventory has no registered-in-place example showing a recorded outcome"
+
   # --- The fallback. Every rule above enumerates cases, and three rounds of review each turned up
   # one nobody had enumerated. What an agent does with the next such case is the thing worth
   # pinning: ask, and write nothing meanwhile. It has to ship in the file being read at the moment
@@ -400,7 +476,8 @@ run_deprecated_registries_case() {
   # mono-repo project might not keep one, which was true only because this flag could delete it.
   assert_absent "$docs/METHOD.md" "where the project keeps an inventory" \
     "METHOD.md §7 still hedges that a project may not keep an inventory"
-  assert_contains "$docs/METHOD.md" "architecture doc — and in the repo's \`repos.yml\` row." \
+  assert_contains "$docs/METHOD.md" \
+    "architecture doc — and in the repo's \`repos.yml\` row, whose \`readme:\` field records" \
     "METHOD.md §7's declined-README fallback no longer names the inventory row"
   assert_contains "$docs/runbooks/check-in.md" 'and in its `repos.yml` row (`METHOD.md` §7).' \
     "check-in README sweep no longer names the inventory row plainly"

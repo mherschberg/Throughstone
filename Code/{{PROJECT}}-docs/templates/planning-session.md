@@ -108,18 +108,24 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    **Each
    repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
    the repo is and the slice of the system it owns), and the repo gets a row in
-   `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can
-   explain itself.
+   `registries/repos.yml` with a one-line `description` and `readme: stamped` (the whole file is
+   the method's); a repo isn't scaffolded until it can explain itself.
    **A repo registered in place is not scaffolded at all.** Everything above describes creating a
    repo, and this one already exists — so it is not created, and the license helper is not run on
    it (above). The one thing it may still be owed is the role-and-place framing its README
    probably lacks, and what to do keys on whether a README is there. **If it has one:** add a
    short `Role in {{PROJECT}}` section and leave every existing section alone — never stamp the
-   template over it. **If it has none:** write its README from the template — that one file, and
-   not the `ARCHITECTURE.md` its Overview comment suggests for a complex repo; an in-place repo's
-   internal design is written up in the docs hub's `architecture/`, not as a new file at its root.
+   template over it — and where that README already says what the repo is within the system,
+   nothing is missing, so propose nothing. **If it has none:** write its README from the
+   template — that one file, and not the `ARCHITECTURE.md` its Overview comment suggests for a
+   complex repo; an in-place repo's internal design is written up in the docs hub's
+   `architecture/`, not as a new file at its root.
    Either way it is the user's repo, so show them what you intend to add and where, and wait for a
-   yes. **On a yes, place the notice, then commit both on a branch and stop.** The accepted text is
+   yes. **Record how it went in that repo's `registries/repos.yml` row** as its `readme:` value —
+   `augmented`, `written`, `role-stated`, `declined`, or `not-proposed` while it is still to be
+   asked (the registry header defines each). That row is what a later check-in reads to tell a
+   settled repo from one still owed the question.
+   **On a yes, place the notice, then commit both on a branch and stop.** The accepted text is
    Throughstone-authored, so run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>` first, then
    commit every file the method just wrote into that repo — the README file you proposed, and the

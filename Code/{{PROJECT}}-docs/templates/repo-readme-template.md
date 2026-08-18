@@ -8,7 +8,8 @@
   must carry a README. Keep the section headings consistent across all repos so the project
   reads uniformly. Sections that don't apply can be dropped (e.g. no "API / interface" for a
   library), but keep the order — and never drop the role one-liner above or the Overview
-  below: explaining what the repo *is* is the one non-negotiable part.
+  below: explaining what the repo *is* is the one non-negotiable part. Record it in that repo's
+  `Code/{{PROJECT}}-docs/registries/repos.yml` row as `readme: stamped`.
 
   AUGMENT a repo REGISTERED IN PLACE — one that existed before this project did — WHEN IT ALREADY
   HAS A README. The rule keys on whether that file exists, not on how the repo got here: a
@@ -32,9 +33,19 @@
   three sentences on the slice of the system this repo owns, and links to its architecture doc
   and the docs hub. Never replace, reorder, or rewrite a section the repo already has, and
   never stamp the Licensing section below into it (that describes a repo the method created).
-  Show the exact text and where it will go, and get agreement before writing into someone
-  else's repo; if they decline, that is a complete outcome — the same information already lives
-  in the repo's architecture doc, and in its `registries/repos.yml` row.
+  Where the README already says what the repo is within the system nothing is missing, so propose
+  nothing. Otherwise show the exact text and where it will go, and get agreement before writing
+  into someone else's repo; if they decline, that is a complete outcome — the same information
+  already lives in the repo's architecture doc, and in its `registries/repos.yml` row.
+
+  RECORD THE OUTCOME IN THAT REPO'S INVENTORY ROW, whichever way it went — the `readme:` field in
+  `Code/{{PROJECT}}-docs/registries/repos.yml`, whose header defines every value. `augmented`
+  when you added the Role section, `written` when you wrote the file for a repo that had none,
+  `role-stated` when its README already said the repo's place and you proposed nothing,
+  `declined` when they said no, and `not-proposed` until you have actually asked. Write it when
+  the answer comes. Nothing else records this: months later a check-in reads that row to decide
+  whether this repo is settled or still owed a question, and a row that does not say cannot tell
+  a refusal from an addition nobody has proposed.
 
   ON A YES, COMMIT IT ON A BRANCH AND STOP. A yes settles what the text says, not how it should
   reach their trunk — every team has its own answer to that. Place the notice first (below), then
@@ -53,7 +64,9 @@
   the same people repo after repo, and someone who has already said no is not asking to be asked
   again for each remaining one. So on a decline, establish whether it covers this repo or the
   rest — and where it is standing, stop proposing and record that those repos document
-  themselves. Ask that once, not per repo. The permission is never what carries forward, only
+  themselves: set every remaining registered-in-place repo's `readme:` to `declined` now, one
+  edit per row, rather than keeping the answer in the session where it does not survive the
+  session. Ask that once, not per repo. The permission is never what carries forward, only
   the refusal: a yes for one repo says nothing about the next, whose text is its own proposal.
 
   For a repo this method CREATES, stamp the CI gate named by the Test Strategy architecture doc
