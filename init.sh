@@ -166,7 +166,7 @@ Options:
   --license=NAME        mit | bsd-3 | apache-2.0 | private
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
-  --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
+  --registries=yes|no   DEPRECATED, ignored: registries/ is always kept.
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
   --trunk-branch=NAME   Generated repo trunk branch     (default: main)
@@ -493,19 +493,24 @@ else
   LAYOUT="$(ask 'Choose 1 or 2' '1')"
 fi
 
-# registries/ is always kept in multi-repo because setup-workspace.sh and remote recording use
-# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained.
-KEEP_REGISTRIES=1
-if [ "$LAYOUT" = "2" ]; then
-  if [ -n "$REGISTRIES_IN" ]; then
-    case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-      y|yes|true|1) KEEP_REGISTRIES=1 ;;
-      n|no|false|0) KEEP_REGISTRIES=0 ;;
-      *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-    esac
-  elif [ "$NONINTERACTIVE" != "1" ]; then
-    yesno "Include registries/ (repo inventory; useful for multi-repo)?" || KEEP_REGISTRIES=0
-  fi
+# registries/ is always kept. --registries=no used to prune it in mono-repo layout, on the
+# argument that a self-contained root repo has no sibling repos to inventory. That argument was
+# about repos.yml, and the directory holds two more registries it never covered: risks.yml, the
+# accepted risk / tech-debt register METHOD.md §7 requires, and security-reviews.yml, which the
+# whole security-review runbook family reads. Pruning took all three, and left the generated
+# project's own docs referring to files it no longer had — 98 references across 24 files, none of
+# them a Markdown link, so scripts/links.sh and scripts/check.sh both reported it clean.
+#
+# The flag is accepted and ignored so existing scripts keep working, and says so once. It is
+# removed in a later release. Nothing is pruned in either layout.
+if [ -n "$REGISTRIES_IN" ]; then
+  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
+    y|yes|true|1|n|no|false|0) ;;
+    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
+  esac
+  echo "init.sh: --registries is deprecated and ignored; registries/ is always kept." >&2
+  echo "        It also held risks.yml and security-reviews.yml, which pruning removed and the" >&2
+  echo "        method's own runbooks still referenced. The flag is a no-op, not an error." >&2
 fi
 
 # Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
@@ -885,15 +890,6 @@ fi
 # --- 4. Prune optional pieces -----------------------------------------------
 # runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
 # AGENTS.md and METHOD.md reference.
-if [ "$KEEP_REGISTRIES" = "0" ]; then
-  rm -rf "$DOCS/registries"
-  # The docs hub README indexes every directory it ships, so pruning the directory without
-  # pruning its row leaves a link to a file that is not there — which scripts/links.sh reports
-  # as a hard failure on the generated project's very first run. Drop the row with the directory.
-  perl -ni -e 'print unless m{^\| \[`registries/`\]}' "$DOCS/README.md"
-  echo "  pruned registries/"
-fi
-
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.
 if [ -f "$DOCS/adr/README.md" ]; then

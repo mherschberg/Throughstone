@@ -51,6 +51,22 @@ any project built with it.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **`--registries=no` deleted two registries its own rationale never covered.** The flag pruned
+  `registries/` in mono-repo layout, arguing that a self-contained root repo has no sibling repos
+  to inventory. That argument is about `repos.yml`. The directory also holds `risks.yml` — the
+  accepted risk / tech-debt register `METHOD.md` §7 requires, with no connection to repo layout —
+  and `security-reviews.yml`, which the entire security-review runbook and report-template family
+  reads. Pruning took all three and left the generated project's own documentation citing files it
+  did not have: 98 references across 24 files. None of them are Markdown links, so `links.sh` and
+  `check.sh` both reported such a project clean. The flag is now **deprecated and ignored** —
+  `registries/` is always kept, in both layouts — and prints one line saying so, since silently
+  ignoring it would leave someone expecting a pruned project. Invalid values still error as
+  before. The flag stays accepted for now and is removed in a later release; the deprecation
+  window from a patch release to the next major is too short to fail a scripted bootstrap on.
+  With the directory always present, the declined-README
+  fallback in `METHOD.md` §7, the repo README template, and `runbooks/check-in.md` no longer hedge
+  that a project might not keep an inventory — a caveat that was only ever true because this flag
+  could delete it.
 - **The licensing backstop read package metadata by shape, and three ecosystems don't use that
   shape.** Before stamping the project license into a repo, `scripts/apply-project-license.sh`
   checks whether the repo already states terms of its own — including in root package metadata.

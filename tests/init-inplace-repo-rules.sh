@@ -350,14 +350,16 @@ run_case() {
   }
 }
 
-# run_pruned_registries_case — a mono-repo project can decline registries/ entirely, and the rules
-# above have to survive that. Two ways they did not. The docs hub README indexes every directory it
-# ships, so pruning the directory but not its row left a link to a file that is not there — a hard
-# links.sh failure on the generated project's first run, before anyone had touched it. And the
-# rules named the repos.yml row flatly as the place a declined README's information still lives,
-# which is a promise this configuration cannot keep.
-run_pruned_registries_case() {
-  local name="inplace-pruned"
+# run_deprecated_registries_case — --registries=no no longer prunes anything, and this pins that.
+# The flag's argument was that a self-contained mono-repo root has no sibling repos to inventory,
+# which is an argument about repos.yml; the directory also holds risks.yml, the accepted risk
+# register METHOD.md §7 requires, and security-reviews.yml, which the security-review runbooks
+# read. Pruning removed all three and left the generated project's own docs citing files it did
+# not have — 98 references across 24 files, none of them Markdown links, so links.sh and check.sh
+# both called it clean. The flag is accepted and ignored so existing scripts keep working, and
+# removed in a later release.
+run_deprecated_registries_case() {
+  local name="inplace-registries-flag"
   local work="$TMP_ROOT/$name"
 
   copy_template "$work"
@@ -376,7 +378,14 @@ run_pruned_registries_case() {
   ) >"$TMP_ROOT/$name.out" 2>&1
 
   local docs="$work/Code/$name-docs"
-  [ ! -d "$docs/registries" ] || { echo "FAIL: --registries=no did not prune registries/" >&2; return 1; }
+  # All three registries survive the flag, and the one it was ever argued about is named first.
+  for reg in repos.yml risks.yml security-reviews.yml; do
+    [ -f "$docs/registries/$reg" ] \
+      || { echo "FAIL: --registries=no pruned registries/$reg" >&2; return 1; }
+  done
+  # Ignoring a flag silently is its own defect: a user who passed it is expecting a pruned project.
+  grep -Fq -- "--registries is deprecated and ignored" "$TMP_ROOT/$name.out" \
+    || { echo "FAIL: --registries=no was ignored without saying so" >&2; return 1; }
 
   # The generated project must be link-clean the moment it exists.
   ( cd "$docs" && ./scripts/links.sh ) >"$TMP_ROOT/$name-links.out" 2>&1 || {
@@ -384,19 +393,20 @@ run_pruned_registries_case() {
     grep -E "FAIL\]" "$TMP_ROOT/$name-links.out" >&2
     return 1
   }
-  assert_absent "$docs/README.md" '| [`registries/`](registries/README.md) |' \
-    "docs hub README still indexes a directory that was pruned"
+  assert_contains "$docs/README.md" '| [`registries/`](registries/README.md) |' \
+    "docs hub README no longer indexes the registries/ directory it ships"
 
-  # The declined-README fallback must not promise a row this project has no file to hold.
-  assert_contains "$docs/METHOD.md" "where the project keeps an inventory" \
-    "METHOD.md §7 still names the repos.yml row unconditionally as the declined-README fallback"
-  assert_contains "$docs/templates/repo-readme-template.md" "where the project keeps" \
-    "repo README template still names the repos.yml row unconditionally"
-  assert_contains "$docs/runbooks/check-in.md" 'and in its `repos.yml` row where' \
-    "check-in README sweep still names the repos.yml row unconditionally"
+  # The declined-README fallback names the inventory row plainly now. It used to hedge that a
+  # mono-repo project might not keep one, which was true only because this flag could delete it.
+  assert_absent "$docs/METHOD.md" "where the project keeps an inventory" \
+    "METHOD.md §7 still hedges that a project may not keep an inventory"
+  assert_contains "$docs/METHOD.md" "architecture doc — and in the repo's \`repos.yml\` row." \
+    "METHOD.md §7's declined-README fallback no longer names the inventory row"
+  assert_contains "$docs/runbooks/check-in.md" 'and in its `repos.yml` row (`METHOD.md` §7).' \
+    "check-in README sweep no longer names the inventory row plainly"
 }
 
 run_case
-run_pruned_registries_case
+run_deprecated_registries_case
 
 echo "init.sh registered-in-place repo rules: PASS"

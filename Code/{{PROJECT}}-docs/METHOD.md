@@ -556,8 +556,7 @@ permission to label what they already said yes to.
 
 **That addition is proposed before it happens** — show the exact text and where it goes, and wait
 for an answer. A decline is a complete outcome, not a gap: the same information lives in the
-architecture doc — and in the `repos.yml` row where the project keeps an inventory, which a
-mono-repo project may not.
+architecture doc — and in the repo's `repos.yml` row.
 
 **An accepted write is committed and left there. It is never pushed.** A yes settles what the text
 should say; it does not say anything about how that change should reach the repo's trunk, and every

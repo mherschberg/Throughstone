@@ -34,8 +34,7 @@
   never stamp the Licensing section below into it (that describes a repo the method created).
   Show the exact text and where it will go, and get agreement before writing into someone
   else's repo; if they decline, that is a complete outcome — the same information already lives
-  in the repo's architecture doc, and in its `registries/repos.yml` row where the project keeps
-  an inventory.
+  in the repo's architecture doc, and in its `registries/repos.yml` row.
 
   ON A YES, COMMIT IT ON A BRANCH AND STOP. A yes settles what the text says, not how it should
   reach their trunk — every team has its own answer to that. Place the notice first (below), then
