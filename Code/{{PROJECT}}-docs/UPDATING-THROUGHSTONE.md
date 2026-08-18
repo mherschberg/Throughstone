@@ -237,12 +237,18 @@ apply each area as a coherent review-required group, as with the legacy migratio
 - *Project state* (your `inputs/` contents): entirely yours — nothing is auto-created or
   rewritten. The folder is optional; a session reads what's there and ignores an empty folder.
 
-### 1.7.2 migration
+### 1.8 migration
 
-**Templates, guidance text, and one guard added to a helper script — nothing you already produced
-is rewritten.** Edits to `templates/architecture-sessions/*.md`, documentation fixes, and a refusal
-added to `scripts/apply-project-license.sh`, all *Templates for future use* under §2, so they
-affect work you do after pulling them.
+**Templates, guidance text, and several refusals that did not exist before — nothing you already
+produced is rewritten.** Edits to `templates/architecture-sessions/*.md`, `METHOD.md` §7 and the
+files that carry its rules, all *Templates for future use* under §2, so they affect work you do
+after pulling them.
+
+What is worth knowing before you pull: `init.sh` and `scripts/apply-project-license.sh` both refuse
+in cases where they previously proceeded. Those refusals are the point of the release — each one
+stood between the method and a write into a repository it did not create — but a script of yours
+that relied on either running unattended may now stop and ask. Each item below says what changed
+and what to check.
 
 - **`init.sh --registries=no` is deprecated and now does nothing.** It pruned `registries/` in
   mono-repo layout, on the argument that a self-contained root repo has no sibling repos to
