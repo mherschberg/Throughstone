@@ -514,9 +514,10 @@ project is actually missing. Per artifact that means:
 - **README — augmented, never stamped over.** It already exists and is usually the repo's
   most-read file, so the template is not copied onto it: add only the missing piece — a short
   `Role in <project>` section naming what the repo is within the system, with a link to its
-  architecture doc — and leave every section the repo already has untouched. The rule keys on
-  whether a README is there, not on how the repo got here: where a registered-in-place repo has
-  **no** README there is nothing to preserve, so write it from the
+  architecture doc — and leave every section the repo already has untouched. Where that README
+  already says what the repo is within the system, nothing is missing: propose nothing, and
+  record that. The rule keys on whether a README is there, not on how the repo got here: where a
+  registered-in-place repo has **no** README there is nothing to preserve, so write it from the
   template — every section but Licensing, which describes a repo the method created and is left
   out here as it is when augmenting. That is the one file; nothing else about the repo is
   scaffolded — in particular no `ARCHITECTURE.md`, which the template calls for in a *created*
@@ -524,7 +525,11 @@ project is actually missing. Per artifact that means:
   would otherwise attract. An in-place repo's internal design is written up in the docs hub's
   `architecture/`, where the project's own docs live, not as a second new file at the root of a
   repository the method does not own. Where such a repo already has an `ARCHITECTURE.md`, it is
-  its owners': read it, link it, leave it.
+  its owners': read it, link it, leave it. **Whichever of those happened, record it in that repo's
+  `registries/repos.yml` row as its `readme:` value** — `augmented`, `written`, `role-stated`, or
+  `declined` for a refusal, and `not-proposed` while the addition is still to be put to them
+  (`stamped` is the created-repo case). That row is the only durable record of what the method did
+  to that file; the branches above all describe a moment, and the value is what survives it.
 - **CI — its own.** `templates/ci/code-repo-ci.yml` fails until configured, so installing it would
   replace or break whatever already gates that repo's merges. Record what it runs instead.
 - **Licensing — recorded as found.** The repo already has a licensing status: a `LICENSE`, a
@@ -568,7 +573,10 @@ permission to label what they already said yes to.
 
 **That addition is proposed before it happens** — show the exact text and where it goes, and wait
 for an answer. A decline is a complete outcome, not a gap: the same information lives in the
-architecture doc — and in the repo's `repos.yml` row.
+architecture doc — and in the repo's `repos.yml` row, whose `readme:` field records the answer as
+`declined`. Write it when the answer comes, not later: an unrecorded decline is indistinguishable
+from an addition nobody has proposed yet, so the next agent to read that row puts the same
+proposal to owners who have already refused it.
 
 **An accepted write is committed and left there. It is never pushed.** A yes settles what the text
 should say; it does not say anything about how that change should reach the repo's trunk, and every
@@ -591,7 +599,10 @@ inspect, amend, or delete.
 put to the same owners repeatedly, and someone who has said no once is
 not asking to be asked again for every remaining repo — so when a proposal is declined, establish
 whether that answer covers this repo or the rest of them, and where it is standing, stop proposing
-and record that those repos document themselves. Ask that once, not per repo — and note which way
+and record that those repos document themselves. Recording it is one edit per row and not a note
+kept in the session: set every remaining registered-in-place repo's `readme:` to `declined` then
+and there. A standing decline held only in the conversation is gone by the next session, and the
+repeated asking it was given to stop begins again. Ask that once, not per repo — and note which way
 it runs: it is the answer that is being reused, never the permission, so a yes for one repo says
 nothing about the next, whose text is its own proposal. Choosing or changing what any of these say
 for an existing repo is its owners' act, taken deliberately by them, never a side effect of adding

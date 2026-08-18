@@ -57,6 +57,24 @@ error/corruption and re-run paths, not normal operation.
   repo's own license file stays authoritative, a missing value means "not recorded" so existing
   inventories are unaffected, and repos carrying different licenses is a normal inventory rather
   than an inconsistency to reconcile.
+- **The repo inventory records what the method did to each repo's README.** `METHOD.md` §7 lets a
+  declined README addition stand for every remaining repo registered in place — rather than putting
+  the same proposal to the same owners once per repo — and three files told an agent to record that
+  answer "in the repo's `repos.yml` row". No field there held it, so the answer lived only in the
+  session that produced it. The periodic check-in then skips a declined repo, and could not tell one
+  from a repo nobody had proposed to, or from one whose section somebody deleted: it either
+  re-proposed into a repo whose owners had already refused, or filed a real gap as settled and
+  stopped looking. Every row now carries a `readme:` value — `stamped`, `augmented`, `written`,
+  `role-stated`, `declined`, or `not-proposed` — defined in the registry's own header, written when
+  the answer comes, and read by the check-in's README sweep instead of re-derived from the repo. A
+  standing decline is recorded as `declined` on each remaining row at the moment it is given. The
+  field is a record, never an instruction: the repo's README is authoritative and this line is a
+  copy that can drift. A missing value means *not recorded* and defaults to nothing, so inventories
+  written before this release keep working and say so.
+- **A README that already states the repo's place is a complete outcome too.** §7 said to "add only
+  the missing piece", which reads as "add it" when the piece is not missing. Where a
+  registered-in-place repo's README already says what the repo is within the system, nothing is
+  proposed — recorded as `role-stated`, so a later sweep does not read it as a repo nobody asked.
 - **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
   `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
   inventory, stack per repo, services, data stores, integrations, existing-docs classification,
