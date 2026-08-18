@@ -51,6 +51,23 @@ any project built with it.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **The licensing backstop read package metadata by shape, and three ecosystems don't use that
+  shape.** Before stamping the project license into a repo, `scripts/apply-project-license.sh`
+  checks whether the repo already states terms of its own — including in root package metadata.
+  It matched a `license` key followed by `:` or `=`, which is one way of many to say it. Gradle's
+  standard form is a nested block (`licenses { license { name "Apache-2.0" } }`) with no
+  separator at all; `build.gradle.kts` and `setup.py` were not read in the first place. Measured:
+  four such repos were all treated as stating nothing, and each took a project `LICENSE` plus a
+  `LICENSING.md` asserting it over their Apache-licensed code. The check now matches **any
+  mention of licensing** in those files rather than a particular shape, and reads
+  `build.gradle.kts` and `setup.py` as well. This deliberately over-refuses: a manifest with an
+  empty license value, one naming a `licenseFile`, and a repo that merely depends on a
+  license-scanning tool now refuse too. That trade is the point — refusing costs one question to
+  someone who can look at their own manifest and say there is nothing there, while serving writes
+  a license claim onto code the method did not author and asks nobody. A repo that states nothing
+  at all is still served, installed dependency trees are still pruned, and `--notice-only` is
+  unaffected: it never reads this at all. Both directions are asserted together in
+  `tests/init-license-validation.sh`.
 - **`init.sh` still destroyed a repository whose work had never been added to Git.** The bootstrap
   guard asks three questions — does HEAD resolve, do any refs exist, is anything staged — and a
   repository created with `git init` (usually with a remote added) whose files have never been
