@@ -83,7 +83,9 @@ fi
 #   2. The same names further down — a monorepo licenses per package (packages/*/LICENSE), and a
 #      vendored tree carries the terms it arrived under. Depth-limited and pruned of the
 #      directories that hold installed dependencies rather than the repo's own code.
-#   3. A license field in root package metadata. Plenty of repos state their license only there.
+#   3. Any mention of licensing in root package metadata. Plenty of repos state their license
+#      only there, in whatever shape their ecosystem uses — a key, a nested block, a keyword
+#      argument — so this matches the word rather than a shape, and over-refuses by design.
 #
 # Plain root LICENSE is deliberately still not listed: verify_compatible already rejects a
 # differing one, and an identical one is this helper's own idempotent re-run.
@@ -118,20 +120,29 @@ find_pre_existing_licensing() {
           [ "$(dirname "$found")" = "$target" ] || printf '%s\n' "$found"
         done
 
-    # A license field in root package metadata. Matched loosely on purpose: any of these files
-    # carrying a populated license key is a repo saying something about its terms.
+    # Any mention of licensing in root package metadata. This matches the bare word, not a
+    # key/value shape, and that is deliberate.
+    #
+    # Matching on shape asks a manifest for something it is under no obligation to have. Gradle
+    # states a license as a nested block (`licenses { license { name "Apache-2.0" } }`) with no
+    # separator to key on; setup.py states it as a keyword argument. Both were measured taking a
+    # project LICENSE over their own terms while a pattern that wanted `license = value` looked
+    # straight past them. Every shape invented later would need another pattern, and the failure
+    # is silent: the repo is served, and a license claim lands on code the method did not write.
+    #
+    # So the question is "does this file mention licensing at all", and anything found is a
+    # refusal. That over-refuses on purpose. A manifest whose license field is empty, one naming
+    # a `licenseFile` instead of a license, and a repo that merely depends on a license-scanning
+    # tool all refuse now. Each costs one question to someone who can look at their own manifest
+    # and say there is nothing there. The other direction asks nobody anything and writes a
+    # license over somebody else's work.
     local manifest
     for manifest in "$target"/package.json "$target"/pyproject.toml "$target"/setup.cfg \
-                    "$target"/Cargo.toml "$target"/composer.json "$target"/*.gemspec \
-                    "$target"/build.gradle "$target"/pom.xml; do
+                    "$target"/setup.py "$target"/Cargo.toml "$target"/composer.json \
+                    "$target"/*.gemspec "$target"/build.gradle "$target"/build.gradle.kts \
+                    "$target"/pom.xml; do
       [ -f "$manifest" ] || continue
-      # Two shapes: a key/value pair (JSON quotes the key, so allow a quote before the separator;
-      # TOML and Gradle use `=`; npm's legacy form is a `licenses` array), and an XML <license>
-      # element for pom.xml. A populated value is required, so an empty license field reads as
-      # saying nothing.
-      if grep -Eiq \
-        '(^|[^A-Za-z_-])licen[cs]es?["'"'"']?[[:space:]]*[:=][^[:alnum:]]*[[:alnum:]]|<licen[cs]es?[[:space:]>]' \
-           "$manifest" 2>/dev/null; then
+      if grep -Eiq 'licen[cs]e' "$manifest" 2>/dev/null; then
         printf '%s\n' "$manifest"
       fi
     done

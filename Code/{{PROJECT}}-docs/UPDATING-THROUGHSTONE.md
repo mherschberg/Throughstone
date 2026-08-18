@@ -244,6 +244,19 @@ is rewritten.** Edits to `templates/architecture-sessions/*.md`, documentation f
 added to `scripts/apply-project-license.sh`, all *Templates for future use* under §2, so they
 affect work you do after pulling them.
 
+- **`init.sh --registries=no` is deprecated and now does nothing.** It pruned `registries/` in
+  mono-repo layout, on the argument that a self-contained root repo has no sibling repos to
+  inventory. That argument is about `repos.yml`; the directory also holds `risks.yml`, the
+  accepted risk / tech-debt register §7 requires, and `security-reviews.yml`, which the
+  security-review runbooks and their report templates read. Pruning removed all three and left
+  the generated project's own docs citing files it did not have — and because those citations are
+  prose rather than Markdown links, `scripts/links.sh` and `scripts/check.sh` both reported the
+  project clean. The flag is still accepted so existing scripts keep working, prints one
+  deprecation line, and is removed in a later release. **One thing to check:** if you generated a project
+  with `--registries=no`, it is missing all three registries. Copy `registries/` from a freshly
+  generated project (or from the template) into your docs hub — the two seed rows in `repos.yml`
+  describe the docs hub and `prompts/`, and the other two files start empty.
+
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
   invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first

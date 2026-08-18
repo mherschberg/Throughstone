@@ -51,6 +51,72 @@ any project built with it.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **`--registries=no` deleted two registries its own rationale never covered.** The flag pruned
+  `registries/` in mono-repo layout, arguing that a self-contained root repo has no sibling repos
+  to inventory. That argument is about `repos.yml`. The directory also holds `risks.yml` — the
+  accepted risk / tech-debt register `METHOD.md` §7 requires, with no connection to repo layout —
+  and `security-reviews.yml`, which the entire security-review runbook and report-template family
+  reads. Pruning took all three and left the generated project's own documentation citing files it
+  did not have: 98 references across 24 files. None of them are Markdown links, so `links.sh` and
+  `check.sh` both reported such a project clean. The flag is now **deprecated and ignored** —
+  `registries/` is always kept, in both layouts — and prints one line saying so, since silently
+  ignoring it would leave someone expecting a pruned project. Invalid values still error as
+  before. The flag stays accepted for now and is removed in a later release; the deprecation
+  window from a patch release to the next major is too short to fail a scripted bootstrap on.
+  With the directory always present, the declined-README
+  fallback in `METHOD.md` §7, the repo README template, and `runbooks/check-in.md` no longer hedge
+  that a project might not keep an inventory — a caveat that was only ever true because this flag
+  could delete it.
+- **The licensing backstop read package metadata by shape, and three ecosystems don't use that
+  shape.** Before stamping the project license into a repo, `scripts/apply-project-license.sh`
+  checks whether the repo already states terms of its own — including in root package metadata.
+  It matched a `license` key followed by `:` or `=`, which is one way of many to say it. Gradle's
+  standard form is a nested block (`licenses { license { name "Apache-2.0" } }`) with no
+  separator at all; `build.gradle.kts` and `setup.py` were not read in the first place. Measured:
+  four such repos were all treated as stating nothing, and each took a project `LICENSE` plus a
+  `LICENSING.md` asserting it over their Apache-licensed code. The check now matches **any
+  mention of licensing** in those files rather than a particular shape, and reads
+  `build.gradle.kts` and `setup.py` as well. This deliberately over-refuses: a manifest with an
+  empty license value, one naming a `licenseFile`, and a repo that merely depends on a
+  license-scanning tool now refuse too. That trade is the point — refusing costs one question to
+  someone who can look at their own manifest and say there is nothing there, while serving writes
+  a license claim onto code the method did not author and asks nobody. A repo that states nothing
+  at all is still served, installed dependency trees are still pruned, and `--notice-only` is
+  unaffected: it never reads this at all. Both directions are asserted together in
+  `tests/init-license-validation.sh`.
+- **`init.sh` still destroyed a repository whose work had never been added to Git.** The bootstrap
+  guard asks three questions — does HEAD resolve, do any refs exist, is anything staged — and a
+  repository created with `git init` (usually with a remote added) whose files have never been
+  `git add`ed answers "no" to all three while holding the whole project as untracked files. That
+  is a fourth store none of the three reads, and it is the one state indistinguishable from the
+  empty repository the mono-repo origin-reuse flow legitimately runs in. Measured: `init.sh`
+  proceeded, and in mono-repo layout wrote a project `LICENSE` beside the repository's own
+  `COPYING`, added a `LICENSING.md` asserting that license over their code, swept their source
+  into a bootstrap commit, and replaced the `.git` holding their origin — the same outcome the
+  guard already refuses for committed and staged work, and the same claim
+  `scripts/apply-project-license.sh` refuses on sight, arriving again by the one path that never
+  calls it. A fourth signal now refuses when nothing is committed, staged, or on a branch but the
+  working tree holds entries the template does not ship, and names them so it is clear the
+  refusal came from the user's own files. Origin-reuse is unaffected: a folder holding only the
+  template still initializes. A maintainer test pins the entry list against the template's real
+  top level, so a top-level file added later fails there rather than silently refusing real runs.
+- **An accepted README addition landed without the notice that explains it.** Two files go into a
+  repo registered in place when its owners accept the `Role in <project>` section: the README, and
+  the `LICENSE-THROUGHSTONE` / `LICENSING.md` that `apply-project-license.sh --notice-only` places
+  to mark that section as Throughstone-authored. Only the README is ever proposed — the notice
+  follows automatically and is deliberately not a second question — so the landing rule's
+  instruction to commit "only the file(s) proposed" covered one of the two, and the notice mode was
+  described as running *after* the commit. In practice the branch handed to the owners carried the
+  README alone, the two notice files were left untracked in their working tree after the agent had
+  been told to stop, and the addition merged into their trunk with nothing saying where it came
+  from — while the stray files waited for the next `git add -A` to sweep them into an unrelated
+  commit, the exact accident the landing rule warns about two sentences earlier. The notice is now
+  placed **before** the commit, and the commit covers **every file the method just wrote into that
+  repo**, each path named explicitly, still never `git add -A`. One branch, one commit, so the
+  addition and its notice cannot be separated by whatever the owners do next. `METHOD.md` §7, the
+  repo README template, and the planning session all state it that way; the rules on never pushing,
+  never committing onto the checked-out branch, and stopping if the file already has uncommitted
+  changes are unchanged. No effect on a repo the method creates.
 - **The record that justifies leaving an in-place repo's CI alone had nowhere to go.** The rules
   are settled: the starter gate in `templates/ci/code-repo-ci.yml` fails until configured, so it is
   never installed into a repo the method did not create — and four files (`METHOD.md` §7,
