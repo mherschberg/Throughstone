@@ -119,18 +119,21 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    not the `ARCHITECTURE.md` its Overview comment suggests for a complex repo; an in-place repo's
    internal design is written up in the docs hub's `architecture/`, not as a new file at its root.
    Either way it is the user's repo, so show them what you intend to add and where, and wait for a
-   yes. **On a yes, commit it on a branch and stop** — commit only the file you proposed, never
-   `git add -A`, and **never push, open a PR, or merge**. Tell them the branch and commit and let
+   yes. **On a yes, place the notice, then commit both on a branch and stop.** The accepted text is
+   Throughstone-authored, so run
+   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>` first, then
+   commit every file the method just wrote into that repo — the README file you proposed, and the
+   `LICENSE-THROUGHSTONE` and `LICENSING.md` it placed — naming each, never
+   `git add -A`, and **never push, open a PR, or merge**. One branch, one commit, so the addition
+   and the notice explaining it can't be separated. Tell them the branch and commit and let
    them take it through their own process; how a change reaches their trunk is theirs to decide
-   (`METHOD.md` §7). **Its CI is
+   (`METHOD.md` §7). If the addition was declined, nothing Throughstone-authored is in that repo
+   and nothing is owed. **Its CI is
    its own** — never install `templates/ci/code-repo-ci.yml` into it; record what it runs in the
    Test Strategy doc. **Its remote and its visibility are its own too** — it already lives
    somewhere and is already private or public, so create no remote for it, repoint no existing one,
    and **never change its visibility**. Record the cloneable URL it already has in its `remote:`
-   field so `scripts/setup-workspace.sh` can find it, and change nothing about the repo. If the
-   README addition is accepted, run
-   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>` to place the
-   Throughstone notice for that retained material; if it was declined, nothing is owed.
+   field so `scripts/setup-workspace.sh` can find it, and change nothing about the repo.
    Confirm the repo list with the user — on a first run they're all new; note any
    that already exist (registered and present, by either of the tests above) so you scaffold only
    the new ones.

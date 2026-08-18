@@ -151,8 +151,7 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
   wrote from the template, so that file is Throughstone-authored like a created repo's — check its
   **Overview** the same way, and still scaffold nothing else there. If the addition was declined,
   or the repo has no README, that is not a gap to close here — the framing lives in its
-  architecture doc, and in its `repos.yml` row where the project keeps an inventory
-  (`METHOD.md` §7).
+  architecture doc, and in its `repos.yml` row (`METHOD.md` §7).
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. A

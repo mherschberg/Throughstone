@@ -172,8 +172,7 @@ Options:
                          has been read. Supplied, it decides now and nothing is deferred.
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
-  --registries=yes|no   Keep registries/ (mono-repo only; default: yes; always kept
-                         with --mode=existing, which records repos and risks there)
+  --registries=yes|no   DEPRECATED, ignored: registries/ is always kept.
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
   --trunk-branch=NAME   Generated repo trunk branch     (default: main)
@@ -296,9 +295,10 @@ fi
 # able to make it here instead. Adoption makes this the likely mistake rather than an exotic one:
 # --mode=existing is aimed at the one population that has a repository to run it inside.
 #
-# What separates the cases is HISTORY, and it needs no list of template paths. What this refusal
-# protects is work its owner cannot get back — and a repository can be holding that in more than
-# one place. Asking git a single question about a single one of them is how the first version of
+# Three of the four questions below separate the cases by HISTORY alone and need no list of
+# template paths. The fourth exists because one state has no history to read at all. What this
+# refusal protects is work its owner cannot get back — and a repository can be holding that in
+# more than one place. Asking git a single question about a single one of them is how the first version of
 # this guard let a live repository through: it asked what HEAD points at, and a repository whose
 # HEAD is unborn is still holding every commit made on its other branches.
 #
@@ -311,16 +311,77 @@ fi
 #      commit under HEAD, every earlier commit still on the branch it was made on.
 #   3. Nothing is committed anywhere, but files are staged and the staged AGENTS.md is not the
 #      template's — work that so far exists only in the index.
-# Each reads a different store, and each reads the repository rather than the working files, which
-# the extraction just overwrote.
+#   4. Nothing is committed, no refs exist, and nothing is staged, but the working tree holds
+#      entries this template does not ship. This is the one state the three questions above
+#      cannot tell apart from an empty repository: `git init` — often with a remote added, and
+#      no commit yet — leaves everything its owner has written as untracked files, which is a
+#      store none of the three reads. It is also the only question that has to know what the
+#      template ships, so the list it compares against is pinned by a maintainer test.
+# The first three read a different store each, and read the repository rather than the working
+# files, which the extraction just overwrote. The fourth reads the working files precisely
+# because in that state the repository itself holds nothing to read.
 #   - template in a plain folder            -> not a work tree, proceeds
 #   - template cloned or committed          -> HEAD's AGENTS.md carries the sentinel, proceeds
 #   - template staged, not yet committed     -> the staged AGENTS.md carries it, proceeds
 #   - `git init` + an empty origin, no commit yet, the mono-repo origin-reuse flow in section 4
-#                                           -> no HEAD, no refs, nothing staged, proceeds
+#                                           -> no HEAD, no refs, nothing staged, and the working
+#                                              tree holds only what the template ships, proceeds
 #   - extracted over a repo with history    -> refused by 1
 #   - extracted onto an orphan branch       -> refused by 2
 #   - extracted over staged, uncommitted work -> refused by 3
+#   - extracted over `git init` + untracked work, nothing added yet -> refused by 4
+# Every top-level entry this template ships, one per line. Signal 4 below treats anything else in
+# the working tree as its owner's, so this list is what stands between "an empty repo the user
+# prepared for us" and "a project with everything still untracked". It is deliberately generous:
+# entries a maintainer checkout carries but a download does not (.dev/, marketing/, TODO.md,
+# local-testing/) are listed too, because listing one that is absent costs nothing while omitting
+# one that is present would refuse a legitimate run. tests/init-fresh-template-guard.sh asserts it
+# covers the template's real top level, so adding a top-level file fails there rather than here.
+TEMPLATE_TOP_LEVEL="$(cat <<'TEMPLATE_ENTRIES'
+.DS_Store
+.claude
+.dev
+.git
+.github
+.gitignore
+.test-fixtures
+AGENTS.md
+ARTIFACT-TRAIL.md
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Code
+LICENSE
+README.md
+SECURITY.md
+TODO.md
+TRADEMARK.md
+Upcoming Prompts
+brand
+docs
+doctor.sh
+init.sh
+local-testing
+marketing
+prompts
+tests
+TEMPLATE_ENTRIES
+)"
+
+# bootstrap_foreign_entries — print each top-level working-tree entry the template does not ship.
+# Reads: ROOT, TEMPLATE_TOP_LEVEL.
+# Writes: nothing (prints one name per line).
+# Returns: 0 always.
+bootstrap_foreign_entries() {
+  local entry name
+  for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
+    [ -e "$entry" ] || continue
+    name="${entry##*/}"
+    printf '%s\n' "$TEMPLATE_TOP_LEVEL" | grep -qxF -- "$name" || printf '%s\n' "$name"
+  done
+}
+
 BOOTSTRAP_GUARD_REASON=""
 if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
   if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
@@ -328,9 +389,14 @@ if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
       || BOOTSTRAP_GUARD_REASON="its committed history is not this template's"
   elif git -C "$ROOT" show-ref --quiet 2>/dev/null; then
     BOOTSTRAP_GUARD_REASON="it holds commits on branches or tags that HEAD is not currently on"
-  elif [ -n "$(git -C "$ROOT" ls-files 2>/dev/null)" ] \
-       && ! git -C "$ROOT" show :./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD'; then
-    BOOTSTRAP_GUARD_REASON="it has staged files that are not this template's"
+  elif [ -n "$(git -C "$ROOT" ls-files 2>/dev/null)" ]; then
+    git -C "$ROOT" show :./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD' \
+      || BOOTSTRAP_GUARD_REASON="it has staged files that are not this template's"
+  else
+    BOOTSTRAP_FOREIGN="$(bootstrap_foreign_entries)"
+    if [ -n "$BOOTSTRAP_FOREIGN" ]; then
+      BOOTSTRAP_GUARD_REASON="it holds files this template does not ship, none of them committed, staged, or on a branch yet: $(printf '%s' "$BOOTSTRAP_FOREIGN" | tr '\n' ' ')"
+    fi
   fi
 fi
 if [ -n "$BOOTSTRAP_GUARD_REASON" ]; then
@@ -497,27 +563,24 @@ else
   LAYOUT="$(ask 'Choose 1 or 2' '1')"
 fi
 
-# registries/ is always kept in multi-repo because setup-workspace.sh and remote recording use
-# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained —
-# EXCEPT when adopting an existing codebase, where the registries are working state rather than
-# inventory: RETCON-PROMPT.md registers every adopted repo in repos.yml and seeds risks.yml from
-# the confirmed recon map, so pruning them strands the adoption partway through with no
-# instruction. Validate the flag either way, then override, so a bad value is still an error.
-KEEP_REGISTRIES=1
-if [ "$LAYOUT" = "2" ]; then
-  if [ -n "$REGISTRIES_IN" ]; then
-    case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-      y|yes|true|1) KEEP_REGISTRIES=1 ;;
-      n|no|false|0) KEEP_REGISTRIES=0 ;;
-      *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-    esac
-  elif [ "$NONINTERACTIVE" != "1" ] && [ "$MODE" != "existing" ]; then
-    yesno "Include registries/ (repo inventory; useful for multi-repo)?" || KEEP_REGISTRIES=0
-  fi
-  if [ "$MODE" = "existing" ] && [ "$KEEP_REGISTRIES" = "0" ]; then
-    KEEP_REGISTRIES=1
-    echo "  note: keeping registries/ — adopting an existing codebase records repos and risks there."
-  fi
+# registries/ is always kept. --registries=no used to prune it in mono-repo layout, on the
+# argument that a self-contained root repo has no sibling repos to inventory. That argument was
+# about repos.yml, and the directory holds two more registries it never covered: risks.yml, the
+# accepted risk / tech-debt register METHOD.md §7 requires, and security-reviews.yml, which the
+# whole security-review runbook family reads. Pruning took all three, and left the generated
+# project's own docs referring to files it no longer had — 98 references across 24 files, none of
+# them a Markdown link, so scripts/links.sh and scripts/check.sh both reported it clean.
+#
+# The flag is accepted and ignored so existing scripts keep working, and says so once. It is
+# removed in a later release. Nothing is pruned in either layout.
+if [ -n "$REGISTRIES_IN" ]; then
+  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
+    y|yes|true|1|n|no|false|0) ;;
+    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
+  esac
+  echo "init.sh: --registries is deprecated and ignored; registries/ is always kept." >&2
+  echo "        It also held risks.yml and security-reviews.yml, which pruning removed and the" >&2
+  echo "        method's own runbooks still referenced. The flag is a no-op, not an error." >&2
 fi
 
 # Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
@@ -925,15 +988,6 @@ fi
 # --- 4. Prune optional pieces -----------------------------------------------
 # runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
 # AGENTS.md and METHOD.md reference.
-if [ "$KEEP_REGISTRIES" = "0" ]; then
-  rm -rf "$DOCS/registries"
-  # The docs hub README indexes every directory it ships, so pruning the directory without
-  # pruning its row leaves a link to a file that is not there — which scripts/links.sh reports
-  # as a hard failure on the generated project's very first run. Drop the row with the directory.
-  perl -ni -e 'print unless m{^\| \[`registries/`\]}' "$DOCS/README.md"
-  echo "  pruned registries/"
-fi
-
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.
 if [ -f "$DOCS/adr/README.md" ]; then

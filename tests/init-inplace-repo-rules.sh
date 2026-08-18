@@ -168,11 +168,36 @@ run_case() {
     "**An accepted write is committed and left there. It is never pushed.**" \
     "METHOD.md §7 does not say how an accepted write into an in-place repo lands"
   assert_contains "$docs/METHOD.md" "never \`git add -A\`, which would sweep up whatever the" \
-    "METHOD.md §7 does not scope the commit to the files that were proposed"
+    "METHOD.md §7 does not scope the commit to the files it names"
   assert_contains "$readme_tpl" "ON A YES, COMMIT IT ON A BRANCH AND STOP." \
     "repo README template does not carry the landing rule to the point of the write"
-  assert_contains "$planning" "**On a yes, commit it on a branch and stop**" \
+  assert_contains "$planning" "**On a yes, place the notice, then commit both on a branch and stop.**" \
     "planning session does not say how an accepted write into an in-place repo lands"
+  # The commit covers the WRITE, not the PROPOSAL. Two things land on an accepted addition — the
+  # README file, and the LICENSE-THROUGHSTONE / LICENSING.md the notice mode places — but only the
+  # README is ever proposed, so a commit scoped to "the file(s) proposed" carried one of the two.
+  # Measured: the branch held README.md alone and the two notice files sat untracked in the owners'
+  # working tree after the agent had been told to stop, so the addition merged without the notice
+  # that explains it and the next `git add -A` anyone ran swept them into an unrelated commit.
+  # Pinned in all three files: an agent following any one of them alone must still land both.
+  for f in "$docs/METHOD.md" "$readme_tpl" "$planning"; do
+    assert_contains "$f" "commit every file the method just wrote into that repo" \
+      "$(basename "$f") scopes the landing commit to the proposal, not to everything written"
+  done
+  assert_absent "$docs/METHOD.md" "commit **only the file(s) proposed**" \
+    "METHOD.md §7 still scopes the landing commit to the file that was proposed"
+  assert_absent "$readme_tpl" "file(s) you proposed (name them; never \`git add -A\`" \
+    "repo README template still scopes the landing commit to the file that was proposed"
+  assert_absent "$planning" "commit only the file you proposed, never" \
+    "planning session still scopes the landing commit to the file that was proposed"
+  # ORDER, not just scope. The notice mode has to run before the commit, or its two files are
+  # written after the agent has stopped and there is nothing left to put them on a branch. Both
+  # files that sequence the two steps say so; the planning session states them in order instead.
+  assert_contains "$docs/METHOD.md" \
+    "repository. Run it **before** the commit below, so the notice rides the same branch as the" \
+    "METHOD.md §7 does not place the Throughstone notice before the landing commit"
+  assert_contains "$readme_tpl" "Run it before the branch commit above, so" \
+    "repo README template does not place the Throughstone notice before the landing commit"
   # ARCHITECTURE.md is a write at the root of somebody else's repository. It was stated unscoped in
   # §7's general repo paragraph, and the template comment suggesting it is inside the Overview
   # section — which an in-place repo with no README gets written from.
@@ -325,14 +350,16 @@ run_case() {
   }
 }
 
-# run_pruned_registries_case — a mono-repo project can decline registries/ entirely, and the rules
-# above have to survive that. Two ways they did not. The docs hub README indexes every directory it
-# ships, so pruning the directory but not its row left a link to a file that is not there — a hard
-# links.sh failure on the generated project's first run, before anyone had touched it. And the
-# rules named the repos.yml row flatly as the place a declined README's information still lives,
-# which is a promise this configuration cannot keep.
-run_pruned_registries_case() {
-  local name="inplace-pruned"
+# run_deprecated_registries_case — --registries=no no longer prunes anything, and this pins that.
+# The flag's argument was that a self-contained mono-repo root has no sibling repos to inventory,
+# which is an argument about repos.yml; the directory also holds risks.yml, the accepted risk
+# register METHOD.md §7 requires, and security-reviews.yml, which the security-review runbooks
+# read. Pruning removed all three and left the generated project's own docs citing files it did
+# not have — 98 references across 24 files, none of them Markdown links, so links.sh and check.sh
+# both called it clean. The flag is accepted and ignored so existing scripts keep working, and
+# removed in a later release.
+run_deprecated_registries_case() {
+  local name="inplace-registries-flag"
   local work="$TMP_ROOT/$name"
 
   copy_template "$work"
@@ -351,7 +378,14 @@ run_pruned_registries_case() {
   ) >"$TMP_ROOT/$name.out" 2>&1
 
   local docs="$work/Code/$name-docs"
-  [ ! -d "$docs/registries" ] || { echo "FAIL: --registries=no did not prune registries/" >&2; return 1; }
+  # All three registries survive the flag, and the one it was ever argued about is named first.
+  for reg in repos.yml risks.yml security-reviews.yml; do
+    [ -f "$docs/registries/$reg" ] \
+      || { echo "FAIL: --registries=no pruned registries/$reg" >&2; return 1; }
+  done
+  # Ignoring a flag silently is its own defect: a user who passed it is expecting a pruned project.
+  grep -Fq -- "--registries is deprecated and ignored" "$TMP_ROOT/$name.out" \
+    || { echo "FAIL: --registries=no was ignored without saying so" >&2; return 1; }
 
   # The generated project must be link-clean the moment it exists.
   ( cd "$docs" && ./scripts/links.sh ) >"$TMP_ROOT/$name-links.out" 2>&1 || {
@@ -359,19 +393,20 @@ run_pruned_registries_case() {
     grep -E "FAIL\]" "$TMP_ROOT/$name-links.out" >&2
     return 1
   }
-  assert_absent "$docs/README.md" '| [`registries/`](registries/README.md) |' \
-    "docs hub README still indexes a directory that was pruned"
+  assert_contains "$docs/README.md" '| [`registries/`](registries/README.md) |' \
+    "docs hub README no longer indexes the registries/ directory it ships"
 
-  # The declined-README fallback must not promise a row this project has no file to hold.
-  assert_contains "$docs/METHOD.md" "where the project keeps an inventory" \
-    "METHOD.md §7 still names the repos.yml row unconditionally as the declined-README fallback"
-  assert_contains "$docs/templates/repo-readme-template.md" "where the project keeps" \
-    "repo README template still names the repos.yml row unconditionally"
-  assert_contains "$docs/runbooks/check-in.md" 'and in its `repos.yml` row where' \
-    "check-in README sweep still names the repos.yml row unconditionally"
+  # The declined-README fallback names the inventory row plainly now. It used to hedge that a
+  # mono-repo project might not keep one, which was true only because this flag could delete it.
+  assert_absent "$docs/METHOD.md" "where the project keeps an inventory" \
+    "METHOD.md §7 still hedges that a project may not keep an inventory"
+  assert_contains "$docs/METHOD.md" "architecture doc — and in the repo's \`repos.yml\` row." \
+    "METHOD.md §7's declined-README fallback no longer names the inventory row"
+  assert_contains "$docs/runbooks/check-in.md" 'and in its `repos.yml` row (`METHOD.md` §7).' \
+    "check-in README sweep no longer names the inventory row plainly"
 }
 
 run_case
-run_pruned_registries_case
+run_deprecated_registries_case
 
 echo "init.sh registered-in-place repo rules: PASS"

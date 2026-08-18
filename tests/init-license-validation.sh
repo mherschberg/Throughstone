@@ -573,6 +573,13 @@ run_licensing_evidence_case() {
         return 1
       }
     done
+  # The manifest cases match the bare word `license`, not a key/value shape, so several of these
+  # state nothing usable and refuse anyway: an empty license value, a `licenseFile` key, a Gradle
+  # block with no separator, a setup.py keyword argument. That is the intended trade — shape-
+  # matching missed the Gradle block and setup.py entirely and served them a project LICENSE over
+  # their own terms, and each new ecosystem would need another pattern to fail silently in. These
+  # two directions are asserted together on purpose: over-refusing is an outage on the path this
+  # helper exists for, and under-refusing writes a licence claim onto somebody else's code.
   done <<'EVIDENCE'
 npm-manifest|package.json|{"name":"svc","license":"GPL-3.0"}
 npm-legacy-array|package.json|{"name":"svc","licenses":[{"type":"MIT"}]}
@@ -582,6 +589,11 @@ pyproject-manifest|pyproject.toml|license = "Apache-2.0"
 setupcfg-manifest|setup.cfg|license = MPL-2.0
 gemspec-manifest|svc.gemspec|Gem::Specification.new { |s| s.license = "MPL-2.0" }
 gradle-manifest|build.gradle|license = 'EPL-2.0'
+gradle-block|build.gradle|licenses { license { name "Apache-2.0" } }
+gradle-kotlin-dsl|build.gradle.kts|licenses { license { name.set("Apache-2.0") } }
+setuppy-manifest|setup.py|from setuptools import setup; setup(name="svc", license="MPL-2.0")
+manifest-empty-license|package.json|{"name":"svc","license":""}
+manifest-license-file-key|package.json|{"name":"svc","licenseFile":"docs/terms.txt"}
 maven-manifest|pom.xml|<project><licenses><license><name>Apache-2.0</name></license></licenses></project>
 monorepo-package|packages/api/LICENSE|GNU General Public License v3
 vendored-tree|third_party/zlib/LICENSE|zlib License
@@ -609,8 +621,6 @@ EVIDENCE
     }
   done <<'NOEVIDENCE'
 manifest-without-license|package.json|{"name":"svc","version":"1.0.0"}
-manifest-empty-license|package.json|{"name":"svc","license":""}
-manifest-license-file-key|package.json|{"name":"svc","licenseFile":"docs/terms.txt"}
 installed-dependency|node_modules/left-pad/LICENSE|MIT License
 plain-source-file|src/main.js|export const x = 1;
 NOEVIDENCE

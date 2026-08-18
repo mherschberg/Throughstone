@@ -53,6 +53,32 @@ init_once() { # DIR EXTRA_ARGS...
       --license=private --collab=solo --remotes=no "$@" )
 }
 
+# --- 0. Signal 4's template list must cover the template's real top level. ---------------------
+# Signal 4 is the one check that has to know what the template ships: anything else at the root is
+# read as its owner's. A top-level file added to the template and not added to that list turns
+# every legitimate origin-reuse run into a refusal, and the failure would look like the guard
+# over-firing rather than like a stale list. This runs FIRST: a stale list also breaks the
+# origin-reuse case below, and that failure reads as the guard over-firing. Failing here first
+# names the missing entry instead. Derived from the template, never asserted as a literal.
+TEMPLATE_TOP_LEVEL_LIST="$(sed -n "/^TEMPLATE_TOP_LEVEL=/,/^TEMPLATE_ENTRIES\$/p" "$ROOT/init.sh" \
+  | sed '1d;$d')"
+[ -n "$TEMPLATE_TOP_LEVEL_LIST" ] || {
+  echo "FAIL: could not read TEMPLATE_TOP_LEVEL out of init.sh — signal 4 is unverifiable" >&2
+  exit 1
+}
+missing=""
+while IFS= read -r entry; do
+  [ -n "$entry" ] || continue
+  printf '%s\n' "$TEMPLATE_TOP_LEVEL_LIST" | grep -qxF -- "$entry" || missing="$missing $entry"
+done <<EOF
+$(git -C "$ROOT" ls-tree --name-only HEAD)
+EOF
+[ -z "$missing" ] || {
+  echo "FAIL: init.sh's TEMPLATE_TOP_LEVEL does not list:$missing" >&2
+  echo "       add them there, or signal 4 will refuse a legitimate origin-reuse run" >&2
+  exit 1
+}
+
 # --- 1. A fresh template initializes normally (the guard must not over-fire). -----------------
 fresh="$TMP_ROOT/fresh"
 copy_template "$fresh"
@@ -222,10 +248,41 @@ git -C "$staged_only" ls-files --error-unmatch src.txt >/dev/null 2>&1 \
 grep -Fxq "not committed yet" "$staged_only/src.txt" \
   || { echo "FAIL: init.sh disturbed the staged file's content" >&2; exit 1; }
 
+# --- 8b. Work that exists only as untracked files is refused. ---------------------------------
+# The fourth store. A repo whose owner ran `git init` (and usually `git remote add`) but has never
+# added or committed anything answers "nothing" to HEAD, to refs, and to the index, while the whole
+# project sits beside them as untracked files. Signals 1-3 each read the repository; in this state
+# the repository holds nothing to read, so the working tree is the only place the work is.
+# Measured before signal 4 existed: init.sh proceeded, and in mono layout wrote a project LICENSE
+# next to the repo's own COPYING, asserted it over their code in LICENSING.md, swept their source
+# into a bootstrap commit, and replaced the .git holding their origin.
+untracked_only="$TMP_ROOT/untracked-only"
+mkdir -p "$untracked_only/src"
+( cd "$untracked_only" && git init -q && git remote add origin "$TMP_ROOT/untracked-only.git" )
+printf 'years of it\n' > "$untracked_only/src/engine.py"
+printf 'GNU GENERAL PUBLIC LICENSE\n' > "$untracked_only/COPYING"
+copy_template "$untracked_only"
+if init_once "$untracked_only" --layout=mono --registries=yes >"$TMP_ROOT/untracked-only.out" 2>&1; then
+  echo "FAIL: init.sh ran on top of untracked, uncommitted work" >&2
+  cat "$TMP_ROOT/untracked-only.out" >&2
+  exit 1
+fi
+[ -d "$untracked_only/.git" ] || { echo "FAIL: init.sh deleted .git in the untracked-only case" >&2; exit 1; }
+grep -Fxq "years of it" "$untracked_only/src/engine.py" \
+  || { echo "FAIL: init.sh disturbed untracked work before refusing" >&2; exit 1; }
+[ -f "$untracked_only/COPYING" ] || { echo "FAIL: init.sh removed the repo's own COPYING" >&2; exit 1; }
+[ -f "$untracked_only/LICENSING.md" ] \
+  && { echo "FAIL: init.sh asserted a license over untracked work it refused to run on" >&2; exit 1; }
+git -C "$untracked_only" remote get-url origin >/dev/null 2>&1 \
+  || { echo "FAIL: init.sh dropped the repo's remote before refusing" >&2; exit 1; }
+# The refusal names what it found, so the user can see it is their own files talking.
+grep -Fq "COPYING" "$TMP_ROOT/untracked-only.out" \
+  || { echo "FAIL: the untracked-only refusal did not name what it found" >&2; exit 1; }
+
 # --- 9. Every refusal names which check fired. -------------------------------------------------
-# Three signals with one message is a support problem: the user cannot tell whether they hit a
-# stale branch, a stray index, or the wrong folder entirely.
-for out in extracted orphaned staged-only; do
+# Four signals with one message is a support problem: the user cannot tell whether they hit a
+# stale branch, a stray index, untracked work, or the wrong folder entirely.
+for out in extracted orphaned staged-only untracked-only; do
   grep -Fq "Refusing because" "$TMP_ROOT/$out.out" \
     || { echo "FAIL: the $out refusal did not say which check fired" >&2; cat "$TMP_ROOT/$out.out" >&2; exit 1; }
 done
