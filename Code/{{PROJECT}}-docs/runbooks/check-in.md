@@ -143,15 +143,26 @@ Beyond the architecture docs, sweep four things that rot just as quietly:
 - **Repo READMEs** — every code repo still explains what it *is*, and its **Setup / Running /
   Testing** steps still work from a clean checkout. They are written once and otherwise never
   re-checked, so they're usually the stalest doc a new contributor or agent hits first (and any
-  `ARCHITECTURE.md` still matches the design). A repo the method **created** carries the full
-  template, so check its **Overview**. For a repo **registered in place** this keys on the same
-  thing the writing rule keyed on — whether a README was already there. **One that had one** owns
-  it: check only that the `Role in {{PROJECT}}` section still describes the repo's place in the
-  system, and leave the rest to its owners. **One that had none** carries a README the method
-  wrote from the template, so that file is Throughstone-authored like a created repo's — check its
-  **Overview** the same way, and still scaffold nothing else there. If the addition was declined,
-  or the repo has no README, that is not a gap to close here — the framing lives in its
-  architecture doc, and in its `repos.yml` row (`METHOD.md` §7).
+  `ARCHITECTURE.md` still matches the design). **How much of each README the method is answerable
+  for is not something to re-derive from the repo — read its `readme:` field in
+  `registries/repos.yml`,** which recorded it at the time (`METHOD.md` §7; that file's header
+  defines every value). Sweep each row by what it says:
+  - `stamped` — a repo the method created, carrying the full template, so check its **Overview**.
+  - `written` — a repo **registered in place** that had no README, so the method wrote the file
+    from the template. That file is Throughstone-authored like a created repo's: check its
+    **Overview** the same way, and still scaffold nothing else there.
+  - `augmented` — the repo owns its README and the method added one section:
+    check only that the `Role in {{PROJECT}}` section still describes the repo's place in the
+    system, and leave the rest to its owners.
+  - `role-stated` and `declined` — the method wrote nothing, and neither is a gap to close here:
+    the framing lives in its architecture doc, and in its `repos.yml` row (`METHOD.md` §7).
+    **Do not re-propose a `declined` repo** — that answer may also have been given for every
+    other repo at once.
+  - `not-proposed` — the one value that means something is still open: the addition has not been
+    put to that repo's owners. Raise it with the user, and write nothing into the repo meanwhile.
+  - **no value at all** — the row predates this field. Read the repo, work out which of the six
+    it is, and write it down; until it is recorded, no later sweep can tell a settled repo from
+    one nobody has asked.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. A

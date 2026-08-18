@@ -263,6 +263,19 @@ and what to check.
   generated project (or from the template) into your docs hub — the two seed rows in `repos.yml`
   describe the docs hub and `prompts/`, and the other two files start empty.
 
+- **`registries/repos.yml` rows carry a `readme:` field.** It records what the method did to that
+  repo's README — `stamped` for a repo the method created, `augmented` where a `Role in <project>`
+  section was added to an existing README, `written` where the method wrote a README for a repo
+  that had none, `role-stated` where the README already said what the repo is within the system,
+  `declined` where the owners said no, and `not-proposed` while the addition is still to be put to
+  them. The registry's own header defines each. It exists because `METHOD.md` §7 lets a decline
+  stand for every remaining repo, and told you to record that without naming anywhere to record it
+  — so the periodic check-in, which skips a declined repo, had no way to tell one from a repo
+  nobody had asked. **One thing to check:** your existing rows have no value, which reads as *not
+  recorded* rather than defaulting to anything. Nothing rewrites them. Fill them in at your next
+  check-in — the repos the method created are `stamped`, and only you know what happened to the
+  rest.
+
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
   invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first
