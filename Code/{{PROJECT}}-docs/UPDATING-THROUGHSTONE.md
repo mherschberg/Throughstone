@@ -406,10 +406,23 @@ All but the last are documentation only; nothing you already produced is rewritt
   the general form of both rules. **One thing to check:** if a repo's visibility was changed during
   an adoption, look at it now — a repo that was made public stays retrievable regardless of what it
   is set to today.
+- **`registries/repos.yml` rows carry a `readme:` field.** It records what the method did to that
+  repo's README — `stamped` for a repo the method created, `augmented` where a `Role in <project>`
+  section was added to an existing README, `written` where the method wrote a README for a repo
+  that had none, `role-stated` where the README already said what the repo is within the system,
+  `declined` where the owners said no, and `not-proposed` while the addition is still to be put to
+  them. The registry's own header defines each. It exists because a decline may stand for every
+  remaining repo, and the instruction to record that named nowhere to record it — so the periodic
+  check-in, which skips a declined repo, could not tell one from a repo nobody had asked. Adoption
+  writes the value as each answer comes, and the recon map's **Docs (as found)** column is the
+  point-in-time finding beside it, not a second copy of the answer. **One thing to check:** rows in
+  an inventory written before this reads as *not recorded* rather than defaulting to anything, and
+  nothing rewrites them; fill them in at your next check-in.
+
 - **The recon map records whether each repo explains itself, and a decline can be standing.**
   Adoption's one offer to a repo it did not create is the framing its README probably lacks, and
   which repos need it was rediscovered one at a time at the moment of writing into each. The map's
-  **Stack Per Repo** table gains a **Docs (as found)** column — `role stated` / `README, no role` /
+  **Stack Per Repo** table gains a **Docs (as found)** column — `role-stated` / `README, no role` /
   `none` — recorded during the scan like the licensing column beside it, and the recon-map
   checkpoint says the total out loud so the per-repo proposals arrive expected. That line is
   deliberately **not** a gate: no blanket yes is collected before any text exists, and each repo's

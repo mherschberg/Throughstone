@@ -69,13 +69,25 @@ did not create is the framing its README probably lacks — a `Role in <project>
 README exists, the file itself where none does (`METHOD.md` §7). Which of those a repo needs is a
 fact about the repo, so read it here rather than rediscovering it one repo at a time later: does a
 `README` exist at all, and if it does, does it say what this repo is *within the system* — not
-just what it does on its own. Record one of `role stated`, `README, no role`, or `none`. Like the
+just what it does on its own. Record one of `role-stated`, `README, no role`, or `none`. Like the
 licensing column this is a record, not a verdict: a repo whose README explains it perfectly needs
 nothing, and `none` on a small internal library is a fact, not a failing.
 
+**This column is the finding; `registries/repos.yml`'s `readme:` field is the outcome.** This map is
+point-in-time and frozen once confirmed — it says what was there when adoption arrived, and it is
+never edited afterwards. The inventory row is the living record, written per repo as each addition
+is proposed and answered, and it is what a check-in reads months later. So the two are *expected* to
+diverge: a repo recorded here as `README, no role` becomes `augmented` in its row when its owners
+accept the section, or `declined` when they don't. That is the work happening, not drift. Where they
+disagree about the repo as it stands today, **the repo itself is authoritative, the row is the copy
+to correct, and this map is left alone** — correcting a frozen record would destroy the only account
+of what was found. `role-stated` is the one value that carries straight through unchanged: nothing
+was missing, so nothing is proposed and the row records `role-stated` too. The other two describe
+what still has to be put to somebody, and their outcome is not known here.
+
 | Repo | Languages | Frameworks / runtimes | Build / package manager | Licensing (as found) | Docs (as found) | Notes |
 |------|-----------|-----------------------|-------------------------|----------------------|-----------------|-------|
-| {{repo}} | {{langs}} | {{frameworks, runtime versions}} | {{tool}} | {{identifier (file it came from) / none stated; + vendored terms}} | {{role stated / README, no role / none}} | {{monorepo? generated code? notable pins}} |
+| {{repo}} | {{langs}} | {{frameworks, runtime versions}} | {{tool}} | {{identifier (file it came from) / none stated; + vendored terms}} | {{role-stated / README, no role / none}} | {{monorepo? generated code? notable pins}} |
 
 ## Entry Points & Services
 

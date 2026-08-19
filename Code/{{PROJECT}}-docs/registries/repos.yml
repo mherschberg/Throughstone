@@ -71,6 +71,12 @@
 # rows are the record. A standing decline that lives only in the conversation is gone by the next
 # session, and the re-asking it was meant to stop starts again.
 #
+# Where a project adopted an existing codebase, its recon map's **Docs (as found)** column recorded
+# the same subject at scan time — whether each repo's README said what it is within the system.
+# That column is the FINDING and is frozen; this field is the OUTCOME and is living, so the two are
+# expected to diverge as proposals are answered. When they disagree about the repo as it stands
+# today, the repo itself wins, this row is the copy to correct, and the map is left alone.
+#
 # `license:` (per row) records what a repo is licensed under, so the inventory can show the
 # licensing picture across every repo at once — something no single LICENSE file can, and the fact
 # that starts mattering as soon as the repos here do not share one license. It is a RECORD, never

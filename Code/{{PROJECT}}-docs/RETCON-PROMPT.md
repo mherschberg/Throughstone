@@ -345,7 +345,8 @@ Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark
 asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
 - **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`,
-  `throughstone: managed`, and `license:` — see below) and **augment** its README (below).
+  `throughstone: managed`, `license:` and `readme:` — see below) and **augment** its README
+  (below).
   Record a short per-repo note (stack, entry points, role) in the repo's `architecture/` docs and
   its inventory row as they are written — never back into the frozen recon map. Register repos
   **in place** by their real location; never relocate the user's code.
@@ -361,10 +362,20 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   thing adoption is producing: the repo's place in the system. So add exactly that, as a short
   `## Role in {{PROJECT}}` section — the one-liner, two or three sentences on the slice of the
   system this repo owns, and links to its `architecture/` doc and the docs hub — and change
-  nothing else. **Show the user the exact text and where it will go, and wait for a yes** before
-  writing into a repo they own. **A no is a complete answer, not a gap:** the same information is
-  already in the recon map, the repo's `architecture/` doc, and its `repos.yml` row, so record
-  that the repo documents itself and move on.
+  nothing else. Where the README already says what the repo is within the system nothing is
+  missing, so propose nothing — the map recorded that as `role-stated` and the row records it the
+  same way. Otherwise **show the user the exact text and where it will go, and wait for a yes**
+  before writing into a repo they own. **A no is a complete answer, not a gap:** the same
+  information is already in the recon map, the repo's `architecture/` doc, and its `repos.yml`
+  row, so record that the repo documents itself and move on.
+
+  **Record how it went in that repo's row, as its `readme:` value** — `augmented` when the section
+  went in, `written` when you wrote the file for a repo that had none, `role-stated` when its
+  README already said the repo's place, `declined` when they said no, and `not-proposed` until you
+  have actually asked (the registry header defines each). Write it as the answer comes, not at the
+  end of the stage. The recon map's **Docs (as found)** column is frozen at what the scan saw; this
+  row is the living record of what was actually done, and it is what a check-in reads months later
+  to tell a repo that is settled from one still owed a question.
   **Place the Throughstone notice only if something Throughstone-authored landed.** If the README
   addition was accepted, that section is BSD-3-Clause scaffold material, so run
   `scripts/apply-project-license.sh --notice-only <repo-path>` — it writes `LICENSE-THROUGHSTONE`
@@ -397,8 +408,11 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   **And a no can stand for the rest.** This same proposal reaches the same people once per repo,
   which in a fourteen-repo system is fourteen times — so on a decline, ask whether it covers this
   repo or all of them, and where it is standing, stop proposing and record the remaining repos as
-  documenting themselves (`METHOD.md` §7). Ask that once. It runs one way: a yes is never carried
-  forward, because the next repo's text is its own proposal and they haven't seen it.
+  documenting themselves — which means writing `readme: declined` on every one of their rows now,
+  one edit per row. Held only in this session it is gone by the next, and the asking it was given
+  to stop starts again fourteen repos later (`METHOD.md` §7). Ask that once. It runs one way:
+  a yes is never carried forward, because the next repo's text is its own proposal and they
+  haven't seen it.
   Which repos need what is already known — the map's **Docs (as found)** column recorded it at
   `inv-3` and `inv-4` said the shape out loud — so this arrives expected rather than as a surprise
   fourteen times over.
