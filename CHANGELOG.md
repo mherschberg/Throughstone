@@ -46,17 +46,19 @@ error/corruption and re-run paths, not normal operation.
   each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
   (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.
   Both the greenfield and adoption front doors write it identically, so their repo inventories match.
-- **`license:` field on repo inventory rows** (`registries/repos.yml`) — records what each repo is
-  licensed under, so the inventory shows the licensing picture across every repo at once, which no
-  single `LICENSE` file can and which starts mattering as soon as a project's repos don't share one
-  license. For a repo the method creates it is the bootstrap posture, which `init.sh` substitutes
-  into the seed rows **and into the worked example beside them**, so the pattern an agent copies
-  matches the project it is copying it into; for an adopted repo it is what that repo already
-  says, recorded as found — an
-  identifier and the file it came from, or `none stated`. It is a record, never an instruction: the
-  repo's own license file stays authoritative, a missing value means "not recorded" so existing
-  inventories are unaffected, and repos carrying different licenses is a normal inventory rather
-  than an inconsistency to reconcile.
+- **The repo inventory records what each repo is licensed under.** `METHOD.md` §7 told an agent to
+  read a registered-in-place repo's licensing and record it "in the repo inventory entry that
+  describes it", and no field there held it — so the one place that already indexes every repo
+  could not show the licensing picture across them, which no single `LICENSE` file can and which
+  starts mattering as soon as a project's repos don't share one license. `registries/repos.yml`
+  rows now carry a `license:` field, and §7 names it. For a repo the method creates it is the
+  bootstrap posture, which `init.sh` substitutes into the seed rows **and into the worked example
+  beside them**, so the pattern an agent copies matches the project it is copying it into; for a
+  repo registered in place it is what that repo already says, recorded as found — an identifier
+  and the file it came from, or `none stated`. It is a record, never an instruction: the repo's own
+  license file stays authoritative, a missing value means "not recorded" so existing inventories
+  are unaffected, and repos carrying different licenses is a normal inventory rather than an
+  inconsistency to reconcile.
 - **The repo inventory records what the method did to each repo's README.** `METHOD.md` §7 lets a
   declined README addition stand for every remaining repo registered in place — rather than putting
   the same proposal to the same owners once per repo — and three files told an agent to record that

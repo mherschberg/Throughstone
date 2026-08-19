@@ -483,14 +483,18 @@ All but the last are documentation only; nothing you already produced is rewritt
   registered a repo in place and dropped the CI template into it, decide with its owners whether
   that workflow should stay.
 
-**Repo inventory gains a `license:` field (not adoption-specific).** `registries/repos.yml` rows can
-now record what each repo is licensed under — the bootstrap posture for a repo the method created,
-whatever the repo already says for one registered in place. It exists because a project whose repos
-don't share a single license has nowhere else to show that, and it is a record rather than an
-instruction: the repo's own license file stays authoritative. **Optional, additive,
+**Repo inventory carries a `license:` field (not adoption-specific — it ships in 1.8, and is
+repeated here because 2.0 contains it).** `registries/repos.yml` rows record what each repo is
+licensed under — the bootstrap posture for a repo the method created, whatever the repo already
+says for one registered in place. It exists because `METHOD.md` §7 told you to record an in-place
+repo's licensing "in the repo inventory entry" and no field there held it, and because a project
+whose repos don't share a single license has nowhere else to show that. It is a record rather than
+an instruction: the repo's own license file stays authoritative. **Optional, additive,
 review-required** like any registry change, and a missing value reads as "not recorded", so an
 inventory without the field keeps working untouched. Backfill by hand if you want the licensing
-picture in one place; don't let tooling rewrite `repos.yml`, which is project state.
+picture in one place; don't let tooling rewrite `repos.yml`, which is project state. What 2.0 adds
+on top is the `Unset` value an adoption's own rows carry until the license question is answered —
+see *Adoption chooses its license after reading the codebase* below.
 
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
