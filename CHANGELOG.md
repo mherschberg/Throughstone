@@ -229,6 +229,15 @@ error/corruption and re-run paths, not normal operation.
     creates everything it licenses and has nothing to read first, so it still asks at setup, and
     `--license=NAME` still decides at install time in either mode.
 
+- **`--notice-only` mode for `scripts/apply-project-license.sh`** — places `LICENSE-THROUGHSTONE`
+  and a companion `LICENSING.md` in a repo the method did *not* create, for the one case such a
+  repo needs it: the method left Throughstone-authored material behind (the `Role in <project>`
+  README section, or a README written from the template for a repo that had none). That material
+  is BSD-3-Clause and needs its notice, but the notice alone in someone else's repo invites the
+  wrong conclusion — so the companion names only what it covers and explicitly disclaims the rest
+  of the repository. It writes no project `LICENSE` and makes no claim about the repo's own code,
+  which is why it is allowed on a target the full mode refuses. Nothing is owed, and nothing is
+  written, when the owners declined the addition.
 ### Changed
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
   carries no recognized `PROJECT-STATUS` value (`not-started` / `retcon` / `kickoff-complete` — a lost
@@ -591,17 +600,6 @@ error/corruption and re-run paths, not normal operation.
     false for the registered-in-place row directly beneath it.
 
   A new maintainer test pins all four in the generated project.
-
-### Added
-- **`--notice-only` mode for `scripts/apply-project-license.sh`** — places `LICENSE-THROUGHSTONE`
-  and a companion `LICENSING.md` in a repo the method did *not* create, for the one case such a
-  repo needs it: the method left Throughstone-authored material behind (the `Role in <project>`
-  README section, or a README written from the template for a repo that had none). That material
-  is BSD-3-Clause and needs its notice, but the notice alone in someone else's repo invites the
-  wrong conclusion — so the companion names only what it covers and explicitly disclaims the rest
-  of the repository. It writes no project `LICENSE` and makes no claim about the repo's own code,
-  which is why it is allowed on a target the full mode refuses. Nothing is owed, and nothing is
-  written, when the owners declined the addition.
 
 ## [1.7.1] - 2026-08-10
 
