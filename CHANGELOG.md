@@ -71,6 +71,17 @@ error/corruption and re-run paths, not normal operation.
   field is a record, never an instruction: the repo's README is authoritative and this line is a
   copy that can drift. A missing value means *not recorded* and defaults to nothing, so inventories
   written before this release keep working and say so.
+- **Adoption records each repo's README outcome, and the recon map says which record is which.**
+  The per-repo substep now writes the `readme:` value as each answer comes — including
+  `readme: declined` on every remaining row when a decline is standing, which on a fourteen-repo
+  adoption is the difference between one answer being kept and the same proposal arriving thirteen
+  more times. The recon map's **Docs (as found)** column and that field cover the same subject from
+  two sides, so both now say which is which: the column is the point-in-time **finding**, frozen
+  when the map is confirmed; the row is the living **outcome**. They are expected to diverge as
+  proposals are answered, and where they disagree about the repo today the repo wins, the row is
+  corrected, and the frozen map is left alone. The column's `role stated` value is now spelled
+  `role-stated`, matching the field value it becomes.
+
 - **A README that already states the repo's place is a complete outcome too.** §7 said to "add only
   the missing piece", which reads as "add it" when the piece is not missing. Where a
   registered-in-place repo's README already says what the repo is within the system, nothing is

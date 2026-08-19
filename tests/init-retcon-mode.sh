@@ -44,7 +44,17 @@ copy_template() {
 
 # assert_file_contains FILE NEEDLE — fixed-string presence with a readable failure.
 assert_file_contains() {
-  grep -Fq "$2" "$1" || { echo "FAIL: '$2' not found in $1" >&2; return 1; }
+  grep -Fq -- "$2" "$1" || { echo "FAIL: '$2' not found in $1" >&2; return 1; }
+}
+
+# The superseded spelling must not come back alongside the new one, which is how a value ends up
+# written two ways and every positive assertion still passes. The needle has to be as specific as
+# a present-assertion one, or it matches unrelated prose.
+assert_file_absent() {
+  if grep -Fq -- "$2" "$1"; then
+    echo "FAIL: '$2' still present in $1" >&2
+    return 1
+  fi
 }
 
 # run_existing_case NAME LAYOUT — adopt an existing codebase in the given layout and assert the
@@ -157,13 +167,38 @@ run_existing_case() {
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Docs (as found)"
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
-    "role stated / README, no role / none"
+    "role-stated / README, no role / none"
   assert_file_contains "$docs/RETCON-PROMPT.md" "Say what the docs column adds up to"
   # The line is an observation, never a gate. A blanket yes collected before any text exists would
   # be consent to writes nobody has seen — the opposite of what the per-repo proposal is for — so
   # both halves are pinned: say the shape, and do not turn it into an approval.
   assert_file_contains "$docs/RETCON-PROMPT.md" "**Do not turn it"
   assert_file_contains "$docs/RETCON-PROMPT.md" "do not collect a blanket yes"
+  # The README outcome has a durable home. Adoption is where this bites hardest: the same proposal
+  # goes to the same people once per repo, so a decline may cover all of them — and the instruction
+  # to record that named nowhere to record it, leaving the answer in the session that produced it.
+  # A check-in months later then could not tell a refusal from a repo nobody had asked.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "**Record how it went in that repo's row, as its \`readme:\` value**"
+  # The standing decline is one edit per row, made when it is given.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "documenting themselves — which means writing \`readme: declined\` on every one of their rows now,"
+  # A README that already says the repo's place needs no proposal, under the same name the map uses.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "missing, so propose nothing — the map recorded that as \`role-stated\` and the row records it the"
+  # Two records of one subject need a stated precedence, or they become two answers that disagree
+  # with nothing saying which wins. The map is the frozen finding; the row is the living outcome.
+  # Pinned on BOTH sides: a rule stated only where it is defined goes stale where it is read.
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
+    "**This column is the finding; \`registries/repos.yml\`'s \`readme:\` field is the outcome.**"
+  assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
+    "to correct, and this map is left alone**"
+  assert_file_contains "$docs/registries/repos.yml" \
+    "# That column is the FINDING and is frozen; this field is the OUTCOME and is living, so the two are"
+  # The column value and the field value naming the same outcome are spelled identically, so moving
+  # between the two files does not read as a typo. The old spaced form must not come back.
+  assert_file_absent "$docs/templates/reports/recon-map-report-template.md" "\`role stated\`"
+
   # A decline carries to the remaining repos; a yes never does.
   assert_file_contains "$docs/RETCON-PROMPT.md" "**And a no can stand for the rest.**"
   assert_file_contains "$docs/RETCON-PROMPT.md" "a yes is never carried"
