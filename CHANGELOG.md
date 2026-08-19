@@ -303,6 +303,19 @@ error/corruption and re-run paths, not normal operation.
   exactly as before once given, `--license` is unaffected, and no generated project is rewritten.
 
 ### Fixed
+- **Adoption told the agent the license helper would stop it, and for one repo it would not.**
+  `RETCON-PROMPT.md` said, at the point of action, "do not run the helper without that flag; it
+  will refuse, and correctly" — while sixty lines on, in the rules that govern the same substep, it
+  said the accurate thing: the helper refuses a repo that states its own terms, and the ones it
+  would not refuse are exactly the repos that would silently gain a `LICENSE`. An adopted repo with
+  no `LICENSE`, `COPYING`, `NOTICE`, or licensing in its manifest — the `none stated` case the
+  recon map has a column value for — is indistinguishable from a repo the method just created, so
+  the plain invocation applies the project's license and a `LICENSING.md` asserting it over code
+  the method did not write. That is the write the whole section exists to prevent, and the sentence
+  nearest the work said it could not happen. The claim is gone; the prohibition now lives once,
+  with the other **Never** rules, names `--notice-only` as the one allowed invocation so it cannot
+  be read as forbidding the notice, and says outright that the flag is the rule and the refusal
+  only a backstop behind it.
 - **`init.sh` would destroy an existing repository it was run inside.** Extract the download into
   your own repo and run it — the mistake adoption invites, since `--mode=existing` is aimed at the
   one population that has a repository — and the fresh-template guard saw the template's own

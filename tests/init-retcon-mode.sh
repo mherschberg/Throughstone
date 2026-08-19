@@ -158,7 +158,12 @@ run_existing_case() {
   # column is the record that makes "record it" an actual place rather than a sentiment.
   assert_file_contains "$docs/RETCON-PROMPT.md" "Never license an adopted repo"
   assert_file_contains "$docs/RETCON-PROMPT.md" \
-    "\`scripts/apply-project-license.sh\` against any of these repos"
+    "\`scripts/apply-project-license.sh\` against one of these repos without"
+  # The prohibition must not rest on the helper refusing. It refuses a repo that states its own
+  # terms, and a repo that states nothing looks exactly like one the method just created — which
+  # is the repo that would silently take the project's license. Say which is the rule.
+  assert_file_contains "$docs/RETCON-PROMPT.md" \
+    "The flag is the rule; the refusal is only a backstop behind it."
   assert_file_contains "$docs/templates/reports/recon-map-report-template.md" \
     "Licensing (as found)"
   # Whether a repo explains its place in the system is a fact about the repo, recorded once during
@@ -233,7 +238,7 @@ run_existing_case() {
   # landing paragraph so the resolver reads in the order it is meant to execute; an agent working
   # top-to-bottom that hits the commit first has already stopped by the time it reaches the notice.
   assert_file_contains "$docs/RETCON-PROMPT.md" \
-    "Run it **now**, before the commit below, so those two files go in with the README change; run"
+    "Run it **now**, before the commit below, so those two files go in with the"
   local notice_line landing_line
   notice_line="$(grep -n -F -- "**Place the Throughstone notice only if something Throughstone-authored landed.**" \
     "$docs/RETCON-PROMPT.md" | head -1 | cut -d: -f1)"

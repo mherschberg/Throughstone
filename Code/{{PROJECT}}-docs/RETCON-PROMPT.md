@@ -380,10 +380,9 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   addition was accepted, that section is BSD-3-Clause scaffold material, so run
   `scripts/apply-project-license.sh --notice-only <repo-path>` — it writes `LICENSE-THROUGHSTONE`
   and a `LICENSING.md` scoped to that material, disclaiming the rest of the repo, and never a
-  project `LICENSE`. Do **not** run the helper without that flag; it will refuse, and correctly.
-  Run it **now**, before the commit below, so those two files go in with the README change; run
-  afterwards they are written into their working tree at the point you have already stopped, and
-  the addition reaches their trunk with nothing saying where it came from.
+  project `LICENSE`. Run it **now**, before the commit below, so those two files go in with the
+  README change; run afterwards they are written into their working tree at the point you have
+  already stopped, and the addition reaches their trunk with nothing saying where it came from.
   If the user declined the README addition, nothing Throughstone-authored is in the repo and
   nothing is owed — placing a notice for absent material would only confuse a later reader.
   **On a yes, commit it on a branch and stop.** The yes was about the text, not about how that
@@ -438,10 +437,14 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
   **Never license an adopted repo.** Every repo here is registered in place, so its licensing is
   its owner's and the method only records it — the same rule that leaves its README augmented and
   its CI alone (`METHOD.md` §7: a repo the method did not create keeps what it already has).
-  Concretely: do **not** run
-  `scripts/apply-project-license.sh` against any of these repos — it will refuse one that states
-  its own terms, and the ones it would not refuse are exactly the repos that would silently gain a
-  `LICENSE` and a `LICENSING.md` claiming it over code you did not write. Recording it **is** the
+  Concretely: never run `scripts/apply-project-license.sh` against one of these repos without
+  `--notice-only`. That flag is the one allowed invocation — the notice for material the method
+  left behind (above), which writes no project `LICENSE` and makes no claim about the rest of the
+  repo. The plain invocation refuses a repo that states its own terms, but a repo that states
+  nothing is indistinguishable from one the method just created, so the ones it would not refuse
+  are exactly the repos that would silently gain a `LICENSE` and a `LICENSING.md` claiming it over
+  code you did not write. The flag is the rule; the refusal is only a backstop behind it.
+  Recording it **is** the
   work here, in two places with two jobs: the recon map's **Stack Per Repo** row already captured
   it at `inv-3` as part of the frozen point-in-time snapshot, and this row's `license:` field is
   the **living** copy that stays current as the repo changes. Copy it across as found — same
