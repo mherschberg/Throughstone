@@ -276,6 +276,18 @@ and what to check.
   check-in — the repos the method created are `stamped`, and only you know what happened to the
   rest.
 
+- **`registries/repos.yml` rows also carry a `license:` field.** It records what each repo is
+  licensed under: the bootstrap posture for a repo the method created, and whatever the repo
+  already says — an identifier and the file it came from, or `none stated` — for one registered in
+  place. §7 already told you to record an in-place repo's licensing "in the repo inventory entry",
+  and no field there held it. It exists because a project whose repos don't share one license has
+  nowhere else to show that, and it is a record rather than an instruction: the repo's own license
+  file stays authoritative and this line is a copy that can drift. **One thing to check:** your
+  existing rows have no value, which reads as *not recorded* rather than "same as everything
+  else". Nothing rewrites them — `repos.yml` is project state. The two seed rows a fresh bootstrap
+  writes take the posture from `.throughstone/project-license`; backfill the rest by hand whenever
+  you want the licensing picture in one place.
+
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
   invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first

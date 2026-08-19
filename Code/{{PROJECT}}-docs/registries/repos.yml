@@ -56,37 +56,59 @@
 # and there is no separate value for it: the outcome per repo is identical either way, and these
 # rows are the record. A standing decline that lives only in the conversation is gone by the next
 # session, and the re-asking it was meant to stop starts again.
+#
+# `license:` (per row) records what a repo is licensed under, so the inventory can show the
+# licensing picture across every repo at once — something no single LICENSE file can, and the fact
+# that starts mattering as soon as the repos here do not share one license. It is a RECORD, never
+# an instruction: the repo's own license file is authoritative and this line is a copy that can
+# drift, so trust the repo when they disagree and fix the line. For a repo the method CREATES it is
+# the posture from `.throughstone/project-license` (the value init.sh writes below). For a repo
+# REGISTERED IN PLACE — one that existed before this project did — it is whatever that repo already
+# says, written down as found: an identifier and the file it came from (`GPL-2.0 (COPYING)`), or
+# `none stated` when the repo says nothing, which is a fact worth recording rather than a gap to
+# fill. Never set a license for such a repo; see METHOD.md §7 — a repo the method did not create
+# keeps what it already has, licensing included. A missing value means "not recorded", not
+# "same as everything else", and repos legitimately carrying different licenses is a normal
+# inventory rather than an inconsistency to reconcile.
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
     type: docs            # docs | service | library | app | infra | tests
     readme: stamped
+    license: "{{PROJECT_LICENSE}}"
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
     readme: stamped
+    license: "{{PROJECT_LICENSE}}"
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them. A repo the method
   # CREATES is stamped from templates/repo-readme-template.md; a repo REGISTERED IN PLACE is listed
-  # here like any other but scaffolded in none of these ways — see METHOD.md §7. `readme:` is the
-  # field whose value differs by which kind it is, so one example of each:
+  # here like any other but scaffolded in none of these ways — see METHOD.md §7. `readme:` and
+  # `license:` are the two fields that differ by which kind it is: a repo the method creates carries
+  # the whole template README and takes the project posture, like the rows above; a repo registered
+  # in place records the README outcome its owners agreed to, and for licensing takes whatever that
+  # repo itself already says, copied as found — never the posture, and never a value you picked for
+  # it. One example of each:
   #
-  # Created by the method — a Code/* sibling, carrying the whole template README:
+  # Created by the method — a Code/* sibling, carrying the whole template README and the posture:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
   #   readme: stamped
+  #   license: "{{PROJECT_LICENSE}}"                       # the posture, as on the rows above
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."
   #
-  # Registered in place — its real location, and the outcome of the one addition it was offered.
-  # Never a value you picked for it: `readme:` records the answer its owners actually gave.
+  # Registered in place — its real location, the outcome of the one addition it was offered, and
+  # its own licensing recorded as found:
   # - name: "legacy-billing"
   #   location: "/srv/src/legacy-billing/"
   #   type: service
-  #   readme: declined          # or augmented / written / role-stated / not-proposed
+  #   readme: declined            # or augmented / written / role-stated / not-proposed
+  #   license: "GPL-2.0 (COPYING)"                         # what THAT repo says; `none stated` if nothing
   #   description: "..."

@@ -523,12 +523,13 @@ project is actually missing. Per artifact that means:
   replace or break whatever already gates that repo's merges. Record what it runs instead.
 - **Licensing — recorded as found.** The repo already has a licensing status: a `LICENSE`, a
   `COPYING`, a `NOTICE`, vendored third-party terms, or a deliberate absence. Read what it uses
-  and record it — in the repo inventory entry that describes it, and wherever the architecture
-  docs cover it. A divergence from the `init.sh` selection is not an error to fix: that selection
-  governs the method's own artifacts and the repos it creates, and several in-place repos may
-  legitimately carry several different licenses. It is worth telling the owners about once, where
-  they can act on it, and that is the whole of it. So `scripts/apply-project-license.sh` is run
-  **only on a repo the method creates**; it refuses a target that already states its own licensing.
+  and record it — in its `registries/repos.yml` `license:` field (an identifier and the file it
+  came from, or `none stated`), and wherever the architecture docs cover it. A divergence from the
+  project's own selection is not an error to fix: that selection governs the method's artifacts and
+  the repos it creates, and several in-place repos may legitimately carry several different
+  licenses. It is worth telling the owners about once, where they can act on it, and that is the
+  whole of it. So `scripts/apply-project-license.sh` is run **only on a repo the method creates**;
+  it refuses a target that already states its own licensing.
 - **The Throughstone notice — only where something Throughstone-authored landed.** That is the one
   thing such a repo may still be owed: where the method leaves its own material behind — the
   `Role in <project>` section, or a README written from the template for a repo that had none —

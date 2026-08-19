@@ -24,6 +24,19 @@ any project built with it.
   field is a record, never an instruction: the repo's README is authoritative and this line is a
   copy that can drift. A missing value means *not recorded* and defaults to nothing, so inventories
   written before this release keep working and say so.
+- **The repo inventory records what each repo is licensed under.** `METHOD.md` §7 told an agent to
+  read a registered-in-place repo's licensing and record it "in the repo inventory entry that
+  describes it", and no field there held it — so the one place that already indexes every repo
+  could not show the licensing picture across them, which no single `LICENSE` file can and which
+  starts mattering as soon as a project's repos don't share one license. `registries/repos.yml`
+  rows now carry a `license:` field, and §7 names it. For a repo the method creates it is the
+  bootstrap posture, which `init.sh` substitutes into the seed rows **and into the worked example
+  beside them**, so the pattern an agent copies matches the project it is copying it into; for a
+  repo registered in place it is what that repo already says, recorded as found — an identifier
+  and the file it came from, or `none stated`. It is a record, never an instruction: the repo's own
+  license file stays authoritative, a missing value means "not recorded" so existing inventories
+  are unaffected, and repos carrying different licenses is a normal inventory rather than an
+  inconsistency to reconcile.
 - **A README that already states the repo's place is a complete outcome too.** §7 said to "add only
   the missing piece", which reads as "add it" when the piece is not missing. Where a
   registered-in-place repo's README already says what the repo is within the system, nothing is
