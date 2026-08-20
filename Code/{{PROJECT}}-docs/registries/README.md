@@ -9,7 +9,7 @@ itself, because tooling and CI parse it. Keep each file the **source of truth**;
 
 | File | What | Consumed by |
 |------|------|-------------|
-| [`repos.yml`](repos.yml) | The repo inventory — which repos exist, what each is, where its docs live, and what the method did to each one's README (`readme:`). See its header and `METHOD.md` §7. | `scripts/setup-workspace.sh` (clones from `remote:`); `runbooks/collaboration.md` (STEP-number reservation); `runbooks/check-in.md` (the README sweep reads `readme:`); CI. |
+| [`repos.yml`](repos.yml) | The repo inventory — which repos exist, what each is, and where its docs live. See its header and `METHOD.md` §7. | `scripts/setup-workspace.sh` (clones from `remote:`); `runbooks/collaboration.md` (STEP-number reservation); CI. |
 | [`risks.yml`](risks.yml) | The accepted risk / tech-debt index — known risks, conscious deferrals, and debt with owners, revisit triggers, and references to the artifact that explains the detail. | Security session deferrals; dependency audits; incident follow-ups; `runbooks/check-in.md`. |
 | [`security-reviews.yml`](security-reviews.yml) | The security review ledger — latest S0/S1/S2 review dates, cadence, report paths, reviewed commit, rough SLOC snapshot, and deltas since the previous run. | `runbooks/security-review.md`; `runbooks/check-in.md` security gate. |
 

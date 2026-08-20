@@ -69,9 +69,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    of them exist yet, so you scaffold them all — the usual case. Just skip any that are
    **already there:** a repo the architecture names is already there when it has a
    `registries/repos.yml` row **with a filled-in README** (a real role one-liner + Overview, not
-   the template's placeholders), so don't re-create it. A repo **registered in place** is likewise
-   already there: it exists, and its README is its own — a thin one, or none, is not a reason to
-   scaffold over it. This only comes up on a **re-run** (a repo
+   the template's placeholders), so don't re-create it. This only comes up on a **re-run** (a repo
    you scaffolded in an earlier run is already registered) or when the project already has some of
    these repos; if `registries/repos.yml` is absent or has no code-repo rows yet (that first run,
    or a mono-repo), nothing is registered and every named repo scaffolds, exactly as before.
@@ -79,70 +77,27 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    STEP is almost always *"scaffold the repos and the skeleton"*: create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
-   named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each new code repo as its
+   named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
    `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
    the `.env` / `.secrets/` secret-file block so local secrets never get committed). Apply the
-   license posture too: run
+   project-license posture too: run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` for every new code
-   repo. It reads `.throughstone/project-license` — which covers Throughstone-authored and
-   method-created material, not code the method didn't write — requires the canonical docs-hub `LICENSE`
+   repo. It reads `.throughstone/project-license`, requires the canonical docs-hub `LICENSE`
    for an open-source selection, and copies that file unchanged. For `Proprietary`, no project
    `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
    and CI starter are retained Throughstone-authored scaffold material, and writes
-   `LICENSING.md` to make clear that notice is not the application-code license. **Run it only on
-   repos you create** — a repo **registered in place**, which existed before this project did,
-   keeps the licensing its owner set (`METHOD.md` §7: a repo the method did not create keeps what
-   it already has — README, CI, and licensing alike). Record what such a repo uses where its
-   inventory entry describes it and move on; the helper refuses it. Repository
-   visibility is separate, and comes up only if remotes are being added at all.
-   **A remote is created only when the user asks for one**, for any repo: `init.sh` sets none up
-   unless asked, and a repo already registered without one is not missing a remote — it is a repo
-   its owners have not put on a server (`METHOD.md` §7).
-   When adding a remote for a repo **you are creating**, choose private or
-   public deliberately rather than inferring it from the license — and **take public only from an
-   explicit go-ahead**, never from an open-source license, a public sibling repo, or the project
-   describing itself as open source. With no answer given, create it private: that is reversible
-   and publishing is not (`METHOD.md` §7). Publishing a proprietary repo also makes its source
-   visible without granting open-source reuse rights, so call that out explicitly.
+   `LICENSING.md` to make clear that notice is not the application-code license. Repository
+   visibility is separate: when adding a remote for each code repo, choose private or public
+   deliberately rather than inferring it from the license. Publishing a proprietary repo makes
+   its source visible without granting open-source reuse rights, so call that out explicitly.
    **Each
    repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
    the repo is and the slice of the system it owns), and the repo gets a row in
-   `registries/repos.yml` with a one-line `description` and `readme: stamped` (the whole file is
-   the method's); a repo isn't scaffolded until it can explain itself.
-   **A repo registered in place is not scaffolded at all.** Everything above describes creating a
-   repo, and this one already exists — so it is not created, and the license helper is not run on
-   it (above). The one thing it may still be owed is the role-and-place framing its README
-   probably lacks, and what to do keys on whether a README is there. **If it has one:** add a
-   short `Role in {{PROJECT}}` section and leave every existing section alone — never stamp the
-   template over it — and where that README already says what the repo is within the system,
-   nothing is missing, so propose nothing. **If it has none:** write its README from the
-   template — that one file, and not the `ARCHITECTURE.md` its Overview comment suggests for a
-   complex repo; an in-place repo's internal design is written up in the docs hub's
-   `architecture/`, not as a new file at its root.
-   Either way it is the user's repo, so show them what you intend to add and where, and wait for a
-   yes. **Record how it went in that repo's `registries/repos.yml` row** as its `readme:` value —
-   `augmented`, `written`, `role-stated`, `declined`, or `not-proposed` while it is still to be
-   asked (the registry header defines each). That row is what a later check-in reads to tell a
-   settled repo from one still owed the question.
-   **On a yes, place the notice, then commit both on a branch and stop.** The accepted text is
-   Throughstone-authored, so run
-   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>` first, then
-   commit every file the method just wrote into that repo — the README file you proposed, and the
-   `LICENSE-THROUGHSTONE` and `LICENSING.md` it placed — naming each, never
-   `git add -A`, and **never push, open a PR, or merge**. One branch, one commit, so the addition
-   and the notice explaining it can't be separated. Tell them the branch and commit and let
-   them take it through their own process; how a change reaches their trunk is theirs to decide
-   (`METHOD.md` §7). If the addition was declined, nothing Throughstone-authored is in that repo
-   and nothing is owed. **Its CI is
-   its own** — never install `templates/ci/code-repo-ci.yml` into it; record what it runs in the
-   Test Strategy doc. **Its remote and its visibility are its own too** — it already lives
-   somewhere and is already private or public, so create no remote for it, repoint no existing one,
-   and **never change its visibility**. Record the cloneable URL it already has in its `remote:`
-   field so `scripts/setup-workspace.sh` can find it, and change nothing about the repo.
-   Confirm the repo list with the user — on a first run they're all new; note any
-   that already exist (registered and present, by either of the tests above) so you scaffold only
-   the new ones.
+   `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can
+   explain itself. Confirm the repo list with the user — on a first run they're all new; note any
+   that already exist (already registered with a filled-in README) so you scaffold only the new
+   ones.
 2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
    **build or extend what this milestone needs, given what already exists.** On a first run
    nothing is built yet, so scaffolding and the core data layer come first and you build

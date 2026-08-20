@@ -126,41 +126,15 @@ pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 `registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has deep internals). **Before working in a repo, read its README
-first** — the same way you read the architecture docs before a design change. A repo the method
-creates is **stamped** from `templates/repo-readme-template.md`. For a repo **registered in
-place**, the rule keys on whether a README is already there: if it is, **augment** — add a short
-`Role in {{PROJECT}}` section and nothing else, and never rewrite a section the repo already has;
-if the repo has none, write one from the template. Either way you are writing into the user's
-repo, so propose it before you do (`METHOD.md` §7) — and where its README
-already says what the repo is within the system, nothing is missing, so propose nothing.
-**Whichever way it goes, record
-it in that repo's `registries/repos.yml` row as its `readme:` value** (`stamped` / `augmented` /
-`written` / `role-stated` / `declined` / `not-proposed`; the registry header defines each). That
-value is what the periodic check-in reads to know how much of each README the method is answerable
-for, and it is the only record that a decline was ever given.
-Nothing else about a registered-in-place repo
-is scaffolded — it already exists, and in particular the CI gate is never installed into one (its
-pipeline is its own). If the README addition is accepted, that leaves Throughstone-authored
-material in the repo, so place its notice with
-`Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <repo-path>`; if it was
-declined, nothing is owed.
-When creating an application-code repo, also apply the license posture recorded at
+first** — the same way you read the architecture docs before a design change.
+When creating an application-code repo, also apply the project-license posture recorded at
 bootstrap by running
 `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>`. The authoritative
-selection is in `Code/{{PROJECT}}-docs/.throughstone/project-license`, and it covers
-**Throughstone-authored and method-created material** — this docs hub, `prompts/`, and any repo
-the method creates — not code the method didn't write; the helper validates
+selection is in `Code/{{PROJECT}}-docs/.throughstone/project-license`; the helper validates
 that selection against the docs hub's canonical `LICENSE`, copies the project license unchanged
 for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
-**Run it only on a repo you create.** A repo **registered in place** — one that existed before
-this project did — keeps whatever licensing its owner set: read it, record it as found beside
-that repo's `registries/repos.yml` entry, and leave it alone. A repo the method did not create
-keeps what it already has — its README, its CI, and its licensing alike (`METHOD.md` §7) — so do
-not apply the posture to such a repo, and do not treat a difference between it and the bootstrap
-selection as something to reconcile. The helper refuses a target that already states its own
-licensing.
 `scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
 the root pointers). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
 `./doctor.sh links` are thin shortcuts to the docs hub's `scripts/status.sh`,
