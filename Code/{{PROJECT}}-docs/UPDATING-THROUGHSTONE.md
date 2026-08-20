@@ -237,6 +237,41 @@ apply each area as a coherent review-required group, as with the legacy migratio
 - *Project state* (your `inputs/` contents): entirely yours — nothing is auto-created or
   rewritten. The folder is optional; a session reads what's there and ignores an empty folder.
 
+### 1.7.1 migration
+
+**Upgrading from 1.7.0?** A small follow-up that gives the `inputs/` folder a lifecycle. It rewrites
+no project files and is greenfield-inert — the new ledger simply starts empty. Fast path:
+
+1. Pull the process docs as one review-required group (`AGENTS.md`, `METHOD.md` §4,
+   `runbooks/check-in.md`, `templates/architecture-sessions/01-system-overview.md` and
+   `03-architecture-overview.md`, `templates/substep-prompt-template.md`,
+   `templates/planning-session.md`, `templates/reports/check-in-report-template.md`).
+2. Add the ledger: copy the scaffold's empty `inputs/inputs-index.md` (and the updated
+   `inputs/README.md` guidance with it), then list any inputs you already have as `Live`.
+3. Nothing else now. `inputs/archive/` is created only when you first retire an input, and the next
+   check-in's inputs sweep is what surfaces a superseded input for a retire/keep decision.
+
+The change establishes that **inputs are point-in-time** and `architecture/` is the living truth:
+where a generated `architecture/` / `adr/` doc covers the same ground as an input, the generated doc
+wins, and architecture-grade inputs are lifted into `architecture/` (a spec often a whole-file copy
+or a light reformat). This is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
+rules apply unchanged.
+
+**Inputs lifecycle.**
+
+- *New project-state file* (`inputs/inputs-index.md`): copy the scaffold's empty ledger in; from
+  then on it is yours to maintain, like a registry (`registries/*.yml`). Record each existing input
+  as `Live`, and mark parts `Superseded` as an `architecture/` doc captures them. A fresh project
+  ships it empty, so a first run reads all of `inputs/` exactly as before.
+- *Process docs* (`AGENTS.md` ground rules, `METHOD.md` §4, `runbooks/check-in.md`, the
+  system-overview / architecture-overview session templates, `templates/substep-prompt-template.md`,
+  `templates/planning-session.md`, `templates/reports/check-in-report-template.md`): adopt the
+  point-in-time authority rule, the `inputs/archive/` read-exclusion, and the check-in inputs sweep.
+  Apply them as a coherent review-required group. No `status.sh` / `check.sh` change.
+- *Project state* (your `inputs/` contents): never auto-updated. Your existing input files are not
+  touched or moved; they simply start `Live` in the ledger, and any retirement to `inputs/archive/`
+  happens only when you decide it at a check-in.
+
 ### 1.8 migration
 
 **Templates, guidance text, and several refusals that did not exist before — nothing you already
@@ -249,6 +284,18 @@ in cases where they previously proceeded. Those refusals are the point of the re
 stood between the method and a write into a repository it did not create — but a script of yours
 that relied on either running unattended may now stop and ask. Each item below says what changed
 and what to check.
+
+- **`init.sh` refuses to run unless it is a fresh template checkout.** It is one-time and
+  destructive — it removes `.git` and the template-only files — so a second run inside an
+  already-initialized project would delete that project's history, and a run on a template
+  extracted into a repository somebody else owns would delete theirs. It now refuses both: the
+  first on the `THROUGHSTONE-TEMPLATE-GUARD` sentinel in the root `AGENTS.md` / `CLAUDE.md`, which
+  initialization strips; the second by asking the repository it is sitting in whether it holds any
+  work — commits under `HEAD`, commits on branches or tags `HEAD` is not on, staged files, or
+  untracked files the template does not ship — and refusing if any of those says yes. This affects
+  **only re-runs of the bootstrap**: your project finished `init.sh` once and never runs it again.
+  **One thing to check:** nothing. It matters the next time you unpack the template to start
+  another project.
 
 - **`init.sh --registries=no` is deprecated and now does nothing.** It pruned `registries/` in
   mono-repo layout, on the argument that a self-contained root repo has no sibling repos to
@@ -440,41 +487,6 @@ Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGEN
 `templates/repo-readme-template.md`, `runbooks/check-in.md`, and
 `scripts/apply-project-license.sh` as a group. Nothing else is affected: no `status.sh` /
 `check.sh` change, no project state touched.
-
-### 1.7.1 migration
-
-**Upgrading from 1.7.0?** A small follow-up that gives the `inputs/` folder a lifecycle. It rewrites
-no project files and is greenfield-inert — the new ledger simply starts empty. Fast path:
-
-1. Pull the process docs as one review-required group (`AGENTS.md`, `METHOD.md` §4,
-   `runbooks/check-in.md`, `templates/architecture-sessions/01-system-overview.md` and
-   `03-architecture-overview.md`, `templates/substep-prompt-template.md`,
-   `templates/planning-session.md`, `templates/reports/check-in-report-template.md`).
-2. Add the ledger: copy the scaffold's empty `inputs/inputs-index.md` (and the updated
-   `inputs/README.md` guidance with it), then list any inputs you already have as `Live`.
-3. Nothing else now. `inputs/archive/` is created only when you first retire an input, and the next
-   check-in's inputs sweep is what surfaces a superseded input for a retire/keep decision.
-
-The change establishes that **inputs are point-in-time** and `architecture/` is the living truth:
-where a generated `architecture/` / `adr/` doc covers the same ground as an input, the generated doc
-wins, and architecture-grade inputs are lifted into `architecture/` (a spec often a whole-file copy
-or a light reformat). This is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
-rules apply unchanged.
-
-**Inputs lifecycle.**
-
-- *New project-state file* (`inputs/inputs-index.md`): copy the scaffold's empty ledger in; from
-  then on it is yours to maintain, like a registry (`registries/*.yml`). Record each existing input
-  as `Live`, and mark parts `Superseded` as an `architecture/` doc captures them. A fresh project
-  ships it empty, so a first run reads all of `inputs/` exactly as before.
-- *Process docs* (`AGENTS.md` ground rules, `METHOD.md` §4, `runbooks/check-in.md`, the
-  system-overview / architecture-overview session templates, `templates/substep-prompt-template.md`,
-  `templates/planning-session.md`, `templates/reports/check-in-report-template.md`): adopt the
-  point-in-time authority rule, the `inputs/archive/` read-exclusion, and the check-in inputs sweep.
-  Apply them as a coherent review-required group. No `status.sh` / `check.sh` change.
-- *Project state* (your `inputs/` contents): never auto-updated. Your existing input files are not
-  touched or moved; they simply start `Live` in the ledger, and any retirement to `inputs/archive/`
-  happens only when you decide it at a check-in.
 
 ## 3. Manual Mode
 
