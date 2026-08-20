@@ -19,74 +19,22 @@
 # Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
 # it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
 # for prompts/ + this docs hub. Solo with no remotes, it's optional.
-#
-# `readme:` (per row) records what the method did to that repo's README — and therefore what a
-# later check-in is answerable for when it sweeps them (runbooks/check-in.md). It is a RECORD,
-# never an instruction: the repo's own README is authoritative and this line is a copy that can
-# drift, so trust the repo when they disagree and fix the line. One of:
-#
-#   stamped        The method CREATED this repo, so the whole README is the method's own —
-#                  stamped from templates/repo-readme-template.md for a code repo, or written by
-#                  init.sh for this docs hub and prompts/.
-#   augmented      REGISTERED IN PLACE with a README already there, and its owners accepted a
-#                  short `Role in {{PROJECT}}` section. That section is the only part the method
-#                  wrote; the rest of the file is theirs.
-#   written        REGISTERED IN PLACE with NO README, so one was written from the template and
-#                  accepted. The whole file is the method's, as with `stamped` — but nothing else
-#                  in that repo is scaffolded.
-#   role-stated    REGISTERED IN PLACE, and its README already says what the repo is within the
-#                  system. Nothing was missing, so nothing was proposed and nothing is owed.
-#   declined       Proposed and refused. Nothing was written and nothing is owed — a complete
-#                  outcome, not a gap (METHOD.md §7). Do not propose it again.
-#   not-proposed   REGISTERED IN PLACE and the addition has not been put to its owners yet. This
-#                  is the one value that means something is still open.
-#
-# The last three all mean the method wrote nothing, and they are three values rather than one
-# because they tell a later reader to do three different things: leave it, leave it, or ask. A
-# row that cannot tell them apart is why this field exists.
-#
-# A missing value means NOT RECORDED — read the repo, work out which of the six it is, and write
-# it down. It does not default to `stamped` (which hides a real gap behind a repo that was never
-# asked) and it does not default to `not-proposed` (which re-opens a question the owners already
-# answered). Inventories written before this field existed have one on every row.
-#
-# A STANDING decline — one answer covering the remaining repos rather than just this one
-# (METHOD.md §7) — is recorded by writing `declined` on every remaining registered-in-place row
-# at the moment it is given. That is what "record that those repos document themselves" means,
-# and there is no separate value for it: the outcome per repo is identical either way, and these
-# rows are the record. A standing decline that lives only in the conversation is gone by the next
-# session, and the re-asking it was meant to stop starts again.
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
     type: docs            # docs | service | library | app | infra | tests
-    readme: stamped
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
-    readme: stamped
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
-  # Service / app / library repos get added here as the architecture names them. A repo the method
-  # CREATES is stamped from templates/repo-readme-template.md; a repo REGISTERED IN PLACE is listed
-  # here like any other but scaffolded in none of these ways — see METHOD.md §7. `readme:` is the
-  # field whose value differs by which kind it is, so one example of each:
-  #
-  # Created by the method — a Code/* sibling, carrying the whole template README:
+  # Service / app / library repos get added here as the architecture names them and they
+  # are stamped from templates/repo-readme-template.md. Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
-  #   readme: stamped
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
-  #   description: "..."
-  #
-  # Registered in place — its real location, and the outcome of the one addition it was offered.
-  # Never a value you picked for it: `readme:` records the answer its owners actually gave.
-  # - name: "legacy-billing"
-  #   location: "/srv/src/legacy-billing/"
-  #   type: service
-  #   readme: declined          # or augmented / written / role-stated / not-proposed
   #   description: "..."

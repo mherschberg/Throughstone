@@ -67,21 +67,14 @@ validate_trunk_branch() {
 # Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
 # skip project LICENSE creation later.
-#
-# The default is PRIVATE / PROPRIETARY, and it is the conservative answer rather than the common
-# one. Pressing Enter past this question must not grant the world a license to the user's code:
-# publishing is a deliberate act with consequences that are hard to take back, while a project
-# that starts proprietary can be opened later by its owner at any time. So an open-source posture
-# is only ever reached by typing 1 — the same reason --non-interactive refuses to run without an
-# explicit --license, and the same direction as the private default for repository visibility.
 choose_license_interactively() {
   local project_type license_input
 
   while :; do
     echo "Is this project open source or private/proprietary?"
     echo "  1) Open source"
-    echo "  2) Private / proprietary   (default)"
-    project_type="$(ask 'Choose 1 or 2' '2')"
+    echo "  2) Private / proprietary"
+    project_type="$(ask 'Choose 1 or 2' '1')"
     case "$project_type" in
       1) break ;;
       2)
@@ -166,7 +159,7 @@ Options:
   --license=NAME        mit | bsd-3 | apache-2.0 | private
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
-  --registries=yes|no   DEPRECATED, ignored: registries/ is always kept.
+  --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
   --trunk-branch=NAME   Generated repo trunk branch     (default: main)
@@ -260,149 +253,6 @@ preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
-# --- 0c. Fresh-template guard -----------------------------------------------
-# init.sh is a one-time bootstrap that crosses a destructive boundary below (it removes .git and
-# template-only files). It must run from a fresh, unpacked template checkout — never a second time
-# in an already-initialized project (a re-run would delete a mono repo's history, then fail), and
-# never on top of a repository it did not create. Both refusals happen here, before anything is
-# removed.
-#
-# First: the root pointers (AGENTS.md / CLAUDE.md) carry a THROUGHSTONE-TEMPLATE-GUARD block that
-# step 3 strips during initialization. It is a stable sentinel because it contains no {{PROJECT}}
-# token, so — unlike the docs-hub directory name — placeholder substitution never rewrites it. Its
-# absence means this is not a fresh template.
-if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" 2>/dev/null; then
-  echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
-  echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
-  echo "  not run on an already-initialized project or an unrelated repo — that would delete history." >&2
-  echo "  If you are starting over, re-download the template into a fresh, empty folder and run it there." >&2
-  exit 2
-fi
-
-# Second, and the half that covers *someone else's* repository. The sentinel above proves these
-# files came from the template; it does not prove the template is the only thing here. Extracted
-# INTO an existing repository it is still present and still reads "fresh", while the destructive
-# step below removes that repository's .git — its entire history — and, in mono layout, re-inits and
-# writes a project LICENSE plus a LICENSING.md asserting it over code this method did not author.
-# That is the claim scripts/apply-project-license.sh refuses outright; nothing should be able to
-# make it here instead.
-#
-# Three of the four questions below separate the cases by HISTORY alone and need no list of
-# template paths. The fourth exists because one state has no history to read at all. What this
-# refusal protects is work its owner cannot get back — and a repository can be holding that in
-# more than one place. Asking git a single question about a single one of them is how the first version of
-# this guard let a live repository through: it asked what HEAD points at, and a repository whose
-# HEAD is unborn is still holding every commit made on its other branches.
-#
-# So ask several independent questions and refuse if ANY of them says yes. None has to be certain
-# on its own; between them they cover the places a repository keeps work that step 3 would delete.
-#   1. HEAD resolves, and HEAD's own AGENTS.md does not carry the sentinel — committed history,
-#      and it is not this template's.
-#   2. HEAD does not resolve, but the repository already holds refs — branches, tags, remote
-#      tracking, a stash. `git checkout --orphan` inside a working repo lands exactly here: no
-#      commit under HEAD, every earlier commit still on the branch it was made on.
-#   3. Nothing is committed anywhere, but files are staged and the staged AGENTS.md is not the
-#      template's — work that so far exists only in the index.
-#   4. Nothing is committed, no refs exist, and nothing is staged, but the working tree holds
-#      entries this template does not ship. This is the one state the three questions above
-#      cannot tell apart from an empty repository: `git init` — often with a remote added, and
-#      no commit yet — leaves everything its owner has written as untracked files, which is a
-#      store none of the three reads. It is also the only question that has to know what the
-#      template ships, so the list it compares against is pinned by a maintainer test.
-# The first three read a different store each, and read the repository rather than the working
-# files, which the extraction just overwrote. The fourth reads the working files precisely
-# because in that state the repository itself holds nothing to read.
-#   - template in a plain folder            -> not a work tree, proceeds
-#   - template cloned or committed          -> HEAD's AGENTS.md carries the sentinel, proceeds
-#   - template staged, not yet committed     -> the staged AGENTS.md carries it, proceeds
-#   - `git init` + an empty origin, no commit yet, the mono-repo origin-reuse flow in section 4
-#                                           -> no HEAD, no refs, nothing staged, and the working
-#                                              tree holds only what the template ships, proceeds
-#   - extracted over a repo with history    -> refused by 1
-#   - extracted onto an orphan branch       -> refused by 2
-#   - extracted over staged, uncommitted work -> refused by 3
-#   - extracted over `git init` + untracked work, nothing added yet -> refused by 4
-# Every top-level entry this template ships, one per line. Signal 4 below treats anything else in
-# the working tree as its owner's, so this list is what stands between "an empty repo the user
-# prepared for us" and "a project with everything still untracked". It is deliberately generous:
-# entries a maintainer checkout carries but a download does not (.dev/, marketing/, TODO.md,
-# local-testing/) are listed too, because listing one that is absent costs nothing while omitting
-# one that is present would refuse a legitimate run. tests/init-fresh-template-guard.sh asserts it
-# covers the template's real top level, so adding a top-level file fails there rather than here.
-TEMPLATE_TOP_LEVEL="$(cat <<'TEMPLATE_ENTRIES'
-.DS_Store
-.claude
-.dev
-.git
-.github
-.gitignore
-.test-fixtures
-AGENTS.md
-ARTIFACT-TRAIL.md
-CHANGELOG.md
-CLAUDE.md
-CODE_OF_CONDUCT.md
-CONTRIBUTING.md
-Code
-LICENSE
-README.md
-SECURITY.md
-TODO.md
-TRADEMARK.md
-Upcoming Prompts
-brand
-docs
-doctor.sh
-init.sh
-local-testing
-marketing
-prompts
-tests
-TEMPLATE_ENTRIES
-)"
-
-# bootstrap_foreign_entries — print each top-level working-tree entry the template does not ship.
-# Reads: ROOT, TEMPLATE_TOP_LEVEL.
-# Writes: nothing (prints one name per line).
-# Returns: 0 always.
-bootstrap_foreign_entries() {
-  local entry name
-  for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
-    [ -e "$entry" ] || continue
-    name="${entry##*/}"
-    printf '%s\n' "$TEMPLATE_TOP_LEVEL" | grep -qxF -- "$name" || printf '%s\n' "$name"
-  done
-}
-
-BOOTSTRAP_GUARD_REASON=""
-if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
-  if git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
-    git -C "$ROOT" show HEAD:./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD' \
-      || BOOTSTRAP_GUARD_REASON="its committed history is not this template's"
-  elif git -C "$ROOT" show-ref --quiet 2>/dev/null; then
-    BOOTSTRAP_GUARD_REASON="it holds commits on branches or tags that HEAD is not currently on"
-  elif [ -n "$(git -C "$ROOT" ls-files 2>/dev/null)" ]; then
-    git -C "$ROOT" show :./AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD' \
-      || BOOTSTRAP_GUARD_REASON="it has staged files that are not this template's"
-  else
-    BOOTSTRAP_FOREIGN="$(bootstrap_foreign_entries)"
-    if [ -n "$BOOTSTRAP_FOREIGN" ]; then
-      BOOTSTRAP_GUARD_REASON="it holds files this template does not ship, none of them committed, staged, or on a branch yet: $(printf '%s' "$BOOTSTRAP_FOREIGN" | tr '\n' ' ')"
-    fi
-  fi
-fi
-if [ -n "$BOOTSTRAP_GUARD_REASON" ]; then
-  echo "init.sh: this template is sitting inside an existing Git repository." >&2
-  echo "  $(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)" >&2
-  echo "  Refusing because $BOOTSTRAP_GUARD_REASON." >&2
-  echo "  init.sh is one-time and destructive: it would remove that repository's .git — its whole" >&2
-  echo "  history — and in mono-repo layout write a project LICENSE over code it did not author." >&2
-  echo "  Extract the template into a fresh, empty folder OUTSIDE this repository and run it there;" >&2
-  echo "  a repo that already exists is referenced where it sits (METHOD.md §7), never moved into" >&2
-  echo "  the workspace. Nothing was changed." >&2
-  exit 2
-fi
-
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
@@ -493,24 +343,19 @@ else
   LAYOUT="$(ask 'Choose 1 or 2' '1')"
 fi
 
-# registries/ is always kept. --registries=no used to prune it in mono-repo layout, on the
-# argument that a self-contained root repo has no sibling repos to inventory. That argument was
-# about repos.yml, and the directory holds two more registries it never covered: risks.yml, the
-# accepted risk / tech-debt register METHOD.md §7 requires, and security-reviews.yml, which the
-# whole security-review runbook family reads. Pruning took all three, and left the generated
-# project's own docs referring to files it no longer had — 98 references across 24 files, none of
-# them a Markdown link, so scripts/links.sh and scripts/check.sh both reported it clean.
-#
-# The flag is accepted and ignored so existing scripts keep working, and says so once. It is
-# removed in a later release. Nothing is pruned in either layout.
-if [ -n "$REGISTRIES_IN" ]; then
-  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1|n|no|false|0) ;;
-    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
-  echo "init.sh: --registries is deprecated and ignored; registries/ is always kept." >&2
-  echo "        It also held risks.yml and security-reviews.yml, which pruning removed and the" >&2
-  echo "        method's own runbooks still referenced. The flag is a no-op, not an error." >&2
+# registries/ is always kept in multi-repo because setup-workspace.sh and remote recording use
+# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained.
+KEEP_REGISTRIES=1
+if [ "$LAYOUT" = "2" ]; then
+  if [ -n "$REGISTRIES_IN" ]; then
+    case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
+      y|yes|true|1) KEEP_REGISTRIES=1 ;;
+      n|no|false|0) KEEP_REGISTRIES=0 ;;
+      *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
+    esac
+  elif [ "$NONINTERACTIVE" != "1" ]; then
+    yesno "Include registries/ (repo inventory; useful for multi-repo)?" || KEEP_REGISTRIES=0
+  fi
 fi
 
 # Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
@@ -890,6 +735,8 @@ fi
 # --- 4. Prune optional pieces -----------------------------------------------
 # runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
 # AGENTS.md and METHOD.md reference.
+[ "$KEEP_REGISTRIES" = "0" ] && rm -rf "$DOCS/registries" && echo "  pruned registries/"
+
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.
 if [ -f "$DOCS/adr/README.md" ]; then

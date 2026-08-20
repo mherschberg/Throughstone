@@ -4,9 +4,8 @@
 
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
-> retained as `LICENSE-THROUGHSTONE` in this docs hub. Application code this project creates is
-> under the open-source license you chose at setup or remains private/proprietary; a repo that
-> existed before this project keeps the licensing its owner set (§7). For open-source
+> retained as `LICENSE-THROUGHSTONE` in this docs hub. Your own application code is under the
+> open-source license you chose at setup or remains private/proprietary. For open-source
 > projects, the docs hub's `LICENSE` is the canonical project-license file copied into each
 > application-code repo when that repo is created. The durable selection is recorded separately
 > in `.throughstone/project-license`, so a missing license file cannot silently change it.
@@ -466,9 +465,8 @@ Projects are typically **multi-repo**: the workspace folder is *not* itself a re
 inside it, `prompts/` is one repo and each thing under `Code/` (including
 `{{PROJECT}}-docs`) is its own **sibling** repo. Nothing sits "above" those repos except a
 per-machine shell. The `init.sh` wizard sets this up for the first developer; service repos
-aren't created at bootstrap — the ones this method creates are stamped from
-`Code/{{PROJECT}}-docs/templates/repo-readme-template.md` once the architecture names them, and
-one that already exists is registered in place instead (below). (Or choose
+aren't created at bootstrap — they're stamped from
+`Code/{{PROJECT}}-docs/templates/repo-readme-template.md` once the architecture names them. (Or choose
 mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
 `registries/repos.yml` is the canonical inventory. `registries/risks.yml` is the canonical
 accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
@@ -478,156 +476,16 @@ decision/section, ADR, issue/follow-up STEP, incident report under `reports/inci
 check-in report under `reports/` — then add the register row. **Every repo carries a README explaining
 what it is** — its role and the slice of the system it owns — stamped from that template and
 filled in when the repo is scaffolded (with a matching one-line `description` in
-`registries/repos.yml`); a repo **the method creates** with real internal complexity adds an
-`ARCHITECTURE.md` at its root for its internal design. Not every repo gets one — it is a judgment
-call about complexity, not part of the scaffold — and a repo the method did not create never gets
-one, since that is a file appearing at the root of somebody else's repository (below).
-**Every application-code repo the method *creates* also inherits the license posture and the CI
-gate.** Read the authoritative license selection from the docs
-hub's `.throughstone/project-license`. That file records the license for **Throughstone-authored
-and method-created material** — this docs hub, `prompts/`, and any repo the method creates — which
-in a project built from scratch is everything, and in a project that also references code it did
-not create is exactly that subset. It is not a claim about code the method didn't write. For an
-open-source selection, the docs hub must have a matching canonical `LICENSE`, which is copied
-unchanged to the new repo root; for `Proprietary`, the new repo gets no project `LICENSE`.
-`scripts/apply-project-license.sh` does that, and also copies `LICENSE-THROUGHSTONE` and writes a
-visible `LICENSING.md` — a scaffolded repo *does* hold Throughstone-authored material, the README
-and CI starter, and its notice has to stay distinguishable from the project's own license grant.
-
-**A repo the method did *not* create keeps what it already has.** This is one rule, not five. Such
-a repo — **registered in place** (below) — existed before the method reached it, and its owners
-already decided how it is documented, gated, and licensed. Adding this method to a project is not
-an occasion to overturn any of those decisions; the job is to record them and supply only what the
-project is actually missing. Per artifact that means:
-
-- **README — augmented, never stamped over.** It already exists and is usually the repo's
-  most-read file, so the template is not copied onto it: add only the missing piece — a short
-  `Role in <project>` section naming what the repo is within the system, with a link to its
-  architecture doc — and leave every section the repo already has untouched. Where that README
-  already says what the repo is within the system, nothing is missing: propose nothing, and
-  record that. The rule keys on whether a README is there, not on how the repo got here: where a
-  registered-in-place repo has **no** README there is nothing to preserve, so write it from the
-  template — every section but Licensing, which describes a repo the method created and is left
-  out here as it is when augmenting. That is the one file; nothing else about the repo is
-  scaffolded — in particular no `ARCHITECTURE.md`, which the template calls for in a *created*
-  repo with real internal complexity and which adopted repos, being exactly that kind of repo,
-  would otherwise attract. An in-place repo's internal design is written up in the docs hub's
-  `architecture/`, where the project's own docs live, not as a second new file at the root of a
-  repository the method does not own. Where such a repo already has an `ARCHITECTURE.md`, it is
-  its owners': read it, link it, leave it. **Whichever of those happened, record it in that repo's
-  `registries/repos.yml` row as its `readme:` value** — `augmented`, `written`, `role-stated`, or
-  `declined` for a refusal, and `not-proposed` while the addition is still to be put to them
-  (`stamped` is the created-repo case). That row is the only durable record of what the method did
-  to that file; the branches above all describe a moment, and the value is what survives it.
-- **CI — its own.** `templates/ci/code-repo-ci.yml` fails until configured, so installing it would
-  replace or break whatever already gates that repo's merges. Record what it runs instead.
-- **Licensing — recorded as found.** The repo already has a licensing status: a `LICENSE`, a
-  `COPYING`, a `NOTICE`, vendored third-party terms, or a deliberate absence. Read what it uses
-  and record it — in the repo inventory entry that describes it, and wherever the architecture
-  docs cover it. A divergence from the `init.sh` selection is not an error to fix: that selection
-  governs the method's own artifacts and the repos it creates, and several in-place repos may
-  legitimately carry several different licenses. It is worth telling the owners about once, where
-  they can act on it, and that is the whole of it. So `scripts/apply-project-license.sh` is run
-  **only on a repo the method creates**; it refuses a target that already states its own licensing.
-- **The Throughstone notice — only where something Throughstone-authored landed.** That is the one
-  thing such a repo may still be owed: where the method leaves its own material behind — the
-  `Role in <project>` section, or a README written from the template for a repo that had none —
-  run `scripts/apply-project-license.sh --notice-only <repo>`, which places `LICENSE-THROUGHSTONE`
-  and a `LICENSING.md` that names only what the notice covers and disclaims the rest of the
-  repository. Run it **before** the commit below, so the notice rides the same branch as the
-  material it covers; placing it afterwards leaves two untracked files in somebody else's working
-  tree and merges the addition without the notice that explains it. Where the addition was
-  declined, nothing Throughstone-authored is there and nothing
-  is owed; do not copy `LICENSE-THROUGHSTONE` into a repo that holds none of it.
-- **Remote and visibility — its owners'.** A repo that predates the method already lives somewhere
-  and is already private or public, and both were somebody's decision. Visibility is governed by
-  the publishing rule below, which covers every repo; this bullet is about the remote.
-  **A repo's remote changes only when the user asks: never created, repointed, or removed as a
-  side effect of anything here.** That is already how the method works where it creates repos —
-  `init.sh` sets up no remotes unless asked, and asks before it does — so it is one answer for
-  every repo rather than a special case for this one. A repo with **no** remote is therefore not
-  missing one; it is a repo whose owners have not put it on a server, and creating one would push
-  their code somewhere they did not choose. Record `remote:` in `registries/repos.yml` as the
-  cloneable URL the repo already has, so `scripts/setup-workspace.sh` can find it, or record it as
-  local where there is none — and change nothing about the repo itself.
-
-**Exactly two of those five put a file in the repo: the README addition, and the Throughstone
-notice that follows it.** The other three are things the method *doesn't* do — it does not install
-CI, does not set licensing, does not touch a remote or a visibility setting — so there is nothing
-to propose for them and nothing to decline. Of the two, only the **README addition** is put to the
-owners. The notice follows from it automatically and is not asked about separately: it exists to
-mark material they have just agreed to take, so a second question about it would be asking
-permission to label what they already said yes to.
-
-**That addition is proposed before it happens** — show the exact text and where it goes, and wait
-for an answer. A decline is a complete outcome, not a gap: the same information lives in the
-architecture doc — and in the repo's `repos.yml` row, whose `readme:` field records the answer as
-`declined`. Write it when the answer comes, not later: an unrecorded decline is indistinguishable
-from an addition nobody has proposed yet, so the next agent to read that row puts the same
-proposal to owners who have already refused it.
-
-**An accepted write is committed and left there. It is never pushed.** A yes settles what the text
-should say; it does not say anything about how that change should reach the repo's trunk, and every
-team has its own answer — a PR, a review, a signed commit, a CI gate, a release train. So make the
-edit on a **branch** created for it, and
-commit every file the method just wrote into that repo — the addition that was proposed, and
-the `LICENSE-THROUGHSTONE` and `LICENSING.md` the notice mode placed alongside it. Name each
-path explicitly; never `git add -A`, which would sweep up whatever the owners had in progress.
-One branch, one commit, everything Throughstone put there — so whichever way the owners take it,
-the material and the notice that explains it travel together. Then stop, and tell
-them the branch and the commit, and let them take it through their own process. Do not push, do not
-open a pull request, do not merge, and do not commit onto whatever branch happened to be checked
-out — that branch is often `main` on a running system, and often has someone else's work on it. If
-the working tree already has uncommitted changes to a file being touched, stop and say so rather
-than committing around them. The rules above decide *what* goes into somebody else's repository;
-this one decides how far the method carries it, which is exactly as far as a local commit they can
-inspect, amend, or delete.
-
-**A decline may be standing.** Where several repos are registered in place, the same proposal is
-put to the same owners repeatedly, and someone who has said no once is
-not asking to be asked again for every remaining repo — so when a proposal is declined, establish
-whether that answer covers this repo or the rest of them, and where it is standing, stop proposing
-and record that those repos document themselves. Recording it is one edit per row and not a note
-kept in the session: set every remaining registered-in-place repo's `readme:` to `declined` then
-and there. A standing decline held only in the conversation is gone by the next session, and the
-repeated asking it was given to stop begins again. Ask that once, not per repo — and note which way
-it runs: it is the answer that is being reused, never the permission, so a yes for one repo says
-nothing about the next, whose text is its own proposal. Choosing or changing what any of these say
-for an existing repo is its owners' act, taken deliberately by them, never a side effect of adding
-the method to it.
-
-**Nothing is made public without the user saying so, in words, for that thing.** This is not part
-of the list above — it governs every repo, the ones the method creates as much as the ones it
-finds. Making a repository public, publishing a package or a release, or putting anything else
-where strangers can read it happens **only** on an explicit go-ahead. Never infer it: not from an
-open-source license (a repo can be MIT and unpublished), not from a sibling repo being public, not
-from a remote being created, and not from a project describing itself as open source. Where no
-answer has been given, the answer is private — `init.sh` defaults that way for exactly this reason,
-and a public choice there is typed, never defaulted into.
-
-The rule is absolute because the mistake is the one that cannot be walked back. Every other error
-in this section writes a file, and a file can be reverted. Publishing hands a repository's whole
-history — every commit, every key ever committed and later removed, every customer name in a
-fixture — to forks, caches, and crawlers, and it does so in less time than it takes to notice.
-Setting the repo private again retrieves none of it. So when visibility is even adjacent to what
-you are doing, stop and ask; a question costs one message, and there is no undo on the other side.
-
-**When the rules above don't settle it, ask.** They cover the cases the method has met: a repo it
-creates, and one registered in place that has a README, has none, or whose owners decline the
-addition. A real project produces ones they don't obviously reach. **These are examples, not a
-list to complete** — the point is the habit, and any rule above can produce a case it doesn't
-reach: a repo the method created that another team has since taken over, a README that is half
-boilerplate, a repo whose own files disagree about its license, a notice
-`scripts/apply-project-license.sh --notice-only` refuses to place after the README text has
-already landed, a repo that is already public and whose owners hadn't realized it, a remote
-pointing at a host the team abandoned two migrations ago.
-Where it is genuinely unclear which side of the created / registered-in-place line a repo sits on,
-or what a rule above means for it, **stop and
-ask, and write nothing into that repo until you have an answer**. Not writing is recoverable;
-writing into a repo the method did not create is the failure this section exists to prevent, and
-the question costs one message. This is a fallback for a case the rules don't reach — not an
-alternative to reading them where they do settle it, and not a reason to leave a gap in them
-unfixed once one is found.
+`registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
+its root for its internal design. **Every new application-code repo also inherits the
+project-license posture established by `init.sh`:** read the authoritative selection from the
+docs hub's `.throughstone/project-license`. For an open-source selection, the docs hub must have
+a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
+`Proprietary`, the new repo gets no project `LICENSE`. Do not copy `LICENSE-THROUGHSTONE` into
+application-code repos that contain no Throughstone-authored material. Repos scaffolded through
+this method do contain the Throughstone-authored README and CI starter, so
+`scripts/apply-project-license.sh` copies `LICENSE-THROUGHSTONE` and writes a visible
+`LICENSING.md` that distinguishes retained scaffold material from project-authored code.
 
 **Where a repo lives — created as a sibling, or registered in place.** By default a repo is
 **created as a `Code/*` sibling** under the workspace root, and its `registries/repos.yml`
