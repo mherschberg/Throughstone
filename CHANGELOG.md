@@ -18,6 +18,10 @@ any project built with it.
 > remains v1.7.1.
 
 ### Changed
+- **The README and website now tell you to clone the latest *release*, not `main`.**
+  `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
+  built and can carry unfinished work. The "Use this template" path is flagged as unable to be
+  pinned to a release, since GitHub always copies the default branch.
 - **A session template's go-ahead now fires on being *invoked*, not on being *read*.** Every
   `templates/architecture-sessions/*.md` closed with "Begin now — in this same reply", which treated
   the act of opening the file as the user's go-ahead. But session files are read by more than the
