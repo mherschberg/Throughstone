@@ -109,13 +109,21 @@ production software, get review from an experienced engineer.
 1. **Get the files into a folder named for your project.** The folder you download into
    **becomes your project's workspace root** — `init.sh` never renames it — so give it the
    name you want the project to have (e.g. `acme` or `MyCoolMobileApp`, not `Throughstone`). Two ways:
-   - **Clone this repo directly** into a project-named folder (e.g. `acme`):
+   - **Clone the latest release** into a project-named folder (e.g. `acme`):
      ```bash
-     git clone https://github.com/mherschberg/Throughstone.git acme
+     git clone --branch v1.7.1 https://github.com/mherschberg/Throughstone.git acme
      cd acme
      ```
+     `--branch` takes a tag here, so this gives you the **1.7 release** rather than whatever
+     `main` happens to hold. `main` is where Throughstone itself is built; it can carry
+     unfinished work. Drop the flag only if you specifically want that. Releases are listed
+     under [Releases](https://github.com/mherschberg/Throughstone/releases). Git will note a
+     *detached HEAD* — that is expected when cloning a tag, and harmless here, because step 2
+     removes the template's git history anyway.
    - **Or use GitHub "Use this template" ▸ Create a new repository.** Name the new repo for
-     your project, then clone it into a folder of that name (e.g. `acme`):
+     your project, then clone it into a folder of that name (e.g. `acme`). Note this path always
+     copies the **default branch** and cannot be pinned to a release — use the clone above if you
+     want a specific version:
      ```bash
      git clone <your-new-repo-url> acme
      cd acme
