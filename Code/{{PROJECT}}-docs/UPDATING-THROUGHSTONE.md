@@ -272,6 +272,222 @@ rules apply unchanged.
   touched or moved; they simply start `Live` in the ledger, and any retirement to `inputs/archive/`
   happens only when you decide it at a check-in.
 
+### 1.8 migration
+
+**Templates, guidance text, and several refusals that did not exist before — nothing you already
+produced is rewritten.** Edits to `templates/architecture-sessions/*.md`, `METHOD.md` §7 and the
+files that carry its rules, all *Templates for future use* under §2, so they affect work you do
+after pulling them.
+
+What is worth knowing before you pull: `init.sh` and `scripts/apply-project-license.sh` both refuse
+in cases where they previously proceeded. Those refusals are the point of the release — each one
+stood between the method and a write into a repository it did not create — but a script of yours
+that relied on either running unattended may now stop and ask. Each item below says what changed
+and what to check.
+
+- **`init.sh` refuses to run unless it is a fresh template checkout.** It is one-time and
+  destructive — it removes `.git` and the template-only files — so a second run inside an
+  already-initialized project would delete that project's history, and a run on a template
+  extracted into a repository somebody else owns would delete theirs. It now refuses both: the
+  first on the `THROUGHSTONE-TEMPLATE-GUARD` sentinel in the root `AGENTS.md` / `CLAUDE.md`, which
+  initialization strips; the second by asking the repository it is sitting in whether it holds any
+  work — commits under `HEAD`, commits on branches or tags `HEAD` is not on, staged files, or
+  untracked files the template does not ship — and refusing if any of those says yes. This affects
+  **only re-runs of the bootstrap**: your project finished `init.sh` once and never runs it again.
+  **One thing to check:** nothing. It matters the next time you unpack the template to start
+  another project.
+
+- **`init.sh --registries=no` is deprecated and now does nothing.** It pruned `registries/` in
+  mono-repo layout, on the argument that a self-contained root repo has no sibling repos to
+  inventory. That argument is about `repos.yml`; the directory also holds `risks.yml`, the
+  accepted risk / tech-debt register §7 requires, and `security-reviews.yml`, which the
+  security-review runbooks and their report templates read. Pruning removed all three and left
+  the generated project's own docs citing files it did not have — and because those citations are
+  prose rather than Markdown links, `scripts/links.sh` and `scripts/check.sh` both reported the
+  project clean. The flag is still accepted so existing scripts keep working, prints one
+  deprecation line, and is removed in a later release. **One thing to check:** if you generated a project
+  with `--registries=no`, it is missing all three registries. Copy `registries/` from a freshly
+  generated project (or from the template) into your docs hub — the two seed rows in `repos.yml`
+  describe the docs hub and `prompts/`, and the other two files start empty.
+
+- **`registries/repos.yml` rows carry a `readme:` field.** It records what the method did to that
+  repo's README — `stamped` for a repo the method created, `augmented` where a `Role in <project>`
+  section was added to an existing README, `written` where the method wrote a README for a repo
+  that had none, `role-stated` where the README already said what the repo is within the system,
+  `declined` where the owners said no, and `not-proposed` while the addition is still to be put to
+  them. The registry's own header defines each. It exists because `METHOD.md` §7 lets a decline
+  stand for every remaining repo, and told you to record that without naming anywhere to record it
+  — so the periodic check-in, which skips a declined repo, had no way to tell one from a repo
+  nobody had asked. **One thing to check:** your existing rows have no value, which reads as *not
+  recorded* rather than defaulting to anything. Nothing rewrites them. Fill them in at your next
+  check-in — the repos the method created are `stamped`, and only you know what happened to the
+  rest.
+
+- **`registries/repos.yml` rows also carry a `license:` field.** It records what each repo is
+  licensed under: the bootstrap posture for a repo the method created, and whatever the repo
+  already says — an identifier and the file it came from, or `none stated` — for one registered in
+  place. §7 already told you to record an in-place repo's licensing "in the repo inventory entry",
+  and no field there held it. It exists because a project whose repos don't share one license has
+  nowhere else to show that, and it is a record rather than an instruction: the repo's own license
+  file stays authoritative and this line is a copy that can drift. **One thing to check:** your
+  existing rows have no value, which reads as *not recorded* rather than "same as everything
+  else". Nothing rewrites them — `repos.yml` is project state. The two seed rows a fresh bootstrap
+  writes take the posture from `.throughstone/project-license`; backfill the rest by hand whenever
+  you want the licensing picture in one place.
+
+- **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
+  here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
+  invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first
+  question back exactly as before. What changes is a file *read* for another purpose (the
+  Cross-Cutting Review checking conditional applicability, the check-in re-evaluating them): those
+  readers are now told the go-ahead isn't theirs, instead of relying on their own instructions to
+  outweigh it.
+- **One work-list heading.** The Glossary and Cross-Cutting Review templates now head their work list
+  `## Decisions to make (in order)`, matching the other fifteen, each with a note explaining what its
+  items are. If you have **customized session templates or added your own**, adopt the same heading so
+  generic readers find your work list too — `METHOD.md` §4 documents the skeleton, and it is the only
+  change you might want to make by hand.
+- **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
+  told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
+  check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
+  that guards it. Pull the updated `inputs/README.md`. If you have **already lifted** a document,
+  run `scripts/check.sh`: check 4 names any doc missing a field.
+- **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
+  apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
+  legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
+  added line into your project's index if you want the legend to describe what the file may contain.
+- **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
+  `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
+  token (`deferred`), which tells a reader arriving months later nothing about whether the gap
+  blocks them — and gives the check-in that resurfaces it nothing to weigh. Both now ask for what is
+  missing, how big it is, and what it means for someone building on the doc, written as an ordinary
+  bold header field (`**Coverage:** deferred — …`). **One thing to check:**
+  if any of your architecture docs already carries a bare `Coverage:` value, expand it the next time
+  that doc is touched; nothing rewrites it for you.
+- **The deferred-coverage sweep now reads the field instead of matching a phrase.**
+  `runbooks/check-in.md` told the sweep to enumerate docs "carrying `Coverage: deferred`", a literal
+  string that a doc written from the template never contains — the field is bold, like every other
+  header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
+  `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
+  it is worth re-running the sweep once by hand.
+- **A repo's remote changes only when you ask, and the in-place rules read straight.** Three
+  wording fixes in §7, no behavior change. *Remotes:* the rule said "do not create a remote for a
+  repo that has one", implying you could create one for a repo that has none, and said nothing
+  about removing one — it now names all three verbs (never created, repointed, or removed as a
+  side effect) and covers every repo the same way, matching what `init.sh` already does (no
+  remotes unless asked). *The gate:* "every write above is proposed" sat over five bullets of
+  which only two are writes, so it now names them — the README addition and the Throughstone
+  notice that follows it — says the other three are things the method doesn't do, and says that
+  only the README addition is put to the repo's owners, the notice following automatically from an
+  addition they already accepted. *The fallback:* its case list was README- and licensing-only and
+  read as exhaustive; it is now explicitly illustrative and includes a visibility and a remote
+  example. Pull `METHOD.md` §7 with `templates/planning-session.md` and
+  `templates/repo-readme-template.md`. **One thing to check:** nothing.
+- **An accepted change to a repo you already had is committed on a branch and left there.** §7 said
+  to propose the `Role in <project>` section and wait for a yes, and then said nothing about what
+  happens after the file changes on disk — no branch, no commit, no push. The obvious continuation
+  was to commit onto whatever branch was checked out, which on a running system is usually `main`,
+  and push it to their remote. A yes settles what the text should say; it says nothing about how
+  that change should reach a trunk, and every team has its own answer. So the method now makes a
+  branch, commits **only the file(s) proposed** (never `git add -A`, which would sweep up work in
+  progress), tells you the branch and commit, and stops — no push, no pull request, no merge. If
+  the working tree already has uncommitted changes to that file, it stops and says so instead.
+  Pull `METHOD.md` §7 with `templates/planning-session.md` and `templates/repo-readme-template.md`.
+  **One thing to check:** if an earlier run committed such a change onto a shared branch or pushed
+  it, that commit is still there and is worth reviewing like any other.
+- **An `ARCHITECTURE.md` is never added to a repo you already had.** §7 said "a repo with real
+  internal complexity adds an `ARCHITECTURE.md` at its root" in its general repo paragraph, without
+  scoping it — and the comment suggesting one lives in the repo README template's Overview section,
+  which is exactly what gets written for an in-place repo that has no README. Adopted repos are
+  also exactly the ones with real internal complexity. It is now scoped to repos the method
+  creates; an in-place repo's internal design is written up in the docs hub's `architecture/`
+  instead. **One thing to check:** nothing, unless a run added such a file to a repo of yours.
+- **Nothing is made public without you saying so, and an in-place repo's remote is left alone.**
+  §7 listed what happens to a repo the method did not create — its README, its CI, its licensing,
+  the Throughstone notice — and said nothing about its remote or its visibility. The general
+  "a repo registered in place is not scaffolded at all" was meant to cover them, but a general
+  statement followed by a list reads as covering the list, which is the same gap that once let the
+  license helper assume every repo was one the method had scaffolded. Two rules now say it
+  outright. **Remote and visibility are the repo's owners':** create no remote for a repo that has
+  one, repoint no existing one, change no visibility; record the URL it already has in its
+  `remote:` field and leave the repo alone. **And nothing is made public without an explicit
+  go-ahead** — for any repo, including ones the method creates. Public is never inferred from an
+  open-source license, a public sibling, or a project describing itself as open source; with no
+  answer given the answer is private. `init.sh` already defaulted that way, so no tooling changes;
+  what changes is that the rule is stated where an agent reads it. Pull `METHOD.md` §7 with
+  `templates/planning-session.md` and `templates/repo-readme-template.md`. **One thing to check:**
+  if a repo you registered in place had its visibility changed while adopting it, that is worth
+  looking at now — publishing cannot be undone, and a repo made public stays retrievable.
+- **A decline can be standing, so you are not asked once per repo.** Every write into a repo
+  registered in place is proposed first, which is right — but the *question* behind each proposal
+  is the same one every time, so a project with several such repos put it to the same owners repo
+  after repo, and someone who had already said no got asked again for each remaining one. Nothing
+  about the gate changes: the text is still shown and still waits for an answer, because the text
+  differs per repo. What is added is that a decline now establishes whether it covers this repo or
+  the rest, and a standing one stops the proposals and records that those repos document
+  themselves. It runs one way only — a yes is never carried forward, since the next repo's text is
+  its own proposal. Pull `METHOD.md` §7 with `templates/repo-readme-template.md`. **One thing to
+  check:** nothing; this only removes repeat asking.
+- **Licensing is no longer its own rule.** `METHOD.md` §7 had grown a separate doctrine paragraph
+  for licensing — "the method records licensing; it never establishes licensing for code it did not
+  create" — sitting alongside separate rules for the README, for CI, and for the Throughstone
+  notice. They were always the same rule applied to four artifacts: **a repo the method did not
+  create keeps what it already has.** §7 now states that once, with each of them as a consequence
+  under it and one gate covering all of them (propose the exact text, wait for an answer). **No behavior
+  changes** — every individual rule says what it said, and the helpers are untouched. What changes
+  is that the rationale lives in one place instead of being re-derived in each, and the files that
+  cite it — `AGENTS.md`, the planning session, and the repo README template — now quote the general
+  rule rather than a licensing-specific one. Pull those three with `METHOD.md`. **One thing to
+  check:** nothing; if you have local edits quoting the old licensing sentence, they are still
+  true, just narrower than the rule they came from.
+- **The project license is applied only to repos the method creates.** `METHOD.md` §7 already let a
+  repo be **registered in place** — referenced where it sits, rather than created under `Code/` —
+  but every instruction around `scripts/apply-project-license.sh` was written as though every repo
+  were one the method had just scaffolded. Pointed at a repo that existed beforehand, the helper
+  would give it the project's `LICENSE` and a `LICENSING.md` asserting that license over the whole
+  repository. It now **refuses** a target that already states its own terms (`COPYING`, `NOTICE`,
+  `LICENSE.md`, `LICENSE-<id>`, …) before writing anything, and `METHOD.md` §7, `AGENTS.md`, the
+  planning session, and the repo README template state the rule: **the method records licensing; it
+  never establishes licensing for code it did not create.** No effect on repos you scaffolded
+  through the method — they carry none of those files, and re-running the helper on one behaves
+  exactly as before. **One thing to check:** if you have registered an existing repo in place and
+  ran the helper on it, look at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner,
+  whether they say what you intend.
+- **`.throughstone/project-license` is described more narrowly.** The posture file was called "the
+  project license" everywhere, but it only ever governed **Throughstone-authored and method-created
+  material** — your docs hub, `prompts/`, and any repo the method creates. Nothing about the file
+  changes; the wording around it does, in `METHOD.md` §7, `AGENTS.md`, `README.md`, the planning
+  session, and the helper's header. Pull them with the group below. **One thing to check:** if a
+  repo of yours was registered in place rather than created by the method, its licensing is its
+  own — record what it actually uses beside its inventory entry rather than assuming the posture.
+- **A repo you registered in place is augmented, not stamped.** `templates/repo-readme-template.md`
+  told you to stamp a copy into each repo "as it's created", which is the only case it considered —
+  so pointed at a repo that already existed, the instruction reads as "overwrite its README". That
+  repo's README is usually its most-read file. It now gets a short `Role in <project>` section
+  added instead, proposed before anything is written, with every existing section left alone. The
+  rule keys on whether a README is already there, not on how the repo got here: where a registered
+  repo has none, its README is written from the full template — that one file, with nothing else
+  about the repo scaffolded. No change for repos you scaffold through the
+  method: those are still stamped from the full template.
+  **One thing to check:** if you registered an existing repo in place and its README was replaced
+  with the template, its previous content is in that repo's git history.
+- **The CI gate is never installed into a repo you registered in place, and the Throughstone
+  notice has its own mode.** `templates/ci/code-repo-ci.yml` fails until configured — right for a
+  new repo, wrong for one that already has CI, where it would replace or duplicate the workflow
+  that gates your merges. It is now for created repos only; record what an in-place repo runs in
+  the Test Strategy doc instead. Separately, where the method leaves Throughstone-authored
+  material in such a repo (the `Role in <project>` README section), place its notice with
+  `scripts/apply-project-license.sh --notice-only <repo>` — it writes `LICENSE-THROUGHSTONE` plus a
+  `LICENSING.md` that disclaims the rest of the repository, and never a project `LICENSE`. **One
+  thing to check:** if you registered a repo in place and dropped the CI template into it, decide
+  with its owners whether that workflow should stay.
+
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4, §6 and §7, `AGENTS.md`, `README.md`,
+`inputs/README.md`, `templates/architecture-doc-template.md`, `templates/planning-session.md`,
+`templates/repo-readme-template.md`, `runbooks/check-in.md`, and
+`scripts/apply-project-license.sh` as a group. Nothing else is affected: no `status.sh` /
+`check.sh` change, no project state touched.
+
 ### 2.0 migration
 
 **Upgrading to 2.0?** 2.0 adds **existing-codebase adoption** — `init.sh` now asks new-vs-existing at
@@ -281,9 +497,10 @@ resolver) instead of interviewing it from scratch. Most of it — the front door
 adoption-only templates — is new machinery a project already built with Throughstone never touches;
 you get it automatically when you pull 2.0 and re-run `init.sh` to adopt a new codebase, with nothing
 to migrate. This section collects the few things an *existing* project picks up on upgrade, added as
-each 2.0 change lands. Nothing here rewrites project files. The adoption machinery is
-greenfield-inert; the couple of general robustness fixes at the end change only error/corruption and
-re-run paths, never normal operation.
+each 2.0 change lands — **on top of everything in the 1.8 section above, which 2.0 contains**.
+Nothing here rewrites project files. The adoption machinery is
+greenfield-inert; the general robustness fix at the end changes only a corrupted-state path, never
+normal operation.
 
 **`throughstone:` field on repo rows.** `registries/repos.yml` gains a per-row `throughstone:` field
 recording how the method relates to each repo — value `managed` today, with `external` reserved for a
@@ -308,80 +525,11 @@ home for the transient per-session sheets the harvest writes. Both are **adoptio
 greenfield-inert**: an existing project generated no such folder and needs none. Pull the new
 template if you may adopt another codebase later; otherwise there is no action.
 
-**Session templates: the go-ahead is now conditional, and the work-list heading is uniform (not
-adoption-specific).** Two edits to `templates/architecture-sessions/*.md`, both *Templates for future
-use* under §2, so they affect sessions you run after pulling them and rewrite nothing you already
-produced.
+**Where the resolver said less than the method does.** `RETCON-PROMPT.md` drives an adoption on
+its own, so each §7 rule the 1.8 section above restates needs a counterpart there — and in the first
+three of these it had none. The last is adoption's alone: the license question moves to after the
+code has been read. Nothing you already produced is rewritten.
 
-- Each session file's closing paragraph now opens "If you were sent here to run this session…" and
-  ends by releasing a reader who wasn't. Invoking a session normally is unchanged — you type
-  `Run STEP-1.N` and get the first question back exactly as before. What changes is a file *read* for
-  another purpose (the Cross-Cutting Review checking conditional applicability, the check-in
-  re-evaluating them): those readers are now told the go-ahead isn't theirs, instead of relying on
-  their own instructions to outweigh it. `METHOD.md` §4 states the rule, and `AGENTS.md`'s session
-  runner points at it.
-- The Glossary and Cross-Cutting Review templates now head their work list
-  `## Decisions to make (in order)`, matching the other fifteen, each with a note explaining what its
-  items are. If you have **customized session templates or added your own**, adopt the same heading so
-  generic readers find your work list too. That is the only change here you might want to make by
-  hand; pull `templates/architecture-sessions/*.md` and `METHOD.md` §4 as a group. No `status.sh` /
-  `check.sh` change, no project state touched.
-
-**Guidance fixes where the instructions were narrower than the rules (not adoption-specific).**
-All but the last are documentation only; nothing you already produced is rewritten.
-
-- **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
-  told you to add the `Version` / `Status` header and omitted the **Version Log**, which
-  `scripts/check.sh` check 4 also requires of every numbered architecture doc — so a spec lifted by
-  following the instruction exactly could fail the check meant to guard it. Pull the updated
-  `inputs/README.md`. **One thing to check:** if you have already lifted a document, run
-  `scripts/check.sh` — check 4 names any doc missing a field.
-- **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
-  apply is marked `N/A`, which `check.sh` has always accepted and the next-action resolver skips on,
-  but the legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional:
-  copy the added line into your project's index if you want the legend to describe everything the
-  file may contain.
-- **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
-  `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
-  token (`deferred`), which tells a reader arriving months later nothing about whether the gap
-  blocks what they are building — and gives the check-in that resurfaces it nothing to weigh. Both
-  now ask for what is missing, how big it is, and what it means for someone building on the doc,
-  written as an ordinary bold header field (`**Coverage:** deferred — …`).
-  Pull `METHOD.md` §6 with the doc template. **One thing to check:** if an architecture doc of yours
-  already carries a bare `Coverage:` value, expand it the next time that doc is touched — nothing
-  rewrites it for you.
-- **The deferred-coverage sweep now reads that field instead of matching a phrase.**
-  `runbooks/check-in.md` told the sweep to enumerate docs "carrying `Coverage: deferred`", a literal
-  string a doc written from the template never contains — the field is bold, like every other header
-  field, and its value is now a sentence. It takes any `Coverage:` field whose value isn't `full`.
-  Pull `runbooks/check-in.md` with the two files above; if an earlier check-in reported no deferred
-  coverage, it is worth re-running the sweep once by hand.
-- **The project license is applied only to repos the method creates.** `METHOD.md` §7 already let a
-  repo be **registered in place** — referenced where it sits, rather than created under `Code/` —
-  but every instruction around `scripts/apply-project-license.sh` was written as though every repo
-  were one the method had just scaffolded. Pointed at a repo that existed beforehand, the helper
-  would give it the project's `LICENSE` and a `LICENSING.md` asserting that license over the whole
-  repository. It now **refuses** a target that already states its own terms (`COPYING`, `NOTICE`,
-  `LICENSE.md`, `LICENSE-<id>`, …) before writing anything, and `METHOD.md` §7, `AGENTS.md`, the
-  planning session, and the repo README template state the rule: **the method records licensing; it
-  never establishes licensing for code it did not create.** Pull those five files with
-  `scripts/apply-project-license.sh`. No effect on repos you scaffolded through the method — they
-  carry none of those files, and re-running the helper on one behaves exactly as before. **One
-  thing to check:** if you have registered an existing repo in place and ran the helper on it, look
-  at that repo's `LICENSE` / `LICENSING.md` and decide, as its owner, whether they say what you
-  intend.
-- **Licensing is no longer its own rule.** `METHOD.md` §7 had grown a separate doctrine paragraph
-  for licensing — "the method records licensing; it never establishes licensing for code it did not
-  create" — sitting alongside separate rules for the README, for CI, and for the Throughstone
-  notice. They were always the same rule applied to four artifacts: **a repo the method did not
-  create keeps what it already has.** §7 now states that once, with the four as consequences under
-  it and one gate covering all of them (propose the exact text, wait for an answer). **No behavior
-  changes** — every individual rule says what it said, and the helpers are untouched. What changes
-  is that the rationale lives in one place instead of being re-derived in each, and the files that
-  cite it — `AGENTS.md`, `RETCON-PROMPT.md`, the planning session, the repo README template, and
-  `registries/repos.yml` — now quote the general rule rather than a licensing-specific one. Pull
-  those five with `METHOD.md`. **One thing to check:** nothing; if you have local edits quoting the
-  old licensing sentence, they are still true, just narrower than the rule they came from.
 - **An accepted README addition is committed on a branch and left there.** `RETCON-PROMPT.md` told
   the agent to show you the text and wait for a yes, then said nothing about the file afterwards —
   no branch, no commit, no push. On an adopted repo the obvious continuation is a commit on
@@ -406,19 +554,6 @@ All but the last are documentation only; nothing you already produced is rewritt
   the general form of both rules. **One thing to check:** if a repo's visibility was changed during
   an adoption, look at it now — a repo that was made public stays retrievable regardless of what it
   is set to today.
-- **`registries/repos.yml` rows carry a `readme:` field.** It records what the method did to that
-  repo's README — `stamped` for a repo the method created, `augmented` where a `Role in <project>`
-  section was added to an existing README, `written` where the method wrote a README for a repo
-  that had none, `role-stated` where the README already said what the repo is within the system,
-  `declined` where the owners said no, and `not-proposed` while the addition is still to be put to
-  them. The registry's own header defines each. It exists because a decline may stand for every
-  remaining repo, and the instruction to record that named nowhere to record it — so the periodic
-  check-in, which skips a declined repo, could not tell one from a repo nobody had asked. Adoption
-  writes the value as each answer comes, and the recon map's **Docs (as found)** column is the
-  point-in-time finding beside it, not a second copy of the answer. **One thing to check:** rows in
-  an inventory written before this reads as *not recorded* rather than defaulting to anything, and
-  nothing rewrites them; fill them in at your next check-in.
-
 - **The recon map records whether each repo explains itself, and a decline can be standing.**
   Adoption's one offer to a repo it did not create is the framing its README probably lacks, and
   which repos need it was rediscovered one at a time at the moment of writing into each. The map's
@@ -448,54 +583,6 @@ All but the last are documentation only; nothing you already produced is rewritt
   `--non-interactive`. Pull `init.sh`, both `scripts/*-project-license.sh`, `RETCON-PROMPT.md`,
   and `registries/repos.yml`. **One thing to check:** nothing to do for an existing project — your
   posture is already chosen, and the helper will tell you so if you run it.
-- **`.throughstone/project-license` is described more narrowly.** The posture file was called "the
-  project license" everywhere, but it only ever governed **Throughstone-authored and method-created
-  material** — your docs hub, `prompts/`, and any repo the method creates. Nothing about the file
-  changes; the wording around it does, in `METHOD.md` §7, `AGENTS.md`, `README.md`, the planning
-  session, and the helper's header, and both licensing banners stop claiming the license covers
-  application code the project did not create. **One thing to check:** if a repo of yours was
-  registered in place rather than created by the method, its licensing is its own — record what it
-  actually uses in its `license:` field rather than assuming the posture.
-
-- **A repo registered in place is augmented, not stamped.** `templates/repo-readme-template.md`
-  told you to stamp a copy into each repo "as it's created", which is the only case it considered —
-  so pointed at a repo that already existed, the instruction reads as "overwrite its README", and
-  that README is usually the repo's most-read file. Such a repo now gets a short
-  `Role in <project>` section added instead, proposed before anything is written, with every
-  existing section left alone. The rule keys on whether a README is already there, not on how the
-  repo got here: where a registered repo has none, its README is written from the full template —
-  that one file, with nothing else about the repo scaffolded. No change for repos you scaffold
-  through the method: those are still stamped from the full template. Two readers of the rule were
-  corrected with it — `METHOD.md` §7's layout paragraph, and the check-in's repo-README sweep,
-  which assumed every README was stamped by the method at creation and so would have reported an
-  augmented repo as a gap. **One thing to check:** if you registered an existing repo in place and
-  its README was replaced with the template, its previous content is in that repo's git history.
-
-- **The CI gate is never installed into a repo registered in place, and the Throughstone notice
-  has its own mode.** `templates/ci/code-repo-ci.yml` fails until configured — right for a new
-  repo, wrong for one that already has CI, where it would replace or duplicate the workflow that
-  gates your merges. It is now for created repos only; record what an in-place repo runs in the
-  Test Strategy doc instead. Separately, where the method leaves Throughstone-authored material in
-  such a repo (the `Role in <project>` README section), place its notice with
-  `scripts/apply-project-license.sh --notice-only <repo>` — it writes `LICENSE-THROUGHSTONE` plus a
-  `LICENSING.md` that disclaims the rest of the repository, and never a project `LICENSE`. Where
-  that section was declined, nothing was added and nothing is owed. **One thing to check:** if you
-  registered a repo in place and dropped the CI template into it, decide with its owners whether
-  that workflow should stay.
-
-**Repo inventory carries a `license:` field (not adoption-specific — it ships in 1.8, and is
-repeated here because 2.0 contains it).** `registries/repos.yml` rows record what each repo is
-licensed under — the bootstrap posture for a repo the method created, whatever the repo already
-says for one registered in place. It exists because `METHOD.md` §7 told you to record an in-place
-repo's licensing "in the repo inventory entry" and no field there held it, and because a project
-whose repos don't share a single license has nowhere else to show that. It is a record rather than
-an instruction: the repo's own license file stays authoritative. **Optional, additive,
-review-required** like any registry change, and a missing value reads as "not recorded", so an
-inventory without the field keeps working untouched. Backfill by hand if you want the licensing
-picture in one place; don't let tooling rewrite `repos.yml`, which is project state. What 2.0 adds
-on top is the `Unset` value an adoption's own rows carry until the license question is answered —
-see *Adoption chooses its license after reading the codebase* below.
-
 **Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
 reads each architecture-session template as reference data, drafts every decision from the running
 code, confirms them with you, and writes the clean `architecture/` doc. It reuses what your project
@@ -505,7 +592,7 @@ output, `registries/risks.yml` for anything deferred, and the method's own subst
 an ordinary Throughstone baseline rather than an adoption-shaped one. **Adoption-only and
 greenfield-inert:** a project already built with Throughstone ran those sessions as interviews and has
 nothing to migrate. The one related change that is *not* adoption-specific — the conditional go-ahead
-and the uniform work-list heading — is the entry above.
+and the uniform work-list heading — ships in 1.8, above.
 
 **`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
 picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or
@@ -513,13 +600,6 @@ corrupted), the helper now reports the status as *indeterminate* and points at t
 action" decision, rather than falling through and possibly misreporting "Run STEP-1.1". **No action,
 and no change in normal operation** — a project with a valid marker (every healthy project) sees
 identical output. Pull the updated `scripts/status.sh` to get it.
-
-**`init.sh` fresh-template guard (general safety).** `init.sh` now refuses to run unless it is a fresh
-template checkout — it keys on the `THROUGHSTONE-TEMPLATE-GUARD` sentinel in the root
-`AGENTS.md`/`CLAUDE.md` that setup strips — stopping a destructive second run inside an
-already-initialized project or a run on top of an unrelated repo. This affects **only re-runs of the
-bootstrap**: an existing project already finished `init.sh` and never runs it again, so there is
-**nothing to do**. It matters only if you later download 2.0 to adopt or start another codebase.
 
 ## 3. Manual Mode
 
