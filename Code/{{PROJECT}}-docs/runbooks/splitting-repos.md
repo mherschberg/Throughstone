@@ -134,6 +134,9 @@ match. Nothing has been deleted yet.
 
 ```bash
 cd <new-repo>
+# With a scattered keep-set, <keep> substitutes here as one ':!<path>' per keep path. ':!a b' is a
+# single pathspec that matches nothing, so the delete removes everything and the guard blames a
+# path the count in block 1 just certified.
 git rm -r -q -- . ':!<keep>' ':!.gitignore'   # forward-delete the complement; nothing is rewritten
 test -n "$(git ls-files -- <keep>)" || { echo "<keep> matched nothing — check the path"; exit 1; }
 git commit -m "Split: this repo now holds <scope>"
