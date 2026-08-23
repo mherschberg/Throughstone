@@ -52,8 +52,8 @@ gets handled.
 There is no fixed number of them, because the shape of a split follows the shape of your repos.
 The usual breakpoints:
 
-- *Part 1, typically three:* **N.1** extract and stand the new repo up (steps 3–5) · **N.2** prune
-  and repoint (steps 6–8) · **N.3** verify (step 9).
+- *Part 1, typically three:* **N.1** pre-flight, extract and stand the new repo up (steps 1–5) ·
+  **N.2** prune and repoint (steps 6–8) · **N.3** verify (step 9).
 - *Part 2, typically four:* **N.1** pre-flight and backup (steps 1–3) · **N.2** build the new repos
   beside (steps 5–7) · **N.3** assemble and verify the workspace (steps 8–10) · **N.4** swap and
   retire (steps 11–12). Steps 4 and 13 are the STEP's own bookkeeping rather than work inside it,
