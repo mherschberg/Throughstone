@@ -14,11 +14,17 @@
 # keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
 #
 # Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
-# yet — this inventory describes the post-split (multi-repo) target.
+# yet — this inventory describes the post-split (multi-repo) target. When you do split them
+# apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos are real.
 #
 # Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
 # it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
 # for prompts/ + this docs hub. Solo with no remotes, it's optional.
+#
+# `provenance:` records that a repo was **split out** of another one — where it came from, and
+# where the two histories part company. Only a split-out repo carries it, and it is written at
+# the split (`runbooks/splitting-repos.md`); nothing maintains it afterwards. The shape is in
+# the commented example below.
 
 repos:
   - name: "{{PROJECT}}-docs"
@@ -38,3 +44,8 @@ repos:
   #   type: service
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."
+  #   provenance:                                          # only on a repo that was split out
+  #     from: "{{PROJECT}}-web"                            # the repo this used to be part of
+  #     split_on: "2026-01-31"
+  #     split_commit: "a1b2c3d"                            # last shared commit — resolves in BOTH repos
+  #     archive_remote: "git@example.com:TEAM/{{PROJECT}}.git"   # only when a mono repo was retired
