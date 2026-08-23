@@ -521,5 +521,6 @@ carries it.
 points at the mono repo, so `git remote set-url` it to this repo's own remote before step 7 —
 otherwise "push trunk" pushes this tree over the mono repo's, and nothing errors. The root
 `.gitignore` is not here to be exempted: copy it in and reconcile it with the folder's own, as
-step 5 does. And `git add -A` commits every untracked file in the folder, where a clone would
+step 5 does — before the `git add -A` above, or that commit takes in everything those rules would
+have kept out. And `git add -A` commits every untracked file in the folder, where a clone would
 have left them untracked — so end with `git ls-files` and stop on it, like every other repo.
