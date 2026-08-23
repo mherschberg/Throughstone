@@ -20,8 +20,8 @@
 > every file-list confirmation point, showing the list itself and never a summary; when you
 > reconcile two ignore files into one, showing both and what you merged them into; before
 > anything leaves your machine — creating a remote, pushing a trunk; and before anything on disk
-> stops being easy to undo — pruning the origin, clearing what it left behind, swapping the
-> workspace, retiring the old remote.
+> stops being easy to undo — clearing what the prune left behind, swapping the workspace, retiring
+> the old remote.
 >
 > Each one is marked **Stop** where it fires — in the mechanic, which runs in three pieces per
 > repo, and at the steps below. Getting a go-ahead means ending your turn and waiting for a
