@@ -96,7 +96,9 @@ and it has to happen first.
 ## The mechanic
 
 Both parts build every new repo the same way, in bash, one repo at a time. `<keep>` is that
-repo's keep-set — the path or paths from question 1 that this repo is meant to be.
+repo's keep-set — the path or paths from question 1 that this repo is meant to be. `<scope>` is
+what you would call that out loud (`billing`, `the docs hub`); it appears only in the two commit
+messages, which every repo the split produces then carries permanently.
 
 ```bash
 git clone --no-local <origin> <new-repo>      # --no-local is required for a local source
