@@ -522,6 +522,11 @@ for refs that moved. The collapse above needs a per-branch check instead: `git r
 been folded into another line of history, under a SHA that is not any other ref's tip, so the diff
 will not show it. Decide what each one should be before you push anything.
 
+**And confirm the purge itself.** Neither of those checks looks at the blob, and the failure this
+section opens with — a path you did not name, the tool reporting success — is invisible to both:
+`git -C ../purge-work.git log --oneline --branches -- <path>` has to print nothing for every path
+on your list, and the blob must no longer resolve.
+
 **What a purge costs you**, so nobody is surprised: every SHA changes, so every commit reference
 recorded anywhere — `reviewed_commit:` in `registries/security-reviews.yml`, SHAs in reports and
 ADRs, links in issues — stops resolving, and everyone re-clones. That is the trade for not carrying
