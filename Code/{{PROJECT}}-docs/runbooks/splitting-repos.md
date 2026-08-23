@@ -49,8 +49,8 @@ So this runbook does something else, and it is deliberately **not** the recipe y
 elsewhere: it clones the whole repo and **deletes forward**. Nothing is rewritten. Both sides keep
 the full history; the shared commits are the same objects with the same SHAs in both repos, so
 `git blame`, `git log --follow` and `git bisect` work in the new repo on day one, `git merge-base`
-resolves across the split, and anything recorded against a commit — a `reviewed_commit:` in
-`registries/security-reviews.yml`, a SHA in a report — keeps resolving.
+resolves across the split once one repo fetches the other, and anything recorded against a commit —
+a `reviewed_commit:` in `registries/security-reviews.yml`, a SHA in a report — keeps resolving.
 
 The cost, stated plainly: **every new repo inherits every blob the origin ever committed**,
 including files deleted long ago. If a secret was ever committed, the split copies it into a
