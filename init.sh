@@ -389,10 +389,10 @@ if [ "$COLLAB" = "2" ]; then
     echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
     echo "  from the same place. You can still skip that now and add remotes later."
     if [ "$LAYOUT" = "2" ]; then
-      echo "  NOTE: you picked mono-repo + team. That works for STEP-number reservation (one"
-      echo "  shared repo with a remote), but the overlap warning is repo-granular and so is"
-      echo "  meaningless when every STEP touches the one repo. Plan to split into multi-repo"
-      echo "  before the team grows — see METHOD.md §7 (\"Mono-repo for now\")."
+      echo "  NOTE: you picked mono-repo + team. That works — what a team needs is shared"
+      echo "  remotes, not several repos. One thing to know: the overlap warning is"
+      echo "  repo-granular, so it is meaningless when every STEP touches the one repo."
+      echo "  Fall back to the PLAN's file/area notes — see runbooks/collaboration.md §4."
     fi
   fi
 fi
@@ -976,6 +976,16 @@ else
 fi
 
 # --- 7. Done ----------------------------------------------------------------
+# Mono keeps ONE shared remote for the single root repo; registries/repos.yml's rows are folders
+# inside it, not repos to clone (runbooks/collaboration.md §9).
+if [ "$LAYOUT" = "2" ]; then
+  REMOTE_TIP="If you did not set up remotes during init, create one empty repo on your host
+  and push the root repo's ${TRUNK_BRANCH} branch to it. Leave registries/repos.yml's rows
+  alone — they describe folders inside your one repo, not repos to clone."
+else
+  REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
+  their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
+fi
 say "Done."
 cat <<EOF
 
@@ -998,8 +1008,7 @@ Recommended optional backup:
   and working from another computer, put the project on a Git host when you're ready.
 
   GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
-  If you did not set up remotes during init, create empty repos on your host, add
-  their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch.
+  ${REMOTE_TIP}
 
   GitHub:
     https://github.com/
