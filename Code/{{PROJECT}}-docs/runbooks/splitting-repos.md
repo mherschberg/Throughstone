@@ -367,9 +367,11 @@ repos of their own. This happens at most once per project.
    side effect of the split. Push trunk, then record `remote:` in
    `registries/repos.yml`. Every row in that file is now a split-out repo, so each also gets a
    `provenance:` block — naming the mono repo, today's date, the last commit they all share, and
-   the `origin` URL you wrote down at step 2 as `archive_remote:`. **Delete the mono-repo-for-now
-   note** above the rows; it stops being true the moment this step runs. **Push the hub last**,
-   after its registry commit, or none of these rows reaches a teammate.
+   the `origin` URL you wrote down at step 2 as `archive_remote:`. **That commit has to exist on
+   the archive too** — if the mono trunk you cloned at step 5 was ahead of its remote, push it
+   there before you record these, because step 12 makes that host read-only. **Delete the
+   mono-repo-for-now note** above the rows; it stops being true the moment this step runs.
+   **Push the hub last**, after its registry commit, or none of these rows reaches a teammate.
    **Stop before the first create and push** — this is where the whole mono history leaves your
    machine, once per repo, and where private-or-not stops being a local decision.
 8. **Root pointers.** Run `scripts/setup-workspace.sh` from the new hub, in the build directory.
