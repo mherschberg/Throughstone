@@ -481,11 +481,14 @@ path change — but only one repo can inherit it, and the workspace root stops b
 moment you move `.git`, so this only makes sense as part of Part 2. **Do it last**, after every
 other unit has been cloned at step 5, not here before Part 2 starts: the move drops those units
 from HEAD, so their forward delete keeps nothing and the guard fires on a path you typed
-correctly. Then **move the inheriting folder into the build directory** with the rest — step 11
-moves that directory into place and would otherwise strand this repo in the workspace you renamed
-aside. Its ignored files travel with it untouched, so step 9 has nothing to carry for it. And
-be clear what it buys — one copy of the object graph, not the blob. Every other unit is still a
-clone and still carries it.
+correctly. **Push the mono trunk to its remote before you move `.git`** — step 7 records a commit
+that has to exist on the archive, and after the move nothing on disk can put it there: the
+workspace root is no longer a repo, and the inheriting repo's `origin` gets repointed below. Then
+**move the inheriting folder into the build directory** with the rest — step 11 moves that
+directory into place and would otherwise strand this repo in the workspace you renamed aside. Its
+ignored files travel with it untouched, so step 9 has nothing to carry for it. And be clear what
+it buys — one copy of the object graph, not the blob. Every other unit is still a clone and still
+carries it.
 
 **This replaces the clone and the forward delete, not the rest of the mechanic.** `origin` still
 points at the mono repo, so `git remote set-url` it to this repo's own remote before step 7 —
