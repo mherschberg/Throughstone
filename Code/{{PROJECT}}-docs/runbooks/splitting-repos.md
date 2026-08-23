@@ -256,9 +256,11 @@ special here, which is why it gets no steps of its own below.
    starting, or accept the loss knowingly. **Commit or stash your working tree too** — the clone
    takes committed state, so an uncommitted edit never reaches the new repo. Edits to tracked files,
    that is: anything untracked under the extracted path is what step 6 moves across by hand.
-3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted. When it
-   prints `git ls-files`, read it: it should look like the repo you asked for, at the root, with
-   nothing left nested.
+3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted and
+   `<new-repo>` set to `Code/<new-name>/`, a sibling of the origin: step 8 writes that path into
+   the registry row's `location:`, and it is where `scripts/setup-workspace.sh` puts the repo on
+   everyone else's machine. When it prints `git ls-files`, read it: it should look like the repo
+   you asked for, at the root, with nothing left nested.
 4. **Make it a repo, not a folder.**
    - `scripts/apply-project-license.sh <new-repo-path>` from the docs hub.
    - A `README.md` stamped from `templates/repo-readme-template.md`, with its role one-liner and
