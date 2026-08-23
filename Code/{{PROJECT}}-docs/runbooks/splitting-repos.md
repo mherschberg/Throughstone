@@ -402,4 +402,8 @@ inherit the origin's identity outright rather than cloning it. Move the `.git` d
 folder that is becoming a repo, then inside it `git rm -r --cached .`, `git add -A`, and commit. It
 comes out with the complete un-rewritten history and `--follow` and `blame` resolving through the
 path change — but only one repo can inherit it, and the workspace root stops being a repo the
-moment you move `.git`, so this only makes sense as part of Part 2.
+moment you move `.git`, so this only makes sense as part of Part 2. **Do it last**, after every
+other unit has been cloned at step 5, not here before Part 2 starts: the move drops those units
+from HEAD, so their forward delete keeps nothing and the guard fires on a path you typed
+correctly. And be clear what it buys — one copy of the object graph, not the blob. Every other
+unit is still a clone and still carries it.
