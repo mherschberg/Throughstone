@@ -556,9 +556,10 @@ project, push the `In progress` flip so others can see that the architecture STE
 
 **Mono→multi split special case:** converting a mono-repo-for-now workspace to multi-repo is
 **branchless** — there is no `step-NNNN` branch, because the repos that branch would live in are
-the ones being created. Its STEP number is reserved on `prompts/`'s trunk and committed there
-before the split starts (`runbooks/splitting-repos.md`, Part 2). Splitting a code repo later is
-ordinary branch-per-STEP work like anything else.
+the ones being created. Its STEP number is reserved in `prompts/STEP-index.md` and committed on
+the mono repo's trunk — the workspace root, the project's only repo at that point — before the
+split starts (`runbooks/splitting-repos.md`, Part 2). Splitting a code repo later is ordinary
+branch-per-STEP work like anything else.
 
 ## 8. Naming conventions
 
