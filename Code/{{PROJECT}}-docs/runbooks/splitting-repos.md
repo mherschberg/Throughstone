@@ -109,6 +109,8 @@ git clone --no-local <origin> <new-repo>      # --no-local is required for a loc
 cd <new-repo>
 git remote remove origin                      # the new repo must not point at the old one
 
+for p in <keep>; do echo "$p: $(git ls-files -- "$p" | wc -l | tr -d ' ') file(s)"; done
+
 git rm -r -q -- . ':!<keep>' ':!.gitignore'   # forward-delete the complement; nothing is rewritten
 test -n "$(git ls-files -- <keep>)" || { echo "<keep> matched nothing — check the path"; exit 1; }
 git commit -m "Split: this repo now holds <scope>"
@@ -150,11 +152,12 @@ repointing grep is for instead.
   zero times, and the check after it passes vacuously, because "the old path is empty" is also
   true when it never held anything. The only signal is `nothing to commit, working tree clean`,
   which reads like success. The guard fires at the one moment the mistake is still free.
-- **With more than one keep path, run the guard once per path** — `git ls-files -- <path>`
-  non-empty for *each*, not for the set. A set-wide check passes on the one path that matched
-  while the mistyped one is deleted with no signal. And note what a scattered keep-set does not
-  get: the un-nest applies only when the kept set is a single directory, so a scattered split has
-  no post-condition either. The per-path guard is the only mechanical check it has.
+- **With more than one keep path, the per-path count in the first block is the check** —
+  `git ls-files -- <path>` non-empty for *each*, not for the set. A set-wide check passes on the
+  one path that matched while the mistyped one is deleted with no signal. And note what a
+  scattered keep-set does not get: the un-nest applies only when the kept set is a single
+  directory, so a scattered split has no post-condition either. The per-path guard is the only
+  mechanical check it has.
 - **The post-condition, after the move**, catches a half-finished un-nest. Do not try to replace
   it with a check on the loop's exit status. The `set -e` is inside the subshell, so a failed
   `git mv` exits the subshell and the next line runs anyway — `git commit` then succeeds, commits
