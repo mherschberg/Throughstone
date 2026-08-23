@@ -296,7 +296,9 @@ special here, which is why it gets no steps of its own below.
 7. **Repoint everything that knew the old path.** `git grep -n -F "<old path>"` in the origin, in
    the extracted repo, **and in the docs hub** — including each `.gitignore`, where a rule anchored
    at the old path is now dead. Every hit is either a repoint or a mention of history you keep on
-   purpose. Note what the grep does not find: an `import` or package reference to what left carries
+   purpose. Stage the files you repointed, not `git add -A` — this commit goes to a shared remote,
+   and the origin's working tree still holds whatever was untracked there before you started. Note
+   what the grep does not find: an `import` or package reference to what left carries
    no path, so it never appears. Whether the two sides still call into each other is step 4's
    boundary decision, and step 9's build-and-test is what fails if it was not made.
    **This step is not optional and is the easiest one to skip:** the hub's link checker
