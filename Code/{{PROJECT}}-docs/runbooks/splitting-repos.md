@@ -271,14 +271,17 @@ special here, which is why it gets no steps of its own below.
    step runs** — creating the remote and pushing trunk are the first two things that leave your
    machine.
 6. **Prune the origin.** `git rm -r -q -- <extracted-path>` and commit. Then **`ls -a
-   <extracted-path>`** — do not look for dirtiness. `git rm` removes only tracked files, and what
-   stays behind is everything the repo was told to *ignore*: build output, vendored files,
-   snapshots, `.env`. Ignored files never show as dirty; they do not show at all. Clear what is
-   left by hand — but first move anything that belongs to the **extracted** repo, its `.env` and
-   `.secrets/`, over to it: the clone took committed state, so what is sitting here is the only
-   copy. Two reasons clearing the rest is not just tidiness: stale build output where the source
-   used to be can keep the origin's tests passing against code the repo no longer contains, and
-   step 7's `git grep` searches tracked files only, so it will not see it either. **Stop on the
+   <extracted-path>`** — do not look for dirtiness. `git rm` removes only tracked files. What stays
+   behind is everything the repo never tracked: what it was told to *ignore* — build output,
+   vendored files, snapshots, `.env` — which `git status` does not print at all, plus any untracked
+   work you had in flight. Clear what is left by hand — but first move anything that belongs to the
+   **extracted** repo over to it: `.env` and `.secrets/` are the usual ones, in-flight work is the
+   one people lose, and the clone took committed state, so what is sitting here is the only copy.
+   It goes where the un-nest would have put it — `<extracted-path>/.env` becomes `.env` at the new
+   repo's root, or stays under `<extracted-path>/` when the keep-set was scattered and nothing was
+   un-nested. Two reasons clearing the rest is not just tidiness: stale build output where the
+   source used to be can keep the origin's tests passing against code the repo no longer contains,
+   and step 7's `git grep` searches tracked files only, so it will not see it either. **Stop on the
    `ls -a` output, before deleting any of it** — the `git rm` above is recoverable from history
    and this is not: no remote, no mirror and no clone holds these files.
 7. **Repoint everything that knew the old path.** `git grep -n -F "<old path>"` in the origin, in
