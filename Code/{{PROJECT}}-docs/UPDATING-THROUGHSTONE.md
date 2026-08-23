@@ -75,6 +75,50 @@ During an update, treat those old `overview.md` sections as legacy project-state
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
 not fail the check.
 
+### 1.8 migration
+
+**Upgrading from 1.7? Nothing is rewritten and nothing is required of you** unless you are about to
+split a repository. The release adds a runbook for that, and repeals one rule. Fast path:
+
+1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md`,
+   `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`, and
+   the header comment in `registries/repos.yml`).
+2. If you were planning to split a repo **only** in order to add a second contributor — stop.
+   That rule is gone, and nothing replaces it.
+3. Nothing else. A project that never splits reads none of this, and no file of yours changes.
+
+**The rule that went away.** The method used to say a mono-repo-for-now project had to split before
+taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
+works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
+not *several* repos — and the overlap warning's mono fallback was already written, one section above
+the clause that said it wasn't. **How many repos you have follows your architecture, not your
+headcount.** If you already split for the old reason you have lost nothing and there is nothing to
+undo; if you were about to, you no longer need to.
+
+**Splitting, when you do want it.** `runbooks/splitting-repos.md` covers both cases behind one
+routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
+multi-repo. It is a STEP, like the check-in, with a thin PLAN that points at the runbook rather than
+authored substep prompts. The mechanic clones the whole repo and deletes forward, so **nothing is
+rewritten**: both sides keep the full history as the same objects with the same SHAs, and
+`git blame`, `git log --follow`, `git bisect`, `git merge-base` and every commit SHA you have
+recorded anywhere keep resolving in the new repo on day one. The cost is stated plainly in the file
+— every new repo inherits every blob the origin ever committed, including deleted ones — and an
+appendix covers purging history first when that matters.
+
+- *Process docs* (`runbooks/splitting-repos.md`, `runbooks/README.md`, `METHOD.md` §7,
+  `runbooks/collaboration.md` §9, `prompts/README.md`, `registries/repos.yml`'s header): a new
+  runbook plus the edits that route to it — `METHOD.md` §7 gains the mono→multi special case (that
+  STEP is branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
+  through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
+  and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
+  Apply them as a coherent group; they reference each other. No `status.sh` / `check.sh` change, and
+  no new check — nothing detects registry drift after a split, which is accepted rather than
+  overlooked.
+- *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
+  `provenance:` is a new optional block recording that a repo was split out of another one — where
+  it came from, and where the two histories part company. It is written **at** a split and only
+  then, so existing rows do not gain it and a project that split before 1.8 does not backfill.
+
 ### 1.7 migration
 
 **Upgrading from 1.6? Start here.** This release rewrites no project files. Only two defaults
