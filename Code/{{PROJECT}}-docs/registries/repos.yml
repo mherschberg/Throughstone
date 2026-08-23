@@ -24,7 +24,9 @@
 # `provenance:` records that a repo was **split out** of another one — where it came from, and
 # where the two histories part company. Only a split-out repo carries it, and it is written at
 # the split (`runbooks/splitting-repos.md`); nothing maintains it afterwards. The shape is in
-# the commented example below.
+# the commented example below. `from:` is a historical name and may have no row of its own —
+# after a mono-repo-for-now split it never does, because the repo it names was retired; that is
+# what `archive_remote:` is for.
 
 repos:
   - name: "{{PROJECT}}-docs"
