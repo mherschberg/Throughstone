@@ -8,6 +8,10 @@
 > - **Part 2 — Converting mono-repo-for-now to multi-repo.** At most once per project, and only
 >   if you started mono (`METHOD.md` §7). The workspace root stops being a repo.
 >
+> **Do the whole split on one machine, in one go.** It turns on local state no repo carries — the
+> build directory, the files you carry across by hand, the mapping you wrote down — so a
+> half-finished one does not hand off.
+>
 > Either way, when you're done: push every repo you touched, and tell your teammates.
 >
 > **Stop and get a go-ahead before continuing at each of these**, even where a default already
