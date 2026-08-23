@@ -328,8 +328,10 @@ repos of their own. This happens at most once per project.
    - **Branch state.** `git branch -a`. Only trunk survives a clone as a real branch; the rest die
      with `git remote remove origin`, silently. Here the root repo is being *replaced*, so a stray
      branch is stranded with nowhere to land. Merge or close everything but trunk first, or accept
-     the loss knowingly. **Commit or stash your working tree too** — the clones at step 5 take
-     committed state, so an uncommitted edit reaches no new repo and nothing flags it.
+     the loss knowingly. **Commit your working tree too** — the clones at step 5 take committed
+     state, so an uncommitted edit reaches no new repo and nothing flags it. Stashing is not an
+     alternative here: a stash lives in the repo you are about to replace, so pop it and commit
+     before step 5.
    - **Write the mono repo's `origin` URL down now.** After the swap it exists nowhere on disk. Its
      durable home is `archive_remote:` in the registry at step 7; until then a scratch note is fine.
    - **Decide what happens to the old remote** at the end (step 12): leave it, retire it, or delete
