@@ -205,7 +205,7 @@ special here, which is why it gets no steps of its own below.
    later, and this repo now carries the origin's whole history. **Push trunk before you record the
    remote anywhere** (step 8 writes the registry row): that is the order `collaboration.md` §9
    already uses, and it is what stops the next person cloning an empty repo.
-6. **Prune the origin.** `git rm -r -q -- <extracted-path>` and commit. Then **`ls
+6. **Prune the origin.** `git rm -r -q -- <extracted-path>` and commit. Then **`ls -a
    <extracted-path>`** — do not look for dirtiness. `git rm` removes only tracked files, and what
    stays behind is everything the repo was told to *ignore*: build output, vendored files,
    snapshots, `.env`. Ignored files never show as dirty; they do not show at all. Clear what is
