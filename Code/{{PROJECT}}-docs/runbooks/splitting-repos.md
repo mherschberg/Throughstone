@@ -113,9 +113,11 @@ messages, which every repo the split produces then carries permanently.
 **It runs in three pieces, and the breaks between them are stops, not formatting.** Run a piece,
 show what it printed, wait for a go-ahead, then run the next. They are between the blocks rather
 than inside them because a stop written as a comment on a line you are about to execute is not a
-stop — it runs, and the block reads as finished. Each piece re-enters the repo on its first line:
-a stop can outlast the shell you started in, and these commands are destructive in the wrong
-directory.
+stop — it runs, and the block reads as finished. A stop can outlast the shell you started in, and
+these commands are destructive in the wrong directory, so **run block 1 from the origin repo** —
+it resolves `<origin>` and `<new-repo>` against wherever you are standing — while blocks 2 and 3
+re-enter the new repo themselves on their first line. Block 3 leaves you inside the repo you just
+finished, which is not where the next repo's block 1 starts.
 
 ```bash
 git clone --no-local <origin> <new-repo>      # --no-local is required for a local source
@@ -126,8 +128,9 @@ for p in <keep>; do echo "$p: $(git ls-files -- "$p" | wc -l | tr -d ' ') file(s
 ```
 
 **Stop.** Show the mapping — this repo, its keep-set, and that count, one line per path. Every
-path has to be non-zero: a zero is a path that is mistyped or wrong-cased, and the delete below
-removes everything the keep-set did not match. Nothing has been deleted yet.
+path has to be non-zero: a zero is a path that is mistyped or wrong-cased, or a clone taken from
+somewhere other than the origin, and the delete below removes everything the keep-set did not
+match. Nothing has been deleted yet.
 
 ```bash
 cd <new-repo>
