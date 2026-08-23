@@ -454,10 +454,12 @@ git -C ../purge-work.git filter-repo --analyze             # path + rename repor
 git -C ../purge-work.git for-each-ref --format='%(objectname) %(refname)' > ../refs-before.txt
 ```
 
-The `--analyze` reports are how you build the path list. **Neither tool follows renames.** History
-truncates at every historical path you fail to name, silently — one reported case lost 119 of 144
-commits of `--follow` history on a plain directory filter. If the file ever moved, every one of its
-old paths has to be on the list.
+The `--analyze` reports are how you build the path list. **Neither tool follows renames.** If the
+file ever moved, every one of its old paths has to be on the list, and a path you miss fails
+silently in whichever direction you are filtering. Keeping a set of paths truncates history at the
+ones you did not name — one reported case lost 119 of 144 commits of `--follow` history on a plain
+directory filter. Removing a set leaves the blob in history under the old name, and the tool
+reports success: on a purge, that is the credential you came here to delete.
 
 **The tools.**
 - **`git filter-repo`** is the one that handles a scattered set of paths, and the one you cannot
