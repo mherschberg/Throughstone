@@ -143,9 +143,11 @@ git commit -m "Split: this repo now holds <scope>"
 ```
 
 **Stop if the kept directory has its own `.gitignore`** — reconcile it here, before the move, and
-show both files and the one you merged them into before you stage it (see below). Nothing further
-down reads that file, so a rule dropped here reaches the finished repo unremarked. No nested
-ignore file, no stop: carry straight on.
+show both files and the one you merged them into before you stage it (see below). Both files in
+full every time, including at the second and third repo where the root one looks unchanged from
+the last: *"same as before"* is the reviewer taking it on trust. Nothing further down reads that
+file, so a rule dropped here reaches the finished repo unremarked. No nested ignore file, no stop:
+carry straight on.
 
 ```bash
 cd <new-repo>
@@ -160,7 +162,8 @@ git ls-files
 ```
 
 **Stop.** Show that list — it is the repo you just made, and nothing else will tell you whether it
-is the right one. Then start the next repo.
+is the right one. Paste it whole however long it runs: a list with entries elided, or collapsed
+into brace expansion, is a summary. Then start the next repo.
 
 **`.gitignore` is exempt from the delete, and that exemption is load-bearing.** Without
 `':!.gitignore'` the new repo inherits no ignore file, and nothing left inside it can regenerate
