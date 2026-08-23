@@ -128,12 +128,13 @@ exemption worked: `git check-ignore -v .env` should exit 0.
 **If the kept directory has its own `.gitignore`, reconcile before the move.** Two files exist at
 that moment: the origin's, which the exemption above left at the root, and the kept directory's,
 still nested — and the move will stop on the collision. Read both, reconcile them into one file at
-the repo root, and `git rm` the nested one. *Default: the union of the two.* Re-anchor any rule
-written against the old path (`/Code/<name>/dist/` becomes `/dist/`); it matches nothing after the
-move. In Part 2 this fires for every code folder, and never for `prompts/` or the docs hub, which
-have no ignore file of their own. In Part 1 it usually does not fire at all, because the extracted
-directory is a subdirectory of a code repo — the dead path-anchored rules it would have caught are
-what step 7's repointing grep is for instead.
+the repo root, `git rm` the nested one, and `git add` the reconciled one — nothing further down
+stages that edit for you. *Default: the union of the two.* Re-anchor any rule written against the
+old path (`/Code/<name>/dist/` becomes `/dist/`); it matches nothing after the move. In Part 2 this
+fires for every code folder, and never for `prompts/` or the docs hub, which have no ignore file of
+their own. In Part 1 it usually does not fire at all, because the extracted directory is a
+subdirectory of a code repo — the dead path-anchored rules it would have caught are what step 7's
+repointing grep is for instead.
 
 **The two checks do different jobs, and both are needed.**
 
