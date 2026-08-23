@@ -10,6 +10,13 @@
 >
 > Either way, when you're done: push every repo you touched, and tell your teammates.
 >
+> **Stop and get a go-ahead before continuing at each of these**, even where a default already
+> answers the question. A split is rare and mostly hard to undo, so the extra exchanges are the
+> cheapest part of it: before the first destructive command, with the mapping written out; at
+> every file-list confirmation point, showing the list itself and never a summary; before
+> anything leaves your machine — creating a remote, pushing a trunk; and before anything on disk
+> stops being easy to undo — pruning the origin, swapping the workspace, retiring the old remote.
+>
 > **A split is a STEP**, like the check-in. Its PLAN is thin and points here; you don't author
 > substep prompts for it — this runbook *is* the substeps (the same special case as the check-in,
 > see `prompts/README.md`). *Substeps*, below, names the usual breakpoints.
@@ -109,7 +116,7 @@ test -z "$(git ls-files -- <keep>)" || { echo "un-nest incomplete — reconcile 
 git commit -m "Move <scope> to the repo root"
 find . -mindepth 1 -type d -empty -not -path './.git/*' -delete
 
-git ls-files                                  # LOOK AT THIS. It is the repo you just made.
+git ls-files                                  # STOP. Show this — it is the repo you just made.
 ```
 
 **`.gitignore` is exempt from the delete, and that exemption is load-bearing.** Without
@@ -152,7 +159,8 @@ what step 7's repointing grep is for instead.
 
 **Why the confirmation points print a file list.** The forward delete and the un-nest are the two
 steps that can succeed while producing the wrong repo, and their exit status will not tell you.
-The list is what shows it. Do not skip past it, and do not replace it with a summary.
+The list is what shows it. Do not skip past it, do not replace it with a summary, and do not
+carry on until the person running the split has seen it and said go.
 
 **Reading a path across the un-nest.** The move is a rename, so plain `git log -- <path>` stops at
 the un-nest commit; use `git log --follow -- <path>`. `git blame` crosses it without help.
