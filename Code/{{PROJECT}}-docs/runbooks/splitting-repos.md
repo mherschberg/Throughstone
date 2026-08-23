@@ -17,9 +17,15 @@
 > **Stop and get a go-ahead before continuing at each of these**, even where a default already
 > answers the question. A split is rare and mostly hard to undo, so the extra exchanges are the
 > cheapest part of it: before the first destructive command, with the mapping written out; at
-> every file-list confirmation point, showing the list itself and never a summary; before
+> every file-list confirmation point, showing the list itself and never a summary; when you
+> reconcile two ignore files into one, showing both and what you merged them into; before
 > anything leaves your machine — creating a remote, pushing a trunk; and before anything on disk
-> stops being easy to undo — pruning the origin, swapping the workspace, retiring the old remote.
+> stops being easy to undo — pruning the origin, clearing what it left behind, swapping the
+> workspace, retiring the old remote.
+>
+> Each one is marked **Stop** where it fires — in the mechanic, which runs in three pieces per
+> repo, and at the steps below. Getting a go-ahead means ending your turn and waiting for a
+> reply, not recording afterwards that you passed the point.
 >
 > **A split is a STEP**, like the check-in. Its PLAN is thin and points here; you don't author
 > substep prompts for it — this runbook *is* the substeps (the same special case as the check-in,
@@ -224,7 +230,9 @@ special here, which is why it gets no steps of its own below.
 > carries it.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
-   path being extracted, and the new repo's name.
+   path being extracted, and the new repo's name. **Stop here, before step 3 builds anything** —
+   show that written-out mapping and your answer to question 2. Deciding not to split is one of
+   the answers, and this is the step where it gets made.
 2. **Pre-flight: the branches that won't survive.** Run `git branch -a`. A clone carries every
    commit and every tag, but only the default branch arrives as a real branch — the rest exist
    only as remote-tracking refs and die with `git remote remove origin`, silently. The origin repo
@@ -250,14 +258,18 @@ special here, which is why it gets no steps of its own below.
 5. **Give it a remote.** Create it **private** — widening is a separate decision, made deliberately
    later, and this repo now carries the origin's whole history. **Push trunk before you record the
    remote anywhere** (step 8 writes the registry row): that is the order `collaboration.md` §9
-   already uses, and it is what stops the next person cloning an empty repo.
+   already uses, and it is what stops the next person cloning an empty repo. **Stop before this
+   step runs** — creating the remote and pushing trunk are the first two things that leave your
+   machine.
 6. **Prune the origin.** `git rm -r -q -- <extracted-path>` and commit. Then **`ls -a
    <extracted-path>`** — do not look for dirtiness. `git rm` removes only tracked files, and what
    stays behind is everything the repo was told to *ignore*: build output, vendored files,
    snapshots, `.env`. Ignored files never show as dirty; they do not show at all. Clear what is
    left by hand. Two reasons this is not just tidiness: stale build output where the source used to
    be can keep the origin's tests passing against code the repo no longer contains, and step 7's
-   `git grep` searches tracked files only, so it will not see it either.
+   `git grep` searches tracked files only, so it will not see it either. **Stop on the
+   `ls -a` output, before deleting any of it** — the `git rm` above is recoverable from history
+   and this is not: no remote, no mirror and no clone holds these files.
 7. **Repoint everything that knew the old path.** `git grep -n -F "<old path>"` in the origin, in
    the extracted repo, **and in the docs hub** — including each `.gitignore`, where a rule anchored
    at the old path is now dead. Every hit is either a repoint or a mention of history you keep on
@@ -320,6 +332,9 @@ repos of their own. This happens at most once per project.
      durable home is `archive_remote:` in the registry at step 7; until then a scratch note is fine.
    - **Decide what happens to the old remote** at the end (step 12): leave it, retire it, or delete
      it. *Default: retire it.*
+   - **Stop here, before step 5 builds anything.** Show the mapping written out — every unit and
+     the repo it becomes, every root file from step 1 and its disposition, and both lists above in
+     full rather than counted. Everything after this is derived from that answer.
 3. **Backup mirror.** `git clone --mirror --no-local . ../<project>-presplit.git`, and confirm it
    is readable (`git -C ../<project>-presplit.git log --oneline -1`). Every new repo will carry the
    full history anyway, so this is a spare copy rather than the home of the project's past — skip
@@ -355,6 +370,8 @@ repos of their own. This happens at most once per project.
    the `origin` URL you wrote down at step 2 as `archive_remote:`. **Delete the mono-repo-for-now
    note** above the rows; it stops being true the moment this step runs. **Push the hub last**,
    after its registry commit, or none of these rows reaches a teammate.
+   **Stop before the first create and push** — this is where the whole mono history leaves your
+   machine, once per repo, and where private-or-not stops being a local decision.
 8. **Root pointers.** Run `scripts/setup-workspace.sh` from the new hub, in the build directory.
    The build directory is assembled purely from clones, so it has no root `CLAUDE.md`, `AGENTS.md`
    or `doctor.sh` until this runs — and nothing would ever flag their absence.
@@ -375,10 +392,11 @@ repos of their own. This happens at most once per project.
       `Code/<project>-docs/` inside it, run `scripts/setup-workspace.sh` there, and confirm every
       registered repo actually arrives.
     - The pre-split commit resolves in every new repo.
-11. **Swap.** **Rename** the old workspace aside — do not delete it — and move the build directory
-    into its place. Abort is still just deleting the build directory. Delete the old workspace only
-    after you have worked in the new one for a while: it is the only copy of anything step 2's
-    lists missed, and no mirror holds untracked or ignored files.
+11. **Swap.** **Stop before the rename** — show which directory becomes which. Then **rename** the
+    old workspace aside — do not delete it — and move the build directory into its place. Abort is
+    still just deleting the build directory. Delete the old workspace only after you have worked in
+    the new one for a while: it is the only copy of anything step 2's lists missed, and no mirror
+    holds untracked or ignored files.
 12. **Retire the old remote**, per step 2's decision. *Default:* delete its contents in one tip
     commit, leaving a `README.md` that says the history is still there and how to reach it, then set
     the host's permissions to read-only. **Never delete refs**, and author that commit on a fresh
@@ -387,7 +405,8 @@ repos of their own. This happens at most once per project.
     one sentence for anyone else holding a clone: *start a fresh empty folder, clone the docs hub
     into `Code/<project>-docs/` inside it, and run `scripts/setup-workspace.sh` there — do not
     reuse your old project folder.* Re-onboarding in place leaves the new repos nested inside the
-    retired one, and every check passes.
+    retired one, and every check passes. **Stop before you push that commit** — show the README and
+    the tree it leaves behind.
 13. **Write the STEP's PLAN** and archive it into the new `prompts/` repo at
     `prompts/<phase>/step-NNNN/`, then mark the STEP done in `prompts/STEP-index.md`. Written now
     rather than at step 4, it never has to pass through a forward delete. *Skip this if you skipped
