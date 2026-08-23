@@ -476,6 +476,13 @@ other unit has been cloned at step 5, not here before Part 2 starts: the move dr
 from HEAD, so their forward delete keeps nothing and the guard fires on a path you typed
 correctly. Then **move the inheriting folder into the build directory** with the rest — step 11
 moves that directory into place and would otherwise strand this repo in the workspace you renamed
-aside. Its untracked and ignored files travel with it, so step 9 has nothing to carry for it. And
+aside. Its ignored files travel with it untouched, so step 9 has nothing to carry for it. And
 be clear what it buys — one copy of the object graph, not the blob. Every other unit is still a
 clone and still carries it.
+
+**This replaces the clone and the forward delete, not the rest of the mechanic.** `origin` still
+points at the mono repo, so `git remote set-url` it to this repo's own remote before step 7 —
+otherwise "push trunk" pushes this tree over the mono repo's, and nothing errors. The root
+`.gitignore` is not here to be exempted: copy it in and reconcile it with the folder's own, as
+step 5 does. And `git add -A` commits every untracked file in the folder, where a clone would
+have left them untracked — so end with `git ls-files` and stop on it, like every other repo.
