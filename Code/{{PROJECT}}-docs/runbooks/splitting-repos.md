@@ -467,10 +467,10 @@ repos of their own. This happens at most once per project.
     reuse your old project folder.* Re-onboarding in place leaves the new repos nested inside the
     retired one, and every check passes. **Stop before you push that commit** — show the README and
     the tree it leaves behind.
-13. **Write the STEP's PLAN** and archive it into the new `prompts/` repo at
-    `prompts/<phase>/step-NNNN/`, then mark the STEP done in `prompts/STEP-index.md`. Written now
-    rather than at step 4, it never has to pass through a forward delete. *Skip this if you skipped
-    step 4.*
+13. **Write the STEP's PLAN** and archive it into the new `prompts/` repo — at `<phase>/step-NNNN/`
+    and `STEP-index.md` from that repo's root, since the un-nest at step 5 moved `prompts/`'s
+    contents up to it. Then mark the STEP done. Written now rather than at step 4, it never has to
+    pass through a forward delete. *Skip this if you skipped step 4.*
 
 ## Appendix — purging history first
 
