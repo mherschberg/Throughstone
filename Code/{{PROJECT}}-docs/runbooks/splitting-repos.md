@@ -102,6 +102,8 @@ git commit -m "Split: this repo now holds <scope>"
 
 # Reconcile the kept directory's own .gitignore HERE, before the move — see below.
 
+# The un-nest below applies only when <keep> is a SINGLE directory. With a scattered keep-set
+# (two or more paths) skip the next three lines: those paths stay where they are.
 ( set -e; shopt -s dotglob nullglob; for e in <keep>/*; do git mv "$e" .; done )
 test -z "$(git ls-files -- <keep>)" || { echo "un-nest incomplete — reconcile and re-run"; exit 1; }
 git commit -m "Move <scope> to the repo root"
