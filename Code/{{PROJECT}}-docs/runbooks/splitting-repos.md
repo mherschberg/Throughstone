@@ -325,8 +325,9 @@ repos of their own. This happens at most once per project.
     - `scripts/check.sh` at **0 fail(s), 0 warning(s)** — warnings do not fail the run, so "green"
       is not the criterion.
     - `scripts/links.sh` clean.
-    - A **real teammate clone**: a fresh empty directory, clone the docs hub into it, run
-      `scripts/setup-workspace.sh` there, and confirm every registered repo actually arrives.
+    - A **real teammate clone**: a fresh empty directory, clone the docs hub into
+      `Code/<project>-docs/` inside it, run `scripts/setup-workspace.sh` there, and confirm every
+      registered repo actually arrives.
     - The pre-split commit resolves in every new repo.
 11. **Swap.** **Rename** the old workspace aside — do not delete it — and move the build directory
     into its place. Abort is still just deleting the build directory. Delete the old workspace only
@@ -338,9 +339,9 @@ repos of their own. This happens at most once per project.
     clone of the host, not in your live workspace. Do this **after the swap is verified, never
     before** — a complete pushed copy stays on the host through the whole destructive window. That README needs
     one sentence for anyone else holding a clone: *start a fresh empty folder, clone the docs hub
-    into it, and run `scripts/setup-workspace.sh` there — do not reuse your old project folder.*
-    Re-onboarding in place leaves the new repos nested inside the retired one, and every check
-    passes.
+    into `Code/<project>-docs/` inside it, and run `scripts/setup-workspace.sh` there — do not
+    reuse your old project folder.* Re-onboarding in place leaves the new repos nested inside the
+    retired one, and every check passes.
 13. **Write the STEP's PLAN** and archive it into the new `prompts/` repo at
     `prompts/<phase>/step-NNNN/`, then mark the STEP done in `prompts/STEP-index.md`. Written now
     rather than at step 4, it never has to pass through a forward delete. *Skip this if you skipped
