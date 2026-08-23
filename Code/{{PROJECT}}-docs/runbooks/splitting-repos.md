@@ -171,6 +171,12 @@ one — the only thing that writes a `.gitignore` is `init.sh`, which the new re
 either way. The measured result is a repo that tracks `.env`. After the un-nest, confirm the
 exemption worked: `git check-ignore -v .env` should exit 0.
 
+**`.gitmodules` is not exempt, and a submodule inside the keep-set needs it.** That file lives at
+the origin's root, so the forward delete takes it while the keep-set's gitlink survives: the file
+list above shows the submodule path looking exactly right, and it is `git status` at the verify
+step that reports it as deleted, with nothing to say why. If any kept path contains a submodule,
+re-create the entries that repo needs before you push it.
+
 **If the kept directory has its own `.gitignore`, reconcile before the move.** Two files exist at
 that moment: the origin's, which the exemption above left at the root, and the kept directory's,
 still nested — and the move will stop on the collision. Read both, reconcile them into one file at
