@@ -521,6 +521,12 @@ recorded anywhere — `reviewed_commit:` in `registries/security-reviews.yml`, S
 ADRs, links in issues — stops resolving, and everyone re-clones. That is the trade for not carrying
 the blob.
 
+**Then hand back.** The purged mirror is what the split reads, not a side artifact: Part 1 clones
+the origin you are standing in and Part 2 step 5 clones `.`, so a split run beside a purge copies
+the blob into every new repo instead. Copy your untracked and ignored files aside first — a fresh
+clone has none, and Part 2 step 2's two lists come back empty once you re-clone. Then force-push
+the mirror over the origin host, re-clone your workspace from it, and start the split there.
+
 **If the motive is purely size**, there is a cheaper answer that rewrites nothing: let one new repo
 inherit the origin's identity outright rather than cloning it. Move the `.git` directory into the
 folder that is becoming a repo, then inside it `git rm -r --cached .`, `git add -A`, and commit. It
