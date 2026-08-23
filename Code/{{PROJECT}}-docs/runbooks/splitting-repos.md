@@ -471,8 +471,11 @@ git -C ../purge-work.git for-each-ref --format='%(objectname) %(refname)' > ../r
 diff ../refs-before.txt ../refs-after.txt
 ```
 
-Two refs that now point at the same object collapsed. Decide what each one should be before you
-push anything.
+Every SHA changes, so every line of that diff differs — read it for refs that *disappeared*, not
+for refs that moved. The collapse above needs a per-branch check instead: `git rev-list --count
+<trunk>..<branch>`, before and after. A branch that had commits of its own and now returns zero has
+been folded into another line of history, under a SHA that is not any other ref's tip, so the diff
+will not show it. Decide what each one should be before you push anything.
 
 **What a purge costs you**, so nobody is surprised: every SHA changes, so every commit reference
 recorded anywhere — `reviewed_commit:` in `registries/security-reviews.yml`, SHAs in reports and
