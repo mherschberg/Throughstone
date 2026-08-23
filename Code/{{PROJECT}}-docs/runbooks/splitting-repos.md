@@ -338,8 +338,12 @@ The workspace root stops being a repository. `prompts/`, the docs hub and each c
 repos of their own. This happens at most once per project.
 
 > **You build the new workspace beside the old one and swap at the end.** Everything up to step 11
-> happens in `../<project>-split/`; the live workspace is never touched, so abort is deleting that
-> directory. Do not start by deleting or rewriting anything you have.
+> happens in `../<project>-split/`, and until step 4 the live workspace is untouched, so abort is
+> deleting that directory. Do not start by deleting or rewriting anything you have. From step 4 on,
+> two things live outside the build directory and abort has to undo them by hand: the STEP
+> reservation committed and pushed on the live trunk, which becomes a row to mark **Abandoned**,
+> and the remotes step 7 creates and pushes, which have to be deleted. Left standing, a teammate
+> cloning the hub from them gets a complete, green workspace for a split nobody did.
 
 1. **Confirm the mapping** (question 1), and decide **where each root file goes**. Derive the list;
    don't work from memory:
@@ -450,9 +454,9 @@ repos of their own. This happens at most once per project.
     - The pre-split commit resolves in every new repo.
 11. **Swap.** **Stop before the rename** — show which directory becomes which. Then **rename** the
     old workspace aside — do not delete it — and move the build directory into its place. Abort is
-    still just deleting the build directory. Delete the old workspace only after you have worked in
-    the new one for a while: it is the only copy of anything step 2's lists missed, and no mirror
-    holds untracked or ignored files.
+    still deleting the build directory, plus the step-4 and step-7 cleanup above. Delete the old
+    workspace only after you have worked in the new one for a while: it is the only copy of
+    anything step 2's lists missed, and no mirror holds untracked or ignored files.
 12. **Retire the old remote**, per step 2's decision. *Default:* delete its contents in one tip
     commit, leaving a `README.md` that says the history is still there and how to reach it, then set
     the host's permissions to read-only. **Never delete refs**, and author that commit on a fresh
