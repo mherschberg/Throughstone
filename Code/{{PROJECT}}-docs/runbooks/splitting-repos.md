@@ -245,7 +245,10 @@ special here, which is why it gets no steps of its own below.
 > carries it.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
-   path being extracted, and the new repo's name. **Stop here, before step 3 builds anything** —
+   path being extracted, the new repo's name, and the origin's tip right now
+   (`git rev-parse --short HEAD`): that is the last commit the two repos will share, and it is
+   easiest to record here, because by the time step 8 wants it the prune and the repoint have
+   moved the origin two commits past it. **Stop here, before step 3 builds anything** —
    show that written-out mapping and your answer to question 2. Deciding not to split is one of
    the answers, and this is the step where it gets made.
 2. **Pre-flight: the branches that won't survive.** Run `git branch -a`. A clone carries every
@@ -306,8 +309,8 @@ special here, which is why it gets no steps of its own below.
    `scripts/links.sh` fails on a finished split and passes on an unfinished one. Step 7 is what
    makes step 9 satisfiable.
 8. **Register it.** Add the new repo's row to `registries/repos.yml` with its `provenance:` block:
-   the repo it came from, today's date, and the last commit the two repos share (the origin's tip
-   before the prune — it resolves in both). Your-row-only, per `collaboration.md` §5.
+   the repo it came from, today's date, and the last commit the two repos share — the tip you
+   wrote down at step 1, which resolves in both. Your-row-only, per `collaboration.md` §5.
 9. **Verify.**
    - Both repos **build and test**.
    - `git status` shows nothing new in either repo — in the origin, only what was already
@@ -399,7 +402,9 @@ repos of their own. This happens at most once per project.
    history, and widening any of them is a separate decision to make deliberately later, not a
    side effect of the split. Push trunk, then record `remote:` in
    `registries/repos.yml`. Every row in that file is now a split-out repo, so each also gets a
-   `provenance:` block — naming the mono repo, today's date, the last commit they all share, and
+   `provenance:` block — naming the mono repo, today's date, the last commit they all share (the
+   mono tip the clones were taken from at step 5; that workspace is on disk until step 11, so read
+   it there), and
    the `origin` URL you wrote down at step 2 as `archive_remote:`. **That commit has to exist on
    the archive too** — if the mono trunk you cloned at step 5 was ahead of its remote, push it
    there before you record these, because step 12 makes that host read-only. **Delete the
