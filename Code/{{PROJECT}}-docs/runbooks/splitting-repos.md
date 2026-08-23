@@ -184,7 +184,8 @@ special here, which is why it gets no steps of its own below.
    only as remote-tracking refs and die with `git remote remove origin`, silently. The origin repo
    survives, so nothing is lost there; the risk is in-flight work on the *extracted* files, which
    lands in a repo where those files no longer exist. Merge or close everything but trunk before
-   starting, or accept the loss knowingly.
+   starting, or accept the loss knowingly. **Commit or stash your working tree too** — the clone
+   takes committed state, so an uncommitted edit never reaches the new repo.
 3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted. When it
    prints `git ls-files`, read it: it should look like the repo you asked for, at the root, with
    nothing left nested.
@@ -267,7 +268,8 @@ repos of their own. This happens at most once per project.
    - **Branch state.** `git branch -a`. Only trunk survives a clone as a real branch; the rest die
      with `git remote remove origin`, silently. Here the root repo is being *replaced*, so a stray
      branch is stranded with nowhere to land. Merge or close everything but trunk first, or accept
-     the loss knowingly.
+     the loss knowingly. **Commit or stash your working tree too** — the clones at step 5 take
+     committed state, so an uncommitted edit reaches no new repo and nothing flags it.
    - **Write the mono repo's `origin` URL down now.** After the swap it exists nowhere on disk. Its
      durable home is `archive_remote:` in the registry at step 7; until then a scratch note is fine.
    - **Decide what happens to the old remote** at the end (step 12): leave it, retire it, or delete
