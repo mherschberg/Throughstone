@@ -317,8 +317,10 @@ repos of their own. This happens at most once per project.
    repo's forward delete removed it: no clone carries it. If it is empty, create it anyway — it is
    where the project's next PLAN gets written, and nothing else recreates it.
 10. **Verify the build directory before you swap.**
-    - Each new repo: `git status` clean, local trunk matching its remote, `git check-ignore -v .env`
-      exiting 0, and nothing left under the path it was moved out of.
+    - Each new repo: `git status` showing nothing but the untracked files you carried at step 9,
+      local trunk matching its remote, `git check-ignore -v .env` exiting 0, and nothing left
+      under the path it was moved out of. Anything else in `git status` — build output, a
+      vendored directory — means that repo's ignore file did not survive step 5's reconcile.
     - Each code repo **builds and tests**.
     - `scripts/check.sh` at **0 fail(s), 0 warning(s)** — warnings do not fail the run, so "green"
       is not the criterion.
