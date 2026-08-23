@@ -525,13 +525,15 @@ itself is that one repo** (the lone exception to "the root is not a repo" above)
 `prompts/` and `Code/{{PROJECT}}-docs/` as folders inside it rather than sibling repos. In
 this mode the root pointers (`CLAUDE.md` / `AGENTS.md`) are just ordinary committed files, not
 per-machine artifacts, and the hygiene rule relaxes to match. It's a convenience for getting
-moving solo; the multi-repo layout is the target. **Team collaboration assumes multi-repo.**
-What a team actually needs is **shared remotes** (so the push-reject that referees STEP-number
-reservation can fire — `runbooks/collaboration.md` §2); on top of that, the overlap warning
-(§4 there) is repo-granular, so it's meaningless when every STEP touches the one mono-repo. So
-split before you go team. Splitting later is standard git (extract `prompts/`
-and the docs hub into their own repos); afterward, fill in the `remote:` fields in
-`registries/repos.yml` and have others run `scripts/setup-workspace.sh`.
+moving solo; the multi-repo layout is the target — but move to it when the architecture asks
+for it. **How many repos a project has follows its architecture, not its headcount.** A
+mono-repo project that gains a second contributor needs **shared remotes** — so the push-reject
+that referees STEP-number reservation can fire (`runbooks/collaboration.md` §2, whose solo→team
+section carries the mono path) — not a split.
+
+**Splitting is its own procedure:** `runbooks/splitting-repos.md`, covering both leaving mono
+and dividing a code repo in two later on — deliberately not "standard git", because the published
+recipe rewrites history with a tool the method can't require.
 
 **Working with others:** every STEP is worked on its own branch (`step-NNNN-short-name`, same
 name in every repo it touches) — **solo too**, so the workflow doesn't change the day a second
@@ -551,6 +553,12 @@ kickoff closes, flip the `STEP-1` row to `In progress`. Use the branch name
 `step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies (docs hub and
 `prompts/` in multi-repo projects; the root repo in mono-repo-for-now). In a team/shared-remote
 project, push the `In progress` flip so others can see that the architecture STEP is active.
+
+**Mono→multi split special case:** converting a mono-repo-for-now workspace to multi-repo is
+**branchless** — there is no `step-NNNN` branch, because the repos that branch would live in are
+the ones being created. Its STEP number is reserved on `prompts/`'s trunk and committed there
+before the split starts (`runbooks/splitting-repos.md`, Part 2). Splitting a code repo later is
+ordinary branch-per-STEP work like anything else.
 
 ## 8. Naming conventions
 
