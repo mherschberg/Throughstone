@@ -293,8 +293,10 @@ special here, which is why it gets no steps of its own below.
    before the prune — it resolves in both). Your-row-only, per `collaboration.md` §5.
 9. **Verify.**
    - Both repos **build and test**.
-   - `git status` is clean in each, and each local trunk matches its remote — that is the check
-     that what you can see is what everyone else receives.
+   - `git status` shows nothing new in either repo — in the origin, only what was already
+     untracked before you started; in the extracted repo, only what step 6 moved across — and each
+     local trunk matches its remote: that is the check that what you can see is what everyone else
+     receives.
    - The step-7 grep now returns only the historical mentions you decided to keep.
    - `git log --follow` and `git blame` resolve across the un-nest in the extracted repo, and the
      pre-split commit exists in both.
