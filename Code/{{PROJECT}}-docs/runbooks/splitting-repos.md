@@ -425,5 +425,8 @@ path change — but only one repo can inherit it, and the workspace root stops b
 moment you move `.git`, so this only makes sense as part of Part 2. **Do it last**, after every
 other unit has been cloned at step 5, not here before Part 2 starts: the move drops those units
 from HEAD, so their forward delete keeps nothing and the guard fires on a path you typed
-correctly. And be clear what it buys — one copy of the object graph, not the blob. Every other
-unit is still a clone and still carries it.
+correctly. Then **move the inheriting folder into the build directory** with the rest — step 11
+moves that directory into place and would otherwise strand this repo in the workspace you renamed
+aside. Its untracked and ignored files travel with it, so step 9 has nothing to carry for it. And
+be clear what it buys — one copy of the object graph, not the blob. Every other unit is still a
+clone and still carries it.
