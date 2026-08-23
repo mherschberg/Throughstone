@@ -248,10 +248,11 @@ special here, which is why it gets no steps of its own below.
 > carries it.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
-   path being extracted, the new repo's name, and the origin's tip right now
-   (`git rev-parse --short HEAD`): that is the last commit the two repos will share, and it is
-   easiest to record here, because by the time step 8 wants it the prune and the repoint have
-   moved the origin two commits past it. **Stop here, before step 3 builds anything** —
+   path being extracted, the new repo's name, and the origin's tip (`git rev-parse --short HEAD`,
+   run in the origin): that is the last commit the two repos will share. **Re-read it once step 2
+   has committed your working tree** — that commit moves the tip, and step 3 clones what step 2
+   leaves. Record it here rather than at step 8, by which time the prune and the repoint have
+   moved the origin past it. **Stop here, before step 3 builds anything** —
    show that written-out mapping and your answer to question 2. Deciding not to split is one of
    the answers, and this is the step where it gets made.
 2. **Pre-flight: the branches that won't survive.** Run `git branch -a`. A clone carries every
