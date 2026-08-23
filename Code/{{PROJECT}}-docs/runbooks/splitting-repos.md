@@ -419,6 +419,10 @@ repos of their own. This happens at most once per project.
    name.** Its `.gitkeep` is tracked, so the folder is on neither of step 2's lists, and every new
    repo's forward delete removed it: no clone carries it. If it is empty, create it anyway — it is
    where the project's next PLAN gets written, and nothing else recreates it.
+   Every unit keeps its workspace-relative path across the split, so this is a plain copy from the
+   old workspace into the build directory: `Code/<name>/.env` is `Code/<name>/.env` on both sides.
+   The re-anchoring step 10 asks for is a different thing — it is how the same file reads from
+   *inside* the new repo, where that path is just `.env`.
 10. **Verify the build directory before you swap.**
     - Each new repo: `git status` showing nothing but that repo's entries from step 2's
       `git ls-files --others --exclude-standard` list, re-anchored to its new root; local trunk
