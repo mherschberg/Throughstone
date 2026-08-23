@@ -242,10 +242,12 @@ special here, which is why it gets no steps of its own below.
 
 > **Where abort gets expensive.** Up to step 6, abort is cheap: delete the new directory, and
 > delete the extracted repo's remote if you already created it. Nothing else has been touched, and
-> neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned
-> locally, so abort means deleting your local copies and re-cloning them from their remotes.
-> **Save anything untracked or ignored first** — `.env`, `.secrets/`, in-flight work. Nothing
-> carries it.
+> neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned, so
+> abort is `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
+> step 9 has already pushed it — plus deleting the extracted repo and its remote. Do not reach for
+> a re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
+> project with no remotes there is nothing to re-clone from. **Save anything untracked or ignored
+> first** — `.env`, `.secrets/`, in-flight work. Nothing carries it.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
    path being extracted, the new repo's name, and the origin's tip (`git rev-parse --short HEAD`,
