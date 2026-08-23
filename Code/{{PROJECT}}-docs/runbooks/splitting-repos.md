@@ -244,8 +244,10 @@ special here, which is why it gets no steps of its own below.
 > delete the extracted repo's remote if you already created it. Nothing else has been touched, and
 > neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned, so
 > abort is `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
-> step 9 has already pushed it — plus deleting the extracted repo and its remote. Do not reach for
-> a re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
+> step 9 has already pushed it — plus deleting the extracted repo and its remote, and reverting the
+> hub's step-7 repoint and step-8 registry row, pushed if step 9 pushed them: left standing, that
+> row sends everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a
+> re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
 > project with no remotes there is nothing to re-clone from. **Save anything untracked or ignored
 > first** — `.env`, `.secrets/`, in-flight work. Nothing carries it.
 
