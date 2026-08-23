@@ -402,6 +402,7 @@ repos of their own. This happens at most once per project.
    the mechanic into its place in the new workspace:
 
    ```bash
+   # Where each unit lands. Substitute <new-repo> absolute — a relative one breaks blocks 2 and 3.
    git clone --no-local . ../<project>-split/prompts        # <keep> = prompts
    git clone --no-local . ../<project>-split/Code/<name>    # <keep> = Code/<name>
    ```
