@@ -100,8 +100,9 @@ routing block: splitting a code repo in two, and converting a mono-repo-for-now 
 multi-repo. It is a STEP, like the check-in, with a thin PLAN that points at the runbook rather than
 authored substep prompts. The mechanic clones the whole repo and deletes forward, so **nothing is
 rewritten**: both sides keep the full history as the same objects with the same SHAs, and
-`git blame`, `git log --follow`, `git bisect`, `git merge-base` and every commit SHA you have
-recorded anywhere keep resolving in the new repo on day one. The cost is stated plainly in the file
+`git blame`, `git log --follow`, `git bisect` and every commit SHA you have recorded anywhere keep
+resolving in the new repo on day one, and `git merge-base` resolves across the split once one repo
+fetches the other. The cost is stated plainly in the file
 — every new repo inherits every blob the origin ever committed, including deleted ones — and an
 appendix covers purging history first when that matters.
 
