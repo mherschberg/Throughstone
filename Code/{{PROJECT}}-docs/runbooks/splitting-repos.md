@@ -114,10 +114,13 @@ messages, which every repo the split produces then carries permanently.
 show what it printed, wait for a go-ahead, then run the next. They are between the blocks rather
 than inside them because a stop written as a comment on a line you are about to execute is not a
 stop — it runs, and the block reads as finished. A stop can outlast the shell you started in, and
-these commands are destructive in the wrong directory, so **run block 1 from the origin repo** —
-it resolves `<origin>` and `<new-repo>` against wherever you are standing — while blocks 2 and 3
-re-enter the new repo themselves on their first line. Block 3 leaves you inside the repo you just
-finished, which is not where the next repo's block 1 starts.
+these commands are destructive in the wrong directory, so **run block 1 from the workspace root**
+— it resolves `<origin>` and `<new-repo>` against wherever you are standing, and both are written
+relative to that root. **Substitute `<new-repo>` as an absolute path**, so that blocks 2 and 3
+re-enter the new repo themselves on their first line: a relative one resolves only from where
+block 1 ran, and if your shell is anywhere else that `cd` fails and the forward delete below runs
+against whatever repo you are standing in. Block 3 leaves you inside the repo you just finished,
+which is not where the next repo's block 1 starts.
 
 ```bash
 git clone --no-local <origin> <new-repo>      # --no-local is required for a local source
