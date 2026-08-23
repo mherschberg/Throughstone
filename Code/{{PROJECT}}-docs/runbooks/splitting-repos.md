@@ -168,6 +168,11 @@ carry on until the person running the split has seen it and said go.
 **Reading a path across the un-nest.** The move is a rename, so plain `git log -- <path>` stops at
 the un-nest commit; use `git log --follow -- <path>`. `git blame` crosses it without help.
 
+**The origin's tags come across too.** The clone carries every tag, and in a new repo they point
+at trees that are not this repo — `git describe` will report `v1.0-3-g…` against a release of the
+thing you split away from. `git push` does not send them, so they stay local until someone asks
+for them. Keep, retag or delete is your call: nothing in the method reads tags.
+
 **The origin side needs none of this.** Its paths are already correct, so it gets no clone, no
 exemption and no un-nest — just a forward `git rm` of what left (Part 1 step 6). In Part 2 there
 is no surviving origin; every unit gets the mechanic above.
