@@ -17,6 +17,30 @@ any project built with it.
 > copy carries an unfinished version of it. **No tagged release was affected**; the latest release
 > remains v1.7.1.
 
+### Added
+- **A runbook for splitting a repository** — `runbooks/splitting-repos.md`. The method used to say
+  splitting was "standard git," which is not something you can act on: the recipe you find
+  elsewhere makes the extracted repo *new*, with its history rewritten by `git filter-repo`, a
+  tool that never ships with git and needs Python on every install route. The runbook writes down
+  a different mechanic — clone the whole repo and delete forward — so nothing is rewritten, both
+  sides keep the full history, and `git blame`, `git log --follow` and every commit SHA your
+  project has recorded keep working in the new repo on day one. It covers both cases behind one
+  routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
+  multi-repo. It asks three questions before you start and the rest at the step that needs them,
+  each with a default, so answering "use your judgement" still produces a correct split. The one
+  real cost is stated plainly in the file: every new repo inherits every blob the origin ever
+  committed, including deleted ones, and an appendix covers purging first when that matters.
+  Split-out repos can now record where they came from, in a `provenance:` block on their
+  `registries/repos.yml` row.
+
+  Shipping with it: **the rule telling you to split before adding a second contributor is gone.**
+  It gave two reasons and neither survived. The STEP-number push-race works exactly the same in a
+  mono repo with a shared remote — what a team needs is shared remotes, not several of them — and
+  the overlap warning's mono fallback was already written, one section above the clause that said
+  it wasn't. How many repos you have follows your architecture, not your headcount. The
+  solo-to-team section of `runbooks/collaboration.md` now has a mono path of its own, including
+  the warning not to run `scripts/setup-workspace.sh` in a mono clone.
+
 ### Changed
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
