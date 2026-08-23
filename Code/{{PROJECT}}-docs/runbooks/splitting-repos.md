@@ -104,19 +104,39 @@ repo's keep-set — the path or paths from question 1 that this repo is meant to
 what you would call that out loud (`billing`, `the docs hub`); it appears only in the two commit
 messages, which every repo the split produces then carries permanently.
 
+**It runs in three pieces, and the breaks between them are stops, not formatting.** Run a piece,
+show what it printed, wait for a go-ahead, then run the next. They are between the blocks rather
+than inside them because a stop written as a comment on a line you are about to execute is not a
+stop — it runs, and the block reads as finished. Each piece re-enters the repo on its first line:
+a stop can outlast the shell you started in, and these commands are destructive in the wrong
+directory.
+
 ```bash
 git clone --no-local <origin> <new-repo>      # --no-local is required for a local source
 cd <new-repo>
 git remote remove origin                      # the new repo must not point at the old one
 
 for p in <keep>; do echo "$p: $(git ls-files -- "$p" | wc -l | tr -d ' ') file(s)"; done
+```
 
+**Stop.** Show the mapping — this repo, its keep-set, and that count, one line per path. Every
+path has to be non-zero: a zero is a path that is mistyped or wrong-cased, and the delete below
+removes everything the keep-set did not match. Nothing has been deleted yet.
+
+```bash
+cd <new-repo>
 git rm -r -q -- . ':!<keep>' ':!.gitignore'   # forward-delete the complement; nothing is rewritten
 test -n "$(git ls-files -- <keep>)" || { echo "<keep> matched nothing — check the path"; exit 1; }
 git commit -m "Split: this repo now holds <scope>"
+```
 
-# Reconcile the kept directory's own .gitignore HERE, before the move — see below.
+**Stop if the kept directory has its own `.gitignore`** — reconcile it here, before the move, and
+show both files and the one you merged them into before you stage it (see below). Nothing further
+down reads that file, so a rule dropped here reaches the finished repo unremarked. No nested
+ignore file, no stop: carry straight on.
 
+```bash
+cd <new-repo>
 # The un-nest below applies only when <keep> is a SINGLE directory. With a scattered keep-set
 # (two or more paths) skip the next three lines: those paths stay where they are.
 ( set -e; shopt -s dotglob nullglob; for e in <keep>/*; do git mv "$e" .; done )
@@ -124,8 +144,11 @@ test -z "$(git ls-files -- <keep>)" || { echo "un-nest incomplete — reconcile 
 git commit -m "Move <scope> to the repo root"
 find . -mindepth 1 -type d -empty -not -path './.git/*' -delete
 
-git ls-files                                  # STOP. Show this — it is the repo you just made.
+git ls-files
 ```
+
+**Stop.** Show that list — it is the repo you just made, and nothing else will tell you whether it
+is the right one. Then start the next repo.
 
 **`.gitignore` is exempt from the delete, and that exemption is load-bearing.** Without
 `':!.gitignore'` the new repo inherits no ignore file, and nothing left inside it can regenerate
