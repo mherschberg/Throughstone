@@ -419,8 +419,12 @@ repos of their own. This happens at most once per project.
 7. **Remotes.** Create each **private** — every one of them now carries the whole mono repo's
    history, and widening any of them is a separate decision to make deliberately later, not a
    side effect of the split. Push trunk, then record `remote:` in
-   `registries/repos.yml`. Every row in that file is now a split-out repo, so each also gets a
-   `provenance:` block — naming the mono repo, today's date, the last commit they all share (the
+   `registries/repos.yml`. **If that file carries a row for the workspace root** — `location: "."` —
+   **delete it first.** The root stops being a repository at this step, so the row describes nothing
+   afterwards; what replaces it is the folder rows already in the file, which become real repos here.
+   A registry written before the root row existed has none, in which case there is nothing to delete
+   and nothing else about this step changes. Every **remaining** row is now a split-out repo, so each
+   also gets a `provenance:` block — naming the mono repo, today's date, the last commit they all share (the
    mono tip the clones were taken from at step 5; that workspace is on disk until step 11, so read
    it there), and
    the `origin` URL you wrote down at step 2 as `archive_remote:`. **That commit has to exist on
