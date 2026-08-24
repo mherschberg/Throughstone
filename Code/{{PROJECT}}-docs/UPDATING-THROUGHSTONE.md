@@ -77,15 +77,33 @@ not fail the check.
 
 ### 1.8 migration
 
-**Upgrading from 1.7? Nothing is rewritten and nothing is required of you** unless you are about to
-split a repository. The release adds a runbook for that, and repeals one rule. Fast path:
+**Upgrading from 1.7? Nothing you own is rewritten.** The headline is a runbook for splitting a
+repository, and one rule repealed — but the release also carries a check-in fix worth pulling even
+if you never split, so the fast path covers more than the split. Fast path:
 
-1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md`,
-   `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`, and
-   the header comment in `registries/repos.yml`).
-2. If you were planning to split a repo **only** in order to add a second contributor — stop.
+1. **Pull the split's process docs as one review-required group** (the new
+   `runbooks/splitting-repos.md`, `runbooks/README.md`, `METHOD.md` §7,
+   `runbooks/collaboration.md` §9, `prompts/README.md`, and the header comment in
+   `registries/repos.yml`). Skip this group entirely if you are not splitting anything — nothing
+   else in the release reads it.
+2. **Pull `runbooks/check-in.md` whether or not you split.** Its deferred-coverage sweep asked you
+   to enumerate docs "carrying `Coverage: deferred`", and the docs write that field as
+   `**Coverage:** deferred — …`, so a run that took the literal at face value found nothing to
+   sweep. It now says to read the field and to treat any value other than `full` as deferred. If
+   your check-ins have never surfaced a deferred-coverage doc, this is why.
+3. **Pull `inputs/README.md`** if you lift documents into `architecture/`. It now names all three
+   header fields a lifted doc needs — `Version`, `Status` **and** `Version Log` — because
+   `scripts/check.sh` requires all three of a numbered doc however it got there, and it used to
+   name only the first two.
+4. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
-3. Nothing else. A project that never splits reads none of this, and no file of yours changes.
+5. **Everything else is templates, and templates are future-only** (§2). The session templates,
+   `templates/architecture-doc-template.md` and `templates/step-index-seed.md` all changed; none
+   of it rewrites a doc you already generated. Worth knowing anyway, because session templates are
+   read live: a session's go-ahead now fires on being *invoked* rather than on being *read*, and
+   the two sessions that named their work list something else (`13-glossary.md`,
+   `14-cross-cutting-review.md`) now use `## Decisions to make (in order)` like the other fifteen.
+   Take these when you next pull templates; nothing breaks if you don't.
 
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
