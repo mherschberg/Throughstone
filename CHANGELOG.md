@@ -67,6 +67,21 @@ any project built with it.
   maintainer test enforces it.
 
 ### Fixed
+- **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
+  repository you already had — the natural thing to try when you want Throughstone in a project
+  that exists — and running `./init.sh` there deleted that repository's `.git` outright, every
+  commit with it, at exit code 0 and with no warning. Your working files survived; your repository
+  did not. The bootstrap is one-time and destructive by design — it removes the template's own git
+  history and every template-only file — so it now establishes that it is looking at a fresh
+  template checkout *before* it removes anything, and refuses with an explanation when it is not.
+  The marker in the root pointers cannot answer that on its own, because an unpacked template
+  brings those files along with it, so git is asked too — and only when there is a `.git` in the
+  folder to lose. A checkout counts as fresh when its committed history is the template's own and
+  it tracks nothing the template does not ship, or when it has no commits, no branches and nothing
+  staged. Every documented setup route still works untouched: a fresh unpacked download, a clone of
+  a release tag, a "Use this template" repo, and `git init` beside the template to attach an empty
+  origin. Covered by `tests/init-fresh-template-guard.sh`, which derives the template's root-entry
+  list from the template itself so the check cannot go stale.
 - **A generated repo's ignore file named one per-machine agent file instead of matching the family.**
   Every repo `init.sh` creates ignored `.claude/settings.local.json` exactly, so an editor's lock or
   autosave sibling (`#settings.local.json#`, `settings.local.json~`) — per-machine files, all of
