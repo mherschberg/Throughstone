@@ -1,7 +1,8 @@
 # Runbook — Splitting a Repository
 
 > **How to run:** Two cases behind one procedure. Answer the three questions in **Before you
-> start**, then go to your part — you don't pick the case, it falls out of the first answer.
+> start**, then go to your part — you run one of them, never both, and you don't pick which: it
+> falls out of the first answer.
 > Tell your agent *"run the split"* and it follows this file.
 > - **Part 1 — Splitting a code repo in two.** The ordinary one: a repo grew two things that
 >   should ship separately. Any number of times.
