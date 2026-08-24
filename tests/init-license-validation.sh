@@ -538,6 +538,7 @@ run_interactive_case \
   $'1\nMIT\n' \
   "MIT License"
 
+# Open source chosen explicitly, then the license sub-prompt's default taken: still MIT.
 run_interactive_case \
   "license-default" \
   $'1\n\n' \
@@ -562,6 +563,14 @@ run_private_case \
   "license-private" \
   bash -c \
   "printf '2\n' | ./init.sh --mode=new --slug=license-private --desc='License validation test' --layout=multi --collab=solo --remotes=no"
+
+# Answering nothing at all must not license the project. The project-type question defaults to
+# private/proprietary precisely so that a user who presses Enter has granted nobody anything; an
+# open-source default would hand out an irrevocable license they never named.
+run_private_case \
+  "license-bare-enter" \
+  bash -c \
+  "printf '\n' | ./init.sh --slug=license-bare-enter --desc='License validation test' --layout=multi --collab=solo --remotes=no"
 
 run_private_case \
   "license-private-flag" \

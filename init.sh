@@ -67,6 +67,13 @@ validate_trunk_branch() {
 # Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
 # skip project LICENSE creation later.
+#
+# The project-type question defaults to private/proprietary because that is the recoverable
+# answer. Accepting it writes no project LICENSE at all, which anyone can change later by
+# choosing a license deliberately; accepting an open-source default would grant everyone an
+# irrevocable license to the project's code without the user ever having named one. The
+# open-source sub-question keeps its MIT default — by the time it is asked, open source is an
+# explicit choice and MIT is a reasonable one.
 choose_license_interactively() {
   local project_type license_input
 
@@ -74,7 +81,7 @@ choose_license_interactively() {
     echo "Is this project open source or private/proprietary?"
     echo "  1) Open source"
     echo "  2) Private / proprietary"
-    project_type="$(ask 'Choose 1 or 2' '1')"
+    project_type="$(ask 'Choose 1 or 2' '2')"
     case "$project_type" in
       1) break ;;
       2)
@@ -261,20 +268,73 @@ command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo
 command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
 
 # --- 0c. Fresh-template guard -----------------------------------------------
-# init.sh is a one-time bootstrap that crosses a destructive boundary below (it removes .git and
-# template-only files). It must run from a fresh, unpacked template checkout — never a second time
-# in an already-initialized project (a re-run would delete a mono repo's history, then fail), and
-# never on top of an unrelated repo. The root pointers (AGENTS.md / CLAUDE.md) carry a
-# THROUGHSTONE-TEMPLATE-GUARD block that step 3 strips during initialization; it is a stable
-# sentinel because it contains no {{PROJECT}} token, so — unlike the docs-hub directory name — it
-# is never rewritten by placeholder substitution (init.sh substitutes its own {{PROJECT}} too).
-# Its absence means this is not a fresh template. Refuse now, before anything is deleted.
-if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" 2>/dev/null; then
+# init.sh is one-time and destructive: section 2 removes .git and every template-only file. That
+# is right for a freshly downloaded template and catastrophic anywhere else — unpacking the
+# template into a repository that already exists and running it here deletes that repository's
+# history outright, with no warning and no way back.
+#
+# Four checks, because no one of them covers the rest. The sentinel below travels with the files,
+# so it cannot answer "whose repository is this?" — an extracted template brings AGENTS.md and
+# CLAUDE.md along with it. Git is asked separately, and only when there is a .git here to lose: a
+# checkout nested inside someone else's repository has nothing at $ROOT for section 2 to remove.
+#
+# Each check is paired with a case that must still proceed: a fresh unpacked template (no .git at
+# all), a clone of Throughstone or of a "Use this template" repo (history that is the template's
+# own), and `git init` beside an unpacked template to attach an empty origin (no commits, nothing
+# staged). tests/init-fresh-template-guard.sh holds both halves.
+
+# Every top-level entry Throughstone ships, pipe-delimited so entries with spaces stay intact.
+# tests/init-fresh-template-guard.sh regenerates this from the template and fails if it drifts.
+TEMPLATE_ROOT_ENTRIES='|.github|.gitignore|AGENTS.md|ARTIFACT-TRAIL.md|CHANGELOG.md|CLAUDE.md|CODE_OF_CONDUCT.md|CONTRIBUTING.md|Code|LICENSE|README.md|SECURITY.md|TRADEMARK.md|Upcoming Prompts|brand|docs|doctor.sh|init.sh|prompts|tests|'
+
+# refuse_not_fresh REASON — stop before the destructive boundary, saying which check refused.
+refuse_not_fresh() {
   echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
+  echo "  $1" >&2
   echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
-  echo "  not run on an already-initialized project or an unrelated repo — that would delete history." >&2
-  echo "  If you are starting over, re-download the template into a fresh, empty folder and run it there." >&2
+  echo "  not run on an already-initialized project or on top of a repository that is not the" >&2
+  echo "  template — either would delete history it cannot give back." >&2
+  echo "  Download the template into a fresh, empty folder and run it there instead." >&2
   exit 2
+}
+
+# 1. The root pointers carry a THROUGHSTONE-TEMPLATE-GUARD block that step 3 strips during
+#    initialization. It holds no {{PROJECT}} token, so — unlike the docs-hub directory name — it
+#    is never rewritten by placeholder substitution and stays a stable sentinel. Its absence means
+#    an already-initialized project, or a directory that was never the template.
+if ! grep -qlF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" 2>/dev/null; then
+  refuse_not_fresh "The root pointers carry no template marker."
+fi
+
+if [ -e "$ROOT/.git" ]; then
+  if git rev-parse --verify -q HEAD >/dev/null 2>&1; then
+    # 2. There is committed history, so it has to be the template's own. A clone of Throughstone
+    #    and a "Use this template" repo both carry the sentinel at HEAD, because init.sh has not
+    #    run yet to strip it. Someone else's history does not.
+    git cat-file -p HEAD:AGENTS.md 2>/dev/null | grep -qF 'THROUGHSTONE-TEMPLATE-GUARD' \
+      || refuse_not_fresh "This repository's committed history is not Throughstone's."
+    # 3. The sentinel at HEAD is necessary but not sufficient: someone who committed the extracted
+    #    template on top of their own history has it too, and their commits are still underneath.
+    #    A checkout that really is the template tracks nothing the template does not ship.
+    while IFS= read -r -d '' entry; do
+      case "$TEMPLATE_ROOT_ENTRIES" in
+        *"|$entry|"*) ;;
+        *) refuse_not_fresh "This repository tracks '$entry', which Throughstone does not ship." ;;
+      esac
+    done < <(git ls-tree -z --name-only HEAD)
+  else
+    # 4. No commits here yet. `git init` beside an unpacked template is a supported way to attach
+    #    an empty origin, so an unborn HEAD is fine by itself — but only if the repository really
+    #    is empty. A ref means commits survive on some other branch (`git checkout --orphan`
+    #    inside a live repo leaves exactly this shape), and a populated index means files were
+    #    staged and never committed.
+    if [ -n "$(git for-each-ref --count=1)" ]; then
+      refuse_not_fresh "This repository has branches or tags carrying history."
+    fi
+    if [ -n "$(git ls-files)" ]; then
+      refuse_not_fresh "This repository has staged files that were never committed."
+    fi
+  fi
 fi
 
 say "Throughstone — setup"
