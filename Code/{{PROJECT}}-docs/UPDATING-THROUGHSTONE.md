@@ -90,8 +90,8 @@ split a repository. The release adds a runbook for that, and repeals one rule. F
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
 works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
-not *several* repos — and the overlap warning's mono fallback was already written, one section above
-the clause that said it wasn't. **How many repos you have follows your architecture, not your
+not *several* repos — and the overlap warning's mono fallback was already written, in the very
+section that clause cited. **How many repos you have follows your architecture, not your
 headcount.** If you already split for the old reason you have lost nothing and there is nothing to
 undo; if you were about to, you no longer need to.
 

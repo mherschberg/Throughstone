@@ -26,20 +26,24 @@ any project built with it.
   sides keep the full history, and `git blame`, `git log --follow` and every commit SHA your
   project has recorded keep working in the new repo on day one. It covers both cases behind one
   routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
-  multi-repo. It asks three questions before you start and the rest at the step that needs them,
-  each with a default, so answering "use your judgement" still produces a correct split. The one
-  real cost is stated plainly in the file: every new repo inherits every blob the origin ever
-  committed, including deleted ones, and an appendix covers purging first when that matters.
+  multi-repo. It asks three questions before you start and the rest at the step that needs them;
+  every one but the mapping itself has a default, so answering "use your judgement" still produces
+  a correct split. The one real cost is stated plainly in the file: every new repo inherits every
+  blob the origin ever committed, including deleted ones, and an appendix covers purging first when
+  that matters.
   Split-out repos can now record where they came from, in a `provenance:` block on their
   `registries/repos.yml` row.
 
   Shipping with it: **the rule telling you to split before adding a second contributor is gone.**
   It gave two reasons and neither survived. The STEP-number push-race works exactly the same in a
   mono repo with a shared remote — what a team needs is shared remotes, not several of them — and
-  the overlap warning's mono fallback was already written, one section above the clause that said
-  it wasn't. How many repos you have follows your architecture, not your headcount. The
-  solo-to-team section of `runbooks/collaboration.md` now has a mono path of its own, including
-  the warning not to run `scripts/setup-workspace.sh` in a mono clone.
+  the overlap warning's mono fallback was already written, in the very section that clause cited.
+  How many repos you have follows your architecture, not your headcount. The solo-to-team section
+  of `runbooks/collaboration.md` now has a mono path of its own, including the warning not to run
+  `scripts/setup-workspace.sh` in a mono clone; `METHOD.md` §7 and `prompts/README.md` moved with
+  it, the first gaining the mono→multi special case (that STEP is branchless, and its number is
+  reserved on trunk) and the second generalizing its thin-STEP note from the check-in alone to two
+  families.
 
 ### Changed
 - **The README and website now tell you to clone the latest *release*, not `main`.**
@@ -63,6 +67,15 @@ any project built with it.
   maintainer test enforces it.
 
 ### Fixed
+- **`init.sh`'s closing backup tip was wrong for a mono-repo project.** It told every project to
+  "create empty repos on your host, add their URLs to `registries/repos.yml`, and push each local
+  repo's `main` branch" — which is what `runbooks/collaboration.md` §9 expressly tells a mono
+  project *not* to do, since those rows describe folders inside the one repo rather than repos to
+  clone. The tip is now layout-conditional: mono is told to create one repo, push the root repo's
+  trunk, and leave the registry rows alone. The mono + team kickoff note stopped citing the
+  repealed split-before-a-teammate rule in the same change — the observation under it still holds
+  and is still printed, but it now points at the fallback `collaboration.md` §4 prescribes rather
+  than telling you to split.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
 - **Lifting a document into `architecture/` could fail the check that guards it.**
