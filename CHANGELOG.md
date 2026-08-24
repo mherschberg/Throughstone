@@ -46,6 +46,13 @@ any project built with it.
   families.
 
 ### Changed
+- **The website's process section is three steps, not four, and says the method covers the whole
+  lifecycle.** The four-step flow led with *Initialize* — running the setup wizard — which put a
+  tooling step where a reader is trying to understand the method, and pushed *Check-ins* off the
+  end. It now reads **Design first → Build in STEPs → Check-ins**, with initialization described
+  where you actually install. A new *Beyond the build* note under the flow says outright that the
+  architecture sessions and runbooks plan for deployment, monitoring, releases and incidents, which
+  the site previously only implied. Site copy only — no method or scaffold change.
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
   built and can carry unfinished work. The "Use this template" path is flagged as unable to be
