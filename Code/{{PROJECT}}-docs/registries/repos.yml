@@ -27,16 +27,80 @@
 # the commented example below. `from:` is a historical name and may have no row of its own —
 # after a mono-repo-for-now split it never does, because the repo it names was retired; that is
 # what `archive_remote:` is for.
+#
+# `origin:` (per row) records whether Throughstone **created** the repo or **adopted** one that was
+# already there: `created` | `adopted`. It is a fact, written once when the repo is registered, and
+# it never changes — a repo that is later handed over was still created here. Nothing decides
+# anything from it; it is recorded so a later reader can tell why a repo looks the way it does.
+#
+# `control:` (per row) records whether Throughstone **controls** a repo — whether it may write what
+# its needs require into it. `managed` means yes, asked once per repository and never per file;
+# `external` means the repo is recorded and referenced but never written into. Control is a state
+# that changes over time, not a fact about who created the repo — a repo Throughstone created can be
+# handed over, and a repo it never created can be placed under its care.
+#
+# **A missing `control:` reads as `external`**, because control is a permission and an unanswered
+# permission is not granted: the method records the repo and writes nothing into it until someone
+# answers. A defaulted row is surfaced rather than silently accepted. (Unrelated to the top-level
+# `throughstone:` key in `.throughstone/manifest.yml`, which versions the method itself — different
+# file, different scope.)
+#
+# `provides:` (per row) records how each of the three needs — README, licensing, CI — is met in that
+# repo. One entry per need, each carrying a status and a note:
+#
+#     ours       Throughstone provided it
+#     extended   it was already there and Throughstone added to it — for a README, the
+#                `## Role in <project>` section, through to the next `##`
+#     theirs     already met by what is there; nothing of ours in it
+#     N/A        the need structurally does not apply. Uppercase, matching the method's spelling
+#                everywhere else, and CI only — README and licensing apply to every repo
+#     gap        unmet, and recorded as unmet
+#
+# `gap` and `N/A` **must** carry a note saying why. Every other entry carries one when the need is
+# met some way that is not obvious from the repo itself. Two invariants hold across the pair of
+# fields: a `managed` repo has no `gap` — either the need is met, or the repo is `external` — and an
+# `external` repo has no `ours` and no `extended`, because both mean an artifact Throughstone
+# maintains, which it cannot do in a repo it may not write into.
+#
+# `origin:` and `control:` go on **every** row. `provides:` goes only on a row whose `location` is
+# a repository — in a mono-repo-for-now workspace the rows below are folders inside the single repo,
+# so they carry none until a split makes them repos of their own. The rows this file ships with
+# carry no `provides:` in either layout: the method's own repos are described by the method itself,
+# and a status written before anyone had looked at a repo would be a guess rather than a record.
+#
+# Rules for anything that reads or rewrites this file. The scripts that read it match line prefixes
+# and do not parse YAML, so all five are load-bearing:
+#
+# 1. **No line inside a row block may begin, after leading whitespace, with a row-level field name
+#    followed by a colon**, whatever the nesting says. A note whose text began
+#    `location: /srv/acme/LICENSE` would be read as that row's location and cloned into.
+# 2. **Every value is a single-line scalar, and `provides:` entries are flow mappings** — the form
+#    in the example row below. A flow mapping cannot hold a block scalar, so a note cannot span
+#    lines, which makes rule 1 impossible to violate rather than merely discouraged.
+# 3. **Comment lines are skipped** (`^[[:space:]]*#`). The example row below is fully formed and
+#    commented out one `#` per line; a reader that counted it as a row would report it missing
+#    every field.
+# 4. **Row-level names and nested key names are two disjoint reserved sets, and adding a name to
+#    either is checked against the other — here, at the time it is added.** Today row-level is
+#    `name`, `location`, `type`, `description`, `remote`, `provenance`, `origin`, `control`,
+#    `provides`; nested is `from`, `split_on`, `split_commit`, `archive_remote`, `readme`,
+#    `license`, `ci`, `status`, `note`. The check is what carries forward, not the lists.
+# 5. **Anything that rewrites this file anchors on the row block** — from a row's `- name:` to the
+#    next `- name:`, respecting indentation — and never on a bare line prefix.
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
-    type: docs            # docs | service | library | app | infra | tests
+    type: docs            # docs | service | library | app | infra | tests | mono
+    origin: created
+    control: managed
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
+    origin: created
+    control: managed
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them and they
@@ -44,8 +108,14 @@ repos:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
+  #   origin: created                                      # created | adopted — written once
+  #   control: managed                                     # managed | external — absent reads as external
   #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."
+  #   provides:                                            # only on a row whose location is a repo
+  #     readme:  { status: ours,   note: "" }
+  #     license: { status: theirs, note: "posture recorded project-wide in .throughstone/project-license" }
+  #     ci:      { status: ours,   note: "" }
   #   provenance:                                          # only on a repo that was split out
   #     from: "{{PROJECT}}-web"                            # the repo this used to be part of
   #     split_on: "2026-01-31"

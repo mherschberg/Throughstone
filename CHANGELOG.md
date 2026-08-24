@@ -44,6 +44,28 @@ any project built with it.
   it, the first gaining the mono→multi special case (that STEP is branchless, and its number is
   reserved on trunk) and the second generalizing its thin-STEP note from the check-in alone to two
   families.
+- **Repo rows record who owns each repo and what it already provides.** `registries/repos.yml`
+  gains three per-row fields. **`origin:`** (`created` | `adopted`) says whether Throughstone made
+  the repo or took on one that was already there — a fact, written once when the repo is
+  registered, that never changes. **`control:`** (`managed` | `external`) says whether Throughstone
+  may write into that repo: `managed` is a standing permission, asked once per repository and never
+  per file, while `external` means the repo is recorded and referenced in full and never written
+  into. Control is a state that changes over time rather than a fact about who created the repo, so
+  a repo the method built can be handed over and a repo it never built can be placed under its
+  care. **A missing `control:` reads as `external`**, because control is a permission and an
+  unanswered permission is not granted — the repo is recorded, and nothing is written into it until
+  somebody answers. **`provides:`** records how each of the three things a repo needs — a README, a
+  stated licensing posture, a described CI gate — is actually met there, as a status (`ours`,
+  `extended`, `theirs`, `N/A`, `gap`) and a note; `gap` and `N/A` must say why. It goes only on
+  rows whose `location` is a repository, and never on a row the setup script seeds — a status
+  written before anyone had looked at the repo would be a guess rather than a record. Two
+  invariants hold across the pair: a `managed` repo has no `gap` — either the need is met, or the
+  repo is `external` — and an `external` repo has no `ours` and no `extended`. The registry's
+  header carries the whole schema, the default, and the five rules anything reading or rewriting
+  that file has to follow, because it is read by scripts that match line prefixes and do not parse
+  YAML. `mono` joins the `type:` enum for the workspace root of a mono-repo-for-now project.
+  Existing rows are not rewritten — `UPDATING-THROUGHSTONE.md`'s 1.8 section covers adding the
+  fields to a project you already have.
 
 ### Changed
 - **The interactive setup no longer licenses your project open source by default.** `init.sh` asks
