@@ -67,6 +67,13 @@ validate_trunk_branch() {
 # Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
 # skip project LICENSE creation later.
+#
+# The project-type question defaults to private/proprietary because that is the recoverable
+# answer. Accepting it writes no project LICENSE at all, which anyone can change later by
+# choosing a license deliberately; accepting an open-source default would grant everyone an
+# irrevocable license to the project's code without the user ever having named one. The
+# open-source sub-question keeps its MIT default — by the time it is asked, open source is an
+# explicit choice and MIT is a reasonable one.
 choose_license_interactively() {
   local project_type license_input
 
@@ -74,7 +81,7 @@ choose_license_interactively() {
     echo "Is this project open source or private/proprietary?"
     echo "  1) Open source"
     echo "  2) Private / proprietary"
-    project_type="$(ask 'Choose 1 or 2' '1')"
+    project_type="$(ask 'Choose 1 or 2' '2')"
     case "$project_type" in
       1) break ;;
       2)

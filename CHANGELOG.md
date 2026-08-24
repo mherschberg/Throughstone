@@ -46,6 +46,16 @@ any project built with it.
   families.
 
 ### Changed
+- **The interactive setup no longer licenses your project open source by default.** `init.sh` asks
+  whether the project is open source or private/proprietary, and that question used to default to
+  open source, with the license question after it defaulting to MIT — so two bare Enters granted
+  everyone an irrevocable license to the project's code without the user ever naming one. The
+  project-type question now defaults to **private / proprietary**, which writes no project
+  `LICENSE` at all and leaves the decision to be made deliberately later. The open-source
+  sub-question keeps its MIT default: by the time it is asked, open source is an explicit choice.
+  Nothing changes for `--license=…` or `--non-interactive`, which have always required the posture
+  to be stated. Existing projects are unaffected — their posture is already recorded in
+  `.throughstone/project-license`.
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
   built and can carry unfinished work. The "Use this template" path is flagged as unable to be

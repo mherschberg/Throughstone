@@ -94,6 +94,12 @@ runs once, when a project is created, and an existing project never runs it agai
 yours changes and there is no action here. It matters only the next time you bootstrap a **new**
 Throughstone project: do that from 1.8 or later.
 
+The same release changes one bootstrap default, and again there is nothing to do. `init.sh`'s
+interactive project-type question now defaults to private/proprietary rather than open source, so
+pressing Enter through setup no longer licenses a project MIT without anyone naming a license. Your
+project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
+it does not change. Worth knowing only if you bootstrap another project from muscle memory.
+
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
 works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
