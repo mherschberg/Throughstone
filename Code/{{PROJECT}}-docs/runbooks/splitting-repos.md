@@ -92,6 +92,14 @@ runbook and disappears at the split without a word.
 If the answer is *"the workspace root stops being a repo"*, you are in **Part 2**. Otherwise
 **Part 1**.
 
+**Part 1 assumes the workspace root is not a repo.** In mono-repo-for-now it is, so extracting a
+folder there leaves the new repo *nested inside* the origin — the root reports it as an untracked
+directory, and step 9's `git status` check fails on it. It also strands the repo you just made:
+`collaboration.md` §9 tells a mono project not to put `remote:` fields in `registries/repos.yml`
+and not to run `scripts/setup-workspace.sh`, so nothing on the mono onboarding path would ever
+clone it onto a teammate's machine. **Run Part 2 first**, then Part 1 as often as you like on the
+repos it leaves you.
+
 **2. Should you split at all?** *(Part 1 only — for Part 2 the layout decision was made at
 `init.sh` time.) Default: proceed.* One exchange, and the two questions worth asking are: would
 the two halves be **chatty** with each other, and would an ordinary change require **deploying
