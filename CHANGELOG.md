@@ -172,6 +172,13 @@ error/corruption and re-run paths, not normal operation.
   maintainer test enforces it.
 
 ### Fixed
+- **A generated repo's ignore file named one per-machine agent file instead of matching the family.**
+  Every repo `init.sh` creates ignored `.claude/settings.local.json` exactly, so an editor's lock or
+  autosave sibling (`#settings.local.json#`, `settings.local.json~`) — per-machine files, all of
+  them — was left untracked and swept in by a `git add -A`. Throughstone's own repository moved off
+  the by-name rule for this reason and the generated one did not follow. Now matched by pattern.
+  Shared project config (`.claude/settings.json`) is still committed, so this narrows what leaks
+  without narrowing what a team can share.
 - **`init.sh`'s closing backup tip was wrong for a mono-repo project.** It told every project to
   "create empty repos on your host, add their URLs to `registries/repos.yml`, and push each local
   repo's `main` branch" — which is what `runbooks/collaboration.md` §9 expressly tells a mono
