@@ -13,6 +13,7 @@
 #   proceeds                                   refuses
 #   --------                                   -------
 #   a fresh unpacked template (no .git)        an already-initialized project (no sentinel)
+#                                              init.sh alone in someone else's repository
 #   a clone of the template's own history      history that is not the template's
 #   `git init` beside the template, empty      a repo tracking files the template does not ship
 #                                              an unborn HEAD with commits on another branch
@@ -132,7 +133,16 @@ copy_template "$empty_repo"
 init_once "$empty_repo" emptyrepo --layout=multi >"$TMP_ROOT/empty-repo.out" 2>&1 \
   || { echo "FAIL: guard blocked an empty repo attached to a fresh template" >&2; cat "$TMP_ROOT/empty-repo.out" >&2; exit 1; }
 
-# --- 5. The template unpacked into a repository that already exists is refused. ---------------
+# --- 5. init.sh alone, dropped into a repository that is not the template, is refused. --------
+# The marker check is the first line of defence and the only one that can fire when there are no
+# template files present at all — someone who fetched just this script and ran it where they stood.
+alone="$TMP_ROOT/alone"
+alone_sha="$(seed_user_repo "$alone")"
+cp -p "$ROOT/init.sh" "$alone/init.sh"
+assert_refused "alone" "$alone" "The root pointers carry no template marker"
+assert_history_intact "alone" "$alone" "$alone_sha"
+
+# --- 6. The template unpacked into a repository that already exists is refused. ---------------
 # This is the case people actually hit, and the sentinel alone never catches it: the extracted
 # template brings AGENTS.md and CLAUDE.md, and the marker with them.
 over_repo="$TMP_ROOT/over-repo"
@@ -141,7 +151,7 @@ copy_template "$over_repo"
 assert_refused "over-repo" "$over_repo" "committed history is not Throughstone's"
 assert_history_intact "over-repo" "$over_repo" "$over_sha"
 
-# --- 6. …and refused just the same when the template was committed first. ---------------------
+# --- 7. …and refused just the same when the template was committed first. ---------------------
 # Committing before running a destructive script is the cautious thing to do, and it puts the
 # marker into HEAD. What gives it away is that the repository tracks the user's own files too.
 committed="$TMP_ROOT/committed"
@@ -152,7 +162,7 @@ committed_sha="$(git -C "$committed" rev-parse HEAD)"
 assert_refused "committed" "$committed" "which Throughstone does not ship"
 assert_history_intact "committed" "$committed" "$committed_sha"
 
-# --- 7. An unborn HEAD inside a live repository is refused. -----------------------------------
+# --- 8. An unborn HEAD inside a live repository is refused. -----------------------------------
 # `git checkout --orphan` leaves no HEAD and an index the user may well have cleared, but every
 # commit is still reachable from the branch they came from.
 orphan="$TMP_ROOT/orphan"
@@ -163,7 +173,7 @@ assert_refused "orphan" "$orphan" "branches or tags carrying history"
 [ -d "$orphan/.git" ] && git -C "$orphan" cat-file -e "$orphan_sha" 2>/dev/null \
   || { echo "FAIL: orphan — init.sh destroyed history reachable from another branch" >&2; exit 1; }
 
-# --- 8. Files staged but never committed are refused. -----------------------------------------
+# --- 9. Files staged but never committed are refused. -----------------------------------------
 staged="$TMP_ROOT/staged"
 mkdir -p "$staged"
 ( cd "$staged" && git init -q && printf 'our source\n' > app.py && git add -A )
@@ -172,7 +182,7 @@ assert_refused "staged" "$staged" "staged files that were never committed"
 [ -n "$(git -C "$staged" ls-files)" ] \
   || { echo "FAIL: staged — init.sh cleared the user's index before refusing" >&2; exit 1; }
 
-# --- 9. The guard's root-entry list matches what the template actually ships. ------------------
+# --- 10. The guard's root-entry list matches what the template actually ships. ------------------
 # The list is a literal inside init.sh, so it can rot the moment a root entry is added or removed.
 # Derive the truth from the template and compare, so adding one without the other fails here.
 expected="$TMP_ROOT/root-entries-expected"
