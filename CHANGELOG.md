@@ -46,6 +46,16 @@ any project built with it.
   families.
 
 ### Changed
+- **The interactive setup no longer licenses your project open source by default.** `init.sh` asks
+  whether the project is open source or private/proprietary, and that question used to default to
+  open source, with the license question after it defaulting to MIT — so two bare Enters granted
+  everyone an irrevocable license to the project's code without the user ever naming one. The
+  project-type question now defaults to **private / proprietary**, which writes no project
+  `LICENSE` at all and leaves the decision to be made deliberately later. The open-source
+  sub-question keeps its MIT default: by the time it is asked, open source is an explicit choice.
+  Nothing changes for `--license=…` or `--non-interactive`, which have always required the posture
+  to be stated. Existing projects are unaffected — their posture is already recorded in
+  `.throughstone/project-license`.
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
   built and can carry unfinished work. The "Use this template" path is flagged as unable to be
@@ -67,6 +77,21 @@ any project built with it.
   maintainer test enforces it.
 
 ### Fixed
+- **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
+  repository you already had — the natural thing to try when you want Throughstone in a project
+  that exists — and running `./init.sh` there deleted that repository's `.git` outright, every
+  commit with it, at exit code 0 and with no warning. Your working files survived; your repository
+  did not. The bootstrap is one-time and destructive by design — it removes the template's own git
+  history and every template-only file — so it now establishes that it is looking at a fresh
+  template checkout *before* it removes anything, and refuses with an explanation when it is not.
+  The marker in the root pointers cannot answer that on its own, because an unpacked template
+  brings those files along with it, so git is asked too — and only when there is a `.git` in the
+  folder to lose. A checkout counts as fresh when its committed history is the template's own and
+  it tracks nothing the template does not ship, or when it has no commits, no branches and nothing
+  staged. Every documented setup route still works untouched: a fresh unpacked download, a clone of
+  a release tag, a "Use this template" repo, and `git init` beside the template to attach an empty
+  origin. Covered by `tests/init-fresh-template-guard.sh`, which derives the template's root-entry
+  list from the template itself so the check cannot go stale.
 - **A generated repo's ignore file named one per-machine agent file instead of matching the family.**
   Every repo `init.sh` creates ignored `.claude/settings.local.json` exactly, so an editor's lock or
   autosave sibling (`#settings.local.json#`, `settings.local.json~`) — per-machine files, all of

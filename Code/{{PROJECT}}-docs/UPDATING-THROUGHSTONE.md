@@ -87,6 +87,19 @@ split a repository. The release adds a runbook for that, and repeals one rule. F
    That rule is gone, and nothing replaces it.
 3. Nothing else. A project that never splits reads none of this, and no file of yours changes.
 
+**A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
+anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
+running it there used to delete that repository's `.git` and every commit in it, silently. `init.sh`
+runs once, when a project is created, and an existing project never runs it again — so no file of
+yours changes and there is no action here. It matters only the next time you bootstrap a **new**
+Throughstone project: do that from 1.8 or later.
+
+The same release changes one bootstrap default, and again there is nothing to do. `init.sh`'s
+interactive project-type question now defaults to private/proprietary rather than open source, so
+pressing Enter through setup no longer licenses a project MIT without anyone naming a license. Your
+project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
+it does not change. Worth knowing only if you bootstrap another project from muscle memory.
+
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
 works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
