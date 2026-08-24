@@ -780,8 +780,12 @@ write_gitignore() {
 .DS_Store
 *.swp
 
-# Per-machine agent config (not shared)
-.claude/settings.local.json
+# Per-machine agent config (not shared). Patterns rather than one filename: an editor's lock and
+# autosave siblings (#settings.local.json#, settings.local.json~) are per-machine too, and a
+# `git add -A` would otherwise commit them. Shared project config (.claude/settings.json) still commits.
+.claude/*.local.json
+.claude/#*#
+.claude/*~
 
 # Personal local Throughstone profile (not shared)
 /.throughstone/local-user.md
