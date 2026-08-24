@@ -135,26 +135,27 @@ teammate will need later.
    relevant tests to create or update and either the exact test command(s) to run before marking
    the substep done or the final verification substep/command that will run them before the STEP
    closes.
-   *(For the architecture STEP-1, the substeps are the interview sessions in
-   `Code/{{PROJECT}}-docs/templates/architecture-sessions/` — you don't author those from
-   scratch. For a **Check-in STEP**, you don't author prompts either — its two substeps are
-   the doc-drift/conditional-coverage reconciliation and full test run defined in
-   `Code/{{PROJECT}}-docs/runbooks/check-in.md`; the PLAN just points there. An **Incident
-   STEP** is the same kind of thin STEP — its three substeps (RCA → find similar → fix) are
-   defined in `Code/{{PROJECT}}-docs/runbooks/incident-postmortem.md`, opened by that runbook
-   when responding to a production incident; its durable postmortem report starts from
-   `Code/{{PROJECT}}-docs/templates/reports/incidents/incident-postmortem-report-template.md`
-   and is saved under `Code/{{PROJECT}}-docs/reports/incidents/`. A **late conditional-session
-   follow-up STEP** is also thin: its one substep points directly to the applicable
-   `templates/architecture-sessions/conditional-*.md` file and records its exact by-name
-   invocation plus the assigned output-doc number; don't duplicate the session into a new
-   prompt. Give its index row the title `Conditional session: <topic>` so the resolver runs
-   it before ordinary planned implementation work.)*
-5. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps. Then
+   **Thin STEPs are the exception — you author no substep prompts for them.** A STEP is thin
+   when its substeps are already defined by a file the method ships: the PLAN points at that
+   file and names them, and their status is recorded in the index like any other substep. Two
+   families, rather than a list to keep up to date:
+   - **Runbook-driven.** `Code/{{PROJECT}}-docs/runbooks/README.md` marks which runbooks are
+     STEP-shaped — that list is the one to check. The runbook defines the substeps, including
+     how many: the check-in has exactly two, a repository split has as many as that split's
+     shape needs.
+   - **Session-driven**, where the substeps are architecture sessions in
+     `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. The architecture STEP-1 is the
+     large case — its substeps are the interview sessions chosen at kickoff. A **late
+     conditional-session follow-up** is the small one: a single substep pointing at the
+     applicable `conditional-*.md` file, recording its exact by-name invocation and the assigned
+     output-doc number. Don't copy a session into a new prompt. Give that STEP's index row the
+     title `Conditional session: <topic>` so the resolver runs it before ordinary planned
+     implementation work.
+6. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps. Then
    present the PLAN and substep list to the user and **stop for approval** before running any
    substep. Do not continue from planning into execution unless the user explicitly asks for a
    specific substep, e.g. `run substep N.1`.
-6. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
+7. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
    in the phase folder in this repo and mark it **Done** in the index. (If this is the phase's

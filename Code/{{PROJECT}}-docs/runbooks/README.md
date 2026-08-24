@@ -12,8 +12,9 @@ The method (`../METHOD.md`) draws a line that matters for how you *invoke* each 
 - **STEP-shaped** — runs as a tracked STEP with substeps that record status in the
   `prompts/STEP-index.md`/PLAN. Its PLAN is thin and points at the runbook; you don't author substep
   prompts for it (the same special case as the architecture STEP — see `prompts/README.md`).
-  The **check-in** is one; the **incident** follow-up (Parts 2–4) becomes one; security
-  reviews become one when the check-in gate or project cadence says a separate review is due.
+  The **check-in** is one; the **incident** follow-up (Parts 2–4) becomes one; a **repository
+  split** is one; security reviews become one when the check-in gate or project cadence says a
+  separate review is due.
 - **Operational procedure** — *not* a STEP. You run it in the moment by telling the agent the
   trigger phrase below, and it follows the file. The **release**, **dependency** vetting/audit,
   **secrets rotation**, **an explicitly requested early S0 security baseline**, and the **incident** Part-1
@@ -39,3 +40,4 @@ first-contribution STEP guidance, so it lives at [`../ONBOARDING.md`](../ONBOARD
 | [`dependency-supply-chain.md`](dependency-supply-chain.md) | Vet a dependency **before** adding it (Part 1); audit installed deps on a cadence (Parts 2–3). | Operational; before `install`/`add` — *"vet this dependency"*; audit rides the check-in or a new advisory. | Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`); `registries/risks.yml` for accepted deferrals |
 | [`secrets-rotation.md`](secrets-rotation.md) | Rotate secrets with no downtime on a cadence (Part 1); revoke-first emergency response to a suspected leak (Part 2). | Operational; on a cadence — *"rotate the secrets"*; on exposure — *"we may have leaked a secret."* | Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`) |
 | [`collaboration.md`](collaboration.md) | How more than one contributor — human or agent — works without colliding: STEP/ADR numbering, branch-per-STEP, shared-file edits. | Reference; read it when a second contributor joins (solo, mostly a no-op). | `METHOD.md` §6, §8; `AGENTS.md` (team conventions) |
+| [`splitting-repos.md`](splitting-repos.md) | Split one code repo into two, or convert a mono-repo-for-now workspace into multi-repo — clone-and-forward-delete, so both sides keep full un-rewritten history. | A **STEP**, when the architecture calls for a new repo boundary or you're leaving mono — *"run the split."* | `METHOD.md` §7 (repos & the workspace shell); `registries/repos.yml` (the row and its `provenance:`); `collaboration.md` §9 |
