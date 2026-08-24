@@ -17,7 +17,16 @@ scratch. Entries accumulate here as the capability lands. The adoption capabilit
 (which leaves a normally-invoked session behaving identically) and robustness fixes that touch only
 error/corruption and re-run paths, not normal operation.
 
+> **Withdrawn (2026-08-19).** Work on how the method treats a repository it did **not** create —
+> whether it applies a license, whether it stamps or augments a README, whether it installs CI, and
+> where it records what it found — was developed on `main` between 2026-08-15 and 2026-08-19 and has
+> been backed out. It was being built without a settled design, so it is being re-planned as its own
+> piece of work and will return in a later release. If you cloned `main` during that window, your
+> copy carries an unfinished version of it. **No tagged release was affected**; the latest release
+> remains v1.7.1.
+
 ### Added
+
 - **Existing-codebase adoption front door** (`init.sh` → `RETCON-PROMPT.md`) — `init.sh` now opens with
   a new-vs-existing question (`--mode=new|existing`, or `INIT_MODE`; default `new`). On **existing**, it
   stands up the same scaffold as a greenfield project but in **adoption ("retcon") mode**: it sets
@@ -30,10 +39,15 @@ error/corruption and re-run paths, not normal operation.
   greenfield one, from which the ordinary forward flow continues) arrive in the remaining 2.0
   increments. **Default mode is `new`**; a project stood up from scratch never enters this path and is
   unchanged.
-- **`throughstone:` field on repo rows** (`registries/repos.yml`) — records how the method relates to
-  each repo (`managed` today; `external` reserved for a later partial-adoption feature). Inert
-  (nothing reads it yet) and read as `managed` when absent, so existing inventories are unaffected.
-  Both the greenfield and adoption front doors write it identically, so their repo inventories match.
+- **`control:` field on repo rows** (`registries/repos.yml`) — records whether Throughstone may write
+  into a repo: `managed` (it may) or `external` (recorded and referenced, never written into). Control
+  is a state that changes over time rather than a fact about who created the repo, so a repo the method
+  built can be handed over and a repo it never built can be placed under its care. **Inert in this
+  release** — nothing reads it yet, and adding it changes no behavior. **A missing value reads as
+  `external`**, because control is a permission and an unanswered permission is not granted; a
+  defaulted row is surfaced, never silently accepted. Both front doors write it, so a greenfield
+  inventory and an adopted one have the same shape. The readers — the ladder that decides what is
+  written into each repo, and the checks that enforce it — arrive with the repo-control work.
 - **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
   `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
   inventory, stack per repo, services, data stores, integrations, existing-docs classification,
@@ -95,8 +109,35 @@ error/corruption and re-run paths, not normal operation.
     warning then follows the gap: the doc's `Coverage:` line says what is missing, how big it is, and
     what it means for someone building on it (never a bare "deferred"), and a genuinely risky gap gets
     a `risks.yml` row the periodic check-in re-surfaces.
+- **A runbook for splitting a repository** — `runbooks/splitting-repos.md`. The method used to say
+  splitting was "standard git," which is not something you can act on: the recipe you find
+  elsewhere makes the extracted repo *new*, with its history rewritten by `git filter-repo`, a
+  tool that never ships with git and needs Python on every install route. The runbook writes down
+  a different mechanic — clone the whole repo and delete forward — so nothing is rewritten, both
+  sides keep the full history, and `git blame`, `git log --follow` and every commit SHA your
+  project has recorded keep working in the new repo on day one. It covers both cases behind one
+  routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
+  multi-repo. It asks three questions before you start and the rest at the step that needs them;
+  every one but the mapping itself has a default, so answering "use your judgement" still produces
+  a correct split. The one real cost is stated plainly in the file: every new repo inherits every
+  blob the origin ever committed, including deleted ones, and an appendix covers purging first when
+  that matters.
+  Split-out repos can now record where they came from, in a `provenance:` block on their
+  `registries/repos.yml` row.
+
+  Shipping with it: **the rule telling you to split before adding a second contributor is gone.**
+  It gave two reasons and neither survived. The STEP-number push-race works exactly the same in a
+  mono repo with a shared remote — what a team needs is shared remotes, not several of them — and
+  the overlap warning's mono fallback was already written, in the very section that clause cited.
+  How many repos you have follows your architecture, not your headcount. The solo-to-team section
+  of `runbooks/collaboration.md` now has a mono path of its own, including the warning not to run
+  `scripts/setup-workspace.sh` in a mono clone; `METHOD.md` §7 and `prompts/README.md` moved with
+  it, the first gaining the mono→multi special case (that STEP is branchless, and its number is
+  reserved on trunk) and the second generalizing its thin-STEP note from the check-in alone to two
+  families.
 
 ### Changed
+
 - **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
   carries no recognized `PROJECT-STATUS` value (`not-started` / `retcon` / `kickoff-complete` — a lost
   or corrupted marker), the helper now reports the status as **indeterminate** and points at the
@@ -109,6 +150,11 @@ error/corruption and re-run paths, not normal operation.
   pointers before doing anything and stops with a clear message if it is absent — preventing a
   second run inside an already-initialized project (which could delete the generated repo's history)
   or a run on top of an unrelated repo. A first run on a fresh download is unaffected.
+- **The README and website now tell you to clone the latest *release*, not `main`.**
+  `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
+  built and can carry unfinished work. The "Use this template" path is flagged as unable to be
+  pinned to a release, since GitHub always copies the default branch.
+
 - **A session template's go-ahead now fires on being *invoked*, not on being *read*.** Every
   `templates/architecture-sessions/*.md` closed with "Begin now — in this same reply", which treated
   the act of opening the file as the user's go-ahead. But session files are read by more than the
@@ -126,6 +172,15 @@ error/corruption and re-run paths, not normal operation.
   maintainer test enforces it.
 
 ### Fixed
+- **`init.sh`'s closing backup tip was wrong for a mono-repo project.** It told every project to
+  "create empty repos on your host, add their URLs to `registries/repos.yml`, and push each local
+  repo's `main` branch" — which is what `runbooks/collaboration.md` §9 expressly tells a mono
+  project *not* to do, since those rows describe folders inside the one repo rather than repos to
+  clone. The tip is now layout-conditional: mono is told to create one repo, push the root repo's
+  trunk, and leave the registry rows alone. The mono + team kickoff note stopped citing the
+  repealed split-before-a-teammate rule in the same change — the observation under it still holds
+  and is still printed, but it now points at the fallback `collaboration.md` §4 prescribes rather
+  than telling you to split.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
   every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
 - **Lifting a document into `architecture/` could fail the check that guards it.**

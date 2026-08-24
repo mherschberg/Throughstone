@@ -281,7 +281,7 @@ Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark
 asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
 - **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`, and
-  `throughstone: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
+  `control: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
   record a short per-repo note (stack, entry points, role) in that README — its living home, which the
   owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
   **in place** by their real location; never relocate the user's code.

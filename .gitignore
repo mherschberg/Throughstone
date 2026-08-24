@@ -2,9 +2,10 @@
 .DS_Store
 *.swp
 
-# Per-machine agent config — never shared (also stale/personal here).
-.claude/settings.local.json
-.claude/launch.json
+# Per-machine agent config — never shared (also stale/personal here). The whole tree is ignored,
+# not the two files by name: editor lock/autosave siblings (#settings.local.json#) and any future
+# per-machine config would otherwise land in a `git add -A`.
+.claude/
 
 # Personal local Throughstone profile (not shared)
 /.throughstone/local-user.md
