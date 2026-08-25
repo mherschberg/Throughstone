@@ -9,9 +9,11 @@
 # `location:` is where the repo lives — by default a `Code/*` sibling under the workspace root,
 # written workspace-root-relative (e.g. Code/{{PROJECT}}-api/). It MAY instead point OUTSIDE the
 # `Code/*` shell — an absolute path or any other arbitrary path — for a repo referenced in place
-# where it lives, rather than created as a sibling. setup-workspace.sh uses `location`
-# verbatim (clones from `remote` into it, or references it in place when there's no remote), so
-# keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
+# where it lives, rather than created as a sibling. setup-workspace.sh uses `location` verbatim
+# but only ever CLONES into a path the workspace owns: a location outside the workspace root — an
+# absolute path, or one reaching out with `..` — is reported and skipped, so an in-place repo
+# there is one each contributor clones onto their own machine. Keep `location` and `remote`
+# distinct: a clone URL goes in `remote`, never folded into `location`.
 #
 # Mono-repo-for-now: the row whose `location` is `.` is the workspace root — the one repository
 # the project actually has. The rows below it are folders inside that repository, not separate
