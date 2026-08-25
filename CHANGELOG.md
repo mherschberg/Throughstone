@@ -68,6 +68,34 @@ any project built with it.
   fields to a project you already have.
 
 ### Changed
+- **The doctor now checks the repo registry, and a bad row fails the build.** `registries/repos.yml`
+  records who owns each repo and what it already provides, and until now nothing read any of it. A
+  row could say Throughstone controls a repo *and* that one of that repo's needs is unmet — a
+  combination the file's own schema forbids — and the project would report clean. `scripts/check.sh`
+  gains three checks. The first reads the file only, so it holds everywhere the doctor runs, CI
+  included: statuses come from the closed set, `origin:` and `control:` do too, a `managed` repo has
+  no `gap`, an `external` repo has no `ours` or `extended`, and `gap` and `N/A` say why. The second
+  looks at disk: a row whose `location` is the root of a git work tree, and that Throughstone adopted
+  rather than created, has to record what that repo provides — naming the individual missing entry
+  rather than the row, because an entry is left out on purpose while the observation is still owed.
+  Rows whose location is not on the machine running the doctor are skipped, counted, and said out
+  loud, since silence about them is indistinguishable from a pass. Missing fields are a warning;
+  fields that contradict each other are a failure.
+  The third check is about the file's shape rather than its contents, and it closes a real hole: the
+  scripts that read this registry match line prefixes and know nothing about YAML nesting, so a note
+  written across several lines whose text happened to begin `location: /srv/acme/LICENSE` made
+  `scripts/setup-workspace.sh` clone a repository into that path — exit 0, no warning. The registry's
+  header has carried rules against this since the fields were added; three of the five are properties
+  of the file and are now enforced. Values must be single-line, `provides:` entries must be flow
+  mappings, no line inside a row may begin with a row-level field name, and row-level and nested
+  names stay disjoint. Those fail rather than warn: a violation is a clone to the wrong folder, not
+  a thin record. The two remaining rules constrain the scripts rather than the file and stay prose,
+  because a checker reading the registry cannot see them.
+  The reserved name sets are read from the registry header's own `reserved-row-level:` and
+  `reserved-nested:` lines, so there is one list, it sits where the schema is, and removing or
+  overlapping it fails loudly instead of quietly disarming the checks.
+  `scripts/check.sh` also gains its first test.
+
 - **The interactive setup no longer licenses your project open source by default.** `init.sh` asks
   whether the project is open source or private/proprietary, and that question used to default to
   open source, with the license question after it defaulting to MIT — so two bare Enters granted

@@ -78,8 +78,10 @@ not fail the check.
 ### 1.8 migration
 
 **Upgrading from 1.7? Nothing of yours is rewritten. There is one small edit worth making** —
-two lines per row in `registries/repos.yml` — **and, if your project is mono-repo-for-now, one
-thing to check**: whether your CI gate has ever actually run. Beyond those, nothing is required of
+two lines per row in `registries/repos.yml`, which the project doctor now asks for by name —
+**one shape to look at in that same file**, since every value there has to sit on one line —
+**and, if your project is mono-repo-for-now, one thing to check**: whether your CI gate has ever
+actually run. Beyond those, nothing is required of
 you unless you are about to split a repository. The release adds a runbook for that, repeals one
 rule, and starts recording which of your repos Throughstone may write into. Fast path:
 
@@ -90,9 +92,12 @@ rule, and starts recording which of your repos Throughstone may write into. Fast
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
    this section.** Nothing rewrites the file for you.
-4. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
+4. **If any value in `registries/repos.yml` is wrapped across two lines, join it onto one** and
+   quote it. `scripts/check.sh` now fails on a multi-line value — details at the end of this
+   section. Nothing else in 1.8 can turn a passing run red on its own.
+5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
-5. Nothing else. A project that never splits reads none of the splitting material.
+6. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -132,9 +137,10 @@ appendix covers purging history first when that matters.
   STEP is branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
   and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
-  Apply them as a coherent group; they reference each other. No `status.sh` / `check.sh` change, and
-  no new check — nothing detects registry drift after a split, which is accepted rather than
-  overlooked.
+  Apply them as a coherent group; they reference each other. No `status.sh` change, and no split-
+  specific check: 1.8's new `check.sh` checks read `registries/repos.yml` for its own consistency
+  and shape, and nothing detects registry drift *after a split* — a row that still describes a
+  folder that is now its own repo — which is accepted rather than overlooked.
 - *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
   `provenance:` is a new optional block recording that a repo was split out of another one — where
   it came from, and where the two histories part company. It is written **at** a split and only
@@ -162,6 +168,33 @@ inside the one repo is not one, and carries none until a split makes it a repo o
 Adding the fields is a **safe additive edit**: it inserts lines into each row and changes no existing
 data. `registries/repos.yml` is your project's own record, like `inputs/inputs-index.md`, so it is
 **never auto-overwritten**.
+
+**What the doctor will say about that file after you pull 1.8.** `scripts/check.sh` reads
+`registries/repos.yml` for the first time in this release, so it will report on rows it has never
+looked at before. Three shapes of finding, and only one of them can fail your run:
+
+- **A row with no `origin:` or `control:` is a warning**, listed by name, and a warning does not
+  change the exit code. The message says those rows carry no control record. It is **not** a
+  statement about how old your project is — nothing on disk records which version of the method you
+  installed, so the doctor cannot tell a project written before these fields existed from one whose
+  registration simply did not fill them in. Answering the two fields, as above, is what clears it.
+- **A row that contradicts itself is a failure**: a status outside `ours` / `extended` / `theirs` /
+  `N/A` / `gap`, an `origin:` or `control:` that is not one of its two values (a typo counts — it
+  reads as neither), a `managed` repo recording a `gap`, an `external` repo recording `ours` or
+  `extended`, or a `gap` or `N/A` with no note saying why. None of these can arise from leaving the
+  file alone; each one needs a row that was written and is wrong.
+- **A value written across more than one line is a failure.** This is the only finding here that can
+  turn a run red without you having changed anything, so it is worth looking for before you upgrade:
+  a long `description:` written as a YAML block scalar (`description: |`) is the likely case. Put the
+  text on one line and quote it. The reason is not tidiness — the scripts that read this registry
+  match line prefixes and know nothing about YAML nesting, so a wrapped value whose second line began
+  `location: /srv/…` made `scripts/setup-workspace.sh` clone a repository into that path and exit
+  successfully. Single-line values make that impossible rather than merely discouraged.
+
+**Rows for repos that are not on your machine are skipped, counted, and said so** — "2 row(s) not
+present on this machine". The doctor only judges what it can see, so a teammate with three of eight
+repos cloned gets findings about those three and a count for the rest, rather than silence that
+looks like a pass.
 
 **Mono-repo-for-now? Your CI gate has probably never run.** `method-check.yml` ships inside the docs
 hub, at `Code/<project>-docs/.github/workflows/`. In a multi-repo project the hub is its own
