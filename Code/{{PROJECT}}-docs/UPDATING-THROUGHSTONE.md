@@ -77,15 +77,19 @@ not fail the check.
 
 ### 1.8 migration
 
-**Upgrading from 1.7? Nothing is rewritten and nothing is required of you** unless you are about to
-split a repository. The release adds a runbook for that, and repeals one rule. Fast path:
+**Upgrading from 1.7? Nothing of yours is rewritten, and there is one small edit worth making** —
+two lines per row in `registries/repos.yml`. Beyond that nothing is required of you unless you are
+about to split a repository. The release adds a runbook for that, repeals one rule, and starts
+recording which of your repos Throughstone may write into. Fast path:
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md`,
    `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`, and
    the header comment in `registries/repos.yml`).
 2. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
-3. Nothing else. A project that never splits reads none of this, and no file of yours changes.
+3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
+   this section.** It is the only edit 1.8 asks for, and nothing rewrites the file for you.
+4. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -132,6 +136,29 @@ appendix covers purging history first when that matters.
   `provenance:` is a new optional block recording that a repo was split out of another one — where
   it came from, and where the two histories part company. It is written **at** a split and only
   then, so existing rows do not gain it and a project that split before 1.8 does not backfill.
+
+**Add `origin:` and `control:` to each of your repo entries.** 1.8 gives repo rows three new fields
+— `origin:` (`created` | `adopted`, a fact written once), `control:` (`managed` | `external`, whether
+Throughstone may write into that repo), and `provides:` (how each repo's README, licensing posture
+and CI gate is actually met). The pulled `registries/repos.yml` header documents all three in full,
+along with the default, the invariants, and the rules anything reading that file has to follow.
+
+**The two worth adding by hand are `origin:` and `control:`**, because **a missing `control:` reads
+as `external`** — control is a permission, and an unanswered permission is not a granted one, so the
+method records the repo and writes nothing into it until somebody answers. Answering now means
+nothing changes under you; a row you leave alone arrives unanswered and gets surfaced and asked
+about rather than silently switched. Use `created` for a repo Throughstone made and `adopted` for one
+that was already there when you pointed the method at it, and `managed` for each repo you want the
+method to keep maintaining.
+
+**`provides:` can wait for your next check-in.** It records what is in each repo rather than what you
+have decided, so it is filled in by looking rather than remembering. A row whose `location` is not a
+repository never carries it at all — in a mono-repo-for-now workspace the rows below `repos:` are
+folders inside the one repo until you split.
+
+Adding the fields is a **safe additive edit**: it inserts lines into each row and changes no existing
+data. `registries/repos.yml` is your project's own record, like `inputs/inputs-index.md`, so it is
+**never auto-overwritten**.
 
 ### 1.7 migration
 
