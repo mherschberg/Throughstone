@@ -97,6 +97,19 @@ any project built with it.
   reading a session file now finds the work list under one name instead of learning a per-file name.
   `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
   maintainer test enforces it.
+- **`registries/` now ships with every project, and `--registries` is deprecated.** The flag pruned
+  the directory in mono-repo layout, on the reasoning that one self-contained repo has no siblings
+  to inventory. But `registries/` is not only `repos.yml`: pruning it also took `risks.yml`, the
+  accepted-risk and tech-debt register, and `security-reviews.yml`, the security-review ledger —
+  two registers that reasoning never covered, and that the docs hub's own index, `METHOD.md` and
+  several runbooks reference unconditionally. A project bootstrapped with `--registries=no` started
+  life citing files it did not have, and `scripts/check.sh` called it clean. The directory now
+  always ships, in both layouts, and the interactive mono-repo question offering to drop it is
+  gone. `--registries` still parses, so an existing scripted bootstrap keeps working: `yes` is
+  accepted silently, `no` keeps the directory and prints a deprecation notice, and an unrecognized
+  value is an error. That last part is a small behavior change — the value used to be checked only
+  in mono-repo layout, so `--registries=maybe --layout=multi` was silently accepted and now fails
+  the way mono-repo already did.
 
 ### Fixed
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
@@ -124,10 +137,10 @@ any project built with it.
 - **`init.sh`'s closing backup tip was wrong for a mono-repo project.** It told every project to
   "create empty repos on your host, add their URLs to `registries/repos.yml`, and push each local
   repo's `main` branch" — which is what `runbooks/collaboration.md` §9 expressly tells a mono
-  project *not* to do, since those rows describe folders inside the one repo rather than repos to
-  clone. The tip is now layout-conditional: mono is told to create one repo, push the root repo's
-  trunk, and leave the registry rows alone. The mono + team kickoff note stopped citing the
-  repealed split-before-a-teammate rule in the same change — the observation under it still holds
+  project *not* to do, since no row in that file is a repo to clone. The tip is now
+  layout-conditional: mono is told to create one repo, push the root repo's trunk, and leave the
+  registry rows alone. The mono + team kickoff note stopped citing the repealed
+  split-before-a-teammate rule in the same change — the observation under it still holds
   and is still printed, but it now points at the fallback `collaboration.md` §4 prescribes rather
   than telling you to split.
 - **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
@@ -153,6 +166,30 @@ any project built with it.
   written like every other header field, so the literal phrase never appears, and now that its value
   is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
   takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+- **A mono-repo project's method-integrity gate had never run.** `method-check.yml` ships inside the
+  docs hub, at `Code/<project>-docs/.github/workflows/`. In a multi-repo project the hub is its own
+  repository, so that path is a repository root and the workflow is live the moment you push it. In
+  a mono-repo-for-now project the workspace root is the repository and the hub is a folder inside
+  it — and GitHub reads workflows only at a repository root, so nothing ever triggered and no run
+  ever appeared to be missing. The manual copy was documented, but only in the workflow's own header
+  comment and `templates/ci/README.md`, neither of which is where you look to find out whether your
+  CI exists. `init.sh` now places the workflow at the workspace root when it creates a mono-repo
+  project, and the docs hub keeps its own copy, which is what gives the hub CI of its own if the
+  project later splits. `init.sh` runs once and never again, so nothing places the file in a project
+  that already exists: `UPDATING-THROUGHSTONE.md`'s 1.8 section carries the one-file copy as a
+  migration step, and says plainly that the first run is likely to report findings that have been
+  accumulating unseen.
+- **A mono-repo project's registry left out the only repository it had.** `registries/repos.yml`
+  calls itself the source of truth for which repos exist, and in a mono-repo-for-now project it
+  listed the docs hub and `prompts/` — both folders — while the workspace root, the project's one
+  actual repository and the only git work tree in it, had no row at all. `init.sh` now seeds that
+  row: `location: "."`, `type: mono`, `origin: created`, `control: managed`, and no `provides:`,
+  which is the carve-out every seeded row gets. Nothing reads the row yet and nothing behaves
+  differently because of it — `scripts/check.sh`, `scripts/links.sh` and the clone parser in
+  `scripts/setup-workspace.sh` were each measured against it, and the parser passes over the row
+  because it carries no `remote:`. Prose describing a mono project's registry rows as folders
+  inside the single repo has been corrected wherever it appeared — the registry header, the setup
+  script's closing tip, the solo-to-team runbook and this file. Existing projects are not rewritten.
 
 ## [1.7.1] - 2026-08-10
 

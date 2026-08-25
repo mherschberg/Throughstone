@@ -1,4 +1,4 @@
-# Canonical repo inventory for {{PROJECT}} (multi-repo projects).
+# Canonical repo inventory for {{PROJECT}}.
 # The source of truth for which repos exist and what each is — and the index to their docs:
 # each entry's `location` points to a repo whose own README.md (plus an optional
 # ARCHITECTURE.md) is the detailed "about". To orient in a multi-repo project, read this map
@@ -13,9 +13,11 @@
 # verbatim (clones from `remote` into it, or references it in place when there's no remote), so
 # keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
 #
-# Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
-# yet — this inventory describes the post-split (multi-repo) target. When you do split them
-# apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos are real.
+# Mono-repo-for-now: the row whose `location` is `.` is the workspace root — the one repository
+# the project actually has. The rows below it are folders inside that repository, not separate
+# repos yet, and for those this inventory describes the post-split (multi-repo) target. When you
+# do split them apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos
+# are real.
 #
 # Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
 # it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote

@@ -18,9 +18,11 @@ at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-r
   docs); the `STEP-index` lives in the `prompts/` repo, so those checks skip here and run in full
   when the whole workspace is checked out (locally and at each check-in).
 - **Mono-repo-for-now:** the workspace root is the single repo, and a workflow nested under
-  `Code/<project>-docs/` does **not** trigger there — **copy** `method-check.yml` to the **root**
-  `.github/workflows/`. The workflow auto-detects `Code/<project>-docs/scripts/check.sh`;
-  from the root, that script sees `prompts/` too, so the STEP-index checks run as well.
+  `Code/<project>-docs/` does **not** trigger there — so `method-check.yml` also belongs at the
+  **root** `.github/workflows/`. `init.sh` puts it there when it creates the project; if yours
+  predates that, **copy** it across by hand — until you do, the gate has never run. The workflow
+  auto-detects `Code/<project>-docs/scripts/check.sh`; from the root, that script sees `prompts/`
+  too, so the STEP-index checks run as well.
 
 ## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
 

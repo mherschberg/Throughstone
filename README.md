@@ -350,7 +350,7 @@ matching environment variables.
 | `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `private` | Project license posture. |
 | `--holder=NAME` | `INIT_HOLDER` | text | Copyright holder for open-source licenses. |
 | `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; default is `multi`. |
-| `--registries=yes\|no` | `INIT_REGISTRIES` | `yes`, `no` | Keep `registries/` in mono-repo mode; default is `yes`. |
+| `--registries=yes\|no` | `INIT_REGISTRIES` | `yes`, `no` | **Deprecated and ignored.** `registries/` always ships in both layouts; `no` keeps the directory and prints a deprecation notice. |
 | `--collab=MODE` | `INIT_COLLAB` | `solo`, `team` | Collaboration wording and ADR authority defaults; default is `solo`. |
 | `--adr-authority=TEXT` | `INIT_ADR_AUTHORITY` | text | Who accepts ADRs in team mode. |
 | `--trunk-branch=NAME` | `INIT_TRUNK_BRANCH` | valid Git branch name | Generated repo trunk branch; default is `main`. |
