@@ -812,4 +812,156 @@ set -e
 assert_maintainer_tests_retained "license-missing-template" "$missing_template_work"
 grep -Fq "project license template is missing" "$TMP_ROOT/license-missing-template.out"
 
+# --- --notice-only: the Throughstone notice, and nothing else -----------------
+# A repository the method did not create needs a notice for our material, but its own licensing
+# is not ours to state. Every abort arm below fires on ordinary adopted repos in the default
+# mode — including on an open-source project, so it is not a proprietary-posture edge — and this
+# mode must clear all of them without ever touching the target's LICENSE.
+#
+# Both fixtures are reused from earlier cases so the two layouts and two non-MIT postures are
+# both exercised: license-private-flag is Proprietary and multi-repo, license-mono is Apache-2.0
+# and mono. Neither is an all-default configuration.
+notice_priv="$TMP_ROOT/license-private-flag"
+notice_open="$TMP_ROOT/license-mono"
+notice_priv_script="$notice_priv/Code/license-private-flag-docs/scripts/apply-project-license.sh"
+notice_open_script="$notice_open/Code/license-mono-docs/scripts/apply-project-license.sh"
+notice_priv_hub="$notice_priv/Code/license-private-flag-docs"
+[ -x "$notice_priv_script" ] || {
+  echo "FAIL: notice-only fixture is missing; did the cases above get reordered? $notice_priv_script" >&2
+  exit 1
+}
+[ -x "$notice_open_script" ] || {
+  echo "FAIL: notice-only fixture is missing; did the cases above get reordered? $notice_open_script" >&2
+  exit 1
+}
+
+# adopted_repo PATH — a repository the method did not create: it states its own license, which
+# is the thing the default mode refuses to work alongside.
+adopted_repo() {
+  rm -rf "$1"
+  mkdir -p "$1"
+  printf 'MIT License\n\nCopyright (c) 2020 Another Team\n' > "$1/LICENSE"
+  printf 'their license\n' > "$1/.license-fingerprint"
+  cp "$1/LICENSE" "$1/.license-fingerprint"
+}
+
+# A proprietary project meeting an adopted repo that has its own LICENSE — `exit 1` in the
+# default mode, because a proprietary project refuses to stand beside a target LICENSE at all.
+notice_target="$TMP_ROOT/notice-adopted-proprietary"
+adopted_repo "$notice_target"
+"$notice_priv_script" --notice-only "$notice_target" >"$TMP_ROOT/notice-priv.out" 2>&1
+cmp -s "$notice_priv_hub/LICENSE-THROUGHSTONE" "$notice_target/LICENSE-THROUGHSTONE"
+cmp -s "$notice_target/.license-fingerprint" "$notice_target/LICENSE"
+[ ! -e "$notice_target/LICENSING.md" ]
+grep -Fq "Throughstone license:" "$TMP_ROOT/notice-priv.out"
+
+# Idempotent: a second run has nothing to do and says so.
+"$notice_priv_script" --notice-only "$notice_target" >"$TMP_ROOT/notice-priv-again.out" 2>&1
+grep -Fq "already present, left as it is" "$TMP_ROOT/notice-priv-again.out"
+cmp -s "$notice_target/.license-fingerprint" "$notice_target/LICENSE"
+[ ! -e "$notice_target/LICENSING.md" ]
+
+# The default mode still refuses that same repo. --notice-only is an added mode, not a
+# loosening of the one that exists.
+set +e
+"$notice_priv_script" "$notice_target" >"$TMP_ROOT/notice-default-still-aborts.out" 2>&1
+notice_default_status=$?
+set -e
+[ "$notice_default_status" -eq 1 ]
+grep -Fq "project is proprietary, but target already has LICENSE" \
+  "$TMP_ROOT/notice-default-still-aborts.out"
+
+# An open-source project meeting the same repo — `exit 1` in the default mode for a different
+# reason, which is what shows the abort is about the target's license, not the project's posture.
+notice_open_target="$TMP_ROOT/notice-adopted-open"
+adopted_repo "$notice_open_target"
+"$notice_open_script" --notice-only "$notice_open_target" >"$TMP_ROOT/notice-open.out" 2>&1
+cmp -s \
+  "$notice_open/Code/license-mono-docs/LICENSE-THROUGHSTONE" \
+  "$notice_open_target/LICENSE-THROUGHSTONE"
+cmp -s "$notice_open_target/.license-fingerprint" "$notice_open_target/LICENSE"
+[ ! -e "$notice_open_target/LICENSING.md" ]
+set +e
+"$notice_open_script" "$notice_open_target" >"$TMP_ROOT/notice-open-default.out" 2>&1
+notice_open_status=$?
+set -e
+[ "$notice_open_status" -eq 1 ]
+grep -Fq "refusing to overwrite different project license" "$TMP_ROOT/notice-open-default.out"
+
+# A notice that is already there is left exactly as it is, whatever it says. This is the state
+# an idempotent re-run meets after the notice text changes, and the default mode aborts on it.
+notice_stale="$TMP_ROOT/notice-stale"
+rm -rf "$notice_stale"
+mkdir -p "$notice_stale"
+printf 'An older Throughstone notice.\n' > "$notice_stale/LICENSE-THROUGHSTONE"
+"$notice_priv_script" --notice-only "$notice_stale" >"$TMP_ROOT/notice-stale.out" 2>&1
+grep -Fxq "An older Throughstone notice." "$notice_stale/LICENSE-THROUGHSTONE"
+grep -Fq "already present, left as it is" "$TMP_ROOT/notice-stale.out"
+set +e
+"$notice_priv_script" "$notice_stale" >"$TMP_ROOT/notice-stale-default.out" 2>&1
+notice_stale_status=$?
+set -e
+[ "$notice_stale_status" -eq 1 ]
+grep -Fq "refusing to overwrite different Throughstone license" "$TMP_ROOT/notice-stale-default.out"
+
+# The mode reads no posture. With the posture file gone the default mode cannot run at all,
+# and --notice-only is unaffected — which is what makes it usable from a caller that has not
+# asked, and never will ask, what the project's license is.
+notice_noposture="$TMP_ROOT/notice-no-posture"
+rm -rf "$notice_noposture"
+mkdir -p "$notice_noposture"
+mv "$notice_priv_hub/.throughstone/project-license" "$TMP_ROOT/posture-stash"
+"$notice_priv_script" --notice-only "$notice_noposture" >"$TMP_ROOT/notice-noposture.out" 2>&1
+cmp -s "$notice_priv_hub/LICENSE-THROUGHSTONE" "$notice_noposture/LICENSE-THROUGHSTONE"
+set +e
+"$notice_priv_script" "$notice_noposture" >"$TMP_ROOT/notice-noposture-default.out" 2>&1
+notice_noposture_status=$?
+set -e
+[ "$notice_noposture_status" -eq 1 ]
+grep -Fq "missing project-license posture" "$TMP_ROOT/notice-noposture-default.out"
+mv "$TMP_ROOT/posture-stash" "$notice_priv_hub/.throughstone/project-license"
+
+# Nothing to copy is a warning, not a failure: a caller registering a repository must not be
+# stopped by the notice.
+notice_nosource="$TMP_ROOT/notice-no-source"
+rm -rf "$notice_nosource"
+mkdir -p "$notice_nosource"
+mv "$notice_priv_hub/LICENSE-THROUGHSTONE" "$TMP_ROOT/notice-stash"
+set +e
+"$notice_priv_script" --notice-only "$notice_nosource" >"$TMP_ROOT/notice-nosource.out" 2>&1
+notice_nosource_status=$?
+set -e
+mv "$TMP_ROOT/notice-stash" "$notice_priv_hub/LICENSE-THROUGHSTONE"
+[ "$notice_nosource_status" -eq 0 ]
+[ ! -e "$notice_nosource/LICENSE-THROUGHSTONE" ]
+grep -Fq "notice not written" "$TMP_ROOT/notice-nosource.out"
+
+# The flag reads in either position, and a caller's mistake is still a usage error rather than
+# a path: a misspelled flag must not be taken for a target directory.
+notice_order="$TMP_ROOT/notice-flag-after"
+rm -rf "$notice_order"
+mkdir -p "$notice_order"
+"$notice_priv_script" "$notice_order" --notice-only >"$TMP_ROOT/notice-order.out" 2>&1
+[ -f "$notice_order/LICENSE-THROUGHSTONE" ]
+[ ! -e "$notice_order/LICENSING.md" ]
+
+set +e
+"$notice_priv_script" --notice_only "$notice_order" >"$TMP_ROOT/notice-badflag.out" 2>&1
+notice_badflag_status=$?
+"$notice_priv_script" "$notice_order" "$notice_order" >"$TMP_ROOT/notice-twotargets.out" 2>&1
+notice_twotargets_status=$?
+"$notice_priv_script" --notice-only "$TMP_ROOT/notice-does-not-exist" >"$TMP_ROOT/notice-nodir.out" 2>&1
+notice_nodir_status=$?
+"$notice_priv_script" >"$TMP_ROOT/notice-noargs.out" 2>&1
+notice_noargs_status=$?
+set -e
+[ "$notice_badflag_status" -eq 2 ]
+grep -Fq "unknown option: --notice_only" "$TMP_ROOT/notice-badflag.out"
+[ "$notice_twotargets_status" -eq 2 ]
+grep -Fq "unexpected extra argument" "$TMP_ROOT/notice-twotargets.out"
+[ "$notice_nodir_status" -eq 2 ]
+grep -Fq "target directory does not exist" "$TMP_ROOT/notice-nodir.out"
+[ "$notice_noargs_status" -eq 2 ]
+grep -Fq "[--notice-only] TARGET_REPO" "$TMP_ROOT/notice-noargs.out"
+
 echo "init.sh license choice validation: PASS"

@@ -3,9 +3,8 @@
 # setup-workspace.sh — set up a NEW developer's machine for an existing project.
 #
 # The first developer ran init.sh to create the project. Everyone after runs this to
-# assemble the workspace shell on their machine: clone the sibling repos and write the
-# per-machine pointer/helper files (CLAUDE.md / AGENTS.md / doctor.sh) that the workspace root
-# needs.
+# assemble the workspace shell on their machine: write the per-machine pointer/helper files
+# (CLAUDE.md / AGENTS.md / doctor.sh) that the workspace root needs, and clone the sibling repos.
 #
 # Multi-repo projects only. A mono-repo-for-now project (METHOD.md §7) is a single repo with
 # the pointers committed inside it — just clone that repo; there's nothing to assemble here.
@@ -28,34 +27,11 @@ cd "$ROOT"
 echo "Workspace root: $ROOT"
 echo "Docs hub:       $DOCS_REL"
 
-# --- 1. Clone sibling repos listed in the registry (if it has remotes) ------
-REG="$DOCS_DIR/registries/repos.yml"
-if [ -f "$REG" ]; then
-  echo "Cloning sibling repos with remotes from registries/repos.yml ..."
-  # Parse repos.yml block-aware: pair each repo's own location with its own remote.
-  # The registry is the multi-repo inventory, and remote: is optional. Walking each `- name:`
-  # block keeps locations and remotes aligned when only some repos are cloneable; comment lines
-  # and remote-less repos are skipped.
-  awk '
-    /^[[:space:]]*#/ { next }
-    /^[[:space:]]*-[[:space:]]*name:/ { if (loc != "" && rem != "") print loc "|" rem; loc=""; rem=""; next }
-    /^[[:space:]]*location:/ { loc=$0; sub(/^[^:]*:[[:space:]]*"?/,"",loc); sub(/"?[[:space:]]*$/,"",loc) }
-    /^[[:space:]]*remote:/   { rem=$0; sub(/^[^:]*:[[:space:]]*"?/,"",rem); sub(/"?[[:space:]]*$/,"",rem) }
-    END { if (loc != "" && rem != "") print loc "|" rem }
-  ' "$REG" \
-  | while IFS='|' read -r loc rem; do
-      [ -n "${rem:-}" ] || continue
-      # Clone side effect: create a missing sibling repo at its registry location. Existing git
-      # checkouts are left untouched so rerunning setup is safe for already-cloned repos.
-      [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
-      echo "  cloning $rem -> $loc"
-      git clone -q "$rem" "$loc"
-    done
-else
-  echo "No registries/repos.yml — skipping clone step."
-fi
-
-# --- 2. Write the per-machine root pointers/helpers --------------------------
+# --- 1. Write the per-machine root pointers/helpers --------------------------
+# These are written before the clone step deliberately, but the ordering is not what makes the
+# clone step safe — step 2 warns and continues instead of aborting, so it can no longer take the
+# workspace down with it. The ordering is insurance against the *next* fatal path someone adds:
+# whatever fails below, the contributor still ends up with AGENTS.md, CLAUDE.md and doctor.sh.
 echo "Writing per-machine pointers and helpers (CLAUDE.md, AGENTS.md, doctor.sh) ..."
 # The workspace root is a per-machine shell in multi-repo projects, not a durable repo. These
 # pointers are regenerated locally so agents opened at the root can find the canonical docs hub.
@@ -93,4 +69,62 @@ chmod +x "$ROOT/doctor.sh"
 
 mkdir -p "$ROOT/.claude"
 mkdir -p "$ROOT/.throughstone"
+
+# --- 2. Clone sibling repos listed in the registry (if it has remotes) ------
+# Nothing in this step is allowed to be fatal. A contributor who cannot reach one repository —
+# or whose registry names a path this workspace has no business writing to — must still end up
+# with a usable workspace, so every repo that does not arrive is reported and counted rather
+# than aborting the run.
+REG="$DOCS_DIR/registries/repos.yml"
+missing=0
+if [ -f "$REG" ]; then
+  echo "Cloning sibling repos with remotes from registries/repos.yml ..."
+  # Parse repos.yml block-aware: pair each repo's own location with its own remote.
+  # The registry is the multi-repo inventory, and remote: is optional. Walking each `- name:`
+  # block keeps locations and remotes aligned when only some repos are cloneable; comment lines
+  # and remote-less repos are skipped.
+  #
+  # The loop is fed by process substitution rather than a pipe for two reasons: the parser's
+  # exit status stays out of the pipeline, so a registry awk cannot read is not fatal either;
+  # and the loop body runs in this shell rather than a subshell, so the count below survives it.
+  while IFS='|' read -r loc rem; do
+    [ -n "${rem:-}" ] || continue
+    # Clone side effect: create a missing sibling repo at its registry location. Existing git
+    # checkouts are left untouched so rerunning setup is safe for already-cloned repos. This
+    # is also what leaves a repo registered in place alone: it is already where it belongs.
+    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
+    # A location this workspace cannot own is referenced where it sits, never cloned into.
+    # Cloning would put the repository outside the workspace this script is assembling —
+    # silently, when the path happens to be writable. The test is textual on purpose: an
+    # absolute path from the first developer's machine must be skipped whether or not it
+    # resolves to anything here.
+    case "$loc" in
+      /* | .. | ../* | */../* | */..)
+        echo "  skipped: $loc — outside the workspace root; this script never clones there"
+        missing=$((missing + 1))
+        continue
+        ;;
+    esac
+    echo "  cloning $rem -> $loc"
+    git clone -q "$rem" "$loc" || {
+      echo "  warning: could not clone $rem -> $loc — continuing without it"
+      missing=$((missing + 1))
+    }
+  done < <(awk '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*-[[:space:]]*name:/ { if (loc != "" && rem != "") print loc "|" rem; loc=""; rem=""; next }
+    /^[[:space:]]*location:/ { loc=$0; sub(/^[^:]*:[[:space:]]*"?/,"",loc); sub(/"?[[:space:]]*$/,"",loc) }
+    /^[[:space:]]*remote:/   { rem=$0; sub(/^[^:]*:[[:space:]]*"?/,"",rem); sub(/"?[[:space:]]*$/,"",rem) }
+    END { if (loc != "" && rem != "") print loc "|" rem }
+  ' "$REG")
+else
+  echo "No registries/repos.yml — skipping clone step."
+fi
+
 echo "Done. Open this folder in your agent; it will discover the context via the pointers."
+if [ "$missing" -gt 0 ]; then
+  echo
+  echo "$missing repo(s) above did not arrive. The workspace itself is complete — fix the remote"
+  echo "or the location in registries/repos.yml, or clone the repo yourself, then re-run this"
+  echo "script to pick it up."
+fi

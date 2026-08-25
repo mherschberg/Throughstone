@@ -495,8 +495,13 @@ above assume. A repo may instead be **registered in place by its `location:`** �
 created-as-sibling default, so a repo that lives elsewhere is referenced where it sits rather than
 created under `Code/`. `location:` records wherever the repo actually is; the optional `remote:` is
 unchanged (a cloneable URL when the repo has one).
-`scripts/setup-workspace.sh` honors `location:` verbatim either way — it clones from `remote:`
-into that path when a remote is set, and otherwise leaves the repo referenced where it sits.
+`scripts/setup-workspace.sh` honors `location:` verbatim, but it only ever *clones* into a path
+the workspace owns: a location inside the workspace root is cloned from `remote:` when a remote is
+set and nothing is there yet, and a location **outside** it — absolute, or reaching out with
+`..` — is reported and skipped rather than cloned into, because placing a repository outside the
+workspace is not that script's business even when the path happens to be writable. A repo already
+checked out at its `location:` is left alone either way, so an in-place repo outside the root is
+one each contributor clones onto their own machine once.
 Branch-per-STEP and the overlap warning (`runbooks/collaboration.md`) key on repo
 **identity** — its `repos.yml` entry, not where it lives — so an in-place repo participates in
 them exactly like a sibling. The `Code/*` sibling layout stays the default.

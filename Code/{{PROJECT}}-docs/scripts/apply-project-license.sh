@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 #
-# apply-project-license.sh TARGET_REPO — apply the bootstrap-selected project-license posture.
+# apply-project-license.sh [--notice-only] TARGET_REPO — apply the bootstrap-selected
+# project-license posture.
 #
 # The posture file is the durable source of truth, separate from LICENSE, so a missing or
 # extra license file cannot silently change whether the generated project is open-source or
 # proprietary. This helper is for newly scaffolded application-code repos that retain
 # Throughstone-authored README / CI material.
+#
+# --notice-only writes only LICENSE-THROUGHSTONE and reads no posture. It is for a repository
+# Throughstone did not create: our material there needs a notice, but the project's own
+# licensing is not ours to state, so no LICENSE and no LICENSING.md are written and an existing
+# notice is left alone. It warns rather than failing, so a caller is never stopped by it.
 
 set -euo pipefail
 
@@ -13,11 +19,26 @@ set -euo pipefail
 # Code/<project>-docs/scripts/ after initialization; derive the docs hub without resolving
 # the placeholder in this template checkout.
 DOCS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TARGET="${1:-}"
+NOTICE_ONLY=0
+TARGET=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --notice-only) NOTICE_ONLY=1 ;;
+    --*) echo "apply-project-license.sh: unknown option: $1" >&2; exit 2 ;;
+    *)
+      if [ -n "$TARGET" ]; then
+        echo "apply-project-license.sh: unexpected extra argument: $1" >&2
+        exit 2
+      fi
+      TARGET="$1"
+      ;;
+  esac
+  shift
+done
 POLICY_FILE="$DOCS_ROOT/.throughstone/project-license"
 
 if [ -z "$TARGET" ]; then
-  echo "usage: $0 TARGET_REPO" >&2
+  echo "usage: $0 [--notice-only] TARGET_REPO" >&2
   exit 2
 fi
 if [ ! -d "$TARGET" ]; then
@@ -50,6 +71,31 @@ copy_if_missing() {
     echo "$label: $target"
   fi
 }
+
+# --notice-only — leave the Throughstone notice and nothing else. This is what a repository the
+# method did not create needs: the notice covers Throughstone-authored material, not the
+# project's own licensing, so the mode reads no posture, writes no LICENSING.md, and never
+# touches the target's LICENSE. It deliberately does not use verify_compatible: a notice that is
+# already there is left exactly as it is, whatever it says, because a differing notice is the
+# ordinary state an idempotent re-run meets after the notice text changes, not a conflict to
+# resolve. Every way this can fall short is a warning and a zero exit — a caller registering a
+# repository must not be stopped by the notice.
+if [ "$NOTICE_ONLY" = "1" ]; then
+  if [ -e "$TARGET/LICENSE-THROUGHSTONE" ]; then
+    echo "Throughstone license: $TARGET/LICENSE-THROUGHSTONE (already present, left as it is)"
+    exit 0
+  fi
+  if [ ! -f "$DOCS_ROOT/LICENSE-THROUGHSTONE" ]; then
+    echo "apply-project-license.sh: no Throughstone notice to copy from $DOCS_ROOT/LICENSE-THROUGHSTONE; notice not written" >&2
+    exit 0
+  fi
+  cp "$DOCS_ROOT/LICENSE-THROUGHSTONE" "$TARGET/LICENSE-THROUGHSTONE" || {
+    echo "apply-project-license.sh: could not write $TARGET/LICENSE-THROUGHSTONE; notice not written" >&2
+    exit 0
+  }
+  echo "Throughstone license: $TARGET/LICENSE-THROUGHSTONE"
+  exit 0
+fi
 
 # The posture file is written during bootstrap and must contain one of the supported
 # project-license IDs. It decides the licensing path; LICENSE files are validated against it,

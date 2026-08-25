@@ -67,6 +67,19 @@ any project built with it.
   Existing rows are not rewritten — `UPDATING-THROUGHSTONE.md`'s 1.8 section covers adding the
   fields to a project you already have.
 
+- **`apply-project-license.sh --notice-only <repo>`** — write the Throughstone notice into a
+  repository and nothing else. The script's one mode writes three files keyed on the project's
+  license posture: the notice, a `LICENSING.md` summary, and the project `LICENSE` for an
+  open-source project. There was no way to ask for just the notice, which is what a repository the
+  method did not create needs — Throughstone-authored material there should say what it is, but
+  that project's own licensing is not ours to state. The new mode reads no posture, writes only
+  `LICENSE-THROUGHSTONE`, never touches the target's `LICENSE` or `LICENSING.md`, and leaves a
+  notice that is already there exactly as it is, whatever it says: a differing notice is the
+  ordinary state a re-run meets after the notice text changes, not a conflict to resolve. If the
+  notice cannot be written it says so and still returns success, so a caller is never stopped by
+  it. The existing mode is unchanged, including every case where it refuses to overwrite a file it
+  did not write.
+
 ### Changed
 - **The doctor now checks the repo registry, and a bad row fails the build.** `registries/repos.yml`
   records who owns each repo and what it already provides, and until now nothing read any of it. A
@@ -140,6 +153,27 @@ any project built with it.
   the way mono-repo already did.
 
 ### Fixed
+- **One repository you cannot clone no longer costs you the whole workspace.**
+  `scripts/setup-workspace.sh` is what every developer after the first runs to assemble the project
+  on their machine: it clones the repos `registries/repos.yml` gives a `remote:`, then writes the
+  workspace root's `AGENTS.md`, `CLAUDE.md` and `doctor.sh`. A clone that failed aborted the run
+  before it reached those files, so the contributor ended up with **no workspace at all** — over a
+  repository they may not even need. Three ordinary situations did it, all measured: a remote nobody
+  on the team can reach, a stray folder or half-finished clone already sitting where a repo should
+  go, and a `location:` left behind as an absolute path from the first developer's machine. A failed
+  clone is now reported and the run continues; the pointer files are written before the clone step
+  rather than after it; and the closing line says how many repos did not arrive instead of reporting
+  plain success. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
+  already cloned are left alone.
+- **A `location:` outside the workspace root is no longer cloned into.** An absolute path, or one
+  reaching out with `..`, is now reported and skipped. It used to be used verbatim, so a registry
+  naming a path that happened to be writable placed a repository *outside* the workspace silently,
+  at exit 0 — and that is the ordinary shape whenever a repo is registered where it already lives
+  instead of created as a `Code/*` sibling. A `location:` that stays inside the workspace root still
+  clones exactly as before, including one outside the `Code/*` shell, and a repo already checked out
+  where its `location:` points is still left untouched. A repo registered outside the workspace root
+  is one each contributor clones onto their own machine, once; `METHOD.md` §7 and the registry
+  header carry the narrower rule.
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
   repository you already had — the natural thing to try when you want Throughstone in a project
   that exists — and running `./init.sh` there deleted that repository's `.git` outright, every

@@ -213,6 +213,23 @@ mono projects; `init.sh` runs once, so nothing places it in a project that alrea
 
 Multi-repo projects have nothing to do here.
 
+**A teammate whose workspace setup died part-way can now finish it.** If someone ran
+`Code/<project>-docs/scripts/setup-workspace.sh` and it stopped with a `git clone` error, leaving the
+workspace root with no `AGENTS.md`, no `CLAUDE.md` and no `doctor.sh`, that was one failing clone
+taking the whole run down with it. **Pull 1.8 into the docs hub and run the script again.** Nothing
+needs undoing first: repos already cloned are left alone, the pointer files are rewritten every run,
+and the run now finishes whatever happens to the clones. Its closing line says how many repos did not
+arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
+hand — and re-run to pick it up.
+
+**Look at any `location:` in your registry that points outside the workspace root.** An absolute
+path, or one reaching out with `..`, is now reported and skipped rather than cloned into; before 1.8
+the path was used verbatim, so a writable one put the repository outside the workspace silently. No
+edit is required and nothing of yours is rewritten — but a repo registered that way is now one each
+contributor clones onto their own machine once, rather than something the setup script fetches for
+them. A `location:` inside the workspace root is unaffected, including one outside the `Code/*`
+shell, and so is a repo already checked out where its `location:` points.
+
 ### 1.7 migration
 
 **Upgrading from 1.6? Start here.** This release rewrites no project files. Only two defaults
