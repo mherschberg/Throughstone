@@ -263,6 +263,133 @@ run_mono_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# first_registry_row FILE — print the first repo row block. Rows start at column-2 `- name:`;
+# the commented example row is indented behind a `#` and so is never picked up.
+first_registry_row() {
+  awk '/^[[:space:]]*-[[:space:]]*name:/ { n++ } n == 1' "$1"
+}
+
+# run_registry_mono_case — registries/ always ships and the deprecated flag only warns; the mono
+# layout additionally gets the two things its single-repo shape needs — a registry row for the
+# workspace root, which is the only repository it has, and the method-check workflow somewhere
+# GitHub will actually read it.
+run_registry_mono_case() {
+  local name="registry-mono"
+  local work="$TMP_ROOT/$name"
+  local reg root_row field
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Registry seeding test" \
+      --license=bsd-3 \
+      --holder="Throughstone Test" \
+      --layout=mono \
+      --collab=team \
+      --adr-authority="the CTO" \
+      --registries=no \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  # The flag is accepted, ignored, and says so. It used to delete the whole directory, taking the
+  # risk and security-review registers with it — both cited unconditionally by the generated docs.
+  grep -Fq -- "--registries=no is ignored" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not warn that --registries=no is ignored" >&2
+    return 1
+  }
+  for field in repos.yml risks.yml security-reviews.yml; do
+    [ -f "$work/Code/$name-docs/registries/$field" ] || {
+      echo "FAIL: $name pruned registries/$field" >&2
+      return 1
+    }
+  done
+
+  # The workspace root leads the inventory. Being a seeded row it carries no `provides:`, and with
+  # no `remote:` the clone parser in setup-workspace.sh passes over it.
+  reg="$work/Code/$name-docs/registries/repos.yml"
+  root_row="$(first_registry_row "$reg")"
+  for field in "name: \"$name\"" 'location: "."' 'type: mono' 'origin: created' 'control: managed'; do
+    printf '%s\n' "$root_row" | grep -Fq "$field" || {
+      echo "FAIL: $name workspace-root row is missing $field" >&2
+      printf '%s\n' "$root_row" >&2
+      return 1
+    }
+  done
+  for field in 'provides:' 'remote:'; do
+    if printf '%s\n' "$root_row" | grep -Fq "$field"; then
+      echo "FAIL: $name workspace-root row carries $field" >&2
+      return 1
+    fi
+  done
+
+  # A workflow nested under Code/<project>-docs/ never triggers when the workspace root is the
+  # repository. The hub keeps its copy: that is what gives the hub CI of its own after a split.
+  cmp -s "$work/.github/workflows/method-check.yml" \
+    "$work/Code/$name-docs/.github/workflows/method-check.yml" || {
+    echo "FAIL: $name did not place the docs hub's method-check.yml at the workspace root" >&2
+    return 1
+  }
+  git -C "$work" ls-files --error-unmatch .github/workflows/method-check.yml >/dev/null 2>&1 || {
+    echo "FAIL: $name left the root method-check.yml out of the initial commit" >&2
+    return 1
+  }
+
+  # The new row must change nothing the shipped tooling reports. check.sh exits 0 on warnings, so
+  # assert the summary line rather than the status.
+  ( cd "$work" && bash "Code/$name-docs/scripts/check.sh" ) >"$TMP_ROOT/$name-check.out" 2>&1 || true
+  grep -Fq "0 fail(s), 0 warning(s)" "$TMP_ROOT/$name-check.out" || {
+    echo "FAIL: $name doctor was not clean with the workspace-root row present" >&2
+    cat "$TMP_ROOT/$name-check.out" >&2
+    return 1
+  }
+
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_registry_multi_case — the same flag in the other layout: still ignored, still warns, and
+# neither of the mono-only additions appears. The workspace root is not a repository here.
+run_registry_multi_case() {
+  local name="registry-multi"
+  local work="$TMP_ROOT/$name"
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Registry seeding test" \
+      --license=apache-2.0 \
+      --holder="Throughstone Test" \
+      --layout=multi \
+      --collab=solo \
+      --registries=no \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  grep -Fq -- "--registries=no is ignored" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not warn that --registries=no is ignored" >&2
+    return 1
+  }
+  [ -f "$work/Code/$name-docs/registries/repos.yml" ] || {
+    echo "FAIL: $name pruned registries/ in multi-repo layout" >&2
+    return 1
+  }
+  if grep -Fq 'location: "."' "$work/Code/$name-docs/registries/repos.yml"; then
+    echo "FAIL: $name seeded a workspace-root row in multi-repo layout" >&2
+    return 1
+  fi
+  [ ! -e "$work/.github" ] || {
+    echo "FAIL: $name created a workspace-root .github in multi-repo layout" >&2
+    return 1
+  }
+
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 # run_visibility_case NAME VISIBILITY — verify GitHub repo creation receives the requested
 # visibility flag for both generated multi-repo remotes.
 run_visibility_case() {
@@ -594,6 +721,12 @@ run_flag_case \
 run_mono_case
 run_private_mono_case
 
+# --- registries/ always ships ------------------------------------------------
+# The directory carries the repo inventory and the risk / security-review registers, all of which
+# the generated docs cite unconditionally. --registries survives as a deprecated no-op.
+run_registry_mono_case
+run_registry_multi_case
+
 # --- GitHub visibility behavior ----------------------------------------------
 # Visibility is remote metadata. It must not change the selected project-license posture.
 run_visibility_case "visibility-public" "public"
@@ -631,6 +764,31 @@ set -e
 [ -d "$invalid_work/Code/{{PROJECT}}-docs" ]
 assert_maintainer_tests_retained "license-invalid-flag" "$invalid_work"
 grep -Fq "invalid --license 'not-a-license'" "$TMP_ROOT/license-invalid-flag.out"
+
+# A deprecated flag still validates its value, and does it in both layouts. The check used to run
+# only in mono-repo mode, so a multi-repo caller could pass anything and be silently ignored.
+registry_invalid_work="$TMP_ROOT/registry-invalid-flag"
+copy_template "$registry_invalid_work"
+set +e
+(
+  cd "$registry_invalid_work"
+  ./init.sh \
+    --non-interactive \
+    --slug="registry-invalid-flag" \
+    --desc="Registry validation test" \
+    --license=private \
+    --layout=multi \
+    --registries=maybe \
+    --collab=solo \
+    --remotes=no
+) >"$TMP_ROOT/registry-invalid-flag.out" 2>&1
+registry_invalid_status=$?
+set -e
+
+[ "$registry_invalid_status" -eq 2 ]
+[ -d "$registry_invalid_work/Code/{{PROJECT}}-docs" ]
+assert_maintainer_tests_retained "registry-invalid-flag" "$registry_invalid_work"
+grep -Fq "invalid --registries 'maybe'" "$TMP_ROOT/registry-invalid-flag.out"
 
 missing_template_work="$TMP_ROOT/license-missing-template"
 copy_template "$missing_template_work"

@@ -10,9 +10,11 @@
 # sibling `prompts/` repo, so those checks skip here with a note and run in full whenever the
 # whole workspace is checked out (locally, and during the periodic check-in).
 #
-# Mono-repo-for-now project? The workspace root is the single repo, so copy this file to the
-# ROOT `.github/workflows/` (a workflow nested under Code/<project>-docs/ won't trigger there).
-# The run step below auto-detects the doctor path in either layout. See templates/ci/README.md.
+# Mono-repo-for-now project? The workspace root is the single repo, and a workflow nested under
+# Code/<project>-docs/ won't trigger there — so this file also belongs at the ROOT
+# `.github/workflows/`. init.sh puts it there when it creates the project; a project created
+# before it did needs that copy made by hand. The run step below auto-detects the doctor path in
+# either layout. See templates/ci/README.md.
 
 name: method-check
 

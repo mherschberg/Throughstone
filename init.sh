@@ -166,7 +166,7 @@ Options:
   --license=NAME        mit | bsd-3 | apache-2.0 | private
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
-  --registries=yes|no   Keep registries/ (mono-repo only; default: yes)
+  --registries=yes|no   Deprecated and ignored; registries/ always ships
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
   --trunk-branch=NAME   Generated repo trunk branch     (default: main)
@@ -420,19 +420,20 @@ else
   LAYOUT="$(ask 'Choose 1 or 2' '1')"
 fi
 
-# registries/ is always kept in multi-repo because setup-workspace.sh and remote recording use
-# it as the sibling-repo inventory. Mono can prune it because the root repo is self-contained.
-KEEP_REGISTRIES=1
-if [ "$LAYOUT" = "2" ]; then
-  if [ -n "$REGISTRIES_IN" ]; then
-    case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-      y|yes|true|1) KEEP_REGISTRIES=1 ;;
-      n|no|false|0) KEEP_REGISTRIES=0 ;;
-      *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-    esac
-  elif [ "$NONINTERACTIVE" != "1" ]; then
-    yesno "Include registries/ (repo inventory; useful for multi-repo)?" || KEEP_REGISTRIES=0
-  fi
+# registries/ always ships, in both layouts. It carries the repo inventory that
+# setup-workspace.sh and remote recording read, plus the accepted-risk and security-review
+# registers — and the docs hub, METHOD.md and several runbooks reference all three
+# unconditionally, so a project without the directory cites files it does not have. The flag is
+# still parsed so existing automation keeps working, and its value is still validated: an
+# unrecognized one is an error in either layout, and `no` is ignored with a deprecation notice.
+if [ -n "$REGISTRIES_IN" ]; then
+  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
+    y|yes|true|1) : ;;
+    n|no|false|0)
+      echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
+      echo "         The flag is deprecated and will be removed in a future release." >&2 ;;
+    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
+  esac
 fi
 
 # Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
@@ -809,10 +810,10 @@ if [ -f "$DOCS/LICENSE-THROUGHSTONE" ]; then
   fi
 fi
 
-# --- 4. Prune optional pieces -----------------------------------------------
-# runbooks/ is kept: it now ships method-level runbooks (check-in, collaboration) that
-# AGENTS.md and METHOD.md reference.
-[ "$KEEP_REGISTRIES" = "0" ] && rm -rf "$DOCS/registries" && echo "  pruned registries/"
+# --- 4. Stamp per-project options -------------------------------------------
+# Nothing is pruned here. runbooks/ ships method-level runbooks (check-in, collaboration) that
+# AGENTS.md and METHOD.md reference, and registries/ ships the repo inventory and the risk and
+# security-review registers that the docs hub and those same runbooks cite unconditionally.
 
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.
@@ -845,6 +846,36 @@ fi
 if [ ! -f "prompts/STEP-index.md" ]; then
   cp "$DOCS/templates/step-index-seed.md" "prompts/STEP-index.md"
   echo "  created prompts/STEP-index.md (seeded from template)"
+fi
+
+# --- 5c. Mono-repo-for-now layout files -------------------------------------
+# In this layout the workspace root is the project's one repository, so two things multi-repo
+# gets for free have to be placed here before the initial commit.
+if [ "$LAYOUT" = "2" ]; then
+  # The registry calls itself the source of truth for which repos exist, and until now it
+  # omitted the only repository a mono project has. A seeded row carries no `provides:` — a
+  # status written before anyone has looked at a repo is a guess, not a record.
+  if [ -f "$DOCS/registries/repos.yml" ]; then
+    SLUG="$SLUG" perl -0pi -e '
+      my $row = qq{  - name: "$ENV{SLUG}"\n}
+              . qq{    location: "."\n}
+              . qq{    type: mono\n}
+              . qq{    origin: created\n}
+              . qq{    control: managed\n}
+              . qq{    description: "The workspace root: the one repository this project lives in until it is split."\n\n};
+      s{^repos:\n}{repos:\n$row}m;
+    ' "$DOCS/registries/repos.yml"
+    echo "  registry: recorded the workspace root repo"
+  fi
+  # GitHub reads workflows only at a repository root, and step 2 removed .github along with the
+  # template's own health files — so the method-check gate has never actually run in a mono
+  # project. The docs hub keeps its own copy, which is what gives it CI after a split; the
+  # workflow's run step finds the doctor in either layout.
+  if [ -f "$DOCS/.github/workflows/method-check.yml" ]; then
+    mkdir -p "$ROOT/.github/workflows"
+    cp "$DOCS/.github/workflows/method-check.yml" "$ROOT/.github/workflows/method-check.yml"
+    echo "  CI: method-check workflow placed at the workspace root"
+  fi
 fi
 
 # --- 6. Initialise repo(s) --------------------------------------------------
@@ -1057,12 +1088,12 @@ else
 fi
 
 # --- 7. Done ----------------------------------------------------------------
-# Mono keeps ONE shared remote for the single root repo; registries/repos.yml's rows are folders
-# inside it, not repos to clone (runbooks/collaboration.md §9).
+# Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
+# and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
 if [ "$LAYOUT" = "2" ]; then
   REMOTE_TIP="If you did not set up remotes during init, create one empty repo on your host
   and push the root repo's ${TRUNK_BRANCH} branch to it. Leave registries/repos.yml's rows
-  alone — they describe folders inside your one repo, not repos to clone."
+  alone — they record your one repo and the folders inside it, not repos to clone."
 else
   REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
   their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
