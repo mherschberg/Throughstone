@@ -32,8 +32,9 @@ it fixes docs, files bugs, and proves the tests pass.
 > **Start with the mechanical pass.** Run `scripts/check.sh` first — in seconds it catches the
 > *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers, invalid
 > statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry that
-> disagrees with the files on disk, plus architecture-session numbering and conditional-template
-> contract drift. Fix anything it flags, then do the judgment-based review below (which a
+> disagrees with the files on disk, plus architecture-session numbering, conditional-template
+> contract drift, and repo-registry rows that contradict themselves or have never recorded who
+> owns the repo. Fix anything it flags, then do the judgment-based review below (which a
 > script can't: does the doc still describe what the system actually *does*?).
 
 For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it

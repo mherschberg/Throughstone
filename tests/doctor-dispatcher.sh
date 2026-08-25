@@ -22,7 +22,8 @@ assert_contains() {
 
 # Build a minimal generated-workspace shape with fake helper scripts. The dispatcher test
 # cares that doctor.sh finds and execs the right helper while forwarding any extra arguments;
-# status.sh/check.sh behavior is covered by their own tests.
+# status.sh and check.sh behavior is covered by their own tests (tests/status-*.sh,
+# tests/check-repo-control.sh).
 fixture="$TMP_ROOT/workspace"
 mkdir -p "$fixture/Code/acme-docs/scripts"
 cp -p "$ROOT/doctor.sh" "$fixture/doctor.sh"

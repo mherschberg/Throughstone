@@ -87,10 +87,16 @@
 #    commented out one `#` per line; a reader that counted it as a row would report it missing
 #    every field.
 # 4. **Row-level names and nested key names are two disjoint reserved sets, and adding a name to
-#    either is checked against the other — here, at the time it is added.** Today row-level is
-#    `name`, `location`, `type`, `description`, `remote`, `provenance`, `origin`, `control`,
-#    `provides`; nested is `from`, `split_on`, `split_commit`, `archive_remote`, `readme`,
-#    `license`, `ci`, `status`, `note`. The check is what carries forward, not the lists.
+#    either is checked against the other — here, at the time it is added.** The two sets are the
+#    two lines directly below. They are the register of record, not a restatement of one: nothing
+#    else lists these names. scripts/check.sh reads them by their `reserved-` prefixes and fails
+#    if the sets overlap, if the file uses a name absent from the matching set, or if either line
+#    is missing — so keep both lines, keep the names space-separated on one line each, and add a
+#    new field to exactly one of them at the time you add it. The check is what carries forward,
+#    not the lists.
+#
+#    reserved-row-level: name location type description remote provenance origin control provides
+#    reserved-nested: from split_on split_commit archive_remote readme license ci status note
 # 5. **Anything that rewrites this file anchors on the row block** — from a row's `- name:` to the
 #    next `- name:`, respecting indentation — and never on a bare line prefix.
 

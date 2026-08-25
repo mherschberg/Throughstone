@@ -9,8 +9,10 @@ checks and the test gate the Test Strategy architecture doc calls for
 
 Runs the project "doctor" (`scripts/check.sh` in the docs hub): duplicate STEP/ADR numbers,
 invalid statuses, architecture-doc frontmatter, ADR registry vs. files on disk, root hygiene,
-numbered-session/seed alignment, and the conditional-session template contract required by
-the Cross-Cutting Review and periodic check-in. It is **already installed** in the docs hub
+numbered-session/seed alignment, the conditional-session template contract required by
+the Cross-Cutting Review and periodic check-in, and `registries/repos.yml` — that each row is
+consistent with itself, that it records who owns the repo and what the repo already provides,
+and that the file stays shaped for the scripts that read it by line prefix. It is **already installed** in the docs hub
 at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-repo** project
 (the hub is its own repo) it's active the moment you push the hub — nothing to place.
 

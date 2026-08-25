@@ -17,6 +17,9 @@
 #   8. Architecture-session template numbers match the STEP-index seed
 #   9. Conditional-session templates expose the metadata generic review gates require
 #  10. overview.md's optional CHECK-IN-CADENCE marker, if present, is a positive integer
+#  11. registries/repos.yml rows are internally consistent (statuses, control/gap invariants)
+#  12. Every repo row records who owns it, and a repo on this machine records what it provides
+#  13. registries/repos.yml is shaped so the scripts that read it by line prefix stay correct
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/check.sh
 # Exit:   non-zero if any hard check FAILs; warnings alone do not fail the run.
@@ -37,6 +40,7 @@ ARCH_DIR="$DOCS_DIR/architecture"
 ADR_DIR="$DOCS_DIR/adr"
 SESSION_TEMPLATE_DIR="$DOCS_DIR/templates/architecture-sessions"
 STEP_INDEX_SEED="$DOCS_DIR/templates/step-index-seed.md"
+REPOS_REGISTRY="$DOCS_DIR/registries/repos.yml"
 
 shopt -s nullglob
 
@@ -401,6 +405,291 @@ if [ -f "$OVERVIEW" ]; then
   fi
 else
   pass "no overview.md yet (project not initialized?) — skipping check-in cadence check"
+fi
+
+# --- 11-13. Repo registry (registries/repos.yml) ------------------------------
+# The registry is read by scripts that match line prefixes and know nothing about YAML nesting
+# (setup-workspace.sh's clone loop, init.sh's remote recorder), so three things are worth
+# checking: what a row says (11), whether its control record was ever filled in (12), and
+# whether the file is shaped so those readers stay correct (13). Nothing here reads another
+# repository's contents — that stays with the check-in; 12 only asks git whether a location is
+# the root of a work tree.
+#
+# registry_rows FILE flattens the registry once for all three. One tab-separated record per
+# meaningful line inside a row block:
+#     row-number  line-number  class  parent  key  value
+# class is head (the `- name:` line), field (row level), nested (deeper than row level), or
+# other (a line that is not `key: value` at all — a continuation of a multi-line value).
+# Comment lines are skipped, which is the registry's own rule 3: the example row is commented
+# out one `#` per line and is documentation, not data.
+registry_rows() {
+  awk '
+    BEGIN { SQ = sprintf("%c", 39) }
+    function ltrim(s) { sub(/^[[:space:]]+/, "", s); return s }
+    function clean(v) {
+      # A trailing `# ...` comment is stripped only from values carrying no quote and no brace,
+      # so a quoted description or a flow mapping containing a "#" is never truncated.
+      if (v !~ /["{]/ && index(v, SQ) == 0) sub(/[[:space:]]+#.*$/, "", v)
+      sub(/[[:space:]]+$/, "", v)
+      if (v ~ /^".*"$/) return substr(v, 2, length(v) - 2)
+      if (length(v) > 1 && substr(v, 1, 1) == SQ && substr(v, length(v), 1) == SQ)
+        return substr(v, 2, length(v) - 2)
+      return v
+    }
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*$/ { next }
+    /^[[:space:]]*-[[:space:]]*name:/ {
+      # The row block starts here, and its field indent is the column the name starts in.
+      rown++
+      base = index($0, "name:") - 1
+      parent = ""
+      printf "%d\t%d\thead\t\tname\t%s\n", rown, NR, clean(ltrim(substr($0, index($0, "name:") + 5)))
+      next
+    }
+    rown == 0 { next }
+    {
+      ind = match($0, /[^ \t]/) - 1
+      t = ltrim($0)
+      if (ind < base) {
+        # Dedenting a line out of the row block does not put it out of reach: the readers match
+        # line prefixes at any indent, so a `location:` at column 0 below the last row is read
+        # as the location of that row, exactly as a nested one is. Reported, not skipped.
+        if (t ~ /^[A-Za-z_][A-Za-z0-9_-]*:([[:space:]]|$)/) {
+          k = t; sub(/:.*$/, "", k)
+          printf "%d\t%d\tstray\t\t%s\t\n", rown, NR, k
+        }
+        next
+      }
+      if (t ~ /^[A-Za-z_][A-Za-z0-9_-]*:([[:space:]]|$)/) {
+        k = t; sub(/:.*$/, "", k)
+        v = t; sub(/^[A-Za-z_][A-Za-z0-9_-]*:[[:space:]]*/, "", v)
+        if (ind == base) { parent = k; printf "%d\t%d\tfield\t\t%s\t%s\n", rown, NR, k, clean(v) }
+        else             { printf "%d\t%d\tnested\t%s\t%s\t%s\n", rown, NR, parent, k, clean(v) }
+      } else {
+        printf "%d\t%d\tother\t%s\t\t%s\n", rown, NR, parent, t
+      }
+    }
+  ' "$1"
+}
+
+REG_PRESENT=0
+REG_FLAT=""
+if [ -f "$REPOS_REGISTRY" ]; then
+  REG_PRESENT=1
+  REG_FLAT="$(registry_rows "$REPOS_REGISTRY")"
+fi
+
+hdr "11. Repo registry record consistency (registries/repos.yml)"
+# Invariant: a row says one thing about itself. This reads the file only — no filesystem — so it
+# holds everywhere check.sh runs, CI included, and it is the half that carries the control model:
+# control is permission, so a managed repo cannot also record an unmet need.
+if [ "$REG_PRESENT" -eq 0 ]; then
+  warn "no registries/repos.yml — skipping repo registry checks"
+  hint "every project ships registries/; restore the directory from the scaffold, or re-run bootstrap for a project created with --registries=no."
+else
+  reg_bad="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '
+    BEGIN { SQ = sprintf("%c", 39) }
+    # provides: entries are flow mappings, so status and note are read out of one line.
+    function fmhas(s, key) { return (s ~ (key ":")) }
+    function fmval(s, key,   t, q) {
+      t = s
+      sub(".*" key ":[[:space:]]*", "", t)
+      q = substr(t, 1, 1)
+      if (q == "\"" || q == SQ) { t = substr(t, 2); sub(q ".*$", "", t); return t }
+      sub(/[,}].*$/, "", t)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
+      return t
+    }
+    $3 == "head" { nm[$1] = $6; if ($1 + 0 > maxr) maxr = $1 + 0 }
+    $3 == "field" && $5 == "origin"  { org[$1] = $6; orgln[$1] = $2 }
+    $3 == "field" && $5 == "control" { ctl[$1] = $6; ctlln[$1] = $2 }
+    $3 == "nested" && $4 == "provides" { pv[$1 SUBSEP $5] = $6; pl[$1 SUBSEP $5] = $2; pk[$1] = pk[$1] " " $5 }
+    END {
+      split("created adopted", a, " ");            for (i in a) okorg[a[i]] = 1
+      split("managed external", b, " ");           for (i in b) okctl[b[i]] = 1
+      split("ours extended theirs N/A gap", c, " "); for (i in c) okst[c[i]] = 1
+      for (r = 1; r <= maxr; r++) {
+        if ((r in org) && !(org[r] in okorg))
+          printf "line %d: %s -> origin: \"%s\" is not created or adopted\n", orgln[r], nm[r], org[r]
+        if ((r in ctl) && !(ctl[r] in okctl))
+          printf "line %d: %s -> control: \"%s\" is not managed or external\n", ctlln[r], nm[r], ctl[r]
+        n = split(pk[r], keys, " ")
+        for (j = 1; j <= n; j++) {
+          k = keys[j]; v = pv[r SUBSEP k]; ln = pl[r SUBSEP k]
+          if (!fmhas(v, "status")) {
+            printf "line %d: %s -> provides: %s carries no status\n", ln, nm[r], k
+            continue
+          }
+          st = fmval(v, "status")
+          if (!(st in okst)) {
+            printf "line %d: %s -> provides: %s status \"%s\" is not ours/extended/theirs/N/A/gap\n", ln, nm[r], k, st
+            continue
+          }
+          note = fmhas(v, "note") ? fmval(v, "note") : ""
+          if ((st == "gap" || st == "N/A") && note == "")
+            printf "line %d: %s -> provides: %s is %s and carries no note saying why\n", ln, nm[r], k, st
+          if ((r in ctl) && ctl[r] == "managed" && st == "gap")
+            printf "line %d: %s -> control: managed with a gap in %s\n", ln, nm[r], k
+          if ((r in ctl) && ctl[r] == "external" && (st == "ours" || st == "extended"))
+            printf "line %d: %s -> control: external with %s in %s\n", ln, nm[r], st, k
+        }
+      }
+    }
+  ')"
+  if [ -n "$reg_bad" ]; then
+    fail "inconsistent repo registry row(s):"
+    while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$reg_bad"
+    hint "make each row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and gap/N/A say why. See the schema at the top of registries/repos.yml."
+  else
+    reg_rows="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '$3 == "head"' | grep -c . || true)"
+    pass "$reg_rows row(s) consistent: statuses, control/gap invariants, notes on gap and N/A"
+  fi
+fi
+
+hdr "12. Repo registry control record (registries/repos.yml)"
+# Invariant: every row records who owns the repo, and a row that is actually a repository on
+# this machine records what it already provides. Absence is a WARN, not a FAIL: it means the
+# record was never filled in, and nothing on disk says when the project was created, so absence
+# cannot be read as age. A row whose location is not on this machine is skipped and counted —
+# staying silent about it is indistinguishable from a pass.
+if [ "$REG_PRESENT" -eq 0 ]; then
+  pass "no registries/repos.yml — nothing to check (reported in check 11)"
+else
+  reg_summary="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '
+    $3 == "head" { nm[$1] = $6; if ($1 + 0 > maxr) maxr = $1 + 0 }
+    $3 == "field" && $5 == "location" { loc[$1] = $6 }
+    $3 == "field" && $5 == "origin"   { org[$1] = $6 }
+    $3 == "field" && $5 == "control"  { ctl[$1] = $6 }
+    $3 == "nested" && $4 == "provides" { pk[$1] = pk[$1] " " $5 }
+    END { for (r = 1; r <= maxr; r++) printf "%s\t%s\t%s\t%s\t%s\n", nm[r], loc[r], org[r], ctl[r], pk[r] }
+  ')"
+  reg_incomplete=""
+  reg_total=0
+  reg_absent=0
+  reg_here=0
+  while IFS=$'\t' read -r r_name r_loc r_origin r_control r_provides; do
+    [ -n "${r_name:-}" ] || continue
+    reg_total=$((reg_total + 1))
+    miss=""
+    [ -n "${r_origin:-}" ] || miss="${miss}${miss:+; }no origin:"
+    [ -n "${r_control:-}" ] || miss="${miss}${miss:+; }no control:"
+    if [ -z "${r_loc:-}" ]; then
+      miss="${miss}${miss:+; }no location:"
+    else
+      case "$r_loc" in /*) abs="$r_loc" ;; *) abs="$ROOT/$r_loc" ;; esac
+      if [ ! -d "$abs" ]; then
+        reg_absent=$((reg_absent + 1))
+      else
+        reg_here=$((reg_here + 1))
+        # The work-tree-root test is the comparison itself, on physical paths both sides: a
+        # trailing slash, a symlinked workspace root, a repository subdirectory and a plain
+        # folder all answer correctly, and a submodule or linked worktree — where .git is a
+        # file, not a directory — is still a repository.
+        top="$(git -C "$abs" rev-parse --show-toplevel 2>/dev/null)"
+        if [ -n "$top" ] && [ "$top" = "$(cd "$abs" && pwd -P)" ]; then
+          # A repo Throughstone created carries no observation debt; a repo it adopted — or a
+          # row that never said — owes all three, and the missing key is named, because the
+          # register action leaves one out on purpose when it could not look.
+          if [ -z "${r_origin:-}" ] || [ "$r_origin" = "adopted" ]; then
+            for need in readme license ci; do
+              case " ${r_provides:-} " in
+                *" $need "*) : ;;
+                *) miss="${miss}${miss:+; }provides: no $need" ;;
+              esac
+            done
+          fi
+        fi
+      fi
+    fi
+    [ -n "$miss" ] && reg_incomplete="${reg_incomplete}${r_name} -> ${miss}"$'\n'
+  done <<< "$reg_summary"
+  reg_incomplete="${reg_incomplete%$'\n'}"
+  if [ -n "$reg_incomplete" ]; then
+    warn "$(printf '%s\n' "$reg_incomplete" | grep -c .) of $reg_total row(s) carry no control record, or an incomplete one:"
+    while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$reg_incomplete"
+    hint "add origin: and control: to each row, and fill provides: by looking at the repo rather than by picking a status. See the schema at the top of registries/repos.yml, and UPDATING-THROUGHSTONE.md."
+  elif [ "$reg_absent" -eq 0 ]; then
+    pass "all $reg_total row(s) carry a complete control record"
+  else
+    # Claim only what was looked at: a row whose location is not here had its provides: skipped.
+    pass "all $reg_total row(s) carry origin and control; provides: checked on the $reg_here here"
+  fi
+  [ "$reg_absent" -gt 0 ] && printf '         %d of %d row(s) not present on this machine; provides: not checked there\n' "$reg_absent" "$reg_total"
+fi
+
+hdr "13. Repo registry file shape (registries/repos.yml)"
+# Invariant: the file stays readable by parsers that match line prefixes. These FAIL rather than
+# warn — a violation of rule 1 is a clone into the wrong path, not a thin record. The two
+# reserved-name sets are read from the registry header's own `reserved-` lines, which are the
+# register of record for them; rules 3 and 5 are not here because they constrain scripts rather
+# than this file, and a checker reading the registry cannot see them.
+if [ "$REG_PRESENT" -eq 0 ]; then
+  pass "no registries/repos.yml — nothing to check (reported in check 11)"
+else
+  reserved_row="$(sed -n 's/^#[[:space:]]*reserved-row-level:[[:space:]]*//p' "$REPOS_REGISTRY" | head -1)"
+  reserved_nested="$(sed -n 's/^#[[:space:]]*reserved-nested:[[:space:]]*//p' "$REPOS_REGISTRY" | head -1)"
+  if [ -z "$reserved_row" ] || [ -z "$reserved_nested" ]; then
+    fail "registry header has no reserved-row-level: / reserved-nested: line — the reserved name sets cannot be read"
+    hint "restore both lines under rule 4 at the top of registries/repos.yml, one space-separated list each; scripts/check.sh reads them by those prefixes."
+  else
+    # tr rather than word-splitting: an unquoted expansion here would also glob against the
+    # working directory if a name ever picked up a wildcard character.
+    to_lines() { printf '%s' "$1" | tr -s '[:space:]' '\n'; }
+    overlap="$(comm -12 <(emit "$(to_lines "$reserved_row")") <(emit "$(to_lines "$reserved_nested")") | tr '\n' ' ')"
+    reg_shape="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' -v rowset="$reserved_row" -v nestset="$reserved_nested" '
+      BEGIN {
+        n = split(rowset, a, /[[:space:]]+/);  for (i = 1; i <= n; i++) if (a[i] != "") rowlvl[a[i]] = 1
+        m = split(nestset, b, /[[:space:]]+/); for (i = 1; i <= m; i++) if (b[i] != "") nested[b[i]] = 1
+      }
+      $3 == "head" { nm[$1] = $6; seen[$1 SUBSEP "name"] = 1 }
+      $3 == "field" {
+        # Two row-level fields of one name in one block: every reader takes the last one.
+        if (($1 SUBSEP $5) in seen)
+          printf "1\tline %d: %s -> a second row-level %s: in the same row block\n", $2, nm[$1], $5
+        seen[$1 SUBSEP $5] = 1
+        if (!($5 in rowlvl))
+          printf "4\tline %d: %s -> row-level field %s: is not in reserved-row-level\n", $2, nm[$1], $5
+        if ($6 ~ /^[|>]/)
+          printf "2\tline %d: %s -> %s: opens a block scalar; values are single-line\n", $2, nm[$1], $5
+      }
+      $3 == "nested" {
+        if ($5 in rowlvl)
+          printf "1\tline %d: %s -> nested %s: shadows a row-level field name\n", $2, nm[$1], $5
+        else if (!($5 in nested))
+          printf "4\tline %d: %s -> nested key %s: is not in reserved-nested\n", $2, nm[$1], $5
+        if ($6 ~ /^[|>]/)
+          printf "2\tline %d: %s -> %s: opens a block scalar; values are single-line\n", $2, nm[$1], $5
+        if ($4 == "provides" && $6 !~ /^\{.*\}$/)
+          printf "2\tline %d: %s -> provides: %s is not a flow mapping { status: ..., note: ... }\n", $2, nm[$1], $5
+      }
+      $3 == "other" { printf "2\tline %d: %s -> not a single-line key: value\n", $2, nm[$1] }
+      $3 == "stray" {
+        if ($5 in rowlvl)
+          printf "1\tline %d: %s -> %s: sits outside any row block and would still be read as that row\n", $2, nm[$1], $5
+      }
+    ')"
+    shape_ok=1
+    if [ -n "$overlap" ]; then
+      fail "reserved-row-level and reserved-nested share name(s): $overlap"
+      shape_ok=0
+    fi
+    for rule in 1 2 4; do
+      hits="$(printf '%s\n' "$reg_shape" | awk -F'\t' -v r="$rule" '$1 == r { print $2 }')"
+      [ -n "$hits" ] || continue
+      case "$rule" in
+        1) fail "row-level field name(s) used where a reader would misread them (rule 1):" ;;
+        2) fail "value(s) that are not single-line scalars (rule 2):" ;;
+        4) fail "field name(s) missing from the registry's reserved sets (rule 4):" ;;
+      esac
+      while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$hits"
+      shape_ok=0
+    done
+    if [ "$shape_ok" -eq 1 ]; then
+      pass "parser rules hold: no shadowed field names, single-line values, disjoint name sets"
+    else
+      hint "put every value on one line (provides: entries are flow mappings), keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
+    fi
+  fi
 fi
 
 # --- Summary ------------------------------------------------------------------
