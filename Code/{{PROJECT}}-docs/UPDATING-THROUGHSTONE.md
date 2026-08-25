@@ -158,8 +158,7 @@ folders inside the one repo until you split.
 
 Adding the fields is a **safe additive edit**: it inserts lines into each row and changes no existing
 data. `registries/repos.yml` is your project's own record, like `inputs/inputs-index.md`, so it is
-**never auto-overwritten** — updater tooling adds the lines for your review rather than replacing
-the file.
+**never auto-overwritten**.
 
 ### 1.7 migration
 

@@ -41,9 +41,7 @@
 #
 # **A missing `control:` reads as `external`**, because control is a permission and an unanswered
 # permission is not granted: the method records the repo and writes nothing into it until someone
-# answers. A defaulted row is surfaced rather than silently accepted. (Unrelated to the top-level
-# `throughstone:` key in `.throughstone/manifest.yml`, which versions the method itself — different
-# file, different scope.)
+# answers. A defaulted row is surfaced rather than silently accepted.
 #
 # `provides:` (per row) records how each of the three needs — README, licensing, CI — is met in that
 # repo. One entry per need, each carrying a status and a note:
@@ -62,11 +60,17 @@
 # `external` repo has no `ours` and no `extended`, because both mean an artifact Throughstone
 # maintains, which it cannot do in a repo it may not write into.
 #
+# **A key may be legitimately absent, and absent is not `gap`.** `gap` is an observation — the need
+# is unmet. An absent key is an observation still owed: nothing was true to write when the row was
+# written. Fill it in by looking at the repo, never by picking a status to complete the set; the
+# check that flags the absence is how it comes back.
+#
 # `origin:` and `control:` go on **every** row. `provides:` goes only on a row whose `location` is
-# a repository — in a mono-repo-for-now workspace the rows below are folders inside the single repo,
-# so they carry none until a split makes them repos of their own. The rows this file ships with
-# carry no `provides:` in either layout: the method's own repos are described by the method itself,
-# and a status written before anyone had looked at a repo would be a guess rather than a record.
+# a repository — in a mono-repo-for-now workspace a row pointing at a folder inside the single repo
+# is not one, and carries none until a split makes it a repo of its own. Seeded rows carry no
+# `provides:` whatever their location, in either layout: the method's own repos are described by the
+# method itself, and a status written before anyone had looked at a repo would be a guess rather
+# than a record.
 #
 # Rules for anything that reads or rewrites this file. The scripts that read it match line prefixes
 # and do not parse YAML, so all five are load-bearing:
