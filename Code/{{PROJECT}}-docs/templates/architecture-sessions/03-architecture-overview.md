@@ -69,12 +69,20 @@ UI / Design System session and the conditional Native-app session apply.
 Write `architecture/03-architecture-overview.md` (use `templates/architecture-doc-template.md`). Body:
 - **Client surfaces** (the recorded answer + what it gates)
 - **Component diagram** (ASCII) + a **component table**: name | responsibility | tech
+- **Repos** — one entry per repository the project has: its role, the slice it owns, and where its
+  detail lives (its own README where Throughstone wrote one, the owners' docs where not). Each entry
+  pairs with that repo's `registries/repos.yml` row; the two are one unit, maintained together by
+  `runbooks/register-repo.md` rather than by hand. A repo Throughstone only references appears here
+  in full like any other — it is documented, just never written into.
 - **Boundaries & contract candidates** table — boundary | what crosses it | sync/async |
   data owner | likely contract style | notes for the Interface Contracts session
 - **Key flows** (numbered walk-throughs)
 - **Build vs. buy** notes
 
-Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
+Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. **If this
+document already exists, complete it rather than overwrite it** — registering a repository creates
+it, with its Repos section, when nothing else has yet — so keep the Repos entries already recorded
+and *add* a Version Log line rather than starting one. Update
 `prompts/STEP-index.md`: mark 1.3 done; then, **based on the client-surfaces answer** — if
 there's no styled UI, **mark the UI / Design System row `Deferred` or `N/A`** (keep the row, per
 the resolver's "skip any `Deferred`/`N/A`" rule in `METHOD.md` §10; use `Deferred` when a UI may

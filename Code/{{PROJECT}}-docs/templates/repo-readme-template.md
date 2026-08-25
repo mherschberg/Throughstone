@@ -4,9 +4,9 @@
 > defines it, e.g. `{{PROJECT}}-docs/architecture/*-architecture-overview.md`.)
 
 <!--
-  Stamp a copy of this into each code repo as it's created — every repo, including in a
-  multi-repo design, must carry one. Keep the section headings consistent across all repos
-  so the project reads uniformly. Sections that don't apply can be dropped (e.g. no
+  Stamp a copy of this into each code repo **as Throughstone creates it** — every created repo,
+  including in a multi-repo design, must carry one. Keep the section headings consistent across
+  all repos so the project reads uniformly. Sections that don't apply can be dropped (e.g. no
   "API / interface" for a library), but keep the order — and never drop the role one-liner
   above or the Overview below: explaining what the repo *is* is the one non-negotiable part.
 
@@ -20,6 +20,28 @@
   get no project license file. It also copies `LICENSE-THROUGHSTONE` for this retained
   Throughstone-authored README/CI scaffolding and writes `LICENSING.md` to make the boundary
   between the two licenses explicit.
+
+  ---- A repo that already exists: augment, don't stamp ----
+
+  Everything above is for a repo Throughstone creates. For a repo that already has a README,
+  **never stamp this file over it, and never create a second README.** Add one section instead:
+
+      ## Role in <project>
+
+  carrying the role one-liner, two or three sentences naming the slice this repo owns *and what
+  it explicitly does not*, and a link to the architecture doc that defines it. Not a bare pointer
+  — the boundary statement is the thing a newcomer cannot get quickly from the code. Default to
+  appending it at the end, and offer to place it higher: placement is content, and content is the
+  owner's to shape. That heading through to the next `##` is the whole of Throughstone's part of
+  the file, which is what a check-in sweeps. If the section is already there, update it in place.
+
+  If the repo has **no** README at all, stamp this file — but **drop `## Licensing`**, whose link
+  points at a `LICENSING.md` that is never written into a repo Throughstone did not create.
+  Either way, do **not** install CI and do **not** apply a project license; for the Throughstone
+  notice, and only where material of ours actually landed, run
+  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>`.
+
+  The whole procedure is `Code/{{PROJECT}}-docs/runbooks/register-repo.md`.
 -->
 
 ## Overview

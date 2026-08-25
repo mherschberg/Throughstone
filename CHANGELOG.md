@@ -80,7 +80,46 @@ any project built with it.
   it. The existing mode is unchanged, including every case where it refuses to overwrite a file it
   did not write.
 
+- **The rule for a repository the method did not create, written down.** Repo rows have recorded who
+  owns each repo and what it already provides since earlier in this release, and nothing said what any
+  of it *meant* or how to do it — so registering a repository meant reconstructing a registry row from
+  memory. `METHOD.md` §7 now carries the model. **Control is a permission**, granted once for a whole
+  repository and never per file: `managed` means the method may write what its needs require into that
+  repo without asking again, `external` means the repo is recorded and referenced in full and never
+  written into, and an unanswered `control:` reads as `external`. The invariant follows — a repo the
+  method controls has its needs met, so an unmet need can only sit on one it does not control. A repo
+  has **three needs**: a README (someone standing in it can find their way back to the project), a CI
+  gate that is *recorded* — including "nothing runs" — and a licensing posture that is recorded,
+  including "nothing states one". One ladder runs per need and asks nothing, because permission was
+  settled once. Only the README has rungs: a repo with no README gets one stamped, a repo whose README
+  does not point back gets a short `## Role in <project>` section added to it, and no repo ever ends up
+  with two READMEs. **The ladder never installs CI and never applies a license** — both are scaffolding
+  the method writes when it *creates* a repo. Dropping the starter gate into a repository that already
+  has one would replace the gate guarding its merges, and choosing a license for code the method did
+  not write is not the method's to do; a managed repo with no CI at all is recorded as exactly that,
+  which is not a shortfall to fix but a fact to know. Registering a repo makes it **known and
+  connected — never conformant, and never good**: a thin README or a linter-only gate is recorded as
+  what it is, and improving it is ordinary forward work.
+- **A runbook for registering a repository** — `runbooks/register-repo.md`, carrying the procedure the
+  model implies: the steps, the two checks before writing into a repository the method did not create
+  (a clean work tree with an attached HEAD, and not nested inside another repository's work tree — both
+  record what they found and skip, and neither aborts), what makes the action safe to re-run, the
+  default when nobody answers, promotion and handover, and the exact wording of the question that asks
+  whether the method may write into a repo. It maintains a repo's registry row and its entry in the
+  Architecture Overview architecture doc **together** — they are one unit and neither moves without the
+  other — so the Architecture Overview session now records a Repos section, and completes a document
+  that already exists rather than overwriting it. Everything that changes the set of repositories a
+  project has goes through this one procedure, which is why the files that used to describe a registry
+  row can name the procedure instead.
+
 ### Changed
+- **STEP-1 branches, and STEP projections, follow control rather than layout.** STEP-1 work takes the
+  `step-0001-architecture` branch in **every** repository it writes into — previously the docs hub and
+  `prompts/` in a multi-repo project, or the root repo in mono-repo-for-now, which left a repository
+  that already existed and is now under the method's control with no branch rule at all. And a
+  repository the method only *references* never appears in a STEP's Repos projection: a STEP is work
+  the method does, in repositories it controls. The repo it references stays fully documented — a
+  registry row, statuses, notes and an Architecture Overview entry — just never worked in.
 - **The doctor now checks the repo registry, and a bad row fails the build.** `registries/repos.yml`
   records who owns each repo and what it already provides, and until now nothing read any of it. A
   row could say Throughstone controls a repo *and* that one of that repo's needs is unmet — a
