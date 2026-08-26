@@ -64,17 +64,29 @@ STEP's PLAN with its owner rather than silently replacing its index row.
   to run that STEP (`prompts/README.md` → "Recipe: adding a new STEP"; `METHOD.md` §5).
 
 ## What to work through (with the user)
-1. **Repo scaffolding.** What repos does the Architecture Overview architecture doc
-   (`architecture/*-architecture-overview.md`) / `registries/repos.yml` name? On a first run none
-   of them exist yet, so you scaffold them all — the usual case. Just skip any that are
-   **already there:** a repo the architecture names is already there when it has a
-   `registries/repos.yml` row **with a filled-in README** (a real role one-liner + Overview, not
-   the template's placeholders), so don't re-create it. This only comes up on a **re-run** (a repo
-   you scaffolded in an earlier run is already registered) or when the project already has some of
-   these repos; if `registries/repos.yml` is absent or has no code-repo rows yet (that first run,
-   or a mono-repo), nothing is registered and every named repo scaffolds, exactly as before.
-   When repos still need creating — a first run, the usual case — the first implementation
-   STEP is almost always *"scaffold the repos and the skeleton"*: create each new code repo from
+1. **Repo scaffolding.** For each repo the Architecture Overview architecture doc
+   (`architecture/*-architecture-overview.md`) / `registries/repos.yml` names, two questions, in
+   order.
+
+   **Is it already registered?** A `registries/repos.yml` row naming that repo means it is
+   already recorded — the row and its Architecture Overview entry are one unit, maintained
+   together — so there is nothing to do here, whether or not it is cloned on this machine. On an
+   ordinary greenfield first run nothing is registered and every repo falls through to the next
+   question; on a **re-run**, this is what stops a repo an earlier run created or took on from
+   being proposed again.
+
+   **Otherwise: is there already a repository at that location?** The location is the path this
+   repo would occupy — its `Code/*` sibling by default (`METHOD.md` §7), or wherever the user
+   tells you it already lives. Ask whether that path is the **root of a repository**, or just a
+   directory inside one — a component folder in a mono repo is the latter; a repository that
+   happens to sit inside another's work tree is still the former, and one with **no commits yet**
+   is an empty slot rather than somebody's work, so treat it as absent. **A real repository with a
+   thin README is still a repository**, and scaffolding over it would write into somebody's work.
+
+   **No — create it.** The usual case on a first run. **If the path already holds files this
+   project did not put there, stop and settle that with the user rather than scaffolding into
+   it.** Otherwise the first implementation STEP is almost always *"scaffold the repos and the
+   skeleton"*: create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
@@ -91,13 +103,24 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    visibility is separate: when adding a remote for each code repo, choose private or public
    deliberately rather than inferring it from the license. Publishing a proprietary repo makes
    its source visible without granting open-source reuse rights, so call that out explicitly.
-   **Each
-   repo's README isn't just stamped — its role one-liner and Overview get filled in** (what
-   the repo is and the slice of the system it owns), and the repo gets a row in
-   `registries/repos.yml` with a one-line `description`; a repo isn't scaffolded until it can
-   explain itself. Confirm the repo list with the user — on a first run they're all new; note any
-   that already exist (already registered with a filled-in README) so you scaffold only the new
-   ones.
+   **Each repo's README isn't just stamped — its role one-liner and Overview get filled in**
+   (what the repo is and the slice of the system it owns); a repo isn't scaffolded until it can
+   explain itself.
+
+   **Yes — it is registered instead of scaffolded.** **No stack wiring, no CI, no `.env.example`,
+   no `.gitignore` block and no project `LICENSE`** go into it — it is an existing repository, not
+   an empty slot to scaffold into. What does land there is the register action's call, not this
+   step's.
+
+   **Both branches end at the one register action** (`runbooks/register-repo.md`), which writes
+   the row and the Architecture Overview entry together, never one without the other, and is safe
+   to re-run. **That is a STEP's work, not this session's** — the action writes on that STEP's
+   branch, and this session writes nothing but the STEP-index rows. Here you decide which repos
+   are on which branch and say so in the outline of the STEP that takes them on; **if any repo
+   needs creating or registering, make sure this phase has a STEP that does it** — a later phase
+   that only extends what already exists may have no scaffolding STEP to inherit the work.
+   Confirm the repo list with the user: which are new, which already exist, and name any you
+   could not reach.
 2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
    **build or extend what this milestone needs, given what already exists.** On a first run
    nothing is built yet, so scaffolding and the core data layer come first and you build
