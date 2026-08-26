@@ -39,16 +39,18 @@ From the workspace root, run the generated setup helper:
 Code/<project>-docs/scripts/setup-workspace.sh
 ```
 
-The helper clones sibling repos listed in `Code/<project>-docs/registries/repos.yml` when
-they have remotes, then writes the per-machine root files. Verify these exist at the
+The helper writes the per-machine root files first, then clones the sibling repos that
+`Code/<project>-docs/registries/repos.yml` gives a remote. Verify these exist at the
 workspace root:
 
 - `AGENTS.md`
 - `CLAUDE.md`
 - `doctor.sh`
 
-If a sibling repo has no remote in `registries/repos.yml`, `setup-workspace.sh` cannot clone
-it. Read its registry entry and ask the maintainer how that repo is provided.
+If a repo did not arrive, `setup-workspace.sh` names it and says why as it runs, then closes
+with a count. The one case it stays quiet about is a repo with no `remote:` in
+`registries/repos.yml` — it was never going to be cloned. Read its registry entry and ask the
+maintainer how that repo is provided.
 
 ## 3. Create your local user profile
 
