@@ -441,12 +441,12 @@ docs, ADRs, scoped STEPs, tests, and a roadmap instead of a mystery pile of gene
 
 ### Can I use this with an existing project?
 
-Increasingly, yes. Throughstone began greenfield-first, and the 1.7 release removed the
-assumptions that got in the way of existing code: planning now scaffolds only repos that
-aren't already registered, plans against what's already built instead of rebuilding from
-scratch, targets the first unfinished phase rather than always Phase 1, and can register a
-repo that already lives outside the workspace. You can also drop your current design docs into
-`inputs/` and have the architecture sessions build on them.
+Increasingly, yes. Throughstone began greenfield-first, and the assumptions that got in the
+way of existing code have been coming out: planning scaffolds only repos that aren't already
+registered, plans against what's already built instead of rebuilding from scratch, targets
+the first unfinished phase rather than always Phase 1, and can register a repo that already
+lives outside the workspace. You can also drop your current design docs into `inputs/` and
+have the architecture sessions build on them.
 
 It is not yet a one-click import — there's no wizard that ingests an existing codebase for you.
 The practical path: run setup, create architecture docs and a roadmap for what you already have

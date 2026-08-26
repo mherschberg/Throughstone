@@ -41,5 +41,5 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 > this repo's `LICENSE` is the canonical project-license file copied unchanged into each
 > application-code repo when it is created. `.throughstone/project-license` records the durable
 > selection independently, and the repo-scaffolding helper validates the two before copying.
-> It also copies `LICENSE-THROUGHSTONE` for retained Throughstone-authored README and CI
-> templates and writes `LICENSING.md` so its limited scope is visible.
+> A repo Throughstone creates also gets `LICENSE-THROUGHSTONE` for the scaffold README and CI
+> templates it keeps, plus a `LICENSING.md` making that notice's limited scope visible.
