@@ -83,11 +83,13 @@ two lines per row in `registries/repos.yml`, which the project doctor now asks f
 **and, if your project is mono-repo-for-now, one thing to check**: whether your CI gate has ever
 actually run. Beyond those, nothing is required of
 you unless you are about to split a repository. The release adds a runbook for that, repeals one
-rule, and starts recording which of your repos Throughstone may write into. Fast path:
+rule, and starts recording which of your repos Throughstone may write into — and now says what that
+recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
 
-1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md`,
-   `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`, and
-   the header comment in `registries/repos.yml`).
+1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
+   `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §7,
+   `runbooks/collaboration.md` §9, `prompts/README.md`, and the header comment in
+   `registries/repos.yml`).
 2. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
@@ -131,9 +133,9 @@ fetches the other. The cost is stated plainly in the file
 — every new repo inherits every blob the origin ever committed, including deleted ones — and an
 appendix covers purging history first when that matters.
 
-- *Process docs* (`runbooks/splitting-repos.md`, `runbooks/README.md`, `METHOD.md` §7,
-  `runbooks/collaboration.md` §9, `prompts/README.md`, `registries/repos.yml`'s header): a new
-  runbook plus the edits that route to it — `METHOD.md` §7 gains the mono→multi special case (that
+- *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
+  `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`,
+  `registries/repos.yml`'s header): two new runbooks plus the edits that route to them — `METHOD.md` §7 gains the mono→multi special case (that
   STEP is branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
   and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
@@ -164,6 +166,23 @@ method to keep maintaining.
 have decided, so it is filled in by looking rather than remembering. A row whose `location` is not a
 repository never carries it at all — in a mono-repo-for-now workspace a row pointing at a folder
 inside the one repo is not one, and carries none until a split makes it a repo of its own.
+
+**What the fields mean, and how to register a repo, are now written down.** `METHOD.md` §7 carries
+the model — control is a permission, granted once for a whole repository and never per file; the
+invariant that a repo Throughstone controls has its needs met, so an unmet need can only sit on one
+it does not; the three needs and what "met" means for each; and the single ladder that runs per
+need. Only the README has rungs there, because CI and licensing are met by *recording* what is
+already in the repo — **the method never installs a CI gate and never applies a license to a repo it
+did not create.** The new `runbooks/register-repo.md` carries the procedure, and everything that
+changes the set of repositories your project has goes through it.
+
+**Two rule changes ride along, and neither forces anything on you today.** STEP-1 work takes the
+`step-0001-architecture` branch in **every** repository it writes into — not only the docs hub,
+`prompts/` and the mono root, but a repository that already existed and is now under Throughstone's
+control. And a repository the method only *references* never appears in a STEP's Repos projection: a
+STEP is work Throughstone does, in repositories it controls. Both matter from the moment you mark a
+repo `external`, or run a STEP that writes into an adopted one; until then there is nothing to
+change.
 
 Adding the fields is a **safe additive edit**: it inserts lines into each row and changes no existing
 data. `registries/repos.yml` is your project's own record, like `inputs/inputs-index.md`, so it is
