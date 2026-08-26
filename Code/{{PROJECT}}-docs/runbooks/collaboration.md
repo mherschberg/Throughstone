@@ -259,7 +259,7 @@ repos it touches — that single record is what keeps the history coherent acros
 - Its **PLAN lists the repos it touches and the order they merge in** (cross-repo
   sequencing). Reference commits / PRs / tags where ordering matters.
 - It uses the **same `step-NNNN` branch name in each repo** (§1).
-- If it creates a new repo, add it to `registries/repos.yml` (your-row-only, §5).
+- If it creates a new repo, **register it** (`register-repo.md`) — your row only (§5).
 
 ## 9. Going from solo to team
 The *structural* habits above you already practice solo — branch-per-STEP (§1) and allocating
@@ -270,11 +270,13 @@ flow (§6). The transition is mostly mechanical:
 
 1. **Stand up the shared remotes — and push your existing history to them first.** A solo
    dev has been committing locally with no remote, so the order matters: (a) create the remote
-   for `prompts/`, the docs hub, and each code repo, then **`git push` your existing history
-   to each** — otherwise newcomers clone empty repos and the STEP-number registry of record is
-   gone; (b) add the `remote:` fields in `registries/repos.yml`; (c) have each new contributor
-   run `scripts/setup-workspace.sh` to clone them. Number reservation (§2) relies on this
-   shared `prompts/` remote.
+   for `prompts/`, the docs hub, and each code repo **Throughstone created**, then **`git push`
+   your existing history to each** — otherwise newcomers clone empty repos and the STEP-number
+   registry of record is gone. **A repo Throughstone did not create gets neither** — never
+   create a remote for it and never push its history (`register-repo.md`); (b) add the
+   `remote:` fields in `registries/repos.yml`, for every repo that has one; (c) have each new
+   contributor run `scripts/setup-workspace.sh` to clone them. Number reservation (§2) relies
+   on this shared `prompts/` remote.
 
    **Mono-repo-for-now** (`METHOD.md` §7) has one repo, the workspace root, so this is one
    remote rather than several: create it, push the root repo's existing history to it, and have
