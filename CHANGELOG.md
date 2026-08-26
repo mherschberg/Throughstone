@@ -329,7 +329,7 @@ any project built with it.
   listed the docs hub and `prompts/` — both folders — while the workspace root, the project's one
   actual repository and the only git work tree in it, had no row at all. `init.sh` now seeds that
   row: `location: "."`, `type: mono`, `origin: created`, `control: managed`, and no `provides:`,
-  which is the carve-out every seeded row gets. Nothing reads the row yet and nothing behaves
+  which is the carve-out every seeded row gets. No script reads the row and no tooling behaves
   differently because of it — `scripts/check.sh`, `scripts/links.sh` and the clone parser in
   `scripts/setup-workspace.sh` were each measured against it, and the parser passes over the row
   because it carries no `remote:`. Prose describing a mono project's registry rows as folders

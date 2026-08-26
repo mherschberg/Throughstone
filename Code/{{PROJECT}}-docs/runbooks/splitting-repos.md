@@ -251,14 +251,16 @@ special here, which is why it gets no steps of its own below.
 
 > **Where abort gets expensive.** Up to step 6, abort is cheap: delete the new directory, and
 > delete the extracted repo's remote if you already created it. Nothing else has been touched, and
-> neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned, so
-> abort is `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
-> step 9 has already pushed it — plus deleting the extracted repo and its remote, and reverting the
-> hub's step-7 repoint and step-8 registry row, pushed if step 9 pushed them: left standing, that
-> row sends everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a
-> re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
-> project with no remotes there is nothing to re-clone from. **Save anything untracked or ignored
-> first** — `.env`, `.secrets/`, in-flight work. Nothing carries it.
+> neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned.
+> **Save anything untracked or ignored first** — `.env`, `.secrets/`, in-flight work. Nothing
+> carries it. What step 6 moved across into the extracted repo needs saving most: that repo holds
+> the only copy of it, and deleting it below destroys it. Then abort is
+> `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if step 9 has
+> already pushed it — plus deleting the extracted repo and its remote, and reverting the hub's
+> step-7 and step-8 commits, pushed if step 9 pushed them: left standing, that registry row sends
+> everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a re-clone:
+> step 9 makes you push the prune, so re-cloning hands the split state back, and on a project with
+> no remotes there is nothing to re-clone from.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
    path being extracted, the new repo's name, and the origin's tip (`git rev-parse --short HEAD`,
@@ -329,9 +331,11 @@ special here, which is why it gets no steps of its own below.
    resolves link targets into the code repos, so a *correct* split makes hub links dangle —
    `scripts/links.sh` fails on a finished split and passes on an unfinished one. Step 7 is what
    makes step 9 satisfiable.
-8. **Register it.** Add the new repo's row to `registries/repos.yml` with its `provenance:` block:
-   the repo it came from, today's date, and the last commit the two repos share — the tip you
-   wrote down at step 1, which resolves in both. Your-row-only, per `collaboration.md` §5.
+8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
+   and the Architecture Overview entry together. **Add a `provenance:` block to that row before
+   the action commits**, so the registration stays one commit: the repo it came from, today's
+   date, and the last commit the two repos share — the tip you wrote down at step 1, which
+   resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
 9. **Verify.**
    - Both repos **build and test**.
    - `git status` shows nothing new in either repo — in the origin, only what was already
@@ -426,15 +430,27 @@ repos of their own. This happens at most once per project.
    own copy on disk still shows all three.
 7. **Remotes.** Create each **private** — every one of them now carries the whole mono repo's
    history, and widening any of them is a separate decision to make deliberately later, not a
-   side effect of the split. Push trunk, then record `remote:` in
-   `registries/repos.yml`. Every row in that file is now a split-out repo, so each also gets a
-   `provenance:` block — naming the mono repo, today's date, the last commit they all share (the
-   mono tip the clones were taken from at step 5; that workspace is on disk until step 11, so read
-   it there), and
-   the `origin` URL you wrote down at step 2 as `archive_remote:`. **That commit has to exist on
-   the archive too** — if the mono trunk you cloned at step 5 was ahead of its remote, push it
-   there before you record these, because step 12 makes that host read-only. **Delete the
-   mono-repo-for-now note** above the rows; it stops being true the moment this step runs.
+   side effect of the split. Push trunk, then record each repo in `registries/repos.yml`.
+   **If that file carries a row for the workspace root** — `location: "."` — **delete it first.**
+   The root stops being a repository at this step, so the row describes nothing afterwards; what
+   replaces it is the folder rows already in the file, which become real repos here. A registry
+   written before the root row existed has none, in which case there is nothing to delete and
+   nothing else about this step changes.
+   **Run the register action** (`runbooks/register-repo.md`) **once per code repo** — it records
+   that repo's `remote:` and writes its Architecture Overview entry alongside the row. This step is
+   what makes that possible: until now those rows pointed at folders inside one repository, and
+   from here they are repositories of their own. **The docs hub and `prompts/` are the exception**
+   — `init.sh` seeded their rows and the action leaves seeded rows alone, so write those two
+   `remote:` fields by hand.
+   Every **remaining** row is now a split-out repo, so each also gets a `provenance:` block, which
+   the action does not write. **Add it to the row while you are there** — for a code repo that
+   means before the action's commit, so its registration stays one commit. It names the mono repo,
+   today's date, the last commit they all share (the mono tip the clones were taken from at step 5;
+   that workspace is on disk until step 11, so read it there), and the `origin` URL you wrote down
+   at step 2 as `archive_remote:`. **That commit has to exist on the archive too** — if the mono
+   trunk you cloned at step 5 was ahead of its remote, push it there before you record these,
+   because step 12 makes that host read-only. **Delete the mono-repo-for-now note** — the paragraph
+   opening `Mono-repo-for-now:` — which stops being true the moment this step runs.
    **Push the hub last**, after its registry commit, or none of these rows reaches a teammate.
    **Stop before the first create and push** — this is where the whole mono history leaves your
    machine, once per repo, and where private-or-not stops being a local decision.

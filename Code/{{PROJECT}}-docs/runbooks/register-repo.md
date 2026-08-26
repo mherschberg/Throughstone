@@ -89,8 +89,9 @@ precondition aborts the action, and neither does this.
    that is not here is a skip, not a failure. Then commit: **one commit per repository**, each
    naming its paths explicitly, never `git add -A`. The action spans at least two repositories by
    construction — the row and the architecture entry are in the docs hub, the README section and the
-   notice are in the repo — so a single commit was never possible. Writes land on the **STEP branch**
-   (`METHOD.md` §7), never on a repository's trunk.
+   notice are in the repo — so a single commit was never possible. Writes land on the **STEP branch**,
+   never on a repository's trunk — except where that STEP is branchless, as `METHOD.md` §7 makes
+   the mono→multi split; there they land on trunk with the rest of that split's commits.
 
 **Before you commit the docs-hub change, run `scripts/check.sh` once** and fix anything it reports
 about the registry. Once per registration session, not once per repository.
@@ -135,7 +136,9 @@ the one that should not have been on the list.
 This action is **idempotent and resumable**. Re-running it on a registered repo refreshes the row
 rather than duplicating it — and if a `## Role in <project>` section is already in the README,
 **update it in place; never append a second one.** `readme: extended` on the row tells you it is
-there before you open the file. Re-running is also the fix when a check-in finds the row and the
+there before you open the file. Refreshing means updating what this action writes, not rebuilding
+the row: a `provenance:` block, which only a split writes (`runbooks/splitting-repos.md`), is left
+exactly as it stands. Re-running is also the fix when a check-in finds the row and the
 Architecture Overview entry out of step.
 
 ## Output / record
