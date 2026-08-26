@@ -69,10 +69,11 @@ doc was wrong, that's a fix for Part 4.
 ## Part 3 — Find similar issues  *(substep N.2)*
 The bug you saw is an *instance of a class*. Before fixing, **hunt the class**: search the
 codebase for the same pattern elsewhere — the same unchecked input, the same missing timeout,
-the same migration shape, the same assumption — across **all repos**, not just the file that
-broke. List every sibling you find. This is the step that turns one fix into "this whole
+the same migration shape, the same assumption — across **every repo you can reach**, not just
+the file that broke. List every sibling you find. This is the step that turns one fix into "this whole
 category can't bite us again," and it's the one most often skipped. Record what you searched for
-and what you found — including "searched X, found none," which is a real result, not a blank.
+and what you found — including "searched X, found none," which is a real result, not a blank —
+and name any repo you couldn't reach, so a partial sweep reads as partial rather than as clean.
 
 ## Part 4 — Fix & harden  *(substep N.3)*
 Fix the root cause **and** every sibling found in Part 3, in this STEP. Then close the loop so

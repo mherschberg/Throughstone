@@ -190,6 +190,29 @@ any project built with it.
   value is an error. That last part is a small behavior change — the value used to be checked only
   in mono-repo layout, so `--registries=maybe --layout=multi` was silently accepted and now fails
   the way mono-repo already did.
+- **The process docs now name the registration action instead of describing a registry row.** Eight
+  shipped files still told an agent to go write a `registries/repos.yml` row by hand, or swept "all
+  repos" as though every one of them were on the machine. `AGENTS.md`, the substep prompt template
+  and `runbooks/collaboration.md` §8 now say *register it* and point at `runbooks/register-repo.md`;
+  none of them knows a field name any more, so they stay correct when the fields change — which is
+  the exact way the previous attempt at this rotted. The STEP plan template and the STEP index seed
+  record that a repository the method only references never appears in a STEP's Repos projection.
+  Two files change what they actually do. **The check-in's repo-README sweep is now driven by the
+  row**: the whole file where the method wrote that README, only the `## Role in <project>` section
+  where it augmented somebody else's, and nowhere else at all — there it edits nothing and re-asks
+  the one question the README answers for the project, whether someone standing in that repo can
+  still find their way back. The "do the setup steps still work from a clean checkout" check is
+  deliberately dropped for repositories the project does not own, since that is a judgement about
+  their repo rather than about our connection to it. The check-in also treats a registry row and its
+  Architecture Overview entry as **one** thing that drifts — re-run the registration, never edit
+  either by hand — and stops re-asking the licensing question per repository, which is settled once
+  for the whole project. **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to
+  repositories the method created**: as written it would have created a second remote for a
+  repository someone else owns and pushed their history into it.
+  Three read-only sweeps — the check-in's full test run, the dependency audit, and the incident
+  runbook's hunt for similar issues — asked for "all repos" and now ask for every repo you can
+  reach, with the unreachable ones named. The failure that guards against is not missing a
+  repository; it is a partial sweep that reads as a complete one.
 
 ### Fixed
 - **One repository you cannot clone no longer costs you the whole workspace.**

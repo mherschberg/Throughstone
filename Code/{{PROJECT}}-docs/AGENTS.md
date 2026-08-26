@@ -125,7 +125,8 @@ pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
 
 `registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
-`ARCHITECTURE.md` if it has deep internals). **Before working in a repo, read its README
+`ARCHITECTURE.md` if it has deep internals). A repo joins it by being **registered**
+(`runbooks/register-repo.md`). **Before working in a repo, read its README
 first** — the same way you read the architecture docs before a design change.
 When creating an application-code repo, also apply the project-license posture recorded at
 bootstrap by running
@@ -167,9 +168,10 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   rewrite an accepted ADR's decision — supersede it or append an amendment.
 - **Keep the docs true.** When implementation changes an architecture decision, update the
   affected `Code/{{PROJECT}}-docs/architecture/NN-*.md` and bump its Version Log, or write an
-  ADR. New code counts too: a new component or repo may need the Architecture Overview
-  architecture doc (`architecture/*-architecture-overview.md`) / `registries/repos.yml`, and
-  a new domain term may need the Glossary architecture doc — don't let a doc go stale (see
+  ADR. New code counts too: a new component may need the Architecture Overview architecture
+  doc (`architecture/*-architecture-overview.md`), a new **repo** is **registered**
+  (`runbooks/register-repo.md`), and a new domain term may need the Glossary architecture
+  doc — don't let a doc go stale (see
   `Code/{{PROJECT}}-docs/METHOD.md` §6).
 - **Inputs are point-in-time; `architecture/` is the living truth.** Treat anything in
   `Code/{{PROJECT}}-docs/inputs/` as a *starting point*, not a current source of truth: where a

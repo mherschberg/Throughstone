@@ -88,10 +88,14 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
    `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §7,
-   `runbooks/collaboration.md` §9, `prompts/README.md`, and the header comment in
+   `runbooks/collaboration.md` §8 and §9, `prompts/README.md`, and the header comment in
    `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
    template but belongs in this group: it carries the `## Role in <project>` section the new
-   runbook sends you to write into a repo that already exists.
+   runbook sends you to write into a repo that already exists. **The files that route to the new
+   runbook come with them**: `AGENTS.md`, `runbooks/check-in.md`,
+   `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the three
+   templates you author STEPs and substeps from — `templates/substep-prompt-template.md`,
+   `templates/step-plan-template.md` and `templates/step-index-seed.md`.
 2. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
@@ -136,15 +140,26 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`,
-  `registries/repos.yml`'s header, and `templates/repo-readme-template.md`): two new runbooks plus
-  the edits that route to them — `METHOD.md` §7 gains the mono→multi special case (that STEP is
+  `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §8 and §9,
+  `prompts/README.md`, `registries/repos.yml`'s header, `AGENTS.md`, `runbooks/check-in.md`,
+  `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the templates
+  `repo-readme-template.md`, `substep-prompt-template.md`, `step-plan-template.md` and
+  `step-index-seed.md`): two new runbooks plus the edits that route to them —
+  `METHOD.md` §7 gains the mono→multi special case (that STEP is
   branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
   and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
-  `templates/repo-readme-template.md` travels with them despite being a template: it gained the
+  `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
+  registry row and name the registration action; `check-in.md`,
+  `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; the
+  two STEP templates carry the projection rule.
+  **Four templates travel with this group even though §2's buckets call templates future-only.**
+  `templates/repo-readme-template.md` gained the
   `## Role in <project>` augment form, which is what `runbooks/register-repo.md` sends you to when a
-  repo already has a README, so a 1.7 copy of it leaves the new runbook pointing at nothing.
+  repo already has a README, so a 1.7 copy of it leaves the new runbook pointing at nothing. The
+  other three are what you author STEPs and substeps from: a 1.7 substep template still sends an
+  agent off to write a registry row by hand, and the two 1.7 STEP templates carry no projection
+  rule at all.
   Apply them as a coherent group; they reference each other. No `status.sh` change, and no split-
   specific check: 1.8's new `check.sh` checks read `registries/repos.yml` for its own consistency
   and shape, and nothing detects registry drift *after a split* — a row that still describes a
@@ -189,6 +204,36 @@ control. And a repository the method only *references* never appears in a STEP's
 STEP is work Throughstone does, in repositories it controls. Both matter from the moment you mark a
 repo `external`, or run a STEP that writes into an adopted one; until then there is nothing to
 change.
+
+**Your process docs now point at that procedure, and two of them behave differently because of
+it.** Everything that used to send an agent off to write a `registries/repos.yml` row by hand —
+`AGENTS.md`, the substep prompt template, `runbooks/collaboration.md` §8 — names the registration
+action instead. None of them describes a row any more, which is what keeps them correct as the
+fields change. The two STEP templates carry the projection rule above. Two things actually behave
+differently:
+
+- **Your next check-in sweeps repo READMEs by row rather than uniformly.** Where the row says
+  Throughstone wrote that README, the sweep is what it always was — Overview, Setup / Running /
+  Testing, and any `ARCHITECTURE.md`. Where Throughstone only added a section to someone else's
+  README, the sweep is that section and nothing else. Anywhere else it edits nothing at all and
+  asks one question: can someone standing in this repo still find their way back to the project?
+  **The "do the setup steps still work from a clean checkout" check is deliberately gone for
+  repos you do not own** — that is a judgement about somebody else's repository rather than about
+  your connection to it. Two smaller shifts ride along: a registry row and its Architecture
+  Overview entry now count as **one** thing that drifts, fixed by re-running the registration
+  rather than by editing either side; and the licensing question is never re-asked per repo,
+  because that posture lives in one project-wide file.
+- **`runbooks/collaboration.md` §9 no longer stands up a remote for every repo.** Going solo to
+  team, the create-a-remote-and-push-your-history step is now scoped to repos Throughstone
+  created. As it stood, following it literally would have created a second remote for a
+  repository someone else owns and pushed their history into it. Recording a remote a repo
+  already has is unchanged, and every repo that has one still gets its `remote:` field.
+
+**Three read-only sweeps stop over-promising.** The check-in's full test run, the dependency
+audit and the incident runbook's hunt for similar issues each asked for "all repos"; they now ask
+for every repo you can reach, and for the ones you can't to be named. What that guards against is
+not missing a repo — it is a partial sweep that reads as a clean one. If every repo your project
+has is on your machine, nothing about these three changes for you.
 
 Adding the fields is a **safe additive edit**: it inserts lines into each row and changes no existing
 data. `registries/repos.yml` is your project's own record, like `inputs/inputs-index.md`, so it is

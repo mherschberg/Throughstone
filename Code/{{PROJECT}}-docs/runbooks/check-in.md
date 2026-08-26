@@ -61,6 +61,12 @@ place; the Glossary architecture doc vs. the terms the code now uses. Also
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
 with its current version/status).
 
+**The repo registry drifts as a pair.** A repo with no row, or a row whose Architecture Overview
+entry disagrees with it, is fixed by **re-running the registration** (`register-repo.md`) —
+never by editing either side by hand, because the two move together. Rows the doctor named as
+carrying no control record are answered **as one list, once** rather than repo by repo, and
+never mechanically; `provides:` fills by looking at each repo you can reach.
+
 ### Conditional-session coverage
 
 Re-evaluate conditional architecture coverage against the system as it exists now. Enumerate
@@ -141,10 +147,14 @@ line (to `full` once the area is complete), updates related architecture docs an
 the check-in itself.
 
 Beyond the architecture docs, sweep four things that rot just as quietly:
-- **Repo READMEs** — every code repo has one, its **Overview** still describes what the repo
-  *is*, and the **Setup / Running / Testing** steps still work from a clean checkout. They're
-  stamped once at repo creation and otherwise never re-checked, so they're usually the stalest
-  doc a new contributor or agent hits first (and any `ARCHITECTURE.md` still matches the design).
+- **Repo READMEs** — usually the stalest doc a new contributor or agent hits first. Sweep each
+  repo present on this machine, led by its `readme:` status. **`ours`** — the whole file: the
+  **Overview** still describes what the repo *is*, the **Setup / Running / Testing** steps still
+  work from a clean checkout, and any `ARCHITECTURE.md` still matches the design. **`extended`**
+  — only our part, `## Role in <project>` through to the next `##`. **Anything else** — don't
+  edit it; just re-ask the one question a README has to answer for us: can someone standing in
+  this repo still find their way back to the project? Licensing is never re-asked per repo — one
+  posture, in `.throughstone/project-license`, covers the project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. A
@@ -215,7 +225,8 @@ Update `registries/security-reviews.yml` only when a review actually runs, not m
 the gate was evaluated.
 
 ## Part 2 — Run all tests  *(substep N.2)*
-- Run the **full** test suite (all repos), not just the area you last touched.
+- Run the **full** test suite — across every repo you can reach, not just the area you last
+  touched — and name any you can't, so a partial sweep reads as partial rather than as clean.
 - Record the result: pass/fail counts, anything skipped, and coverage if you track it. Put
   durable test-result or coverage-report details under `reports/test-results/` and summarize the
   important outcome in the check-in report.
