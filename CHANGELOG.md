@@ -213,6 +213,27 @@ any project built with it.
   runbook's hunt for similar issues — asked for "all repos" and now ask for every repo you can
   reach, with the unreachable ones named. The failure that guards against is not missing a
   repository; it is a partial sweep that reads as a complete one.
+- **The planning session stops judging a repository by its README.** Its repo-scaffolding step
+  decided whether a repo the architecture names already existed by reading that repo's README — a
+  repo counted as already there only if it had a registry row **and** a README whose role one-liner
+  and Overview were filled in. That is a test of prose, and it failed in the direction that costs
+  you something: **a real repository with a thin README was judged absent and scaffolded over**,
+  which means a stack, a CI workflow, an `.env.example`, a `.gitignore` block and possibly a
+  license written into somebody's existing work. The step now asks the two questions that actually
+  answer it — is this repo already registered, and if not, is there a repository at that location,
+  meaning a repository's own work-tree root rather than a folder that looks finished. Asking the
+  registry first means a repo the project already knows about is never re-created, **including one
+  that is registered but not cloned on this machine**, which a disk test on its own would report
+  absent. Where no repository is found the step creates one exactly as before, with the whole
+  scaffolding list unchanged. Where one is found, **no stack wiring, no CI, no `.env.example`, no
+  `.gitignore` block and no project `LICENSE`** go into it, and it is registered instead — what
+  does land there is the registration action's call. Either way it goes through that one action,
+  which writes the registry row and the Architecture Overview entry together — a STEP's work, as
+  the creating always was; the session decides and outlines, and writes only the STEP-index rows.
+  A greenfield
+  first run is unchanged:
+  nothing is registered and no location holds a repository, so every repo is created exactly as it
+  is today.
 
 ### Fixed
 - **One repository you cannot clone no longer costs you the whole workspace.**

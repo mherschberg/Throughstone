@@ -95,7 +95,8 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    runbook come with them**: `AGENTS.md`, `runbooks/check-in.md`,
    `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the three
    templates you author STEPs and substeps from — `templates/substep-prompt-template.md`,
-   `templates/step-plan-template.md` and `templates/step-index-seed.md`.
+   `templates/step-plan-template.md` and `templates/step-index-seed.md` — **and
+   `templates/planning-session.md`**, whose repo-scaffolding step routes there too.
 2. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
@@ -143,8 +144,9 @@ appendix covers purging history first when that matters.
   `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §8 and §9,
   `prompts/README.md`, `registries/repos.yml`'s header, `AGENTS.md`, `runbooks/check-in.md`,
   `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the templates
-  `repo-readme-template.md`, `substep-prompt-template.md`, `step-plan-template.md` and
-  `step-index-seed.md`): two new runbooks plus the edits that route to them —
+  `repo-readme-template.md`, `substep-prompt-template.md`, `step-plan-template.md`,
+  `step-index-seed.md` and `planning-session.md`): two new runbooks plus the edits that route to
+  them —
   `METHOD.md` §7 gains the mono→multi special case (that STEP is
   branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
@@ -152,14 +154,17 @@ appendix covers purging history first when that matters.
   `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
   registry row and name the registration action; `check-in.md`,
   `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; the
-  two STEP templates carry the projection rule.
-  **Four templates travel with this group even though §2's buckets call templates future-only.**
+  two STEP templates carry the projection rule; and the planning session decides whether a repo
+  the architecture names already exists by looking for a repository rather than by reading a
+  README.
+  **Five templates travel with this group even though §2's buckets call templates future-only.**
   `templates/repo-readme-template.md` gained the
   `## Role in <project>` augment form, which is what `runbooks/register-repo.md` sends you to when a
   repo already has a README, so a 1.7 copy of it leaves the new runbook pointing at nothing. The
-  other three are what you author STEPs and substeps from: a 1.7 substep template still sends an
+  next three are what you author STEPs and substeps from: a 1.7 substep template still sends an
   agent off to write a registry row by hand, and the two 1.7 STEP templates carry no projection
-  rule at all.
+  rule at all. `templates/planning-session.md` is the fifth, and it is the one that changes
+  behavior — see below.
   Apply them as a coherent group; they reference each other. No `status.sh` change, and no split-
   specific check: 1.8's new `check.sh` checks read `registries/repos.yml` for its own consistency
   and shape, and nothing detects registry drift *after a split* — a row that still describes a
@@ -205,12 +210,12 @@ STEP is work Throughstone does, in repositories it controls. Both matter from th
 repo `external`, or run a STEP that writes into an adopted one; until then there is nothing to
 change.
 
-**Your process docs now point at that procedure, and two of them behave differently because of
+**Your process docs now point at that procedure, and three of them behave differently because of
 it.** Everything that used to send an agent off to write a `registries/repos.yml` row by hand —
 `AGENTS.md`, the substep prompt template, `runbooks/collaboration.md` §8 — names the registration
 action instead. None of them describes a row any more, which is what keeps them correct as the
-fields change. The two STEP templates carry the projection rule above. Two things actually behave
-differently:
+fields change. The two STEP templates carry the projection rule above. Three things actually
+behave differently:
 
 - **Your next check-in sweeps repo READMEs by row rather than uniformly.** Where the row says
   Throughstone wrote that README, the sweep is what it always was — Overview, Setup / Running /
@@ -228,6 +233,21 @@ differently:
   created. As it stood, following it literally would have created a second remote for a
   repository someone else owns and pushed their history into it. Recording a remote a repo
   already has is unchanged, and every repo that has one still gets its `remote:` field.
+- **The planning session no longer decides a repo exists by reading its README.** Its
+  repo-scaffolding step used to count a repo as already there only if it had a registry row
+  **and** a README whose role one-liner and Overview were filled in — so a real repository with a
+  thin README was judged absent and scaffolded over, writing a stack, CI, an `.env.example`, a
+  `.gitignore` block and possibly a license into somebody's existing work. It now asks whether the
+  repo is already registered, and if it is not, whether there is a repository at that location —
+  a work-tree root, not a folder that looks finished. Asking the registry first also means a repo
+  you have registered but **not cloned on this machine** is never re-created. Where no repository
+  is found, the step creates one exactly as before. Where one is found, **no stack wiring, no CI,
+  no `.env.example`, no `.gitignore` block and no project `LICENSE`** go into it, and it is
+  registered instead — what does land there is the registration action's call. Creating and
+  registering are both a STEP's
+  work, as they always were; the session decides and outlines. Adopt the reworded step.
+  Nothing of yours is rewritten, and a first run on a fresh project behaves exactly as it did in
+  1.7.
 
 **Three read-only sweeps stop over-promising.** The check-in's full test run, the dependency
 audit and the incident runbook's hunt for similar issues each asked for "all repos"; they now ask
