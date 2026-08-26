@@ -89,7 +89,9 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
    `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §7,
    `runbooks/collaboration.md` §9, `prompts/README.md`, and the header comment in
-   `registries/repos.yml`).
+   `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
+   template but belongs in this group: it carries the `## Role in <project>` section the new
+   runbook sends you to write into a repo that already exists.
 2. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
@@ -135,10 +137,14 @@ appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
   `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §9, `prompts/README.md`,
-  `registries/repos.yml`'s header): two new runbooks plus the edits that route to them — `METHOD.md` §7 gains the mono→multi special case (that
-  STEP is branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
+  `registries/repos.yml`'s header, and `templates/repo-readme-template.md`): two new runbooks plus
+  the edits that route to them — `METHOD.md` §7 gains the mono→multi special case (that STEP is
+  branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
   and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
+  `templates/repo-readme-template.md` travels with them despite being a template: it gained the
+  `## Role in <project>` augment form, which is what `runbooks/register-repo.md` sends you to when a
+  repo already has a README, so a 1.7 copy of it leaves the new runbook pointing at nothing.
   Apply them as a coherent group; they reference each other. No `status.sh` change, and no split-
   specific check: 1.8's new `check.sh` checks read `registries/repos.yml` for its own consistency
   and shape, and nothing detects registry drift *after a split* — a row that still describes a
