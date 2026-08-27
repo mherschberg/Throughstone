@@ -27,6 +27,28 @@ cd "$ROOT"
 echo "Workspace root: $ROOT"
 echo "Docs hub:       $DOCS_REL"
 
+# --- 0. Refuse a mono-repo-for-now workspace ---------------------------------
+# Mono (METHOD.md §7) is one repository, and the workspace root IS that repository. There the
+# three files written below are committed rather than per-machine, and no row in the registry is
+# a repo to clone. This script has declared itself multi-repo-only since it was written and then
+# run anyway: in a mono clone it rewrote three tracked files with per-machine versions asserting
+# the root is not a repo, said "Done", and left the contributor holding modifications they never
+# made — which a `git add -A` would then commit for the whole team.
+#
+# The test is the one check.sh uses to decide whether a location is a repository, on physical
+# paths both sides. In multi the workspace root is never a work-tree root; in mono it always is.
+# A workspace that merely sits inside some other repository answers no, because the comparison is
+# against this root rather than against any root.
+root_toplevel="$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -n "$root_toplevel" ] && [ "$root_toplevel" = "$(pwd -P)" ]; then
+  echo
+  echo "This workspace root is itself a git repository, so this is a mono-repo-for-now project."
+  echo "Nothing to assemble: the root pointers are committed in that repository, and no row in"
+  echo "registries/repos.yml is a separate repo to clone. The clone you already have is the"
+  echo "whole workspace."
+  exit 0
+fi
+
 # --- 1. Write the per-machine root pointers/helpers --------------------------
 # These are written before the clone step deliberately, but the ordering is not what makes the
 # clone step safe — step 2 warns and continues instead of aborting, so it can no longer take the

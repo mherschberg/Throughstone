@@ -498,6 +498,29 @@ run_setup "$tw"
 assert_assembled "mono root with a remote" "$tw"
 assert_out "mono root with a remote" "warning: could not clone"
 
+echo "A real mono checkout: the script recognises it and writes nothing ..."
+# The two cases above use a teammate fixture whose root is not a repository, so they exercise the
+# mono *registry* rather than a mono workspace. This is the workspace itself: init.sh made the
+# root a repo and committed the pointers into it, which is what made running this script there
+# destructive rather than merely pointless — three tracked files rewritten, and "Done" printed
+# over the top of it.
+tw="$TMP_ROOT/tw-monoreal"
+rm -rf "$tw"
+cp -R "$mono" "$tw"
+[ -d "$tw/.git" ] \
+  || bad "fixture is not exercising the shape it claims: the mono workspace root is not a repo"
+[ -z "$(git -C "$tw" status --porcelain)" ] \
+  || bad "fixture: the mono checkout is already dirty before the run"
+run_setup "$tw"
+[ "$SETUP_STATUS" -eq 0 ] || bad "mono checkout: expected exit 0, got $SETUP_STATUS"
+assert_out     "mono checkout" "mono-repo-for-now"
+assert_not_out "mono checkout" "Writing per-machine pointers"
+assert_not_out "mono checkout" "Cloning sibling repos"
+# The assertion that matters: a committed file is not touched, so there is nothing to commit by
+# accident afterwards.
+[ -z "$(git -C "$tw" status --porcelain)" ] \
+  || bad "mono checkout: the run modified tracked files: $(git -C "$tw" status --porcelain | tr '\n' ' ')"
+
 if [ "$failures" -eq 0 ]; then
   printf 'PASS: setup-workspace.sh assembles the workspace in every measured failure shape\n'
   exit 0

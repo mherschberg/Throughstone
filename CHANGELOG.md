@@ -269,6 +269,17 @@ any project built with it.
   root and everybody who joined afterwards did not, in both layouts. The two writers now produce
   the same text, and the regression fixture checks the paragraph is there rather than only that
   the file is.
+- **`scripts/setup-workspace.sh` recognizes a mono-repo-for-now workspace and stops.** It has
+  declared itself multi-repo-only since it was written, and then run anyway. Mono is one
+  repository and the workspace root *is* that repository, so the root `AGENTS.md`, `CLAUDE.md`
+  and `doctor.sh` are committed files rather than per-machine ones — and running this script there
+  rewrote all three with per-machine versions asserting the root is not a repo, dropping 46 lines
+  from `doctor.sh`, then printed "Done". The contributor was left holding three modified tracked
+  files they never edited, which a `git add -A` would commit for the whole team. Nothing warned
+  them; the only warning lived in the mono branch of `runbooks/collaboration.md`, which is not
+  where you are if you are following generic setup steps. The script now compares the workspace
+  root against its own git work-tree root — the test `scripts/check.sh` already uses — and exits
+  successfully without writing anything. The runbook says so in a sentence instead of a paragraph.
 - **A comment or a quoted path in `location:`/`remote:` is read the way YAML reads it.**
   `scripts/setup-workspace.sh` stripped one optional double quote from each end of those two values
   and nothing else, so `location: Code/api # local checkout` cloned into a directory literally named

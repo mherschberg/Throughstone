@@ -281,11 +281,11 @@ flow (§6). The transition is mostly mechanical:
    **Mono-repo-for-now** (`METHOD.md` §7) has one repo, the workspace root, so this is one
    remote rather than several: create it, push the root repo's existing history to it, and have
    each new contributor clone that single repo. Don't add `remote:` fields to
-   `registries/repos.yml` and **don't run `scripts/setup-workspace.sh`** — no row in that file is
-   a repo to clone (one *is* the repository you already have; the rest are folders inside it),
-   and the script is for multi-repo workspaces: run in a mono clone it overwrites the committed
-   root `CLAUDE.md`, `AGENTS.md` and `doctor.sh` with per-machine pointers asserting the root is
-   not a repo. Everything else is the same, including number reservation, which needs a shared
+   `registries/repos.yml`, and **there is nothing for `scripts/setup-workspace.sh` to do** — no
+   row in that file is a repo to clone (one *is* the repository you already have; the rest are
+   folders inside it), and the root pointers are committed rather than per-machine. The script
+   recognizes a mono workspace and stops without writing anything, so running it by mistake costs
+   nothing. Everything else is the same, including number reservation, which needs a shared
    remote and not a particular number of them. Whether to split is a separate question, answered
    by the architecture rather than by the size of the team — see `splitting-repos.md`.
 2. **Have each contributor create their local profile** (`.throughstone/local-user.md`) during
