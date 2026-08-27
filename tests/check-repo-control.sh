@@ -342,10 +342,11 @@ refute "[FAIL]" "a commented flow mapping is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "commented flow mapping — expected exit 0, got $DOC_STATUS"
 
 # location: and remote: are the two values setup-workspace.sh consumes, and it reads them with the
-# same function this script does, so a quoted path and a trailing comment are not findings. Two
-# shapes still divide the readers: a quote with no partner, which has nothing to stop at and takes
-# the rest of the line into the value, and a |, the separator the clone loop splits its own fields
-# on. Both are typos; neither is a style someone would choose.
+# same function this script does, so a quoted path and a trailing comment are not findings. What is
+# still reported is a value that opens a quote and does not end there — the quote never closes, or
+# it closes and something other than a comment follows — and a |, the separator the clone loop
+# splits its own fields on. The trailing-text row is the one that matters: cleaning a quoted value
+# by stopping at the first quote made it a silent truncation instead, agreed on by both readers.
 reg_rows "$work" <<'EOF'
   - name: "acme-api"
     location: "Code/acme-api/"
@@ -359,10 +360,17 @@ reg_rows "$work" <<'EOF'
     type: app
     origin: created
     control: managed
+
+  - name: "acme-suffix"
+    location: "Code/acme-suffix"-copy
+    type: app
+    origin: created
+    control: managed
 EOF
 doctor "$work"
-expect "remote: opens a quote that is never closed" "rule 2 unterminated quote on a consumed value"
+expect "remote: opens a quote that does not close the value" "rule 2 unterminated quote on a consumed value"
 expect "location: contains a |, which setup-workspace.sh splits on" "rule 2 separator in a consumed value"
+expect "acme-suffix -> location: opens a quote that does not close the value" "rule 2 text after a closing quote"
 expect "RESULT: FAIL" "rule 2 location/remote"
 
 # And the shapes that are now ordinary. The 1.7 example row modelled the commented remote:, so this
@@ -374,9 +382,15 @@ reg_rows "$work" <<'EOF'
     origin: created
     control: managed
     remote: "git@example.com:acme/api.git"   # team mode: setup-workspace.sh clones this
+
+  - name: "acme-apostrophe"
+    location: 'Code/acme''s-api/'
+    type: service
+    origin: created
+    control: managed
 EOF
 doctor "$work"
-refute "opens a quote that is never closed" "a comment after a closed quote is not an open quote"
+refute "does not close the value" "a comment after a closed quote closes the value"
 refute "[FAIL]" "commented location/remote is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "commented location/remote — expected exit 0, got $DOC_STATUS"
 

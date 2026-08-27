@@ -378,7 +378,8 @@ echo "The doctor and the clone loop read location:/remote: the same way ..."
 # somewhere else — silently, at exit 0, when the wrong path happens to be writable. Both now read
 # a scalar with the same function, and this is where that is held to account: one table of shapes,
 # every one of them ordinary YAML, run through both readers at once. The doctor must pass the file
-# and the clone must arrive at the path YAML says the value is.
+# and the clone must arrive at the path YAML *says* the value is — not merely the same path both
+# readers happen to derive, which is a weaker property that a shared misreading satisfies.
 tw="$(teammate agree "$MULTI_DOCS")"
 add_row "$tw" <<EOF
 
@@ -430,6 +431,13 @@ add_row "$tw" <<EOF
     origin: created
     control: managed
     remote: "$REACHABLE"
+
+  - name: "apostrophe"
+    location: 'Code/apos''trophe'
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
 EOF
 
 # The doctor half: this file is legal, and saying so is half the agreement.
@@ -447,6 +455,12 @@ for d in q-plain u-plain sq-plain q-comment u-comment sq-comment; do
   assert_cloned "reader agreement ($d)" "$tw/Code/$d"
 done
 assert_cloned "reader agreement (quoted hash)" "$tw/Code/hash # inside"
+# Agreement is not correctness, and this row is why the distinction is in the fixture. A doubled
+# quote inside a single-quoted YAML scalar is one literal character; reading the value by stopping
+# at the first quote truncated it, and because both readers shared that reading they agreed on the
+# wrong path and every assertion above still passed.
+assert_cloned "reader agreement (escaped apostrophe)" "$tw/Code/apos'trophe"
+assert_not_cloned "reader agreement (truncated at the escape)" "$tw/Code/apos"
 assert_not_out "reader agreement" "did not arrive"
 # The directories the naive reading actually produced, named so a regression cannot pass quietly:
 # a single-quoted value made a top-level folder called `Code, and a commented one carried the

@@ -429,18 +429,37 @@ registry_rows() {
     # clean is the one reading of a scalar this file has. setup-workspace.sh carries the same
     # function over the same two fields, so the doctor and the clone loop cannot end up looking
     # at different strings; the fixture in tests/ runs a shared table through both.
-    function clean(v,   q, i) {
+    function clean(v,   q, i, c, out, rest) {
       # A record is tab-separated, so a tab *inside* a value would spill it into the next
       # column and every reader would take the truncated half. Neither a path nor a note
       # means anything by one, so it becomes a space here rather than being detected later.
       gsub(/\t/, " ", v)
-      # A value that opens with a quote ends at the matching one, and what follows is a comment
-      # or nothing — YAML says so, and neither is part of the value. An unterminated quote finds
-      # no partner, falls through, and comes back still carrying it, which is what check 13 sees.
+      # A value that opens with a quote ends at its closing one, and what may follow that is
+      # nothing or a comment. Two things this has to get right, because both were wrong before
+      # and both were wrong in silence. In a single-quoted YAML scalar a doubled quote is one
+      # literal character rather than the end of the value, so the walk steps over it. And text
+      # after the closing quote that is not a comment does not make a quoted value at all: the
+      # line is handed back whole, still carrying its opening quote, which is what check 13
+      # reports. An unterminated quote finds no partner and comes back the same way.
       q = substr(v, 1, 1)
       if (q == "\"" || q == SQ) {
-        i = index(substr(v, 2), q)
-        if (i > 0) return substr(v, 2, i - 1)
+        out = ""
+        i = 2
+        while (i <= length(v)) {
+          c = substr(v, i, 1)
+          if (c == q) {
+            if (q == SQ && substr(v, i + 1, 1) == SQ) { out = out q; i = i + 2; continue }
+            break
+          }
+          out = out c
+          i++
+        }
+        if (i <= length(v)) {
+          rest = substr(v, i + 1)
+          if (rest ~ /^[[:space:]]*$/ || rest ~ /^[[:space:]]+#/) return out
+        }
+        sub(/[[:space:]]+$/, "", v)
+        return v
       }
       # An unquoted value has no closing quote to stop at, so a trailing comment goes by position.
       # A flow mapping is left whole: the quotes and hashes inside it are its own, and check 11
@@ -704,12 +723,14 @@ else
           printf "2\tline %d: %s -> %s: opens a block scalar; values are single-line\n", $2, nm[$1], $5
         # location: and remote: are the two values the clone loop consumes verbatim. It now cleans
         # them with the same function this script does, so a quoted path and a trailing comment
-        # are read identically by both and neither is a finding. One shape still divides them: a
-        # quote that is never closed has no partner to stop at, so the rest of the line is taken
-        # into the value. And a | is the separator the clone loop splits its own fields on.
+        # are read identically by both and neither is a finding. What is still reported is a value
+        # that opens a quote and then does not end there: the quote is never closed, or it closes
+        # and something other than a comment follows it. Either way the line is not the quoted
+        # string it looks like, and clean hands it back whole so it arrives here still carrying
+        # the opening quote. And a | is the separator the clone loop splits its own fields on.
         if ($5 == "location" || $5 == "remote") {
           if (substr($6, 1, 1) == "\"" || substr($6, 1, 1) == SQ)
-            printf "2\tline %d: %s -> %s: opens a quote that is never closed\n", $2, nm[$1], $5
+            printf "2\tline %d: %s -> %s: opens a quote that does not close the value\n", $2, nm[$1], $5
           else if (index($6, "|"))
             printf "2\tline %d: %s -> %s: contains a |, which setup-workspace.sh splits on\n", $2, nm[$1], $5
         }
@@ -753,7 +774,7 @@ else
     if [ "$shape_ok" -eq 1 ]; then
       pass "parser rules hold: no shadowed field names, single-line values, location/remote both readers take the same way, disjoint name sets"
     else
-      hint "put every value on one line (provides: entries are flow mappings), close every quote you open in location: and remote: and keep a | out of them, keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
+      hint "put every value on one line (provides: entries are flow mappings), let a quoted location: or remote: end at its closing quote, with nothing but a comment after it, and keep a | out of them, keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
     fi
   fi
 fi

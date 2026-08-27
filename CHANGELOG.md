@@ -287,9 +287,10 @@ any project built with it.
   `remote:` handed git a URL with the comment glued to the end. The first two failed silently, at
   exit 0. `scripts/check.sh` had always read those values correctly, which is the worse half: the
   doctor reported the file was fine while the clone went elsewhere. Both scripts now read a scalar
-  with the same function — a value that opens with a quote ends at the matching one, and anything
-  after it is a comment — and a fixture runs one table of values through both readers and requires
-  them to agree. The registry rule that banned comments on those two lines is gone with the reason
+  with the same function — a value that opens with a quote ends at its closing one, a doubled quote
+  inside a single-quoted scalar is one literal character, and only a comment may follow the close;
+  anything else is reported rather than quietly truncated — and a fixture runs one table of values
+  through both readers and requires them to arrive at the path YAML says the value is. The registry rule that banned comments on those two lines is gone with the reason
   for it, and the header example carries its explanatory comment again.
 - **A `location:` outside the workspace root is no longer cloned into.** An absolute path, or one
   reaching out with `..`, is now reported and skipped. It used to be used verbatim, so a registry

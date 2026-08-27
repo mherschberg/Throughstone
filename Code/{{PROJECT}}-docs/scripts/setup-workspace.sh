@@ -158,12 +158,27 @@ if [ -f "$REG" ]; then
     # fields are the ones this loop consumes verbatim, so a doctor that passed a value this loop
     # then read differently was the single failure neither script could report: the check said
     # the file was fine and the clone landed somewhere else. tests/ runs one table through both.
-    function clean(v,   q, i) {
+    function clean(v,   q, i, c, out, rest) {
       gsub(/\t/, " ", v)
       q = substr(v, 1, 1)
       if (q == "\"" || q == SQ) {
-        i = index(substr(v, 2), q)
-        if (i > 0) return substr(v, 2, i - 1)
+        out = ""
+        i = 2
+        while (i <= length(v)) {
+          c = substr(v, i, 1)
+          if (c == q) {
+            if (q == SQ && substr(v, i + 1, 1) == SQ) { out = out q; i = i + 2; continue }
+            break
+          }
+          out = out c
+          i++
+        }
+        if (i <= length(v)) {
+          rest = substr(v, i + 1)
+          if (rest ~ /^[[:space:]]*$/ || rest ~ /^[[:space:]]+#/) return out
+        }
+        sub(/[[:space:]]+$/, "", v)
+        return v
       }
       if (v !~ /[{]/) sub(/[[:space:]]+#.*$/, "", v)
       sub(/[[:space:]]+$/, "", v)
