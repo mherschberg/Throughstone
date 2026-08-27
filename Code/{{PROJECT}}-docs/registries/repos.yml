@@ -84,6 +84,10 @@
 # 2. **Every value is a single-line scalar, and `provides:` entries are flow mappings** — the form
 #    in the example row below. A flow mapping cannot hold a block scalar, so a note cannot span
 #    lines, which makes rule 1 impossible to violate rather than merely discouraged.
+#    **`location:` and `remote:` carry one more constraint**, because they are the two values those
+#    readers actually consume and they use them verbatim: nothing may follow a closing quote, and
+#    neither may contain a `|`, which is the field separator the clone loop splits on. Comments are
+#    welcome on any other line; on these two they become part of the path or the URL.
 # 3. **Comment lines are skipped** (`^[[:space:]]*#`). The example row below is fully formed and
 #    commented out one `#` per line; a reader that counted it as a row would report it missing
 #    every field.
@@ -124,7 +128,7 @@ repos:
   #   type: service
   #   origin: created                                      # created | adopted — written once
   #   control: managed                                     # managed | external — absent reads as external
-  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
+  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"
   #   description: "..."
   #   provides:                                            # only on a row whose location is a repo
   #     readme:  { status: ours,   note: "" }

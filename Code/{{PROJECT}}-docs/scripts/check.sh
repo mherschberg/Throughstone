@@ -647,6 +647,7 @@ else
     overlap="$(comm -12 <(emit "$(to_lines "$reserved_row")") <(emit "$(to_lines "$reserved_nested")") | tr '\n' ' ')"
     reg_shape="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' -v rowset="$reserved_row" -v nestset="$reserved_nested" '
       BEGIN {
+        SQ = sprintf("%c", 39)
         n = split(rowset, a, /[[:space:]]+/);  for (i = 1; i <= n; i++) if (a[i] != "") rowlvl[a[i]] = 1
         m = split(nestset, b, /[[:space:]]+/); for (i = 1; i <= m; i++) if (b[i] != "") nested[b[i]] = 1
       }
@@ -660,6 +661,16 @@ else
           printf "4\tline %d: %s -> row-level field %s: is not in reserved-row-level\n", $2, nm[$1], $5
         if ($6 ~ /^[|>]/)
           printf "2\tline %d: %s -> %s: opens a block scalar; values are single-line\n", $2, nm[$1], $5
+        # location: and remote: are the two values the line-prefix readers consume, and they take
+        # whatever survives cleaning, verbatim. A value still carrying its opening quote means
+        # something followed the closing one, and a | is the separator the clone loop splits on:
+        # either way that reader and this one are looking at different strings.
+        if ($5 == "location" || $5 == "remote") {
+          if (substr($6, 1, 1) == "\"" || substr($6, 1, 1) == SQ)
+            printf "2\tline %d: %s -> %s: has something after the closing quote\n", $2, nm[$1], $5
+          else if (index($6, "|"))
+            printf "2\tline %d: %s -> %s: contains a |, which setup-workspace.sh splits on\n", $2, nm[$1], $5
+        }
       }
       $3 == "nested" {
         if ($5 in rowlvl)
@@ -687,16 +698,16 @@ else
       [ -n "$hits" ] || continue
       case "$rule" in
         1) fail "row-level field name(s) used where a reader would misread them (rule 1):" ;;
-        2) fail "value(s) that are not single-line scalars (rule 2):" ;;
+        2) fail "value(s) a line-prefix reader would not take as written (rule 2):" ;;
         4) fail "field name(s) missing from the registry's reserved sets (rule 4):" ;;
       esac
       while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$hits"
       shape_ok=0
     done
     if [ "$shape_ok" -eq 1 ]; then
-      pass "parser rules hold: no shadowed field names, single-line values, disjoint name sets"
+      pass "parser rules hold: no shadowed field names, single-line values, plain location/remote, disjoint name sets"
     else
-      hint "put every value on one line (provides: entries are flow mappings), keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
+      hint "put every value on one line (provides: entries are flow mappings), leave location: and remote: plain — nothing after the closing quote and no | — keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
     fi
   fi
 fi

@@ -79,7 +79,8 @@ not fail the check.
 
 **Upgrading from 1.7? Nothing of yours is rewritten. There is one small edit worth making** —
 two lines per row in `registries/repos.yml`, which the project doctor now asks for by name —
-**one shape to look at in that same file**, since every value there has to sit on one line —
+**two shapes to look at in that same file** — every value there has to sit on one line, and the two
+the clone script reads have to be plain —
 **and, if your project is mono-repo-for-now, one thing to check**: whether your CI gate has ever
 actually run. Beyond those, nothing is required of
 you unless you are about to split a repository. The release adds a runbook for that, repeals one
@@ -101,9 +102,11 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
    this section.** Nothing rewrites the file for you.
-4. **If any value in `registries/repos.yml` is wrapped across two lines, join it onto one** and
-   quote it. `scripts/check.sh` now fails on a multi-line value — details at the end of this
-   section. Nothing else in 1.8 can turn a passing run red on its own.
+4. **Look at two shapes in `registries/repos.yml`.** If any value is wrapped across two lines, join
+   it onto one and quote it. And if any `location:` or `remote:` carries a trailing comment or a
+   `|`, take it off: the clone script reads those two verbatim, so it has been using the comment as
+   part of the path or the URL all along. `scripts/check.sh` now fails on both — details at the end
+   of this section. Nothing else in 1.8 can turn a passing run red on its own.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
 6. **Pull the three scripts, and three docs that stand on their own** — `scripts/check.sh`,
@@ -280,7 +283,8 @@ data. `registries/repos.yml` is your project's own record, like `inputs/inputs-i
 
 **What the doctor will say about that file after you pull 1.8.** `scripts/check.sh` reads
 `registries/repos.yml` for the first time in this release, so it will report on rows it has never
-looked at before. Three shapes of finding, and only one of them can fail your run:
+looked at before. Three shapes of finding, and only one of them can turn a passing run red on its
+own:
 
 - **A row with no `origin:` or `control:` is a warning**, listed by name, and a warning does not
   change the exit code. The message says those rows carry no control record. It is **not** a
@@ -292,13 +296,18 @@ looked at before. Three shapes of finding, and only one of them can fail your ru
   reads as neither), a `managed` repo recording a `gap`, an `external` repo recording `ours` or
   `extended`, or a `gap` with no note saying why. None of these can arise from leaving the
   file alone; each one needs a row that was written and is wrong.
-- **A value written across more than one line is a failure.** This is the only finding here that can
-  turn a run red without you having changed anything, so it is worth looking for before you upgrade:
-  a long `description:` written as a YAML block scalar (`description: |`) is the likely case. Put the
-  text on one line and quote it. The reason is not tidiness — the scripts that read this registry
-  match line prefixes and know nothing about YAML nesting, so a wrapped value whose second line began
-  `location: /srv/…` made `scripts/setup-workspace.sh` clone a repository into that path and exit
-  successfully. Single-line values make that impossible rather than merely discouraged.
+- **A value the scripts would read differently from you is a failure.** This is the finding that can
+  turn a run red without you having changed anything, so it is worth looking for before you upgrade,
+  and two shapes reach it. **A value written across more than one line** — a long `description:`
+  written as a YAML block scalar (`description: |`) is the likely case; put the text on one line and
+  quote it. **A `location:` or `remote:` with anything after its closing quote, or a `|` in it** —
+  the 1.7 example row modelled a trailing comment on `remote:`, so a row copied from it has been
+  handing `scripts/setup-workspace.sh` a URL with that comment glued to the end ever since, and the
+  clone has been failing; take the comment off. The reason is not tidiness — the scripts that read
+  this registry match line prefixes and know nothing about YAML nesting, so a wrapped value whose
+  second line began `location: /srv/…` made `scripts/setup-workspace.sh` clone a repository into
+  that path and exit successfully. Single-line, plain values make that impossible rather than merely
+  discouraged.
 
 **Rows for repos that are not on your machine are skipped, counted, and said so** — "2 row(s) not
 present on this machine". The doctor only judges what it can see, so a teammate with three of eight

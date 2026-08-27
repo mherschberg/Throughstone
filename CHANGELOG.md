@@ -134,7 +134,12 @@ any project built with it.
   mappings, no line inside a row may begin with a row-level field name, and row-level and nested
   names stay disjoint. Those fail rather than warn: a violation is a clone to the wrong folder, not
   a thin record. The two remaining rules constrain the scripts rather than the file and stay prose,
-  because a checker reading the registry cannot see them.
+  because a checker reading the registry cannot see them. `location:` and `remote:` carry one more
+  constraint, because they are the two values those scripts actually consume and they use them
+  verbatim: nothing after a closing quote, and no `|`, which is the separator the clone loop splits
+  on. The header's example row modelled a trailing comment on `remote:` until this release, so a row
+  copied from it fed the clone loop a URL with that comment glued to the end; the example no longer
+  carries one, and the check names a row that does.
   The reserved name sets are read from the registry header's own `reserved-row-level:` and
   `reserved-nested:` lines, so there is one list, it sits where the schema is, and removing or
   overlapping it fails loudly instead of quietly disarming the checks.

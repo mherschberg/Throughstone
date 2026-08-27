@@ -251,6 +251,29 @@ expect "row-level field owner: is not in reserved-row-level" "rule 4 unknown row
 expect "nested key docs: is not in reserved-nested" "rule 4 unknown nested key"
 expect "RESULT: FAIL" "rules 2 + 4"
 
+# location: and remote: are the two values setup-workspace.sh consumes, and it takes them
+# verbatim. The doctor cleans a matched pair of quotes off, so a value that still carries its
+# opening one had something after the closing one — the shape the example row modelled on its
+# remote: line until 1.8, and the shape that sends a clone at a URL with a comment glued to it.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: created
+    control: managed
+    remote: "git@example.com:acme/api.git"   # team mode: cloned from here
+
+  - name: "acme-web"
+    location: Code/acme|web
+    type: app
+    origin: created
+    control: managed
+EOF
+doctor "$work"
+expect "remote: has something after the closing quote" "rule 2 trailing comment on a consumed value"
+expect "location: contains a |, which setup-workspace.sh splits on" "rule 2 separator in a consumed value"
+expect "RESULT: FAIL" "rule 2 plain location/remote"
+
 # The same rule one level down: a block scalar opened inside provenance:, where no
 # flow-mapping rule would catch it and only the opener names the line to fix.
 reg_rows "$work" <<'EOF'
