@@ -134,11 +134,10 @@ any project built with it.
   names stay disjoint. Those fail rather than warn: a violation is a clone to the wrong folder, not
   a thin record. The two remaining rules constrain the scripts rather than the file and stay prose,
   because a checker reading the registry cannot see them. `location:` and `remote:` carry one more
-  constraint, because they are the two values those scripts actually consume and they use them
-  verbatim: nothing after a closing quote, and no `|`, which is the separator the clone loop splits
-  on. The header's example row modelled a trailing comment on `remote:` until this release, so a row
-  copied from it fed the clone loop a URL with that comment glued to the end; the example no longer
-  carries one, and the check names a row that does.
+  constraint, because they are the two values the clone loop actually consumes: no `|`, which is the
+  separator it splits its own fields on, and no quote left unclosed, which has nothing to stop at
+  and takes the rest of the line into the value. Comments on those two lines are ordinary — see
+  Fixed, below.
   The reserved name sets are read from the registry header's own `reserved-row-level:` and
   `reserved-nested:` lines, so there is one list, it sits where the schema is, and removing or
   overlapping it fails loudly instead of quietly disarming the checks.
@@ -252,6 +251,17 @@ any project built with it.
   that was already on disk, on every run, with no way to clear it. `scripts/check.sh` has always
   counted both as repositories, so the two scripts disagreed about the same registry row. They now
   agree.
+- **A comment or a quoted path in `location:`/`remote:` is read the way YAML reads it.**
+  `scripts/setup-workspace.sh` stripped one optional double quote from each end of those two values
+  and nothing else, so `location: Code/api # local checkout` cloned into a directory literally named
+  `Code/api # local checkout`, `location: 'Code/api'` created one named `'Code`, and a commented
+  `remote:` handed git a URL with the comment glued to the end. The first two failed silently, at
+  exit 0. `scripts/check.sh` had always read those values correctly, which is the worse half: the
+  doctor reported the file was fine while the clone went elsewhere. Both scripts now read a scalar
+  with the same function — a value that opens with a quote ends at the matching one, and anything
+  after it is a comment — and a fixture runs one table of values through both readers and requires
+  them to agree. The registry rule that banned comments on those two lines is gone with the reason
+  for it, and the header example carries its explanatory comment again.
 - **A `location:` outside the workspace root is no longer cloned into.** An absolute path, or one
   reaching out with `..`, is now reported and skipped. It used to be used verbatim, so a registry
   naming a path that happened to be writable placed a repository *outside* the workspace silently,

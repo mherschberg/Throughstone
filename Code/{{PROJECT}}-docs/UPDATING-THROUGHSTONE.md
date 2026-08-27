@@ -79,8 +79,7 @@ not fail the check.
 
 **Upgrading from 1.7? Nothing of yours is rewritten. There is one small edit worth making** —
 two lines per row in `registries/repos.yml`, which the project doctor now asks for by name —
-**two shapes to look at in that same file** — every value there has to sit on one line, and the two
-the clone script reads have to be plain —
+**one shape to look at in that same file** — every value there has to sit on one line —
 **and, if your project is mono-repo-for-now, one thing to check**: whether your CI gate has ever
 actually run. Beyond those, nothing is required of
 you unless you are about to split a repository. The release adds a runbook for that, repeals one
@@ -102,11 +101,13 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    That rule is gone, and nothing replaces it.
 3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
    this section.** Nothing rewrites the file for you.
-4. **Look at two shapes in `registries/repos.yml`.** If any value is wrapped across two lines, join
-   it onto one and quote it. And if any `location:` or `remote:` carries a trailing comment or a
-   `|`, take it off: the clone script reads those two verbatim, so it has been using the comment as
-   part of the path or the URL all along. `scripts/check.sh` now fails on both — details at the end
-   of this section. Nothing else in 1.8 can turn a passing run red on its own.
+4. **Look at one shape in `registries/repos.yml`.** If any value is wrapped across two lines, join
+   it onto one and quote it — `scripts/check.sh` now fails that, and it is the only thing in 1.8
+   that can turn a passing run red on its own. **Comments need no attention.** A trailing comment on
+   `location:` or `remote:` used to be read as part of the path or the URL by the clone script, and
+   1.7 modelled one on the example row; both scripts now read a value the same way, so a comment
+   there means what it says and the row it was copied from works. Details at the end of this
+   section.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
 6. **Pull the three scripts, and three docs that stand on their own** — `scripts/check.sh`,
@@ -297,17 +298,19 @@ own:
   `extended`, or a `gap` with no note saying why. None of these can arise from leaving the
   file alone; each one needs a row that was written and is wrong.
 - **A value the scripts would read differently from you is a failure.** This is the finding that can
-  turn a run red without you having changed anything, so it is worth looking for before you upgrade,
-  and two shapes reach it. **A value written across more than one line** — a long `description:`
-  written as a YAML block scalar (`description: |`) is the likely case; put the text on one line and
-  quote it. **A `location:` or `remote:` with anything after its closing quote, or a `|` in it** —
-  the 1.7 example row modelled a trailing comment on `remote:`, so a row copied from it has been
-  handing `scripts/setup-workspace.sh` a URL with that comment glued to the end ever since, and the
-  clone has been failing; take the comment off. The reason is not tidiness — the scripts that read
-  this registry match line prefixes and know nothing about YAML nesting, so a wrapped value whose
-  second line began `location: /srv/…` made `scripts/setup-workspace.sh` clone a repository into
-  that path and exit successfully. Single-line, plain values make that impossible rather than merely
-  discouraged.
+  turn a run red without you having changed anything, so it is worth looking for before you upgrade.
+  **A value written across more than one line** — a long `description:` written as a YAML block
+  scalar (`description: |`) is the likely case; put the text on one line and quote it. The reason is
+  not tidiness — the scripts that read this registry match line prefixes and know nothing about YAML
+  nesting, so a wrapped value whose second line began `location: /srv/…` made
+  `scripts/setup-workspace.sh` clone a repository into that path and exit successfully. Single-line
+  values make that impossible rather than merely discouraged.
+  Two narrower shapes fail on `location:` and `remote:` alone, and both are typos rather than
+  styles: a `|` in either value, which is the separator the clone loop splits its own fields on,
+  and a quote that is never closed, which has nothing to stop at and takes the rest of the line with
+  it. **A trailing comment on those two lines needs nothing from you.** 1.7 modelled one on the
+  example row, and `scripts/setup-workspace.sh` was gluing it onto the path or the URL; it now reads
+  a value with the same function `scripts/check.sh` does, so a comment there is a comment.
 
 **Rows for repos that are not on your machine are skipped, counted, and said so** — "2 row(s) not
 present on this machine". The doctor only judges what it can see, so a teammate with three of eight

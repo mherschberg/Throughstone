@@ -96,6 +96,7 @@ teammate() {
 
 registry_of() { set -- "$1"/Code/*-docs/registries/repos.yml; printf '%s\n' "$1"; }
 setup_of()    { set -- "$1"/Code/*-docs/scripts/setup-workspace.sh; printf '%s\n' "$1"; }
+doctor_of()   { set -- "$1"/Code/*-docs/scripts/check.sh; printf '%s\n' "$1"; }
 
 # add_row TW — append a registry row, read from stdin, to a teammate workspace's registry.
 add_row() { cat >> "$(registry_of "$1")"; }
@@ -355,6 +356,89 @@ assert_assembled "linked worktree" "$tw"
 assert_out "linked worktree" "exists: Code/multi-api/"
 assert_not_out "linked worktree" "did not arrive"
 assert_not_out "linked worktree" "could not clone"
+
+echo "The doctor and the clone loop read location:/remote: the same way ..."
+# The failure neither script can report on its own: check.sh passes a file that the clone loop
+# then reads differently, so the doctor says the registry is fine and the repository lands
+# somewhere else — silently, at exit 0, when the wrong path happens to be writable. Both now read
+# a scalar with the same function, and this is where that is held to account: one table of shapes,
+# every one of them ordinary YAML, run through both readers at once. The doctor must pass the file
+# and the clone must arrive at the path YAML says the value is.
+tw="$(teammate agree "$MULTI_DOCS")"
+add_row "$tw" <<EOF
+
+  - name: "q-plain"
+    location: "Code/q-plain/"
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
+
+  - name: "u-plain"
+    location: Code/u-plain
+    type: service
+    origin: created
+    control: managed
+    remote: $REACHABLE
+
+  - name: "sq-plain"
+    location: 'Code/sq-plain'
+    type: service
+    origin: created
+    control: managed
+    remote: '$REACHABLE'
+
+  - name: "q-comment"
+    location: "Code/q-comment/" # the checkout on this machine
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"   # team mode: setup-workspace.sh clones this
+
+  - name: "u-comment"
+    location: Code/u-comment # the checkout on this machine
+    type: service
+    origin: created
+    control: managed
+    remote: $REACHABLE # team mode
+
+  - name: "sq-comment"
+    location: 'Code/sq-comment' # the checkout on this machine
+    type: service
+    origin: created
+    control: managed
+    remote: '$REACHABLE' # team mode
+
+  - name: "hash-in-path"
+    location: "Code/hash # inside"
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
+EOF
+
+# The doctor half: this file is legal, and saying so is half the agreement.
+doc_out="$(bash "$(doctor_of "$tw")" 2>&1)"; doc_status=$?
+case "$doc_out" in
+  *"[FAIL]"*) bad "reader agreement: the doctor fails a registry of ordinary YAML values" ;;
+esac
+[ "$doc_status" -eq 0 ] || bad "reader agreement: doctor expected exit 0, got $doc_status"
+
+# The clone half: each value resolves to the path YAML says it is, quotes and comments removed,
+# and a quoted hash kept because there it is part of the path rather than the start of a comment.
+run_setup "$tw"
+assert_assembled "reader agreement" "$tw"
+for d in q-plain u-plain sq-plain q-comment u-comment sq-comment; do
+  assert_cloned "reader agreement ($d)" "$tw/Code/$d"
+done
+assert_cloned "reader agreement (quoted hash)" "$tw/Code/hash # inside"
+assert_not_out "reader agreement" "did not arrive"
+# The directories the naive reading actually produced, named so a regression cannot pass quietly:
+# a single-quoted value made a top-level folder called `Code, and a commented one carried the
+# comment into the path.
+assert_not_cloned "reader agreement (single quotes taken literally)" "$tw/'Code"
+assert_not_cloned "reader agreement (comment taken into the path)" \
+  "$tw/Code/u-comment # the checkout on this machine"
 
 echo "A target directory that exists but is empty ..."
 tw="$(teammate emptydir "$MULTI_DOCS")"

@@ -426,18 +426,27 @@ registry_rows() {
   awk '
     BEGIN { SQ = sprintf("%c", 39) }
     function ltrim(s) { sub(/^[[:space:]]+/, "", s); return s }
-    function clean(v) {
+    # clean is the one reading of a scalar this file has. setup-workspace.sh carries the same
+    # function over the same two fields, so the doctor and the clone loop cannot end up looking
+    # at different strings; the fixture in tests/ runs a shared table through both.
+    function clean(v,   q, i) {
       # A record is tab-separated, so a tab *inside* a value would spill it into the next
       # column and every reader would take the truncated half. Neither a path nor a note
       # means anything by one, so it becomes a space here rather than being detected later.
       gsub(/\t/, " ", v)
-      # A trailing `# ...` comment is stripped only from values carrying no quote and no brace,
-      # so a quoted description or a flow mapping containing a "#" is never truncated.
-      if (v !~ /["{]/ && index(v, SQ) == 0) sub(/[[:space:]]+#.*$/, "", v)
+      # A value that opens with a quote ends at the matching one, and what follows is a comment
+      # or nothing — YAML says so, and neither is part of the value. An unterminated quote finds
+      # no partner, falls through, and comes back still carrying it, which is what check 13 sees.
+      q = substr(v, 1, 1)
+      if (q == "\"" || q == SQ) {
+        i = index(substr(v, 2), q)
+        if (i > 0) return substr(v, 2, i - 1)
+      }
+      # An unquoted value has no closing quote to stop at, so a trailing comment goes by position.
+      # A flow mapping is left whole: the quotes and hashes inside it are its own, and check 11
+      # reads the keys back out of the line it is written on.
+      if (v !~ /[{]/) sub(/[[:space:]]+#.*$/, "", v)
       sub(/[[:space:]]+$/, "", v)
-      if (v ~ /^".*"$/) return substr(v, 2, length(v) - 2)
-      if (length(v) > 1 && substr(v, 1, 1) == SQ && substr(v, length(v), 1) == SQ)
-        return substr(v, 2, length(v) - 2)
       return v
     }
     /^[[:space:]]*#/ { next }
@@ -667,13 +676,14 @@ else
           printf "4\tline %d: %s -> row-level field %s: is not in reserved-row-level\n", $2, nm[$1], $5
         if ($6 ~ /^[|>]/)
           printf "2\tline %d: %s -> %s: opens a block scalar; values are single-line\n", $2, nm[$1], $5
-        # location: and remote: are the two values the line-prefix readers consume, and they take
-        # whatever survives cleaning, verbatim. A value still carrying its opening quote means
-        # something followed the closing one, and a | is the separator the clone loop splits on:
-        # either way that reader and this one are looking at different strings.
+        # location: and remote: are the two values the clone loop consumes verbatim. It now cleans
+        # them with the same function this script does, so a quoted path and a trailing comment
+        # are read identically by both and neither is a finding. One shape still divides them: a
+        # quote that is never closed has no partner to stop at, so the rest of the line is taken
+        # into the value. And a | is the separator the clone loop splits its own fields on.
         if ($5 == "location" || $5 == "remote") {
           if (substr($6, 1, 1) == "\"" || substr($6, 1, 1) == SQ)
-            printf "2\tline %d: %s -> %s: has something after the closing quote\n", $2, nm[$1], $5
+            printf "2\tline %d: %s -> %s: opens a quote that is never closed\n", $2, nm[$1], $5
           else if (index($6, "|"))
             printf "2\tline %d: %s -> %s: contains a |, which setup-workspace.sh splits on\n", $2, nm[$1], $5
         }
@@ -715,9 +725,9 @@ else
       shape_ok=0
     done
     if [ "$shape_ok" -eq 1 ]; then
-      pass "parser rules hold: no shadowed field names, single-line values, plain location/remote, disjoint name sets"
+      pass "parser rules hold: no shadowed field names, single-line values, location/remote both readers take the same way, disjoint name sets"
     else
-      hint "put every value on one line (provides: entries are flow mappings), leave location: and remote: plain — nothing after the closing quote and no | — keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
+      hint "put every value on one line (provides: entries are flow mappings), close every quote you open in location: and remote: and keep a | out of them, keep nested keys out of the row-level names, and add a new field to exactly one of the reserved- lines. See rules 1-5 at the top of registries/repos.yml."
     fi
   fi
 fi

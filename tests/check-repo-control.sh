@@ -309,17 +309,18 @@ refute "is not a flow mapping" "a comment after the closing brace is allowed"
 refute "[FAIL]" "a commented flow mapping is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "commented flow mapping — expected exit 0, got $DOC_STATUS"
 
-# location: and remote: are the two values setup-workspace.sh consumes, and it takes them
-# verbatim. The doctor cleans a matched pair of quotes off, so a value that still carries its
-# opening one had something after the closing one — the shape the example row modelled on its
-# remote: line until 1.8, and the shape that sends a clone at a URL with a comment glued to it.
+# location: and remote: are the two values setup-workspace.sh consumes, and it reads them with the
+# same function this script does, so a quoted path and a trailing comment are not findings. Two
+# shapes still divide the readers: a quote with no partner, which has nothing to stop at and takes
+# the rest of the line into the value, and a |, the separator the clone loop splits its own fields
+# on. Both are typos; neither is a style someone would choose.
 reg_rows "$work" <<'EOF'
   - name: "acme-api"
     location: "Code/acme-api/"
     type: service
     origin: created
     control: managed
-    remote: "git@example.com:acme/api.git"   # team mode: cloned from here
+    remote: "git@example.com:acme/api.git
 
   - name: "acme-web"
     location: Code/acme|web
@@ -328,9 +329,24 @@ reg_rows "$work" <<'EOF'
     control: managed
 EOF
 doctor "$work"
-expect "remote: has something after the closing quote" "rule 2 trailing comment on a consumed value"
+expect "remote: opens a quote that is never closed" "rule 2 unterminated quote on a consumed value"
 expect "location: contains a |, which setup-workspace.sh splits on" "rule 2 separator in a consumed value"
-expect "RESULT: FAIL" "rule 2 plain location/remote"
+expect "RESULT: FAIL" "rule 2 location/remote"
+
+# And the shapes that are now ordinary. The 1.7 example row modelled the commented remote:, so this
+# is the row an upgrading project most likely already has; it must not turn their run red.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/" # the checkout on this machine
+    type: service
+    origin: created
+    control: managed
+    remote: "git@example.com:acme/api.git"   # team mode: setup-workspace.sh clones this
+EOF
+doctor "$work"
+refute "opens a quote that is never closed" "a comment after a closed quote is not an open quote"
+refute "[FAIL]" "commented location/remote is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "commented location/remote — expected exit 0, got $DOC_STATUS"
 
 # The same rule one level down: a block scalar opened inside provenance:, where no
 # flow-mapping rule would catch it and only the opener names the line to fix.

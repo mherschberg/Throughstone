@@ -115,10 +115,27 @@ if [ -f "$REG" ]; then
       missing=$((missing + 1))
     }
   done < <(awk '
+    BEGIN { SQ = sprintf("%c", 39) }
+    # This is the reading of a scalar scripts/check.sh uses, character for character. These two
+    # fields are the ones this loop consumes verbatim, so a doctor that passed a value this loop
+    # then read differently was the single failure neither script could report: the check said
+    # the file was fine and the clone landed somewhere else. tests/ runs one table through both.
+    function clean(v,   q, i) {
+      gsub(/\t/, " ", v)
+      q = substr(v, 1, 1)
+      if (q == "\"" || q == SQ) {
+        i = index(substr(v, 2), q)
+        if (i > 0) return substr(v, 2, i - 1)
+      }
+      if (v !~ /[{]/) sub(/[[:space:]]+#.*$/, "", v)
+      sub(/[[:space:]]+$/, "", v)
+      return v
+    }
+    function value(line,   v) { v = line; sub(/^[^:]*:[[:space:]]*/, "", v); return clean(v) }
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*-[[:space:]]*name:/ { if (loc != "" && rem != "") print loc "|" rem; loc=""; rem=""; next }
-    /^[[:space:]]*location:/ { loc=$0; sub(/^[^:]*:[[:space:]]*"?/,"",loc); sub(/"?[[:space:]]*$/,"",loc) }
-    /^[[:space:]]*remote:/   { rem=$0; sub(/^[^:]*:[[:space:]]*"?/,"",rem); sub(/"?[[:space:]]*$/,"",rem) }
+    /^[[:space:]]*location:/ { loc = value($0) }
+    /^[[:space:]]*remote:/   { rem = value($0) }
     END { if (loc != "" && rem != "") print loc "|" rem }
   ' "$REG")
 else
