@@ -972,6 +972,14 @@ init_repo() {
 record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
   [ -f "$reg" ] || return 0
+  # A writer that writes nothing has to say so. The row is found by name, and a name this pattern
+  # does not match leaves the file untouched — after which commit_registry_remotes finds no diff
+  # and reads that as nothing to do. The remote would simply be absent from the registry, and the
+  # first anyone heard of it would be a teammate whose setup-workspace.sh cannot clone that repo.
+  # The seeded rows carry no remote: line, so a match always changes the file and an unchanged
+  # file always means no match.
+  local before after
+  before="$(cksum < "$reg")"
   REPO="$repo" REMOTE="$remote" perl -0pi -e '
     my $remote = $ENV{REMOTE};
     my $qremote = $remote;
@@ -987,6 +995,14 @@ record_registry_remote() {
     s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*type:[^\n]*\n)}
      {$1 . qq{    remote: "$qremote"\n}}ems;
   ' "$reg"
+  after="$(cksum < "$reg")"
+  if [ "$before" = "$after" ]; then
+    echo "  warning: no row named \"$repo\" was updated in registries/repos.yml."
+    echo "           Add  remote: \"$remote\"  to that row by hand, or teammates cannot clone it."
+  fi
+  # Always 0: the callers chain this after setup_remote with &&, and under set -e a non-zero
+  # status here would abort the bootstrap after the remotes already exist.
+  return 0
 }
 
 # commit_registry_remotes — persist registry remote URLs after all multi-repo remotes exist.
