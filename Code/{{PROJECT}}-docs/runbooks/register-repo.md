@@ -115,15 +115,15 @@ say what the answer authorizes, or someone is consenting to something they were 
   Architecture Overview entry. It is simply never written into.
 - **These are the only two answers.** A later refusal to have a file written is this question
   answered again, not a veto on that file.
-- **Skipping is safe.** Unanswered reads as `external`, and the next check-in asks again.
+- **Skipping is safe.** Unanswered reads as `external` — recorded and referenced, never written
+  into — and the doctor names the row until somebody answers.
 
 **Recommend managing everything the operator has authority over** — and only that; a repo someone
 else owns is exactly what `external` is for. The reason is cost, not preference: an `external` repo
-never appears in a STEP's plan, its connection back to the project goes stale because nothing
-maintains the section that points there, and the check-in re-asks about it every cycle, forever.
-Mixed control also means everyone has to track which repos are which. **The recommendation does not
-change the default** — unanswered still means `external`, because an unanswered permission is not a
-granted one.
+never appears in a STEP's plan, and its connection back to the project goes stale because nothing
+maintains the section that points there. Mixed control also means everyone has to track which repos
+are which. **The recommendation does not change the default** — unanswered still means `external`,
+because an unanswered permission is not a granted one.
 
 **"All of them" is a fine answer** — a team adopting its own repos is the ordinary case. If that is
 the answer, **name the repos back before writing.** Twelve names is a half-second read and it catches
@@ -133,8 +133,7 @@ the one that should not have been on the list.
 - **Unanswered is `external`.** The safe value applies immediately; the question stays open until
   somebody answers it, and the doctor names the row meanwhile.
 - **Promotion `external` → `managed` is this same action, re-run.** It re-runs the ladder for each
-  need and must leave no `gap`. Nothing separate to build, which is what makes "manage three now,
-  the rest later" cost nothing.
+  need and must leave no `gap`. Nothing separate to build.
 - **Handover `managed` → `external`** sets the field **and moves every `ours` / `extended` on that
   row to `theirs`, in the same edit**, each `note` recording that Throughstone wrote it
   (`METHOD.md` §7 for why). `origin:` never moves and the notice stays where it is. Promoting the
