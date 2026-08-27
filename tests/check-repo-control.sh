@@ -318,6 +318,9 @@ mkdir -p "$work/Code/acme-api" "$work/Code/plain"
 git -C "$work/Code/acme-api" init -q
 git -C "$work/Code/acme-api" commit -q --allow-empty -m seed
 mkdir -p "$work/Code/acme-api/sub"
+mkdir -p "$work/Code/acme-unanswered"
+git -C "$work/Code/acme-unanswered" init -q
+git -C "$work/Code/acme-unanswered" commit -q --allow-empty -m seed
 
 reg_rows "$work" <<'EOF'
   - name: "acme-api"
@@ -339,6 +342,13 @@ reg_rows "$work" <<'EOF'
     type: docs
     description: "a folder, not a repo yet"
 
+  - name: "acme-unanswered"
+    location: "Code/acme-unanswered/"
+    type: service
+    origin: adopted
+    provides:
+      license: { status: theirs, note: "org-wide LICENSE" }
+
   - name: "not-here"
     location: "Code/not-here/"
     type: service
@@ -353,6 +363,11 @@ expect "acme-api -> provides: no readme; provides: no ci" "per-key naming"
 refute "acme-sub ->" "subdirectory owes nothing"
 # A plain folder owes no provides:, but every row owes origin: and control:.
 expect "acme-plain -> no origin:; no control:" "row-level fields always owed"
+# An absent field with a filled-in one after it: the shape a half-finished migration leaves,
+# and the one acme-plain cannot catch, because everything after its two blanks is blank too.
+# Read with a whitespace separator, the blank collapses and provides: lands in control:, so
+# the row reports as answered.
+expect "acme-unanswered -> no control:; provides: no readme; provides: no ci" "an absent field does not shift the ones after it"
 # Silence about a row that could not be checked is indistinguishable from a pass.
 expect "row(s) not present on this machine; provides: not checked there" "absent rows counted"
 # A warning must not change the exit code — which is why these assertions read the summary.

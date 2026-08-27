@@ -427,6 +427,10 @@ registry_rows() {
     BEGIN { SQ = sprintf("%c", 39) }
     function ltrim(s) { sub(/^[[:space:]]+/, "", s); return s }
     function clean(v) {
+      # A record is tab-separated, so a tab *inside* a value would spill it into the next
+      # column and every reader would take the truncated half. Neither a path nor a note
+      # means anything by one, so it becomes a space here rather than being detected later.
+      gsub(/\t/, " ", v)
       # A trailing `# ...` comment is stripped only from values carrying no quote and no brace,
       # so a quoted description or a flow mapping containing a "#" is never truncated.
       if (v !~ /["{]/ && index(v, SQ) == 0) sub(/[[:space:]]+#.*$/, "", v)
@@ -556,18 +560,23 @@ if [ "$REG_PRESENT" -eq 0 ]; then
   pass "no registries/repos.yml — nothing to check (reported in check 11)"
 else
   reg_summary="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '
+    # One record per row, unit-separated rather than tab-separated: the reader below is bash,
+    # which collapses runs of IFS *whitespace*, and a row with no control: would then read as
+    # answered. Built with sprintf the way SQ is above rather than written as an escape.
+    BEGIN { OFS = sprintf("%c", 31) }
     $3 == "head" { nm[$1] = $6; if ($1 + 0 > maxr) maxr = $1 + 0 }
     $3 == "field" && $5 == "location" { loc[$1] = $6 }
     $3 == "field" && $5 == "origin"   { org[$1] = $6 }
     $3 == "field" && $5 == "control"  { ctl[$1] = $6 }
     $3 == "nested" && $4 == "provides" { pk[$1] = pk[$1] " " $5 }
-    END { for (r = 1; r <= maxr; r++) printf "%s\t%s\t%s\t%s\t%s\n", nm[r], loc[r], org[r], ctl[r], pk[r] }
+    END { for (r = 1; r <= maxr; r++) print nm[r], loc[r], org[r], ctl[r], pk[r] }
   ')"
   reg_incomplete=""
   reg_total=0
   reg_absent=0
   reg_here=0
-  while IFS=$'\t' read -r r_name r_loc r_origin r_control r_provides; do
+  # \037 is the separator set above, and it is not whitespace: an empty field stays an empty field.
+  while IFS=$'\037' read -r r_name r_loc r_origin r_control r_provides; do
     [ -n "${r_name:-}" ] || continue
     reg_total=$((reg_total + 1))
     miss=""
