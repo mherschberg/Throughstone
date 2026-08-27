@@ -106,7 +106,10 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    section. Nothing else in 1.8 can turn a passing run red on its own.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
-6. Nothing else. A project that never splits reads none of the splitting material.
+6. **Pull the three scripts, and three docs that stand on their own** — `scripts/check.sh`,
+   `scripts/setup-workspace.sh` and `scripts/apply-project-license.sh`, plus `ONBOARDING.md`,
+   the docs hub's own `README.md` and §2's file-bucket table above — details below.
+7. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -165,10 +168,26 @@ appendix covers purging history first when that matters.
   agent off to write a registry row by hand, and the two 1.7 STEP templates carry no projection
   rule at all. `templates/planning-session.md` is the fifth, and it is the one that changes
   behavior — see below.
-  Apply them as a coherent group; they reference each other. No `status.sh` change, and no split-
-  specific check: 1.8's new `check.sh` checks read `registries/repos.yml` for its own consistency
-  and shape, and nothing detects registry drift *after a split* — a row that still describes a
-  folder that is now its own repo — which is accepted rather than overlooked.
+  Apply them as a coherent group; they reference each other.
+- *Tools / scripts* (`scripts/check.sh`, `scripts/setup-workspace.sh`,
+  `scripts/apply-project-license.sh`): the doctor gains three checks over `registries/repos.yml` —
+  what a row says about itself, whether its control record was ever filled in, and whether the file
+  is still shaped so the scripts that read it by line prefix stay correct. `setup-workspace.sh` no
+  longer stops at the first repo it cannot clone: it warns, carries on, says how many did not
+  arrive, and writes the per-machine pointer files *before* the clone loop rather than after, so a
+  run that hits a bad remote still leaves a usable workspace. `apply-project-license.sh` gains
+  `--notice-only`, which writes the Throughstone notice and nothing else — what a repo the method
+  did not create gets. No `status.sh` change, and no split-specific check: 1.8's new `check.sh`
+  checks read `registries/repos.yml` for its own consistency and shape, and nothing detects
+  registry drift *after a split* — a row that still describes a folder that is now its own repo —
+  which is accepted rather than overlooked.
+- *Process docs that stand on their own* (`ONBOARDING.md`, the docs hub's own `README.md`, and
+  §2's file-bucket table above): same bucket as the group above, but these reference nothing else,
+  so review them one at a time rather than together. Each was written when Throughstone only ever
+  *created* a repo. 1.8 can also take on one that already exists, where it writes at most two
+  files: that repo's README and the `LICENSE-THROUGHSTONE` notice — never CI, never a license.
+  `ONBOARDING.md` also still described `setup-workspace.sh` cloning before it writes the root
+  pointer files, which is the order 1.8 reversed. Nothing of yours is rewritten.
 - *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
   `provenance:` is a new optional block recording that a repo was split out of another one — where
   it came from, and where the two histories part company. It is written **at** a split and only
@@ -319,14 +338,6 @@ edit is required and nothing of yours is rewritten — but a repo registered tha
 contributor clones onto their own machine once, rather than something the setup script fetches for
 them. A `location:` inside the workspace root is unaffected, including one outside the `Code/*`
 shell, and so is a repo already checked out where its `location:` points.
-
-**Three generated docs need pulling, and that is the whole action.**
-`ONBOARDING.md`, the docs hub's own `README.md` and §2's file-bucket table above were each
-written when Throughstone only ever *created* a repo. 1.8 can also take on one that already
-exists, where it writes at most two files: that repo's README and the `LICENSE-THROUGHSTONE`
-notice — never CI, never a license. `ONBOARDING.md` also still described `setup-workspace.sh`
-cloning before it writes the root pointer files, which is the order 1.8 reversed. Review the
-three like the other process docs; nothing of yours is rewritten.
 
 ### 1.7 migration
 
