@@ -251,6 +251,26 @@ expect "row-level field owner: is not in reserved-row-level" "rule 4 unknown row
 expect "nested key docs: is not in reserved-nested" "rule 4 unknown nested key"
 expect "RESULT: FAIL" "rules 2 + 4"
 
+# The other side of that check. Rule 2 welcomes a comment on every line except location: and
+# remote:, and a provides: entry is one of those lines. clean() leaves the comment on the value,
+# because a brace or a quote could be holding one, so the flow-mapping test has to allow what the
+# schema allows or it fails a row for following the file.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    provides:
+      readme:  { status: theirs, note: "existing README" } # observed during adoption
+      license: { status: theirs, note: "upstream LICENSE" }
+      ci:      { status: theirs, note: "nothing runs" }
+EOF
+doctor "$work"
+refute "is not a flow mapping" "a comment after the closing brace is allowed"
+refute "[FAIL]" "a commented flow mapping is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "commented flow mapping — expected exit 0, got $DOC_STATUS"
+
 # location: and remote: are the two values setup-workspace.sh consumes, and it takes them
 # verbatim. The doctor cleans a matched pair of quotes off, so a value that still carries its
 # opening one had something after the closing one — the shape the example row modelled on its

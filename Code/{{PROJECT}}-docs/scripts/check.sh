@@ -679,7 +679,11 @@ else
           printf "4\tline %d: %s -> nested key %s: is not in reserved-nested\n", $2, nm[$1], $5
         if ($6 ~ /^[|>]/)
           printf "2\tline %d: %s -> %s: opens a block scalar; values are single-line\n", $2, nm[$1], $5
-        if ($4 == "provides" && $6 !~ /^\{.*\}$/)
+        # A trailing comment survives into the value here, because clean() keeps comments wherever
+        # a brace or a quote could be holding one. Rule 2 welcomes a comment on every line except
+        # location: and remote:, so one sitting after the closing brace is part of the shape the
+        # schema allows, not a mapping that failed to be a mapping.
+        if ($4 == "provides" && $6 !~ /^\{.*\}([[:space:]]+#.*)?$/)
           printf "2\tline %d: %s -> provides: %s is not a flow mapping { status: ..., note: ... }\n", $2, nm[$1], $5
       }
       $3 == "other" { printf "2\tline %d: %s -> not a single-line key: value\n", $2, nm[$1] }
