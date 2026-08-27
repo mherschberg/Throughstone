@@ -55,23 +55,27 @@ precondition aborts the action, and neither does this.
 3. **`control:`** — `managed` or `external`. A repo Throughstone is creating now is `managed`, with
    nothing asked; there is nobody else's work to write over. For a repo that already exists, **ask**
    — see *The control question* below.
-4. **Run the ladder, once per need** (`METHOD.md` §7). **No per-need question is asked**: control is
-   the permission and it was granted once, for the whole repository. Writes happen only when
-   `control: managed`; an `external` repo is observed and recorded, never written into. The
-   `## Role in <project>` section's shape is in `templates/repo-readme-template.md`.
-   **For a repo Throughstone created**, licensing follows what the scaffold actually wrote:
-   `license: ours` when a project `LICENSE` was written into that repo, otherwise `theirs` with a
-   note naming `.throughstone/project-license` as where the posture is stated — a proprietary
-   project writes no per-repo `LICENSE`, and the need is met by the posture being recorded. **Two
-   sources disagreeing** — a `COPYING` and a `package.json` field, say — are both recorded as found
-   in the note and the disagreement filed as a `registries/risks.yml` row; the status is still
-   `theirs`, because the need is that the posture is *recorded*, not that it is tidy.
+4. **Fill `provides:`, one entry per need.** **No per-need question is asked**: control is the
+   permission and it was granted once, for the whole repository. Writes happen only when
+   `control: managed`; an `external` repo is observed and recorded, never written into.
+
+   **A repo Throughstone is creating now** records what the scaffold wrote: `readme: ours` for the
+   README stamped from `templates/repo-readme-template.md`, `ci: ours` for the gate it installed —
+   `theirs`, note "nothing runs", if it installed none — and `license: ours` when a project
+   `LICENSE` was written into that repo, otherwise `theirs` with a note naming
+   `.throughstone/project-license` as where the posture is stated, because a proprietary project
+   writes no per-repo `LICENSE` and the need is met by the posture being recorded.
+
+   **A repo that already exists** is filled by looking, and its README runs the ladder
+   (`METHOD.md` §7); the `## Role in <project>` section's shape is in
+   `templates/repo-readme-template.md`. **Two sources disagreeing** about licensing — a `COPYING`
+   and a `package.json` field, say — are both recorded as found in the note and the disagreement
+   filed as a `registries/risks.yml` row; the status is still `theirs`, because the need is that
+   the posture is *recorded*, not that it is tidy.
 
    Not every status can be reached by every need, and it saves hunting for a branch that does not
    exist: **README** reaches `ours`, `extended`, `theirs` and — on a repo Throughstone does not
-   control — `gap`. **CI** reaches `ours`, `theirs` and `N/A`, the last when the repo structurally
-   has no merge gate to describe. **Licensing** reaches only `ours` and `theirs`; it applies to
-   every repo, so it is never `N/A`.
+   control — `gap`. **CI** and **licensing** reach only `ours` and `theirs`.
 5. **Write the row, with notes** — creating `registries/repos.yml` and `registries/risks.yml` if they
    are absent, and saying that you did. Every value sits on **one line** and `provides:` entries are
    flow mappings; the rules at the top of `registries/repos.yml` are load-bearing, because the

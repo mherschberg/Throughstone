@@ -532,8 +532,9 @@ projection** — a STEP is work Throughstone does, in repositories it controls.
 **Three needs, one ladder, run per need.** A repo needs a **README** (someone standing in it can
 find their way back to the project), **CI** (the gate that runs on it is recorded — including
 "nothing runs") and **licensing** (its posture is recorded — including "nothing states one"). The
-ladder **asks nothing on any path**: permission was settled once, when control was set. Because CI
-and licensing are met by *recording*, only the README has rungs:
+ladder **asks nothing on any path**: permission was settled once, when control was set. When
+Throughstone creates a repo, each need records what the scaffold wrote; the ladder is for a repo it
+did not create. Because CI and licensing are met by *recording*, only the README has rungs:
 
 ```
 Q1. Can someone standing in this repo find their way back to the project?

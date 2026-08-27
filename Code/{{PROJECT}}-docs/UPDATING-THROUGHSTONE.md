@@ -269,9 +269,9 @@ looked at before. Three shapes of finding, and only one of them can fail your ru
   installed, so the doctor cannot tell a project written before these fields existed from one whose
   registration simply did not fill them in. Answering the two fields, as above, is what clears it.
 - **A row that contradicts itself is a failure**: a status outside `ours` / `extended` / `theirs` /
-  `N/A` / `gap`, an `origin:` or `control:` that is not one of its two values (a typo counts — it
+  `gap`, an `origin:` or `control:` that is not one of its two values (a typo counts — it
   reads as neither), a `managed` repo recording a `gap`, an `external` repo recording `ours` or
-  `extended`, or a `gap` or `N/A` with no note saying why. None of these can arise from leaving the
+  `extended`, or a `gap` with no note saying why. None of these can arise from leaving the
   file alone; each one needs a row that was written and is wrong.
 - **A value written across more than one line is a failure.** This is the only finding here that can
   turn a run red without you having changed anything, so it is worth looking for before you upgrade:

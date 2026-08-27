@@ -56,7 +56,7 @@ any project built with it.
   unanswered permission is not granted — the repo is recorded, and nothing is written into it until
   somebody answers. **`provides:`** records how each of the three things a repo needs — a README, a
   stated licensing posture, a described CI gate — is actually met there, as a status (`ours`,
-  `extended`, `theirs`, `N/A`, `gap`) and a note; `gap` and `N/A` must say why. It goes only on
+  `extended`, `theirs`, `gap`) and a note; a `gap` must say why. It goes only on
   rows whose `location` is a repository, and never on a row the setup script seeds — a status
   written before anyone had looked at the repo would be a guess rather than a record. Two
   invariants hold across the pair: a `managed` repo has no `gap` — either the need is met, or the
@@ -126,7 +126,7 @@ any project built with it.
   combination the file's own schema forbids — and the project would report clean. `scripts/check.sh`
   gains three checks. The first reads the file only, so it holds everywhere the doctor runs, CI
   included: statuses come from the closed set, `origin:` and `control:` do too, a `managed` repo has
-  no `gap`, an `external` repo has no `ours` or `extended`, and `gap` and `N/A` say why. The second
+  no `gap`, an `external` repo has no `ours` or `extended`, and a `gap` says why. The second
   looks at disk: a row whose `location` is the root of a git work tree, and that Throughstone adopted
   rather than created, has to record what that repo provides — naming the individual missing entry
   rather than the row, because an entry is left out on purpose while the observation is still owed.

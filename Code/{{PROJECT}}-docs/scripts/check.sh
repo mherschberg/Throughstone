@@ -507,7 +507,7 @@ else
     END {
       split("created adopted", a, " ");            for (i in a) okorg[a[i]] = 1
       split("managed external", b, " ");           for (i in b) okctl[b[i]] = 1
-      split("ours extended theirs N/A gap", c, " "); for (i in c) okst[c[i]] = 1
+      split("ours extended theirs gap", c, " "); for (i in c) okst[c[i]] = 1
       for (r = 1; r <= maxr; r++) {
         if ((r in org) && !(org[r] in okorg))
           printf "line %d: %s -> origin: \"%s\" is not created or adopted\n", orgln[r], nm[r], org[r]
@@ -522,12 +522,12 @@ else
           }
           st = fmval(v, "status")
           if (!(st in okst)) {
-            printf "line %d: %s -> provides: %s status \"%s\" is not ours/extended/theirs/N/A/gap\n", ln, nm[r], k, st
+            printf "line %d: %s -> provides: %s status \"%s\" is not ours/extended/theirs/gap\n", ln, nm[r], k, st
             continue
           }
           note = fmhas(v, "note") ? fmval(v, "note") : ""
-          if ((st == "gap" || st == "N/A") && note == "")
-            printf "line %d: %s -> provides: %s is %s and carries no note saying why\n", ln, nm[r], k, st
+          if (st == "gap" && note == "")
+            printf "line %d: %s -> provides: %s is a gap and carries no note saying why\n", ln, nm[r], k
           if ((r in ctl) && ctl[r] == "managed" && st == "gap")
             printf "line %d: %s -> control: managed with a gap in %s\n", ln, nm[r], k
           if ((r in ctl) && ctl[r] == "external" && (st == "ours" || st == "extended"))
@@ -539,10 +539,10 @@ else
   if [ -n "$reg_bad" ]; then
     fail "inconsistent repo registry row(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$reg_bad"
-    hint "make each row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and gap/N/A say why. See the schema at the top of registries/repos.yml."
+    hint "make each row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and a gap says why. See the schema at the top of registries/repos.yml."
   else
     reg_rows="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '$3 == "head"' | grep -c . || true)"
-    pass "$reg_rows row(s) consistent: statuses, control/gap invariants, notes on gap and N/A"
+    pass "$reg_rows row(s) consistent: statuses, control/gap invariants, note on gap"
   fi
 fi
 

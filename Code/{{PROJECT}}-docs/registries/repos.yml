@@ -53,12 +53,11 @@
 #     ours       Throughstone provided it
 #     extended   it was already there and Throughstone added to it — for a README, the
 #                `## Role in <project>` section, through to the next `##`
-#     theirs     already met by what is there; nothing of ours in it
-#     N/A        the need structurally does not apply. Uppercase, matching the method's spelling
-#                everywhere else, and CI only — README and licensing apply to every repo
+#     theirs     nothing of ours is in this repo: the need is met outside it, or not met at
+#                all. The note says which
 #     gap        unmet, and recorded as unmet
 #
-# `gap` and `N/A` **must** carry a note saying why. Every other entry carries one when the need is
+# `gap` **must** carry a note saying why. Every other entry carries one when the need is
 # met some way that is not obvious from the repo itself. Two invariants hold across the pair of
 # fields: a `managed` repo has no `gap` — either the need is met, or the repo is `external` — and an
 # `external` repo has no `ours` and no `extended`, because both mean an artifact Throughstone

@@ -180,11 +180,10 @@ reg_rows "$work" <<'EOF'
     provides:
       readme:  { status: theirs, note: "their README" }
       license: { status: gap,    note: "" }
-      ci:      { status: N/A,    note: "" }
+      ci:      { status: theirs, note: "their Buildkite pipeline" }
 EOF
 doctor "$work"
-expect "provides: license is gap and carries no note saying why" "gap needs a note"
-expect "provides: ci is N/A and carries no note saying why" "N/A needs a note"
+expect "provides: license is a gap and carries no note saying why" "gap needs a note"
 expect "RESULT: FAIL" "notes required"
 
 reg_rows "$work" <<'EOF'
@@ -197,14 +196,17 @@ reg_rows "$work" <<'EOF'
     provides:
       readme:  { status: mine, note: "" }
       license: { status: ours, note: "" }
-      ci:      { status: ours, note: "" }
+      ci:      { status: N/A,  note: "" }
 EOF
 doctor "$work"
 # A mistyped control: is neither absent nor external, so without this it would slip past both
 # invariant checks and read as controlled to anyone skimming the file.
 expect 'origin: "creatd" is not created or adopted' "origin closed set"
 expect 'control: "manged" is not managed or external' "control closed set"
-expect 'provides: readme status "mine" is not ours/extended/theirs/N/A/gap' "status closed set"
+expect 'provides: readme status "mine" is not ours/extended/theirs/gap' "status closed set"
+# N/A was a CI-only status and is gone: a repo that could have a gate and has none is theirs,
+# note "nothing runs". Asserting it is rejected is what keeps it from drifting back in.
+expect 'provides: ci status "N/A" is not ours/extended/theirs/gap' "N/A no longer a status"
 expect "RESULT: FAIL" "closed sets"
 
 # --- 3. Check 13 — the file is shaped so a reader would misread it -----------
