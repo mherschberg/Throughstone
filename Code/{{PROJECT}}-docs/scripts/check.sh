@@ -521,22 +521,42 @@ if [ "$REG_PRESENT" -eq 0 ]; then
 else
   reg_bad="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '
     BEGIN { SQ = sprintf("%c", 39) }
-    # provides: entries are flow mappings, so status and note are read out of one line.
-    # A key is a key only where a flow mapping can start one: directly after the opening brace,
-    # or after a comma. Matching the bare name anywhere in the line read a key out of note prose
-    # instead — a note reading "CI status: nothing runs" became the status of that row, and the
-    # doctor failed a correct row over a status nobody had written. Anchoring is also what stops
-    # a name that is not a key, mystatus:, from answering for status:.
-    function fmpat(key) { return "[{,][[:space:]]*" key ":[[:space:]]*" }
-    function fmhas(s, key) { return (s ~ fmpat(key)) }
-    function fmval(s, key,   t, q) {
-      t = s
-      sub(".*" fmpat(key), "", t)
-      q = substr(t, 1, 1)
-      if (q == "\"" || q == SQ) { t = substr(t, 2); sub(q ".*$", "", t); return t }
-      sub(/[,}].*$/, "", t)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
-      return t
+    # provides: entries are flow mappings, so status and note are read out of one line. They are
+    # read by walking the line rather than by matching the key name in it, because a mapping only
+    # has separators outside its quoted parts: the comma in a note reading "before migration,
+    # status: theirs, now missing" is prose. Matching on it took the note as the row status, which
+    # hid a real gap on one row and invented a status on another, both without a word. Walking
+    # also settles which names are keys, so a name that is not one, mystatus:, answers for nothing.
+    # fmparse fills FM with the keys of one mapping; a line with no brace leaves it empty.
+    function fmparse(s,   i, c, q, buf, k, v, p) {
+      split("", FM)
+      i = index(s, "{")
+      if (i == 0) return 0
+      i++
+      buf = ""
+      q = ""
+      while (i <= length(s)) {
+        c = substr(s, i, 1)
+        if (q != "") {
+          if (c == q) q = ""
+          else buf = buf c
+        } else if (c == "\"" || c == SQ) {
+          q = c
+        } else if (c == "," || c == "}") {
+          p = index(buf, ":")
+          if (p > 0) {
+            k = substr(buf, 1, p - 1)
+            v = substr(buf, p + 1)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+            FM[k] = v
+          }
+          buf = ""
+          if (c == "}") return 1
+        } else buf = buf c
+        i++
+      }
+      return 1
     }
     # Two rows for one repo is not a row saying the wrong thing, it is the inventory failing at
     # its first job. Nothing downstream can recover: the remote writer rewrites whichever row it
@@ -580,16 +600,18 @@ else
         n = split(pk[r], keys, " ")
         for (j = 1; j <= n; j++) {
           k = keys[j]; v = pv[r SUBSEP k]; ln = pl[r SUBSEP k]
-          if (!fmhas(v, "status")) {
+          fmparse(v)
+          if (!("status" in FM)) {
             printf "line %d: %s -> provides: %s carries no status\n", ln, nm[r], k
             continue
           }
-          st = fmval(v, "status")
+          # Both are taken now, while FM still holds this entry: the next fmparse replaces it.
+          st = FM["status"]
+          note = ("note" in FM) ? FM["note"] : ""
           if (!(st in okst)) {
             printf "line %d: %s -> provides: %s status \"%s\" is not ours/extended/theirs/gap\n", ln, nm[r], k, st
             continue
           }
-          note = fmhas(v, "note") ? fmval(v, "note") : ""
           if (st == "gap" && note == "")
             printf "line %d: %s -> provides: %s is a gap and carries no note saying why\n", ln, nm[r], k
           if ((r in ctl) && ctl[r] == "managed" && st == "gap")

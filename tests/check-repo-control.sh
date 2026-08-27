@@ -279,6 +279,39 @@ reg_rows "$work" <<'EOF'
 EOF
 case_fires "$work" "gap behind a decoy note" "control: managed with a gap in ci"
 
+# The same decoy with a comma in front of it, which is where the anchored matcher still broke: a
+# comma inside a quoted note looks exactly like a mapping separator, so the note was read as the
+# row status. It went both ways — this row hid a real gap and passed, and the row after it failed
+# a correct record with an invented status — and both were silent about the actual content.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: managed
+    provides:
+      readme:  { status: ours, note: "" }
+      license: { status: ours, note: "" }
+      ci:      { status: gap,  note: "before migration, status: theirs, now missing" }
+EOF
+case_fires "$work" "gap behind a comma decoy" "control: managed with a gap in ci"
+
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    provides:
+      readme:  { status: theirs, note: "their README" }
+      license: { status: theirs, note: "their LICENSE" }
+      ci:      { status: theirs, note: "GitHub Actions, status: required" }
+EOF
+doctor "$work"
+refute "is not ours/extended/theirs/gap" "a comma in a note does not start a key"
+refute "[FAIL]" "prose with a comma is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "comma in a note — expected exit 0, got $DOC_STATUS"
+
 # --- 3. Check 13 — the file is shaped so a reader would misread it -----------
 # The measured exploit: a note written across lines whose text begins with a row-level field
 # name. setup-workspace.sh's clone loop resolves that line as the row's location and clones
