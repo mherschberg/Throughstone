@@ -131,8 +131,14 @@ assert_not_out() {
     *"$2"*) bad "$1: output should not mention: $2" ;;
   esac
 }
+# A .git directory does not prove a clone arrived. git exits 0 after cloning a remote whose HEAD
+# names a branch that does not exist, and leaves an empty working tree behind; every assertion
+# here would still have passed. Requiring HEAD to resolve is what separates a repository that
+# arrived from a directory that was created.
 assert_cloned() {
-  [ -d "$2/.git" ] || bad "$1: expected a clone at $2"
+  [ -d "$2/.git" ] || { bad "$1: expected a clone at $2"; return; }
+  git -C "$2" rev-parse --verify HEAD >/dev/null 2>&1 \
+    || bad "$1: $2 has a .git but nothing checked out"
 }
 assert_not_cloned() {
   [ -e "$2" ] && bad "$1: nothing should have been written to $2"
@@ -141,8 +147,10 @@ assert_not_cloned() {
 # A real, local, cloneable remote. Without one, "the clone was refused" and "the clone failed"
 # look identical, and the out-of-workspace cases below are exactly about a clone that would
 # otherwise have succeeded.
+# -b main, because the seed below pushes main: a bare repo initialized without it points HEAD at
+# a branch nobody ever creates, and then every clone of it succeeds with nothing checked out.
 REACHABLE="$TMP_ROOT/reachable.git"
-git init -q --bare "$REACHABLE"
+git init -q --bare -b main "$REACHABLE"
 seed="$TMP_ROOT/seed"
 mkdir -p "$seed"
 (
