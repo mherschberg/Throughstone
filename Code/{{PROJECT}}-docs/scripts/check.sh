@@ -494,10 +494,16 @@ else
   reg_bad="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '
     BEGIN { SQ = sprintf("%c", 39) }
     # provides: entries are flow mappings, so status and note are read out of one line.
-    function fmhas(s, key) { return (s ~ (key ":")) }
+    # A key is a key only where a flow mapping can start one: directly after the opening brace,
+    # or after a comma. Matching the bare name anywhere in the line read a key out of note prose
+    # instead — a note reading "CI status: nothing runs" became the status of that row, and the
+    # doctor failed a correct row over a status nobody had written. Anchoring is also what stops
+    # a name that is not a key, mystatus:, from answering for status:.
+    function fmpat(key) { return "[{,][[:space:]]*" key ":[[:space:]]*" }
+    function fmhas(s, key) { return (s ~ fmpat(key)) }
     function fmval(s, key,   t, q) {
       t = s
-      sub(".*" key ":[[:space:]]*", "", t)
+      sub(".*" fmpat(key), "", t)
       q = substr(t, 1, 1)
       if (q == "\"" || q == SQ) { t = substr(t, 2); sub(q ".*$", "", t); return t }
       sub(/[,}].*$/, "", t)

@@ -209,6 +209,44 @@ expect 'provides: readme status "mine" is not ours/extended/theirs/gap' "status 
 expect 'provides: ci status "N/A" is not ours/extended/theirs/gap' "N/A no longer a status"
 expect "RESULT: FAIL" "closed sets"
 
+# A note is prose, and prose about a status says the word. The keys are read out of the flow
+# mapping by name, so a note reading "CI status: nothing runs" used to hand check 11 a status of
+# `nothing runs"` and fail a row that was correct — the same way a note containing "note:" took
+# over the note. Both keys are anchored to the brace or the comma that starts them now.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    description: "Order intake."
+    provides:
+      readme:  { status: theirs, note: "README status: complete, and theirs" }
+      license: { status: theirs, note: "see the note: in their LICENSE header" }
+      ci:      { status: theirs, note: "CI status: nothing runs" }
+EOF
+doctor "$work"
+refute "is not ours/extended/theirs/gap" "a note saying status: does not become the status"
+refute "[FAIL]" "prose in a note is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "status: in a note — expected exit 0, got $DOC_STATUS"
+
+# The other direction, and the one that matters more: the anchoring must not buy that silence by
+# going blind. This row really does break the managed/gap invariant, and its note carries the
+# decoy that used to mask the finding behind an invented status.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: managed
+    description: "Order intake."
+    provides:
+      readme:  { status: ours, note: "" }
+      license: { status: ours, note: "" }
+      ci:      { status: gap,  note: "no pipeline yet; was status: ours before the move" }
+EOF
+case_fires "$work" "gap behind a decoy note" "control: managed with a gap in ci"
+
 # --- 3. Check 13 — the file is shaped so a reader would misread it -----------
 # The measured exploit: a note written across lines whose text begins with a row-level field
 # name. setup-workspace.sh's clone loop resolves that line as the row's location and clones
