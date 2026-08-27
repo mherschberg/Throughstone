@@ -29,14 +29,17 @@ Leave them alone.
       `provides:` at all**, plus a `registries/risks.yml` row saying the repository was not
       reachable. Statuses are filled by looking; none may be guessed to complete the set. Say which
       repos you skipped, by name — a silent partial run reads as a complete one.
-- [ ] **Is its work tree clean, with an attached HEAD?** If not, **write nothing into it.** Leave
-      `control:` as it is — an unsaved edit in someone's editor is not an answer to the control
-      question — and leave the affected `provides:` key **out** of the row on a first registration,
-      or **exactly as it stands** on a re-run: a key already there recorded an observation made when
-      the tree was clean, and dropping it would shrink the record. The affected key is `readme:` —
-      the only need the ladder ever writes for; `ci:` and `license:` are filled by looking and a
-      dirty tree does not stop you looking. Say what you found and ask the owner to commit or
-      stash; re-running this is all that is needed afterwards.
+- [ ] **Is its work tree clean, with an attached HEAD?** Ask this of a repo that already exists; a
+      repo Throughstone is creating now records what the scaffold wrote and this action writes
+      nothing into it, so its tree is dirty by construction and that changes nothing. If the tree
+      is dirty, **write nothing into it.** Leave `control:` as it is — an unsaved edit in someone's
+      editor is not an answer to the control question — and leave the affected `provides:` key
+      **out** of the row on a first registration, or **exactly as it stands** on a re-run: a key
+      already there recorded an observation made when the tree was clean, and dropping it would
+      shrink the record. The affected key is `readme:` — the only need the ladder ever writes for;
+      `ci:` and `license:` are filled by looking and a dirty tree does not stop you looking. Say
+      what you found and ask the owner to commit or stash; re-running this is all that is needed
+      afterwards.
 - [ ] **Is it nested inside another repository's work tree?** A repo whose work tree sits inside
       another's has no independent control: record it `external`, with the containment named in the
       `note`, and write nothing. Unlike a dirty tree — which is transient — this is a permanent
