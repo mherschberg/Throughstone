@@ -372,6 +372,55 @@ assert_out "linked worktree" "exists: Code/multi-api/"
 assert_not_out "linked worktree" "did not arrive"
 assert_not_out "linked worktree" "could not clone"
 
+echo "An initialized submodule, the other shape whose .git is a file ..."
+# The -e fix was justified by two shapes and only ever tested one. A submodule has to be left
+# where it lives: moved out of its parent, its .git pointer no longer resolves and it stops being
+# a repository, which is the next case rather than this one.
+tw="$(teammate submodule "$MULTI_DOCS")"
+git init -q -b main "$tw/Code/sub-origin" >/dev/null 2>&1
+git -C "$tw/Code/sub-origin" commit -q --allow-empty -m seed
+git init -q -b main "$tw/Code/parent" >/dev/null 2>&1
+git -C "$tw/Code/parent" commit -q --allow-empty -m seed
+git -C "$tw/Code/parent" -c protocol.file.allow=always \
+  submodule add -q "$tw/Code/sub-origin" vendored >/dev/null 2>&1
+[ -f "$tw/Code/parent/vendored/.git" ] \
+  || bad "fixture is not exercising the shape it claims: the submodule .git is not a file"
+add_row "$tw" <<EOF
+
+  - name: "vendored"
+    location: "Code/parent/vendored/"
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
+EOF
+run_setup "$tw"
+assert_assembled "submodule" "$tw"
+assert_out "submodule" "exists: Code/parent/vendored/"
+assert_not_out "submodule" "did not arrive"
+
+echo "A .git file left behind by a worktree that no longer exists ..."
+# A .git file proves a repository was here once, not that one is: a linked worktree that was moved
+# or deleted leaves its pointer behind. Counted as a checkout, that skipped the clone and reported
+# nothing at all, so the workspace was quietly incomplete — the silent version of exactly the
+# failure the old directory test produced loudly.
+tw="$(teammate stalegit "$MULTI_DOCS")"
+mkdir -p "$tw/Code/multi-api"
+printf 'gitdir: %s\n' "$TMP_ROOT/no-such-worktree" > "$tw/Code/multi-api/.git"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
+EOF
+run_setup "$tw"
+assert_assembled "stale .git" "$tw"
+assert_not_out "stale .git" "exists: Code/multi-api/"
+assert_out "stale .git" "did not arrive"
+
 echo "The doctor and the clone loop read location:/remote: the same way ..."
 # The failure neither script can report on its own: check.sh passes a file that the clone loop
 # then reads differently, so the doctor says the registry is fine and the repository lands

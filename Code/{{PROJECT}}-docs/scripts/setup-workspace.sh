@@ -130,11 +130,20 @@ if [ -f "$REG" ]; then
     # Clone side effect: create a missing sibling repo at its registry location. Existing git
     # checkouts are left untouched so rerunning setup is safe for already-cloned repos. This
     # is also what leaves a repo registered in place alone: it is already where it belongs.
-    # The test is -e rather than -d because a submodule and a linked worktree present .git as a
-    # FILE, and check.sh counts both as repositories. Testing for a directory made this script
-    # disagree with the doctor about one row: it tried to clone over a checkout that was already
-    # there, and then reported that repo missing when git refused.
-    [ -e "$loc/.git" ] && { echo "  exists: $loc"; continue; }
+    # Left alone only if it really is a repository. A submodule and a linked worktree present .git
+    # as a FILE rather than a directory, which is what made -d wrong; -e was wrong the other way,
+    # because a .git file left behind by a worktree that was moved or deleted still exists and is
+    # not a repository. Skipping on that cloned nothing and reported nothing, so the workspace was
+    # quietly incomplete. Asking git is the test check.sh uses, on physical paths both sides.
+    # Anything that fails it falls through to the clone below, which refuses over a non-empty
+    # directory and counts the repo among those that did not arrive — loudly, which is the point.
+    if [ -d "$loc" ]; then
+      loc_top="$(git -C "$loc" rev-parse --show-toplevel 2>/dev/null || true)"
+      if [ -n "$loc_top" ] && [ "$loc_top" = "$(cd "$loc" && pwd -P)" ]; then
+        echo "  exists: $loc"
+        continue
+      fi
+    fi
     # A location this workspace cannot own is referenced where it sits, never cloned into.
     # Cloning would put the repository outside the workspace this script is assembling —
     # silently, when the path happens to be writable. The test is textual on purpose: an

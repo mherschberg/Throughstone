@@ -257,8 +257,11 @@ any project built with it.
   the script tried to clone over it, git refused because the directory was not empty, and the repo
   was counted among those that did not arrive — telling the contributor to go and clone something
   that was already on disk, on every run, with no way to clear it. `scripts/check.sh` has always
-  counted both as repositories, so the two scripts disagreed about the same registry row. They now
-  agree.
+  counted both as repositories, so the two scripts disagreed about the same registry row. Setup now
+  asks git the same question the doctor asks — is this the root of a work tree — rather than
+  testing for a file or a directory, so both shapes are recognized and a `.git` file left behind by
+  a worktree that was moved or deleted is not: that one falls through to the clone, which refuses
+  over a non-empty directory and says the repo did not arrive, instead of being skipped in silence.
 - **Every contributor gets the same root pointers, not just the one who created the project.**
   `init.sh` leaves an `AGENTS.md` and a `CLAUDE.md` at the workspace root that close with the
   instruction the handoff depends on — that the canonical `AGENTS.md` opens with "First action —
