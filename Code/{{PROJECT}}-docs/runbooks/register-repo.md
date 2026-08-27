@@ -105,8 +105,9 @@ Explain **once**, however many repos are in the list, then ask one line per repo
 say what the answer authorizes, or someone is consenting to something they were not shown:
 
 - **`managed` is a standing write permission**, asked once for the whole repository and never per
-  file. In practice it authorizes **two files**: a short section in that repo's README, and a small
-  notice saying what that section is. Never a CI workflow, never a license.
+  file. In practice it authorizes **two files**: this repo's README — a short section added to the
+  one it has, or the whole template if it has none — and a small notice saying what of ours is in
+  it. Never a CI workflow, never a license.
 - **`external` is fully documented**, not excluded — the repo gets a row, statuses, notes and an
   Architecture Overview entry. It is simply never written into.
 - **These are the only two answers.** A later refusal to have a file written is this question
