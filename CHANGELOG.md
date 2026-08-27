@@ -9,14 +9,6 @@ any project built with it.
 
 ## [Unreleased]
 
-> **Withdrawn (2026-08-19).** Work on how the method treats a repository it did **not** create —
-> whether it applies a license, whether it stamps or augments a README, whether it installs CI, and
-> where it records what it found — was developed on `main` between 2026-08-15 and 2026-08-19 and has
-> been backed out. It was being built without a settled design, so it is being re-planned as its own
-> piece of work and will return in a later release. If you cloned `main` during that window, your
-> copy carries an unfinished version of it. **No tagged release was affected**; the latest release
-> remains v1.7.1.
-
 ### Added
 - **A runbook for splitting a repository** — `runbooks/splitting-repos.md`. The method used to say
   splitting was "standard git," which is not something you can act on: the recipe you find
