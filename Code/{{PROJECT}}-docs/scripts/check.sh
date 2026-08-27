@@ -519,15 +519,41 @@ else
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
       return t
     }
-    $3 == "head" { nm[$1] = $6; if ($1 + 0 > maxr) maxr = $1 + 0 }
-    $3 == "field" && $5 == "origin"  { org[$1] = $6; orgln[$1] = $2 }
-    $3 == "field" && $5 == "control" { ctl[$1] = $6; ctlln[$1] = $2 }
+    # Two rows for one repo is not a row saying the wrong thing, it is the inventory failing at
+    # its first job. Nothing downstream can recover: the remote writer rewrites whichever row it
+    # matches first, the clone loop clones one location and reports the other as already there,
+    # and a reader asking what a repo is gets two answers. Name and location are what identify a
+    # row, so both are held to one row each.
+    function normloc(v) {
+      # One directory is one place however it was spelled.
+      sub(/^\.\//, "", v)
+      sub(/\/+$/, "", v)
+      return v
+    }
+    $3 == "head" { nm[$1] = $6; hdln[$1] = $2; if ($1 + 0 > maxr) maxr = $1 + 0 }
+    $3 == "field" && $5 == "origin"   { org[$1] = $6; orgln[$1] = $2 }
+    $3 == "field" && $5 == "control"  { ctl[$1] = $6; ctlln[$1] = $2 }
+    $3 == "field" && $5 == "location" { loc[$1] = $6; locln[$1] = $2 }
     $3 == "nested" && $4 == "provides" { pv[$1 SUBSEP $5] = $6; pl[$1 SUBSEP $5] = $2; pk[$1] = pk[$1] " " $5 }
     END {
       split("created adopted", a, " ");            for (i in a) okorg[a[i]] = 1
       split("managed external", b, " ");           for (i in b) okctl[b[i]] = 1
       split("ours extended theirs gap", c, " "); for (i in c) okst[c[i]] = 1
       for (r = 1; r <= maxr; r++) {
+        if ((r in nm) && nm[r] != "") {
+          if (nm[r] in seenname)
+            printf "line %d: %s -> this name is already the name of the row at line %d\n", hdln[r], nm[r], seenname[nm[r]]
+          else
+            seenname[nm[r]] = hdln[r]
+        }
+        if ((r in loc) && loc[r] != "") {
+          nl = normloc(loc[r])
+          if (nl in seenloc)
+            printf "line %d: %s -> location %s is already where %s lives, at line %d\n", locln[r], nm[r], loc[r], seenlocnm[nl], seenloc[nl]
+          else {
+            seenloc[nl] = locln[r]; seenlocnm[nl] = nm[r]
+          }
+        }
         if ((r in org) && !(org[r] in okorg))
           printf "line %d: %s -> origin: \"%s\" is not created or adopted\n", orgln[r], nm[r], org[r]
         if ((r in ctl) && !(ctl[r] in okctl))
@@ -558,10 +584,10 @@ else
   if [ -n "$reg_bad" ]; then
     fail "inconsistent repo registry row(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$reg_bad"
-    hint "make each row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and a gap says why. See the schema at the top of registries/repos.yml."
+    hint "give each repo exactly one row, and make that row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and a gap says why. See the schema at the top of registries/repos.yml."
   else
     reg_rows="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '$3 == "head"' | grep -c . || true)"
-    pass "$reg_rows row(s) consistent: statuses, control/gap invariants, note on gap"
+    pass "$reg_rows row(s) consistent: one row per name and location, statuses, control/gap invariants, note on gap"
   fi
 fi
 

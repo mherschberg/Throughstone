@@ -116,8 +116,12 @@ any project built with it.
   row could say Throughstone controls a repo *and* that one of that repo's needs is unmet — a
   combination the file's own schema forbids — and the project would report clean. `scripts/check.sh`
   gains three checks. The first reads the file only, so it holds everywhere the doctor runs, CI
-  included: statuses come from the closed set, `origin:` and `control:` do too, a `managed` repo has
-  no `gap`, an `external` repo has no `ours` or `extended`, and a `gap` says why. The second
+  included: every repo has exactly one row — one name and one location each, `Code/api/` and
+  `./Code/api` being the same place — statuses come from the closed set, `origin:` and `control:` do
+  too, a `managed` repo has no `gap`, an `external` repo has no `ours` or `extended`, and a `gap`
+  says why. Two rows for one repo used to pass in silence, and nothing downstream could recover:
+  `init.sh` rewrites whichever row it matches first and `scripts/setup-workspace.sh` clones one
+  location and reports the other as already there. The second
   looks at disk: a row whose `location` is the root of a git work tree, and that Throughstone adopted
   rather than created, has to record what that repo provides — naming the individual missing entry
   rather than the row, because an entry is left out on purpose while the observation is still owed.

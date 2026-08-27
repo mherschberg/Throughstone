@@ -118,7 +118,9 @@ for spec in "greenfield-multi multi apache-2.0" "greenfield-mono mono bsd-3"; do
   expect "11. Repo registry record consistency" "$name"
   expect "12. Repo registry control record" "$name"
   expect "13. Repo registry file shape" "$name"
-  expect "row(s) consistent: statuses, control/gap invariants" "$name"
+  # The substring, not the sentence: this asserts that check 11 passed, and re-wording its pass
+  # line should not be a test failure.
+  expect "row(s) consistent:" "$name"
   expect "carry a complete control record" "$name"
   expect "parser rules hold" "$name"
   # The guard against an assertion that cannot fail: a clean project must show none of the
@@ -208,6 +210,36 @@ expect 'provides: readme status "mine" is not ours/extended/theirs/gap' "status 
 # note "nothing runs". Asserting it is rejected is what keeps it from drifting back in.
 expect 'provides: ci status "N/A" is not ours/extended/theirs/gap' "N/A no longer a status"
 expect "RESULT: FAIL" "closed sets"
+
+# Identity is the inventory getting its own first job right. Two rows for one repo cannot be
+# recovered downstream: init.sh rewrites whichever row it matches first, setup-workspace.sh clones
+# one location and reports the other as already there, and a reader asking what a repo is gets two
+# answers. The third row below is the same place as the first, spelled differently, which is how a
+# duplicate location actually arrives.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: created
+    control: managed
+
+  - name: "acme-api"
+    location: "Code/acme-web/"
+    type: app
+    origin: created
+    control: managed
+
+  - name: "acme-twin"
+    location: "./Code/acme-api"
+    type: service
+    origin: created
+    control: managed
+EOF
+doctor "$work"
+expect "this name is already the name of the row at line" "duplicate name"
+expect "is already where acme-api lives" "duplicate location, spelled differently"
+expect "RESULT: FAIL" "duplicate identity"
+[ "$DOC_STATUS" -eq 1 ] || bad "duplicate identity — expected exit 1, got $DOC_STATUS"
 
 # A note is prose, and prose about a status says the word. The keys are read out of the flow
 # mapping by name, so a note reading "CI status: nothing runs" used to hand check 11 a status of
