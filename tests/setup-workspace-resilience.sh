@@ -329,6 +329,33 @@ assert_assembled "re-run" "$tw"
 assert_out "re-run" "exists: Code/multi-api/"
 assert_not_out "re-run" "did not arrive"
 
+echo "A registered checkout whose .git is a FILE — a linked worktree ..."
+# A submodule and a linked worktree are both real repositories, and both present .git as a file
+# rather than a directory; check.sh reads them as repositories for exactly that reason. When this
+# script tested for a directory it disagreed with the doctor about the same row: it tried to clone
+# over a checkout that was already there, and counted the repo missing when git refused.
+tw="$(teammate worktree "$MULTI_DOCS")"
+git init -q "$tw/Code/wt-origin" >/dev/null 2>&1
+git -C "$tw/Code/wt-origin" commit -q --allow-empty -m seed
+git -C "$tw/Code/wt-origin" worktree add -q "$tw/Code/multi-api" -b wtbranch
+[ -f "$tw/Code/multi-api/.git" ] \
+  || bad "fixture is not exercising the shape it claims: Code/multi-api/.git is not a file"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
+    description: "Supplied by hand as a linked worktree, then picked up by a re-run."
+EOF
+run_setup "$tw"
+assert_assembled "linked worktree" "$tw"
+assert_out "linked worktree" "exists: Code/multi-api/"
+assert_not_out "linked worktree" "did not arrive"
+assert_not_out "linked worktree" "could not clone"
+
 echo "A target directory that exists but is empty ..."
 tw="$(teammate emptydir "$MULTI_DOCS")"
 add_row "$tw" <<EOF

@@ -92,7 +92,11 @@ if [ -f "$REG" ]; then
     # Clone side effect: create a missing sibling repo at its registry location. Existing git
     # checkouts are left untouched so rerunning setup is safe for already-cloned repos. This
     # is also what leaves a repo registered in place alone: it is already where it belongs.
-    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
+    # The test is -e rather than -d because a submodule and a linked worktree present .git as a
+    # FILE, and check.sh counts both as repositories. Testing for a directory made this script
+    # disagree with the doctor about one row: it tried to clone over a checkout that was already
+    # there, and then reported that repo missing when git refused.
+    [ -e "$loc/.git" ] && { echo "  exists: $loc"; continue; }
     # A location this workspace cannot own is referenced where it sits, never cloned into.
     # Cloning would put the repository outside the workspace this script is assembling —
     # silently, when the path happens to be writable. The test is textual on purpose: an

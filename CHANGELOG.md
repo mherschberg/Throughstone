@@ -244,6 +244,14 @@ any project built with it.
   rather than after it; and the closing line says how many repos did not arrive instead of reporting
   plain success. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
   already cloned are left alone.
+- **A repo supplied by hand is recognised whatever shape its checkout is.** That re-run skips a
+  location that already holds a checkout — but it tested for a `.git` *directory*, and a linked
+  worktree or an initialized submodule keeps `.git` as a *file*. Either one read as "not a repo":
+  the script tried to clone over it, git refused because the directory was not empty, and the repo
+  was counted among those that did not arrive — telling the contributor to go and clone something
+  that was already on disk, on every run, with no way to clear it. `scripts/check.sh` has always
+  counted both as repositories, so the two scripts disagreed about the same registry row. They now
+  agree.
 - **A `location:` outside the workspace root is no longer cloned into.** An absolute path, or one
   reaching out with `..`, is now reported and skipped. It used to be used verbatim, so a registry
   naming a path that happened to be writable placed a repository *outside* the workspace silently,
