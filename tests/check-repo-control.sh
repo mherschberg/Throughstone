@@ -234,10 +234,24 @@ reg_rows "$work" <<'EOF'
     type: service
     origin: created
     control: managed
+
+  - name: "acme-dot"
+    location: "Code/./acme-api"
+    type: service
+    origin: created
+    control: managed
+
+  - name: "acme-slash"
+    location: "Code//acme-api/"
+    type: service
+    origin: created
+    control: managed
 EOF
 doctor "$work"
 expect "this name is already the name of the row at line" "duplicate name"
-expect "is already where acme-api lives" "duplicate location, spelled differently"
+expect "acme-twin -> location ./Code/acme-api is already where" "leading ./"
+expect "acme-dot -> location Code/./acme-api is already where" "interior /./"
+expect "acme-slash -> location Code//acme-api/ is already where" "repeated separator"
 expect "RESULT: FAIL" "duplicate identity"
 [ "$DOC_STATUS" -eq 1 ] || bad "duplicate identity — expected exit 1, got $DOC_STATUS"
 

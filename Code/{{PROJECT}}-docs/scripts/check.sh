@@ -564,9 +564,17 @@ else
     # and a reader asking what a repo is gets two answers. Name and location are what identify a
     # row, so both are held to one row each.
     function normloc(v) {
-      # One directory is one place however it was spelled.
-      sub(/^\.\//, "", v)
+      # One directory is one place however it was spelled: repeated separators, a leading ./, an
+      # interior /./ and a trailing /. all name the same path, and stripping only the first and
+      # last of those let Code/./api sit beside Code/api as though they were two repos.
+      # A .. is left as written, on purpose: resolving one correctly means resolving symlinks,
+      # and every boundary rule about locations here is textual by decision.
+      gsub(/\/\/+/, "/", v)
+      while (sub(/^\.\//, "", v)) { }
+      while (sub(/\/\.\//, "/", v)) { }
+      sub(/\/\.$/, "", v)
       sub(/\/+$/, "", v)
+      if (v == "") v = "."
       return v
     }
     $3 == "head" { nm[$1] = $6; hdln[$1] = $2; if ($1 + 0 > maxr) maxr = $1 + 0 }

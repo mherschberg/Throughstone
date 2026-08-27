@@ -120,8 +120,8 @@ any project built with it.
   row could say Throughstone controls a repo *and* that one of that repo's needs is unmet — a
   combination the file's own schema forbids — and the project would report clean. `scripts/check.sh`
   gains three checks. The first reads the file only, so it holds everywhere the doctor runs, CI
-  included: every repo has exactly one row — one name and one location each, `Code/api/` and
-  `./Code/api` being the same place — statuses come from the closed set, `origin:` and `control:` do
+  included: every repo has exactly one row — one name and one location each, with `Code/api/`,
+  `./Code/api`, `Code/./api` and `Code//api` all the same place — statuses come from the closed set, `origin:` and `control:` do
   too, a `managed` repo has no `gap`, an `external` repo has no `ours` or `extended`, and a `gap`
   says why. Two rows for one repo used to pass in silence, and nothing downstream could recover:
   `init.sh` rewrites whichever row it matches first and `scripts/setup-workspace.sh` clones one
