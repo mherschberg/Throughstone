@@ -523,11 +523,8 @@ has is Throughstone's to change, so `registries/repos.yml` records the answer pe
 Registering a repo makes it **known and connected — never conformant, and never good.** A managed
 repo whose README is thin, or whose CI runs only a linter, is recorded as what it is; improving it
 is forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
-**Setting `control: external`** — at handover, on a late refusal, or when a repository turns
-out to sit inside another's work tree — **moves every `ours` and `extended` on that row to `theirs`
-in the same edit**, each `note` recording that Throughstone wrote it: an external repo has nothing
-of ours to maintain, whoever typed it. **And an `external` repo never appears in a STEP's Repos
-projection** — a STEP is work Throughstone does, in repositories it controls.
+**An `external` repo never appears in a STEP's Repos projection** — a STEP is work Throughstone
+does, in repositories it controls.
 
 **Three needs, one ladder, run per need.** A repo needs a **README** (someone standing in it can
 find their way back to the project), **CI** (the gate that runs on it is recorded — including

@@ -54,7 +54,7 @@ precondition aborts the action, and neither does this.
 1. **Identity → the row.** `name`, `location`, `type`, `description`. A `remote:` is **recorded**
    if the repo has one — never created, never repointed.
 2. **`origin:`** — `created` if Throughstone is making this repo now, `adopted` if it already
-   exists. It is written once and never changes; a repo handed over later was still created here.
+   exists. It is written once and never changes.
 3. **`control:`** — `managed` or `external`. A repo Throughstone is creating now is `managed`, with
    nothing asked; there is nobody else's work to write over. For a repo that already exists, **ask**
    — see *The control question* below.
@@ -113,8 +113,8 @@ say what the answer authorizes, or someone is consenting to something they were 
   it. Never a CI workflow, never a license.
 - **`external` is fully documented**, not excluded — the repo gets a row, statuses, notes and an
   Architecture Overview entry. It is simply never written into.
-- **These are the only two answers.** A later refusal to have a file written is this question
-  answered again, not a veto on that file.
+- **These are the only two answers, and the answer is settled here.** Permission is not withdrawn
+  later, and a later objection to a particular file is not a veto on that file.
 - **Skipping is safe.** Unanswered reads as `external` — recorded and referenced, never written
   into — and the doctor names the row until somebody answers.
 
@@ -129,15 +129,11 @@ because an unanswered permission is not a granted one.
 the answer, **name the repos back before writing.** Twelve names is a half-second read and it catches
 the one that should not have been on the list.
 
-## Defaults, promotion and handover
+## Defaults and promotion
 - **Unanswered is `external`.** The safe value applies immediately; the question stays open until
   somebody answers it, and the doctor names the row meanwhile.
 - **Promotion `external` → `managed` is this same action, re-run.** It re-runs the ladder for each
   need and must leave no `gap`. Nothing separate to build.
-- **Handover `managed` → `external`** sets the field **and moves every `ours` / `extended` on that
-  row to `theirs`, in the same edit**, each `note` recording that Throughstone wrote it
-  (`METHOD.md` §7 for why). `origin:` never moves and the notice stays where it is. Promoting the
-  repo back later leaves those statuses at `theirs`: the check-in re-checks them, not assumes.
 
 ## Running it again
 This action is **idempotent and resumable**. Re-running it on a registered repo refreshes the row

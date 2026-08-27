@@ -42,11 +42,10 @@ any project built with it.
   registered, that never changes. **`control:`** (`managed` | `external`) says whether Throughstone
   may write into that repo: `managed` is a standing permission, asked once per repository and never
   per file, while `external` means the repo is recorded and referenced in full and never written
-  into. Control is a state that changes over time rather than a fact about who created the repo, so
-  a repo the method built can be handed over and a repo it never built can be placed under its
-  care. **A missing `control:` reads as `external`**, because control is a permission and an
-  unanswered permission is not granted — the repo is recorded, and nothing is written into it until
-  somebody answers. **`provides:`** records how each of the three things a repo needs — a README, a
+  into. Control is not a fact about who created the repo, so a repo the method never built can be
+  placed under its care. **A missing `control:` reads as `external`**, because control is a permission
+  and an unanswered permission is not granted — the repo is recorded, and nothing is written into it
+  until somebody answers. **`provides:`** records how each of the three things a repo needs — a README, a
   stated licensing posture, a described CI gate — is actually met there, as a status (`ours`,
   `extended`, `theirs`, `gap`) and a note; a `gap` must say why. It goes only on
   rows whose `location` is a repository, and never on a row the setup script seeds — a status
@@ -96,7 +95,7 @@ any project built with it.
   model implies: the steps, the two checks before writing into a repository the method did not create
   (a clean work tree with an attached HEAD, and not nested inside another repository's work tree — both
   record what they found and skip, and neither aborts), what makes the action safe to re-run, the
-  default when nobody answers, promotion and handover, and the exact wording of the question that asks
+  default when nobody answers, promotion, and the exact wording of the question that asks
   whether the method may write into a repo. It maintains a repo's registry row and its entry in the
   Architecture Overview architecture doc **together** — they are one unit and neither moves without the
   other — so the Architecture Overview session now records a Repos section, and completes a document

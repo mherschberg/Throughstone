@@ -34,14 +34,12 @@
 #
 # `origin:` (per row) records whether Throughstone **created** the repo or **adopted** one that was
 # already there: `created` | `adopted`. It is a fact, written once when the repo is registered, and
-# it never changes — a repo that is later handed over was still created here. Nothing decides
-# anything from it; it is recorded so a later reader can tell why a repo looks the way it does.
+# it never changes. It is recorded so a later reader can tell why a repo looks the way it does.
 #
 # `control:` (per row) records whether Throughstone **controls** a repo — whether it may write what
 # its needs require into it. `managed` means yes, asked once per repository and never per file;
-# `external` means the repo is recorded and referenced but never written into. Control is a state
-# that changes over time, not a fact about who created the repo — a repo Throughstone created can be
-# handed over, and a repo it never created can be placed under its care.
+# `external` means the repo is recorded and referenced but never written into. Control is not a fact
+# about who created the repo: a repo Throughstone never created can be placed under its care.
 #
 # **A missing `control:` reads as `external`**, because control is a permission and an unanswered
 # permission is not granted: the method records the repo and writes nothing into it until someone
