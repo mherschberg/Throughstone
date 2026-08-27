@@ -118,6 +118,13 @@ assert_assembled() {
     [ -e "$tw/$f" ] || bad "$label: the workspace has no $f"
   done
   [ -x "$tw/doctor.sh" ] || bad "$label: doctor.sh is not executable"
+  # Present is not the same as useful. The closing paragraph of the root pointers is what turns
+  # "Read AGENTS.md and follow it" into an instruction rather than a filename, and it is what
+  # init.sh leaves at the root for the person who created the project. A contributor assembling
+  # their own machine reads the same file first and needs the same paragraph.
+  for f in AGENTS.md CLAUDE.md; do
+    grep -q "kickoff" "$tw/$f" || bad "$label: $f carries no first-action handoff paragraph"
+  done
 }
 
 assert_out() {

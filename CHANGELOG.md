@@ -259,6 +259,16 @@ any project built with it.
   that was already on disk, on every run, with no way to clear it. `scripts/check.sh` has always
   counted both as repositories, so the two scripts disagreed about the same registry row. They now
   agree.
+- **Every contributor gets the same root pointers, not just the one who created the project.**
+  `init.sh` leaves an `AGENTS.md` and a `CLAUDE.md` at the workspace root that close with the
+  instruction the handoff depends on — that the canonical `AGENTS.md` opens with "First action —
+  kickoff or resume?", to read it and follow it now, and that the whole handoff is the single
+  command *"Read AGENTS.md and follow it."* `scripts/setup-workspace.sh` wrote its own shorter
+  version of those two files, without that paragraph and without the sentences saying what the
+  pointer is. So the person who bootstrapped the project had the instruction at their workspace
+  root and everybody who joined afterwards did not, in both layouts. The two writers now produce
+  the same text, and the regression fixture checks the paragraph is there rather than only that
+  the file is.
 - **A comment or a quoted path in `location:`/`remote:` is read the way YAML reads it.**
   `scripts/setup-workspace.sh` stripped one optional double quote from each end of those two values
   and nothing else, so `location: Code/api # local checkout` cloned into a directory literally named

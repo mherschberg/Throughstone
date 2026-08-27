@@ -35,7 +35,17 @@ echo "Docs hub:       $DOCS_REL"
 echo "Writing per-machine pointers and helpers (CLAUDE.md, AGENTS.md, doctor.sh) ..."
 # The workspace root is a per-machine shell in multi-repo projects, not a durable repo. These
 # pointers are regenerated locally so agents opened at the root can find the canonical docs hub.
+#
+# What they say has to match what init.sh leaves at the root for the person who created the
+# project, because this is the file every contributor reads first and the handoff depends on it:
+# the closing paragraph is what turns "Read AGENTS.md and follow it" into an instruction. Written
+# thinner here, everyone who joined after the first person was missing it.
 for name in CLAUDE.md AGENTS.md; do
+  # The one clause that differs between the two files: each names the tool that reads it.
+  case "$name" in
+    CLAUDE.md) reader="Claude Code" ;;
+    *)         reader="any agent (Codex, etc.)" ;;
+  esac
   cat > "$ROOT/$name" <<EOF
 # $name
 
@@ -43,8 +53,14 @@ The canonical agent context lives in the docs repo:
 **\`$DOCS_REL/AGENTS.md\`** (tool-agnostic). Read it — and the methodology it points to in
 \`$DOCS_REL/METHOD.md\` — before working here.
 
-This is a per-machine pointer (the workspace root is not a repo). Edit the canonical file
-in the docs repo, not this one.
+This is a per-machine pointer so $reader auto-discovers the project context. It is not
+versioned (the workspace root is not a repo). Edit the canonical file in the docs repo, not
+this one. \`$DOCS_REL/scripts/setup-workspace.sh\` regenerates this pointer on a new machine.
+
+**Agents:** the canonical \`AGENTS.md\` (linked above) opens with a "First action — kickoff or
+resume?" section. Read it and follow it now — it decides, from disk, whether to start the
+kickoff interview (new project) or resume the next STEP (existing one). The user's whole
+handoff is the single command *"Read AGENTS.md and follow it."*
 EOF
 done
 
