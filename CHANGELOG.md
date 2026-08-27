@@ -47,7 +47,11 @@ any project built with it.
   and an unanswered permission is not granted — the repo is recorded, and nothing is written into it
   until somebody answers. **`provides:`** records how each of the three things a repo needs — a README, a
   stated licensing posture, a described CI gate — is actually met there, as a status (`ours`,
-  `extended`, `theirs`, `gap`) and a note; a `gap` must say why. It goes only on
+  `extended`, `theirs`, `gap`) and a note; a `gap` must say why. Unlike the other two it is a
+  **status rather than a stamp** — it records how each need is met *now*, so a repo adopted with no
+  CI is `ci: theirs`, note "nothing runs", and becomes `ours` when the project later builds one.
+  Work that changes how a need is met ends by re-running the registration, which moves the entry.
+  It goes only on
   rows whose `location` is a repository, and never on a row the setup script seeds — a status
   written before anyone had looked at the repo would be a guess rather than a record. Two
   invariants hold across the pair: a `managed` repo has no `gap` — either the need is met, or the

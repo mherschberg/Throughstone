@@ -144,6 +144,13 @@ the row: a `provenance:` block, which only a split writes (`runbooks/splitting-r
 exactly as it stands. Re-running is also the fix when a check-in finds the row and the
 Architecture Overview entry out of step.
 
+It is what records a need that is now met a different way, too. `origin:` is a stamp
+and never moves; `provides:` is a status and does. A repo adopted with `ci: theirs`, note "nothing
+runs", whose pipeline the project has since built, is re-run so that entry reads `ours` — a gate
+built while working this method is the method's. Work that changes how a need is met is not
+finished until the row says so, and when it is not obvious whether a change has earned a re-run,
+say so and let the person you are working with decide.
+
 ## Output / record
 - The **row** in `registries/repos.yml`, with a note on every entry that needs one.
 - The **Architecture Overview Repos entry** — created with the doc if the doc was absent.

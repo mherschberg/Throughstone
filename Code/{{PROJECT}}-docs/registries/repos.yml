@@ -61,6 +61,15 @@
 # `external` repo has no `ours` and no `extended`, because both mean an artifact Throughstone
 # maintains, which it cannot do in a repo it may not write into.
 #
+# **`origin:` is a stamp; `provides:` is a status.** `origin:` records what happened once and never
+# changes; `control:` is a permission, answered once. `provides:` records how each need is met *now*,
+# so it moves when the repo does. A repo adopted with no CI is `ci: theirs`, note "nothing runs" —
+# and when the project later builds one, that entry becomes `ours`, because a gate built while
+# working this method is the method's. Work that changes how a need is met is not finished until the
+# row says so, and `runbooks/register-repo.md`, re-run, is what says it. Whether a given change has
+# earned that is a judgement call: raise it rather than leave the row asserting something that
+# stopped being true.
+#
 # **A key may be legitimately absent, and absent is not `gap`.** `gap` is an observation — the need
 # is unmet. An absent key is an observation still owed: nothing was true to write when the row was
 # written. Fill it in by looking at the repo, never by picking a status to complete the set; the

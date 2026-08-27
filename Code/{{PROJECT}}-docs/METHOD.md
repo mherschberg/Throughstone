@@ -544,12 +544,20 @@ Q1. Can someone standing in this repo find their way back to the project?
 ```
 
 **The ladder never installs CI and never applies a license.** Both are scaffolding, written when
-Throughstone *creates* a repo, so `ci: ours` and `license: ours` mean the scaffold wrote them while
-building that repo and neither ever appears on an adopted one — a managed repo with no CI at all is
-`ci: theirs`, note "nothing runs", **not a gap**, and making it exist is forward work. The augment
-form is defined in `templates/repo-readme-template.md`; its one mechanical job here is to
-**delimit `extended`** — our part is that heading through to the next `##`, which is what a
-check-in sweeps.
+Throughstone *creates* a repo, so **registering** one it adopted never produces `ci: ours` or
+`license: ours` — a managed repo with no CI at all is `ci: theirs`, note "nothing runs", **not a
+gap**, and making it exist is forward work. The augment form is defined in
+`templates/repo-readme-template.md`; its one mechanical job here is to **delimit `extended`** — our
+part is that heading through to the next `##`, which is what a check-in sweeps.
+
+**`origin:` is a stamp; `provides:` is a status.** `origin:` records what happened once and never
+changes, and `control:` is a permission answered once. `provides:` records how each need is met
+*now*, so it moves when the repo does. When that forward work happens — the project decides to
+replace their pipeline with one it builds — the entry becomes `ours`, because a gate built while
+working this method is the method's. The work that changes how a need is met is not finished until
+the row says so, and the action that says it is `runbooks/register-repo.md`, re-run. Whether a given
+change has earned a re-run is a judgement call between you and whoever you are working with: raise
+it and let them decide, rather than leaving the row asserting something that stopped being true.
 
 **Registering a repo is its own procedure:** `runbooks/register-repo.md`. It maintains the row and
 the repo's entry in the Architecture Overview architecture doc **together** — one unit, neither
