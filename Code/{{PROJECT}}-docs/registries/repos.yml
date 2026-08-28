@@ -95,8 +95,9 @@
 #    clone loop actually consumes: neither may contain a `|`, which is the field separator that
 #    loop splits its own fields on. Comments are welcome on every line, these two included —
 #    `scripts/setup-workspace.sh` reads a scalar with the same function `scripts/check.sh` does, so
-#    a quoted path and a trailing comment mean the same thing to both. Close every quote you open:
-#    an unterminated one has nothing to stop at, so the rest of the line goes into the value.
+#    a quoted path and a trailing comment mean the same thing to both. Close every quote you open,
+#    and let nothing but a comment follow the closing one: either way the value is not the quoted
+#    string it looks like, and the rest of the line goes into it.
 # 3. **Comment lines are skipped** (`^[[:space:]]*#`). The example row below is fully formed and
 #    commented out one `#` per line; a reader that counted it as a row would report it missing
 #    every field.

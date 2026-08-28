@@ -540,9 +540,9 @@ reg_rows "$work" <<'EOF'
     control: managed
 EOF
 doctor "$work"
-expect "remote: opens a quote that does not close the value" "rule 2 unterminated quote on a consumed value"
+expect "remote: is not the quoted value it looks like" "rule 2 unterminated quote on a consumed value"
 expect "location: contains a |, which setup-workspace.sh splits on" "rule 2 separator in a consumed value"
-expect "acme-suffix -> location: opens a quote that does not close the value" "rule 2 text after a closing quote"
+expect "acme-suffix -> location: is not the quoted value it looks like" "rule 2 text after a closing quote"
 expect "RESULT: FAIL" "rule 2 location/remote"
 
 # And the shapes that are now ordinary. The 1.7 example row modelled the commented remote:, so this
@@ -562,7 +562,7 @@ reg_rows "$work" <<'EOF'
     control: managed
 EOF
 doctor "$work"
-refute "does not close the value" "a comment after a closed quote closes the value"
+refute "is not the quoted value it looks like" "a comment after a closed quote closes the value"
 refute "[FAIL]" "commented location/remote is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "commented location/remote — expected exit 0, got $DOC_STATUS"
 

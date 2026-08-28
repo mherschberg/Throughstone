@@ -811,10 +811,12 @@ else
         # that opens a quote and then does not end there: the quote is never closed, or it closes
         # and something other than a comment follows it. Either way the line is not the quoted
         # string it looks like, and clean hands it back whole so it arrives here still carrying
-        # the opening quote. And a | is the separator the clone loop splits its own fields on.
+        # the opening quote. One branch, so it names both -- called after the unterminated half
+        # alone it read as a wrong diagnosis on the row that was the other half, which is the one
+        # the fixture below happens to use. And a | is the separator the clone loop splits on.
         if ($5 == "location" || $5 == "remote") {
           if (substr($6, 1, 1) == "\"" || substr($6, 1, 1) == SQ)
-            printf "2\tline %d: %s -> %s: opens a quote that does not close the value\n", $2, nm[$1], $5
+            printf "2\tline %d: %s -> %s: is not the quoted value it looks like: either the quote never closes, or something other than a comment follows it\n", $2, nm[$1], $5
           else if (index($6, "|"))
             printf "2\tline %d: %s -> %s: contains a |, which setup-workspace.sh splits on\n", $2, nm[$1], $5
         }

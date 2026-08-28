@@ -308,8 +308,8 @@ own:
   values make that impossible rather than merely discouraged.
   Two narrower shapes fail on `location:` and `remote:` alone, and both are typos rather than
   styles: a `|` in either value, which is the separator the clone loop splits its own fields on,
-  and a quote that is never closed, which has nothing to stop at and takes the rest of the line with
-  it. **A trailing comment on those two lines needs nothing from you.** 1.7 modelled one on the
+  and a quoted value that does not end at its closing quote — the quote never closes, or something
+  other than a comment follows it, and either way the rest of the line goes into the value. **A trailing comment on those two lines needs nothing from you.** 1.7 modelled one on the
   example row, and `scripts/setup-workspace.sh` was gluing it onto the path or the URL; it now reads
   a value with the same function `scripts/check.sh` does, so a comment there is a comment.
 
