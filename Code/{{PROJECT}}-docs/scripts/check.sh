@@ -706,6 +706,7 @@ else
   reg_total=0
   reg_absent=0
   reg_here=0
+  reg_opaque=0
   # \037 is the separator set above, and it is not whitespace: an empty field stays an empty field.
   while IFS=$'\037' read -r r_name r_loc r_origin r_control r_provides; do
     [ -n "${r_name:-}" ] || continue
@@ -720,13 +721,13 @@ else
       if [ ! -d "$abs" ]; then
         reg_absent=$((reg_absent + 1))
       else
-        reg_here=$((reg_here + 1))
         # The work-tree-root test is the comparison itself, on physical paths both sides: a
         # trailing slash, a symlinked workspace root, a repository subdirectory and a plain
         # folder all answer correctly, and a submodule or linked worktree — where .git is a
         # file, not a directory — is still a repository.
         top="$(git -C "$abs" rev-parse --show-toplevel 2>/dev/null)"
         if [ -n "$top" ] && [ "$top" = "$(cd "$abs" && pwd -P)" ]; then
+          reg_here=$((reg_here + 1))
           # A repo Throughstone created carries no observation debt; a repo it adopted — or a
           # row that never said — owes all three, and the missing key is named, because the
           # register action leaves one out on purpose when it could not look.
@@ -738,6 +739,15 @@ else
               esac
             done
           fi
+        elif [ -e "$abs/.git" ]; then
+          # git would not say what this is. Not "no" — no answer: a checkout owned by another
+          # user, which git refuses to describe until it is named in safe.directory, is the
+          # ordinary way to get here, and a bind-mounted or shared-machine one is where that
+          # happens. Counted rather than passed over, because the line below says provides: was
+          # checked on every row that is here, and on this one nothing was looked at.
+          # A plain folder is not this case and needs no counting: it answers no, and a row
+          # pointing at a folder inside a mono repo owes nothing by design.
+          reg_opaque=$((reg_opaque + 1))
         fi
       fi
     fi
@@ -748,13 +758,16 @@ else
     warn "$(printf '%s\n' "$reg_incomplete" | grep -c .) of $reg_total row(s) carry no control record, or an incomplete one:"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$reg_incomplete"
     hint "add origin: and control: to each row, and fill provides: by looking at the repo rather than by picking a status. See the schema at the top of registries/repos.yml, and UPDATING-THROUGHSTONE.md."
-  elif [ "$reg_absent" -eq 0 ]; then
+  elif [ "$reg_absent" -eq 0 ] && [ "$reg_opaque" -eq 0 ]; then
     pass "all $reg_total row(s) carry a complete control record"
   else
-    # Claim only what was looked at: a row whose location is not here had its provides: skipped.
-    pass "all $reg_total row(s) carry origin and control; provides: checked on the $reg_here here"
+    # Claim only what was looked at. reg_here counts the rows whose location really is a
+    # repository on this machine, which is the only place provides: was read from — not every
+    # row whose directory happens to exist.
+    pass "all $reg_total row(s) carry origin and control; provides: checked on the $reg_here repo(s) here"
   fi
   [ "$reg_absent" -gt 0 ] && printf '         %d of %d row(s) not present on this machine; provides: not checked there\n' "$reg_absent" "$reg_total"
+  [ "$reg_opaque" -gt 0 ] && printf '         %d of %d row(s) hold a .git that git would not describe (ownership? run git status there); provides: not checked there\n' "$reg_opaque" "$reg_total"
 fi
 
 hdr "13. Repo registry file shape (registries/repos.yml)"

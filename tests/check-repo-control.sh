@@ -738,6 +738,30 @@ doctor "$work"
 refute "provides: no readme" "created rows owe no provides"
 expect "RESULT: OK" "created rows are clean"
 
+# A .git that git will not describe is not an answer of "no". The ordinary way to get one is a
+# checkout owned by another user, which git refuses to look at until safe.directory names it —
+# a bind mount or a shared machine. Counted here as a stale worktree pointer, which reaches the
+# same branch and needs no ownership to build. Either way the doctor looked at nothing, and the
+# line below claims provides: was checked on every row that is here, so silence would be a claim
+# it did not earn.
+mkdir -p "$work/Code/opaque"
+printf 'gitdir: %s\n' "$TMP_ROOT/no-such-worktree" > "$work/Code/opaque/.git"
+git -C "$work/Code/opaque" rev-parse --show-toplevel >/dev/null 2>&1 \
+  && bad "fixture is not exercising the shape it claims: git describes Code/opaque"
+reg_rows "$work" <<'EOF'
+  - name: "opaque"
+    location: "Code/opaque/"
+    type: service
+    origin: adopted
+    control: managed
+EOF
+doctor "$work"
+expect "hold a .git that git would not describe" "an unreadable checkout is counted, not passed over"
+# And not asked for provides: either. Nothing was looked at, so nothing is owed yet.
+refute "opaque -> provides:" "nothing is owed for a repo the doctor could not read"
+expect "RESULT: OK" "an unreadable checkout does not fail the run"
+[ "$DOC_STATUS" -eq 0 ] || bad "unreadable checkout — expected exit 0, got $DOC_STATUS"
+
 # --- 5. No registry at all ----------------------------------------------------
 # Pre-1.8 projects bootstrapped with --registries=no have no file. That is reported once,
 # rather than three times or not at all.
