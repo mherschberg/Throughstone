@@ -251,6 +251,18 @@ any project built with it.
   rather than after it; and the closing line says how many repos did not arrive instead of reporting
   plain success. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
   already cloned are left alone.
+- **A clone that arrives with nothing checked out is reported, not counted as done.**
+  `scripts/setup-workspace.sh` read `git clone`'s exit status as proof the repository was there.
+  It is not: cloning a remote whose HEAD names a branch that does not exist on it succeeds, warns
+  once, and leaves a `.git` directory with an empty working tree. The script then printed `Done`,
+  left that repo out of the "did not arrive" count — and because an empty checkout is still the
+  root of a git work tree, every later run said `exists:` and skipped it. Loud once, from git,
+  then silent forever, with an empty folder where a repository belongs. The remote most likely to
+  do this is an empty one created with an older default branch and pushed to a differently named
+  one, `master` against `main`. A clone now has to leave a resolvable `HEAD` behind to count, and
+  so does a checkout already at the location, so a re-run over the leftover directory says the
+  same thing rather than adopting it. The two failures are told apart, because fixing an
+  unreachable remote and fixing a remote's default branch are not the same job.
 - **A repo supplied by hand is recognised whatever shape its checkout is.** That re-run skips a
   location that already holds a checkout — but it tested for a `.git` *directory*, and a linked
   worktree or an initialized submodule keeps `.git` as a *file*. Either one read as "not a repo":

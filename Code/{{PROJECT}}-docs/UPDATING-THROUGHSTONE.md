@@ -343,6 +343,12 @@ and the run now finishes whatever happens to the clones. Its closing line says h
 arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
 hand — and re-run to pick it up.
 
+**A repo that looks cloned but has no files in it will start being reported.** A clone from a remote
+whose HEAD names a branch that does not exist there succeeds and checks nothing out, and before 1.8
+the script counted that as arrived and skipped the empty directory on every later run. If you have
+one, 1.8 names it instead of passing over it. Fix the default branch on that remote, delete the
+empty directory, and re-run. Nothing else of yours changes.
+
 **Look at any `location:` in your registry that points outside the workspace root.** An absolute
 path, or one reaching out with `..`, is now reported and skipped rather than cloned into; before 1.8
 the path was used verbatim, so a writable one put the repository outside the workspace silently. No

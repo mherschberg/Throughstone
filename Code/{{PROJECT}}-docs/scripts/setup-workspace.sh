@@ -137,9 +137,17 @@ if [ -f "$REG" ]; then
     # quietly incomplete. Asking git is the test check.sh uses, on physical paths both sides.
     # Anything that fails it falls through to the clone below, which refuses over a non-empty
     # directory and counts the repo among those that did not arrive — loudly, which is the point.
+    # And only if the repository is actually here. A work tree with no resolvable HEAD is the
+    # shape a clone leaves when the remote HEAD names a branch nobody created: a .git directory
+    # and no files. The doctor asks a different question of the same path -- is this a repository
+    # whose contents a row can describe -- and an empty checkout has no contents to describe, so
+    # the two are not meant to answer alike here. This one asks whether the contributor has the
+    # repo, and they do not. Without it the clone below counts as arrived once and every re-run
+    # after that says "exists", which is the silent half of the failure.
     if [ -d "$loc" ]; then
       loc_top="$(git -C "$loc" rev-parse --show-toplevel 2>/dev/null || true)"
-      if [ -n "$loc_top" ] && [ "$loc_top" = "$(cd "$loc" && pwd -P)" ]; then
+      if [ -n "$loc_top" ] && [ "$loc_top" = "$(cd "$loc" && pwd -P)" ] \
+         && git -C "$loc" rev-parse --verify -q HEAD >/dev/null 2>&1; then
         echo "  exists: $loc"
         continue
       fi
@@ -157,10 +165,21 @@ if [ -f "$REG" ]; then
         ;;
     esac
     echo "  cloning $rem -> $loc"
-    git clone -q "$rem" "$loc" || {
+    # Exit 0 from git clone is not a repository on disk. Cloning a remote whose HEAD names a
+    # branch that does not exist there succeeds, warns, and leaves an empty working tree behind --
+    # which is the same fixture bug 9d323b4 found in this suite, where every clone had been
+    # arriving empty and the assertion could not tell. That commit taught the test what a clone
+    # is and left this loop believing exit 0. A resolvable HEAD is the difference, and the two
+    # failures are told apart because the remedies are not the same one.
+    if ! git clone -q "$rem" "$loc"; then
       echo "  warning: could not clone $rem -> $loc — continuing without it"
       missing=$((missing + 1))
-    }
+    elif ! git -C "$loc" rev-parse --verify -q HEAD >/dev/null 2>&1; then
+      echo "  warning: $rem arrived at $loc with nothing checked out — its HEAD names a branch"
+      echo "           that does not exist there. Fix the default branch on the remote, delete"
+      echo "           $loc, and re-run."
+      missing=$((missing + 1))
+    fi
   done < <(awk '
     BEGIN { SQ = sprintf("%c", 39) }
     # This is the reading of a scalar scripts/check.sh uses, character for character. These two

@@ -172,6 +172,15 @@ mkdir -p "$seed"
 
 UNREACHABLE="git@setup-workspace-test.invalid:team/partner-billing.git"
 
+# A remote that is perfectly reachable and clones with nothing checked out, because its HEAD names
+# a branch nobody ever created. This is the shape that made every clone in this file arrive empty
+# before 9d323b4 -- built deliberately here, so the script is held to what the assertions learned.
+DANGLING_HEAD="$TMP_ROOT/dangling-head.git"
+git clone -q --bare "$REACHABLE" "$DANGLING_HEAD" >/dev/null 2>&1
+git -C "$DANGLING_HEAD" symbolic-ref HEAD refs/heads/no-such-branch
+git -C "$DANGLING_HEAD" rev-parse --verify -q HEAD >/dev/null 2>&1 \
+  && bad "fixture is not exercising the shape it claims: the dangling remote HEAD resolves"
+
 echo "Generating projects in both layouts ..."
 multi="$(bootstrap multi multi apache-2.0)" || exit 1
 mono="$(bootstrap mono mono bsd-3)" || exit 1
@@ -420,6 +429,36 @@ run_setup "$tw"
 assert_assembled "stale .git" "$tw"
 assert_not_out "stale .git" "exists: Code/multi-api/"
 assert_out "stale .git" "did not arrive"
+
+echo "A remote that clones with nothing checked out ..."
+# git clone exits 0 here and leaves a .git with no working tree. 9d323b4 taught assert_cloned that
+# this is not a clone; the script still believed the exit status, so it printed Done, left the
+# repo out of the count, and -- because an empty checkout is still a work-tree root -- every later
+# run said "exists". Loud once, then silent forever, with an empty directory where a repo goes.
+tw="$(teammate danglinghead "$MULTI_DOCS")"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    origin: created
+    control: managed
+    remote: "$DANGLING_HEAD"
+EOF
+run_setup "$tw"
+assert_assembled "dangling remote HEAD" "$tw"
+assert_out "dangling remote HEAD" "nothing checked out"
+assert_out "dangling remote HEAD" "did not arrive"
+[ -d "$tw/Code/multi-api/.git" ] \
+  || bad "dangling remote HEAD: fixture is wrong — git did not leave the directory behind"
+git -C "$tw/Code/multi-api" rev-parse --verify -q HEAD >/dev/null 2>&1 \
+  && bad "dangling remote HEAD: fixture is wrong — the checkout is not empty"
+# The half that was silent. The directory is still there, so a re-run meets it again and must
+# reach the same answer rather than reading it as a repo already in place.
+run_setup "$tw"
+assert_assembled "dangling remote HEAD re-run" "$tw"
+assert_not_out "dangling remote HEAD re-run" "exists: Code/multi-api/"
+assert_out "dangling remote HEAD re-run" "did not arrive"
 
 echo "The doctor and the clone loop read location:/remote: the same way ..."
 # The failure neither script can report on its own: check.sh passes a file that the clone loop
