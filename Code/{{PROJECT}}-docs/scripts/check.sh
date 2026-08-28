@@ -540,7 +540,13 @@ else
     # status: theirs, now missing" is prose. Matching on it took the note as the row status, which
     # hid a real gap on one row and invented a status on another, both without a word. Walking
     # also settles which names are keys, so a name that is not one, mystatus:, answers for nothing.
-    # fmparse fills FM with the keys of one mapping; a line with no brace leaves it empty.
+    # fmparse fills FM with the keys of one mapping; a line with no brace leaves it empty. It
+    # answers three ways. 1: the mapping closed, outside every quote, and FM is what it held.
+    # 0: there was no mapping to read, or it ran to the end of the line without closing -- both
+    # visible in the line itself, and both reported by check 13 from the text. 2: it ran to the
+    # end still inside a quote, which is the one check 13 cannot see: the quote swallowed the
+    # closing brace, so the line still ends in one and the shape test is satisfied by a brace
+    # that is part of a note. Only the walk knows, so only the walk can report it.
     function fmparse(s,   i, c, q, buf, k, v, p) {
       split("", FM)
       i = index(s, "{")
@@ -575,7 +581,7 @@ else
         } else buf = buf c
         i++
       }
-      return 1
+      return (q != "") ? 2 : 0
     }
     # Two rows for one repo is not a row saying the wrong thing, it is the inventory failing at
     # its first job. Nothing downstream can recover: the remote writer rewrites whichever row it
@@ -627,7 +633,11 @@ else
         n = split(pk[r], keys, " ")
         for (j = 1; j <= n; j++) {
           k = keys[j]; v = pv[r SUBSEP k]; ln = pl[r SUBSEP k]
-          fmparse(v)
+          fm = fmparse(v)
+          if (fm == 2) {
+            printf "line %d: %s -> provides: %s opens a quote that never closes, so the brace it appears to end with is inside a note\n", ln, nm[r], k
+            continue
+          }
           if (!("status" in FM)) {
             printf "line %d: %s -> provides: %s carries no status\n", ln, nm[r], k
             continue
@@ -652,7 +662,7 @@ else
   if [ -n "$reg_bad" ]; then
     fail "inconsistent repo registry row(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$reg_bad"
-    hint "give each repo exactly one row, and make that row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and a gap says why. See the schema at the top of registries/repos.yml."
+    hint "give each repo exactly one row, and make that row say one thing: a managed repo has no gap (either the need is met, or the repo is external), an external repo has no ours/extended, and a gap says why. Close every quote you open in a note. See the schema at the top of registries/repos.yml."
   else
     reg_rows="$(printf '%s\n' "$REG_FLAT" | awk -F'\t' '$3 == "head"' | grep -c . || true)"
     pass "$reg_rows row(s) consistent: one row per name and location, statuses, control/gap invariants, note on gap"
@@ -795,6 +805,8 @@ else
         # a brace or a quote could be holding one. Rule 2 welcomes a comment on every line except
         # location: and remote:, so one sitting after the closing brace is part of the shape the
         # schema allows, not a mapping that failed to be a mapping.
+        # This reads the line as text, so a closing brace that is really part of an unterminated
+        # note satisfies it. Reporting that needs the walk, and check 11 does it there.
         if ($4 == "provides" && $6 !~ /^\{.*\}([[:space:]]+#.*)?$/)
           printf "2\tline %d: %s -> provides: %s is not a flow mapping { status: ..., note: ... }\n", $2, nm[$1], $5
       }

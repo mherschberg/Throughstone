@@ -365,6 +365,58 @@ refute "is not ours/extended/theirs/gap" "an escaped quote in a note does not in
 refute "[FAIL]" "prose with an escaped quote is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "escaped quote in a note — expected exit 0, got $DOC_STATUS"
 
+# A note whose quote is never closed swallows the brace that ends the mapping, so the line still
+# ends in one and check 13, which reads the line as text, is satisfied. The walk is the only thing
+# that can tell, and it now says so instead of returning success from the end of the line. The
+# status here is valid and is not a gap, so nothing else in check 11 has anything to say about
+# this row: without this it is a registry no YAML parser will load, passing at 0 fail 0 warning.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: managed
+    provides:
+      readme:  { status: ours, note: "" }
+      license: { status: ours, note: "" }
+      ci:      { status: ours, note: "unfinished }
+EOF
+case_fires "$work" "unterminated note" "provides: ci opens a quote that never closes"
+
+# The mapping that simply has no closing brace stays check 13's, reported once from the text
+# rather than twice from both checks.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    provides:
+      readme:  { status: theirs, note: ""
+      license: { status: theirs, note: "" }
+      ci:      { status: theirs, note: "" }
+EOF
+doctor "$work"
+expect "provides: readme is not a flow mapping" "no closing brace is still check 13"
+refute "opens a quote that never closes" "check 11 does not repeat what the line already shows"
+
+# And a closed note that happens to contain a brace is ordinary: the walk is inside a quote when
+# it passes that one, so it is not the end of anything.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    provides:
+      readme:  { status: theirs, note: "their README } and a brace in it" }
+      license: { status: theirs, note: "" }
+      ci:      { status: theirs, note: "" }
+EOF
+doctor "$work"
+refute "[FAIL]" "a brace inside a closed note is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "brace in a note — expected exit 0, got $DOC_STATUS"
+
 # --- 3. Check 13 — the file is shaped so a reader would misread it -----------
 # The measured exploit: a note written across lines whose text begins with a row-level field
 # name. setup-workspace.sh's clone loop resolves that line as the row's location and clones
