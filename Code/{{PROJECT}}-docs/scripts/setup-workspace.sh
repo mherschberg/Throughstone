@@ -189,7 +189,7 @@ if [ -f "$REG" ]; then
         sub(/[[:space:]]+$/, "", v)
         return v
       }
-      if (v !~ /[{]/) sub(/[[:space:]]+#.*$/, "", v)
+      if (substr(v, 1, 1) != "{") sub(/[[:space:]]+#.*$/, "", v)
       sub(/[[:space:]]+$/, "", v)
       return v
     }

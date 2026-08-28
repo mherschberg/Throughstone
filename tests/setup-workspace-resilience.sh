@@ -487,6 +487,13 @@ add_row "$tw" <<EOF
     origin: created
     control: managed
     remote: "$REACHABLE"
+
+  - name: "brace-path"
+    location: Code/{braced}-api # the checkout on this machine
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
 EOF
 
 # The doctor half: this file is legal, and saying so is half the agreement.
@@ -517,6 +524,13 @@ assert_not_out "reader agreement" "did not arrive"
 assert_not_cloned "reader agreement (single quotes taken literally)" "$tw/'Code"
 assert_not_cloned "reader agreement (comment taken into the path)" \
   "$tw/Code/u-comment # the checkout on this machine"
+# The same comment, kept for the same wrong reason one layer down: clean() left a comment on any
+# value holding a brace anywhere, which is the flow-mapping exemption reaching a path. Rule 2
+# welcomes a comment on location:, and nothing excludes a brace from a directory name, so both
+# readers agreed on a path YAML does not name and check 13 saw nothing to report.
+assert_cloned "reader agreement (brace in an unquoted path)" "$tw/Code/{braced}-api"
+assert_not_cloned "reader agreement (comment kept beside a brace)" \
+  "$tw/Code/{braced}-api # the checkout on this machine"
 
 echo "A target directory that exists but is empty ..."
 tw="$(teammate emptydir "$MULTI_DOCS")"

@@ -463,8 +463,10 @@ registry_rows() {
       }
       # An unquoted value has no closing quote to stop at, so a trailing comment goes by position.
       # A flow mapping is left whole: the quotes and hashes inside it are its own, and check 11
-      # reads the keys back out of the line it is written on.
-      if (v !~ /[{]/) sub(/[[:space:]]+#.*$/, "", v)
+      # reads the keys back out of the line it is written on. A mapping is one that *opens* with
+      # the brace, which is the shape check 13 requires. Exempting every value that merely
+      # contains one exempted paths too: Code/{a}/ # note kept the comment and was cloned into.
+      if (substr(v, 1, 1) != "{") sub(/[[:space:]]+#.*$/, "", v)
       sub(/[[:space:]]+$/, "", v)
       return v
     }
