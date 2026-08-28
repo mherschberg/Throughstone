@@ -41,7 +41,7 @@ echo "Docs hub:       $DOCS_REL"
 # against this root rather than against any root.
 #
 # What the message may say is bounded by what was measured. This test reads the root and not the
-# registry, so it knows the root is a repository and does not know the project is mono -- which is
+# registry, so it knows the root is a repository and does not know the project is mono — which is
 # the overwhelmingly likely reason, and the only one the method supports, but a multi-repo
 # workspace whose root somebody made a repository lands here too. Naming that reading is cheaper
 # than reading the registry to rule it out, and it is the only way the contributor who is in it
@@ -55,7 +55,7 @@ if [ -n "$root_toplevel" ] && [ "$root_toplevel" = "$(pwd -P)" ]; then
   echo "you already have is everything."
   echo
   echo "Nothing was written. If this was meant to be a multi-repo workspace, the root is not"
-  echo "supposed to be a repository -- check where the docs hub was cloned."
+  echo "supposed to be a repository — check where the docs hub was cloned."
   exit 0
 fi
 
@@ -149,8 +149,8 @@ if [ -f "$REG" ]; then
     # directory and counts the repo among those that did not arrive — loudly, which is the point.
     # And only if the repository is actually here. A work tree with no resolvable HEAD is the
     # shape a clone leaves when the remote HEAD names a branch nobody created: a .git directory
-    # and no files. The doctor asks a different question of the same path -- is this a repository
-    # whose contents a row can describe -- and an empty checkout has no contents to describe, so
+    # and no files. The doctor asks a different question of the same path — is this a repository
+    # whose contents a row can describe — and an empty checkout has no contents to describe, so
     # the two are not meant to answer alike here. This one asks whether the contributor has the
     # repo, and they do not. Without it the clone below counts as arrived once and every re-run
     # after that says "exists", which is the silent half of the failure.
@@ -176,7 +176,7 @@ if [ -f "$REG" ]; then
     esac
     echo "  cloning $rem -> $loc"
     # Exit 0 from git clone is not a repository on disk. Cloning a remote whose HEAD names a
-    # branch that does not exist there succeeds, warns, and leaves an empty working tree behind --
+    # branch that does not exist there succeeds, warns, and leaves an empty working tree behind —
     # which is the same fixture bug 9d323b4 found in this suite, where every clone had been
     # arriving empty and the assertion could not tell. That commit taught the test what a clone
     # is and left this loop believing exit 0. A resolvable HEAD is the difference, and the two

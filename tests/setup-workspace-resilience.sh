@@ -174,7 +174,7 @@ UNREACHABLE="git@setup-workspace-test.invalid:team/partner-billing.git"
 
 # A remote that is perfectly reachable and clones with nothing checked out, because its HEAD names
 # a branch nobody ever created. This is the shape that made every clone in this file arrive empty
-# before 9d323b4 -- built deliberately here, so the script is held to what the assertions learned.
+# before 9d323b4 — built deliberately here, so the script is held to what the assertions learned.
 DANGLING_HEAD="$TMP_ROOT/dangling-head.git"
 git clone -q --bare "$REACHABLE" "$DANGLING_HEAD" >/dev/null 2>&1
 git -C "$DANGLING_HEAD" symbolic-ref HEAD refs/heads/no-such-branch
@@ -433,7 +433,7 @@ assert_out "stale .git" "did not arrive"
 echo "A remote that clones with nothing checked out ..."
 # git clone exits 0 here and leaves a .git with no working tree. 9d323b4 taught assert_cloned that
 # this is not a clone; the script still believed the exit status, so it printed Done, left the
-# repo out of the count, and -- because an empty checkout is still a work-tree root -- every later
+# repo out of the count, and — because an empty checkout is still a work-tree root — every later
 # run said "exists". Loud once, then silent forever, with an empty directory where a repo goes.
 tw="$(teammate danglinghead "$MULTI_DOCS")"
 add_row "$tw" <<EOF

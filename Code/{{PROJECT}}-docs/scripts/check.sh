@@ -542,7 +542,7 @@ else
     # also settles which names are keys, so a name that is not one, mystatus:, answers for nothing.
     # fmparse fills FM with the keys of one mapping; a line with no brace leaves it empty. It
     # answers three ways. 1: the mapping closed, outside every quote, and FM is what it held.
-    # 0: there was no mapping to read, or it ran to the end of the line without closing -- both
+    # 0: there was no mapping to read, or it ran to the end of the line without closing — both
     # visible in the line itself, and both reported by check 13 from the text. 2: it ran to the
     # end still inside a quote, which is the one check 13 cannot see: the quote swallowed the
     # closing brace, so the line still ends in one and the shape test is satisfied by a brace
@@ -811,7 +811,7 @@ else
         # that opens a quote and then does not end there: the quote is never closed, or it closes
         # and something other than a comment follows it. Either way the line is not the quoted
         # string it looks like, and clean hands it back whole so it arrives here still carrying
-        # the opening quote. One branch, so it names both -- called after the unterminated half
+        # the opening quote. One branch, so it names both — called after the unterminated half
         # alone it read as a wrong diagnosis on the row that was the other half, which is the one
         # the fixture below happens to use. And a | is the separator the clone loop splits on.
         if ($5 == "location" || $5 == "remote") {
