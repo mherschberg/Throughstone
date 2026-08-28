@@ -31,8 +31,9 @@ any project built with it.
   mono repo with a shared remote — what a team needs is shared remotes, not several of them — and
   the overlap warning's mono fallback was already written, in the very section that clause cited.
   How many repos you have follows your architecture, not your headcount. The solo-to-team section
-  of `runbooks/collaboration.md` now has a mono path of its own, including the warning not to run
-  `scripts/setup-workspace.sh` in a mono clone; `METHOD.md` §7 and `prompts/README.md` moved with
+  of `runbooks/collaboration.md` now has a mono path of its own, including what
+  `scripts/setup-workspace.sh` does in a mono clone, which is nothing; `METHOD.md` §7 and
+  `prompts/README.md` moved with
   it, the first gaining the mono→multi special case (that STEP is branchless, and its number is
   reserved on trunk) and the second generalizing its thin-STEP note from the check-in alone to two
   families.

@@ -156,7 +156,8 @@ appendix covers purging history first when that matters.
   them —
   `METHOD.md` §7 gains the mono→multi special case (that STEP is
   branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
-  through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
+  through solo→team including what `scripts/setup-workspace.sh` does in a mono clone, which is
+  nothing,
   and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
   `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
   registry row and name the registration action; `check-in.md`,

@@ -39,13 +39,23 @@ echo "Docs hub:       $DOCS_REL"
 # paths both sides. In multi the workspace root is never a work-tree root; in mono it always is.
 # A workspace that merely sits inside some other repository answers no, because the comparison is
 # against this root rather than against any root.
+#
+# What the message may say is bounded by what was measured. This test reads the root and not the
+# registry, so it knows the root is a repository and does not know the project is mono -- which is
+# the overwhelmingly likely reason, and the only one the method supports, but a multi-repo
+# workspace whose root somebody made a repository lands here too. Naming that reading is cheaper
+# than reading the registry to rule it out, and it is the only way the contributor who is in it
+# hears anything at all.
 root_toplevel="$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -n "$root_toplevel" ] && [ "$root_toplevel" = "$(pwd -P)" ]; then
   echo
-  echo "This workspace root is itself a git repository, so this is a mono-repo-for-now project."
-  echo "Nothing to assemble: the root pointers are committed in that repository, and no row in"
-  echo "registries/repos.yml is a separate repo to clone. The clone you already have is the"
-  echo "whole workspace."
+  echo "This workspace root is itself a git repository, so there is nothing here to assemble."
+  echo "In a mono-repo-for-now project (METHOD.md section 7) that is the whole workspace: the root"
+  echo "pointers are committed in that repository rather than written per machine, and the clone"
+  echo "you already have is everything."
+  echo
+  echo "Nothing was written. If this was meant to be a multi-repo workspace, the root is not"
+  echo "supposed to be a repository -- check where the docs hub was cloned."
   exit 0
 fi
 
