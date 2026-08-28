@@ -549,6 +549,7 @@ else
     # that is part of a note. Only the walk knows, so only the walk can report it.
     function fmparse(s,   i, c, q, buf, k, v, p) {
       split("", FM)
+      FM_DUP = ""
       i = index(s, "{")
       if (i == 0) return 0
       i++
@@ -574,6 +575,12 @@ else
             v = substr(buf, p + 1)
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+            # A repeated key is not a value to choose between, it is a mapping that says two
+            # things. Storing it took the last one, so a row could carry status: gap and
+            # status: ours together and be judged on whichever was written second. Named in
+            # FM_DUP, taken by the caller beside FM, and left in the mapping so nothing else
+            # here has to know it happened.
+            if (k in FM) FM_DUP = (FM_DUP == "") ? k : FM_DUP " " k
             FM[k] = v
           }
           buf = ""
@@ -638,11 +645,16 @@ else
             printf "line %d: %s -> provides: %s opens a quote that never closes, so the brace it appears to end with is inside a note\n", ln, nm[r], k
             continue
           }
+          if (FM_DUP != "") {
+            printf "line %d: %s -> provides: %s names %s twice in one mapping\n", ln, nm[r], k, FM_DUP
+            continue
+          }
           if (!("status" in FM)) {
             printf "line %d: %s -> provides: %s carries no status\n", ln, nm[r], k
             continue
           }
-          # Both are taken now, while FM still holds this entry: the next fmparse replaces it.
+          # Both are taken now, while FM still holds this entry: the next fmparse replaces it,
+          # and FM_DUP with it.
           st = FM["status"]
           note = ("note" in FM) ? FM["note"] : ""
           if (!(st in okst)) {

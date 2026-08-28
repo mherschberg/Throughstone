@@ -417,6 +417,40 @@ doctor "$work"
 refute "[FAIL]" "a brace inside a closed note is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "brace in a note — expected exit 0, got $DOC_STATUS"
 
+# A mapping that names one key twice does not have a value to pick, it says two things. Stored
+# last-wins, this row was judged on whichever status was written second: managed with a gap read
+# as managed with ours, and passed. Check 13 already refuses a second row-level field of one name
+# for the same reason; inside a mapping only the walk can see it.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: managed
+    provides:
+      readme:  { status: ours, note: "" }
+      license: { status: ours, note: "" }
+      ci:      { status: gap, status: ours, note: "no pipeline exists" }
+EOF
+case_fires "$work" "repeated key" "provides: ci names status twice in one mapping"
+
+# The word in prose is not the key. A note may say status: as often as it likes.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    provides:
+      readme:  { status: theirs, note: "the word status: appears twice, status: like this" }
+      license: { status: theirs, note: "" }
+      ci:      { status: theirs, note: "" }
+EOF
+doctor "$work"
+refute "twice in one mapping" "a repeated word in a note is not a repeated key"
+refute "[FAIL]" "prose that repeats a key name is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "repeated word in a note — expected exit 0, got $DOC_STATUS"
+
 # --- 3. Check 13 — the file is shaped so a reader would misread it -----------
 # The measured exploit: a note written across lines whose text begins with a row-level field
 # name. setup-workspace.sh's clone loop resolves that line as the row's location and clones
