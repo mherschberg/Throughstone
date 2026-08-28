@@ -441,12 +441,23 @@ registry_rows() {
       # after the closing quote that is not a comment does not make a quoted value at all: the
       # line is handed back whole, still carrying its opening quote, which is what check 13
       # reports. An unterminated quote finds no partner and comes back the same way.
+      #
+      # In a double-quoted scalar a backslash escapes the character after it, so the pair is one
+      # character and the walk steps over both. Without that, a path written "Code/a\\b" kept both
+      # backslashes and was cloned one directory away from the one YAML names, agreed on by both
+      # readers and reported by neither. The pair is emitted as its second character rather than
+      # decoded: that is right for the escaped quote and the escaped backslash, which are the two
+      # a path, a URL or a note can carry, and wrong for a tab or a newline, which no
+      # workspace-relative path can. Decoding the rest would make this a YAML parser, which is the
+      # thing every fix in this release has declined to write. A single-quoted scalar takes a
+      # backslash literally, so this applies to the other quote only.
       q = substr(v, 1, 1)
       if (q == "\"" || q == SQ) {
         out = ""
         i = 2
         while (i <= length(v)) {
           c = substr(v, i, 1)
+          if (c == "\\" && q == "\"") { out = out substr(v, i + 1, 1); i = i + 2; continue }
           if (c == q) {
             if (q == SQ && substr(v, i + 1, 1) == SQ) { out = out q; i = i + 2; continue }
             break
@@ -540,6 +551,12 @@ else
       while (i <= length(s)) {
         c = substr(s, i, 1)
         if (q != "") {
+          # The same backslash escape clean() reads, for the same reason: a note is prose, and
+          # an escaped quote inside a double-quoted one is one character rather than the end of
+          # the scalar. Read as the end, the rest of the mapping fell outside the quotes and a
+          # status: written in the note answered for the row, so a managed repo with a real gap
+          # passed in silence.
+          if (c == "\\" && q == "\"") { buf = buf substr(s, i + 1, 1); i = i + 2; continue }
           if (c == q) q = ""
           else buf = buf c
         } else if (c == "\"" || c == SQ) {

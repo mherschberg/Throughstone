@@ -326,6 +326,45 @@ refute "is not ours/extended/theirs/gap" "a comma in a note does not start a key
 refute "[FAIL]" "prose with a comma is not a finding"
 [ "$DOC_STATUS" -eq 0 ] || bad "comma in a note — expected exit 0, got $DOC_STATUS"
 
+# A note is prose, and prose quotes things. In a double-quoted YAML scalar the way to do that is
+# a backslash before the quote, and the pair is one character. Read as the end of the scalar, the
+# rest of the mapping falls outside the quotes: everything after it is structure, so a "status:"
+# written in the note answers for the row and the row's own status is never reached. This row
+# really is managed with a gap, and the escape is what used to hide it.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: managed
+    provides:
+      readme:  { status: ours, note: "" }
+      license: { status: ours, note: "" }
+      ci:      { note: "before \"quote, status: ours, later", status: gap }
+EOF
+grep -Fq '\"quote' "$(registry_of "$work")" \
+  || bad "fixture is not exercising the shape it claims: the note carries no escaped quote"
+case_fires "$work" "gap behind an escaped quote" "control: managed with a gap in ci"
+
+# The other direction. An escaped quote in ordinary prose, with no status word behind it, must not
+# become a finding: an escape the walk stepped over wrongly would take the rest of the mapping with
+# it and report a status nobody wrote.
+reg_rows "$work" <<'EOF'
+  - name: "acme-api"
+    location: "Code/acme-api/"
+    type: service
+    origin: adopted
+    control: external
+    provides:
+      readme:  { status: theirs, note: "their README says \"internal use only\", so we left it" }
+      license: { status: theirs, note: "their LICENSE" }
+      ci:      { status: theirs, note: "nothing runs" }
+EOF
+doctor "$work"
+refute "is not ours/extended/theirs/gap" "an escaped quote in a note does not invent a status"
+refute "[FAIL]" "prose with an escaped quote is not a finding"
+[ "$DOC_STATUS" -eq 0 ] || bad "escaped quote in a note — expected exit 0, got $DOC_STATUS"
+
 # --- 3. Check 13 — the file is shaped so a reader would misread it -----------
 # The measured exploit: a note written across lines whose text begins with a row-level field
 # name. setup-workspace.sh's clone loop resolves that line as the row's location and clones

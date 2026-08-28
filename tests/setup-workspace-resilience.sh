@@ -494,7 +494,18 @@ add_row "$tw" <<EOF
     origin: created
     control: managed
     remote: "$REACHABLE"
+
+  - name: "escaped-backslash"
+    location: "Code/escaped\\\\backslash"
+    type: service
+    origin: created
+    control: managed
+    remote: "$REACHABLE"
 EOF
+# The heredoc above is unquoted, so it needs four backslashes to write two. Two in the file is
+# one directory-name backslash in YAML, which is the whole point of the row.
+grep -Fq 'Code/escaped\\backslash' "$(registry_of "$tw")" \
+  || bad "fixture is not exercising the shape it claims: the location carries no escape"
 
 # The doctor half: this file is legal, and saying so is half the agreement.
 doc_out="$(bash "$(doctor_of "$tw")" 2>&1)"; doc_status=$?
@@ -531,6 +542,11 @@ assert_not_cloned "reader agreement (comment taken into the path)" \
 assert_cloned "reader agreement (brace in an unquoted path)" "$tw/Code/{braced}-api"
 assert_not_cloned "reader agreement (comment kept beside a brace)" \
   "$tw/Code/{braced}-api # the checkout on this machine"
+# In a double-quoted YAML scalar a backslash escapes what follows it, so the two in the file are
+# one in the path. Copying both through was the same trade as the apostrophe above: the doctor and
+# the clone loop agreed, and agreed on a directory YAML does not name.
+assert_cloned "reader agreement (escaped backslash)" "$tw/Code/escaped\\backslash"
+assert_not_cloned "reader agreement (both backslashes copied through)" "$tw/Code/escaped\\\\backslash"
 
 echo "A target directory that exists but is empty ..."
 tw="$(teammate emptydir "$MULTI_DOCS")"

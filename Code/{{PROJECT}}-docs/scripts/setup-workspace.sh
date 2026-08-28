@@ -175,6 +175,7 @@ if [ -f "$REG" ]; then
         i = 2
         while (i <= length(v)) {
           c = substr(v, i, 1)
+          if (c == "\\" && q == "\"") { out = out substr(v, i + 1, 1); i = i + 2; continue }
           if (c == q) {
             if (q == SQ && substr(v, i + 1, 1) == SQ) { out = out q; i = i + 2; continue }
             break
