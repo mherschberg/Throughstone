@@ -18,7 +18,9 @@
 # project may start local. The periodic check-in flags it, because work that lives on one laptop
 # is a bus factor of one.
 #
-# `added_as:` — `created` if Throughstone made this repo, `adopted` if it already existed. A
+# `added_as:` — `created` if Throughstone made this repo, `adopted` if it already existed. It
+# records how the **repository** was formed, not where its contents came from: a repo split out
+# of another one is `created`, and the history it carries is recorded in `provenance:`. A
 # stamp, written once, never changing. **Nothing reads it and nothing decides from it**; it is
 # recorded so a person can later tell why a repo looks the way it does. The result is the same
 # however a repo arrived — if anything ever branches on this field, that is the bug.

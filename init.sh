@@ -852,16 +852,15 @@ fi
 # In this layout the workspace root is the project's one repository, so two things multi-repo
 # gets for free have to be placed here before the initial commit.
 if [ "$LAYOUT" = "2" ]; then
-  # The registry calls itself the source of truth for which repos exist, and until now it
-  # omitted the only repository a mono project has. A seeded row carries no `provides:` — a
-  # status written before anyone has looked at a repo is a guess, not a record.
+  # The registry is the source of truth for which repos exist, and the only repository a mono
+  # project has is the workspace root — so its row is seeded here. `added_as: created` is a
+  # stamp for a human reader: nothing reads it and nothing decides from it.
   if [ -f "$DOCS/registries/repos.yml" ]; then
     SLUG="$SLUG" perl -0pi -e '
       my $row = qq{  - name: "$ENV{SLUG}"\n}
               . qq{    location: "."\n}
               . qq{    type: mono\n}
-              . qq{    origin: created\n}
-              . qq{    control: managed\n}
+              . qq{    added_as: created\n}
               . qq{    description: "The workspace root: the one repository this project lives in until it is split."\n\n};
       s{^repos:\n}{repos:\n$row}m;
     ' "$DOCS/registries/repos.yml"

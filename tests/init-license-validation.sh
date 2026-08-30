@@ -307,11 +307,11 @@ run_registry_mono_case() {
     }
   done
 
-  # The workspace root leads the inventory. Being a seeded row it carries no `provides:`, and with
-  # no `remote:` the clone parser in setup-workspace.sh passes over it.
+  # The workspace root leads the inventory. With no `remote:` the clone parser in
+  # setup-workspace.sh passes over it.
   reg="$work/Code/$name-docs/registries/repos.yml"
   root_row="$(first_registry_row "$reg")"
-  for field in "name: \"$name\"" 'location: "."' 'type: mono' 'origin: created' 'control: managed'; do
+  for field in "name: \"$name\"" 'location: "."' 'type: mono' 'added_as: created'; do
     printf '%s\n' "$root_row" | grep -Fq "$field" || {
       echo "FAIL: $name workspace-root row is missing $field" >&2
       printf '%s\n' "$root_row" >&2
