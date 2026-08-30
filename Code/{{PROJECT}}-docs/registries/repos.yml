@@ -1,136 +1,71 @@
 # Canonical repo inventory for {{PROJECT}}.
-# The source of truth for which repos exist and what each is — and the index to their docs:
-# each entry's `location` points to a repo whose own README.md (plus an optional
-# ARCHITECTURE.md) is the detailed "about". To orient in a multi-repo project, read this map
-# first, then read the README of each repo you'll touch — the same way you read the
-# architecture docs before a design change. Update this whenever a repo is created. Tooling/CI
-# can read it to stay in sync. See METHOD.md §7.
+# Which repos exist, where they are, and what each one is — and the index to their docs: each
+# entry's `location` points to a repo whose own README.md (plus an optional ARCHITECTURE.md) is
+# the detailed "about". To orient in a multi-repo project, read this map first, then read the
+# README of each repo you will touch. Add a row whenever a repo is created or adopted, using
+# `runbooks/register-repo.md`. See METHOD.md §7.
 #
-# `location:` is where the repo lives — by default a `Code/*` sibling under the workspace root,
-# written workspace-root-relative (e.g. Code/{{PROJECT}}-api/). It MAY instead point OUTSIDE the
-# `Code/*` shell — an absolute path or any other arbitrary path — for a repo referenced in place
-# where it lives, rather than created as a sibling. setup-workspace.sh uses `location` verbatim
-# but only ever CLONES into a path the workspace owns: a location outside the workspace root — an
-# absolute path, or one reaching out with `..` — is reported and skipped, so an in-place repo
-# there is one each contributor clones onto their own machine. Keep `location` and `remote`
-# distinct: a clone URL goes in `remote`, never folded into `location`.
+# `location:` — where the repo lives. By default a `Code/*` sibling under the workspace root,
+# written workspace-root-relative (e.g. Code/{{PROJECT}}-api/). It MAY point OUTSIDE that shell —
+# an absolute path, or any other path — for a repo referenced in place rather than created as a
+# sibling. scripts/setup-workspace.sh uses `location` verbatim but only ever CLONES into a path
+# the workspace owns: a location outside the workspace root is reported and skipped, so an
+# in-place repo there is one each contributor clones onto their own machine. Keep `location` and
+# `remote` distinct — a clone URL goes in `remote`, never folded into `location`.
+#
+# `remote:` — any cloneable git URL, **recorded** if the repo has one; never created, never
+# repointed. scripts/setup-workspace.sh clones from it. A repo with no remote yet is fine: a
+# project may start local. The periodic check-in flags it, because work that lives on one laptop
+# is a bus factor of one.
+#
+# `added_as:` — `created` if Throughstone made this repo, `adopted` if it already existed. A
+# stamp, written once, never changing. **Nothing reads it and nothing decides from it**; it is
+# recorded so a person can later tell why a repo looks the way it does. The result is the same
+# however a repo arrived — if anything ever branches on this field, that is the bug.
+#
+# `type:` — documentation for a human reader. Nothing reads it either.
+#
+# `provenance:` — records that a repo was **split out** of another one: where it came from and
+# where the two histories part company. Only a split-out repo carries it, it is written at the
+# split (`runbooks/splitting-repos.md`), and nothing maintains it afterwards. Shape in the
+# example row below. `from:` is a historical name and may have no row of its own.
 #
 # Mono-repo-for-now: the row whose `location` is `.` is the workspace root — the one repository
 # the project actually has. The rows below it are folders inside that repository, not separate
-# repos yet, and for those this inventory describes the post-split (multi-repo) target. When you
-# do split them apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos
-# are real.
+# repos yet, and for those this inventory describes the post-split target. When you do split them
+# apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos are real.
 #
-# Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
-# it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
-# for prompts/ + this docs hub. Solo with no remotes, it's optional.
+# Two rules for anything that reads or rewrites this file, because the scripts that read it match
+# line prefixes rather than parsing YAML:
 #
-# `provenance:` records that a repo was **split out** of another one — where it came from, and
-# where the two histories part company. Only a split-out repo carries it, and it is written at
-# the split (`runbooks/splitting-repos.md`); nothing maintains it afterwards. The shape is in
-# the commented example below. `from:` is a historical name and may have no row of its own —
-# after a mono-repo-for-now split it never does, because the repo it names was retired; that is
-# what `archive_remote:` is for.
+# 1. **Every value is a single-line scalar.** Nothing spans lines.
+# 2. **Anything that rewrites a row anchors on the row block** — from a `- name:` to the next
+#    `- name:`, respecting indentation — never on a bare line prefix.
 #
-# `origin:` (per row) records whether Throughstone **created** the repo or **adopted** one that was
-# already there: `created` | `adopted`. It is a fact, written once when the repo is registered, and
-# it never changes — a repo that is later handed over was still created here. Nothing decides
-# anything from it; it is recorded so a later reader can tell why a repo looks the way it does.
-#
-# `control:` (per row) records whether Throughstone **controls** a repo — whether it may write what
-# its needs require into it. `managed` means yes, asked once per repository and never per file;
-# `external` means the repo is recorded and referenced but never written into. Control is a state
-# that changes over time, not a fact about who created the repo — a repo Throughstone created can be
-# handed over, and a repo it never created can be placed under its care.
-#
-# **A missing `control:` reads as `external`**, because control is a permission and an unanswered
-# permission is not granted: the method records the repo and writes nothing into it until someone
-# answers. A defaulted row is surfaced rather than silently accepted.
-#
-# `provides:` (per row) records how each of the three needs — README, licensing, CI — is met in that
-# repo. One entry per need, each carrying a status and a note:
-#
-#     ours       Throughstone provided it
-#     extended   it was already there and Throughstone added to it — for a README, the
-#                `## Role in <project>` section, through to the next `##`
-#     theirs     already met by what is there; nothing of ours in it
-#     N/A        the need structurally does not apply. Uppercase, matching the method's spelling
-#                everywhere else, and CI only — README and licensing apply to every repo
-#     gap        unmet, and recorded as unmet
-#
-# `gap` and `N/A` **must** carry a note saying why. Every other entry carries one when the need is
-# met some way that is not obvious from the repo itself. Two invariants hold across the pair of
-# fields: a `managed` repo has no `gap` — either the need is met, or the repo is `external` — and an
-# `external` repo has no `ours` and no `extended`, because both mean an artifact Throughstone
-# maintains, which it cannot do in a repo it may not write into.
-#
-# **A key may be legitimately absent, and absent is not `gap`.** `gap` is an observation — the need
-# is unmet. An absent key is an observation still owed: nothing was true to write when the row was
-# written. Fill it in by looking at the repo, never by picking a status to complete the set; the
-# check that flags the absence is how it comes back.
-#
-# `origin:` and `control:` go on **every** row. `provides:` goes only on a row whose `location` is
-# a repository — in a mono-repo-for-now workspace a row pointing at a folder inside the single repo
-# is not one, and carries none until a split makes it a repo of its own. Seeded rows carry no
-# `provides:` whatever their location, in either layout: the method's own repos are described by the
-# method itself, and a status written before anyone had looked at a repo would be a guess rather
-# than a record.
-#
-# Rules for anything that reads or rewrites this file. The scripts that read it match line prefixes
-# and do not parse YAML, so all five are load-bearing:
-#
-# 1. **No line inside a row block may begin, after leading whitespace, with a row-level field name
-#    followed by a colon**, whatever the nesting says. A note whose text began
-#    `location: /srv/acme/LICENSE` would be read as that row's location and cloned into.
-# 2. **Every value is a single-line scalar, and `provides:` entries are flow mappings** — the form
-#    in the example row below. A flow mapping cannot hold a block scalar, so a note cannot span
-#    lines, which makes rule 1 impossible to violate rather than merely discouraged.
-# 3. **Comment lines are skipped** (`^[[:space:]]*#`). The example row below is fully formed and
-#    commented out one `#` per line; a reader that counted it as a row would report it missing
-#    every field.
-# 4. **Row-level names and nested key names are two disjoint reserved sets, and adding a name to
-#    either is checked against the other — here, at the time it is added.** The two sets are the
-#    two lines directly below. They are the register of record, not a restatement of one: nothing
-#    else lists these names. scripts/check.sh reads them by their `reserved-` prefixes and fails
-#    if the sets overlap, if the file uses a name absent from the matching set, or if either line
-#    is missing — so keep both lines, keep the names space-separated on one line each, and add a
-#    new field to exactly one of them at the time you add it. The check is what carries forward,
-#    not the lists.
-#
-#    reserved-row-level: name location type description remote provenance origin control provides
-#    reserved-nested: from split_on split_commit archive_remote readme license ci status note
-# 5. **Anything that rewrites this file anchors on the row block** — from a row's `- name:` to the
-#    next `- name:`, respecting indentation — and never on a bare line prefix.
+# Comment lines are skipped, which is why the example row below can sit here fully formed.
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
     type: docs            # docs | service | library | app | infra | tests | mono
-    origin: created
-    control: managed
+    added_as: created
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
-    origin: created
-    control: managed
+    added_as: created
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
-  # Service / app / library repos get added here as the architecture names them — either created
-  # here and stamped from templates/repo-readme-template.md, or adopted, in which case the repo's
-  # own README gets a `## Role in <project>` section instead (runbooks/register-repo.md). Example:
+  # Service / app / library repos get added here as the architecture names them — created here and
+  # stamped from templates/repo-readme-template.md, or adopted, in which case the repo's own
+  # README gets a `## Role in <project>` section instead. See runbooks/register-repo.md. Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
-  #   origin: created                                      # created | adopted — written once
-  #   control: managed                                     # managed | external — absent reads as external
-  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
+  #   added_as: created                                    # created | adopted — written once
+  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # recorded if it has one
   #   description: "..."
-  #   provides:                                            # only on a row whose location is a repo
-  #     readme:  { status: ours,   note: "" }
-  #     license: { status: theirs, note: "posture recorded project-wide in .throughstone/project-license" }
-  #     ci:      { status: ours,   note: "" }
   #   provenance:                                          # only on a repo that was split out
   #     from: "{{PROJECT}}-web"                            # the repo this used to be part of
   #     split_on: "2026-01-31"
