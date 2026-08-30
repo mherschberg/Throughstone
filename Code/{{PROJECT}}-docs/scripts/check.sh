@@ -17,8 +17,8 @@
 #   8. Architecture-session template numbers match the STEP-index seed
 #   9. Conditional-session templates expose the metadata generic review gates require
 #  10. overview.md's optional CHECK-IN-CADENCE marker, if present, is a positive integer
-#  11. (--check-in only) Every registries/repos.yml row has a location, and repos with no
-#      remote are flagged as a bus-factor risk
+#  11. (--check-in only) Every registries/repos.yml row has a location, and any repo no
+#      recorded remote covers is flagged as a bus-factor risk
 #
 # The registry changes on the rare path — a repo created, adopted or split out — so it is not
 # validated on every run. Pass --check-in; runbooks/check-in.md is what does.
@@ -427,27 +427,40 @@ fi
 # What is left is the part a machine is genuinely better at than a person: noticing that a repo
 # has no remote, so the work lives on exactly one laptop. A malformed row is fixed by whoever
 # just edited it — see runbooks/register-repo.md, which raises anything that did not work.
+#
+# A row is covered by its own remote:, or by the root repository's remote when it lives inside it.
+# In the mono-repo-for-now layout one row has `location: "."` and every other row is a folder in
+# that one repository — whatever backs the root up backs them up too, so only the root row is
+# named. The root row is covered by nothing else: if it has no remote, it is flagged like any
+# other repo.
 if [ "$CHECK_IN" -eq 1 ]; then
   hdr "11. Repo registry (registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then
     warn "no registries/repos.yml — skipping repo registry check"
   else
-    # Walk each `- name:` block and report the rows missing a location or a remote. Comment
-    # lines are skipped, so the commented example row at the bottom is not counted. A row is
-    # found by its `- name:` line, so a row without one is not a row at all.
+    # Walk each `- name:` block and report the rows missing a location, and the rows no
+    # recorded remote covers. Comment lines are skipped, so the example row at the bottom is not
+    # counted. A row is found by its `- name:` line, so a row without one is not a row at all.
     reg_flat="$(awk '
       function val(t) { sub(/^[^:]*:[[:space:]]*"?/, "", t); sub(/"?[[:space:]]*$/, "", t); return t }
-      function flush() {
+      function stash() {
         if (!have) return
-        if (loc == "") print "location\t" name
-        if (rem == "") print "remote\t" name
+        n++; names[n] = name; locs[n] = loc; rems[n] = rem
+        if (loc == ".") root = 1
         have = 0
       }
       /^[[:space:]]*#/ { next }
-      /^[[:space:]]*-[[:space:]]*name:/ { flush(); name = val($0); loc = ""; rem = ""; have = 1; next }
+      /^[[:space:]]*-[[:space:]]*name:/ { stash(); name = val($0); loc = ""; rem = ""; have = 1; next }
       /^[[:space:]]*location:/ { loc = val($0) }
       /^[[:space:]]*remote:/   { rem = val($0) }
-      END { flush() }
+      END {
+        stash()
+        for (i = 1; i <= n; i++) {
+          if (locs[i] == "") print "location\t" names[i]
+          # Covered by its own remote, or by the remote of a row at "." that contains it.
+          if (rems[i] == "" && !(root && locs[i] != ".")) print "remote\t" names[i]
+        }
+      }
     ' "$REPOS_REGISTRY")"
 
     rows="$(awk '/^[[:space:]]*#/ { next } /^[[:space:]]*-[[:space:]]*name:/ { n++ } END { print n + 0 }' "$REPOS_REGISTRY")"
@@ -462,7 +475,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"
       hint "a repo with no remote lives on one machine — a bus factor of one. Push it somewhere and record the URL in remote:, or accept the risk deliberately."
     fi
-    [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location and a remote"
+    [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
   fi
 else
   hdr "11. Repo registry (registries/repos.yml)"

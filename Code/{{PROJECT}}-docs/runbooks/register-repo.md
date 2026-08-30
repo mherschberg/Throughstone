@@ -34,9 +34,11 @@ The goal is that the **result** is the same however a repo arrived.
    `Code/{{PROJECT}}-docs/runbooks/splitting-repos.md`.
 
    A repo with no remote yet is fine; the check-in flags it as a bus-factor risk. **`name` is the
-   row's identity** — re-running matches on it. If a row with that name already exists but its
-   location or remote differs, **raise it and change nothing**; a repo that moved or was
-   repointed is a decision, not a refresh.
+   row's identity** — re-running matches on it, and a field that already says what you were going
+   to write needs nothing. A `location:` or `remote:` that is **absent or empty** gets filled in:
+   that is a refresh, and the periodic check-in does exactly that when it finds a row with no
+   location, or a repo pushed to a host for the first time. One that holds a **different** value
+   is **raised and changed by nobody** — a repo that moved or was repointed is a decision.
 
 2. **The README — decided by what is in the repo.**
    - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md`.

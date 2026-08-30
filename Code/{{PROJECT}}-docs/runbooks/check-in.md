@@ -24,18 +24,21 @@ that catches them before they harden — a scheduled "is the project still healt
 distinct from the per-substep discipline (each substep already updates the doc it changes;
 this is the full reconciliation across everything).
 
-This is a **review + verification** STEP, not feature work. It writes no application code —
-it fixes docs, files bugs, and proves the tests pass.
+This is a **review + verification** STEP: it writes no new features — it fixes docs, files bugs,
+proves the tests pass, and may make a small corrective code or test fix to clear a failure it
+found.
 
 ## Part 1 — Doc drift and conditional coverage  *(substep N.1)*
 
-> **Start with the mechanical pass.** Run `scripts/check.sh` first — in seconds it catches the
-> *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers, invalid
-> statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry that
-> disagrees with the files on disk, plus architecture-session numbering, conditional-template
-> contract drift, and repo-registry rows that contradict themselves or have never recorded who
-> owns the repo. Fix anything it flags, then do the judgment-based review below (which a
-> script can't: does the doc still describe what the system actually *does*?).
+> **Start with the mechanical pass.** Run `scripts/check.sh --check-in` first — in seconds it
+> catches the *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers,
+> invalid statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry
+> that disagrees with the files on disk, plus architecture-session numbering and
+> conditional-template contract drift. **The `--check-in` flag is what adds the repo-registry
+> pass below.** Every `[FAIL]` gets fixed. A `[WARN]` gets a decision rather than a reflex fix —
+> the missing-remote warning below is meant to recur until someone acts on it. Then do the
+> judgment-based review below (which a script can't: does the doc still describe what the system
+> actually *does*?).
 
 For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it
 actually is now — in both directions, because they catch different problems (a `Status:
@@ -61,11 +64,23 @@ place; the Glossary architecture doc vs. the terms the code now uses. Also
 reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
 with its current version/status).
 
-**The repo registry drifts as a pair.** A repo with no row, or a row whose Architecture Overview
-entry disagrees with it, is fixed by **re-running the registration** (`register-repo.md`) —
-never by editing either side by hand, because the two move together. Rows the doctor named as
-carrying no control record are answered **as one list, once** rather than repo by repo, and
-never mechanically; `provides:` fills by looking at each repo you can reach.
+**The repo registry.** `scripts/check.sh --check-in` makes two mechanical checks on
+`registries/repos.yml`, and only those two. Everything else about the registry is the by-hand
+comparison above — the rows against the repos that actually exist.
+
+- **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
+  into the row; don't guess a path.
+- **A row with no `remote:` recorded** is a warning: as far as the project knows, that repo's
+  work lives on exactly one laptop. Push it to a git host and *then* record the URL — the row
+  records that a remote exists, it does not prove anything was pushed to it — or decide here
+  that local-only is still fine, because a project may legitimately start local for a while.
+  **Nothing records that decision**: the warning returns every check-in, which is the point. In
+  the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
+  inside that one repository, so whatever backs the root up backs them up too.
+
+**A repo missing from the registry**, or a row whose Architecture Overview entry disagrees with
+it, is fixed by **re-running the registration** (`register-repo.md`), never by editing either
+side by hand: the runbook writes both together and is safe to re-run.
 
 ### Conditional-session coverage
 
@@ -147,14 +162,16 @@ line (to `full` once the area is complete), updates related architecture docs an
 the check-in itself.
 
 Beyond the architecture docs, sweep four things that rot just as quietly:
-- **Repo READMEs** — usually the stalest doc a new contributor or agent hits first. Sweep each
-  repo present on this machine, led by its `readme:` status. **`ours`** — the whole file: the
-  **Overview** still describes what the repo *is*, the **Setup / Running / Testing** steps still
-  work from a clean checkout, and any `ARCHITECTURE.md` still matches the design. **`extended`**
-  — only our part, `## Role in <project>` through to the next `##`. **Anything else** — don't
-  edit it; just re-ask the one question a README has to answer for us: can someone standing in
-  this repo still find their way back to the project? Licensing is never re-asked per repo — one
-  posture, in `.throughstone/project-license`, covers the project.
+- **Repo READMEs** — sweep each repo present on this machine, and let the README itself say how
+  much of it is ours.
+  **Stamped from `templates/repo-readme-template.md`** — we wrote it, so review the whole file:
+  the **Overview** still describes what the repo *is*, the **Setup / Running / Testing** steps
+  still work from a clean checkout, and any `ARCHITECTURE.md` still matches the design.
+  **Carrying a `## Role in <project>` section instead** — the README was already there, so review
+  only that section, down to the next `##`, and leave the rest of their file alone. **Neither
+  marker** — don't edit it; just re-ask the one question a README has to answer for us: can
+  someone standing in this repo still find their way back to the project? Licensing is never
+  re-asked per repo — one posture, in `.throughstone/project-license`, covers the project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. A
@@ -231,7 +248,7 @@ the gate was evaluated.
   durable test-result or coverage-report details under `reports/test-results/` and summarize the
   important outcome in the check-in report.
 - Any failure is a finding for this check-in — fix it here if small, or file it as a bug
-  STEP if not. A red suite must not be left for "later."
+  STEP if not.
 
 ## Output
 Write a short **check-in report** under `reports/` in the docs hub. Use

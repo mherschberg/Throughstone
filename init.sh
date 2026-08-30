@@ -966,8 +966,8 @@ init_repo() {
 }
 
 # record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
-# attached and pushed. The registry is the multi-repo clone inventory, so mono-repo and pruned-registry
-# setups can safely no-op.
+# attached and pushed. Both layouts use it: multi for the docs and prompts repos, mono for the
+# workspace-root row. It matches the row by name, so a pruned registry safely no-ops.
 record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
   [ -f "$reg" ] || return 0
@@ -988,13 +988,13 @@ record_registry_remote() {
   ' "$reg"
 }
 
-# commit_registry_remotes — persist registry remote URLs after all multi-repo remotes exist.
-# The docs repo is already initialized before this runs; recording in a second commit avoids
-# claiming remote URLs before creation/push has actually succeeded.
+# commit_registry_remotes — persist registry remote URLs after the run's remotes exist. The repo
+# holding the registry is already initialized and committed before this runs — the docs repo in
+# multi, the workspace root in mono — so recording lands in a second commit, which is what keeps
+# the file from claiming a remote URL before creation/push has actually succeeded.
 commit_registry_remotes() {
   local reg="$DOCS/registries/repos.yml"
   [ "$MK_REMOTES" = "1" ] || return 0
-  [ "$LAYOUT" = "1" ] || return 0
   [ -f "$reg" ] || return 0
   if git -C "$DOCS" diff --quiet -- registries/repos.yml; then
     return 0
@@ -1039,8 +1039,11 @@ setup_remote() {
 
 # reuse_root_origin DIR — attach the preexisting empty root origin to a mono-repo project.
 # Multi-repo never calls this: the root stops being a durable repo, so reusing its origin for
-# docs or prompts would publish the wrong repository shape.
+# docs or prompts would publish the wrong repository shape. Like setup_remote it reports the URL
+# in MADE_REMOTE_URL, and only once the trunk branch is actually on it: an origin attached under
+# --remotes=no has nothing pushed to it, so the work still lives on one machine.
 reuse_root_origin() {
+  MADE_REMOTE_URL=""
   root_origin_can_be_reused || {
     if [ -n "$ROOT_ORIGIN" ] \
       && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] \
@@ -1054,8 +1057,12 @@ reuse_root_origin() {
   ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
   echo "  remote: reused existing origin ($ROOT_ORIGIN)"
   if [ "$MK_REMOTES" = "1" ]; then
-    ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null \
-      && echo "  pushed: $ROOT_ORIGIN" ) || echo "  (could not push existing origin; push manually later)"
+    if ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
+      MADE_REMOTE_URL="$ROOT_ORIGIN"
+      echo "  pushed: $ROOT_ORIGIN"
+    else
+      echo "  (could not push existing origin; push manually later)"
+    fi
   fi
   return 0
 }
@@ -1070,6 +1077,13 @@ if [ "$LAYOUT" = "2" ]; then
   else
     reuse_root_origin "." || setup_remote "." "$SLUG" ""
   fi
+  # The workspace-root row was seeded in step 5c, before this repo had a remote. Record the URL
+  # now that one exists, the way multi does for docs and prompts below — otherwise the row stays
+  # blank and every check-in reports the project's one repository as backed up nowhere.
+  if [ -n "$MADE_REMOTE_URL" ]; then
+    record_registry_remote "$SLUG" "$MADE_REMOTE_URL"
+  fi
+  commit_registry_remotes
 else
   # Multi-repo: initialize docs and prompts as siblings. The root is only a local workspace
   # shell, so any origin attached to the downloaded template cannot represent the generated
