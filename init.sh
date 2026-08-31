@@ -991,6 +991,18 @@ EOF
 # init_repo DIR — create one generated repo with baseline files and an initial trunk commit.
 # Callers decide which directories are durable repos; this helper keeps their initial commit
 # shape consistent.
+# In the mono layout DIR is the workspace root, so `git add -A` takes in init.sh itself. That is
+# deliberate, and it was weighed: excluding it would leave every newly generated project with a
+# dirty working tree, and the next ordinary `git add -A` would commit it anyway. The script does
+# not delete itself either — not because it cannot, since an unlinked script keeps running, but
+# because reading a script while removing it is fragile, a run that failed partway would leave the
+# user no copy, and the multi layout leaves the file on disk too. Keeping both layouts alike is
+# the point.
+#
+# The committed copy has a second use. It is the substituted script, so it records which version
+# of the scaffold generated the project and which answers it was given — and nothing else in a
+# generated project records either. It is inert: the guard in section 0c looks for a marker that
+# section 3 strips, so running this copy inside a finished project refuses and exits.
 init_repo() {
   write_gitignore "$1"
   stamp_license "$1"
@@ -1163,6 +1175,17 @@ else
   REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
   their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
 fi
+# In mono the workspace root is the project's repository, so init.sh is in its first commit and
+# deleting it is a change like any other. In multi the root is not a repo and the file is simply
+# on disk. Say whichever is true rather than one sentence that is only true in one of them.
+if [ "$LAYOUT" = "2" ]; then
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is part of
+your first commit, so removing it is a commit of its own. Keeping it is fine: it is
+inert, and it is the only record of which Throughstone version built this project."
+else
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is not part of any
+repo here, so deleting the file is the whole of it."
+fi
 if [ "$REMOTE_FAILED" = "1" ]; then
   say "Done — with one problem."
 else
@@ -1182,7 +1205,7 @@ Next step:
   right in the chat. Just describe your idea when it asks.
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
-You can delete this init.sh now — it has done its job.
+${INIT_SH_TIP}
 
 Recommended optional backup:
   You can start now; your project is saved locally with Git. For backup, sharing,
