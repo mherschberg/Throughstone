@@ -52,6 +52,29 @@ normalize_license_choice() {
   esac
 }
 
+# normalize_layout INPUT — set NORMALIZED_LAYOUT to 1 (multi) or 2 (mono).
+# Same shape and the same reason as normalize_license_choice above: one vocabulary, whichever way
+# the answer arrives. The prompt used to assign its answer raw, so anything that was not exactly
+# "2" — including the word "mono" the menu itself offers — produced a multi project in silence.
+normalize_layout() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    multi|multi-repo|1) NORMALIZED_LAYOUT=1 ;;
+    mono|mono-repo|2)   NORMALIZED_LAYOUT=2 ;;
+    *)                  return 1 ;;
+  esac
+}
+
+# normalize_collab INPUT — set NORMALIZED_COLLAB to 1 (solo) or 2 (team). See normalize_layout:
+# the same defect was here, and "team" typed at the prompt produced a solo project whose ADR
+# register tells the reader they are the sole authority.
+normalize_collab() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    solo|1) NORMALIZED_COLLAB=1 ;;
+    team|2) NORMALIZED_COLLAB=2 ;;
+    *)      return 1 ;;
+  esac
+}
+
 # validate_trunk_branch NAME — accept ordinary Git branch names, reject empty/pathological
 # values before bootstrap removes the template history.
 validate_trunk_branch() {
@@ -405,19 +428,26 @@ fi
 # Repo layout — multi (default) or mono. Multi-repo turns the root into a per-machine workspace
 # shell with separate durable repos under prompts/ and Code/<project>-docs/. Mono keeps a single
 # repo at the root for projects that are not ready to split yet.
+# An unrecognised flag is fatal; an unrecognised typed answer is re-asked, the way the slug
+# question above already works. Both go through normalize_layout, so the two paths cannot drift.
 if [ -n "$LAYOUT_IN" ]; then
-  case "$(printf '%s' "$LAYOUT_IN" | tr '[:upper:]' '[:lower:]')" in
-    multi|multi-repo|1) LAYOUT=1 ;;
-    mono|mono-repo|2)   LAYOUT=2 ;;
-    *) echo "init.sh: invalid --layout '$LAYOUT_IN' (multi | mono)." >&2; exit 2 ;;
-  esac
+  normalize_layout "$LAYOUT_IN" \
+    || { echo "init.sh: invalid --layout '$LAYOUT_IN' (multi | mono)." >&2; exit 2; }
+  LAYOUT="$NORMALIZED_LAYOUT"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
 else
   echo "Repo layout:"
   echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ become separate repos)"
   echo "  2) mono-repo for now  (one repo at the workspace root; split later)"
-  LAYOUT="$(ask 'Choose 1 or 2' '1')"
+  LAYOUT=""
+  while [ -z "$LAYOUT" ]; do
+    if normalize_layout "$(ask 'Choose 1 or 2' '1')"; then
+      LAYOUT="$NORMALIZED_LAYOUT"
+    else
+      echo "  -> answer 1 or 2 (the words multi and mono work too)."
+    fi
+  done
 fi
 
 # registries/ always ships, in both layouts. It carries the repo inventory that
@@ -441,18 +471,23 @@ fi
 # answer only affects prompt wording, remote guidance, and the ADR acceptance authority stamped
 # into adr/README.md.
 if [ -n "$COLLAB_IN" ]; then
-  case "$(printf '%s' "$COLLAB_IN" | tr '[:upper:]' '[:lower:]')" in
-    solo|1) COLLAB=1 ;;
-    team|2) COLLAB=2 ;;
-    *) echo "init.sh: invalid --collab '$COLLAB_IN' (solo | team)." >&2; exit 2 ;;
-  esac
+  normalize_collab "$COLLAB_IN" \
+    || { echo "init.sh: invalid --collab '$COLLAB_IN' (solo | team)." >&2; exit 2; }
+  COLLAB="$NORMALIZED_COLLAB"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   COLLAB=1
 else
   echo "Working solo for now, or collaborating with others from day one?"
   echo "  1) Solo for now  (team conventions switch on later; nothing here locks you in)"
   echo "  2) Team from day one"
-  COLLAB="$(ask 'Choose 1 or 2' '1')"
+  COLLAB=""
+  while [ -z "$COLLAB" ]; do
+    if normalize_collab "$(ask 'Choose 1 or 2' '1')"; then
+      COLLAB="$NORMALIZED_COLLAB"
+    else
+      echo "  -> answer 1 or 2 (the words solo and team work too)."
+    fi
+  done
 fi
 ADR_AUTHORITY=""
 if [ "$COLLAB" = "2" ]; then
