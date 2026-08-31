@@ -307,8 +307,8 @@ run_registry_mono_case() {
     }
   done
 
-  # The workspace root leads the inventory. With no `remote:` the clone parser in
-  # setup-workspace.sh passes over it.
+  # The workspace root leads the inventory. Generated with --remotes=no, so nothing recorded a
+  # remote on that row; with no `remote:` the clone parser in setup-workspace.sh passes over it.
   reg="$work/Code/$name-docs/registries/repos.yml"
   root_row="$(first_registry_row "$reg")"
   for field in "name: \"$name\"" 'location: "."' 'type: mono' 'added_as: created'; do
@@ -318,12 +318,10 @@ run_registry_mono_case() {
       return 1
     }
   done
-  for field in 'provides:' 'remote:'; do
-    if printf '%s\n' "$root_row" | grep -Fq "$field"; then
-      echo "FAIL: $name workspace-root row carries $field" >&2
-      return 1
-    fi
-  done
+  if printf '%s\n' "$root_row" | grep -Fq 'remote:'; then
+    echo "FAIL: $name workspace-root row carries remote:" >&2
+    return 1
+  fi
 
   # A workflow nested under Code/<project>-docs/ never triggers when the workspace root is the
   # repository. The hub keeps its copy: that is what gives the hub CI of its own after a split.
