@@ -1275,7 +1275,9 @@ The remote backup did not complete for:$REMOTE_FAILED_REPOS
   start work now. Only the backup is outstanding.
 
   A failed command tells you it did not finish, not how far it got — so find out before you
-  retry, from inside the repo that is listed above:
+  retry. The names above are the repositories on your host, not folders here; run these from
+  inside the local repo each one backs up — the workspace root for ${SLUG}, prompts/ for
+  ${SLUG}-prompts, Code/${SLUG}-docs/ for ${SLUG}-docs:
 
     git remote -v
       → is origin attached, and to the URL you meant?
