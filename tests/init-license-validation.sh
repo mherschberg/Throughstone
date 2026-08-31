@@ -431,6 +431,19 @@ run_visibility_case() {
       return 1
     fi
   fi
+
+  # The recorded remote must be one something was actually pushed to. init.sh only records a URL
+  # after gh reports success, so this is the assertion that gives that guarantee teeth: it fails
+  # if the stub ever stops pushing, and a check that repos.yml merely holds an address would not.
+  local recorded url
+  while IFS= read -r recorded; do
+    url="${recorded#*remote: \"}"; url="${url%\"}"
+    if [ -z "$(git --git-dir="$url" for-each-ref --count=1 refs/heads 2>/dev/null)" ]; then
+      echo "FAIL: $name recorded a remote nothing was pushed to: $url" >&2
+      return 1
+    fi
+  done < <(grep '^    remote: ' "$work/Code/$name-docs/registries/repos.yml")
+
   assert_maintainer_tests_removed "$name" "$work"
 }
 
