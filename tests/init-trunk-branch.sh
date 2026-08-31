@@ -95,7 +95,10 @@ run_manual_remote_custom_case() {
     | grep -Fq "remote: \"$docs_remote\""
   grep -Fq '**shared trunk** (`master`)' \
     "$work/Code/$name-docs/runbooks/collaboration.md"
-  grep -Fq "push each local repo's master branch" "$TMP_ROOT/$name.out"
+  # The chosen trunk name has to reach the closing text, which is the only instruction most
+  # users get about backups. Match the whole clause rather than the bare word: "master" appears
+  # elsewhere in that output for other reasons.
+  grep -Fq "push the master branch to it" "$TMP_ROOT/$name.out"
 }
 
 run_mono_reused_origin_custom_case() {
