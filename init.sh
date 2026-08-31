@@ -1165,8 +1165,10 @@ if [ "$LAYOUT" = "2" ]; then
   # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
   # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
-  # The `|| true` is what keeps the run going. Without it each call is the last command of its
-  # construct, so errexit would end the run right here — after the project is generated and
+  # The `|| true` is what keeps the run going, and each branch needs it for its own reason. In the
+  # first, setup_remote is a plain command in an if-body, which errexit acts on wherever it sits.
+  # In the second it is the final command of an `||` list, the one position in such a list errexit
+  # still watches. Either way the run would end right here — after the project is generated and
   # committed, and before the closing instructions that say how to attach a remote later. Nothing
   # is swallowed by it: the helpers record the repo in REMOTE_FAILED_REPOS, which is reported at
   # the end and decides the exit status.
