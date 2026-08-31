@@ -1083,8 +1083,9 @@ note_remote_failure() { REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"; }
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
-# host and pushes the initialized trunk branch. MADE_REMOTE_URL is a small out-parameter used
-# only by the multi-repo registry recorder.
+# host and pushes the initialized trunk branch. Either way MADE_REMOTE_URL is set only inside the
+# success arm of the command that pushes, so a caller reading it is reading a URL the branch has
+# reached.
 setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
