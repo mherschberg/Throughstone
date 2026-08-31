@@ -173,8 +173,7 @@ add_row "$tw" <<EOF
   - name: "partner-billing"
     location: "Code/partner-billing/"
     type: service
-    origin: adopted
-    control: external
+    added_as: adopted
     remote: "$UNREACHABLE"
     description: "A repo this contributor cannot reach."
 EOF
@@ -190,8 +189,7 @@ add_row "$tw" <<EOF
   - name: "multi-api"
     location: "Code/multi-api/"
     type: service
-    origin: created
-    control: managed
+    added_as: created
     remote: "$REACHABLE"
     description: "A slot a stray folder already occupies."
 EOF
@@ -201,9 +199,16 @@ run_setup "$tw"
 assert_assembled "occupied location" "$tw"
 assert_out "occupied location" "warning: could not clone"
 
-echo "A registry the parser cannot read ..."
+# Not a clone that fails but a parse that does: awk cannot open the file at all. The clone loop
+# is fed by process substitution rather than a pipe precisely so that awk's exit status stays out
+# of `pipefail` — feed it by a pipe and this case takes the whole run down with it.
+echo "A registry file the clone step's awk cannot read ..."
 tw="$(teammate unreadable "$MULTI_DOCS")"
 chmod 000 "$(registry_of "$tw")"
+# chmod 000 does not stop a privileged reader, and the case would then pass having exercised
+# nothing at all. Establish the precondition rather than assume it.
+head -c1 "$(registry_of "$tw")" >/dev/null 2>&1 \
+  && bad "unreadable registry: the fixture is still readable, so this case proved nothing"
 run_setup "$tw"
 chmod 644 "$(registry_of "$tw")"
 assert_assembled "unreadable registry" "$tw"
@@ -226,8 +231,7 @@ add_row "$tw" <<EOF
   - name: "partner-billing"
     location: "$outside"
     type: service
-    origin: adopted
-    control: managed
+    added_as: adopted
     remote: "$REACHABLE"
     description: "An absolute path, with a remote that really does work."
 EOF
@@ -247,8 +251,7 @@ add_row "$tw" <<EOF
   - name: "escaper"
     location: "../tw-dotdot-escaped/"
     type: service
-    origin: adopted
-    control: managed
+    added_as: adopted
     remote: "$REACHABLE"
     description: "A relative path that leaves the workspace."
 EOF
@@ -263,19 +266,24 @@ tw="$(teammate inplace "$MULTI_DOCS")"
 inplace="$TMP_ROOT/in-place-repo"
 rm -rf "$inplace"
 git clone -q "$REACHABLE" "$inplace" >/dev/null 2>&1
+# Uncommitted local work, so the failure that matters — the directory replaced or cleared, the
+# contributor's own work gone with it — is caught as state. The `exists:` line below is printed
+# by the branch that skips the clone, but a maintainer who restructures that loop could print it
+# and still re-clone or clear the directory.
+printf 'local work\n' > "$inplace/uncommitted.txt"
 add_row "$tw" <<EOF
 
   - name: "partner-billing"
     location: "$inplace"
     type: service
-    origin: adopted
-    control: managed
+    added_as: adopted
     remote: "$REACHABLE"
     description: "Registered in place, and really there."
 EOF
 run_setup "$tw"
 assert_assembled "in-place repo" "$tw"
 assert_out "in-place repo" "exists: $inplace"
+[ -f "$inplace/uncommitted.txt" ] || bad "in-place repo: uncommitted work in the checkout is gone"
 assert_not_out "in-place repo" "outside the workspace root"
 assert_not_out "in-place repo" "did not arrive"
 
@@ -286,8 +294,7 @@ add_row "$tw" <<EOF
   - name: "partner-lib"
     location: "vendor/partner-lib/"
     type: library
-    origin: adopted
-    control: managed
+    added_as: adopted
     remote: "$REACHABLE"
     description: "Outside the Code/* shell, inside the workspace root."
 EOF
@@ -305,16 +312,14 @@ add_row "$tw" <<EOF
   - name: "multi-api"
     location: "Code/multi-api/"
     type: service
-    origin: created
-    control: managed
+    added_as: created
     remote: "$REACHABLE"
     description: "An ordinary sibling repo."
 
   - name: "multi web"
     location: "Code/multi web/"
     type: app
-    origin: created
-    control: managed
+    added_as: created
     remote: "$REACHABLE"
     description: "A location with a space in it."
 EOF
@@ -336,8 +341,7 @@ add_row "$tw" <<EOF
   - name: "multi-api"
     location: "Code/multi-api/"
     type: service
-    origin: created
-    control: managed
+    added_as: created
     remote: "$REACHABLE"
     description: "An empty slot waiting for the clone."
 EOF
@@ -346,10 +350,13 @@ run_setup "$tw"
 assert_assembled "empty target dir" "$tw"
 assert_cloned "empty target dir" "$tw/Code/multi-api"
 
-# The mono layout's registry is a different shape — it carries a row whose location is `.`, the
-# workspace root itself, plus rows for folders inside that one repository. It is exercised here
-# for the parser's sake only: collaboration.md §9 tells a mono project not to run this script,
-# and this fixture is a multi-repo workspace root holding a mono project's registry.
+# The mono layout's registry is a different shape — a row whose location is `.`, the workspace
+# root itself, plus rows for folders inside that one repository. The parser reads it, but nothing
+# it ships has a remote, so the loop body never runs: a smoke test that the shape neither crashes
+# the run nor invents a missing repo. The case after appends a second `.` row, this one with a
+# remote, and that is what makes a root-location row observable — through the clone it attempts.
+# collaboration.md §9 tells a mono project not to run this script; the fixture is a multi-repo
+# workspace root holding a mono project's registry.
 echo "The registry a mono project generates ..."
 tw="$(teammate monoshape "$MONO_DOCS")"
 run_setup "$tw"
@@ -363,8 +370,7 @@ add_row "$tw" <<EOF
   - name: "extra-root"
     location: "."
     type: mono
-    origin: created
-    control: managed
+    added_as: created
     remote: "$REACHABLE"
     description: "The workspace root, which is never an empty clone target."
 EOF
