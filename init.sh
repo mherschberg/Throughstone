@@ -1202,12 +1202,12 @@ fi
 # Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
 if [ "$LAYOUT" = "2" ]; then
-  REMOTE_TIP="Answering no to remotes skipped creating one and pushing to it — not attaching
-  one: an empty origin this folder already had is kept rather than replaced, though attaching it
-  can itself fail. So run 'git remote -v' first to see what you actually have, then either push
-  the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on your host
-  and push to that. Leave registries/repos.yml's rows alone — they record your one repo and the
-  folders inside it, not repos to clone."
+  REMOTE_TIP="If you answered no to remotes, that skipped creating one and pushing to it — not
+  attaching one: an empty origin this folder already had is kept rather than replaced, though
+  attaching it can itself fail. So run 'git remote -v' first to see what you actually have, then
+  either push the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on
+  your host and push to that. Leave registries/repos.yml's rows alone — they record your one repo
+  and the folders inside it, not repos to clone."
 else
   REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
   their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
