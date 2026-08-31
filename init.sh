@@ -1061,8 +1061,19 @@ commit_registry_remotes() {
   ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
   echo "  registry: recorded bootstrap remotes"
   if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
+    # The repository this commit has to leave is the one that holds the registry: $DOCS in multi,
+    # the workspace root in mono, where $DOCS is a folder inside it and cannot be pushed. A failure
+    # here is a backup that did not complete like any other — the remote is left without the commit
+    # that records the remotes, so its copy of repos.yml lists none of them.
+    local reg_dir reg_name
+    if [ "$LAYOUT" = "2" ]; then
+      reg_dir="the workspace root"; reg_name="$SLUG"
+    else
+      reg_dir="$DOCS"; reg_name="${SLUG}-docs"
+    fi
     ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" && echo "  registry: pushed remote updates" ) \
-      || echo "  (could not push registry remote updates; push ${DOCS} manually later)"
+      || { echo "  (could not push the registry commit; it is committed in ${reg_dir} and not yet sent)"
+           note_remote_failure "$reg_name"; }
   fi
 }
 
@@ -1078,8 +1089,16 @@ commit_registry_remotes() {
 # exit status told a caller the backup exists when it did not.
 REMOTE_FAILED_REPOS=""
 
-# note_remote_failure NAME — record a repo whose requested backup did not complete.
-note_remote_failure() { REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"; }
+# note_remote_failure NAME — record a repo whose requested backup did not complete. Adding a name
+# twice is possible: a repo whose first push failed keeps its attached origin, so the registry
+# push at the end of the run fails against the same repo. The list is the set of repos to go and
+# look at, so the second mention would only make the report read as though two things broke.
+note_remote_failure() {
+  case " $REMOTE_FAILED_REPOS " in
+    *" $1 "*) return 0 ;;
+  esac
+  REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"
+}
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
