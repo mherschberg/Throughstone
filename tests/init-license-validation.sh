@@ -388,6 +388,69 @@ run_registry_multi_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# run_typed_layout_collab_case — the layout and collaboration answers typed at the prompt, in the
+# vocabulary the menus offer. Both questions used to assign their answer raw while everything
+# downstream compared against "1" or "2", so a typed word was neither: typing "mono" built a
+# hybrid, and typing "team" built a solo project. Both now go through the same normaliser the
+# flags use, and this is the only case that enters that branch at all — every other invocation in
+# the suite passes --layout and --collab, which is the path that already normalised.
+#
+# The re-prompts are the cheap half. The assertions that matter are about the project that came
+# out: a hybrid answers the hints identically.
+run_typed_layout_collab_case() {
+  local name="typed-layout-collab"
+  local work="$TMP_ROOT/$name"
+
+  copy_template "$work"
+  (
+    cd "$work"
+    printf 'bogus\nmono\nnope\nteam\n' | ./init.sh \
+      --slug="$name" \
+      --desc="Typed answer test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --adr-authority="tech lead" \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  grep -Fq "answer 1 or 2 (the words multi and mono work too)" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not re-ask the layout question after an unrecognised answer" >&2
+    return 1
+  }
+  grep -Fq "answer 1 or 2 (the words solo and team work too)" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not re-ask the collaboration question after an unrecognised answer" >&2
+    return 1
+  }
+
+  # "mono" has to mean the mono layout, not most of it. The hybrid's signature was prompts/ left
+  # as a repository of its own while every other decision went the mono way, so these two
+  # assertions together are what separates the layouts -- neither alone does.
+  [ -d "$work/.git" ] || {
+    echo "FAIL: $name did not make the workspace root a repository" >&2
+    return 1
+  }
+  [ ! -d "$work/prompts/.git" ] || {
+    echo "FAIL: $name left prompts/ a repository of its own — the hybrid build" >&2
+    return 1
+  }
+  grep -Fq 'location: "."' "$work/Code/$name-docs/registries/repos.yml" || {
+    echo "FAIL: $name did not seed the workspace-root registry row" >&2
+    return 1
+  }
+
+  # "team" has to reach the one thing the answer decides. Solo stamps "_solo author_" on this
+  # field; the flag's value only lands there if the typed answer was read as team. Match the
+  # field and its value together: the line below it is a template comment offering "tech lead"
+  # as an example, so a bare grep for the value passes in a solo project too — measured.
+  grep -Fq '**Who accepts an ADR in this project:** tech lead' \
+    "$work/Code/$name-docs/adr/README.md" || {
+    echo "FAIL: $name did not record the ADR acceptance authority — typed 'team' read as solo" >&2
+    grep -F 'Who accepts an ADR in this project' "$work/Code/$name-docs/adr/README.md" >&2
+    return 1
+  }
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 # refusing_remote PATH — a bare repo that accepts no push. `git ls-remote` still answers, so
 # init.sh's pre-boundary reachability check passes and the failure lands where these cases need
 # it: after the project is generated and committed, which is the only place the two layouts ever
@@ -909,6 +972,9 @@ run_manual_multi_remote_case
 # record nothing they cannot back up, and exit non-zero.
 run_remote_failure_multi_case
 run_remote_failure_mono_case
+
+# --- Typed answers, not just flags --------------------------------------------
+run_typed_layout_collab_case
 run_missing_canonical_license_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------
