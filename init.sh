@@ -1066,18 +1066,19 @@ commit_registry_remotes() {
   fi
 }
 
-# REMOTE_FAILED_REPOS — the repos whose remote the user asked for and did not get, accumulated as
-# a space-separated list so the closing report can name them; in the multi layout either repo can
-# fail alone. Every path that gives up on a requested remote records here, including the
-# missing-URL guard in setup_remote, which callers are not supposed to reach. Empty means every
-# requested remote was created and pushed.
+# REMOTE_FAILED_REPOS — the repos whose requested backup did not complete, accumulated as a
+# space-separated list so the closing report can name them; in the multi layout either repo can
+# fail alone. Read it exactly that way: a listed repo may still have an origin attached — what the
+# list says is that the branch was not confirmed to be on it. Empty means every requested backup
+# completed; it does not mean the wizard created every remote, since reuse_root_origin pushes to
+# one that was already there.
 #
 # It exists because the two layouts disagreed about the same failure — one ended the run, the
 # other carried on — purely because of where each call sits relative to errexit, and because the
 # exit status told a caller the backup exists when it did not.
 REMOTE_FAILED_REPOS=""
 
-# note_remote_failure NAME — record a remote we asked for and did not get.
+# note_remote_failure NAME — record a repo whose requested backup did not complete.
 note_remote_failure() { REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"; }
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
@@ -1088,16 +1089,19 @@ setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
   if [ "$REMOTE_PROVIDER" = "manual" ]; then
-    # A caller invariant, not a user error: manual mode is validated to have a URL long before
-    # this. Recorded anyway, so the flag means what its comment says whatever reaches here.
+    # Not a caller error: the mono fallback calls this with no URL on purpose. Validation only
+    # demands --remote-url when the root origin cannot be reused, so a run that expected to reuse
+    # one and then could not attach it arrives here with nothing to fall back to. That is a
+    # requested backup that did not happen, so it is recorded like any other.
     [ -n "${3:-}" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
       return 0
     fi
-    echo "  (could not set up the remote for $2: origin may or may not be attached, and nothing"
-    echo "   was pushed. Check that the remote exists, is empty, and accepts your credentials.)"
+    echo "  (could not complete the remote for $2 — the command stopped partway, so whether"
+    echo "   origin is attached and whether the branch reached it are both unconfirmed. Check that"
+    echo "   the remote exists, is empty, and accepts your credentials.)"
     note_remote_failure "$2"
     return 1
   fi
@@ -1149,7 +1153,7 @@ reuse_root_origin() {
       MADE_REMOTE_URL="$ROOT_ORIGIN"
       echo "  pushed: $ROOT_ORIGIN"
     else
-      echo "  (origin is attached but nothing was pushed to it; push it yourself later)"
+      echo "  (origin is attached, but the push did not complete; check it and push later)"
       note_remote_failure "$SLUG"
     fi
   fi
@@ -1199,11 +1203,11 @@ fi
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
 if [ "$LAYOUT" = "2" ]; then
   REMOTE_TIP="Answering no to remotes skipped creating one and pushing to it — not attaching
-  one. If this folder already had an empty origin before you started, it is still attached. So
-  run 'git remote -v' first, then either push the root repo's ${TRUNK_BRANCH} branch to what is
-  already there, or create one empty repo on your host and push to that. Leave
-  registries/repos.yml's rows alone — they record your one repo and the folders inside it, not
-  repos to clone."
+  one: an empty origin this folder already had is kept rather than replaced, though attaching it
+  can itself fail. So run 'git remote -v' first to see what you actually have, then either push
+  the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on your host
+  and push to that. Leave registries/repos.yml's rows alone — they record your one repo and the
+  folders inside it, not repos to clone."
 else
   REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
   their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
@@ -1268,9 +1272,18 @@ The remote backup did not complete for:$REMOTE_FAILED_REPOS
   Your project is complete and committed locally — nothing is missing from it and you can
   start work now. Only the backup is outstanding.
 
-  Read the messages further up before retrying. Depending on where it stopped, the remote
-  may already exist and origin may already be attached, so check first and then do whichever
-  part is left: create the repository, attach it as origin, or push to it.
+  A failed command tells you it did not finish, not how far it got — so find out before you
+  retry, from inside the repo that is listed above:
+
+    git remote -v
+      → is origin attached, and to the URL you meant?
+    git ls-remote <that-url> ${TRUNK_BRANCH}
+      → is the branch on the remote at all?
+    git rev-parse ${TRUNK_BRANCH}
+      → if it is, does that commit match the one the line above showed?
+
+  Then do whichever part is left: create the repository on your host, attach it as origin, or
+  push to it. If the branch is there and the commits match, the backup is done.
 
 EOF
   exit 1
