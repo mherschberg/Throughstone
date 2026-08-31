@@ -432,17 +432,35 @@ run_visibility_case() {
     fi
   fi
 
-  # The recorded remote must be one something was actually pushed to. init.sh only records a URL
-  # after gh reports success, so this is the assertion that gives that guarantee teeth: it fails
-  # if the stub ever stops pushing, and a check that repos.yml merely holds an address would not.
-  local recorded url
+  # Every recorded remote must hold this project's trunk, at this project's commit. init.sh only
+  # records a URL after gh reports success, and this is what gives that guarantee teeth: an
+  # address in repos.yml proves nothing, and neither does an arbitrary branch on the far end.
+  #
+  # The count is asserted first and deliberately. A loop fed by grep runs zero times when the file
+  # holds no rows, and passes -- so without this the whole check could succeed having examined
+  # nothing at all.
+  local recorded url rowname local_repo want_sha got_sha n=0
   while IFS= read -r recorded; do
+    n=$((n + 1))
     url="${recorded#*remote: \"}"; url="${url%\"}"
-    if [ -z "$(git --git-dir="$url" for-each-ref --count=1 refs/heads 2>/dev/null)" ]; then
-      echo "FAIL: $name recorded a remote nothing was pushed to: $url" >&2
+    rowname="$(basename "${url%.git}")"
+    case "$rowname" in
+      "$name-docs") local_repo="$work/Code/$name-docs" ;;
+      "$name-prompts") local_repo="$work/prompts" ;;
+      *) echo "FAIL: $name recorded a remote for an unexpected repo: $url" >&2; return 1 ;;
+    esac
+    want_sha="$(git -C "$local_repo" rev-parse HEAD)"
+    got_sha="$(git --git-dir="$url" rev-parse "refs/heads/$(git -C "$local_repo" symbolic-ref --short HEAD)" 2>/dev/null || true)"
+    if [ "$got_sha" != "$want_sha" ]; then
+      echo "FAIL: $name's remote $url does not hold $local_repo's trunk" >&2
+      echo "      local $want_sha / remote ${got_sha:-<no such branch>}" >&2
       return 1
     fi
   done < <(grep '^    remote: ' "$work/Code/$name-docs/registries/repos.yml")
+  if [ "$n" -ne 2 ]; then
+    echo "FAIL: $name recorded $n remote(s) in repos.yml; expected 2 (docs and prompts)" >&2
+    return 1
+  fi
 
   assert_maintainer_tests_removed "$name" "$work"
 }
