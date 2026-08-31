@@ -1263,9 +1263,9 @@ EOF
 
 # A remote the user asked for and did not get is a failure, and the exit status has to say so —
 # --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would
-# be told the backup exists. The closing instructions above are printed first regardless: the
-# project itself is complete, and those instructions are exactly what is needed to finish the job
-# by hand. Both layouts behave identically here.
+# be told the backup exists. The closing instructions above are printed first regardless, because
+# the project itself is complete and usable — this report is about the one thing that is not.
+# Both layouts behave identically here.
 if [ -n "$REMOTE_FAILED_REPOS" ]; then
   cat >&2 <<EOF
 
@@ -1287,7 +1287,9 @@ The remote backup did not complete for:$REMOTE_FAILED_REPOS
       → if it is, does that commit match the one the line above showed?
 
   Then do whichever part is left: create the repository on your host, attach it as origin, or
-  push to it. If the branch is there and the commits match, the backup is done.
+  push to it. Once the branch is there and the commits match, record that URL as remote: on this
+  repo's row in Code/${SLUG}-docs/registries/repos.yml — until it is, every check-in reports this
+  repo as backed up nowhere.
 
 EOF
   exit 1
