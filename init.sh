@@ -1045,6 +1045,12 @@ commit_registry_remotes() {
   fi
 }
 
+# REMOTE_FAILED — set when a remote the user explicitly asked for could not be created or
+# pushed. It is reported at the end and decides the exit status. Until this existed the same
+# failure ended the run in one layout and was survivable in the other, purely because of where
+# each call sits relative to errexit; and the exit status told a caller the backup exists.
+REMOTE_FAILED=0
+
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
 # host and pushes the initialized trunk branch. MADE_REMOTE_URL is a small out-parameter used
@@ -1060,6 +1066,7 @@ setup_remote() {
       return 0
     fi
     echo "  (could not push remote for $2; check that the remote exists, is empty, and accepts your credentials)"
+    REMOTE_FAILED=1
     return 1
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
@@ -1069,9 +1076,11 @@ setup_remote() {
       return 0
     fi
     echo "  (skipped remote for $2)"
+    REMOTE_FAILED=1
     return 1
   fi
   echo "  (skipped remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  REMOTE_FAILED=1
   return 1
 }
 
@@ -1100,6 +1109,7 @@ reuse_root_origin() {
       echo "  pushed: $ROOT_ORIGIN"
     else
       echo "  (could not push existing origin; push manually later)"
+      REMOTE_FAILED=1
     fi
   fi
   return 0
@@ -1110,10 +1120,14 @@ if [ "$LAYOUT" = "2" ]; then
   # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
   # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
+  # Both calls are the last command of their construct, so under errexit a failed push would end
+  # the run right here — after the project is generated and committed, and before the closing
+  # instructions that say how to attach a remote later. The failure is not lost: setup_remote
+  # sets REMOTE_FAILED, which is reported below and decides the exit status.
   if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$REMOTE_URL" ]; then
-    setup_remote "." "$SLUG" "$REMOTE_URL"
+    setup_remote "." "$SLUG" "$REMOTE_URL" || true
   else
-    reuse_root_origin "." || setup_remote "." "$SLUG" ""
+    reuse_root_origin "." || setup_remote "." "$SLUG" "" || true
   fi
   # The workspace-root row was seeded in step 5c, before this repo had a remote. Record the URL
   # now that one exists, the way multi does for docs and prompts below — otherwise the row stays
@@ -1149,7 +1163,11 @@ else
   REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
   their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
 fi
-say "Done."
+if [ "$REMOTE_FAILED" = "1" ]; then
+  say "Done — with one problem."
+else
+  say "Done."
+fi
 cat <<EOF
 
 Next step:
@@ -1179,3 +1197,21 @@ Recommended optional backup:
   GitHub CLI (optional; lets Throughstone create GitHub remotes for you):
     https://cli.github.com/
 EOF
+
+# A remote the user asked for and did not get is a failure, and the exit status has to say so —
+# --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would
+# be told the backup exists. The closing instructions above are printed first regardless: the
+# project itself is complete, and those instructions are exactly what is needed to finish the job
+# by hand. Both layouts behave identically here.
+if [ "$REMOTE_FAILED" = "1" ]; then
+  cat >&2 <<EOF
+
+The remote backup you asked for was NOT set up.
+
+  Your project is complete and committed locally — nothing is missing from it, and you can
+  start work now. Only the backup is outstanding; follow the note above to create an empty
+  repository on your host and push to it.
+
+EOF
+  exit 1
+fi
