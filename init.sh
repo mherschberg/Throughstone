@@ -967,7 +967,10 @@ init_repo() {
 
 # record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
 # attached and pushed. Both layouts use it: multi for the docs and prompts repos, mono for the
-# workspace-root row. It matches the row by name, so a pruned registry safely no-ops.
+# workspace-root row. It matches the row by name, so a pruned registry safely no-ops. Where the
+# row carries no `remote:` yet, the line goes in after `location:` — the one field a row cannot
+# lack, since the check-in fails a row without one — never after an optional field a reader is
+# told is safe to drop.
 record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
   [ -f "$reg" ] || return 0
@@ -983,7 +986,7 @@ record_registry_remote() {
        $block;
      }ems
     or
-    s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*type:[^\n]*\n)}
+    s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*location:[^\n]*\n)}
      {$1 . qq{    remote: "$qremote"\n}}ems;
   ' "$reg"
 }
