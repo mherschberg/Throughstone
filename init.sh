@@ -1135,7 +1135,14 @@ reuse_root_origin() {
     fi
     return 1
   }
-  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
+  # Checked, not trusted to errexit: this function is called on the left of an ||, which turns
+  # errexit off for its whole body. Without the check a failed attach fell straight through to the
+  # success message below. Returning 1 hands the caller its fallback, which records the failure if
+  # it cannot set up a remote either — so the outcome is reported once, not twice.
+  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" ) || {
+    echo "  note: could not attach the existing origin ($ROOT_ORIGIN)"
+    return 1
+  }
   echo "  remote: reused existing origin ($ROOT_ORIGIN)"
   if [ "$MK_REMOTES" = "1" ]; then
     if ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
@@ -1191,9 +1198,12 @@ fi
 # Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
 if [ "$LAYOUT" = "2" ]; then
-  REMOTE_TIP="If you did not set up remotes during init, create one empty repo on your host
-  and push the root repo's ${TRUNK_BRANCH} branch to it. Leave registries/repos.yml's rows
-  alone — they record your one repo and the folders inside it, not repos to clone."
+  REMOTE_TIP="Answering no to remotes skipped creating one and pushing to it — not attaching
+  one. If this folder already had an empty origin before you started, it is still attached. So
+  run 'git remote -v' first, then either push the root repo's ${TRUNK_BRANCH} branch to what is
+  already there, or create one empty repo on your host and push to that. Leave
+  registries/repos.yml's rows alone — they record your one repo and the folders inside it, not
+  repos to clone."
 else
   REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
   their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
