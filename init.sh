@@ -1233,8 +1233,12 @@ if [ "$LAYOUT" = "2" ]; then
   project as backed up nowhere. The rows below it are folders inside that one repository, not
   repos to clone."
 else
-  REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
-  their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
+  REMOTE_TIP="If you did not set up remotes during init, do this for each of the two repos here,
+  Code/${SLUG}-docs/ and prompts/: create an empty repo on your host, attach it from inside the
+  local one with 'git remote add origin <url>', push the ${TRUNK_BRANCH} branch to it, and only
+  then record that URL as remote: on that repo's row in Code/${SLUG}-docs/registries/repos.yml.
+  Recording last is the point — that row is what tells a teammate where to clone from, so it
+  should never name a remote the branch has not reached."
 fi
 # In mono the workspace root is the project's repository, so init.sh is in its first commit and
 # deleting it is a change like any other. In multi the root is not a repo and the file is simply
