@@ -514,6 +514,17 @@ run_remote_failure_multi_case() {
     echo "FAIL: $name named the docs repo, whose push succeeded" >&2
     return 1
   fi
+  # Where to stand is layout-decided. Multi can only ever list the two sibling repos, and its
+  # workspace root is not a repository, so offering it sends the reader somewhere they cannot run
+  # the commands below the sentence.
+  grep -Fq "Code/$name-docs/ for $name-docs" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not say which folder each named repo backs up" >&2
+    return 1
+  }
+  if grep -Fq "workspace root, the one repository" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name offered the workspace root, which is not a repository in this layout" >&2
+    return 1
+  fi
   # The registry is the half that must never overstate: the repo that pushed is recorded, the
   # one that did not is left with no remote for the check-in to flag.
   grep -Fq "remote: \"$docs_remote\"" "$work/Code/$name-docs/registries/repos.yml" || {
@@ -571,6 +582,16 @@ run_remote_failure_mono_case() {
     grep -F "did not complete for" "$TMP_ROOT/$name.out" >&2
     return 1
   }
+  # The mirror of the multi case: mono only ever lists the bare slug, and prompts/ and
+  # Code/<slug>-docs/ are folders inside the one repository rather than repos to stand in.
+  grep -Fq "Run these from the workspace root" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not point the reader at the workspace root" >&2
+    return 1
+  }
+  if grep -Fq "Code/$name-docs/ for" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name offered a folder inside the root repo as somewhere to stand" >&2
+    return 1
+  fi
   # Reused, so it is still attached -- the failure is the push, not the remote.
   [ "$(git -C "$work" remote get-url origin)" = "$remote" ] || {
     echo "FAIL: $name did not keep the origin it reused" >&2

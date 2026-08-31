@@ -1289,6 +1289,17 @@ EOF
 # the project itself is complete and usable — this report is about the one thing that is not.
 # Both layouts behave identically here.
 if [ -n "$REMOTE_FAILED_REPOS" ]; then
+  # Which names can appear here is decided by the layout, and so is where each one lives. Mono
+  # only ever records the bare slug, and its one repository is the workspace root; prompts/ and
+  # Code/<slug>-docs/ are folders inside it, not repos to stand in. Multi only ever records the
+  # two sibling repos, and its workspace root is not a repository at all. Naming all three in
+  # either layout offers one true mapping and two that send the reader nowhere.
+  if [ "$LAYOUT" = "2" ]; then
+    FAILED_REPO_MAP="Run these from the workspace root, the one repository this project has:"
+  else
+    FAILED_REPO_MAP="Run these from inside the local repo each name backs up — prompts/ for
+  ${SLUG}-prompts, and Code/${SLUG}-docs/ for ${SLUG}-docs:"
+  fi
   cat >&2 <<EOF
 
 The remote backup did not complete for:$REMOTE_FAILED_REPOS
@@ -1297,9 +1308,8 @@ The remote backup did not complete for:$REMOTE_FAILED_REPOS
   start work now. Only the backup is outstanding.
 
   A failed command tells you it did not finish, not how far it got — so find out before you
-  retry. The names above are the repositories on your host, not folders here; run these from
-  inside the local repo each one backs up — the workspace root for ${SLUG}, prompts/ for
-  ${SLUG}-prompts, Code/${SLUG}-docs/ for ${SLUG}-docs:
+  retry. The names above are the repositories on your host, not folders here.
+  ${FAILED_REPO_MAP}
 
     git remote -v
       → is origin attached, and to the URL you meant?
