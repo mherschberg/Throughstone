@@ -54,8 +54,11 @@ normalize_license_choice() {
 
 # normalize_layout INPUT — set NORMALIZED_LAYOUT to 1 (multi) or 2 (mono).
 # Same shape and the same reason as normalize_license_choice above: one vocabulary, whichever way
-# the answer arrives. The prompt used to assign its answer raw, so anything that was not exactly
-# "2" — including the word "mono" the menu itself offers — produced a multi project in silence.
+# the answer arrives. The prompt used to assign its answer raw, and downstream is not one test but
+# many: most compare against "2", one compares against "1" and takes its else. So an unrecognised
+# value did not pick the other layout, it picked a hybrid — measured, typing "mono" left prompts/
+# a repository of its own with the scaffold licence notice absent, placed instead at the workspace
+# root, which that layout never clones.
 normalize_layout() {
   case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
     multi|multi-repo|1) NORMALIZED_LAYOUT=1 ;;
@@ -432,7 +435,7 @@ fi
 # question above already works. Both go through normalize_layout, so the two paths cannot drift.
 if [ -n "$LAYOUT_IN" ]; then
   normalize_layout "$LAYOUT_IN" \
-    || { echo "init.sh: invalid --layout '$LAYOUT_IN' (multi | mono)." >&2; exit 2; }
+    || { echo "init.sh: invalid layout '$LAYOUT_IN' (multi | mono) — from --layout or INIT_LAYOUT." >&2; exit 2; }
   LAYOUT="$NORMALIZED_LAYOUT"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
@@ -472,7 +475,7 @@ fi
 # into adr/README.md.
 if [ -n "$COLLAB_IN" ]; then
   normalize_collab "$COLLAB_IN" \
-    || { echo "init.sh: invalid --collab '$COLLAB_IN' (solo | team)." >&2; exit 2; }
+    || { echo "init.sh: invalid collab '$COLLAB_IN' (solo | team) — from --collab or INIT_COLLAB." >&2; exit 2; }
   COLLAB="$NORMALIZED_COLLAB"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   COLLAB=1
@@ -999,10 +1002,16 @@ EOF
 # user no copy, and the multi layout leaves the file on disk too. Keeping both layouts alike is
 # the point.
 #
-# The committed copy has a second use. It is the substituted script, so it records which version
-# of the scaffold generated the project and which answers it was given — and nothing else in a
-# generated project records either. It is inert: the guard in section 0c looks for a marker that
-# section 3 strips, so running this copy inside a finished project refuses and exits.
+# The committed copy has a second, smaller use, and it is worth stating narrowly. It is the
+# generator's own source with this run's answers substituted into it, so it is a snapshot you can
+# diff against another project's copy. It is not a version stamp — nothing in it names a release —
+# and it is not a complete answer log: the licence posture is in .throughstone/project-license, the
+# ADR authority in adr/README.md, the trunk branch in git, the layout in the shape of the tree.
+# Nothing in a generated project records the scaffold version, which is a real gap and a separate
+# question from this one.
+#
+# It is inert: the guard in section 0c looks for a marker that section 3 strips, so running this
+# copy inside a finished project refuses and exits.
 init_repo() {
   write_gitignore "$1"
   stamp_license "$1"
@@ -1057,11 +1066,19 @@ commit_registry_remotes() {
   fi
 }
 
-# REMOTE_FAILED — set when a remote the user explicitly asked for could not be created or
-# pushed. It is reported at the end and decides the exit status. Until this existed the same
-# failure ended the run in one layout and was survivable in the other, purely because of where
-# each call sits relative to errexit; and the exit status told a caller the backup exists.
-REMOTE_FAILED=0
+# REMOTE_FAILED_REPOS — the repos whose remote the user asked for and did not get, accumulated as
+# a space-separated list so the closing report can name them; in the multi layout either repo can
+# fail alone. Every path that gives up on a requested remote records here, including the
+# missing-URL guard in setup_remote, which callers are not supposed to reach. Empty means every
+# requested remote was created and pushed.
+#
+# It exists because the two layouts disagreed about the same failure — one ended the run, the
+# other carried on — purely because of where each call sits relative to errexit, and because the
+# exit status told a caller the backup exists when it did not.
+REMOTE_FAILED_REPOS=""
+
+# note_remote_failure NAME — record a remote we asked for and did not get.
+note_remote_failure() { REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"; }
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
@@ -1071,14 +1088,17 @@ setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
   if [ "$REMOTE_PROVIDER" = "manual" ]; then
-    [ -n "${3:-}" ] || return 1
+    # A caller invariant, not a user error: manual mode is validated to have a URL long before
+    # this. Recorded anyway, so the flag means what its comment says whatever reaches here.
+    [ -n "${3:-}" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
       return 0
     fi
-    echo "  (could not push remote for $2; check that the remote exists, is empty, and accepts your credentials)"
-    REMOTE_FAILED=1
+    echo "  (could not set up the remote for $2: origin may or may not be attached, and nothing"
+    echo "   was pushed. Check that the remote exists, is empty, and accepts your credentials.)"
+    note_remote_failure "$2"
     return 1
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
@@ -1087,12 +1107,14 @@ setup_remote() {
       echo "  remote: $OWNER/$2"
       return 0
     fi
-    echo "  (skipped remote for $2)"
-    REMOTE_FAILED=1
+    # gh creates and pushes in one command, so a failure here says nothing about which half ran.
+    # "skipped" was the old wording and was wrong: the repository may well exist on the host.
+    echo "  (could not create and push $OWNER/$2 — it may have been created; check your host)"
+    note_remote_failure "$2"
     return 1
   fi
-  echo "  (skipped remote for $2; unknown provider '$REMOTE_PROVIDER')"
-  REMOTE_FAILED=1
+  echo "  (no remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  note_remote_failure "$2"
   return 1
 }
 
@@ -1120,8 +1142,8 @@ reuse_root_origin() {
       MADE_REMOTE_URL="$ROOT_ORIGIN"
       echo "  pushed: $ROOT_ORIGIN"
     else
-      echo "  (could not push existing origin; push manually later)"
-      REMOTE_FAILED=1
+      echo "  (origin is attached but nothing was pushed to it; push it yourself later)"
+      note_remote_failure "$SLUG"
     fi
   fi
   return 0
@@ -1132,10 +1154,11 @@ if [ "$LAYOUT" = "2" ]; then
   # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
   # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
-  # Both calls are the last command of their construct, so under errexit a failed push would end
-  # the run right here — after the project is generated and committed, and before the closing
-  # instructions that say how to attach a remote later. The failure is not lost: setup_remote
-  # sets REMOTE_FAILED, which is reported below and decides the exit status.
+  # The `|| true` is what keeps the run going. Without it each call is the last command of its
+  # construct, so errexit would end the run right here — after the project is generated and
+  # committed, and before the closing instructions that say how to attach a remote later. Nothing
+  # is swallowed by it: the helpers record the repo in REMOTE_FAILED_REPOS, which is reported at
+  # the end and decides the exit status.
   if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$REMOTE_URL" ]; then
     setup_remote "." "$SLUG" "$REMOTE_URL" || true
   else
@@ -1179,15 +1202,16 @@ fi
 # deleting it is a change like any other. In multi the root is not a repo and the file is simply
 # on disk. Say whichever is true rather than one sentence that is only true in one of them.
 if [ "$LAYOUT" = "2" ]; then
-  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is part of
-your first commit, so removing it is a commit of its own. Keeping it is fine: it is
-inert, and it is the only record of which Throughstone version built this project."
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is in your first
+commit, so deleting the file is a change you would then commit; the copy already in that
+commit stays either way. Keeping it costs nothing: it is inert, and it is a snapshot of the
+generator that built this project."
 else
   INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is not part of any
 repo here, so deleting the file is the whole of it."
 fi
-if [ "$REMOTE_FAILED" = "1" ]; then
-  say "Done — with one problem."
+if [ -n "$REMOTE_FAILED_REPOS" ]; then
+  say "Done — but the backup did not complete."
 else
   say "Done."
 fi
@@ -1226,14 +1250,17 @@ EOF
 # be told the backup exists. The closing instructions above are printed first regardless: the
 # project itself is complete, and those instructions are exactly what is needed to finish the job
 # by hand. Both layouts behave identically here.
-if [ "$REMOTE_FAILED" = "1" ]; then
+if [ -n "$REMOTE_FAILED_REPOS" ]; then
   cat >&2 <<EOF
 
-The remote backup you asked for was NOT set up.
+The remote backup did not complete for:$REMOTE_FAILED_REPOS
 
-  Your project is complete and committed locally — nothing is missing from it, and you can
-  start work now. Only the backup is outstanding; follow the note above to create an empty
-  repository on your host and push to it.
+  Your project is complete and committed locally — nothing is missing from it and you can
+  start work now. Only the backup is outstanding.
+
+  Read the messages further up before retrying. Depending on where it stopped, the remote
+  may already exist and origin may already be attached, so check first and then do whichever
+  part is left: create the repository, attach it as origin, or push to it.
 
 EOF
   exit 1
