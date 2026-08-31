@@ -1309,7 +1309,7 @@ if [ -n "$REMOTE_FAILED_REPOS" ]; then
 The remote backup did not complete for:$REMOTE_FAILED_REPOS
 
   Your project is complete and committed locally — nothing is missing from it and you can
-  start work now. Only the backup is outstanding.
+  start work now.
 
   A failed command tells you it did not finish, not how far it got — so find out before you
   retry. The names above are the repositories on your host, not folders here.
