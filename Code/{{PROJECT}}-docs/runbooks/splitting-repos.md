@@ -284,9 +284,13 @@ special here, which is why it gets no steps of its own below.
    everyone else's machine. When it prints `git ls-files`, read it: it should look like the repo
    you asked for, at the root, with nothing left nested.
 4. **Make it a repo, not a folder.**
-   - `scripts/apply-project-license.sh <new-repo-path>` from the docs hub.
-   - A `README.md` stamped from `templates/repo-readme-template.md`, with its role one-liner and
-     Overview actually filled in.
+   - Its licence — `Code/<project>-docs/scripts/apply-project-license.sh Code/<new-name>/`, run
+     from the **workspace root**, which is where `runbooks/register-repo.md` works from too. A
+     split-out repo is one the method created, so it takes the full posture, not `--notice-only`.
+   - Its README, per `runbooks/register-repo.md` step 2 — **the extracted folder's own `README.md`
+     came up in the un-nest**, so if there is one, leave it and add a `## Role in <project>`
+     section. Only a repo with no README gets `templates/repo-readme-template.md` stamped, with its
+     role one-liner and Overview actually filled in.
    - `templates/env-example.txt` copied in as `.env.example` if it needs one.
    - **Its build and test entry point.** The forward delete removed the origin's `Makefile`, CI
      config and test harness, so right now this repo has no way to build itself. Decide what it
@@ -332,7 +336,7 @@ special here, which is why it gets no steps of its own below.
    `scripts/links.sh` fails on a finished split and passes on an unfinished one. Step 7 is what
    makes step 9 satisfiable.
 8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
-   and the Architecture Overview entry together. **Add a `provenance:` block to that row before
+   and the Architecture Overview entry. **Add a `provenance:` block to that row before
    the action commits**, so the registration stays one commit: the repo it came from, today's
    date, and the last commit the two repos share — the tip you wrote down at step 1, which
    resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
@@ -423,11 +427,13 @@ repos of their own. This happens at most once per project.
    Reconcile the ignore file, un-nest, and read the file list each time. The reconcile fires for
    every code folder: the file the clone left at the root is the *workspace* root's, which carries
    none of that code repo's build ignores, and the folder's own is still nested.
-6. **Stamp each new repo, and commit it.** Run `scripts/apply-project-license.sh` once per repo
-   from the new hub, then **commit the result in that repo**. The script writes new, untracked
-   files, step 7 pushes, and nothing else in this procedure commits them — skip this and a repo
-   reaches its host with no `LICENSE`, no `LICENSE-THROUGHSTONE` and no `LICENSING.md` while your
-   own copy on disk still shows all three.
+6. **Stamp each new repo, and commit it.** Run
+   `Code/<project>-docs/scripts/apply-project-license.sh <repo-path>/` once per repo **from the
+   build directory's root** — that root is the new workspace root, so every path is written
+   relative to it exactly as the registry writes it. Then **commit the result in that repo**. The
+   script writes new, untracked files, step 7 pushes, and nothing else in this procedure commits
+   them — skip this and a repo reaches its host with no `LICENSE`, no `LICENSE-THROUGHSTONE` and no
+   `LICENSING.md` while your own copy on disk still shows all three.
 7. **Remotes.** Create each **private** — every one of them now carries the whole mono repo's
    history, and widening any of them is a separate decision to make deliberately later, not a
    side effect of the split. Push trunk, then record each repo in `registries/repos.yml`.
@@ -436,12 +442,14 @@ repos of their own. This happens at most once per project.
    replaces it is the folder rows already in the file, which become real repos here. A registry
    written before the root row existed has none, in which case there is nothing to delete and
    nothing else about this step changes.
-   **Run the register action** (`runbooks/register-repo.md`) **once per code repo** — it records
-   that repo's `remote:` and writes its Architecture Overview entry alongside the row. This step is
-   what makes that possible: until now those rows pointed at folders inside one repository, and
-   from here they are repositories of their own. **The docs hub and `prompts/` are the exception**
-   — `init.sh` seeded their rows and the action leaves seeded rows alone, so write those two
-   `remote:` fields by hand.
+   **Run the register action** (`runbooks/register-repo.md`) **once per code repo, from the build
+   directory's root** — that is the workspace root it means here; run it from the live one and the
+   row and the entry land in the hub step 11 renames aside. It records that repo's `remote:` and
+   writes its Architecture Overview entry alongside the row. This step is what makes that possible:
+   until now those rows pointed at folders inside one repository, and from here they are
+   repositories of their own. **The docs hub and `prompts/` are the exception** — the action runs
+   once per *code* repo, and `init.sh` wrote those two rows already, so write their `remote:` fields
+   by hand.
    Every **remaining** row is now a split-out repo, so each also gets a `provenance:` block, which
    the action does not write. **Add it to the row while you are there** — for a code repo that
    means before the action's commit, so its registration stays one commit. It names the mono repo,

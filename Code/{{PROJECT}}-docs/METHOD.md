@@ -100,7 +100,7 @@ incident postmortem reports, `reports/security/` holds security baseline, sweep,
 reports, and `reports/test-results/` holds durable test, coverage, and quality-gate result
 reports),
 `registries/`
-(e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted
+(e.g. `repos.yml`, the repo inventory, and `risks.yml`, the accepted
 risk / tech-debt register).
 
 ## 4. Architecture sessions
@@ -468,25 +468,20 @@ per-machine shell. The `init.sh` wizard sets this up for the first developer; se
 aren't created at bootstrap — once the architecture names a repo it is either **created** here,
 stamped from `Code/{{PROJECT}}-docs/templates/repo-readme-template.md`, or **adopted**: one that
 already exists, registered where it sits (`runbooks/register-repo.md`). (Or choose
-mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
-`registries/repos.yml` is the canonical inventory. `registries/risks.yml` is the canonical
+mono-repo-for-now in the wizard — see *Mono-repo for now* below.) `registries/repos.yml` is the
+canonical inventory in either layout. `registries/risks.yml` is the canonical
 accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
 there with owner, severity, revisit trigger, and a reference to the durable source artifact
 that explains it. If no source exists yet, create the right one first — an architecture
 decision/section, ADR, issue/follow-up STEP, incident report under `reports/incidents/`, or
 check-in report under `reports/` — then add the register row. **Every repo carries a README explaining
-what it is** — its role and the slice of the system it owns. Throughstone stamps one from that
-template into a repo it creates, and adds a `## Role in <project>` section to the README a repo
-already has (with a matching one-line `description` in `registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
-its root for its internal design. **Every new application-code repo also inherits the
-project-license posture established by `init.sh`:** read the authoritative selection from the
-docs hub's `.throughstone/project-license`. For an open-source selection, the docs hub must have
-a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
-`Proprietary`, the new repo gets no project `LICENSE`. Do not copy `LICENSE-THROUGHSTONE` into
-application-code repos that contain no Throughstone-authored material. Repos scaffolded through
-this method do contain the Throughstone-authored README and CI starter, so
-`scripts/apply-project-license.sh` copies `LICENSE-THROUGHSTONE` and writes a visible
-`LICENSING.md` that distinguishes retained scaffold material from project-authored code.
+what it is** — its role and the slice of the system it owns, with a matching one-line
+`description` in `registries/repos.yml`; **which README it gets is decided by what is in the repo,
+not by how the repo arrived** (`runbooks/register-repo.md`). A repo with real internal complexity
+adds an `ARCHITECTURE.md` at its root for its internal design. **Licensing follows the posture
+`init.sh` established** — one selection for the whole project, recorded in the docs hub's
+`.throughstone/project-license` and applied per repo by `scripts/apply-project-license.sh` when the
+repo is brought in.
 
 **Where a repo lives — created as a sibling, or registered in place.** By default a repo is
 **created as a `Code/*` sibling** under the workspace root, and its `registries/repos.yml`
@@ -504,58 +499,32 @@ workspace is not that script's business even when the path happens to be writabl
 checked out at its `location:` is left alone either way, so an in-place repo outside the root is
 one each contributor clones onto their own machine once.
 Branch-per-STEP and the overlap warning (`runbooks/collaboration.md`) key on repo
-**identity** — its `repos.yml` entry, not where it lives — so an in-place repo Throughstone
-controls participates in them exactly like a sibling. The `Code/*` sibling layout stays the
-default.
+**identity** — its `repos.yml` entry, not where it lives — so an in-place repo participates in
+them exactly like a sibling. The `Code/*` sibling layout stays the default.
 
-**Control — what the method may write into a repo it did not create.** Not every repo a project
-has is Throughstone's to change, so `registries/repos.yml` records the answer per repo:
+**What a row records, and what it does not.** A row is an inventory entry, never a status board;
+`registries/repos.yml` documents its fields. Two of them are **stamps for a reader** — `added_as`
+and `type`: nothing reads them and nothing decides from them, so the STEP process cannot tell how a
+repo arrived, and if anything ever branches on them, that is the bug. **Nothing else is tracked per
+repo.** The work of bringing a repo in is *done* at the time, never recorded as a status, and
+anything missed is found later by looking at the repo.
 
-> **Control is permission.** `control: managed` means Throughstone may write what its needs
-> require into that repository without asking again — granted **once, for the whole repository**,
-> never per file and never per need. `control: external` means the repo is recorded and referenced
-> in full and never written into. **A missing `control:` reads as `external`**, because an
-> unanswered permission is not a granted one.
->
-> **The invariant follows: if Throughstone controls a repository, its needs are met.** A `gap` can
-> only exist on a repository it does not control.
+**The registry is checked at the check-in, not on the common path.** The set of repos changes only
+when one is created, adopted or split out, so `scripts/check.sh` checks it under `--check-in` alone,
+and only mechanically: that every row has a `location:`, and that no repo's work is left uncovered
+by any remote, because work that lives on one laptop is a bus factor of one. Everything else is the
+by-hand comparison in `runbooks/check-in.md`. **A case the registry does not cover is raised to a
+person in the chat**, never answered by inventing a field or a check.
 
-Registering a repo makes it **known and connected — never conformant, and never good.** A managed
-repo whose README is thin, or whose CI runs only a linter, is recorded as what it is; improving it
-is forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
-**Setting `control: external`** — at handover, on a late refusal, or when a repository turns
-out to sit inside another's work tree — **moves every `ours` and `extended` on that row to `theirs`
-in the same edit**, each `note` recording that Throughstone wrote it: an external repo has nothing
-of ours to maintain, whoever typed it. **And an `external` repo never appears in a STEP's Repos
-projection** — a STEP is work Throughstone does, in repositories it controls.
-
-**Three needs, one ladder, run per need.** A repo needs a **README** (someone standing in it can
-find their way back to the project), **CI** (the gate that runs on it is recorded — including
-"nothing runs") and **licensing** (its posture is recorded — including "nothing states one"). The
-ladder **asks nothing on any path**: permission was settled once, when control was set. Because CI
-and licensing are met by *recording*, only the README has rungs:
-
-```
-Q1. Can someone standing in this repo find their way back to the project?
-    YES -> write nothing                                      -> theirs
-    NO  -> Q2. What is already there?
-           nothing README-shaped -> stamp the template        -> ours
-           one that takes a section
-                -> append `## Role in <project>`              -> extended
-           one that cannot — never a second README            -> theirs
-```
-
-**The ladder never installs CI and never applies a license.** Both are scaffolding, written when
-Throughstone *creates* a repo, so `ci: ours` and `license: ours` mean the scaffold wrote them while
-building that repo and neither ever appears on an adopted one — a managed repo with no CI at all is
-`ci: theirs`, note "nothing runs", **not a gap**, and making it exist is forward work. The augment
-form is defined in `templates/repo-readme-template.md`; its one mechanical job here is to
-**delimit `extended`** — our part is that heading through to the next `##`, which is what a
-check-in sweeps.
+Registering a repo makes it **known and connected — never good.** A repo whose README is thin is
+registered as it stands; improving it is forward work, and only a genuinely risky shortfall becomes
+a `registries/risks.yml` row.
 
 **Registering a repo is its own procedure:** `runbooks/register-repo.md`. It maintains the row and
-the repo's entry in the Architecture Overview architecture doc **together** — one unit, neither
-moving without the other — and everything that changes the set of repositories goes through it.
+the repo's entry in the Architecture Overview architecture doc — **always attempting both, rolling
+back neither, and reporting whatever did not land** — and everything that changes the set of
+repositories goes through it, the split included: `runbooks/splitting-repos.md` runs it as one of
+its own steps.
 
 **All durable content lives in a repo** — almost always `Code/{{PROJECT}}-docs/`. The
 workspace root holds only **per-machine** files: the pointer `CLAUDE.md` / `AGENTS.md`
@@ -608,8 +577,8 @@ setup that creates the STEP-1 PLAN and records which architecture sessions will 
 kickoff closes, flip the `STEP-1` row to `In progress`. Use the branch name
 `step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies — the docs hub and
 `prompts/` in multi-repo projects, the root repo in mono-repo-for-now, **and every other repository
-STEP-1 writes into, a repo that already existed and is now under Throughstone's control included**. In a team/shared-remote
-project, push the `In progress` flip so others can see that the architecture STEP is active.
+STEP-1 writes into, an adopted repo included**. In a team/shared-remote project, push the
+`In progress` flip so others can see that the architecture STEP is active.
 
 **Mono→multi split special case:** converting a mono-repo-for-now workspace to multi-repo is
 **branchless** — there is no `step-NNNN` branch, because the repos that branch would live in are

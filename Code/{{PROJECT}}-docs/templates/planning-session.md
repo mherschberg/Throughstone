@@ -69,8 +69,8 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    order.
 
    **Is it already registered?** A `registries/repos.yml` row naming that repo means it is
-   already recorded — the row and its Architecture Overview entry are one unit, maintained
-   together — so there is nothing to do here, whether or not it is cloned on this machine. On an
+   already recorded — `runbooks/register-repo.md` maintains that row and its Architecture Overview
+   entry — so there is nothing to do here, whether or not it is cloned on this machine. On an
    ordinary greenfield first run nothing is registered and every repo falls through to the next
    question; on a **re-run**, this is what stops a repo an earlier run created or took on from
    being proposed again.
@@ -113,12 +113,13 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    step's.
 
    **Both branches end at the one register action** (`runbooks/register-repo.md`), which writes
-   the row and the Architecture Overview entry together, never one without the other, and is safe
-   to re-run. **That is a STEP's work, not this session's** — the action writes on that STEP's
-   branch, and this session writes nothing but the STEP-index rows. Here you decide which repos
-   are on which branch and say so in the outline of the STEP that takes them on; **if any repo
-   needs creating or registering, make sure this phase has a STEP that does it** — a later phase
-   that only extends what already exists may have no scaffolding STEP to inherit the work.
+   the row and the Architecture Overview entry — attempting both, rolling back neither, reporting
+   whatever did not land — and is safe to re-run. **That is a STEP's work, not this session's** —
+   the action writes on that STEP's branch, and this session writes nothing but the STEP-index
+   rows. Here you decide which repos are on which branch and say so in the outline of the STEP
+   that takes them on; **if any repo needs creating or registering, make sure this phase has a
+   STEP that does it** — a later phase that only extends what already exists may have no
+   scaffolding STEP to inherit the work.
    Confirm the repo list with the user: which are new, which already exist, and name any you
    could not reach.
 2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —

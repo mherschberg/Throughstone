@@ -23,9 +23,7 @@ worked, and completed.
 > — two appended rows merge with no
 > conflict into a silent duplicate. See `runbooks/collaboration.md`.
 > **Owner** = who's on it; **Repos** = the repos it expects to touch (a *projection* that may
-> change — it powers the overlap warning, it doesn't reserve anything). A repo the method only
-> references (`control: external`) never appears there — a STEP is work Throughstone does, in
-> repositories it controls. Solo, leave them blank.
+> change — it powers the overlap warning, it doesn't reserve anything). Solo, leave them blank.
 
 ## Phase 1 — {{PHASE_1_NAME}}
 <!-- {{PHASE_1_NAME}}: kickoff (BOOTSTRAP-PROMPT.md Stage 1) fills this with the chosen phase
