@@ -146,14 +146,16 @@ drop_field() {
 
 # --- 1. Greenfield, both layouts ----------------------------------------------
 # A project the method just created has no remotes when init.sh is told to make none, so its
-# first check-in warns — and names exactly the repos whose contents nothing else backs up.
+# first check-in warns — and names exactly the repos whose contents nothing else backs up. Each
+# is named with its location, because the fix is to go and push that repo and a name on its own
+# does not say where it is; the assertions below carry both, so dropping the location fails them.
 multi="$(bootstrap "registry-multi" multi apache-2.0)" || exit 1
 mono="$(bootstrap "registry-mono" mono bsd-3)"         || exit 1
 
 # Multi has no workspace-root row, so each repo stands alone and both are named.
 doctor "$multi" --check-in
 note "multi greenfield: $(printf '%s\n' "$SEC" | grep -E '^  \[' | head -1)"
-expect "[WARN] repo(s) with no remote: registry-multi-docs prompts" "multi greenfield"
+expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/) prompts (prompts/)" "multi greenfield"
 expect "Push it somewhere and record the URL in remote:" "multi greenfield hint"
 refute "[FAIL]" "multi greenfield"
 result OK "multi greenfield"
@@ -166,7 +168,7 @@ result OK "multi greenfield"
 # root itself is covered by nothing else, so it is flagged like any other repo.
 doctor "$mono" --check-in
 note "mono greenfield: $(printf '%s\n' "$SEC" | grep -E '^  \[' | head -1)"
-expect "[WARN] repo(s) with no remote: registry-mono" "mono greenfield"
+expect "[WARN] repo(s) with no remote: registry-mono (.)" "mono greenfield"
 refute "registry-mono-docs" "mono root covers the folders below it"
 refute "prompts" "mono root covers prompts/ as well"
 [ "$DOC_STATUS" -eq 0 ] || bad "mono greenfield — expected exit 0, got $DOC_STATUS"
@@ -185,14 +187,14 @@ clean "mono root remote"
 
 set_field "$multi" "prompts" remote "git@example.com:TEAM/registry-multi-prompts.git"
 doctor "$multi" --check-in
-expect "[WARN] repo(s) with no remote: registry-multi-docs" "a sibling's remote covers only itself"
+expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/)" "a sibling's remote covers only itself"
 refute "prompts" "the row that has a remote is not named"
 
 # An empty remote: is not a remote. runbooks/check-in.md tells the operator to fill in a field
 # that is "absent or empty"; the doctor has to agree with it about the second half.
 set_field "$multi" "registry-multi-docs" remote ""
 doctor "$multi" --check-in
-expect "[WARN] repo(s) with no remote: registry-multi-docs" "an empty remote reads as absent"
+expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/)" "an empty remote reads as absent"
 
 # --- 3. A row with no location: is a hard failure -------------------------------
 # location: is what setup-workspace.sh clones into and what the STEP process reads, so a row
@@ -202,7 +204,7 @@ drop_field "$multi" "prompts" location
 doctor "$multi" --check-in
 expect "[FAIL] row(s) with no location: prompts" "missing location fails"
 expect "give every row a location:" "missing location hint"
-expect "[WARN] repo(s) with no remote: registry-multi-docs" "the remote warning still speaks"
+expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/)" "the remote warning still speaks"
 result FAIL "missing location"
 [ "$DOC_STATUS" -eq 1 ] || bad "missing location — expected exit 1, got $DOC_STATUS"
 
