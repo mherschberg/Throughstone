@@ -1324,8 +1324,8 @@ The remote backup did not complete for:$REMOTE_FAILED_REPOS
 
   Then do whichever part is left: create the repository on your host, attach it as origin, or
   push to it. Once the branch is there and the commits match, record that URL as remote: on this
-  repo's row in Code/${SLUG}-docs/registries/repos.yml — until it is, every check-in reports this
-  repo as backed up nowhere.
+  repo's row in Code/${SLUG}-docs/registries/repos.yml if it is not already there — while that
+  field is missing, every check-in reports this repo as backed up nowhere.
 
 EOF
   exit 1
