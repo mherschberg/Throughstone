@@ -7,7 +7,7 @@ Some runbooks inspect code; some operate the system; many do both. Each runbook 
 improvised under pressure.
 
 ## Two kinds of runbook
-The method (`../METHOD.md`) draws a line that matters for how you *invoke* each one:
+The method (`METHOD.md`) draws a line that matters for how you *invoke* each one:
 
 - **STEP-shaped** — runs as a tracked STEP with substeps that record status in the
   `prompts/STEP-index.md`/PLAN. Its PLAN is thin and points at the runbook; you don't author substep
@@ -20,14 +20,14 @@ The method (`../METHOD.md`) draws a line that matters for how you *invoke* each 
   **secrets rotation**, **an explicitly requested early S0 security baseline**, and the **incident** Part-1
   response are these. **Collaboration** is neither — it's reference you read once when a second
   contributor joins. Throughstone scaffold/method updates live separately at
-  `../UPDATING-THROUGHSTONE.md`.
+  `UPDATING-THROUGHSTONE.md`.
 
 The shipped runbooks are **defaults you customize** — they deliberately leave CI/CD, release
 versioning, and ecosystem-specific commands to your team's tooling. The *discipline* is the
 durable part; fill in your project's specifics.
 
 New-contributor onboarding is intentionally not a runbook. It is project setup and
-first-contribution STEP guidance, so it lives at [`../ONBOARDING.md`](../ONBOARDING.md).
+first-contribution STEP guidance, so it lives at [`ONBOARDING.md`](../ONBOARDING.md).
 
 ## Index
 

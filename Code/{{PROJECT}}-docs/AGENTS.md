@@ -6,10 +6,9 @@
 > or resume?" just below.**
 >
 > **Paths in this file are relative to the workspace root** (the folder that contains
-> `Code/` and `prompts/`) — that's where your agent runs. Inside the architecture-session and
-> template files under `templates/`, paths are instead relative to the docs hub
-> (`architecture/…`, `overview.md`), but any reference that crosses repos — notably
-> `prompts/STEP-index.md` — is always written in full. (See `METHOD.md` §7, "Path conventions in docs".)
+> `Code/` and `prompts/`) — that's where your agent runs, so every path below can be used
+> as-is. Other documents in the docs hub write some paths relative to the hub instead:
+> `Code/{{PROJECT}}-docs/METHOD.md` §7, "Path conventions in docs", is the rule.
 
 ## First action — kickoff or resume?
 **Before doing anything else, decide which mode you're in** by reading the `PROJECT-STATUS`
@@ -252,5 +251,6 @@ STEP when more than one contributor is active. The rules that bind you as an age
   two authors can append the same `ADR-NNNN` and git merges both into a silent duplicate. Pull,
   take `max + 1`, add the row and create the ADR file, then **commit and push immediately**;
   before every push (even a clean merge) scan with
-  `grep -oE '^\|[[:space:]]*ADR-[0-9]+' adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d`, and if it's non-empty or the push is
-  rejected, recompute `max + 1`, renumber, and push again. See `runbooks/collaboration.md` §6.
+  `grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d`,
+  and if it's non-empty or the push is rejected, recompute `max + 1`, renumber, and push again.
+  See `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §6.
