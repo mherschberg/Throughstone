@@ -388,6 +388,224 @@ run_registry_multi_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
+# run_typed_layout_collab_case — the layout and collaboration answers typed at the prompt, in the
+# vocabulary the menus offer. Both questions used to assign their answer raw while everything
+# downstream compared against "1" or "2", so a typed word was neither: typing "mono" built a
+# hybrid, and typing "team" built a solo project. Both now go through the same normaliser the
+# flags use, and this is the only case that enters that branch at all — every other invocation in
+# the suite passes --layout and --collab, which is the path that already normalised.
+#
+# The re-prompts are the cheap half. The assertions that matter are about the project that came
+# out: a hybrid answers the hints identically.
+run_typed_layout_collab_case() {
+  local name="typed-layout-collab"
+  local work="$TMP_ROOT/$name"
+
+  copy_template "$work"
+  (
+    cd "$work"
+    printf 'bogus\nmono\nnope\nteam\n' | ./init.sh \
+      --slug="$name" \
+      --desc="Typed answer test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --adr-authority="tech lead" \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  grep -Fq "answer 1 or 2 (the words multi and mono work too)" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not re-ask the layout question after an unrecognised answer" >&2
+    return 1
+  }
+  grep -Fq "answer 1 or 2 (the words solo and team work too)" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not re-ask the collaboration question after an unrecognised answer" >&2
+    return 1
+  }
+
+  # "mono" has to mean the mono layout, not most of it. The hybrid's signature was prompts/ left
+  # as a repository of its own while every other decision went the mono way, so these two
+  # assertions together are what separates the layouts -- neither alone does.
+  [ -d "$work/.git" ] || {
+    echo "FAIL: $name did not make the workspace root a repository" >&2
+    return 1
+  }
+  [ ! -d "$work/prompts/.git" ] || {
+    echo "FAIL: $name left prompts/ a repository of its own — the hybrid build" >&2
+    return 1
+  }
+  grep -Fq 'location: "."' "$work/Code/$name-docs/registries/repos.yml" || {
+    echo "FAIL: $name did not seed the workspace-root registry row" >&2
+    return 1
+  }
+
+  # "team" has to reach the one thing the answer decides. Solo stamps "_solo author_" on this
+  # field; the flag's value only lands there if the typed answer was read as team. Match the
+  # field and its value together: the line below it is a template comment offering "tech lead"
+  # as an example, so a bare grep for the value passes in a solo project too — measured.
+  grep -Fq '**Who accepts an ADR in this project:** tech lead' \
+    "$work/Code/$name-docs/adr/README.md" || {
+    echo "FAIL: $name did not record the ADR acceptance authority — typed 'team' read as solo" >&2
+    grep -F 'Who accepts an ADR in this project' "$work/Code/$name-docs/adr/README.md" >&2
+    return 1
+  }
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# refusing_remote PATH — a bare repo that accepts no push. `git ls-remote` still answers, so
+# init.sh's pre-boundary reachability check passes and the failure lands where these cases need
+# it: after the project is generated and committed, which is the only place the two layouts ever
+# disagreed about what to do next.
+refusing_remote() {
+  git init --bare -q "$1"
+  printf '#!/bin/sh\nexit 1\n' >"$1/hooks/pre-receive"
+  chmod +x "$1/hooks/pre-receive"
+}
+
+# run_remote_failure_multi_case — a backup the user asked for and did not get must not read as
+# success. The prompts remote refuses every push and the docs remote works, so this also pins
+# that only the repo that failed is named: sending someone to a repo that is fine is its own
+# defect. Multi used to exit 0 here, which told a caller -- --non-interactive is documented as
+# being for scripts and CI -- that the backup exists.
+run_remote_failure_multi_case() {
+  local name="remote-failure-multi"
+  local work="$TMP_ROOT/$name"
+  local docs_remote="$TMP_ROOT/$name-docs.git"
+  local prompts_remote="$TMP_ROOT/$name-prompts.git"
+  local status
+
+  copy_template "$work"
+  git init --bare -q "$docs_remote"
+  refusing_remote "$prompts_remote"
+  set +e
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Remote failure test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=yes \
+      --remote-provider=manual \
+      --docs-remote="$docs_remote" \
+      --prompts-remote="$prompts_remote"
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+
+  [ "$status" -ne 0 ] || {
+    echo "FAIL: $name exited 0 with a backup that did not complete" >&2
+    return 1
+  }
+  # The project is finished, so the instructions for attaching a remote by hand are exactly what
+  # the reader needs now and must survive the failure.
+  grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name suppressed the closing instructions" >&2
+    return 1
+  }
+  grep -Fq "The remote backup did not complete for: $name-prompts" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not name the repo whose backup failed" >&2
+    grep -F "did not complete for" "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  if grep -F "did not complete for" "$TMP_ROOT/$name.out" | grep -Fq "$name-docs"; then
+    echo "FAIL: $name named the docs repo, whose push succeeded" >&2
+    return 1
+  fi
+  # Where to stand is layout-decided. Multi can only ever list the two sibling repos, and its
+  # workspace root is not a repository, so offering it sends the reader somewhere they cannot run
+  # the commands below the sentence.
+  grep -Fq "Code/$name-docs/ for $name-docs" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not say which folder each named repo backs up" >&2
+    return 1
+  }
+  if grep -Fq "workspace root, the one repository" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name offered the workspace root, which is not a repository in this layout" >&2
+    return 1
+  fi
+  # The registry is the half that must never overstate: the repo that pushed is recorded, the
+  # one that did not is left with no remote for the check-in to flag.
+  grep -Fq "remote: \"$docs_remote\"" "$work/Code/$name-docs/registries/repos.yml" || {
+    echo "FAIL: $name did not record the remote that succeeded" >&2
+    return 1
+  }
+  if grep -Fq "$prompts_remote" "$work/Code/$name-docs/registries/repos.yml"; then
+    echo "FAIL: $name recorded a remote its branch never reached" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_remote_failure_mono_case — the same failure through the other layout's code. Mono reaches
+# it by reusing an origin the folder already had, so the push is inside reuse_root_origin rather
+# than setup_remote, and it used to end the run outright: the project was generated and committed
+# and the closing instructions never printed. The origin stays attached here, which is why the
+# report is careful to say the push did not complete rather than that there is no remote.
+run_remote_failure_mono_case() {
+  local name="remote-failure-mono"
+  local work="$TMP_ROOT/$name"
+  local remote="$TMP_ROOT/$name-origin.git"
+  local status root_row
+
+  copy_template "$work"
+  refusing_remote "$remote"
+  set +e
+  (
+    cd "$work"
+    git init -q
+    git remote add origin "$remote"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Remote failure test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --layout=mono \
+      --collab=solo \
+      --remotes=yes
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+
+  [ "$status" -ne 0 ] || {
+    echo "FAIL: $name exited 0 with a backup that did not complete" >&2
+    return 1
+  }
+  grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name suppressed the closing instructions" >&2
+    return 1
+  }
+  grep -Fq "The remote backup did not complete for: $name" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not name the repo whose backup failed" >&2
+    grep -F "did not complete for" "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # The mirror of the multi case: mono only ever lists the bare slug, and prompts/ and
+  # Code/<slug>-docs/ are folders inside the one repository rather than repos to stand in.
+  grep -Fq "Run these from the workspace root" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name did not point the reader at the workspace root" >&2
+    return 1
+  }
+  if grep -Fq "Code/$name-docs/ for" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name offered a folder inside the root repo as somewhere to stand" >&2
+    return 1
+  fi
+  # Reused, so it is still attached -- the failure is the push, not the remote.
+  [ "$(git -C "$work" remote get-url origin)" = "$remote" ] || {
+    echo "FAIL: $name did not keep the origin it reused" >&2
+    return 1
+  }
+  root_row="$(first_registry_row "$work/Code/$name-docs/registries/repos.yml")"
+  if printf '%s\n' "$root_row" | grep -Fq 'remote:'; then
+    echo "FAIL: $name recorded a remote its branch never reached" >&2
+    printf '%s\n' "$root_row" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
 # run_visibility_case NAME VISIBILITY — verify GitHub repo creation receives the requested
 # visibility flag for both generated multi-repo remotes.
 run_visibility_case() {
@@ -431,6 +649,37 @@ run_visibility_case() {
       return 1
     fi
   fi
+
+  # Every recorded remote must hold this project's trunk, at this project's commit. init.sh only
+  # records a URL after gh reports success, and this is what gives that guarantee teeth: an
+  # address in repos.yml proves nothing, and neither does an arbitrary branch on the far end.
+  #
+  # The count is asserted first and deliberately. A loop fed by grep runs zero times when the file
+  # holds no rows, and passes -- so without this the whole check could succeed having examined
+  # nothing at all.
+  local recorded url rowname local_repo want_sha got_sha n=0
+  while IFS= read -r recorded; do
+    n=$((n + 1))
+    url="${recorded#*remote: \"}"; url="${url%\"}"
+    rowname="$(basename "${url%.git}")"
+    case "$rowname" in
+      "$name-docs") local_repo="$work/Code/$name-docs" ;;
+      "$name-prompts") local_repo="$work/prompts" ;;
+      *) echo "FAIL: $name recorded a remote for an unexpected repo: $url" >&2; return 1 ;;
+    esac
+    want_sha="$(git -C "$local_repo" rev-parse HEAD)"
+    got_sha="$(git --git-dir="$url" rev-parse "refs/heads/$(git -C "$local_repo" symbolic-ref --short HEAD)" 2>/dev/null || true)"
+    if [ "$got_sha" != "$want_sha" ]; then
+      echo "FAIL: $name's remote $url does not hold $local_repo's trunk" >&2
+      echo "      local $want_sha / remote ${got_sha:-<no such branch>}" >&2
+      return 1
+    fi
+  done < <(grep '^    remote: ' "$work/Code/$name-docs/registries/repos.yml")
+  if [ "$n" -ne 2 ]; then
+    echo "FAIL: $name recorded $n remote(s) in repos.yml; expected 2 (docs and prompts)" >&2
+    return 1
+  fi
+
   assert_maintainer_tests_removed "$name" "$work"
 }
 
@@ -738,6 +987,15 @@ run_public_proprietary_case
 # --- Remote setup and missing canonical license behavior -----------------------
 run_invalid_visibility_case
 run_manual_multi_remote_case
+
+# --- A remote the user asked for and did not get -------------------------------
+# Both layouts must finish the project, print the closing instructions, name only what failed,
+# record nothing they cannot back up, and exit non-zero.
+run_remote_failure_multi_case
+run_remote_failure_mono_case
+
+# --- Typed answers, not just flags --------------------------------------------
+run_typed_layout_collab_case
 run_missing_canonical_license_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------

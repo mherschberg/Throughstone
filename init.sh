@@ -52,6 +52,32 @@ normalize_license_choice() {
   esac
 }
 
+# normalize_layout INPUT — set NORMALIZED_LAYOUT to 1 (multi) or 2 (mono).
+# Same shape and the same reason as normalize_license_choice above: one vocabulary, whichever way
+# the answer arrives. The prompt used to assign its answer raw, and downstream is not one test but
+# many: most compare against "2", one compares against "1" and takes its else. So an unrecognised
+# value did not pick the other layout, it picked a hybrid — measured, typing "mono" left prompts/
+# a repository of its own with the scaffold licence notice absent, placed instead at the workspace
+# root, which that layout never clones.
+normalize_layout() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    multi|multi-repo|1) NORMALIZED_LAYOUT=1 ;;
+    mono|mono-repo|2)   NORMALIZED_LAYOUT=2 ;;
+    *)                  return 1 ;;
+  esac
+}
+
+# normalize_collab INPUT — set NORMALIZED_COLLAB to 1 (solo) or 2 (team). See normalize_layout:
+# the same defect was here, and "team" typed at the prompt produced a solo project whose ADR
+# register tells the reader they are the sole authority.
+normalize_collab() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    solo|1) NORMALIZED_COLLAB=1 ;;
+    team|2) NORMALIZED_COLLAB=2 ;;
+    *)      return 1 ;;
+  esac
+}
+
 # validate_trunk_branch NAME — accept ordinary Git branch names, reject empty/pathological
 # values before bootstrap removes the template history.
 validate_trunk_branch() {
@@ -405,19 +431,26 @@ fi
 # Repo layout — multi (default) or mono. Multi-repo turns the root into a per-machine workspace
 # shell with separate durable repos under prompts/ and Code/<project>-docs/. Mono keeps a single
 # repo at the root for projects that are not ready to split yet.
+# An unrecognised flag is fatal; an unrecognised typed answer is re-asked, the way the slug
+# question above already works. Both go through normalize_layout, so the two paths cannot drift.
 if [ -n "$LAYOUT_IN" ]; then
-  case "$(printf '%s' "$LAYOUT_IN" | tr '[:upper:]' '[:lower:]')" in
-    multi|multi-repo|1) LAYOUT=1 ;;
-    mono|mono-repo|2)   LAYOUT=2 ;;
-    *) echo "init.sh: invalid --layout '$LAYOUT_IN' (multi | mono)." >&2; exit 2 ;;
-  esac
+  normalize_layout "$LAYOUT_IN" \
+    || { echo "init.sh: invalid layout '$LAYOUT_IN' (multi | mono) — from --layout or INIT_LAYOUT." >&2; exit 2; }
+  LAYOUT="$NORMALIZED_LAYOUT"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
 else
   echo "Repo layout:"
   echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ become separate repos)"
   echo "  2) mono-repo for now  (one repo at the workspace root; split later)"
-  LAYOUT="$(ask 'Choose 1 or 2' '1')"
+  LAYOUT=""
+  while [ -z "$LAYOUT" ]; do
+    if normalize_layout "$(ask 'Choose 1 or 2' '1')"; then
+      LAYOUT="$NORMALIZED_LAYOUT"
+    else
+      echo "  -> answer 1 or 2 (the words multi and mono work too)."
+    fi
+  done
 fi
 
 # registries/ always ships, in both layouts. It carries the repo inventory that
@@ -441,18 +474,23 @@ fi
 # answer only affects prompt wording, remote guidance, and the ADR acceptance authority stamped
 # into adr/README.md.
 if [ -n "$COLLAB_IN" ]; then
-  case "$(printf '%s' "$COLLAB_IN" | tr '[:upper:]' '[:lower:]')" in
-    solo|1) COLLAB=1 ;;
-    team|2) COLLAB=2 ;;
-    *) echo "init.sh: invalid --collab '$COLLAB_IN' (solo | team)." >&2; exit 2 ;;
-  esac
+  normalize_collab "$COLLAB_IN" \
+    || { echo "init.sh: invalid collab '$COLLAB_IN' (solo | team) — from --collab or INIT_COLLAB." >&2; exit 2; }
+  COLLAB="$NORMALIZED_COLLAB"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   COLLAB=1
 else
   echo "Working solo for now, or collaborating with others from day one?"
   echo "  1) Solo for now  (team conventions switch on later; nothing here locks you in)"
   echo "  2) Team from day one"
-  COLLAB="$(ask 'Choose 1 or 2' '1')"
+  COLLAB=""
+  while [ -z "$COLLAB" ]; do
+    if normalize_collab "$(ask 'Choose 1 or 2' '1')"; then
+      COLLAB="$NORMALIZED_COLLAB"
+    else
+      echo "  -> answer 1 or 2 (the words solo and team work too)."
+    fi
+  done
 fi
 ADR_AUTHORITY=""
 if [ "$COLLAB" = "2" ]; then
@@ -956,6 +994,24 @@ EOF
 # init_repo DIR — create one generated repo with baseline files and an initial trunk commit.
 # Callers decide which directories are durable repos; this helper keeps their initial commit
 # shape consistent.
+# In the mono layout DIR is the workspace root, so `git add -A` takes in init.sh itself. That is
+# deliberate, and it was weighed: excluding it would leave every newly generated project with a
+# dirty working tree, and the next ordinary `git add -A` would commit it anyway. The script does
+# not delete itself either — not because it cannot, since an unlinked script keeps running, but
+# because reading a script while removing it is fragile, a run that failed partway would leave the
+# user no copy, and the multi layout leaves the file on disk too. Keeping both layouts alike is
+# the point.
+#
+# The committed copy has a second, smaller use, and it is worth stating narrowly. It is the
+# generator's own source with this run's answers substituted into it, so it is a snapshot you can
+# diff against another project's copy. It is not a version stamp — nothing in it names a release —
+# and it is not a complete answer log: the licence posture is in .throughstone/project-license, the
+# ADR authority in adr/README.md, the trunk branch in git, the layout in the shape of the tree.
+# Nothing in a generated project records the scaffold version, which is a real gap and a separate
+# question from this one.
+#
+# It is inert: the guard in section 0c looks for a marker that section 3 strips, so running this
+# copy inside a finished project refuses and exits.
 init_repo() {
   write_gitignore "$1"
   stamp_license "$1"
@@ -1005,26 +1061,68 @@ commit_registry_remotes() {
   ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
   echo "  registry: recorded bootstrap remotes"
   if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
+    # The repository this commit has to leave is the one that holds the registry: $DOCS in multi,
+    # the workspace root in mono, where $DOCS is a folder inside it and cannot be pushed. A failure
+    # here is a backup that did not complete like any other — the remote is left without the commit
+    # that records the remotes, so its copy of repos.yml lists none of them.
+    local reg_dir reg_name
+    if [ "$LAYOUT" = "2" ]; then
+      reg_dir="the workspace root"; reg_name="$SLUG"
+    else
+      reg_dir="$DOCS"; reg_name="${SLUG}-docs"
+    fi
     ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" && echo "  registry: pushed remote updates" ) \
-      || echo "  (could not push registry remote updates; push ${DOCS} manually later)"
+      || { echo "  (could not push the registry commit; it is committed in ${reg_dir} and not yet sent)"
+           note_remote_failure "$reg_name"; }
   fi
+}
+
+# REMOTE_FAILED_REPOS — the repos whose requested backup did not complete, accumulated as a
+# space-separated list so the closing report can name them; in the multi layout either repo can
+# fail alone. Read it exactly that way: a listed repo may still have an origin attached — what the
+# list says is that the branch was not confirmed to be on it. Empty means every requested backup
+# completed; it does not mean the wizard created every remote, since reuse_root_origin pushes to
+# one that was already there.
+#
+# It exists because the two layouts disagreed about the same failure — one ended the run, the
+# other carried on — purely because of where each call sits relative to errexit, and because the
+# exit status told a caller the backup exists when it did not.
+REMOTE_FAILED_REPOS=""
+
+# note_remote_failure NAME — record a repo whose requested backup did not complete. Adding a name
+# twice is possible: a repo whose first push failed keeps its attached origin, so the registry
+# push at the end of the run fails against the same repo. The list is the set of repos to go and
+# look at, so the second mention would only make the report read as though two things broke.
+note_remote_failure() {
+  case " $REMOTE_FAILED_REPOS " in
+    *" $1 "*) return 0 ;;
+  esac
+  REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"
 }
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
-# host and pushes the initialized trunk branch. MADE_REMOTE_URL is a small out-parameter used
-# only by the multi-repo registry recorder.
+# host and pushes the initialized trunk branch. Either way MADE_REMOTE_URL is set only inside the
+# success arm of the command that pushes, so a caller reading it is reading a URL the branch has
+# reached.
 setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
   if [ "$REMOTE_PROVIDER" = "manual" ]; then
-    [ -n "${3:-}" ] || return 1
+    # Not a caller error: the mono fallback calls this with no URL on purpose. Validation only
+    # demands --remote-url when the root origin cannot be reused, so a run that expected to reuse
+    # one and then could not attach it arrives here with nothing to fall back to. That is a
+    # requested backup that did not happen, so it is recorded like any other.
+    [ -n "${3:-}" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
       return 0
     fi
-    echo "  (could not push remote for $2; check that the remote exists, is empty, and accepts your credentials)"
+    echo "  (could not complete the remote for $2 — the command stopped partway, so whether"
+    echo "   origin is attached and whether the branch reached it are both unconfirmed. Check that"
+    echo "   the remote exists, is empty, and accepts your credentials.)"
+    note_remote_failure "$2"
     return 1
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
@@ -1033,10 +1131,14 @@ setup_remote() {
       echo "  remote: $OWNER/$2"
       return 0
     fi
-    echo "  (skipped remote for $2)"
+    # gh creates and pushes in one command, so a failure here says nothing about which half ran.
+    # "skipped" was the old wording and was wrong: the repository may well exist on the host.
+    echo "  (could not create and push $OWNER/$2 — it may have been created; check your host)"
+    note_remote_failure "$2"
     return 1
   fi
-  echo "  (skipped remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  echo "  (no remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  note_remote_failure "$2"
   return 1
 }
 
@@ -1057,14 +1159,22 @@ reuse_root_origin() {
     fi
     return 1
   }
-  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
+  # Checked, not trusted to errexit: this function is called on the left of an ||, which turns
+  # errexit off for its whole body. Without the check a failed attach fell straight through to the
+  # success message below. Returning 1 hands the caller its fallback, which records the failure if
+  # it cannot set up a remote either — so the outcome is reported once, not twice.
+  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" ) || {
+    echo "  note: could not attach the existing origin ($ROOT_ORIGIN)"
+    return 1
+  }
   echo "  remote: reused existing origin ($ROOT_ORIGIN)"
   if [ "$MK_REMOTES" = "1" ]; then
     if ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$ROOT_ORIGIN"
       echo "  pushed: $ROOT_ORIGIN"
     else
-      echo "  (could not push existing origin; push manually later)"
+      echo "  (origin is attached, but the push did not complete; check it and push later)"
+      note_remote_failure "$SLUG"
     fi
   fi
   return 0
@@ -1075,10 +1185,17 @@ if [ "$LAYOUT" = "2" ]; then
   # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
   # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
+  # The `|| true` is what keeps the run going, and each branch needs it for its own reason. In the
+  # first, setup_remote is a plain command in an if-body, which errexit acts on wherever it sits.
+  # In the second it is the final command of an `||` list, the one position in such a list errexit
+  # still watches. Either way the run would end right here — after the project is generated and
+  # committed, and before the closing instructions that say how to attach a remote later. Nothing
+  # is swallowed by it: the helpers record the repo in REMOTE_FAILED_REPOS, which is reported at
+  # the end and decides the exit status.
   if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$REMOTE_URL" ]; then
-    setup_remote "." "$SLUG" "$REMOTE_URL"
+    setup_remote "." "$SLUG" "$REMOTE_URL" || true
   else
-    reuse_root_origin "." || setup_remote "." "$SLUG" ""
+    reuse_root_origin "." || setup_remote "." "$SLUG" "" || true
   fi
   # The workspace-root row was seeded in step 5c, before this repo had a remote. Record the URL
   # now that one exists, the way multi does for docs and prompts below — otherwise the row stays
@@ -1107,14 +1224,39 @@ fi
 # Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
 if [ "$LAYOUT" = "2" ]; then
-  REMOTE_TIP="If you did not set up remotes during init, create one empty repo on your host
-  and push the root repo's ${TRUNK_BRANCH} branch to it. Leave registries/repos.yml's rows
-  alone — they record your one repo and the folders inside it, not repos to clone."
+  REMOTE_TIP="If you answered no to remotes, that skipped creating one and pushing to it — not
+  attaching one: an empty origin this folder already had is kept rather than replaced, though
+  attaching it can itself fail. So run 'git remote -v' first to see what you actually have, then
+  either push the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on
+  your host and push to that. Then record that URL on the row in registries/repos.yml whose
+  location is \".\", the same as any other repo — until it is there the check-in reports this
+  project as backed up nowhere. The rows below it are folders inside that one repository, not
+  repos to clone."
 else
-  REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
-  their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
+  REMOTE_TIP="If you did not set up remotes during init, do this for each of the two repos here,
+  Code/${SLUG}-docs/ and prompts/: create an empty repo on your host, attach it from inside the
+  local one with 'git remote add origin <url>', push the ${TRUNK_BRANCH} branch to it, and only
+  then record that URL as remote: on that repo's row in Code/${SLUG}-docs/registries/repos.yml.
+  Recording last is the point — that row is what tells a teammate where to clone from, so it
+  should never name a remote the branch has not reached."
 fi
-say "Done."
+# In mono the workspace root is the project's repository, so init.sh is in its first commit and
+# deleting it is a change like any other. In multi the root is not a repo and the file is simply
+# on disk. Say whichever is true rather than one sentence that is only true in one of them.
+if [ "$LAYOUT" = "2" ]; then
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is in your first
+commit, so deleting the file is a change you would then commit; the copy already in that
+commit stays either way. Keeping it costs nothing: it is inert, and it is a snapshot of the
+generator that built this project."
+else
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is not part of any
+repo here, so deleting the file is the whole of it."
+fi
+if [ -n "$REMOTE_FAILED_REPOS" ]; then
+  say "Done — but the backup did not complete."
+else
+  say "Done."
+fi
 cat <<EOF
 
 Next step:
@@ -1129,7 +1271,7 @@ Next step:
   right in the chat. Just describe your idea when it asks.
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
-You can delete this init.sh now — it has done its job.
+${INIT_SH_TIP}
 
 Recommended optional backup:
   You can start now; your project is saved locally with Git. For backup, sharing,
@@ -1144,3 +1286,47 @@ Recommended optional backup:
   GitHub CLI (optional; lets Throughstone create GitHub remotes for you):
     https://cli.github.com/
 EOF
+
+# A remote the user asked for and did not get is a failure, and the exit status has to say so —
+# --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would
+# be told the backup exists. The closing instructions above are printed first regardless, because
+# the project itself is complete and usable — this report is about the one thing that is not.
+# Both layouts behave identically here.
+if [ -n "$REMOTE_FAILED_REPOS" ]; then
+  # Which names can appear here is decided by the layout, and so is where each one lives. Mono
+  # only ever records the bare slug, and its one repository is the workspace root; prompts/ and
+  # Code/<slug>-docs/ are folders inside it, not repos to stand in. Multi only ever records the
+  # two sibling repos, and its workspace root is not a repository at all. Naming all three in
+  # either layout offers one true mapping and two that send the reader nowhere.
+  if [ "$LAYOUT" = "2" ]; then
+    FAILED_REPO_MAP="Run these from the workspace root, the one repository this project has:"
+  else
+    FAILED_REPO_MAP="Run these from inside the local repo each name backs up — prompts/ for
+  ${SLUG}-prompts, and Code/${SLUG}-docs/ for ${SLUG}-docs:"
+  fi
+  cat >&2 <<EOF
+
+The remote backup did not complete for:$REMOTE_FAILED_REPOS
+
+  Your project is complete and committed locally — nothing is missing from it and you can
+  start work now.
+
+  A failed command tells you it did not finish, not how far it got — so find out before you
+  retry. The names above are the repositories on your host, not folders here.
+  ${FAILED_REPO_MAP}
+
+    git remote -v
+      → is origin attached, and to the URL you meant?
+    git ls-remote <that-url> ${TRUNK_BRANCH}
+      → is the branch on the remote at all?
+    git rev-parse ${TRUNK_BRANCH}
+      → if it is, does that commit match the one the line above showed?
+
+  Then do whichever part is left: create the repository on your host, attach it as origin, or
+  push to it. Once the branch is there and the commits match, record that URL as remote: on this
+  repo's row in Code/${SLUG}-docs/registries/repos.yml if it is not already there — while that
+  field is missing, every check-in reports this repo as backed up nowhere.
+
+EOF
+  exit 1
+fi

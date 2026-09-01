@@ -458,14 +458,16 @@ if [ "$CHECK_IN" -eq 1 ]; then
         for (i = 1; i <= n; i++) {
           if (locs[i] == "") print "location\t" names[i]
           # Covered by its own remote, or by the remote of a row at "." that contains it.
-          if (rems[i] == "" && !(root && locs[i] != ".")) print "remote\t" names[i]
+          # The location travels with the name: the fix is to push that repo, and a name alone
+          # does not say where it is.
+          if (rems[i] == "" && !(root && locs[i] != ".")) print "remote\t" names[i] "\t" locs[i]
         }
       }
     ' "$REPOS_REGISTRY")"
 
     rows="$(awk '/^[[:space:]]*#/ { next } /^[[:space:]]*-[[:space:]]*name:/ { n++ } END { print n + 0 }' "$REPOS_REGISTRY")"
     no_loc="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "location" { print $2 }')"
-    no_rem="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "remote"   { print $2 }')"
+    no_rem="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "remote"   { print $2 " (" $3 ")" }')"
 
     if [ -n "$no_loc" ]; then
       fail "row(s) with no location: $(printf '%s' "$no_loc" | tr '\n' ' ')"

@@ -105,6 +105,7 @@ run_empty_origin_push_without_gh_case() {
   local name="mono-empty-origin-push"
   local work="$TMP_ROOT/$name"
   local remote="$TMP_ROOT/$name-origin.git"
+  local root_row
 
   copy_template "$work"
   git init --bare -q "$remote"
@@ -126,6 +127,32 @@ run_empty_origin_push_without_gh_case() {
   git --git-dir="$remote" rev-parse --verify refs/heads/main >/dev/null
   grep -Fq "remote: reused existing origin ($remote)" "$TMP_ROOT/$name.out"
   grep -Fq "pushed: $remote" "$TMP_ROOT/$name.out"
+
+  # A mono project records its one repository's remote on the row whose location is ".", and the
+  # check-in flags that row until it does. Nothing else in the suite reads a remote back out of a
+  # mono registry -- the multi read-back lives in tests/init-license-validation.sh -- so deleting
+  # the write left every case green while every generated mono project reported its own repo as
+  # backed up nowhere.
+  root_row="$(awk '/^[[:space:]]*-[[:space:]]*name:/ { n++ } n == 1' \
+    "$work/Code/$name-docs/registries/repos.yml")"
+  printf '%s\n' "$root_row" | grep -Fq 'location: "."' || {
+    echo "FAIL: the first registry row is not the workspace root" >&2
+    printf '%s\n' "$root_row" >&2
+    return 1
+  }
+  printf '%s\n' "$root_row" | grep -Fq "remote: \"$remote\"" || {
+    echo "FAIL: the workspace-root row did not record the remote it pushed to" >&2
+    printf '%s\n' "$root_row" >&2
+    return 1
+  }
+  # The recorded URL has to be one the branch reached, and reached at this commit. Asserting the
+  # ref exists is not enough: recording happens before the second commit that carries it, so a
+  # remote left behind at the initial commit still has a main to find.
+  [ "$(git --git-dir="$remote" rev-parse refs/heads/main)" = "$(git -C "$work" rev-parse HEAD)" ] || {
+    echo "FAIL: the recorded remote does not hold the local trunk" >&2
+    echo "      local $(git -C "$work" rev-parse HEAD) / remote $(git --git-dir="$remote" rev-parse refs/heads/main)" >&2
+    return 1
+  }
 }
 
 run_non_empty_origin_case
