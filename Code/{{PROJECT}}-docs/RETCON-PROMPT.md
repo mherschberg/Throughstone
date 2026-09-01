@@ -283,8 +283,9 @@ asset is recorded. Reading one asset at a time keeps even a 20-repo system legib
 - **Per repo** — register it in `registries/repos.yml` (a row: real `location`, `type`, and
   `control: managed`), stamp a Throughstone README from `templates/repo-readme-template.md`, and
   record a short per-repo note (stack, entry points, role) in that README — its living home, which the
-  owning `architecture/` docs deepen later (never back into the frozen recon map). Register repos
-  **in place** by their real location; never relocate the user's code.
+  owning `architecture/` docs deepen later (never back into the frozen recon map). Register each repo at
+  a path **inside the workspace** — moved there, or left where it is with a symlink standing in for
+  it at that path. Their code is never rewritten.
 - **Per doc-set** — copy the found source docs into `inputs/` and add each one's
   `inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle (point-in-time; the code
   wins on conflict). Their
