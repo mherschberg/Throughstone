@@ -371,8 +371,9 @@ else
       2) MODE=existing
          echo
          echo "  Adopting an existing codebase: keep running this from the downloaded Throughstone"
-         echo "  folder (a fresh directory), NOT from inside your existing repo. Your code stays"
-         echo "  where it is — the agent registers your repos in place later and never rewrites them."
+         echo "  folder (a fresh directory), NOT from inside your existing repo. Your code is never"
+         echo "  rewritten. Each repo gets registered at a path inside this workspace later — moved"
+         echo "  there, or left exactly where it is with a symlink standing in for it."
          break ;;
       *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
     esac
