@@ -471,7 +471,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
 
     if [ -n "$no_loc" ]; then
       fail "row(s) with no location: $(printf '%s' "$no_loc" | tr '\n' ' ')"
-      hint "give every row a location: — it is what setup-workspace.sh clones into and what the STEP process reads."
+      hint "give every row a location: — the workspace-relative path the repo lives at; without one, nothing can find the repo."
     fi
     if [ -n "$no_rem" ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"

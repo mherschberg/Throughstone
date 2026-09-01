@@ -10,15 +10,19 @@
 # repos yet, and for those this inventory describes the post-split target. When you do split them
 # apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos are real.
 #
-# `location:` — where the repo lives. By default a `Code/*` sibling under the workspace root,
-# written workspace-root-relative (e.g. Code/{{PROJECT}}-api/). It MAY point OUTSIDE that shell —
-# an absolute path, or any other path — for a repo referenced in place rather than created as a
-# sibling. scripts/setup-workspace.sh uses `location` verbatim but only ever CLONES into a path
-# the workspace owns: a location outside the workspace root is reported and skipped, so an
-# in-place repo there is one each contributor clones onto their own machine — a path outside the
-# workspace describes one person's machine, so on a shared project keep `location` inside it where
-# you can. Keep `location` and `remote` distinct — a clone URL goes in `remote`, never folded into
-# `location`.
+# `location:` — where the repo lives, and it is always inside the workspace: **a path relative
+# to the workspace root, identical on every machine; never begins with `/` or `~`, and no
+# segment of it is `..`.** Usually a `Code/*` sibling (e.g. Code/{{PROJECT}}-api/), but any
+# contained path is fine. That shape is what makes this file reproducible: a teammate clones the
+# docs repo, runs scripts/setup-workspace.sh, and gets the whole workspace. That script reports
+# and skips any location breaking that shape rather than cloning into it — most often an absolute
+# path left over from one person's machine, which every other contributor then sets up by hand.
+# The value is passed literally: no shell expansion and no YAML interpretation happen, so `~/lib`
+# and `$HOME/lib` are directory names, not paths to a home directory.
+# A repo that genuinely cannot move stays where it is: put a symlink at its workspace-relative
+# location pointing at the real checkout, and register the symlink's path — see
+# runbooks/register-repo.md. Keep `location` and `remote` distinct — a clone URL goes in
+# `remote`, never folded into `location`.
 #
 # `remote:` — any cloneable git URL, **recorded** if the repo has one; never created, never
 # repointed. scripts/setup-workspace.sh clones from it. A repo with no remote yet is fine: a
@@ -41,14 +45,18 @@
 # split (`runbooks/splitting-repos.md`), and nothing maintains it afterwards. Shape in the
 # example row below. `from:` is a historical name and may have no row of its own.
 #
-# Two rules for anything that reads or rewrites this file, because the scripts that read it match
-# line prefixes rather than parsing YAML:
+# Three rules for anything that reads or rewrites this file, because the scripts that read it
+# match line prefixes rather than parsing YAML:
 #
 # 1. **Every value is a single-line scalar.** Nothing spans lines.
 # 2. **Anything that rewrites a row anchors on the row block** — from a `- name:` to the next
 #    `- name:`, respecting indentation — never on a bare line prefix.
-#
-# Comment lines are skipped, which is why the example row below can sit here fully formed.
+# 3. **A `#` on a value line is part of the value, not a comment.** These readers skip only a line
+#    whose first non-blank character is `#`, so the fields they actually read — `- name:`,
+#    `location:` and `remote:` — must carry nothing after the value. (`type:` below carries an
+#    annotation; nothing reads that field.) The annotations in the example block are safe only
+#    because the whole block is commented out; move them off the value lines before uncommenting
+#    a row.
 
 repos:
   - name: "{{PROJECT}}-docs"
@@ -63,9 +71,10 @@ repos:
     added_as: created
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
-  # Service / app / library repos get added here as the architecture names them — created here and
-  # stamped from templates/repo-readme-template.md, or adopted, in which case the repo's own
-  # README gets a `## Role in <project>` section instead. See runbooks/register-repo.md. Example:
+  # Service / app / library repos get added here as the architecture names them, whether created
+  # here or adopted. A repo with no README is stamped from templates/repo-readme-template.md; one
+  # that already has a README keeps it and gains a `## Role in <project>` section instead — what
+  # is in the repo decides, not how it arrived. See runbooks/register-repo.md. Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service

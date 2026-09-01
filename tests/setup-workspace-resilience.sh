@@ -9,11 +9,13 @@
 # over a repository they may not even need. So every case below asserts the same two things:
 # the run exits 0, and the three workspace files are there.
 #
-# The second half is about where a clone is allowed to land. A location the workspace does not
-# own — an absolute path from the first developer's machine, or one reaching out with `..` —
-# used to be cloned into verbatim, which put a repository outside the workspace silently
-# whenever the path happened to be writable. Those cases assert the absence of a clone, not
-# just the presence of a message.
+# The second half is about where a clone is allowed to land. A registered location is always a
+# path relative to the workspace root, and one that breaks that shape used to be cloned into
+# verbatim, putting a repository outside the workspace — or, for a tilde, into a literal `~`
+# directory — whenever the path happened to be writable. Those cases
+# assert the absence of a clone, not just the presence of a message. One case is the other side
+# of the same rule: a repo that cannot move is reached through a symlink at a workspace-relative
+# location, and that must still be left alone.
 #
 # Assertions read the output as well as the exit status: after this change almost everything
 # exits 0, so a test that only looked at $? could not tell a clone from a refusal.
@@ -220,7 +222,7 @@ run_setup "$tw"
 assert_assembled "no registries/" "$tw"
 assert_out "no registries/" "skipping clone step"
 
-# --- Part 2. A clone only ever lands where the workspace can own it -------------------------
+# --- Part 2. A clone only ever lands at a path relative to the workspace root ---------------
 
 echo "An absolute location left over from the first developer's machine ..."
 tw="$(teammate absolute "$MULTI_DOCS")"
@@ -237,10 +239,58 @@ add_row "$tw" <<EOF
 EOF
 run_setup "$tw"
 assert_assembled "absolute location" "$tw"
-assert_out "absolute location" "outside the workspace root"
+assert_out "absolute location" "a location must be a path relative to the workspace root"
 assert_not_out "absolute location" "cloning $REACHABLE -> $outside"
 assert_out "absolute location" "did not arrive"
 assert_not_cloned "absolute location" "$outside"
+
+# The same shape, but with a real checkout sitting at it — what a bad row looks like on the one
+# machine it was written from. The existing-checkout test matches there and would report the row
+# as fine, so the shape guard has to run first or that machine, the one best placed to fix the
+# row, is told nothing at all. Nothing is written either way: assert the checkout is undisturbed.
+echo "A prohibited location that already holds a checkout on this machine ..."
+tw="$(teammate authored "$MULTI_DOCS")"
+authored="$TMP_ROOT/authored-elsewhere"
+rm -rf "$authored"
+git clone -q "$REACHABLE" "$authored" >/dev/null 2>&1
+printf 'local work\n' > "$authored/uncommitted.txt"
+add_row "$tw" <<EOF
+
+  - name: "partner-billing"
+    location: "$authored"
+    type: service
+    added_as: adopted
+    remote: "$REACHABLE"
+    description: "An absolute path that really does resolve on this machine."
+EOF
+run_setup "$tw"
+assert_assembled "authored-here location" "$tw"
+assert_out "authored-here location" "a location must be a path relative to the workspace root"
+assert_out "authored-here location" "did not arrive"
+assert_not_out "authored-here location" "exists: $authored"
+[ -f "$authored/uncommitted.txt" ] || bad "authored-here location: the checkout there was disturbed"
+
+# A tilde is not an absolute path and does not reach out with `..`, and it is the one shape the
+# workspace does not own that a run could complete "successfully": this loop reads the location
+# out of a variable, where the shell performs no tilde expansion, so an unskipped tilde location
+# is cloned into a literal `~` directory under the workspace root and counted as a clone that
+# worked. Assert the directory is absent, not just the message.
+echo "A location that starts with a tilde ..."
+tw="$(teammate tilde "$MULTI_DOCS")"
+add_row "$tw" <<EOF
+
+  - name: "home-lib"
+    location: "~/tw-tilde-lib/"
+    type: library
+    added_as: adopted
+    remote: "$REACHABLE"
+    description: "A home-relative path from the first developer's machine."
+EOF
+run_setup "$tw"
+assert_assembled "tilde location" "$tw"
+assert_out "tilde location" "a location must be a path relative to the workspace root"
+assert_out "tilde location" "did not arrive"
+assert_not_cloned "tilde location" "$tw/~"
 
 echo "A location reaching out of the workspace with .. ..."
 tw="$(teammate dotdot "$MULTI_DOCS")"
@@ -257,35 +307,62 @@ add_row "$tw" <<EOF
 EOF
 run_setup "$tw"
 assert_assembled "dotdot location" "$tw"
-assert_out "dotdot location" "outside the workspace root"
+assert_out "dotdot location" "a location must be a path relative to the workspace root"
 assert_out "dotdot location" "did not arrive"
 assert_not_cloned "dotdot location" "$escaped"
 
-echo "A repo already checked out at an absolute location is left alone, not reported missing ..."
-tw="$(teammate inplace "$MULTI_DOCS")"
-inplace="$TMP_ROOT/in-place-repo"
-rm -rf "$inplace"
-git clone -q "$REACHABLE" "$inplace" >/dev/null 2>&1
-# Uncommitted local work, so the failure that matters — the directory replaced or cleared, the
+# The escape hatch for a repo that genuinely cannot move: it stays where it is and a symlink at
+# a workspace-relative location points at it, so the row is the same on every machine. Two
+# mechanics carry it — the location is contained, so it passes the shape guard on its text, and
+# the existing-checkout branch reaches `.git` through the link because `-d` follows symlinks.
+# The second is what this case holds: make a symlinked location stop counting as an existing
+# checkout and the run tries to clone over the link instead.
+# Uncommitted local work, so the failure that matters — the checkout replaced or cleared, the
 # contributor's own work gone with it — is caught as state. The `exists:` line below is printed
 # by the branch that skips the clone, but a maintainer who restructures that loop could print it
 # and still re-clone or clear the directory.
-printf 'local work\n' > "$inplace/uncommitted.txt"
+echo "A repo that cannot move, reached through a symlink at a workspace-relative location ..."
+tw="$(teammate symlink "$MULTI_DOCS")"
+immovable="$TMP_ROOT/immovable-lib"
+rm -rf "$immovable"
+git clone -q "$REACHABLE" "$immovable" >/dev/null 2>&1
+printf 'local work\n' > "$immovable/uncommitted.txt"
+ln -s "$immovable" "$tw/Code/immovable-lib"
 add_row "$tw" <<EOF
 
-  - name: "partner-billing"
-    location: "$inplace"
-    type: service
+  - name: "immovable-lib"
+    location: "Code/immovable-lib/"
+    type: library
     added_as: adopted
     remote: "$REACHABLE"
-    description: "Registered in place, and really there."
+    description: "A repo that cannot move, linked at a workspace-relative location."
 EOF
 run_setup "$tw"
-assert_assembled "in-place repo" "$tw"
-assert_out "in-place repo" "exists: $inplace"
-[ -f "$inplace/uncommitted.txt" ] || bad "in-place repo: uncommitted work in the checkout is gone"
-assert_not_out "in-place repo" "outside the workspace root"
-assert_not_out "in-place repo" "did not arrive"
+assert_assembled "symlinked location" "$tw"
+assert_out "symlinked location" "exists: Code/immovable-lib/"
+[ -L "$tw/Code/immovable-lib" ] || bad "symlinked location: the link is gone or was replaced"
+[ -f "$immovable/uncommitted.txt" ] || bad "symlinked location: uncommitted work in the real checkout is gone"
+assert_not_out "symlinked location" "a location must be a path relative to the workspace root"
+assert_not_out "symlinked location" "did not arrive"
+
+# git reads a leading `-` as an option, so without the `--` in the clone the run dies with
+# `unknown switch` and the repo does not arrive. Nothing else in the suite passes git a value it
+# could mistake for a flag, so deleting the `--` is invisible without this case.
+echo "A location that begins with a dash ..."
+tw="$(teammate dash "$MULTI_DOCS")"
+add_row "$tw" <<EOF
+
+  - name: "dash-lib"
+    location: "-dash-lib/"
+    type: library
+    added_as: adopted
+    remote: "$REACHABLE"
+    description: "A location whose first character git could read as an option."
+EOF
+run_setup "$tw"
+assert_assembled "dash location" "$tw"
+assert_cloned "dash location" "$tw/-dash-lib"
+assert_not_out "dash location" "did not arrive"
 
 echo "A location outside Code/ but inside the workspace is still cloned ..."
 tw="$(teammate vendored "$MULTI_DOCS")"

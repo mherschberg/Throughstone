@@ -197,9 +197,9 @@ doctor "$multi" --check-in
 expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/)" "an empty remote reads as absent"
 
 # --- 3. A row with no location: is a hard failure -------------------------------
-# location: is what setup-workspace.sh clones into and what the STEP process reads, so a row
-# without one is unusable — unlike a missing remote, which is a risk someone may have accepted
-# on purpose. The two findings are independent, and both speak in the same run.
+# location: is the workspace-relative path the repo lives at, so a row without one is unusable —
+# unlike a missing remote, which is a risk someone may have accepted on purpose. The two findings
+# are independent, and both speak in the same run.
 drop_field "$multi" "prompts" location
 doctor "$multi" --check-in
 expect "[FAIL] row(s) with no location: prompts" "missing location fails"

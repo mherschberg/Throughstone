@@ -483,24 +483,22 @@ adds an `ARCHITECTURE.md` at its root for its internal design. **Licensing follo
 `.throughstone/project-license` and applied per repo by `scripts/apply-project-license.sh` when the
 repo is brought in.
 
-**Where a repo lives — created as a sibling, or registered in place.** By default a repo is
-**created as a `Code/*` sibling** under the workspace root, and its `registries/repos.yml`
-`location:` is that workspace-relative sibling path — the layout `init.sh` and the scaffolding
-above assume. A repo may instead be **registered in place by its `location:`** — a path
-*outside* the `Code/*` shell (an absolute path, or any other arbitrary path) — in addition to that
-created-as-sibling default, so a repo that lives elsewhere is referenced where it sits rather than
-created under `Code/`. `location:` records wherever the repo actually is; the optional `remote:` is
-unchanged (a cloneable URL when the repo has one).
-`scripts/setup-workspace.sh` honors `location:` verbatim, but it only ever *clones* into a path
-the workspace owns: a location inside the workspace root is cloned from `remote:` when a remote is
-set and nothing is there yet, and a location **outside** it — absolute, or reaching out with
-`..` — is reported and skipped rather than cloned into, because placing a repository outside the
-workspace is not that script's business even when the path happens to be writable. A repo already
-checked out at its `location:` is left alone either way, so an in-place repo outside the root is
-one each contributor clones onto their own machine once.
-Branch-per-STEP and the overlap warning (`runbooks/collaboration.md`) key on repo
-**identity** — its `repos.yml` entry, not where it lives — so an in-place repo participates in
-them exactly like a sibling. The `Code/*` sibling layout stays the default.
+**Where a repo lives — always inside the workspace.** A repo's `registries/repos.yml`
+`location:` is **a path relative to the workspace root, identical on every machine; it never
+begins with `/` or `~`, and no segment of it is `..`.** Usually that is a `Code/*`
+sibling — the layout `init.sh` and the scaffolding above assume — but any contained path works.
+The point is reproducibility: a contributor clones the docs hub, runs
+`scripts/setup-workspace.sh`, and assembles the whole workspace from the registry alone.
+`location:` says where the repo is; the optional `remote:` says where to clone it from.
+**No repo's code is rewritten, and none is forced to move.** A repo that already exists is
+adopted either by moving into the workspace or, when it genuinely cannot move, by staying
+exactly where it is with a **symlink** at its registered location pointing at the real
+checkout — the row stays portable and the repo's contents are untouched
+(`runbooks/register-repo.md`).
+`scripts/setup-workspace.sh` clones each row that has a `remote:` into its `location:`, leaves a
+location that already holds a checkout alone (including one reached through a symlink), and
+reports and skips any location breaking that shape rather than cloning into it — an absolute path
+from someone else's machine must not be written to here even when it happens to be writable.
 
 **What a row records, and what it does not.** A row is an inventory entry, never a status board;
 `registries/repos.yml` documents its fields. Two of them are **stamps for a reader** — `added_as`
