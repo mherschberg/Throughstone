@@ -26,8 +26,16 @@ The goal is that the **result** is the same however a repo arrived.
      type: service
      description: "..."
      added_as: adopted                     # created | adopted — written once, never changes
-     remote: "git@example.com:TEAM/api.git"    # recorded if it has one; never created, never repointed
+     remote: "git@example.com:TEAM/api.git"
    ```
+
+   **`location:` is always inside the workspace** — a path relative to the workspace root, so a
+   teammate reproduces the whole workspace from this file; a repo that genuinely cannot move stays
+   where it is, with a symlink at that workspace-relative path pointing at the real checkout.
+
+   **`remote:` is recorded if the repo has one** — never created, never repointed. Put nothing
+   after a `- name:`, `location:` or `remote:` value: the readers take the rest of the line as part
+   of it, so a trailing `# note` ends up inside the name, the path or the clone URL.
 
    **A repo split out of another is `added_as: created`** — the method made it — with the split
    history in its `provenance:` block, written by
@@ -107,7 +115,7 @@ acme-billing
   → repo commit: blocked by the same dirty tree; the notice is written but uncommitted.
 
 internal-tooling
-  SKIPPED — location is on another machine and the repo is not cloned here.
+  SKIPPED — nothing is checked out at Code/internal-tooling/ on this machine.
 ```
 
 `licence ✓` means every artifact that repo's posture requires landed: for one we created,

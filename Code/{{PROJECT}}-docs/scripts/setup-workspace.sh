@@ -89,24 +89,33 @@ if [ -f "$REG" ]; then
   # and the loop body runs in this shell rather than a subshell, so the count below survives it.
   while IFS='|' read -r loc rem; do
     [ -n "${rem:-}" ] || continue
-    # Clone side effect: create a missing sibling repo at its registry location. Existing git
-    # checkouts are left untouched so rerunning setup is safe for already-cloned repos. This
-    # is also what leaves a repo registered in place alone: it is already where it belongs.
-    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
-    # A location this workspace cannot own is referenced where it sits, never cloned into.
-    # Cloning would put the repository outside the workspace this script is assembling —
-    # silently, when the path happens to be writable. The test is textual on purpose: an
-    # absolute path from the first developer's machine must be skipped whether or not it
-    # resolves to anything here.
+    # A location is meant to be a path relative to the workspace root, and one that is not never
+    # gets cloned into. An absolute or `..` path can put the repository outside the workspace this
+    # script is assembling, silently, whenever that path happens to be writable. The test is
+    # textual on purpose: an absolute path from the first developer's machine is skipped whether
+    # or not it resolves to anything here. `~` fails differently and needs its own arm — this loop
+    # reads the path out of a variable, where no tilde expansion happens, so cloning it builds a
+    # literal `~` directory here. The arm is quoted so the pattern matches a literal tilde.
+    #
+    # This runs before the existing-checkout test below, and the order is the point: on a machine
+    # where a bad location does resolve — usually the one whose paths it was written from — that
+    # test matches and reports the repo as already present, saying nothing about the location. The
+    # machine best placed to fix the row is the one that would otherwise never hear about it.
     case "$loc" in
-      /* | .. | ../* | */../* | */..)
-        echo "  skipped: $loc — outside the workspace root; this script never clones there"
+      /* | '~'* | .. | ../* | */../* | */..)
+        echo "  skipped: $loc — a location must be a path relative to the workspace root, and this is not"
         missing=$((missing + 1))
         continue
         ;;
     esac
+    # Clone side effect: create a missing sibling repo at its registry location. Existing git
+    # checkouts are left untouched so rerunning setup is safe for already-cloned repos. That
+    # also covers a location that is a symlink to a checkout elsewhere: -d follows the link,
+    # so the repo behind it is reported and left alone rather than cloned over.
+    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
     echo "  cloning $rem -> $loc"
-    git clone -q "$rem" "$loc" || {
+    # `--` so a value beginning with `-` reaches git as a path rather than as an option.
+    git clone -q -- "$rem" "$loc" || {
       echo "  warning: could not clone $rem -> $loc — continuing without it"
       missing=$((missing + 1))
     }
