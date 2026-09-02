@@ -30,8 +30,9 @@ found.
 
 ## Part 1 — Doc drift and conditional coverage  *(substep N.1)*
 
-> **Start with the mechanical pass.** Run `scripts/check.sh --check-in` first — in seconds it
-> catches the *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers,
+> **Start with the mechanical pass.** From the workspace root, run
+> `Code/{{PROJECT}}-docs/scripts/check.sh --check-in` first — in seconds it catches the
+> *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers,
 > invalid statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry
 > that disagrees with the files on disk, plus architecture-session numbering and
 > conditional-template contract drift. **The `--check-in` flag is what adds the repo-registry

@@ -9,6 +9,9 @@ This is not the first project bootstrap. The first maintainer ran `./init.sh` fr
 Throughstone scaffold to create the project. Later contributors use the generated project
 workspace and, for multi-repo projects, `Code/<project>-docs/scripts/setup-workspace.sh`.
 
+> Paths below are relative to the workspace root (the folder containing `Code/` and
+> `prompts/`).
+
 ## 1. Identify the project shape
 
 Most Throughstone projects are **multi-repo**:
@@ -49,8 +52,8 @@ workspace root:
 
 If a repo did not arrive, `setup-workspace.sh` names it and says why as it runs, then closes
 with a count. The one case it stays quiet about is a repo with no `remote:` in
-`registries/repos.yml` — it was never going to be cloned. Read its registry entry and ask the
-maintainer how that repo is provided.
+`Code/<project>-docs/registries/repos.yml` — it was never going to be cloned. Read its registry
+entry and ask the maintainer how that repo is provided.
 
 ## 3. Create your local user profile
 
@@ -124,9 +127,9 @@ Before editing code or durable docs:
    STEP `Done` in `prompts/STEP-index.md`.
 
 For team and concurrency details, read
-[`runbooks/collaboration.md`](runbooks/collaboration.md). That runbook owns the full rules
-for reserving STEP numbers, branch naming, shared-file edits, ADR numbering, overlap
-warnings, and push races.
+[`Code/<project>-docs/runbooks/collaboration.md`](runbooks/collaboration.md). That runbook owns
+the full rules for reserving STEP numbers, branch naming, shared-file edits, ADR numbering,
+overlap warnings, and push races.
 
 ## 6. Keep paths straight
 

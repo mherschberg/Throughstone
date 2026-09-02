@@ -500,7 +500,8 @@ if [ "$COLLAB" = "2" ]; then
     ADR_AUTHORITY="consensus of maintainers"
   else
     echo "  In a team, significant ADRs land as Proposed and are flipped to Accepted by a"
-    echo "  designated authority (recorded in adr/README.md so it's on disk, not folklore)."
+    echo "  designated authority (recorded in Code/${SLUG}-docs/adr/README.md so it's on"
+    echo "  disk, not folklore)."
     ADR_AUTHORITY="$(ask 'Who accepts ADRs? e.g. tech lead / consensus of maintainers / ADR review on PR' 'consensus of maintainers')"
     echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
     echo "  from the same place. You can still skip that now and add remotes later."
@@ -508,7 +509,8 @@ if [ "$COLLAB" = "2" ]; then
       echo "  NOTE: you picked mono-repo + team. That works — what a team needs is shared"
       echo "  remotes, not several repos. One thing to know: the overlap warning is"
       echo "  repo-granular, so it is meaningless when every STEP touches the one repo."
-      echo "  Fall back to the PLAN's file/area notes — see runbooks/collaboration.md §4."
+      echo "  Fall back to the PLAN's file/area notes — see"
+      echo "  Code/${SLUG}-docs/runbooks/collaboration.md §4."
     fi
   fi
 fi

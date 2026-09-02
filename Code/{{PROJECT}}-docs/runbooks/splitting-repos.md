@@ -96,9 +96,9 @@ If the answer is *"the workspace root stops being a repo"*, you are in **Part 2*
 folder there leaves the new repo *nested inside* the origin — the root reports it as an untracked
 directory, and step 9's `git status` check fails on it. It also strands the repo you just made:
 `collaboration.md` §9 tells a mono project not to put `remote:` fields in `registries/repos.yml`
-and not to run `scripts/setup-workspace.sh`, so nothing on the mono onboarding path would ever
-clone it onto a teammate's machine. **Run Part 2 first**, then Part 1 as often as you like on the
-repos it leaves you.
+and not to run `Code/<project>-docs/scripts/setup-workspace.sh`, so nothing on the mono
+onboarding path would ever clone it onto a teammate's machine. **Run Part 2 first**, then
+Part 1 as often as you like on the repos it leaves you.
 
 **2. Should you split at all?** *(Part 1 only — for Part 2 the layout decision was made at
 `init.sh` time.) Default: proceed.* One exchange, and the two questions worth asking are: would
@@ -481,12 +481,12 @@ repos of their own. This happens at most once per project.
       `node_modules/`, a `dist/` — means that repo's ignore file did not survive step 5's
       reconcile.
     - Each code repo **builds and tests**.
-    - `scripts/check.sh` at **0 fail(s), 0 warning(s)** — warnings do not fail the run, so "green"
-      is not the criterion.
-    - `scripts/links.sh` clean.
+    - `Code/<project>-docs/scripts/check.sh` at **0 fail(s), 0 warning(s)** — warnings do not
+      fail the run, so "green" is not the criterion.
+    - `Code/<project>-docs/scripts/links.sh` clean.
     - A **real teammate clone**: a fresh empty directory, clone the docs hub into
-      `Code/<project>-docs/` inside it, run `scripts/setup-workspace.sh` there, and confirm every
-      registered repo actually arrives.
+      `Code/<project>-docs/` inside it, run `Code/<project>-docs/scripts/setup-workspace.sh` from
+      that new workspace root, and confirm every registered repo actually arrives.
     - The pre-split commit resolves in every new repo.
 11. **Swap.** **Stop before the rename** — show which directory becomes which. Then **rename** the
     old workspace aside — do not delete it — and move the build directory into its place. Abort is
@@ -499,10 +499,10 @@ repos of their own. This happens at most once per project.
     clone of the host, not in your live workspace. Do this **after the swap is verified, never
     before** — a complete pushed copy stays on the host through the whole destructive window. That README needs
     one sentence for anyone else holding a clone: *start a fresh empty folder, clone the docs hub
-    into `Code/<project>-docs/` inside it, and run `scripts/setup-workspace.sh` there — do not
-    reuse your old project folder.* Re-onboarding in place leaves the new repos nested inside the
-    retired one, and every check passes. **Stop before you push that commit** — show the README and
-    the tree it leaves behind.
+    into `Code/<project>-docs/` inside it, and from that folder run
+    `Code/<project>-docs/scripts/setup-workspace.sh` — do not reuse your old project folder.*
+    Re-onboarding in place leaves the new repos nested inside the retired one, and every check
+    passes. **Stop before you push that commit** — show the README and the tree it leaves behind.
 13. **Write the STEP's PLAN** and archive it into the new `prompts/` repo — at `<phase>/step-NNNN/`
     and `STEP-index.md` from that repo's root, since the un-nest at step 5 moved `prompts/`'s
     contents up to it. Then mark the STEP done. Written now rather than at step 4, it never has to

@@ -93,8 +93,13 @@ doctor() {
   local work="$1"; shift
   DOC_OUT="$(bash "$(doctor_of "$work")" "$@" 2>&1)"
   DOC_STATUS=$?
-  SEC="$(printf '%s\n' "$DOC_OUT" | awk '/^11\. Repo registry/ { f = 1 } f && /^Summary$/ { exit } f')"
-  [ -n "$SEC" ] || bad "the doctor printed no check 11 section at all (args: ${*:-none})"
+  # The heading names the registry file, and that name now carries the project slug, so the
+  # assertions read the section body only: a refutation must not match the path in a heading.
+  SEC="$(printf '%s\n' "$DOC_OUT" | awk '/^11\. Repo registry/ { f = 1; next } f && /^Summary$/ { exit } f')"
+  case "$DOC_OUT" in
+    *"11. Repo registry"*) ;;
+    *) bad "the doctor printed no check 11 section at all (args: ${*:-none})" ;;
+  esac
 }
 
 has()    { case "$SEC" in *"$1"*) return 0 ;; *) return 1 ;; esac; }
