@@ -236,6 +236,14 @@ any project built with it.
   is today.
 
 ### Fixed
+- **Scheduling a check-in no longer counts as having done one.** `scripts/status.sh` measures the
+  check-in cadence from the highest-numbered STEP whose title looks like a check-in — but it
+  ignored that row's status. So when the cadence line said `OVERDUE; insert a Check-in STEP now`
+  and you did exactly that, the new `Planned` row immediately reported `0 STEPs ago — ~15 STEPs of
+  headroom`, before the check-in had happened. Acting on the advice cleared the advice, and the
+  sweep it exists to schedule could be postponed indefinitely without the cadence ever noticing.
+  Only a `Done` check-in resets the clock now; `Planned` and `In progress` rows are the work, not
+  the record of it.
 - **A zero-padded check-in cadence no longer kills `./doctor.sh status`.** `overview.md`'s optional
   `<!-- CHECK-IN-CADENCE: N -->` marker is meant to be edited by hand. Writing `08` or `09` aborted
   `scripts/status.sh` outright — `[ 08 -gt 0 ]` reads base 10 and passed the guard, but `$(( 08 - 5 ))`

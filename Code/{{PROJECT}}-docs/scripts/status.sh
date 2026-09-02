@@ -145,7 +145,12 @@ while [ "$i" -lt "$n_steps" ]; do
   fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
   case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
-  if printf '%s' "$ti" | grep -qiE 'check.?in'; then [ "$n" -gt "$last_ci" ] && last_ci=$n; fi
+  # Only a Done check-in resets the clock. A Planned row is the work, not the record of it —
+  # counting it meant that adding the row the OVERDUE warning tells you to add silenced the
+  # warning before the check-in happened, so acting on the advice cleared the advice.
+  if [ "$st" = "Done" ] && printf '%s' "$ti" | grep -qiE 'check.?in'; then
+    [ "$n" -gt "$last_ci" ] && last_ci=$n
+  fi
   i=$((i + 1))
 done
 all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
