@@ -236,6 +236,18 @@ any project built with it.
   is today.
 
 ### Fixed
+- **The check-in report template has somewhere to record deferred coverage.** An architecture doc
+  may deliberately leave part of its area unwritten, marked in its `Coverage:` field.
+  `runbooks/check-in.md` treats that as a standing obligation — the deferral must be "resurfaced,
+  not silently forgotten", so every check-in re-reads it, weighs it against what the system now
+  does, and records one explicit disposition — and the runbook's own Output list names a
+  **Deferred coverage** bullet as part of the report. The report template had no such section.
+  The one place it said "Deferred" was a conditional-session disposition, which the runbook goes
+  out of its way to distinguish. So the sweep the runbook mandates had nowhere to land, and the
+  gap it exists to keep visible would rest on the same passive line in the same doc. The template
+  now carries a **Deferred Coverage** table beside **Conditional Coverage**, in the runbook's own
+  order, with the four things its Output bullet asks for: the doc, what its `Coverage:` field
+  says, the disposition, and the follow-up STEP filed or retained.
 - **`./doctor.sh --help` now mentions `--check-in`.** `scripts/check.sh` has two behaviours — the
   checks it makes on every run, and the extra ones the periodic check-in adds — and the flag that
   selects the second was named in the script's own header, in `METHOD.md`, in

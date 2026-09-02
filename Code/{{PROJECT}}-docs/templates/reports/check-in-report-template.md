@@ -23,6 +23,12 @@
 |---------------------|---------------------|----------|-----------|
 | {{templates/architecture-sessions/conditional-*.md}} | {{Included / Deferred / N/A / Needs follow-up}} | {{doc/STEP/report}} | {{STEP-N / None}} |
 
+## Deferred Coverage
+
+| Architecture doc | `Coverage:` says | Disposition | Follow-up |
+|------------------|------------------|-------------|-----------|
+| {{architecture/NN-*.md}} | {{the postponed area, from the doc's Coverage field}} | {{Backfill now / Still defer — why it still holds / Risk-seeded / Retired (Deprecated)}} | {{STEP-N filed / STEP-N retained / RISK-NNNN / None}} |
+
 ## Risks And Debt
 
 | Risk/debt item | Status before | Decision | Action |
