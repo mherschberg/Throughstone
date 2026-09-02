@@ -221,7 +221,7 @@ elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 
   if [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&
      [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
     where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
-    next="close out STEP-1 — run its Cross-Cutting Review to clean, archive it to prompts/ ($DOCS_REL/METHOD.md §5), and mark the STEP-1 row Done. The planning session comes after that."
+    next="close out STEP-1 — archive it to the Phase-1 folder under prompts/ ($DOCS_REL/METHOD.md §5) and mark the STEP-1 row Done. If the Cross-Cutting Review left findings open, settle those first. The planning session comes after that."
   elif [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
     next="run the planning session — it outlines the Phase-1 implementation STEPs ($DOCS_REL/templates/planning-session.md)."
