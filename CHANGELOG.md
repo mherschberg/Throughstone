@@ -236,6 +236,19 @@ any project built with it.
   is today.
 
 ### Fixed
+- **A slug that cannot work is refused before anything is destroyed.** `init.sh` is one-time and
+  destructive: from "Detaching from the template's git history" onward it has removed `.git` and
+  started renaming. Two slug problems were only discovered after that point, by `mv` or `cp`
+  failing. A slug of 251 characters passed the pattern check and then failed the rename with
+  `File name too long`, leaving no `.git`, no `prompts/STEP-index.md` and a half-renamed tree —
+  which `scripts/check.sh` still called `RESULT: OK`, and which `scripts/status.sh` answered with
+  "run ./init.sh", advice that produced a *second* broken layer rather than recovering. An
+  existing `Code/<slug>-docs` was worse than a collision: `mv` moved the template *inside* it, so
+  the tree ended up at `Code/<slug>-docs/{{PROJECT}}-docs/`. Slug length and destination
+  availability are now checked with the pattern, before the run touches anything, and the three
+  copies of the pattern check are one function so the flag path and the interactive re-ask cannot
+  drift apart. Slugs are capped at 64 characters — a practical ceiling well under both the 250 the
+  filesystem allows and what any git host accepts.
 - **A flag written without its value no longer eats the flag after it.** `init.sh` accepts both
   `--desc=text` and `--desc text`. In the space form it took whatever came next as the value
   without checking, so `--desc --layout=mono` set the description to `--layout=mono`, left

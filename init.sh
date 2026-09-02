@@ -380,16 +380,39 @@ say "Throughstone — setup"
 # Defaults are conservative for automation: multi-repo, solo, private GitHub visibility, and
 # no remote creation unless requested.
 # Project slug — validated kebab-case whether supplied or prompted.
+#
+# Every check lives in one function because the run is destructive from "Detaching" onward: a slug
+# problem found after that point leaves .git removed, the rename half-done and no STEP index, and
+# the doctor still reports RESULT: OK. Anything that can reject a slug has to reject it here.
+# One function also stops the flag path and the interactive re-ask loop drifting apart.
+#
+# 64 is a practical ceiling, not a filesystem one — the hard limit is 250 (255 minus "-docs" for
+# the directory component), which no project name should approach and every git host is stricter
+# than anyway. Raise it here if a real project ever needs to.
+SLUG_MAX=64
+slug_problem() {
+  local s="$1"
+  printf '%s' "$s" | grep -Eq '^[a-z][a-z0-9-]*$' \
+    || { echo "lowercase letters, digits, hyphens only"; return; }
+  [ "${#s}" -le "$SLUG_MAX" ] \
+    || { echo "${#s} characters is too long — keep it to $SLUG_MAX"; return; }
+  [ ! -e "Code/${s}-docs" ] \
+    || { echo "Code/${s}-docs already exists here — pick another slug, or start from a clean copy of the template"; return; }
+}
+
 SLUG="$SLUG_IN"
 if [ -n "$SLUG" ]; then
-  printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$' \
-    || { echo "init.sh: invalid --slug '$SLUG' (lowercase letters, digits, hyphens only)." >&2; exit 2; }
+  SLUG_WHY="$(slug_problem "$SLUG")"
+  [ -z "$SLUG_WHY" ] \
+    || { echo "init.sh: invalid --slug '$SLUG' ($SLUG_WHY)." >&2; exit 2; }
 elif [ "$NONINTERACTIVE" = "1" ]; then
   echo "init.sh: --slug is required in --non-interactive mode." >&2; exit 2
 else
-  while ! printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$'; do
+  SLUG_WHY="start"
+  while [ -n "$SLUG_WHY" ]; do
     SLUG="$(ask 'Project slug (lowercase, kebab-case, e.g. acme-scheduler)')"
-    printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$' || echo "  -> must be lowercase letters, digits, hyphens."
+    SLUG_WHY="$(slug_problem "$SLUG")"
+    [ -z "$SLUG_WHY" ] || echo "  -> $SLUG_WHY."
   done
 fi
 DESC="$(want "$DESC_IN" 'One-line description')"
