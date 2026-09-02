@@ -23,6 +23,20 @@ say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 ask()  { local p="$1" d="${2:-}" a; if [ -n "$d" ]; then read -r -p "$p [$d]: " a; echo "${a:-$d}"; else read -r -p "$p: " a; echo "$a"; fi; }
 yesno(){ local a; read -r -p "$1 [y/N]: " a; case "$a" in y|Y|yes) return 0;; *) return 1;; esac; }
 
+# need_val FLAG VALUE — guard the space-separated form of a flag. `--desc --layout=mono` is a
+# missing value, not a description: without this the value silently becomes "--layout=mono" and
+# the swallowed flag falls back to its default, so the run builds something the caller did not
+# ask for and every later check passes. Refused here rather than per-flag, because only the
+# flags that happen to validate their value (--slug, --layout, --license) catch it by accident.
+# The `--flag=value` form is untouched, so a value that really does begin with `--` stays sayable.
+need_val() {
+  case "${2-}" in
+    "")  echo "init.sh: $1 needs a value (try './init.sh --help')" >&2; exit 2 ;;
+    --*) echo "init.sh: $1 needs a value, but the next argument is another flag ('$2')." >&2
+         echo "  If that was meant as the value, write it as '$1=$2'." >&2; exit 2 ;;
+  esac
+}
+
 # want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty; otherwise prompt for it.
 # In --non-interactive mode, fall back to DEFAULT, or exit with an error if there is none.
 # This is the flag/env bridge: callers pass the already-parsed preset first, so command-line
@@ -232,37 +246,37 @@ NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --slug=*)          SLUG_IN="${1#*=}" ;;
-    --slug)            SLUG_IN="${2:-}"; shift ;;
+    --slug)            need_val "$1" "${2-}"; SLUG_IN="$2"; shift ;;
     --desc=*)          DESC_IN="${1#*=}" ;;
-    --desc)            DESC_IN="${2:-}"; shift ;;
+    --desc)            need_val "$1" "${2-}"; DESC_IN="$2"; shift ;;
     --license=*)       LICENSE_IN="${1#*=}" ;;
-    --license)         LICENSE_IN="${2:-}"; shift ;;
+    --license)         need_val "$1" "${2-}"; LICENSE_IN="$2"; shift ;;
     --holder=*)        HOLDER_IN="${1#*=}" ;;
-    --holder)          HOLDER_IN="${2:-}"; shift ;;
+    --holder)          need_val "$1" "${2-}"; HOLDER_IN="$2"; shift ;;
     --layout=*)        LAYOUT_IN="${1#*=}" ;;
-    --layout)          LAYOUT_IN="${2:-}"; shift ;;
+    --layout)          need_val "$1" "${2-}"; LAYOUT_IN="$2"; shift ;;
     --registries=*)    REGISTRIES_IN="${1#*=}" ;;
-    --registries)      REGISTRIES_IN="${2:-}"; shift ;;
+    --registries)      need_val "$1" "${2-}"; REGISTRIES_IN="$2"; shift ;;
     --collab=*)        COLLAB_IN="${1#*=}" ;;
-    --collab)          COLLAB_IN="${2:-}"; shift ;;
+    --collab)          need_val "$1" "${2-}"; COLLAB_IN="$2"; shift ;;
     --adr-authority=*) ADR_AUTHORITY_IN="${1#*=}" ;;
-    --adr-authority)   ADR_AUTHORITY_IN="${2:-}"; shift ;;
+    --adr-authority)   need_val "$1" "${2-}"; ADR_AUTHORITY_IN="$2"; shift ;;
     --trunk-branch=*)  TRUNK_BRANCH_IN="${1#*=}"; TRUNK_BRANCH_FLAG_SET=1 ;;
-    --trunk-branch)    TRUNK_BRANCH_IN="${2:-}"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
+    --trunk-branch)    need_val "$1" "${2-}"; TRUNK_BRANCH_IN="$2"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
     --remotes=*)       REMOTES_IN="${1#*=}" ;;
-    --remotes)         REMOTES_IN="${2:-}"; shift ;;
+    --remotes)         need_val "$1" "${2-}"; REMOTES_IN="$2"; shift ;;
     --remote-provider=*) REMOTE_PROVIDER_IN="${1#*=}" ;;
-    --remote-provider) REMOTE_PROVIDER_IN="${2:-}"; shift ;;
+    --remote-provider) need_val "$1" "${2-}"; REMOTE_PROVIDER_IN="$2"; shift ;;
     --owner=*)         OWNER_IN="${1#*=}" ;;
-    --owner)           OWNER_IN="${2:-}"; shift ;;
+    --owner)           need_val "$1" "${2-}"; OWNER_IN="$2"; shift ;;
     --remote-url=*)    REMOTE_URL_IN="${1#*=}" ;;
-    --remote-url)      REMOTE_URL_IN="${2:-}"; shift ;;
+    --remote-url)      need_val "$1" "${2-}"; REMOTE_URL_IN="$2"; shift ;;
     --docs-remote=*)   DOCS_REMOTE_IN="${1#*=}" ;;
-    --docs-remote)     DOCS_REMOTE_IN="${2:-}"; shift ;;
+    --docs-remote)     need_val "$1" "${2-}"; DOCS_REMOTE_IN="$2"; shift ;;
     --prompts-remote=*) PROMPTS_REMOTE_IN="${1#*=}" ;;
-    --prompts-remote)  PROMPTS_REMOTE_IN="${2:-}"; shift ;;
+    --prompts-remote)  need_val "$1" "${2-}"; PROMPTS_REMOTE_IN="$2"; shift ;;
     --visibility=*)    VISIBILITY_IN="${1#*=}" ;;
-    --visibility)      VISIBILITY_IN="${2:-}"; shift ;;
+    --visibility)      need_val "$1" "${2-}"; VISIBILITY_IN="$2"; shift ;;
     -y|--yes|--non-interactive) NONINTERACTIVE=1 ;;
     -h|--help)         usage; exit 0 ;;
     *) echo "init.sh: unknown option: $1 (try './init.sh --help')" >&2; exit 2 ;;

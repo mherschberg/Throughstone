@@ -236,6 +236,18 @@ any project built with it.
   is today.
 
 ### Fixed
+- **A flag written without its value no longer eats the flag after it.** `init.sh` accepts both
+  `--desc=text` and `--desc text`. In the space form it took whatever came next as the value
+  without checking, so `--desc --layout=mono` set the description to `--layout=mono`, left
+  `--layout` unset, and built a **multi-repo** project when mono was asked for — then wrote that
+  bogus description into `AGENTS.md`, `templates/planning-session.md` and every architecture
+  session template. Nothing caught it: the wizard exited 0 and `scripts/check.sh` reported
+  `0 fail(s), 0 warning(s)`, because the tree it produced was a valid project, just not the one
+  requested. Only the flags that happen to validate their value — `--slug`, `--layout`,
+  `--license` — refused, and they refused by accident; the free-text ones (`--desc`, `--holder`,
+  `--adr-authority`, `--owner`, the remote URLs) took it silently. Every space-form flag now
+  checks its value before using it, and says which flag is short and what to write instead. The
+  `--flag=value` form is untouched, so a value that genuinely begins with `--` is still sayable.
 - **One repository you cannot clone no longer costs you the whole workspace.**
   `scripts/setup-workspace.sh` is what every developer after the first runs to assemble the project
   on their machine: it clones the repos `registries/repos.yml` gives a `remote:`, then writes the
