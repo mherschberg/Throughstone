@@ -219,10 +219,16 @@ fi
 # check-in. The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
 # when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
 # at N+5; METHOD.md §10 remains authoritative for the resolver.
+# The pattern is check.sh check 10's, character for character, because check 10 tells the reader
+# what this script will do with a malformed marker ("status.sh falls back to the default (20)")
+# and that sentence has to be true. It also has to reject a leading zero before the value reaches
+# the arithmetic below: `[ 08 -gt 0 ]` is base 10 and passes, but `$(( 08 - 5 ))` is octal and
+# aborts the script, so `CHECK-IN-CADENCE: 08` used to kill the whole next-action resolver.
 cadence=20
 if [ -f "$OVERVIEW" ]; then
-  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[0-9]+' "$OVERVIEW" | head -1 | grep -oE '[0-9]+')"
-  if [ -n "$n" ] && [ "$n" -gt 0 ]; then cadence="$n"; fi
+  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[1-9][0-9]*([[:space:]]|-->|$)' "$OVERVIEW" \
+       | head -1 | grep -oE '[1-9][0-9]*' | head -1)"
+  if [ -n "$n" ]; then cadence="$n"; fi
 fi
 due=$(( cadence - 5 ))
 over=$(( cadence + 5 ))

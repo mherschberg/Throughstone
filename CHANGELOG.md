@@ -236,6 +236,15 @@ any project built with it.
   is today.
 
 ### Fixed
+- **A zero-padded check-in cadence no longer kills `./doctor.sh status`.** `overview.md`'s optional
+  `<!-- CHECK-IN-CADENCE: N -->` marker is meant to be edited by hand. Writing `08` or `09` aborted
+  `scripts/status.sh` outright — `[ 08 -gt 0 ]` reads base 10 and passed the guard, but `$(( 08 - 5 ))`
+  reads octal and fails — so the whole next-action resolver printed nothing and exited 1. `010`
+  did not fail; it silently meant 8, moving the check-in window from ~15–25 to ~3–13 with no
+  indication. `scripts/check.sh` check 10 flagged both, but told the reader something untrue:
+  "status.sh falls back to the default (20)", which it did not do. status.sh now reads the marker
+  with check 10's own pattern, so a marker check 10 rejects is a marker status.sh ignores, and
+  check 10's sentence is accurate.
 - **A slug that cannot work is refused before anything is destroyed.** `init.sh` is one-time and
   destructive: from "Detaching from the template's git history" onward it has removed `.git` and
   started renaming. Two slug problems were only discovered after that point, by `mv` or `cp`
