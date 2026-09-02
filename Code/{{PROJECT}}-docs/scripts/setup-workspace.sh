@@ -87,7 +87,7 @@ mkdir -p "$ROOT/.throughstone"
 REG="$DOCS_DIR/registries/repos.yml"
 missing=0
 if [ -f "$REG" ]; then
-  echo "Cloning sibling repos with remotes from registries/repos.yml ..."
+  echo "Cloning sibling repos with remotes from $DOCS_REL/registries/repos.yml ..."
   # Parse repos.yml block-aware: pair each repo's own location with its own remote.
   # The registry is the multi-repo inventory, and remote: is optional. Walking each `- name:`
   # block keeps locations and remotes aligned when only some repos are cloneable; comment lines
@@ -136,13 +136,13 @@ if [ -f "$REG" ]; then
     END { if (loc != "" && rem != "") print loc "|" rem }
   ' "$REG")
 else
-  echo "No registries/repos.yml — skipping clone step."
+  echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
 fi
 
 echo "Done. Open this folder in your agent; it will discover the context via the pointers."
 if [ "$missing" -gt 0 ]; then
   echo
   echo "$missing repo(s) above did not arrive. The workspace itself is complete — fix the remote"
-  echo "or the location in registries/repos.yml, or clone the repo yourself, then re-run this"
+  echo "or the location in $DOCS_REL/registries/repos.yml, or clone the repo yourself, then re-run this"
   echo "script to pick it up."
 fi

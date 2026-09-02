@@ -43,6 +43,10 @@ done
 # doctor can be run from any working directory without resolving the template placeholder.
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
+# Printed paths are rendered from the workspace root, because that is where the caller is
+# standing: this script never changes the caller directory, and the documented flow runs it
+# from the workspace root. links.sh renders its diagnostics the same way.
+DOCS_REL="Code/$(basename "$DOCS_DIR")"
 # Authoritative project state is split between the workspace-root STEP index and docs-hub
 # registries/templates. Keep those assumptions centralized so each check reads the same files.
 INDEX="$ROOT/prompts/STEP-index.md"
@@ -86,7 +90,7 @@ if [ -f "$INDEX" ]; then
       printf '         %s appears on line(s): %s\n' "$d" "$lns"
     done
     maxn="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE '[0-9]+' | sort -n | tail -1)"
-    hint "renumber the duplicate (the one reserved later) to STEP-$((maxn + 1)) — never reuse or delete a number; mark a row Abandoned if it won't be built. See runbooks/collaboration.md §2."
+    hint "renumber the duplicate (the one reserved later) to STEP-$((maxn + 1)) — never reuse or delete a number; mark a row Abandoned if it won't be built. See $DOCS_REL/runbooks/collaboration.md §2."
   else
     pass "no duplicate STEP numbers"
   fi
@@ -95,7 +99,7 @@ else
 fi
 
 # --- 2. Duplicate ADR numbers -------------------------------------------------
-hdr "2. Duplicate ADR numbers (adr/README.md)"
+hdr "2. Duplicate ADR numbers ($DOCS_REL/adr/README.md)"
 if [ -f "$ADR_INDEX" ]; then
   # Invariant: ADR numbers are durable decision IDs. adr/README.md is the registry authority,
   # and duplicates catch copy/paste rows or renumbering drift before files are reconciled.
@@ -107,12 +111,12 @@ if [ -f "$ADR_INDEX" ]; then
       printf '         %s appears on line(s): %s\n' "$d" "$lns"
     done
     maxn="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE '[0-9]+' | sed 's/^0*//' | sort -n | tail -1)"
-    hint "renumber the later duplicate to $(printf 'ADR-%04d' "$((maxn + 1))") and rename its file to match — never reuse a number. See adr/README.md and runbooks/collaboration.md §6."
+    hint "renumber the later duplicate to $(printf 'ADR-%04d' "$((maxn + 1))") and rename its file to match — never reuse a number. See $DOCS_REL/adr/README.md and $DOCS_REL/runbooks/collaboration.md §6."
   else
     pass "no duplicate ADR numbers"
   fi
 else
-  warn "no adr/README.md — skipping ADR-number check"
+  warn "no $DOCS_REL/adr/README.md — skipping ADR-number check"
 fi
 
 # --- 3. Valid STEP / substep statuses -----------------------------------------
@@ -150,7 +154,7 @@ if [ -f "$INDEX" ]; then
   if [ -n "$bad" ]; then
     fail "invalid status value(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$bad"
-    hint "use exactly one of: Planned · In progress · Done · Deferred · Abandoned (a substep may also be N/A). See METHOD.md §1."
+    hint "use exactly one of: Planned · In progress · Done · Deferred · Abandoned (a substep may also be N/A). See $DOCS_REL/METHOD.md §1."
   else
     pass "all statuses valid"
   fi
@@ -179,7 +183,7 @@ else
   if [ "$missing_any" -eq 0 ]; then
     pass "all ${#docs[@]} architecture doc(s) have the required fields"
   else
-    hint "add the missing field(s) from templates/architecture-doc-template.md (Version / Status header, and a Version Log table). See METHOD.md §6."
+    hint "add the missing field(s) from $DOCS_REL/templates/architecture-doc-template.md (Version / Status header, and a Version Log table). See $DOCS_REL/METHOD.md §6."
   fi
 fi
 
@@ -200,7 +204,7 @@ if [ -f "$ADR_INDEX" ]; then
   [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; hint "add a registry row in adr/README.md for the file(s), or delete the file if it shouldn't exist."; }
   [ "$ok" -eq 1 ] && pass "registry and files agree ($(emit "$reg_ids" | grep -c . ) ADR(s))"
 else
-  warn "no adr/README.md — skipping ADR registry/disk check"
+  warn "no $DOCS_REL/adr/README.md — skipping ADR registry/disk check"
 fi
 
 # --- 6. Legacy local user profile fields --------------------------------------
@@ -211,14 +215,14 @@ hdr "6. Legacy local user profile fields"
 if [ -f "$OVERVIEW" ]; then
   legacy_profile_fields="$(grep -nE '^## (Your experience level|Planning communication style)[[:space:]]*$' "$OVERVIEW" || true)"
   if [ -n "$legacy_profile_fields" ]; then
-    warn "overview.md contains legacy personal preference section(s):"
+    warn "$DOCS_REL/overview.md contains legacy personal preference section(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$legacy_profile_fields"
-    hint "create/update root .throughstone/local-user.md for the active user, then remove these personal-preference sections from overview.md after confirming they are not project facts. See UPDATING-THROUGHSTONE.md."
+    hint "create/update root .throughstone/local-user.md for the active user, then remove these personal-preference sections from $DOCS_REL/overview.md after confirming they are not project facts. See UPDATING-THROUGHSTONE.md."
   else
-    pass "overview.md has no legacy local user preference sections"
+    pass "$DOCS_REL/overview.md has no legacy local user preference sections"
   fi
 else
-  pass "no overview.md yet (project not initialized?) — skipping legacy local user profile check"
+  pass "no $DOCS_REL/overview.md yet (project not initialized?) — skipping legacy local user profile check"
 fi
 
 # --- 7. Workspace-root hygiene (multi-repo only) ------------------------------
@@ -241,7 +245,7 @@ else
   done
   if [ -n "$stray" ]; then
     warn "unexpected entr(ies) at workspace root:$stray — should these be inside a repo (usually the docs hub)?"
-    hint "move durable content into a repo (almost always Code/<project>-docs/); the root holds only per-machine pointers, the repo folders, and Upcoming Prompts/. See METHOD.md §7."
+    hint "move durable content into a repo (almost always Code/<project>-docs/); the root holds only per-machine pointers, the repo folders, and Upcoming Prompts/. See $DOCS_REL/METHOD.md §7."
   else
     pass "only the expected pointers / repos at the workspace root"
   fi
@@ -256,7 +260,7 @@ session_templates=("$SESSION_TEMPLATE_DIR"/[0-9][0-9]-*.md)
 if [ ${#session_templates[@]} -eq 0 ]; then
   warn "no numbered architecture-session templates found — skipping numbering check"
 elif [ ! -f "$STEP_INDEX_SEED" ]; then
-  warn "no templates/step-index-seed.md found — skipping numbering check"
+  warn "no $DOCS_REL/templates/step-index-seed.md found — skipping numbering check"
 else
   numbering_ok=1
   max_prefix=0
@@ -294,7 +298,7 @@ else
       }
     ' "$STEP_INDEX_SEED")"
     if [ -z "$seed_row" ]; then
-      fail "$b has no matching 1.$minor row in templates/step-index-seed.md"
+      fail "$b has no matching 1.$minor row in $DOCS_REL/templates/step-index-seed.md"
       numbering_ok=0
       seed_label=""
       seed_output=""
@@ -344,7 +348,7 @@ else
     case "$template_minors" in
       *" $seed_minor "*) : ;;
       *)
-        fail "templates/step-index-seed.md has 1.$seed_minor ('$seed_label') but no matching numbered session template"
+        fail "$DOCS_REL/templates/step-index-seed.md has 1.$seed_minor ('$seed_label') but no matching numbered session template"
         numbering_ok=0
         ;;
     esac
@@ -360,7 +364,7 @@ else
   if [ "$numbering_ok" -eq 1 ]; then
     pass "numbered architecture sessions match headings and STEP-index seed; Cross-Cutting Review is last"
   else
-    hint "keep numbered session files, their '(Session 1.N)' headings, and templates/step-index-seed.md rows in lockstep; the Cross-Cutting Review remains the final numbered session."
+    hint "keep numbered session files, their '(Session 1.N)' headings, and $DOCS_REL/templates/step-index-seed.md rows in lockstep; the Cross-Cutting Review remains the final numbered session."
   fi
 fi
 
@@ -396,12 +400,12 @@ else
   if [ "$conditional_ok" -eq 1 ]; then
     pass "all ${#conditional_templates[@]} conditional template(s) expose applicability, invocation, output, next action, and complete late-follow-up bookkeeping"
   else
-    hint "copy an existing conditional template's contract: explicit applicability, 'Run it by name', Output, Next, and both STEP-1 / late-follow-up PLAN, architecture-index, and active-substep bookkeeping. See METHOD.md §4."
+    hint "copy an existing conditional template's contract: explicit applicability, 'Run it by name', Output, Next, and both STEP-1 / late-follow-up PLAN, architecture-index, and active-substep bookkeeping. See $DOCS_REL/METHOD.md §4."
   fi
 fi
 
 # --- 10. Check-in cadence marker (overview.md) --------------------------------
-hdr "10. Check-in cadence marker (overview.md)"
+hdr "10. Check-in cadence marker ($DOCS_REL/overview.md)"
 # The optional `<!-- CHECK-IN-CADENCE: N -->` line in overview.md sets the check-in target N
 # (status.sh defaults to 20 when the line is absent). Warn — never fail — if the line is present
 # but N isn't a positive integer; its absence is always fine.
@@ -411,12 +415,12 @@ if [ -f "$OVERVIEW" ]; then
   elif grep -qE 'CHECK-IN-CADENCE:[[:space:]]*[1-9][0-9]*([[:space:]]|-->|$)' "$OVERVIEW"; then
     pass "CHECK-IN-CADENCE is a positive integer"
   else
-    warn "overview.md CHECK-IN-CADENCE is not a positive integer — status.sh falls back to the default (20):"
+    warn "$DOCS_REL/overview.md CHECK-IN-CADENCE is not a positive integer — status.sh falls back to the default (20):"
     printf '         %s\n' "$(grep -E 'CHECK-IN-CADENCE:' "$OVERVIEW" | head -1)"
     hint "set it to a positive whole number of STEPs (e.g. <!-- CHECK-IN-CADENCE: 20 -->), or delete the line to accept the default."
   fi
 else
-  pass "no overview.md yet (project not initialized?) — skipping check-in cadence check"
+  pass "no $DOCS_REL/overview.md yet (project not initialized?) — skipping check-in cadence check"
 fi
 
 # --- 11. Repo registry (registries/repos.yml) — check-in only ------------------
@@ -434,9 +438,9 @@ fi
 # named. The root row is covered by nothing else: if it has no remote, it is flagged like any
 # other repo.
 if [ "$CHECK_IN" -eq 1 ]; then
-  hdr "11. Repo registry (registries/repos.yml)"
+  hdr "11. Repo registry ($DOCS_REL/registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then
-    warn "no registries/repos.yml — skipping repo registry check"
+    warn "no $DOCS_REL/registries/repos.yml — skipping repo registry check"
   else
     # Walk each `- name:` block and report the rows missing a location, and the rows no
     # recorded remote covers. Comment lines are skipped, so the example row at the bottom is not
@@ -480,7 +484,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
     [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
   fi
 else
-  hdr "11. Repo registry (registries/repos.yml)"
+  hdr "11. Repo registry ($DOCS_REL/registries/repos.yml)"
   pass "skipped — run with --check-in (this check belongs to the periodic check-in)"
 fi
 

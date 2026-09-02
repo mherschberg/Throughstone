@@ -374,6 +374,38 @@ any project built with it.
   `--adr-authority`, `--owner`, the remote URLs) took it silently. Every space-form flag now
   checks its value before using it, and says which flag is short and what to write instead. The
   `--flag=value` form is untouched, so a value that genuinely begins with `--` is still sayable.
+- **Instructions in the docs now work from the directory they tell you to stand in.** Six of them
+  did not. The first line of the periodic check-in told you to run `scripts/check.sh --check-in`,
+  which fails from the workspace root where you actually are — and that one is on the path anyone
+  walks regularly. So did the setup a new contributor is told to run, two of the split's pre-swap
+  checks, its teammate-clone verification, and the sentence the split copies into a README handed
+  to people still holding a clone of the old repo. Each now names the script the way
+  `scripts/setup-workspace.sh`'s own usage header always has: from the workspace root, in full.
+  Two warnings that name a script you must *not* run got the same treatment, because a warning has
+  to identify the program unambiguously too.
+
+  Behind them, the path convention in `METHOD.md` §7 sorted documents into two piles and put
+  `runbooks/` in neither — which is where most of the unfollowable instructions lived. It now turns
+  on what a path is *for*. A shell command is written from where the text stands you, the workspace
+  root unless the text says otherwise; everything else follows the file it is written in, which
+  inside the docs hub means relative to the hub. It also settles what "relative to the hub" is
+  measured from, what a bare `status.sh` or `architecture/` means, and that a Markdown link target
+  follows Markdown rather than either convention — so a sweep cannot quietly break your links.
+  `AGENTS.md` had copied the old wording into its own header and drifted from it; it now states
+  where its paths are relative to and points at the rule instead of restating it.
+- **The doctor no longer answers in two directories at once.** `scripts/check.sh` does not change
+  your working directory, so you read its output from wherever you ran it — normally the workspace
+  root — but it named some files from there and others from inside the docs hub, occasionally
+  within a single check: the repo-registry check headed itself with one form and then named the
+  same hub the other way two lines below. Every path it prints, and every path
+  `scripts/setup-workspace.sh` prints, is now written from the workspace root, so you can open what
+  it names without working out which base it meant. The setup wizard's two prompts that named a
+  file inside the docs hub now name it in full as well, using your project's real name.
+
+  Also fixed: an agent following `AGENTS.md` was told to scan `adr/README.md` for duplicate ADR
+  numbers before every push — a file that is not there from where the agent is standing. Its
+  sibling scan of `prompts/STEP-index.md` was always correct, because `prompts/` really does sit at
+  the workspace root.
 - **One repository you cannot clone no longer costs you the whole workspace.**
   `scripts/setup-workspace.sh` is what every developer after the first runs to assemble the project
   on their machine: it clones the repos `registries/repos.yml` gives a `remote:`, then writes the

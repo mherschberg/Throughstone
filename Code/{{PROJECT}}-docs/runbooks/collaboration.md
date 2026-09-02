@@ -275,8 +275,8 @@ flow (§6). The transition is mostly mechanical:
    registry of record is gone. **A repo Throughstone did not create gets neither** — never
    create a remote for it and never push its history (`register-repo.md`); (b) add the
    `remote:` fields in `registries/repos.yml`, for every repo that has one; (c) have each new
-   contributor run `scripts/setup-workspace.sh` to clone them. Number reservation (§2) relies
-   on this shared `prompts/` remote.
+   contributor run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, from the workspace root,
+   to clone them. Number reservation (§2) relies on this shared `prompts/` remote.
 
    **Mono-repo-for-now** (`METHOD.md` §7) has one repo, the workspace root, so this is one
    remote rather than several: create it, push the root repo's existing history to it, and have
@@ -284,10 +284,10 @@ flow (§6). The transition is mostly mechanical:
    same as any other repo — `init.sh` writes it when it made the remote itself, and until a row
    has one the check-in flags it, because work with no remote lives on one laptop. A mono project
    may sit without a remote for a while; that warning is the reminder, not an error. But **don't
-   run `scripts/setup-workspace.sh`** — no row in that file is a repo to clone (one *is* the
-   repository you already have; the rest are folders inside it), and the script is for multi-repo
-   workspaces: run in a mono clone it overwrites the committed
-   root `CLAUDE.md`, `AGENTS.md` and `doctor.sh` with per-machine pointers asserting the root is
+   run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`** — no row in that file is a repo to
+   clone (one *is* the repository you already have; the rest are folders inside it), and the
+   script is for multi-repo workspaces: run in a mono clone it overwrites the committed root
+   `CLAUDE.md`, `AGENTS.md` and `doctor.sh` with per-machine pointers asserting the root is
    not a repo. Everything else is the same, including number reservation, which needs a shared
    remote and not a particular number of them. Whether to split is a separate question, answered
    by the architecture rather than by the size of the team — see `splitting-repos.md`.

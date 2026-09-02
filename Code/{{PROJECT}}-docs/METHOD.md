@@ -492,7 +492,8 @@ repo is brought in.
 begins with `/` or `~`, and no segment of it is `..`.** Usually that is a `Code/*`
 sibling — the layout `init.sh` and the scaffolding above assume — but any contained path works.
 The point is reproducibility: a contributor clones the docs hub, runs
-`scripts/setup-workspace.sh`, and assembles the whole workspace from the registry alone.
+`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, and assembles the whole workspace from the
+registry alone.
 `location:` says where the repo is; the optional `remote:` says where to clone it from.
 **No repo's code is rewritten, and none is forced to move.** A repo that already exists is
 adopted either by moving into the workspace or, when it genuinely cannot move, by staying
@@ -539,13 +540,48 @@ the `Upcoming Prompts/` working folder, no other file should sit at the workspac
 one-time `init.sh` may linger there until you delete it post-bootstrap — that's expected). If
 any *other* file appears, ask whether it belongs in a repo (usually the docs hub) and move it.
 
-**Path conventions in docs.** Top-level agent-facing docs (`AGENTS.md`, `BOOTSTRAP-PROMPT.md`,
-this file) write paths **relative to the workspace root** — `Code/{{PROJECT}}-docs/architecture/…`,
-`prompts/STEP-index.md`. The exception is the **session and template files** under
-`templates/`: because they live and operate inside the docs hub, they write hub-local paths
-(`architecture/*-data-model.md`, `adr/`, `overview.md`) relative to the hub. Either way, a reference
-that **crosses into another repo is always written in full** — most notably
-`prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written bare.
+**Path conventions in docs.** A shell command and a path you merely name are written
+differently. Writing one as the other is how an instruction becomes a dead end.
+
+**A shell command is written from where the text has the reader standing.** Unless the text says
+otherwise that is the **workspace root** — the folder a contributor opens and an agent is pointed
+at: `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`,
+`Code/{{PROJECT}}-docs/scripts/check.sh --check-in`. This holds in **every** document, the
+hub-local ones below included, and it holds whether the reader is being told to run the command or
+warned off it — a warning has to name the program unambiguously too. Anything that works from
+somewhere else **names that directory in the same breath**: step 8 of
+`runbooks/splitting-repos.md` says to run `scripts/setup-workspace.sh` *from the new hub*.
+
+**Everything else follows the file it is written in.** A document inside the docs hub names the
+hub's own contents **hub-local** — `registries/repos.yml`, `runbooks/check-in.md`,
+`architecture/*-data-model.md`, `adr/`, `overview.md` — and **hub-local is measured from the hub's
+root, not from the file**, so `runbooks/check-in.md` writes `registries/repos.yml`, never
+`../registries/repos.yml`. The exception is a document that **declares it stands its reader at the
+workspace root**: `AGENTS.md`, `BOOTSTRAP-PROMPT.md` and `ONBOARDING.md` say so in their opening
+lines, and `runbooks/register-repo.md` before its first step. Those write **every** path from the
+workspace root, references included; that is the point of declaring it.
+
+**Either way, a reference that crosses into another repo is always written in full** — most
+notably `prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written
+bare.
+
+**A bare name is a name, not a path.** `status.sh` names the tool where the sentence is about what
+it does; `architecture/` and `inputs/` name areas of the hub where the sentence is about the area.
+Write the path out when the reader has to reach the thing. (`init.sh` and `doctor.sh` sit at the
+workspace root, so a bare mention of them is already root-relative.)
+**Which placeholder a path carries — `{{PROJECT}}` or `<project>` — is a separate rule**, stated
+in `ONBOARDING.md` §6.
+
+**A path a tool prints follows the reader, not the tool.** `scripts/check.sh` and
+`scripts/setup-workspace.sh` never change the caller's directory, so what they print is read
+from the workspace root and is written from there — a heading naming the file a check reads,
+and the fix beside it, must not answer in two different bases.
+
+**A Markdown link target is none of the above.** The `](…)` half of a link resolves against the
+file that contains it — that is Markdown, not a convention of ours. So `ONBOARDING.md` links to
+the collaboration runbook as `runbooks/collaboration.md` even though its prose writes that path
+in full, and a link out of a hub subdirectory still needs the `../` a hub-local reference does
+not. Adjust a link's display text if it needs it; never its target.
 
 **Mono-repo for now:** the wizard offers a single-repo start — then the **workspace root
 itself is that one repo** (the lone exception to "the root is not a repo" above), with
