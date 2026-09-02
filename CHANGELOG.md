@@ -236,6 +236,17 @@ any project built with it.
   is today.
 
 ### Fixed
+- **The architecture STEP's close-out is no longer skipped.** `scripts/status.sh` decided STEP-1
+  was finished by counting substeps, and ignored the STEP-1 row's own status. But the row is what
+  records completion: the Cross-Cutting Review runs, STEP-1 is archived to `prompts/`, and only
+  then does the row flip to `Done` — "once the review is clean", as the review session itself puts
+  it. So the window between the last substep going `Done` and the row being flipped is not a
+  glitch, it is where the close-out work lives, and a review with open findings sits in it by
+  design. In that window the resolver reported "Architecture (STEP-1) complete" and sent you
+  straight to the planning session, contradicting an index that still said `In progress` — while
+  `METHOD.md` §10 ends by making the index authoritative for which STEP is next. It now names the
+  close-out as the next action and quotes the row status back to you, and it is unchanged when the
+  row reads `Done`, `Deferred` or `Abandoned`, or when there is no STEP-1 row at all.
 - **Scheduling a check-in no longer counts as having done one.** `scripts/status.sh` measures the
   check-in cadence from the highest-numbered STEP whose title looks like a check-in — but it
   ignored that row's status. So when the cadence line said `OVERDUE; insert a Check-in STEP now`
