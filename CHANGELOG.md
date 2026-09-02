@@ -235,7 +235,6 @@ any project built with it.
   nothing is registered and no location holds a repository, so every repo is created exactly as it
   is today.
 
-### Changed
 - **The check-in cadence advises and proposes; it never becomes the next action.** `METHOD.md`
   §10 is a first-match-wins list, and rule 7 — the check-in cadence — sat between "plan the next
   STEP" and "the phase is complete". `scripts/status.sh` never implemented it, so an overdue
@@ -254,6 +253,12 @@ any project built with it.
   creep back in.
 
 ### Fixed
+- **The check-in cadence line no longer names the same STEP on both sides of the line.** With the
+  default cadence of 20, a project 25 STEPs past its last check-in is overdue — that is what
+  "OVERDUE at N+5" means. But `scripts/status.sh` printed `OVERDUE (>25)` while firing *at* 25,
+  and the sentence one branch above called 15–25 the DUE window when 25 was already out of it.
+  Both bounds now read as they behave: `DUE (you're in the 15–24 window)` and `OVERDUE (25+)`.
+  The thresholds themselves are unchanged.
 - **A STEP that merely mentions a check-in no longer counts as one.** `scripts/status.sh` measures
   the cadence from the last `Done` STEP it recognises as a check-in, and it recognised one by
   looking for the words *check* and *in* anywhere in the Title. So a bug STEP called `Fix the

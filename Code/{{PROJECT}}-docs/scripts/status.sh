@@ -257,7 +257,8 @@ fi
 # Cadence is measured by highest indexed STEP minus the latest Done STEP whose Title begins
 # `Check-in` (METHOD.md §5 states the contract). The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
 # when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
-# at N+5; METHOD.md §10 remains authoritative for the resolver.
+# at N+5 — both inclusive, so with the default 20 the DUE window is 15-24 and 25 is already
+# OVERDUE. The printed bounds say exactly that; they used to name 25 on both sides of the line.
 # The pattern is check.sh check 10's, character for character, because check 10 tells the reader
 # what this script will do with a malformed marker ("status.sh falls back to the default (20)")
 # and that sentence has to be true. It also has to reject a leading zero before the value reaches
@@ -283,8 +284,8 @@ over=$(( cadence + 5 ))
 ci_propose=""
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))
-  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>${over})."; ci_propose=1
-  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–${over} window)."; ci_propose=1
+  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (${over}+)."; ci_propose=1
+  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–$(( over - 1 )) window)."; ci_propose=1
   else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( due - since )) STEPs of headroom."
   fi
 elif [ "$maxnum" -ge "$due" ]; then

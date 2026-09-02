@@ -63,22 +63,22 @@ assert_contains() {
 
 # --- Default cadence (no marker → N=20): DUE at 15, OVERDUE at 25 --------------
 assert_contains "$(run_cadence '' 14)" 'STEPs of headroom.'
-assert_contains "$(run_cadence '' 15)" "DUE (you're in the 15–25 window)."
-assert_contains "$(run_cadence '' 24)" "DUE (you're in the 15–25 window)."
-assert_contains "$(run_cadence '' 25)" 'OVERDUE (>25).'
+assert_contains "$(run_cadence '' 15)" "DUE (you're in the 15–24 window)."
+assert_contains "$(run_cadence '' 24)" "DUE (you're in the 15–24 window)."
+assert_contains "$(run_cadence '' 25)" 'OVERDUE (25+).'
 
 # --- Explicit N=50: DUE at 45, OVERDUE at 55 ----------------------------------
 assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 50 -->' 44)" 'STEPs of headroom.'
-assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 50 -->' 45)" "DUE (you're in the 45–55 window)."
-assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 50 -->' 55)" 'OVERDUE (>55).'
+assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 50 -->' 45)" "DUE (you're in the 45–54 window)."
+assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 50 -->' 55)" 'OVERDUE (55+).'
 
 # --- Explicit N=15 reproduces the previous window: DUE at 10, OVERDUE at 20 ----
-assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 15 -->' 10)" "DUE (you're in the 10–20 window)."
-assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 15 -->' 20)" 'OVERDUE (>20).'
+assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 15 -->' 10)" "DUE (you're in the 10–19 window)."
+assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 15 -->' 20)" 'OVERDUE (20+).'
 
 # --- A malformed marker falls back to the default N=20 ------------------------
-assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: nope -->' 15)" "DUE (you're in the 15–25 window)."
-assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 0 -->' 15)" "DUE (you're in the 15–25 window)."
+assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: nope -->' 15)" "DUE (you're in the 15–24 window)."
+assert_contains "$(run_cadence '<!-- CHECK-IN-CADENCE: 0 -->' 15)" "DUE (you're in the 15–24 window)."
 
 # --- The "no Check-in STEP yet" nudge honours N (gate at N-5) ------------------
 write_overview ''
@@ -104,7 +104,7 @@ write_overview ''
   printf '| STEP-41 | Build the thing | | Planned | | Fixture |\n'
 } > "$INDEX"
 output="$(THROUGHSTONE_OVERVIEW="$OVERVIEW" THROUGHSTONE_STEP_INDEX="$INDEX" "$STATUS")"
-assert_contains "$output" 'OVERDUE (>25).'
+assert_contains "$output" 'OVERDUE (25+).'
 assert_contains "$output" 'plan STEP-41'
 assert_contains "$output" 'Also worth proposing: a Check-in STEP'
 assert_contains "$output" 'Advice, not a gate'
