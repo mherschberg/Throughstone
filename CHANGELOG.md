@@ -274,7 +274,9 @@ any project built with it.
   `status.sh` has always matched anchored twelve lines above. Case is ignored and Markdown
   emphasis is allowed, because every document that states the rule writes the phrase in bold.
   An existing project whose check-in rows are titled some other way needs one rename each;
-  `UPDATING-THROUGHSTONE.md` says which spellings still count and what it costs to skip it.
+  `UPDATING-THROUGHSTONE.md` says which spellings still count and what it costs to skip it — the
+  cadence line does not go quiet, it keeps measuring from whatever older row still qualifies, so
+  the advice is wrong rather than absent.
 - **An answer the setup wizard does not understand is no longer read as "no".** `init.sh` asks
   three yes/no questions, and the helper behind them accepted only `y`, `Y` and `yes` — everything
   else fell to a catch-all that meant no. So `YES`, `Yes`, `1` and `true` each silently declined,

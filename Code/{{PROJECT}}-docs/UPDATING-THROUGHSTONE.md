@@ -108,8 +108,9 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    not, the method-integrity gate has never run on your project — details below.
 6. **Check the Title of every past Check-in STEP row in `prompts/STEP-index.md`.** The cadence
    helper now requires it to *begin* `Check-in` — details at the end of this section. Nothing
-   rewrites your index for you, and a row it no longer recognises costs you the cadence line, not
-   a failing check.
+   rewrites your index for you. A row it no longer recognises does not fail any check; it drops
+   out of the cadence calculation, which is worse than losing the line — the line still prints,
+   measured from whatever older row still qualifies.
 7. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
@@ -140,8 +141,13 @@ Open `prompts/STEP-index.md` and look at every check-in row you already have. `C
 `Check-In`, `CHECK-IN` and `**Check-in**` all still count. Titles like `Mid-phase check-in`,
 `Phase 1 check-in` or `Docs and test sweep` no longer do — rename them to lead with `Check-in`
 and keep the old wording after it if you want it (`Check-in: mid-phase`). Nothing fails if you
-skip this: `scripts/check.sh` does not police STEP titles, and the only consequence is that
-`./doctor.sh status` reports "no Check-in STEP yet" and then tells you one is overdue.
+skip this — `scripts/check.sh` does not police STEP titles — but the cost is not that the cadence
+goes quiet. An unrecognised row simply drops out of the calculation, so `./doctor.sh status` keeps
+printing a cadence line and measures it from whatever older row still qualifies: with a recognised
+check-in at STEP-2 and an unrecognised one at STEP-28, a project at STEP-30 is told
+`last at STEP-2, 28 STEPs ago — OVERDUE (25+)`. Only when *no* row qualifies does it fall back to
+"no Check-in STEP yet". Either way the advice is wrong rather than absent, which is why the rename
+is worth doing.
 
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
