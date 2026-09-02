@@ -20,12 +20,14 @@ Usage: ./doctor.sh <command> [args]
 Commands:
   status    Show where the project is, the next action, and check-in cadence.
   check     Run the read-only structural project checks.
+            Add --check-in for the extra checks the periodic check-in makes.
   links     Check durable docs for stale local Markdown links.
   help      Show this help.
 
 Examples:
   ./doctor.sh status
   ./doctor.sh check
+  ./doctor.sh check --check-in
   ./doctor.sh links
 USAGE
 }

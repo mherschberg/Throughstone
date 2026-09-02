@@ -236,6 +236,12 @@ any project built with it.
   is today.
 
 ### Fixed
+- **`./doctor.sh --help` now mentions `--check-in`.** `scripts/check.sh` has two behaviours — the
+  checks it makes on every run, and the extra ones the periodic check-in adds — and the flag that
+  selects the second was named in the script's own header, in `METHOD.md`, in
+  `runbooks/check-in.md` and in the generated CI workflow, but in no help text anywhere. Someone
+  who came to the dispatcher to find out what it could do could not learn that half of `check`
+  existed. It is now in the command list and in the examples.
 - **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh` has always
   rejected an option it does not know, with exit 2. `scripts/status.sh`, `scripts/links.sh` and
   `scripts/setup-workspace.sh` read no arguments at all, so anything passed to them was discarded
