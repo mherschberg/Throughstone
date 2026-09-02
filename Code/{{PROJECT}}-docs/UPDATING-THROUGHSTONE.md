@@ -534,7 +534,7 @@ rewritten.** Two edits to `templates/architecture-sessions/*.md` and three docum
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
   check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
   that guards it. Pull the updated `inputs/README.md`. If you have **already lifted** a document,
-  run `scripts/check.sh`: check 4 names any doc missing a field.
+  run `./doctor.sh check`: check 4 names any doc missing a field.
 - **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
   apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
   legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
@@ -610,7 +610,7 @@ catalog.
 5. For each candidate change, write a short report: target release/ref, files reviewed,
    implication/risk, recommendation, and whether it needs a tracked STEP.
 6. Apply only the reviewed changes the user explicitly approves, following the apply and STEP
-   rules in §8 and §10, then run `scripts/check.sh`.
+   rules in §8 and §10, then run `./doctor.sh check`.
 
 Manual mode is slower than tooling, but it is the default path until the manifest and catalog
 described below exist.
@@ -818,7 +818,7 @@ Avoid names like `--safe` or `--clean-only`; they imply more certainty than the 
 After apply:
 
 1. Recompute and write manifest checksums for updated scaffold files.
-2. Run the docs hub checks (`scripts/check.sh`).
+2. Run the docs hub checks (`./doctor.sh check`).
 3. Preserve the update report in the branch or commit message.
 4. Tell the user what changed, what was skipped, and which manual review items remain.
 

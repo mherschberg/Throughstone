@@ -247,7 +247,7 @@ anything after the insertion point — up by one. To add one:
    session's invocation/output contract. Use a broad audit such as
    `rg '1\.14|14-cross|architecture/14-'` to find leftovers, but keep dynamic prose dynamic:
    prefer session labels and topic globs outside invocation/output contracts. Run
-   `scripts/check.sh` afterward; it is the mechanical backstop for heading/seed/output drift
+   `./doctor.sh check` afterward; it is the mechanical backstop for heading/seed/output drift
    and for keeping the Cross-Cutting Review last.
 3. Add its row to the §4 table and `templates/step-index-seed.md`.
 
@@ -678,7 +678,7 @@ granularity). Every session and STEP also **ends by stating the next action** an
 to start a fresh chat for it — clearing context between units is the norm, since the state
 lives in files (§4, §5).
 
-> **Shortcut:** `scripts/status.sh` runs this resolver mechanically — it prints where you
+> **Shortcut:** `./doctor.sh status` runs this resolver mechanically — it prints where you
 > are, the next action, and the check-in cadence straight from the index. It's the mechanism a
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.

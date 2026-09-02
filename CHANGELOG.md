@@ -374,6 +374,15 @@ any project built with it.
   `--adr-authority`, `--owner`, the remote URLs) took it silently. Every space-form flag now
   checks its value before using it, and says which flag is short and what to write instead. The
   `--flag=value` form is untouched, so a value that genuinely begins with `--` is still sayable.
+- **The last few "run this" instructions run.** `METHOD.md` told you to run `scripts/check.sh`
+  after renaming a session and offered `scripts/status.sh` as the shortcut a resuming agent runs
+  first; `UPDATING-THROUGHSTONE.md` said to run `scripts/check.sh` in three places. None of those
+  exists from the workspace root, where the reader is — each exited 127. They now name
+  `./doctor.sh check` and `./doctor.sh status`, which sit at the root and are the front door the
+  dispatcher advertises. Deliberately unchanged: the many sentences in hub documents that *name*
+  a helper rather than tell you to run one — `runbooks/check-in.md`'s note that
+  `scripts/check.sh --check-in` makes two registry checks, and the like. A document inside the hub
+  writes the hub's own contents hub-local, and those are references, not commands.
 - **`AGENTS.md` keeps the promise it opens with, and the ADR duplicate scan finds duplicates.**
   `AGENTS.md` tells its reader that its paths are relative to the workspace root and that "every
   path below can be used as-is" — then wrote roughly twenty of them relative to the docs hub
