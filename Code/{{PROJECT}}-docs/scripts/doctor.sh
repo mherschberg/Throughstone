@@ -51,6 +51,14 @@ run_helper() {
 cmd="${1:-help}"
 case "$cmd" in
   -h|--help|help)
+    shift
+    # Trailing arguments after help are the same usage error as an unknown command; printing the
+    # help text and exiting 0 told the caller their argument was understood.
+    if [ "$#" -gt 0 ]; then
+      echo "doctor.sh: unknown command: $1" >&2
+      echo "Try './doctor.sh --help'." >&2
+      exit 2
+    fi
     usage
     ;;
   status)

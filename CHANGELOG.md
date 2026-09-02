@@ -236,6 +236,14 @@ any project built with it.
   is today.
 
 ### Fixed
+- **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh` has always
+  rejected an option it does not know, with exit 2. `scripts/status.sh`, `scripts/links.sh` and
+  `scripts/setup-workspace.sh` read no arguments at all, so anything passed to them was discarded
+  without a word — `./doctor.sh status --check-in` ran an ordinary status report and exited 0, and
+  a flag aimed at the wrong helper looked like it had worked. The dispatcher's own `help` arm did
+  the same: `./doctor.sh help --nonsense` printed the help text and exited 0, treating the
+  argument as understood. All four now report the argument and exit 2, so one entry point behaves
+  one way. Every valid invocation is untouched, `--check-in` included.
 - **A short check-in cadence no longer prints a negative window.** The check-in window is the
   project's `CHECK-IN-CADENCE` plus or minus 5, so a cadence of 5 or less put its left edge at
   zero or below: `scripts/status.sh` reported things like `DUE (you're in the -2–8 window)`, and
