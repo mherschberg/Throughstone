@@ -24,6 +24,13 @@ fi
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 
+# What this script prints is read from wherever it was run, and it never changes the caller's
+# directory — normally that is the workspace root. So every path it names is written from there,
+# the same base check.sh uses for the same reason (METHOD.md §7, "a path a tool prints follows
+# the reader, not the tool"). Paths already at the workspace root — prompts/, Upcoming Prompts/ —
+# are written bare; anything inside the docs hub carries this prefix.
+DOCS_REL="Code/$(basename "$DOCS_DIR")"
+
 # File assumptions: the generated docs repo sits at Code/<project>-docs/, while the runtime
 # STEP index lives at the project root in prompts/STEP-index.md.
 #
@@ -37,11 +44,11 @@ echo
 
 # --- Kickoff gate (AGENTS.md "First action") ----------------------------------
 if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: not-started' "$OVERVIEW"; then
-  echo "Where you are:  kickoff not started (overview.md marker: not-started)."
+  echo "Where you are:  kickoff not started ($DOCS_REL/overview.md marker: not-started)."
   echo
   echo "Next action:"
   echo "  → start the kickoff — open the project and say:  \"Read AGENTS.md and follow it.\""
-  echo "    It runs BOOTSTRAP-PROMPT.md from Stage 0 (no command to paste)."
+  echo "    It runs $DOCS_REL/BOOTSTRAP-PROMPT.md from Stage 0 (no command to paste)."
   exit 0
 fi
 
@@ -179,7 +186,7 @@ all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 where=""; next=""
 if [ "$unknown_sub" -gt 0 ]; then
   where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
-  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+  next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
 elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
@@ -202,7 +209,7 @@ elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   fi
 elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
   where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
-  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+  next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
   # §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what says so: the
   # Cross-Cutting Review, the archive to prompts/, and the flip to Done all happen after the last
@@ -214,10 +221,10 @@ elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 
   if [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&
      [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
     where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
-    next="close out STEP-1 — run its Cross-Cutting Review to clean, archive it to prompts/ (METHOD.md §5), and mark the STEP-1 row Done. The planning session comes after that."
+    next="close out STEP-1 — run its Cross-Cutting Review to clean, archive it to prompts/ ($DOCS_REL/METHOD.md §5), and mark the STEP-1 row Done. The planning session comes after that."
   elif [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
-    next="run the planning session — it outlines the Phase-1 implementation STEPs (templates/planning-session.md)."
+    next="run the planning session — it outlines the Phase-1 implementation STEPs ($DOCS_REL/templates/planning-session.md)."
   elif [ "$step1_st" = "Done" ]; then
     where="STEP-1 done; implementation not yet outlined."
     next="run the planning session — it outlines the Phase-1 implementation STEPs."
@@ -240,10 +247,10 @@ elif [ -n "$lowplanned" ]; then                             # §10.5
   next="plan ${lowplanned} — confirm scope, author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
 elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
-  next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes-template.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
+  next="phase looks complete — it's a milestone: prompt release notes ($DOCS_REL/templates/release-notes-template.md if yes) + user-facing doc updates ($DOCS_REL/METHOD.md §5), then open the next phase and run the planning session for it."
 else
   where="Indeterminate from the index alone."
-  next="resolve by hand via the next-action resolver in METHOD.md §10."
+  next="resolve by hand via the next-action resolver in $DOCS_REL/METHOD.md §10."
 fi
 
 # --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
@@ -296,7 +303,7 @@ echo "  (start a fresh chat for it — state lives on disk, not in this conversa
 if [ -n "$ci_propose" ]; then
   echo
   echo "  Also worth proposing: a Check-in STEP, at the next sensible breakpoint — after a"
-  echo "  capability lands, not mid-feature. Advice, not a gate (METHOD.md §10 rule 7): it does"
+  echo "  capability lands, not mid-feature. Advice, not a gate ($DOCS_REL/METHOD.md §10 rule 7): it does"
   echo "  not replace the action above, and the cadence never blocks work."
 fi
 echo

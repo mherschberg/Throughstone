@@ -374,6 +374,18 @@ any project built with it.
   `--adr-authority`, `--owner`, the remote URLs) took it silently. Every space-form flag now
   checks its value before using it, and says which flag is short and what to write instead. The
   `--flag=value` form is untouched, so a value that genuinely begins with `--` is still sayable.
+- **The rest of the tools print paths you can open.** The path convention says a path a tool
+  prints follows the reader, not the tool, and the release above applied it to `scripts/check.sh`
+  and `scripts/setup-workspace.sh` — the two scripts the rule happened to name. `scripts/status.sh`
+  was not among them and never derived the docs hub's location at all, so the helper a resuming
+  agent runs *first* named `overview.md`, `BOOTSTRAP-PROMPT.md`, `templates/planning-session.md`,
+  `templates/release-notes-template.md` and `METHOD.md` from inside the hub while answering someone
+  standing at the workspace root. It also told you to `run scripts/check.sh`, which fails from
+  there; it now names `./doctor.sh check` and `./doctor.sh status`, the front door the dispatcher
+  advertises. Three hints in `check.sh` and the mono half of the setup wizard's closing tip were
+  the same shape — the wizard's multi half, four lines below, already wrote the full path. §7's
+  clause no longer lists the two scripts it applies to: what a tool prints is read from where the
+  reader is, which is true of every helper here and any added later.
 - **Instructions in the docs now work from the directory they tell you to stand in.** Six of them
   did not. The first line of the periodic check-in told you to run `scripts/check.sh --check-in`,
   which fails from the workspace root where you actually are — and that one is on the path anyone

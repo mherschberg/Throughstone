@@ -572,10 +572,13 @@ workspace root, so a bare mention of them is already root-relative.)
 **Which placeholder a path carries — `{{PROJECT}}` or `<project>` — is a separate rule**, stated
 in `ONBOARDING.md` §6.
 
-**A path a tool prints follows the reader, not the tool.** `scripts/check.sh` and
-`scripts/setup-workspace.sh` never change the caller's directory, so what they print is read
-from the workspace root and is written from there — a heading naming the file a check reads,
-and the fix beside it, must not answer in two different bases.
+**A path a tool prints follows the reader, not the tool.** None of the helpers changes the
+caller's directory, so whatever any of them prints is read from the workspace root and is written
+from there — a heading naming the file a check reads, and the fix beside it, must not answer in
+two different bases. That is a property of the reader's position, not a list of scripts: it holds
+for every script here and for any added later. A command a tool tells you to run is a shell
+command like any other, so it too is written from the workspace root — `./doctor.sh check`
+rather than the helper's own hub-local path.
 
 **A Markdown link target is none of the above.** The `](…)` half of a link resolves against the
 file that contains it — that is Markdown, not a convention of ours. So `ONBOARDING.md` links to

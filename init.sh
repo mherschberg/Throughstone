@@ -1315,7 +1315,8 @@ if [ "$LAYOUT" = "2" ]; then
   attaching one: an empty origin this folder already had is kept rather than replaced, though
   attaching it can itself fail. So run 'git remote -v' first to see what you actually have, then
   either push the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on
-  your host and push to that. Then record that URL on the row in registries/repos.yml whose
+  your host and push to that. Then record that URL on the row in
+  Code/${SLUG}-docs/registries/repos.yml whose
   location is \".\", the same as any other repo — until it is there the check-in reports this
   project as backed up nowhere. The rows below it are folders inside that one repository, not
   repos to clone."

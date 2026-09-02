@@ -200,8 +200,8 @@ if [ -f "$ADR_INDEX" ]; then
   missing_files="$(comm -23 <(emit "$reg_ids") <(emit "$disk_ids"))"   # in registry, no file
   missing_rows="$(comm -13 <(emit "$reg_ids") <(emit "$disk_ids"))"    # file, not in registry
   ok=1
-  [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; hint "create the ADR file(s) from templates/adr-template.md, or remove the stale registry row(s) in adr/README.md."; }
-  [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; hint "add a registry row in adr/README.md for the file(s), or delete the file if it shouldn't exist."; }
+  [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; hint "create the ADR file(s) from $DOCS_REL/templates/adr-template.md, or remove the stale registry row(s) in $DOCS_REL/adr/README.md."; }
+  [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; hint "add a registry row in $DOCS_REL/adr/README.md for the file(s), or delete the file if it shouldn't exist."; }
   [ "$ok" -eq 1 ] && pass "registry and files agree ($(emit "$reg_ids" | grep -c . ) ADR(s))"
 else
   warn "no $DOCS_REL/adr/README.md — skipping ADR registry/disk check"
@@ -217,7 +217,7 @@ if [ -f "$OVERVIEW" ]; then
   if [ -n "$legacy_profile_fields" ]; then
     warn "$DOCS_REL/overview.md contains legacy personal preference section(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$legacy_profile_fields"
-    hint "create/update root .throughstone/local-user.md for the active user, then remove these personal-preference sections from $DOCS_REL/overview.md after confirming they are not project facts. See UPDATING-THROUGHSTONE.md."
+    hint "create/update root .throughstone/local-user.md for the active user, then remove these personal-preference sections from $DOCS_REL/overview.md after confirming they are not project facts. See $DOCS_REL/UPDATING-THROUGHSTONE.md."
   else
     pass "$DOCS_REL/overview.md has no legacy local user preference sections"
   fi
