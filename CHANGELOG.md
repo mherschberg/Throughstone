@@ -235,6 +235,24 @@ any project built with it.
   nothing is registered and no location holds a repository, so every repo is created exactly as it
   is today.
 
+### Changed
+- **The check-in cadence advises and proposes; it never becomes the next action.** `METHOD.md`
+  §10 is a first-match-wins list, and rule 7 — the check-in cadence — sat between "plan the next
+  STEP" and "the phase is complete". `scripts/status.sh` never implemented it, so an overdue
+  project got `OVERDUE; insert a Check-in STEP now` on one line and `plan STEP-41` on the next,
+  which reads like the tool contradicting itself. The resolution is not a new resolver branch.
+  Rule 7's own wording puts the check-in "at the next sensible breakpoint", and a rule that fired
+  the moment a project went overdue would fire mid-feature — the one place §5 says not to put
+  one. So §10 now says plainly that rule 7 is the exception to first-match-wins: the cadence is
+  reported *alongside* the next action and never in place of it, it never blocks work, and no
+  rule below it is skipped because a check-in is due. `status.sh` prints it that way — when the
+  cadence is due or overdue it offers a Check-in STEP under the next action, marked as advice,
+  and the next action itself is untouched. `OVERDUE (>25); insert a Check-in STEP now.` loses its
+  imperative and becomes `OVERDUE (>25).`, with the proposal carrying the suggestion instead.
+  `prompts/README.md` no longer describes a due Check-in STEP as something the resolver answers
+  with. `tests/status-checkin-cadence.sh` now holds both halves of the contract, so a gate cannot
+  creep back in.
+
 ### Fixed
 - **A STEP that merely mentions a check-in no longer counts as one.** `scripts/status.sh` measures
   the cadence from the last `Done` STEP it recognises as a check-in, and it recognised one by

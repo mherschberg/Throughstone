@@ -268,14 +268,20 @@ fi
 # untouched.
 due=$(( cadence - 5 )); [ "$due" -lt 1 ] && due=1
 over=$(( cadence + 5 ))
+# ci_propose is set whenever the cadence has something to suggest. METHOD.md §10 rule 7 is
+# deliberately not a resolver branch: the cadence advises and proposes, and never becomes the next
+# action. A gate that fired the moment a project went overdue would fire mid-feature, which is the
+# one place §5 says not to put a check-in — so this is printed beside the next action, never
+# instead of it, and the wording proposes rather than commands.
+ci_propose=""
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))
-  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>${over}); insert a Check-in STEP now."
-  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–${over} window)."
+  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>${over})."; ci_propose=1
+  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–${over} window)."; ci_propose=1
   else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( due - since )) STEPs of headroom."
   fi
 elif [ "$maxnum" -ge "$due" ]; then
-  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."
+  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."; ci_propose=1
 else
   ci="no Check-in STEP yet — fine (${maxnum} STEP(s) in; first due ~STEP-${due}–${over})."
 fi
@@ -287,6 +293,12 @@ echo
 echo "Next action:"
 echo "  → $next"
 echo "  (start a fresh chat for it — state lives on disk, not in this conversation.)"
+if [ -n "$ci_propose" ]; then
+  echo
+  echo "  Also worth proposing: a Check-in STEP, at the next sensible breakpoint — after a"
+  echo "  capability lands, not mid-feature. Advice, not a gate (METHOD.md §10 rule 7): it does"
+  echo "  not replace the action above, and the cadence never blocks work."
+fi
 echo
 echo "Check-in cadence:"
 echo "  $ci"

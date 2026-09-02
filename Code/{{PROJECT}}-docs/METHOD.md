@@ -654,10 +654,14 @@ Quick resolver:
 | Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
 | Planned implementation STEPs exist and none in progress | Plan the lowest-numbered planned STEP, then wait for approval |
 | A STEP is in progress | Open its PLAN, identify the lowest open substep, and wait for an explicit substep command |
-| Check-in cadence is due | Propose a Check-in STEP |
+| Check-in cadence is due | Propose a Check-in STEP — *alongside* the answer above, never instead of it |
 | Phase is complete | Do milestone doc review, then plan the next phase |
 
-Resolve the next action top-down against the index — the first rule that matches wins:
+Resolve the next action top-down against the index — the first rule that matches wins. **Rule 7
+is the one exception**: the check-in cadence is *advice*, reported alongside the next action and
+never in place of it. It never blocks work, and no rule below it is skipped because a check-in is
+due.
+
 
 1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one
    in a fresh chat using `Run STEP-1.N: <Session label from the index>`; the label is
@@ -686,8 +690,13 @@ Resolve the next action top-down against the index — the first rule that match
    identify the lowest open substep and wait for that explicit substep command. When the last
    substep is done, run the STEP's review,
    then archive it (§5) and mark it `Done`.
-7. **~20 STEPs (the project's cadence) since the last check-in?** → propose a **Check-in STEP** at the next
-   sensible breakpoint (§5; `runbooks/check-in.md`).
+7. **~20 STEPs (the project's cadence) since the last check-in?** → **propose** a **Check-in
+   STEP** at the next sensible breakpoint (§5; `runbooks/check-in.md`) — and then go on with
+   whatever the rules above answered. **This rule never becomes the next action**, and it is
+   deliberately not a gate: the check-in belongs at a breakpoint, and a rule that fired the
+   moment you went overdue would fire mid-feature, which is the one place §5 says not to put it.
+   The user decides whether to take the proposal. `scripts/status.sh` prints it this way — the
+   cadence line advises, the next action is whatever rules 1-6 or 8 produced.
 8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
    notes** (use `templates/release-notes-template.md` if yes) and **any user-facing doc updates** (§5,
    *Milestone doc review*), then open the next phase and re-run the planning session for it.
