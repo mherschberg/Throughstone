@@ -246,7 +246,11 @@ if [ -f "$OVERVIEW" ]; then
        | head -1 | grep -oE '[1-9][0-9]*' | head -1)"
   if [ -n "$n" ]; then cadence="$n"; fi
 fi
-due=$(( cadence - 5 ))
+# The window is the cadence plus or minus 5, floored at 1: a cadence of 5 or less would otherwise
+# put its left edge at zero or below, printing "the -2-8 window" and reporting DUE from the STEP
+# the check-in happened on. The floor only ever raises `due`, so every cadence of 6 or more is
+# untouched.
+due=$(( cadence - 5 )); [ "$due" -lt 1 ] && due=1
 over=$(( cadence + 5 ))
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))

@@ -236,6 +236,13 @@ any project built with it.
   is today.
 
 ### Fixed
+- **A short check-in cadence no longer prints a negative window.** The check-in window is the
+  project's `CHECK-IN-CADENCE` plus or minus 5, so a cadence of 5 or less put its left edge at
+  zero or below: `scripts/status.sh` reported things like `DUE (you're in the -2–8 window)`, and
+  it said so from the STEP the check-in happened on — a project that had just checked in was
+  told it was due for another. The lower edge is now floored at 1. This only ever raises the
+  threshold, so any cadence of 6 or more — which is every value the documentation uses — behaves
+  exactly as before.
 - **The architecture STEP's close-out is no longer skipped.** `scripts/status.sh` decided STEP-1
   was finished by counting substeps, and ignored the STEP-1 row's own status. But the row is what
   records completion: the Cross-Cutting Review runs, STEP-1 is archived to `prompts/`, and only
