@@ -207,17 +207,24 @@ elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
+  #
+  # These match the START of the Session label, and match the session's own name rather than a
+  # loose keyword. Searching anywhere in the cell read a substep's topic as a conditional it has
+  # nothing to do with: "Authoring conventions & style guide" contains auth, so it was advised as
+  # "run the identity-auth session", and "Desktop publishing pipeline" as the native-app one —
+  # which anchoring alone would not have fixed, since that label really does begin with desktop.
+  # A label that matches nothing falls to the generic wording, which is still correct advice.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
     cond_example="run the conditional session by name"
-    if printf '%s' "$lowsub_se" | grep -qiE 'identity|auth'; then
+    if printf '%s' "$lowsub_se" | grep -qiE '^(identity|auth)\b'; then
       cond_example="run the identity-auth session"
-    elif printf '%s' "$lowsub_se" | grep -qiE 'native|mobile|desktop'; then
+    elif printf '%s' "$lowsub_se" | grep -qiE '^native\b|^(mobile|desktop) app\b'; then
       cond_example="run the native-app session"
-    elif printf '%s' "$lowsub_se" | grep -qiE 'privacy|compliance|data governance'; then
+    elif printf '%s' "$lowsub_se" | grep -qiE '^privacy\b|^data governance\b'; then
       cond_example="run the privacy session"
     fi
     next="Run STEP-${lowsub}: ${lowsub_se} — invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
-  elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
+  elif printf '%s' "$lowsub_se" | grep -qiE '^cross.?cutting\b'; then
     next="Run STEP-${lowsub}: Cross-Cutting Review."
   else
     next="Run STEP-${lowsub}: ${lowsub_se}."

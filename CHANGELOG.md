@@ -253,6 +253,16 @@ any project built with it.
   creep back in.
 
 ### Fixed
+- **A substep is no longer mistaken for a conditional architecture session it has nothing to do
+  with.** When `scripts/status.sh` points you at an optional architecture session, it suggests the
+  by-name phrase to invoke it with — and it worked out which session by searching the label for a
+  keyword, anywhere in the text. So a substep called `Authoring conventions & style guide` was
+  advised as *"run the identity-auth session"*, because *auth* sits inside *Authoring*, and
+  `Desktop publishing pipeline` was pointed at the native-app session. Anchoring alone would not
+  have fixed the second — that label genuinely does begin with *desktop* — so the match is now
+  against the session's own name rather than a loose keyword. A label matching none of them falls
+  back to the generic "invoke it by name", which was always correct advice. This is the same
+  defect as the check-in title match above, in the four remaining places it appeared.
 - **A note written into a roadmap row no longer deletes the row.** `prompts/STEP-index.md` ships
   full of instructional HTML comments and invites you to annotate it, but `scripts/status.sh`
   skipped any *line* containing one. So a comment inside a row removed that row from everything
