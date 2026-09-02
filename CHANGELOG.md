@@ -313,9 +313,8 @@ any project built with it.
   cannot correct without doing the work by hand afterwards. Every other question in the wizard
   re-asks on an answer it does not recognise; this one did not, and the inconsistency was more of
   the defect than the vocabulary was. It now re-asks in the same voice as its siblings, and the
-  words it accepts are the ones `--remotes=` and `--registries=` already took — through a single
-  `normalize_yesno`, so a typed answer and a flag value cannot drift apart, the same way
-  `normalize_layout` and `normalize_collab` already work.
+  words it accepts are the ones `--remotes=` and `--registries=` already took, from one shared
+  check, so a typed answer and a flag value cannot drift apart.
   **A required answer left blank is re-asked too.** `--non-interactive` refuses a missing
   description; the interactive path accepted one, which made the friendlier route the one that
   let an empty value through — into `AGENTS.md`, `templates/planning-session.md` and every
