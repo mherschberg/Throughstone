@@ -21,7 +21,28 @@ cd "$ROOT"
 # env vars, and interactive answers share the same checks.
 say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 ask()  { local p="$1" d="${2:-}" a; if [ -n "$d" ]; then read -r -p "$p [$d]: " a; echo "${a:-$d}"; else read -r -p "$p: " a; echo "$a"; fi; }
-yesno(){ local a; read -r -p "$1 [y/N]: " a; case "$a" in y|Y|yes) return 0;; *) return 1;; esac; }
+
+# yesno PROMPT — ask a yes/no question that defaults to no. It re-asks on an answer it does not
+# recognise, the way every other question in the wizard does; before this, anything outside
+# y/Y/yes was silently taken as "no", so YES, Yes, 1 and true each quietly declined at
+# "Set up online Git remotes now?" — the one question here whose wrong answer is unrecoverable
+# later. The accepted words are normalize_yesno's, so a typed answer and a --remotes= or
+# --registries= value cannot drift apart. A bare Enter takes the advertised default, and so does
+# end of input, which is what stops a short answer stream spinning here forever.
+yesno() {
+  local a rc
+  while :; do
+    a=""; rc=0
+    read -r -p "$1 [y/N]: " a || rc=$?
+    if [ -z "$a" ]; then return 1; fi
+    if normalize_yesno "$a"; then
+      [ "$NORMALIZED_YESNO" = "1" ] && return 0
+      return 1
+    fi
+    [ "$rc" -eq 0 ] || return 1
+    echo "  -> answer y or n (Enter alone means no)."
+  done
+}
 
 # need_val FLAG VALUE — guard the space-separated form of a flag. `--desc --layout=mono` is a
 # missing value, not a description: without this the value silently becomes "--layout=mono" and
@@ -42,13 +63,31 @@ need_val() {
 # This is the flag/env bridge: callers pass the already-parsed preset first, so command-line
 # values win over env vars and both bypass prompting.
 want() {
-  local val="$1" prompt="$2" def="${3:-}"
+  local val="$1" prompt="$2" def="${3:-}" rc
   if [ -n "$val" ]; then printf '%s' "$val"; return; fi
   if [ "$NONINTERACTIVE" = "1" ]; then
     [ -n "$def" ] && { printf '%s' "$def"; return; }
     echo "init.sh: missing required value (--non-interactive): $prompt" >&2; exit 2
   fi
-  ask "$prompt" "$def"
+  # A blank answer is re-asked rather than accepted. --non-interactive already refuses the same
+  # omission, so accepting it interactively meant the friendlier path was the one that let an
+  # empty description or copyright holder through — into AGENTS.md, the session templates, and a
+  # LICENSE reading "Copyright (c) YYYY " with nothing after it. read is inlined instead of
+  # reusing ask so that end of input can be told apart from a bare Enter; without that the loop
+  # would spin on a short answer stream. Both notices go to stderr because want is always called
+  # inside a command substitution.
+  while :; do
+    val=""; rc=0
+    if [ -n "$def" ]; then
+      read -r -p "$prompt [$def]: " val || rc=$?
+      [ -n "$val" ] || val="$def"
+    else
+      read -r -p "$prompt: " val || rc=$?
+    fi
+    [ -n "$val" ] && { printf '%s' "$val"; return; }
+    [ "$rc" -eq 0 ] || { echo "init.sh: missing required value (input ended): $prompt" >&2; exit 2; }
+    echo "  -> $prompt is required." >&2
+  done
 }
 
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
@@ -89,6 +128,18 @@ normalize_collab() {
     solo|1) NORMALIZED_COLLAB=1 ;;
     team|2) NORMALIZED_COLLAB=2 ;;
     *)      return 1 ;;
+  esac
+}
+
+# normalize_yesno INPUT — set NORMALIZED_YESNO to 1 (yes) or 0 (no). The third of the same
+# shape: one vocabulary for a yes/no answer however it arrives, so the --remotes= flag, the
+# --registries= flag and the typed answer cannot accept different words. Blank is not a value
+# here — the callers decide what an unanswered question means.
+normalize_yesno() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    y|yes|true|1) NORMALIZED_YESNO=1 ;;
+    n|no|false|0) NORMALIZED_YESNO=0 ;;
+    *)            return 1 ;;
   esac
 }
 
@@ -497,13 +548,12 @@ fi
 # still parsed so existing automation keeps working, and its value is still validated: an
 # unrecognized one is an error in either layout, and `no` is ignored with a deprecation notice.
 if [ -n "$REGISTRIES_IN" ]; then
-  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1) : ;;
-    n|no|false|0)
-      echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
-      echo "         The flag is deprecated and will be removed in a future release." >&2 ;;
-    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
+  normalize_yesno "$REGISTRIES_IN" \
+    || { echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2; }
+  if [ "$NORMALIZED_YESNO" = "0" ]; then
+    echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
+    echo "         The flag is deprecated and will be removed in a future release." >&2
+  fi
 fi
 
 # Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
@@ -628,11 +678,9 @@ REMOTE_VISIBILITY=private
 HAS_MANUAL_REMOTE_INPUT=0
 [ -n "$REMOTE_URL_IN$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] && HAS_MANUAL_REMOTE_INPUT=1
 if [ -n "$REMOTES_IN" ]; then
-  case "$(printf '%s' "$REMOTES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1) MK_REMOTES=1 ;;
-    n|no|false|0) MK_REMOTES=0 ;;
-    *) echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
+  normalize_yesno "$REMOTES_IN" \
+    || { echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2; }
+  MK_REMOTES="$NORMALIZED_YESNO"
 elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
   MK_REMOTES=1
 elif [ "$NONINTERACTIVE" != "1" ]; then

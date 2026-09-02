@@ -236,6 +236,24 @@ any project built with it.
   is today.
 
 ### Fixed
+- **An answer the setup wizard does not understand is no longer read as "no".** `init.sh` asks
+  three yes/no questions, and the helper behind them accepted only `y`, `Y` and `yes` — everything
+  else fell to a catch-all that meant no. So `YES`, `Yes`, `1` and `true` each silently declined,
+  most consequentially at "Set up online Git remotes now?", where declining is the answer you
+  cannot correct without doing the work by hand afterwards. Every other question in the wizard
+  re-asks on an answer it does not recognise; this one did not, and the inconsistency was more of
+  the defect than the vocabulary was. It now re-asks in the same voice as its siblings, and the
+  words it accepts are the ones `--remotes=` and `--registries=` already took — through a single
+  `normalize_yesno`, so a typed answer and a flag value cannot drift apart, the same way
+  `normalize_layout` and `normalize_collab` already work.
+  **A required answer left blank is re-asked too.** `--non-interactive` refuses a missing
+  description; the interactive path accepted one, which made the friendlier route the one that
+  let an empty value through — into `AGENTS.md`, `templates/planning-session.md` and every
+  architecture session template. A blank copyright holder did the same to an open-source project,
+  shipping `Copyright (c) 2026 ` with nothing after it in every generated repo, with the doctor
+  reporting no failures. End of input still ends the run rather than looping: an exhausted answer
+  stream takes the advertised default at a yes/no question and exits 2 with the missing prompt
+  named at a required one.
 - **The check-in report template has somewhere to record deferred coverage.** An architecture doc
   may deliberately leave part of its area unwritten, marked in its `Coverage:` field.
   `runbooks/check-in.md` treats that as a standing obligation — the deferral must be "resurfaced,
