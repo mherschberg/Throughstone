@@ -559,7 +559,11 @@ root, not from the file**, so `runbooks/check-in.md` writes `registries/repos.ym
 `../registries/repos.yml`. The exception is a document that **declares it stands its reader at the
 workspace root**: `AGENTS.md`, `BOOTSTRAP-PROMPT.md` and `ONBOARDING.md` say so in their opening
 lines, and `runbooks/register-repo.md` before its first step. Those write **every** path from the
-workspace root, references included; that is the point of declaring it.
+workspace root, references included; that is the point of declaring it. A document that lives in
+neither the hub nor a declaring file — `prompts/README.md` is the one the scaffold ships — reads
+"the file it is written in" the same way: **from the root of its own repository**, so
+`prompts/README.md` names its sibling as `STEP-index.md`. Crossing out of that repo is covered by
+the next rule.
 
 **Either way, a reference that crosses into another repo is always written in full** — most
 notably `prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written
@@ -728,7 +732,9 @@ due.
    explicitly requested substep: *"run substep N.M"*. If the user says only *"run STEP N"*,
    identify the lowest open substep and wait for that explicit substep command. When the last
    substep is done, run the STEP's review,
-   then archive it (§5) and mark it `Done`.
+   then archive it (§5) and mark it `Done`. **A Check-in STEP is the exception**: its two substeps
+   are fixed and `runbooks/check-in.md` is their prompt, so *"run the check-in"* runs both, end to
+   end. Nothing else is invoked whole.
 7. **~20 STEPs (the project's cadence) since the last check-in?** → **propose** a **Check-in
    STEP** at the next sensible breakpoint (§5; `runbooks/check-in.md`) — and then go on with
    whatever the rules above answered. **This rule never becomes the next action**, and it is
