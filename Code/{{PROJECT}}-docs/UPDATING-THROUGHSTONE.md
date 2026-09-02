@@ -106,7 +106,11 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    section. Nothing else in 1.8 can turn a passing run red on its own.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
-6. Nothing else. A project that never splits reads none of the splitting material.
+6. **Check the Title of every past Check-in STEP row in `prompts/STEP-index.md`.** The cadence
+   helper now requires it to *begin* `Check-in` — details at the end of this section. Nothing
+   rewrites your index for you, and a row it no longer recognises costs you the cadence line, not
+   a failing check.
+7. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -120,6 +124,24 @@ interactive project-type question now defaults to private/proprietary rather tha
 pressing Enter through setup no longer licenses a project MIT without anyone naming a license. Your
 project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
 it does not change. Worth knowing only if you bootstrap another project from muscle memory.
+
+**The Check-in STEP now has a title contract, and one row of yours may need renaming.**
+`scripts/status.sh` measures the check-in cadence from the last `Done` STEP it recognises as a
+check-in. It used to recognise one by looking for the words *check* and *in* anywhere in the
+Title, which was wrong in both directions: a bug STEP called `Fix the check-in report generator`
+reset the clock — and `runbooks/check-in.md`'s own Carry-forward step is what produces bug STEPs
+named after the check-in that found them — while the requirement to use those words at all was
+written down nowhere, so a descriptively-titled check-in was invisible. The rule is now stated, in
+`METHOD.md` §5, `runbooks/check-in.md`, `templates/planning-session.md` and `prompts/README.md`:
+**the row's Title begins `Check-in`**, optionally followed by a scope (`Check-in: phase 1`).
+Markdown emphasis around it is fine, and matching ignores case.
+
+Open `prompts/STEP-index.md` and look at every check-in row you already have. `Check-in`,
+`Check-In`, `CHECK-IN` and `**Check-in**` all still count. Titles like `Mid-phase check-in`,
+`Phase 1 check-in` or `Docs and test sweep` no longer do — rename them to lead with `Check-in`
+and keep the old wording after it if you want it (`Check-in: mid-phase`). Nothing fails if you
+skip this: `scripts/check.sh` does not police STEP titles, and the only consequence is that
+`./doctor.sh status` reports "no Check-in STEP yet" and then tells you one is overdue.
 
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race

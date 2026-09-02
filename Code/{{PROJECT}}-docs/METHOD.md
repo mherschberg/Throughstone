@@ -393,7 +393,11 @@ doc → file a bug), re-evaluate every available conditional architecture sessio
 accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
 implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
-capability lands, not mid-feature). Treat the cadence as a guideline — pick the breakpoint by
+capability lands, not mid-feature). **Its index title starts `Check-in`** — a scope may follow
+(`Check-in: phase 1`) — so `scripts/status.sh` can find the last one and measure the cadence
+from it; a row titled anything else is invisible to that clock, exactly as a conditional
+follow-up not titled `Conditional session:` is invisible to the resolver (§4).
+Treat the cadence as a guideline — pick the breakpoint by
 judgment. **The cadence is a per-project setting** (recommended **20**): the target is recorded as
 `<!-- CHECK-IN-CADENCE: N -->` in `overview.md`, and any project can change it at any time — including
 one that pulls this scaffold into an existing codebase and wants a different rhythm. `status.sh` reads

@@ -236,6 +236,22 @@ any project built with it.
   is today.
 
 ### Fixed
+- **A STEP that merely mentions a check-in no longer counts as one.** `scripts/status.sh` measures
+  the cadence from the last `Done` STEP it recognises as a check-in, and it recognised one by
+  looking for the words *check* and *in* anywhere in the Title. So a bug STEP called `Fix the
+  check-in report generator` at STEP-30 turned `OVERDUE, 26 STEPs ago` into `~14 STEPs of
+  headroom` — and `runbooks/check-in.md`'s own Carry-forward step is exactly what produces bug
+  STEPs named after the check-in that found them. `Add checkinventory endpoint` matched too. The
+  mirror held as well: the clock depended on those words appearing in the Title, and that
+  requirement was written down nowhere, so a descriptively-titled check-in was invisible to it.
+  The contract is now stated — **the row's Title begins `Check-in`**, optionally followed by a
+  scope (`Check-in: phase 1`) — in `METHOD.md` §5, `runbooks/check-in.md`,
+  `templates/planning-session.md` and `prompts/README.md`, and the match is anchored to it. This
+  is the same shape the method already used for `Conditional session: <topic>`, which
+  `status.sh` has always matched anchored twelve lines above. Case is ignored and Markdown
+  emphasis is allowed, because every document that states the rule writes the phrase in bold.
+  An existing project whose check-in rows are titled some other way needs one rename each;
+  `UPDATING-THROUGHSTONE.md` says which spellings still count and what it costs to skip it.
 - **An answer the setup wizard does not understand is no longer read as "no".** `init.sh` asks
   three yes/no questions, and the helper behind them accepted only `y`, `Y` and `yes` — everything
   else fell to a catch-all that meant no. So `YES`, `Yes`, `1` and `true` each silently declined,

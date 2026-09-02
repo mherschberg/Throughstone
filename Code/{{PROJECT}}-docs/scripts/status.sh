@@ -157,7 +157,14 @@ while [ "$i" -lt "$n_steps" ]; do
   # Only a Done check-in resets the clock. A Planned row is the work, not the record of it —
   # counting it meant that adding the row the OVERDUE warning tells you to add silenced the
   # warning before the check-in happened, so acting on the advice cleared the advice.
-  if [ "$st" = "Done" ] && printf '%s' "$ti" | grep -qiE 'check.?in'; then
+  #
+  # The Title must *begin* Check-in — the contract METHOD.md §5 and runbooks/check-in.md state,
+  # the same shape as the `Conditional session:` prefix matched twelve lines above. An unanchored
+  # substring match read any title mentioning a check-in as being one, so a bug STEP named after
+  # the check-in that found it reset the clock — and check-in.md's own Carry-forward step is what
+  # produces those. Markdown emphasis around the phrase is allowed because every document that
+  # states the contract writes it in bold.
+  if [ "$st" = "Done" ] && printf '%s' "$ti" | grep -qiE '^[*`_ ]*check-in\b'; then
     [ "$n" -gt "$last_ci" ] && last_ci=$n
   fi
   i=$((i + 1))
@@ -240,8 +247,8 @@ else
 fi
 
 # --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
-# Cadence is measured by highest indexed STEP minus the latest STEP whose title looks like a
-# check-in. The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
+# Cadence is measured by highest indexed STEP minus the latest Done STEP whose Title begins
+# `Check-in` (METHOD.md §5 states the contract). The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
 # when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
 # at N+5; METHOD.md §10 remains authoritative for the resolver.
 # The pattern is check.sh check 10's, character for character, because check 10 tells the reader
