@@ -253,6 +253,16 @@ any project built with it.
   creep back in.
 
 ### Fixed
+- **A note written into a roadmap row no longer deletes the row.** `prompts/STEP-index.md` ships
+  full of instructional HTML comments and invites you to annotate it, but `scripts/status.sh`
+  skipped any *line* containing one. So a comment inside a row removed that row from everything
+  the helper knows: `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` made the
+  STEP in flight invisible, and the helper answered as though nothing were being built. A note on
+  the highest-numbered row was worse — it also lost the project's high-water mark, so a phase with
+  `Planned` work left reported "Every STEP in the index is final". `scripts/check.sh` said nothing
+  in either case, and nobody writing the note had any reason to expect it. Comments are now
+  stripped from the line rather than taking the line with them. Example rows that sit wholly
+  inside a comment block are still ignored, which is the only thing this behaviour was ever for.
 - **The check-in cadence line no longer names the same STEP on both sides of the line.** With the
   default cadence of 20, a project 25 STEPs past its last check-in is overdue — that is what
   "OVERDUE at N+5" means. But `scripts/status.sh` printed `OVERDUE (>25)` while firing *at* 25,

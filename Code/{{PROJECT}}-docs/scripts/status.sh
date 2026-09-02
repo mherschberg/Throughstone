@@ -64,19 +64,34 @@ fi
 # Locate each table's columns from its header, then emit normalized pipe-delimited records:
 #   STEP|STEP-N|Status|Title
 #   SUB|N.M[a]|Status|Session
-# The parser depends on Markdown table headers, not fixed column positions, and ignores comments
-# so dormant scaffold examples do not affect generated-project status.
+# The parser depends on Markdown table headers, not fixed column positions, and ignores commented
+# content so dormant scaffold examples do not affect generated-project status.
+#
+# Comments are STRIPPED, not skipped by line. Dropping the whole line deleted any row carrying an
+# inline note — `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` vanished, so the
+# STEP in flight became invisible, and a note on the highest-numbered row also lost the project's
+# high-water mark and made a live phase report as complete. The seeded index is full of
+# instructional comments and invites annotation, so that was reachable without anyone intending a
+# marker. Removing only the commented spans keeps the row and still discards example rows that sit
+# wholly inside a comment block, which is what this ever needed to do.
 parsed="$(awk -F'|' '
   function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
   {
-    if (in_comment) {
-      if ($0 ~ /-->/) in_comment = 0
-      next
+    line = $0; kept = ""
+    while (length(line) > 0) {
+      if (in_comment) {
+        p = index(line, "-->")
+        if (p == 0) { line = ""; break }
+        line = substr(line, p + 3); in_comment = 0
+      } else {
+        p = index(line, "<!--")
+        if (p == 0) { kept = kept line; line = ""; break }
+        kept = kept substr(line, 1, p - 1)
+        line = substr(line, p + 4); in_comment = 1
+      }
     }
-    if ($0 ~ /<!--/) {
-      if ($0 !~ /-->/) in_comment = 1
-      next
-    }
+    $0 = kept
+    if ($0 ~ /^[[:space:]]*$/) next
   }
   /^[[:space:]]*\|/ {
     isstep = 0; issub = 0
