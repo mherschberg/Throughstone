@@ -374,6 +374,21 @@ any project built with it.
   `--adr-authority`, `--owner`, the remote URLs) took it silently. Every space-form flag now
   checks its value before using it, and says which flag is short and what to write instead. The
   `--flag=value` form is untouched, so a value that genuinely begins with `--` is still sayable.
+- **`AGENTS.md` keeps the promise it opens with, and the ADR duplicate scan finds duplicates.**
+  `AGENTS.md` tells its reader that its paths are relative to the workspace root and that "every
+  path below can be used as-is" — then wrote roughly twenty of them relative to the docs hub
+  instead. The costly one was a command: an agent is told to scan the ADR register for duplicate
+  numbers before every push, and from the workspace root that scan named a file that isn't there,
+  so it printed nothing and exited 0 — indistinguishable from the clean result the surrounding
+  prose describes. Two more copies of the same scan, in `runbooks/collaboration.md` and
+  `adr/README.md`, failed the same silent way; a shell command is written from the workspace root
+  in every document, hub-local ones included. All three now find a seeded duplicate. The prose
+  paths follow: `overview.md`, `METHOD.md`, `registries/repos.yml`, `runbooks/register-repo.md`,
+  `BOOTSTRAP-PROMPT.md`, `inputs/inputs-index.md`, the architecture overview, the three helper
+  scripts and the ADR register are written in full, and the conditional-session templates now name
+  the directory that holds them. What stays bare stays bare on purpose — `architecture/`,
+  `inputs/` and `adr/` name areas rather than things to reach, which is what §7 says a bare name
+  is for.
 - **The rest of the tools print paths you can open.** The path convention says a path a tool
   prints follows the reader, not the tool, and the release above applied it to `scripts/check.sh`
   and `scripts/setup-workspace.sh` — the two scripts the rule happened to name. `scripts/status.sh`

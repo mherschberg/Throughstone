@@ -233,7 +233,7 @@ reviewing, and recording it. The ADR template already carries the needed states
   **commit and push immediately** in a dedicated commit. Before every push, even on a clean
   merge, scan for a repeated number:
   ```
-  grep -oE '^\|[[:space:]]*ADR-[0-9]+' adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d   # prints nothing when clean
+  grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d   # prints nothing when clean
   ```
   **If it prints anything — or the push is rejected — recompute `max + 1`, renumber your ADR
   (file + row), and push again;** never re-push the merge as-is. Solo with no remote, this is

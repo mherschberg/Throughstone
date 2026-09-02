@@ -22,14 +22,14 @@ AGENTS.md and follow it."*
 - **`not-started` → Kickoff mode.** The project hasn't been bootstrapped yet. **Begin the
   kickoff now without waiting to be asked**: read `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md`
   and follow it from Stage 0. Greet the user briefly, create/update root
-  `.throughstone/local-user.md` from the local-profile questions, and — since `overview.md`
+  `.throughstone/local-user.md` from the local-profile questions, and — since `Code/{{PROJECT}}-docs/overview.md`
   is still the empty template — **draft the project brief with them in chat** (a couple of
   questions, then you write the first paragraph or two into
   `Code/{{PROJECT}}-docs/overview.md` for review; seed it from the one-line description in
-  *What is {{PROJECT}}* below). The user should not have to pre-write `overview.md` or paste a
+  *What is {{PROJECT}}* below). The user should not have to pre-write `Code/{{PROJECT}}-docs/overview.md` or paste a
   kickoff command. The bootstrap flips the marker to `kickoff-complete` when it finishes.
 - **`kickoff-complete` → Resume mode.** Kickoff already happened. **Do not re-run kickoff.**
-  Pick up the next action via the next-action resolver (`METHOD.md` §10): **run
+  Pick up the next action via the next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10): **run
   `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`)** — it resolves §10 mechanically from disk and
   prints where you are, the next action, and the check-in cadence. Read
   `prompts/STEP-index.md` to confirm (and for the sub-STEP detail the script doesn't carry —
@@ -69,13 +69,14 @@ interview the user one decision at a time, then write the output architecture do
 **"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
 <session label>" are all the user's go-ahead — begin in that same reply.** Don't
 acknowledge, summarize the file, restate the plan, or ask whether to start (no "Ready when
-you are"). Read root `.throughstone/local-user.md`, `overview.md`, anything relevant in `inputs/` (its live
+you are"). Read root `.throughstone/local-user.md`, `Code/{{PROJECT}}-docs/overview.md`, anything relevant in `inputs/` (its live
 material, not `inputs/archive/`), and
 any earlier architecture docs silently, then immediately **ask the session's first question**,
 calibrated to the profile's experience level. The user types one short command and expects
 the first question back, not a confirmation prompt.
 
-**Conditional sessions** are invoked **by name**, not by number: *"run the identity-auth
+**Conditional sessions** are invoked **by name**, not by number, and their templates live in
+`Code/{{PROJECT}}-docs/templates/architecture-sessions/`: *"run the identity-auth
 session"* → `conditional-identity-auth.md`; *"run the native-app session"* →
 `conditional-native-app.md`; *"run the privacy session"* (or *"run the privacy-compliance
 session"*) → `conditional-privacy-compliance.md`.
@@ -117,15 +118,15 @@ message already names that substep. Never run multiple substeps from a whole-STE
 ## Repos & workspace layout
 This is a **multi-repo** project. The workspace root is **not** a repo — it's a per-machine
 shell. (Mono-repo-for-now is the exception — then the root *is* the single repo and the
-pointers are committed files; see `METHOD.md` §7.) The repos are siblings:
+pointers are committed files; see `Code/{{PROJECT}}-docs/METHOD.md` §7.) The repos are siblings:
 - `Code/{{PROJECT}}-docs/` — the docs hub (this repo). All durable content lives here.
 - `prompts/` — `prompts/STEP-index.md` roadmap + archived STEP plans/substep prompts.
 - `Code/{{PROJECT}}-*` — code repos, created as the architecture names them.
 
-`registries/repos.yml` is the canonical inventory **and the index to the repos** — each
+`Code/{{PROJECT}}-docs/registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has deep internals). A repo joins it by being **registered**
-(`runbooks/register-repo.md`). **Before working in a repo, read its README
+(`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). **Before working in a repo, read its README
 first** — the same way you read the architecture docs before a design change.
 When creating an application-code repo, also apply the project-license posture recorded at
 bootstrap by running
@@ -135,10 +136,10 @@ that selection against the docs hub's canonical `LICENSE`, copies the project li
 for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
-`scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
+`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
 the root pointers). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
-`./doctor.sh links` are thin shortcuts to the docs hub's `scripts/status.sh`,
-`scripts/check.sh`, and `scripts/links.sh`.
+`./doctor.sh links` are thin shortcuts to `Code/{{PROJECT}}-docs/scripts/status.sh`,
+`Code/{{PROJECT}}-docs/scripts/check.sh`, and `Code/{{PROJECT}}-docs/scripts/links.sh`.
 New human or agent contributor joining an existing project? Read
 `Code/{{PROJECT}}-docs/ONBOARDING.md` for the ordered setup and first-contribution STEP path.
 It covers later contributor onboarding; initial project bootstrap still starts from `./init.sh`.
@@ -155,7 +156,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   explaining a decision, read root `.throughstone/local-user.md` and use its recorded
   **Experience level** and **Communication style** as the communication baseline. This file
   is personal local state; don't duplicate its values into STEP plans or prompts. If it is
-  missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it,
+  missing, ask the two local-profile questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create it,
   and continue. An explicit style request in chat overrides the profile for the current
   session only; edit `.throughstone/local-user.md` to change future defaults.
 - **Use judgment before creating a STEP.** For tiny, well-understood changes that do not affect
@@ -168,14 +169,14 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Keep the docs true.** When implementation changes an architecture decision, update the
   affected `Code/{{PROJECT}}-docs/architecture/NN-*.md` and bump its Version Log, or write an
   ADR. New code counts too: a new component may need the Architecture Overview architecture
-  doc (`architecture/*-architecture-overview.md`), a new **repo** is **registered**
-  (`runbooks/register-repo.md`), and a new domain term may need the Glossary architecture
+  doc (`Code/{{PROJECT}}-docs/architecture/*-architecture-overview.md`), a new **repo** is **registered**
+  (`Code/{{PROJECT}}-docs/runbooks/register-repo.md`), and a new domain term may need the Glossary architecture
   doc — don't let a doc go stale (see
   `Code/{{PROJECT}}-docs/METHOD.md` §6).
 - **Inputs are point-in-time; `architecture/` is the living truth.** Treat anything in
   `Code/{{PROJECT}}-docs/inputs/` as a *starting point*, not a current source of truth: where a
   generated `architecture/` or `adr/` doc covers the same ground, the generated doc wins, and an
-  input's superseded parts must not be built on. `inputs/inputs-index.md` records what each input
+  input's superseded parts must not be built on. `Code/{{PROJECT}}-docs/inputs/inputs-index.md` records what each input
   still holds vs. what's been superseded; **read `inputs/` but not `inputs/archive/`** (retired
   inputs, kept for history). When a session captures an input's content into `architecture/`, mark
   it in that index. **Lift architecture-grade inputs — a protocol/API spec, a formal contract, a
@@ -199,13 +200,13 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Suggest a check-in about every 20 STEPs (the project's cadence, adjustable).** When about that
   many STEPs have passed since the last check-in, proactively propose inserting a **Check-in STEP** that runs
   `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways,
-  conditional-session coverage, accepted-risk review, and a full test run). See `METHOD.md`
+  conditional-session coverage, accepted-risk review, and a full test run). See `Code/{{PROJECT}}-docs/METHOD.md`
   §5.
 - **Flag milestone docs at a phase/release.** When a phase completes or you cut a release,
   proactively ask the user about **release notes** and **user-facing doc updates** — neither
   is produced by normal STEP work. If the user wants release notes, start from
   `Code/{{PROJECT}}-docs/templates/release-notes-template.md`; end-user docs are otherwise outside this
-  method's scope (see `METHOD.md` §5, *Milestone doc review*).
+  method's scope (see `Code/{{PROJECT}}-docs/METHOD.md` §5, *Milestone doc review*).
 - **Never commit secrets.** Local dev values live in a gitignored `.env` / `.secrets/`;
   commit only a `.env.example` that documents the required keys.
 - Keep **`prompts/STEP-index.md`** current — it's the source of truth for status.
@@ -215,7 +216,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
   running `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`) — it runs the **next-action resolver**
-  (`METHOD.md` §10) mechanically from disk (where you are · next action · check-in cadence) —
+  (`Code/{{PROJECT}}-docs/METHOD.md` §10) mechanically from disk (where you are · next action · check-in cadence) —
   then confirming against `prompts/STEP-index.md`. From disk, never from memory.
 - One decision/question cluster at a time. Recommend defaults; flag what they foreclose.
 
@@ -243,11 +244,11 @@ STEP when more than one contributor is active. The rules that bind you as an age
   **push the flip to the shared trunk** — reservation leaves it `Planned`, and a STEP left at
   `Planned` (or whose flip is unpushed) while you work is invisible to everyone else's overlap
   check.
-- **Edit only your own rows** in shared table files (`prompts/STEP-index.md`, `adr/README.md`, phase
-  `README.md`, `registries/repos.yml`); never re-sort or reflow them.
+- **Edit only your own rows** in shared table files (`prompts/STEP-index.md`, `Code/{{PROJECT}}-docs/adr/README.md`, phase
+  `README.md`, `Code/{{PROJECT}}-docs/registries/repos.yml`); never re-sort or reflow them.
 - **Significant decisions in a team land as `Proposed` ADRs**, accepted by the designated
-  authority (see `adr/README.md`) — don't silently Accept a decision others depend on.
-- **Reserve the ADR number like a STEP number.** The `adr/README.md` registry is shared, so
+  authority (see `Code/{{PROJECT}}-docs/adr/README.md`) — don't silently Accept a decision others depend on.
+- **Reserve the ADR number like a STEP number.** The `Code/{{PROJECT}}-docs/adr/README.md` registry is shared, so
   two authors can append the same `ADR-NNNN` and git merges both into a silent duplicate. Pull,
   take `max + 1`, add the row and create the ADR file, then **commit and push immediately**;
   before every push (even a clean merge) scan with
