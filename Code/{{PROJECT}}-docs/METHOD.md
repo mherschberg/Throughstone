@@ -247,7 +247,7 @@ anything after the insertion point — up by one. To add one:
    session's invocation/output contract. Use a broad audit such as
    `rg '1\.14|14-cross|architecture/14-'` to find leftovers, but keep dynamic prose dynamic:
    prefer session labels and topic globs outside invocation/output contracts. Run
-   `scripts/check.sh` afterward; it is the mechanical backstop for heading/seed/output drift
+   `./doctor.sh check` afterward; it is the mechanical backstop for heading/seed/output drift
    and for keeping the Cross-Cutting Review last.
 3. Add its row to the §4 table and `templates/step-index-seed.md`.
 
@@ -393,7 +393,11 @@ doc → file a bug), re-evaluate every available conditional architecture sessio
 accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
 implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
-capability lands, not mid-feature). Treat the cadence as a guideline — pick the breakpoint by
+capability lands, not mid-feature). **Its index title starts `Check-in`** — a scope may follow
+(`Check-in: phase 1`) — so `scripts/status.sh` can find the last one and measure the cadence
+from it; a row titled anything else is invisible to that clock, exactly as a conditional
+follow-up not titled `Conditional session:` is invisible to the resolver (§4).
+Treat the cadence as a guideline — pick the breakpoint by
 judgment. **The cadence is a per-project setting** (recommended **20**): the target is recorded as
 `<!-- CHECK-IN-CADENCE: N -->` in `overview.md`, and any project can change it at any time — including
 one that pulls this scaffold into an existing codebase and wants a different rhythm. `status.sh` reads
@@ -555,7 +559,11 @@ root, not from the file**, so `runbooks/check-in.md` writes `registries/repos.ym
 `../registries/repos.yml`. The exception is a document that **declares it stands its reader at the
 workspace root**: `AGENTS.md`, `BOOTSTRAP-PROMPT.md` and `ONBOARDING.md` say so in their opening
 lines, and `runbooks/register-repo.md` before its first step. Those write **every** path from the
-workspace root, references included; that is the point of declaring it.
+workspace root, references included; that is the point of declaring it. A document that lives in
+neither the hub nor a declaring file — `prompts/README.md` is the one the scaffold ships — reads
+"the file it is written in" the same way: **from the root of its own repository**, so
+`prompts/README.md` names its sibling as `STEP-index.md`. Crossing out of that repo is covered by
+the next rule.
 
 **Either way, a reference that crosses into another repo is always written in full** — most
 notably `prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written
@@ -568,10 +576,13 @@ workspace root, so a bare mention of them is already root-relative.)
 **Which placeholder a path carries — `{{PROJECT}}` or `<project>` — is a separate rule**, stated
 in `ONBOARDING.md` §6.
 
-**A path a tool prints follows the reader, not the tool.** `scripts/check.sh` and
-`scripts/setup-workspace.sh` never change the caller's directory, so what they print is read
-from the workspace root and is written from there — a heading naming the file a check reads,
-and the fix beside it, must not answer in two different bases.
+**A path a tool prints follows the reader, not the tool.** None of the helpers changes the
+caller's directory, so whatever any of them prints is read from the workspace root and is written
+from there — a heading naming the file a check reads, and the fix beside it, must not answer in
+two different bases. That is a property of the reader's position, not a list of scripts: it holds
+for every script here and for any added later. A command a tool tells you to run is a shell
+command like any other, so it too is written from the workspace root — `./doctor.sh check`
+rather than the helper's own hub-local path.
 
 **A Markdown link target is none of the above.** The `](…)` half of a link resolves against the
 file that contains it — that is Markdown, not a convention of ours. So `ONBOARDING.md` links to
@@ -671,7 +682,7 @@ granularity). Every session and STEP also **ends by stating the next action** an
 to start a fresh chat for it — clearing context between units is the norm, since the state
 lives in files (§4, §5).
 
-> **Shortcut:** `scripts/status.sh` runs this resolver mechanically — it prints where you
+> **Shortcut:** `./doctor.sh status` runs this resolver mechanically — it prints where you
 > are, the next action, and the check-in cadence straight from the index. It's the mechanism a
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.
@@ -686,10 +697,14 @@ Quick resolver:
 | Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
 | Planned implementation STEPs exist and none in progress | Plan the lowest-numbered planned STEP, then wait for approval |
 | A STEP is in progress | Open its PLAN, identify the lowest open substep, and wait for an explicit substep command |
-| Check-in cadence is due | Propose a Check-in STEP |
+| Check-in cadence is due | Propose a Check-in STEP — *alongside* the answer above, never instead of it |
 | Phase is complete | Do milestone doc review, then plan the next phase |
 
-Resolve the next action top-down against the index — the first rule that matches wins:
+Resolve the next action top-down against the index — the first rule that matches wins. **Rule 7
+is the one exception**: the check-in cadence is *advice*, reported alongside the next action and
+never in place of it. It never blocks work, and no rule below it is skipped because a check-in is
+due.
+
 
 1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one
    in a fresh chat using `Run STEP-1.N: <Session label from the index>`; the label is
@@ -717,9 +732,16 @@ Resolve the next action top-down against the index — the first rule that match
    explicitly requested substep: *"run substep N.M"*. If the user says only *"run STEP N"*,
    identify the lowest open substep and wait for that explicit substep command. When the last
    substep is done, run the STEP's review,
-   then archive it (§5) and mark it `Done`.
-7. **~20 STEPs (the project's cadence) since the last check-in?** → propose a **Check-in STEP** at the next
-   sensible breakpoint (§5; `runbooks/check-in.md`).
+   then archive it (§5) and mark it `Done`. **A Check-in STEP is the exception**: its two substeps
+   are fixed and `runbooks/check-in.md` is their prompt, so *"run the check-in"* runs both, end to
+   end. Nothing else is invoked whole.
+7. **~20 STEPs (the project's cadence) since the last check-in?** → **propose** a **Check-in
+   STEP** at the next sensible breakpoint (§5; `runbooks/check-in.md`) — and then go on with
+   whatever the rules above answered. **This rule never becomes the next action**, and it is
+   deliberately not a gate: the check-in belongs at a breakpoint, and a rule that fired the
+   moment you went overdue would fire mid-feature, which is the one place §5 says not to put it.
+   The user decides whether to take the proposal. `scripts/status.sh` prints it this way — the
+   cadence line advises, the next action is whatever rules 1-6 or 8 produced.
 8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
    notes** (use `templates/release-notes-template.md` if yes) and **any user-facing doc updates** (§5,
    *Milestone doc review*), then open the next phase and re-run the planning session for it.

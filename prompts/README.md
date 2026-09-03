@@ -57,7 +57,9 @@ PLANs, no substep prompts. From then on you build the STEPs one at a time, autho
 STEP's PLAN + substep prompts with the recipe below **when you start that STEP**. Starting a
 STEP means planning it, then stopping for approval before any substep runs.
 
-The outline also interleaves a **Check-in STEP** at the project's cadence — a full STEP that runs
+The outline also interleaves a **Check-in STEP** at the project's cadence — titled `Check-in`
+in the index (a scope may follow, e.g. `Check-in: phase 1`) so the cadence helper can find it,
+the same way a conditional follow-up is titled `Conditional session: <topic>` — a full STEP that runs
 `Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
 conditional-session coverage, review accepted risks/debt in
 `Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). Its completed
@@ -163,8 +165,9 @@ teammate will need later.
    `README.md` from `phase-readme-template.md` first, naming it for the chosen phase; see
    Conventions.)
    (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.) Then tell the user
-   the next action — the next `Planned` STEP, or a **Check-in STEP** if one is due — via the
-   next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10).
+   the next action via the next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10) — and
+   say so as well if a **Check-in STEP** is due, which is a proposal beside the next action
+   rather than the next action itself (§10 rule 7).
 
 > **Multiple contributors** all append to `prompts/` (it's shared history, never rewritten).
 > Archived `step-NNNN/` folders are write-once, so they don't conflict; the only shared files

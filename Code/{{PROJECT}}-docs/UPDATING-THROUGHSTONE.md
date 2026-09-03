@@ -106,7 +106,12 @@ recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
    section. Nothing else in 1.8 can turn a passing run red on its own.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
-6. Nothing else. A project that never splits reads none of the splitting material.
+6. **Check the Title of every past Check-in STEP row in `prompts/STEP-index.md`.** The cadence
+   helper now requires it to *begin* `Check-in` — details at the end of this section. Nothing
+   rewrites your index for you. A row it no longer recognises does not fail any check; it drops
+   out of the cadence calculation, which is worse than losing the line — the line still prints,
+   measured from whatever older row still qualifies.
+7. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -120,6 +125,29 @@ interactive project-type question now defaults to private/proprietary rather tha
 pressing Enter through setup no longer licenses a project MIT without anyone naming a license. Your
 project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
 it does not change. Worth knowing only if you bootstrap another project from muscle memory.
+
+**The Check-in STEP now has a title contract, and one row of yours may need renaming.**
+`scripts/status.sh` measures the check-in cadence from the last `Done` STEP it recognises as a
+check-in. It used to recognise one by looking for the words *check* and *in* anywhere in the
+Title, which was wrong in both directions: a bug STEP called `Fix the check-in report generator`
+reset the clock — and `runbooks/check-in.md`'s own Carry-forward step is what produces bug STEPs
+named after the check-in that found them — while the requirement to use those words at all was
+written down nowhere, so a descriptively-titled check-in was invisible. The rule is now stated, in
+`METHOD.md` §5, `runbooks/check-in.md`, `templates/planning-session.md` and `prompts/README.md`:
+**the row's Title begins `Check-in`**, optionally followed by a scope (`Check-in: phase 1`).
+Markdown emphasis around it is fine, and matching ignores case.
+
+Open `prompts/STEP-index.md` and look at every check-in row you already have. `Check-in`,
+`Check-In`, `CHECK-IN` and `**Check-in**` all still count. Titles like `Mid-phase check-in`,
+`Phase 1 check-in` or `Docs and test sweep` no longer do — rename them to lead with `Check-in`
+and keep the old wording after it if you want it (`Check-in: mid-phase`). Nothing fails if you
+skip this — `scripts/check.sh` does not police STEP titles — but the cost is not that the cadence
+goes quiet. An unrecognised row simply drops out of the calculation, so `./doctor.sh status` keeps
+printing a cadence line and measures it from whatever older row still qualifies: with a recognised
+check-in at STEP-2 and an unrecognised one at STEP-28, a project at STEP-30 is told
+`last at STEP-2, 28 STEPs ago — OVERDUE (25+)`. Only when *no* row qualifies does it fall back to
+"no Check-in STEP yet". Either way the advice is wrong rather than absent, which is why the rename
+is worth doing.
 
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
@@ -512,7 +540,7 @@ rewritten.** Two edits to `templates/architecture-sessions/*.md` and three docum
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
   check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
   that guards it. Pull the updated `inputs/README.md`. If you have **already lifted** a document,
-  run `scripts/check.sh`: check 4 names any doc missing a field.
+  run `./doctor.sh check`: check 4 names any doc missing a field.
 - **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
   apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
   legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
@@ -588,7 +616,7 @@ catalog.
 5. For each candidate change, write a short report: target release/ref, files reviewed,
    implication/risk, recommendation, and whether it needs a tracked STEP.
 6. Apply only the reviewed changes the user explicitly approves, following the apply and STEP
-   rules in §8 and §10, then run `scripts/check.sh`.
+   rules in §8 and §10, then run `./doctor.sh check`.
 
 Manual mode is slower than tooling, but it is the default path until the manifest and catalog
 described below exist.
@@ -796,7 +824,7 @@ Avoid names like `--safe` or `--clean-only`; they imply more certainty than the 
 After apply:
 
 1. Recompute and write manifest checksums for updated scaffold files.
-2. Run the docs hub checks (`scripts/check.sh`).
+2. Run the docs hub checks (`./doctor.sh check`).
 3. Preserve the update report in the branch or commit message.
 4. Tell the user what changed, what was skipped, and which manual review items remain.
 

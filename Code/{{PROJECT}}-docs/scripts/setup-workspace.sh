@@ -15,6 +15,15 @@
 #
 set -euo pipefail
 
+# This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
+# flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
+# same contract check.sh already keeps. The message stays bare rather than naming a help command,
+# because the helper can be reached both through ./doctor.sh and directly.
+if [ "$#" -gt 0 ]; then
+  echo "setup-workspace.sh: unknown option: $1" >&2
+  exit 2
+fi
+
 # This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
 # Code/<project>-docs/scripts/ after initialization; derive paths instead of hard-coding the
 # generated project name. DOCS_REL is written into root pointers and falls back when python3

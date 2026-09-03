@@ -235,7 +235,216 @@ any project built with it.
   nothing is registered and no location holds a repository, so every repo is created exactly as it
   is today.
 
+- **The check-in cadence advises and proposes; it never becomes the next action.** `METHOD.md`
+  §10 is a first-match-wins list, and rule 7 — the check-in cadence — sat between "plan the next
+  STEP" and "the phase is complete". `scripts/status.sh` never implemented it, so an overdue
+  project got `OVERDUE; insert a Check-in STEP now` on one line and `plan STEP-41` on the next,
+  which reads like the tool contradicting itself. The resolution is not a new resolver branch.
+  Rule 7's own wording puts the check-in "at the next sensible breakpoint", and a rule that fired
+  the moment a project went overdue would fire mid-feature — the one place §5 says not to put
+  one. So §10 now says plainly that rule 7 is the exception to first-match-wins: the cadence is
+  reported *alongside* the next action and never in place of it, it never blocks work, and no
+  rule below it is skipped because a check-in is due. `status.sh` prints it that way — when the
+  cadence is due or overdue it offers a Check-in STEP under the next action, marked as advice,
+  and the next action itself is untouched. `OVERDUE (>25); insert a Check-in STEP now.` loses its
+  imperative and becomes `OVERDUE (>25).`, with the proposal carrying the suggestion instead.
+  `prompts/README.md` no longer describes a due Check-in STEP as something the resolver answers
+  with. `tests/status-checkin-cadence.sh` now holds both halves of the contract, so a gate cannot
+  creep back in.
+
 ### Fixed
+- **Two rules now say what they left to inference.** `runbooks/check-in.md` says to tell the agent
+  *"run the check-in"*, while `METHOD.md` §10 says an in-progress STEP runs only the substep you
+  ask for by name — and a check-in has two substeps. Nothing said whether that phrase authorised
+  both or only planned the STEP. It runs both, end to end: the substeps are fixed, the runbook is
+  their prompt, and there is nothing to approve between them. Both documents now say so, and §10
+  marks it as the one STEP invoked whole. Separately, §7's path convention said a reference
+  "follows the file it is written in" and then defined that only for documents inside the docs
+  hub, leaving `prompts/README.md` — the one document the scaffold ships outside it — without a
+  stated base. It is the root of its own repository.
+- **A substep is no longer mistaken for a conditional architecture session it has nothing to do
+  with.** When `scripts/status.sh` points you at an optional architecture session, it suggests the
+  by-name phrase to invoke it with — and it worked out which session by searching the label for a
+  keyword, anywhere in the text. So a substep called `Authoring conventions & style guide` was
+  advised as *"run the identity-auth session"*, because *auth* sits inside *Authoring*, and
+  `Desktop publishing pipeline` was pointed at the native-app session. Anchoring alone would not
+  have fixed the second — that label genuinely does begin with *desktop* — so the match is now
+  against the session's own name rather than a loose keyword. A label matching none of them falls
+  back to the generic "invoke it by name", which was always correct advice. This is the same
+  defect as the check-in title match above, in the four remaining places it appeared.
+- **A note written into a roadmap row no longer deletes the row.** `prompts/STEP-index.md` ships
+  full of instructional HTML comments and invites you to annotate it, but `scripts/status.sh`
+  skipped any *line* containing one. So a comment inside a row removed that row from everything
+  the helper knows: `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` made the
+  STEP in flight invisible, and the helper answered as though nothing were being built. A note on
+  the highest-numbered row was worse — it also lost the project's high-water mark, so a phase with
+  `Planned` work left reported "Every STEP in the index is final". `scripts/check.sh` said nothing
+  in either case, and nobody writing the note had any reason to expect it. Comments are now
+  stripped from the line rather than taking the line with them. Example rows that sit wholly
+  inside a comment block are still ignored, which is the only thing this behaviour was ever for.
+- **The check-in cadence line no longer names the same STEP on both sides of the line.** With the
+  default cadence of 20, a project 25 STEPs past its last check-in is overdue — that is what
+  "OVERDUE at N+5" means. But `scripts/status.sh` printed `OVERDUE (>25)` while firing *at* 25,
+  and the sentence one branch above called 15–25 the DUE window when 25 was already out of it.
+  Both bounds now read as they behave: `DUE (you're in the 15–24 window)` and `OVERDUE (25+)`.
+  The thresholds themselves are unchanged.
+- **A STEP that merely mentions a check-in no longer counts as one.** `scripts/status.sh` measures
+  the cadence from the last `Done` STEP it recognises as a check-in, and it recognised one by
+  looking for the words *check* and *in* anywhere in the Title. So a bug STEP called `Fix the
+  check-in report generator` at STEP-30 turned `OVERDUE, 26 STEPs ago` into `~14 STEPs of
+  headroom` — and `runbooks/check-in.md`'s own Carry-forward step is exactly what produces bug
+  STEPs named after the check-in that found them. `Add checkinventory endpoint` matched too. The
+  mirror held as well: the clock depended on those words appearing in the Title, and that
+  requirement was written down nowhere, so a descriptively-titled check-in was invisible to it.
+  The contract is now stated — **the row's Title begins `Check-in`**, optionally followed by a
+  scope (`Check-in: phase 1`) — in `METHOD.md` §5, `runbooks/check-in.md`,
+  `templates/planning-session.md` and `prompts/README.md`, and the match is anchored to it. This
+  is the same shape the method already used for `Conditional session: <topic>`, which
+  `status.sh` has always matched anchored twelve lines above. Case is ignored and Markdown
+  emphasis is allowed, because every document that states the rule writes the phrase in bold.
+  An existing project whose check-in rows are titled some other way needs one rename each;
+  `UPDATING-THROUGHSTONE.md` says which spellings still count and what it costs to skip it — the
+  cadence line does not go quiet, it keeps measuring from whatever older row still qualifies, so
+  the advice is wrong rather than absent.
+- **An answer the setup wizard does not understand is no longer read as "no".** `init.sh` asks
+  three yes/no questions, and the helper behind them accepted only `y`, `Y` and `yes` — everything
+  else fell to a catch-all that meant no. So `YES`, `Yes`, `1` and `true` each silently declined,
+  most consequentially at "Set up online Git remotes now?", where declining is the answer you
+  cannot correct without doing the work by hand afterwards. Every other question in the wizard
+  re-asks on an answer it does not recognise; this one did not, and the inconsistency was more of
+  the defect than the vocabulary was. It now re-asks in the same voice as its siblings, and the
+  words it accepts are the ones `--remotes=` and `--registries=` already took, from one shared
+  check, so a typed answer and a flag value cannot drift apart.
+  **A required answer left blank is re-asked too.** `--non-interactive` refuses a missing
+  description; the interactive path accepted one, which made the friendlier route the one that
+  let an empty value through — into `AGENTS.md`, `templates/planning-session.md` and every
+  architecture session template. A blank copyright holder did the same to an open-source project,
+  shipping `Copyright (c) 2026 ` with nothing after it in every generated repo, with the doctor
+  reporting no failures. End of input still ends the run rather than looping: an exhausted answer
+  stream takes the advertised default at a yes/no question and exits 2 with the missing prompt
+  named at a required one.
+- **The check-in report template has somewhere to record deferred coverage.** An architecture doc
+  may deliberately leave part of its area unwritten, marked in its `Coverage:` field.
+  `runbooks/check-in.md` treats that as a standing obligation — the deferral must be "resurfaced,
+  not silently forgotten", so every check-in re-reads it, weighs it against what the system now
+  does, and records one explicit disposition — and the runbook's own Output list names a
+  **Deferred coverage** bullet as part of the report. The report template had no such section.
+  The one place it said "Deferred" was a conditional-session disposition, which the runbook goes
+  out of its way to distinguish. So the sweep the runbook mandates had nowhere to land, and the
+  gap it exists to keep visible would rest on the same passive line in the same doc. The template
+  now carries a **Deferred Coverage** table beside **Conditional Coverage**, in the runbook's own
+  order, with the four things its Output bullet asks for: the doc, what its `Coverage:` field
+  says, the disposition, and the follow-up STEP filed or retained.
+- **`./doctor.sh --help` now mentions `--check-in`.** `scripts/check.sh` has two behaviours — the
+  checks it makes on every run, and the extra ones the periodic check-in adds — and the flag that
+  selects the second was named in the script's own header, in `METHOD.md`, in
+  `runbooks/check-in.md` and in the generated CI workflow, but in no help text anywhere. Someone
+  who came to the dispatcher to find out what it could do could not learn that half of `check`
+  existed. It is now in the command list and in the examples.
+- **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh` has always
+  rejected an option it does not know, with exit 2. `scripts/status.sh`, `scripts/links.sh` and
+  `scripts/setup-workspace.sh` read no arguments at all, so anything passed to them was discarded
+  without a word — `./doctor.sh status --check-in` ran an ordinary status report and exited 0, and
+  a flag aimed at the wrong helper looked like it had worked. The dispatcher's own `help` arm did
+  the same: `./doctor.sh help --nonsense` printed the help text and exited 0, treating the
+  argument as understood. All four now report the argument and exit 2, so one entry point behaves
+  one way. Every valid invocation is untouched, `--check-in` included.
+- **A short check-in cadence no longer prints a negative window.** The check-in window is the
+  project's `CHECK-IN-CADENCE` plus or minus 5, so a cadence of 5 or less put its left edge at
+  zero or below: `scripts/status.sh` reported things like `DUE (you're in the -2–8 window)`, and
+  it said so from the STEP the check-in happened on — a project that had just checked in was
+  told it was due for another. The lower edge is now floored at 1. This only ever raises the
+  threshold, so any cadence of 6 or more — which is every value the documentation uses — behaves
+  exactly as before.
+- **The architecture STEP's close-out is no longer skipped.** `scripts/status.sh` decided STEP-1
+  was finished by counting substeps, and ignored the STEP-1 row's own status. But the row is what
+  records completion: the Cross-Cutting Review runs, STEP-1 is archived to `prompts/`, and only
+  then does the row flip to `Done` — "once the review is clean", as the review session itself puts
+  it. So the window between the last substep going `Done` and the row being flipped is not a
+  glitch, it is where the close-out work lives, and a review with open findings sits in it by
+  design. In that window the resolver reported "Architecture (STEP-1) complete" and sent you
+  straight to the planning session, contradicting an index that still said `In progress` — while
+  `METHOD.md` §10 ends by making the index authoritative for which STEP is next. It now names the
+  close-out as the next action and quotes the row status back to you, and it is unchanged when the
+  row reads `Done`, `Deferred` or `Abandoned`, or when there is no STEP-1 row at all.
+- **Scheduling a check-in no longer counts as having done one.** `scripts/status.sh` measures the
+  check-in cadence from the highest-numbered STEP whose title looks like a check-in — but it
+  ignored that row's status. So when the cadence line said `OVERDUE; insert a Check-in STEP now`
+  and you did exactly that, the new `Planned` row immediately reported `0 STEPs ago — ~15 STEPs of
+  headroom`, before the check-in had happened. Acting on the advice cleared the advice, and the
+  sweep it exists to schedule could be postponed indefinitely without the cadence ever noticing.
+  Only a `Done` check-in resets the clock now; `Planned` and `In progress` rows are the work, not
+  the record of it.
+- **A zero-padded check-in cadence no longer kills `./doctor.sh status`.** `overview.md`'s optional
+  `<!-- CHECK-IN-CADENCE: N -->` marker is meant to be edited by hand. Writing `08` or `09` aborted
+  `scripts/status.sh` outright — `[ 08 -gt 0 ]` reads base 10 and passed the guard, but `$(( 08 - 5 ))`
+  reads octal and fails — so the whole next-action resolver printed nothing and exited 1. `010`
+  did not fail; it silently meant 8, moving the check-in window from ~15–25 to ~3–13 with no
+  indication. `scripts/check.sh` check 10 flagged both, but told the reader something untrue:
+  "status.sh falls back to the default (20)", which it did not do. status.sh now reads the marker
+  with check 10's own pattern, so a marker check 10 rejects is a marker status.sh ignores, and
+  check 10's sentence is accurate.
+- **A slug that cannot work is refused before anything is destroyed.** `init.sh` is one-time and
+  destructive: from "Detaching from the template's git history" onward it has removed `.git` and
+  started renaming. Two slug problems were only discovered after that point, by `mv` or `cp`
+  failing. A slug of 251 characters passed the pattern check and then failed the rename with
+  `File name too long`, leaving no `.git`, no `prompts/STEP-index.md` and a half-renamed tree —
+  which `scripts/check.sh` still called `RESULT: OK`, and which `scripts/status.sh` answered with
+  "run ./init.sh", advice that produced a *second* broken layer rather than recovering. An
+  existing `Code/<slug>-docs` was worse than a collision: `mv` moved the template *inside* it, so
+  the tree ended up at `Code/<slug>-docs/{{PROJECT}}-docs/`. Slug length and destination
+  availability are now checked with the pattern, before the run touches anything, and the three
+  copies of the pattern check are one function so the flag path and the interactive re-ask cannot
+  drift apart. Slugs are capped at 64 characters — a practical ceiling well under both the 250 the
+  filesystem allows and what any git host accepts.
+- **A flag written without its value no longer eats the flag after it.** `init.sh` accepts both
+  `--desc=text` and `--desc text`. In the space form it took whatever came next as the value
+  without checking, so `--desc --layout=mono` set the description to `--layout=mono`, left
+  `--layout` unset, and built a **multi-repo** project when mono was asked for — then wrote that
+  bogus description into `AGENTS.md`, `templates/planning-session.md` and every architecture
+  session template. Nothing caught it: the wizard exited 0 and `scripts/check.sh` reported
+  `0 fail(s), 0 warning(s)`, because the tree it produced was a valid project, just not the one
+  requested. Only the flags that happen to validate their value — `--slug`, `--layout`,
+  `--license` — refused, and they refused by accident; the free-text ones (`--desc`, `--holder`,
+  `--adr-authority`, `--owner`, the remote URLs) took it silently. Every space-form flag now
+  checks its value before using it, and says which flag is short and what to write instead. The
+  `--flag=value` form is untouched, so a value that genuinely begins with `--` is still sayable.
+- **The last few "run this" instructions run.** `METHOD.md` told you to run `scripts/check.sh`
+  after renaming a session and offered `scripts/status.sh` as the shortcut a resuming agent runs
+  first; `UPDATING-THROUGHSTONE.md` said to run `scripts/check.sh` in three places. None of those
+  exists from the workspace root, where the reader is — each exited 127. They now name
+  `./doctor.sh check` and `./doctor.sh status`, which sit at the root and are the front door the
+  dispatcher advertises. Deliberately unchanged: the many sentences in hub documents that *name*
+  a helper rather than tell you to run one — `runbooks/check-in.md`'s note that
+  `scripts/check.sh --check-in` makes two registry checks, and the like. A document inside the hub
+  writes the hub's own contents hub-local, and those are references, not commands.
+- **`AGENTS.md` keeps the promise it opens with, and the ADR duplicate scan finds duplicates.**
+  `AGENTS.md` tells its reader that its paths are relative to the workspace root and that "every
+  path below can be used as-is" — then wrote roughly twenty of them relative to the docs hub
+  instead. The costly one was a command: an agent is told to scan the ADR register for duplicate
+  numbers before every push, and from the workspace root that scan named a file that isn't there,
+  so it printed nothing and exited 0 — indistinguishable from the clean result the surrounding
+  prose describes. Two more copies of the same scan, in `runbooks/collaboration.md` and
+  `adr/README.md`, failed the same silent way; a shell command is written from the workspace root
+  in every document, hub-local ones included. All three now find a seeded duplicate. The prose
+  paths follow: `overview.md`, `METHOD.md`, `registries/repos.yml`, `runbooks/register-repo.md`,
+  `BOOTSTRAP-PROMPT.md`, `inputs/inputs-index.md`, the architecture overview, the three helper
+  scripts and the ADR register are written in full, and the conditional-session templates now name
+  the directory that holds them. What stays bare stays bare on purpose — `architecture/`,
+  `inputs/` and `adr/` name areas rather than things to reach, which is what §7 says a bare name
+  is for.
+- **The rest of the tools print paths you can open.** The path convention says a path a tool
+  prints follows the reader, not the tool, and the release above applied it to `scripts/check.sh`
+  and `scripts/setup-workspace.sh` — the two scripts the rule happened to name. `scripts/status.sh`
+  was not among them and never derived the docs hub's location at all, so the helper a resuming
+  agent runs *first* named `overview.md`, `BOOTSTRAP-PROMPT.md`, `templates/planning-session.md`,
+  `templates/release-notes-template.md` and `METHOD.md` from inside the hub while answering someone
+  standing at the workspace root. It also told you to `run scripts/check.sh`, which fails from
+  there; it now names `./doctor.sh check` and `./doctor.sh status`, the front door the dispatcher
+  advertises. Three hints in `check.sh` and the mono half of the setup wizard's closing tip were
+  the same shape — the wizard's multi half, four lines below, already wrote the full path. §7's
+  clause no longer lists the two scripts it applies to: what a tool prints is read from where the
+  reader is, which is true of every helper here and any added later.
 - **Instructions in the docs now work from the directory they tell you to stand in.** Six of them
   did not. The first line of the periodic check-in told you to run `scripts/check.sh --check-in`,
   which fails from the workspace root where you actually are — and that one is on the path anyone

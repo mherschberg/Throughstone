@@ -140,7 +140,9 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 3. **Interleave check-in STEPs.** About **every 20 STEPs** (the project's cadence, adjustable), add a **Check-in STEP**
    that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
    accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
-   capability lands, not mid-feature — rather than mechanically on a fixed count. For a
+   capability lands, not mid-feature — rather than mechanically on a fixed count. Title each
+   row `Check-in` (a scope may follow, e.g. `Check-in: phase 1`) so the cadence helper can find
+   it — `METHOD.md` §5. For a
    target phase with only a handful of STEPs, one check-in near the end (or none) is fine; use
    judgment.
 4. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:

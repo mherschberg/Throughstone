@@ -4,7 +4,11 @@
 > 20 STEPs** (the project's cadence, adjustable) the roadmap should include a *Check-in STEP* whose job is to run this
 > runbook — the agent proposes one at a sensible breakpoint (e.g. after a capability lands,
 > not mid-feature). When you run that STEP, tell the agent *"run the check-in"* and it
-> follows this file.
+> follows this file **end to end** — both substeps, in one go. That is a **deliberate exception**
+> to `METHOD.md` §10's rule that an in-progress STEP runs only the substep you ask for by name:
+> the two substeps here are fixed, this runbook is their prompt, and there is nothing to approve
+> between them. **Title its index row `Check-in`** (a scope may follow, e.g.
+> `Check-in: phase 1`) so the cadence helper can find it — see `METHOD.md` §5.
 >
 > **Its PLAN is thin and it has exactly two substeps** — you don't author substep prompts for
 > it (like the architecture STEP, it's a special case of the recipe in `prompts/README.md`).

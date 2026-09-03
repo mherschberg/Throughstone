@@ -12,8 +12,24 @@
 
 set -uo pipefail
 
+# This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
+# flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
+# same contract check.sh already keeps. The message stays bare rather than naming a help command,
+# because the helper can be reached both through ./doctor.sh and directly.
+if [ "$#" -gt 0 ]; then
+  echo "status.sh: unknown option: $1" >&2
+  exit 2
+fi
+
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
+
+# What this script prints is read from wherever it was run, and it never changes the caller's
+# directory — normally that is the workspace root. So every path it names is written from there,
+# the same base check.sh uses for the same reason (METHOD.md §7, "a path a tool prints follows
+# the reader, not the tool"). Paths already at the workspace root — prompts/, Upcoming Prompts/ —
+# are written bare; anything inside the docs hub carries this prefix.
+DOCS_REL="Code/$(basename "$DOCS_DIR")"
 
 # File assumptions: the generated docs repo sits at Code/<project>-docs/, while the runtime
 # STEP index lives at the project root in prompts/STEP-index.md.
@@ -28,11 +44,11 @@ echo
 
 # --- Kickoff gate (AGENTS.md "First action") ----------------------------------
 if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: not-started' "$OVERVIEW"; then
-  echo "Where you are:  kickoff not started (overview.md marker: not-started)."
+  echo "Where you are:  kickoff not started ($DOCS_REL/overview.md marker: not-started)."
   echo
   echo "Next action:"
   echo "  → start the kickoff — open the project and say:  \"Read AGENTS.md and follow it.\""
-  echo "    It runs BOOTSTRAP-PROMPT.md from Stage 0 (no command to paste)."
+  echo "    It runs $DOCS_REL/BOOTSTRAP-PROMPT.md from Stage 0 (no command to paste)."
   exit 0
 fi
 
@@ -48,19 +64,34 @@ fi
 # Locate each table's columns from its header, then emit normalized pipe-delimited records:
 #   STEP|STEP-N|Status|Title
 #   SUB|N.M[a]|Status|Session
-# The parser depends on Markdown table headers, not fixed column positions, and ignores comments
-# so dormant scaffold examples do not affect generated-project status.
+# The parser depends on Markdown table headers, not fixed column positions, and ignores commented
+# content so dormant scaffold examples do not affect generated-project status.
+#
+# Comments are STRIPPED, not skipped by line. Dropping the whole line deleted any row carrying an
+# inline note — `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` vanished, so the
+# STEP in flight became invisible, and a note on the highest-numbered row also lost the project's
+# high-water mark and made a live phase report as complete. The seeded index is full of
+# instructional comments and invites annotation, so that was reachable without anyone intending a
+# marker. Removing only the commented spans keeps the row and still discards example rows that sit
+# wholly inside a comment block, which is what this ever needed to do.
 parsed="$(awk -F'|' '
   function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
   {
-    if (in_comment) {
-      if ($0 ~ /-->/) in_comment = 0
-      next
+    line = $0; kept = ""
+    while (length(line) > 0) {
+      if (in_comment) {
+        p = index(line, "-->")
+        if (p == 0) { line = ""; break }
+        line = substr(line, p + 3); in_comment = 0
+      } else {
+        p = index(line, "<!--")
+        if (p == 0) { kept = kept line; line = ""; break }
+        kept = kept substr(line, 1, p - 1)
+        line = substr(line, p + 4); in_comment = 1
+      }
     }
-    if ($0 ~ /<!--/) {
-      if ($0 !~ /-->/) in_comment = 1
-      next
-    }
+    $0 = kept
+    if ($0 ~ /^[[:space:]]*$/) next
   }
   /^[[:space:]]*\|/ {
     isstep = 0; issub = 0
@@ -145,7 +176,19 @@ while [ "$i" -lt "$n_steps" ]; do
   fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
   case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
-  if printf '%s' "$ti" | grep -qiE 'check.?in'; then [ "$n" -gt "$last_ci" ] && last_ci=$n; fi
+  # Only a Done check-in resets the clock. A Planned row is the work, not the record of it —
+  # counting it meant that adding the row the OVERDUE warning tells you to add silenced the
+  # warning before the check-in happened, so acting on the advice cleared the advice.
+  #
+  # The Title must *begin* Check-in — the contract METHOD.md §5 and runbooks/check-in.md state,
+  # the same shape as the `Conditional session:` prefix matched twelve lines above. An unanchored
+  # substring match read any title mentioning a check-in as being one, so a bug STEP named after
+  # the check-in that found it reset the clock — and check-in.md's own Carry-forward step is what
+  # produces those. Markdown emphasis around the phrase is allowed because every document that
+  # states the contract writes it in bold.
+  if [ "$st" = "Done" ] && printf '%s' "$ti" | grep -qiE '^[*`_ ]*check-in\b'; then
+    [ "$n" -gt "$last_ci" ] && last_ci=$n
+  fi
   i=$((i + 1))
 done
 all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
@@ -158,34 +201,52 @@ all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 where=""; next=""
 if [ "$unknown_sub" -gt 0 ]; then
   where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
-  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+  next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
 elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
+  #
+  # These match the START of the Session label, and match the session's own name rather than a
+  # loose keyword. Searching anywhere in the cell read a substep's topic as a conditional it has
+  # nothing to do with: "Authoring conventions & style guide" contains auth, so it was advised as
+  # "run the identity-auth session", and "Desktop publishing pipeline" as the native-app one —
+  # which anchoring alone would not have fixed, since that label really does begin with desktop.
+  # A label that matches nothing falls to the generic wording, which is still correct advice.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
     cond_example="run the conditional session by name"
-    if printf '%s' "$lowsub_se" | grep -qiE 'identity|auth'; then
+    if printf '%s' "$lowsub_se" | grep -qiE '^(identity|auth)\b'; then
       cond_example="run the identity-auth session"
-    elif printf '%s' "$lowsub_se" | grep -qiE 'native|mobile|desktop'; then
+    elif printf '%s' "$lowsub_se" | grep -qiE '^native\b|^(mobile|desktop) app\b'; then
       cond_example="run the native-app session"
-    elif printf '%s' "$lowsub_se" | grep -qiE 'privacy|compliance|data governance'; then
+    elif printf '%s' "$lowsub_se" | grep -qiE '^privacy\b|^data governance\b'; then
       cond_example="run the privacy session"
     fi
     next="Run STEP-${lowsub}: ${lowsub_se} — invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
-  elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
+  elif printf '%s' "$lowsub_se" | grep -qiE '^cross.?cutting\b'; then
     next="Run STEP-${lowsub}: Cross-Cutting Review."
   else
     next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
 elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
   where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
-  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+  next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
-  if [ "$total_sub" -gt 0 ]; then
+  # §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what says so: the
+  # Cross-Cutting Review, the archive to prompts/, and the flip to Done all happen after the last
+  # substep goes Done (templates/architecture-sessions/14-cross-cutting-review.md — the row flips
+  # "once the review is clean"). While the row is still open that close-out is the work, so
+  # answering "run the planning session" skips it — and §10's closing rule makes the index
+  # authoritative for which STEP is next, which this arm used to contradict by reporting STEP-1
+  # complete while the index said otherwise. A missing STEP-1 row leaves the old answer alone.
+  if [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&
+     [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
+    where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
+    next="close out STEP-1 — archive it to the Phase-1 folder under prompts/ ($DOCS_REL/METHOD.md §5) and mark the STEP-1 row Done. If the Cross-Cutting Review left findings open, settle those first. The planning session comes after that."
+  elif [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
-    next="run the planning session — it outlines the Phase-1 implementation STEPs (templates/planning-session.md)."
+    next="run the planning session — it outlines the Phase-1 implementation STEPs ($DOCS_REL/templates/planning-session.md)."
   elif [ "$step1_st" = "Done" ]; then
     where="STEP-1 done; implementation not yet outlined."
     next="run the planning session — it outlines the Phase-1 implementation STEPs."
@@ -208,32 +269,49 @@ elif [ -n "$lowplanned" ]; then                             # §10.5
   next="plan ${lowplanned} — confirm scope, author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
 elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
-  next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes-template.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
+  next="phase looks complete — it's a milestone: prompt release notes ($DOCS_REL/templates/release-notes-template.md if yes) + user-facing doc updates ($DOCS_REL/METHOD.md §5), then open the next phase and run the planning session for it."
 else
   where="Indeterminate from the index alone."
-  next="resolve by hand via the next-action resolver in METHOD.md §10."
+  next="resolve by hand via the next-action resolver in $DOCS_REL/METHOD.md §10."
 fi
 
 # --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
-# Cadence is measured by highest indexed STEP minus the latest STEP whose title looks like a
-# check-in. The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
+# Cadence is measured by highest indexed STEP minus the latest Done STEP whose Title begins
+# `Check-in` (METHOD.md §5 states the contract). The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
 # when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
-# at N+5; METHOD.md §10 remains authoritative for the resolver.
+# at N+5 — both inclusive, so with the default 20 the DUE window is 15-24 and 25 is already
+# OVERDUE. The printed bounds say exactly that; they used to name 25 on both sides of the line.
+# The pattern is check.sh check 10's, character for character, because check 10 tells the reader
+# what this script will do with a malformed marker ("status.sh falls back to the default (20)")
+# and that sentence has to be true. It also has to reject a leading zero before the value reaches
+# the arithmetic below: `[ 08 -gt 0 ]` is base 10 and passes, but `$(( 08 - 5 ))` is octal and
+# aborts the script, so `CHECK-IN-CADENCE: 08` used to kill the whole next-action resolver.
 cadence=20
 if [ -f "$OVERVIEW" ]; then
-  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[0-9]+' "$OVERVIEW" | head -1 | grep -oE '[0-9]+')"
-  if [ -n "$n" ] && [ "$n" -gt 0 ]; then cadence="$n"; fi
+  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[1-9][0-9]*([[:space:]]|-->|$)' "$OVERVIEW" \
+       | head -1 | grep -oE '[1-9][0-9]*' | head -1)"
+  if [ -n "$n" ]; then cadence="$n"; fi
 fi
-due=$(( cadence - 5 ))
+# The window is the cadence plus or minus 5, floored at 1: a cadence of 5 or less would otherwise
+# put its left edge at zero or below, printing "the -2-8 window" and reporting DUE from the STEP
+# the check-in happened on. The floor only ever raises `due`, so every cadence of 6 or more is
+# untouched.
+due=$(( cadence - 5 )); [ "$due" -lt 1 ] && due=1
 over=$(( cadence + 5 ))
+# ci_propose is set whenever the cadence has something to suggest. METHOD.md §10 rule 7 is
+# deliberately not a resolver branch: the cadence advises and proposes, and never becomes the next
+# action. A gate that fired the moment a project went overdue would fire mid-feature, which is the
+# one place §5 says not to put a check-in — so this is printed beside the next action, never
+# instead of it, and the wording proposes rather than commands.
+ci_propose=""
 if [ "$last_ci" -gt 0 ]; then
   since=$(( maxnum - last_ci ))
-  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>${over}); insert a Check-in STEP now."
-  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–${over} window)."
+  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (${over}+)."; ci_propose=1
+  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–$(( over - 1 )) window)."; ci_propose=1
   else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( due - since )) STEPs of headroom."
   fi
 elif [ "$maxnum" -ge "$due" ]; then
-  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."
+  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."; ci_propose=1
 else
   ci="no Check-in STEP yet — fine (${maxnum} STEP(s) in; first due ~STEP-${due}–${over})."
 fi
@@ -245,6 +323,12 @@ echo
 echo "Next action:"
 echo "  → $next"
 echo "  (start a fresh chat for it — state lives on disk, not in this conversation.)"
+if [ -n "$ci_propose" ]; then
+  echo
+  echo "  Also worth proposing: a Check-in STEP, at the next sensible breakpoint — after a"
+  echo "  capability lands, not mid-feature. Advice, not a gate ($DOCS_REL/METHOD.md §10 rule 7): it does"
+  echo "  not replace the action above, and the cadence never blocks work."
+fi
 echo
 echo "Check-in cadence:"
 echo "  $ci"

@@ -10,7 +10,7 @@ decision: the context, the choice, the alternatives rejected, and the consequenc
   authors can each append `ADR-0005` and git will merge both without a conflict — a silent
   duplicate. Pull, take `max + 1` over the registry, add your row and create the ADR file, then
   **commit and push immediately**. Before every push, even on a clean merge, scan for a repeated
-  number (`grep -oE '^\|[[:space:]]*ADR-[0-9]+' adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d`); if it's non-empty or the push
+  number (`grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d`); if it's non-empty or the push
   is rejected, recompute `max + 1`, renumber, and push again. Solo, it's just a local edit. See
   `../runbooks/collaboration.md` §6.
 - Write decisions a future contributor would ask "why did they do it this way?" about —

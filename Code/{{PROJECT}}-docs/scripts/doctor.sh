@@ -20,12 +20,14 @@ Usage: ./doctor.sh <command> [args]
 Commands:
   status    Show where the project is, the next action, and check-in cadence.
   check     Run the read-only structural project checks.
+            Add --check-in for the extra checks the periodic check-in makes.
   links     Check durable docs for stale local Markdown links.
   help      Show this help.
 
 Examples:
   ./doctor.sh status
   ./doctor.sh check
+  ./doctor.sh check --check-in
   ./doctor.sh links
 USAGE
 }
@@ -51,6 +53,14 @@ run_helper() {
 cmd="${1:-help}"
 case "$cmd" in
   -h|--help|help)
+    shift
+    # Trailing arguments after help are the same usage error as an unknown command; printing the
+    # help text and exiting 0 told the caller their argument was understood.
+    if [ "$#" -gt 0 ]; then
+      echo "doctor.sh: unknown command: $1" >&2
+      echo "Try './doctor.sh --help'." >&2
+      exit 2
+    fi
     usage
     ;;
   status)

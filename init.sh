@@ -21,20 +21,73 @@ cd "$ROOT"
 # env vars, and interactive answers share the same checks.
 say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 ask()  { local p="$1" d="${2:-}" a; if [ -n "$d" ]; then read -r -p "$p [$d]: " a; echo "${a:-$d}"; else read -r -p "$p: " a; echo "$a"; fi; }
-yesno(){ local a; read -r -p "$1 [y/N]: " a; case "$a" in y|Y|yes) return 0;; *) return 1;; esac; }
+
+# yesno PROMPT — ask a yes/no question that defaults to no. It re-asks on an answer it does not
+# recognise, the way every other question in the wizard does; before this, anything outside
+# y/Y/yes was silently taken as "no", so YES, Yes, 1 and true each quietly declined at
+# "Set up online Git remotes now?" — the one question here whose wrong answer is unrecoverable
+# later. The accepted words are normalize_yesno's, so a typed answer and a --remotes= or
+# --registries= value cannot drift apart. A bare Enter takes the advertised default, and so does
+# end of input, which is what stops a short answer stream spinning here forever.
+yesno() {
+  local a rc
+  while :; do
+    a=""; rc=0
+    read -r -p "$1 [y/N]: " a || rc=$?
+    if [ -z "$a" ]; then return 1; fi
+    if normalize_yesno "$a"; then
+      [ "$NORMALIZED_YESNO" = "1" ] && return 0
+      return 1
+    fi
+    [ "$rc" -eq 0 ] || return 1
+    echo "  -> answer y or n (Enter alone means no)."
+  done
+}
+
+# need_val FLAG VALUE — guard the space-separated form of a flag. `--desc --layout=mono` is a
+# missing value, not a description: without this the value silently becomes "--layout=mono" and
+# the swallowed flag falls back to its default, so the run builds something the caller did not
+# ask for and every later check passes. Refused here rather than per-flag, because only the
+# flags that happen to validate their value (--slug, --layout, --license) catch it by accident.
+# The `--flag=value` form is untouched, so a value that really does begin with `--` stays sayable.
+need_val() {
+  case "${2-}" in
+    "")  echo "init.sh: $1 needs a value (try './init.sh --help')" >&2; exit 2 ;;
+    --*) echo "init.sh: $1 needs a value, but the next argument is another flag ('$2')." >&2
+         echo "  If that was meant as the value, write it as '$1=$2'." >&2; exit 2 ;;
+  esac
+}
 
 # want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty; otherwise prompt for it.
 # In --non-interactive mode, fall back to DEFAULT, or exit with an error if there is none.
 # This is the flag/env bridge: callers pass the already-parsed preset first, so command-line
 # values win over env vars and both bypass prompting.
 want() {
-  local val="$1" prompt="$2" def="${3:-}"
+  local val="$1" prompt="$2" def="${3:-}" rc
   if [ -n "$val" ]; then printf '%s' "$val"; return; fi
   if [ "$NONINTERACTIVE" = "1" ]; then
     [ -n "$def" ] && { printf '%s' "$def"; return; }
     echo "init.sh: missing required value (--non-interactive): $prompt" >&2; exit 2
   fi
-  ask "$prompt" "$def"
+  # A blank answer is re-asked rather than accepted. --non-interactive already refuses the same
+  # omission, so accepting it interactively meant the friendlier path was the one that let an
+  # empty description or copyright holder through — into AGENTS.md, the session templates, and a
+  # LICENSE reading "Copyright (c) YYYY " with nothing after it. read is inlined instead of
+  # reusing ask so that end of input can be told apart from a bare Enter; without that the loop
+  # would spin on a short answer stream. Both notices go to stderr because want is always called
+  # inside a command substitution.
+  while :; do
+    val=""; rc=0
+    if [ -n "$def" ]; then
+      read -r -p "$prompt [$def]: " val || rc=$?
+      [ -n "$val" ] || val="$def"
+    else
+      read -r -p "$prompt: " val || rc=$?
+    fi
+    [ -n "$val" ] && { printf '%s' "$val"; return; }
+    [ "$rc" -eq 0 ] || { echo "init.sh: missing required value (input ended): $prompt" >&2; exit 2; }
+    echo "  -> $prompt is required." >&2
+  done
 }
 
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
@@ -75,6 +128,18 @@ normalize_collab() {
     solo|1) NORMALIZED_COLLAB=1 ;;
     team|2) NORMALIZED_COLLAB=2 ;;
     *)      return 1 ;;
+  esac
+}
+
+# normalize_yesno INPUT — set NORMALIZED_YESNO to 1 (yes) or 0 (no). The third of the same
+# shape: one vocabulary for a yes/no answer however it arrives, so the --remotes= flag, the
+# --registries= flag and the typed answer cannot accept different words. Blank is not a value
+# here — the callers decide what an unanswered question means.
+normalize_yesno() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    y|yes|true|1) NORMALIZED_YESNO=1 ;;
+    n|no|false|0) NORMALIZED_YESNO=0 ;;
+    *)            return 1 ;;
   esac
 }
 
@@ -232,37 +297,37 @@ NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --slug=*)          SLUG_IN="${1#*=}" ;;
-    --slug)            SLUG_IN="${2:-}"; shift ;;
+    --slug)            need_val "$1" "${2-}"; SLUG_IN="$2"; shift ;;
     --desc=*)          DESC_IN="${1#*=}" ;;
-    --desc)            DESC_IN="${2:-}"; shift ;;
+    --desc)            need_val "$1" "${2-}"; DESC_IN="$2"; shift ;;
     --license=*)       LICENSE_IN="${1#*=}" ;;
-    --license)         LICENSE_IN="${2:-}"; shift ;;
+    --license)         need_val "$1" "${2-}"; LICENSE_IN="$2"; shift ;;
     --holder=*)        HOLDER_IN="${1#*=}" ;;
-    --holder)          HOLDER_IN="${2:-}"; shift ;;
+    --holder)          need_val "$1" "${2-}"; HOLDER_IN="$2"; shift ;;
     --layout=*)        LAYOUT_IN="${1#*=}" ;;
-    --layout)          LAYOUT_IN="${2:-}"; shift ;;
+    --layout)          need_val "$1" "${2-}"; LAYOUT_IN="$2"; shift ;;
     --registries=*)    REGISTRIES_IN="${1#*=}" ;;
-    --registries)      REGISTRIES_IN="${2:-}"; shift ;;
+    --registries)      need_val "$1" "${2-}"; REGISTRIES_IN="$2"; shift ;;
     --collab=*)        COLLAB_IN="${1#*=}" ;;
-    --collab)          COLLAB_IN="${2:-}"; shift ;;
+    --collab)          need_val "$1" "${2-}"; COLLAB_IN="$2"; shift ;;
     --adr-authority=*) ADR_AUTHORITY_IN="${1#*=}" ;;
-    --adr-authority)   ADR_AUTHORITY_IN="${2:-}"; shift ;;
+    --adr-authority)   need_val "$1" "${2-}"; ADR_AUTHORITY_IN="$2"; shift ;;
     --trunk-branch=*)  TRUNK_BRANCH_IN="${1#*=}"; TRUNK_BRANCH_FLAG_SET=1 ;;
-    --trunk-branch)    TRUNK_BRANCH_IN="${2:-}"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
+    --trunk-branch)    need_val "$1" "${2-}"; TRUNK_BRANCH_IN="$2"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
     --remotes=*)       REMOTES_IN="${1#*=}" ;;
-    --remotes)         REMOTES_IN="${2:-}"; shift ;;
+    --remotes)         need_val "$1" "${2-}"; REMOTES_IN="$2"; shift ;;
     --remote-provider=*) REMOTE_PROVIDER_IN="${1#*=}" ;;
-    --remote-provider) REMOTE_PROVIDER_IN="${2:-}"; shift ;;
+    --remote-provider) need_val "$1" "${2-}"; REMOTE_PROVIDER_IN="$2"; shift ;;
     --owner=*)         OWNER_IN="${1#*=}" ;;
-    --owner)           OWNER_IN="${2:-}"; shift ;;
+    --owner)           need_val "$1" "${2-}"; OWNER_IN="$2"; shift ;;
     --remote-url=*)    REMOTE_URL_IN="${1#*=}" ;;
-    --remote-url)      REMOTE_URL_IN="${2:-}"; shift ;;
+    --remote-url)      need_val "$1" "${2-}"; REMOTE_URL_IN="$2"; shift ;;
     --docs-remote=*)   DOCS_REMOTE_IN="${1#*=}" ;;
-    --docs-remote)     DOCS_REMOTE_IN="${2:-}"; shift ;;
+    --docs-remote)     need_val "$1" "${2-}"; DOCS_REMOTE_IN="$2"; shift ;;
     --prompts-remote=*) PROMPTS_REMOTE_IN="${1#*=}" ;;
-    --prompts-remote)  PROMPTS_REMOTE_IN="${2:-}"; shift ;;
+    --prompts-remote)  need_val "$1" "${2-}"; PROMPTS_REMOTE_IN="$2"; shift ;;
     --visibility=*)    VISIBILITY_IN="${1#*=}" ;;
-    --visibility)      VISIBILITY_IN="${2:-}"; shift ;;
+    --visibility)      need_val "$1" "${2-}"; VISIBILITY_IN="$2"; shift ;;
     -y|--yes|--non-interactive) NONINTERACTIVE=1 ;;
     -h|--help)         usage; exit 0 ;;
     *) echo "init.sh: unknown option: $1 (try './init.sh --help')" >&2; exit 2 ;;
@@ -366,16 +431,39 @@ say "Throughstone — setup"
 # Defaults are conservative for automation: multi-repo, solo, private GitHub visibility, and
 # no remote creation unless requested.
 # Project slug — validated kebab-case whether supplied or prompted.
+#
+# Every check lives in one function because the run is destructive from "Detaching" onward: a slug
+# problem found after that point leaves .git removed, the rename half-done and no STEP index, and
+# the doctor still reports RESULT: OK. Anything that can reject a slug has to reject it here.
+# One function also stops the flag path and the interactive re-ask loop drifting apart.
+#
+# 64 is a practical ceiling, not a filesystem one — the hard limit is 250 (255 minus "-docs" for
+# the directory component), which no project name should approach and every git host is stricter
+# than anyway. Raise it here if a real project ever needs to.
+SLUG_MAX=64
+slug_problem() {
+  local s="$1"
+  printf '%s' "$s" | grep -Eq '^[a-z][a-z0-9-]*$' \
+    || { echo "lowercase letters, digits, hyphens only"; return; }
+  [ "${#s}" -le "$SLUG_MAX" ] \
+    || { echo "${#s} characters is too long — keep it to $SLUG_MAX"; return; }
+  [ ! -e "Code/${s}-docs" ] \
+    || { echo "Code/${s}-docs already exists here — pick another slug, or start from a clean copy of the template"; return; }
+}
+
 SLUG="$SLUG_IN"
 if [ -n "$SLUG" ]; then
-  printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$' \
-    || { echo "init.sh: invalid --slug '$SLUG' (lowercase letters, digits, hyphens only)." >&2; exit 2; }
+  SLUG_WHY="$(slug_problem "$SLUG")"
+  [ -z "$SLUG_WHY" ] \
+    || { echo "init.sh: invalid --slug '$SLUG' ($SLUG_WHY)." >&2; exit 2; }
 elif [ "$NONINTERACTIVE" = "1" ]; then
   echo "init.sh: --slug is required in --non-interactive mode." >&2; exit 2
 else
-  while ! printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$'; do
+  SLUG_WHY="start"
+  while [ -n "$SLUG_WHY" ]; do
     SLUG="$(ask 'Project slug (lowercase, kebab-case, e.g. acme-scheduler)')"
-    printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$' || echo "  -> must be lowercase letters, digits, hyphens."
+    SLUG_WHY="$(slug_problem "$SLUG")"
+    [ -z "$SLUG_WHY" ] || echo "  -> $SLUG_WHY."
   done
 fi
 DESC="$(want "$DESC_IN" 'One-line description')"
@@ -460,13 +548,12 @@ fi
 # still parsed so existing automation keeps working, and its value is still validated: an
 # unrecognized one is an error in either layout, and `no` is ignored with a deprecation notice.
 if [ -n "$REGISTRIES_IN" ]; then
-  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1) : ;;
-    n|no|false|0)
-      echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
-      echo "         The flag is deprecated and will be removed in a future release." >&2 ;;
-    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
+  normalize_yesno "$REGISTRIES_IN" \
+    || { echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2; }
+  if [ "$NORMALIZED_YESNO" = "0" ]; then
+    echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
+    echo "         The flag is deprecated and will be removed in a future release." >&2
+  fi
 fi
 
 # Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
@@ -593,11 +680,9 @@ REMOTE_VISIBILITY=private
 HAS_MANUAL_REMOTE_INPUT=0
 [ -n "$REMOTE_URL_IN$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] && HAS_MANUAL_REMOTE_INPUT=1
 if [ -n "$REMOTES_IN" ]; then
-  case "$(printf '%s' "$REMOTES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1) MK_REMOTES=1 ;;
-    n|no|false|0) MK_REMOTES=0 ;;
-    *) echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
+  normalize_yesno "$REMOTES_IN" \
+    || { echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2; }
+  MK_REMOTES="$NORMALIZED_YESNO"
 elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
   MK_REMOTES=1
 elif [ "$NONINTERACTIVE" != "1" ]; then
@@ -1230,7 +1315,8 @@ if [ "$LAYOUT" = "2" ]; then
   attaching one: an empty origin this folder already had is kept rather than replaced, though
   attaching it can itself fail. So run 'git remote -v' first to see what you actually have, then
   either push the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on
-  your host and push to that. Then record that URL on the row in registries/repos.yml whose
+  your host and push to that. Then record that URL on the row in
+  Code/${SLUG}-docs/registries/repos.yml whose
   location is \".\", the same as any other repo — until it is there the check-in reports this
   project as backed up nowhere. The rows below it are folders inside that one repository, not
   repos to clone."
