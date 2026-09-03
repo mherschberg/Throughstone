@@ -164,10 +164,13 @@ production software, get review from an experienced engineer.
    required value is an error. `init.sh` first checks that `git` and `perl` are present. When
    it finishes you can delete `init.sh` — it has done its job.
 
-   Repository visibility is separate from licensing. When creating GitHub remotes, use
-   `--visibility=private` or `--visibility=public`; the default is private. Public visibility
-   with `--license=private` publishes the source without granting open-source reuse rights, so
-   the wizard warns before creating that combination.
+   Repository visibility is separate from licensing, and the two use different words.
+   **`private` is about visibility**: when creating GitHub remotes, use `--visibility=private` or
+   `--visibility=public`; the default is private. **`proprietary` is about licensing**: it means no
+   `LICENSE` file is created and nobody is granted reuse rights. They are independent — a private
+   repo can carry MIT, and a public repo can be proprietary. Public visibility with
+   `--license=proprietary` publishes the source without granting open-source reuse rights, so the
+   wizard warns before creating that combination.
 
    GitHub remotes can be auto-created with `gh`:
    ```bash
@@ -347,7 +350,7 @@ matching environment variables.
 |------|---------|--------|---------|
 | `--slug=SLUG` | `INIT_SLUG` | lowercase kebab-case | Project slug used for generated paths and placeholders. |
 | `--desc=TEXT` | `INIT_DESC` | one-line text | Seed project description. |
-| `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `private` | Project license posture. |
+| `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `proprietary` | Project license posture. Not repository visibility — see `--visibility`. |
 | `--holder=NAME` | `INIT_HOLDER` | text | Copyright holder for open-source licenses. |
 | `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; default is `multi`. |
 | `--registries=yes\|no` | `INIT_REGISTRIES` | `yes`, `no` | **Deprecated and ignored.** `registries/` always ships in both layouts; `no` keeps the directory and prints a deprecation notice. |
