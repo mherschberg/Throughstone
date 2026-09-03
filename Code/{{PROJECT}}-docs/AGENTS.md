@@ -136,8 +136,8 @@ that selection against the docs hub's canonical `LICENSE`, copies the project li
 for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
-`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` sets up a new developer's machine (clones the siblings, writes
-the root pointers). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
+`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` sets up a new developer's machine (writes the root pointers,
+then clones the siblings). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
 `./doctor.sh links` are thin shortcuts to `Code/{{PROJECT}}-docs/scripts/status.sh`,
 `Code/{{PROJECT}}-docs/scripts/check.sh`, and `Code/{{PROJECT}}-docs/scripts/links.sh`.
 New human or agent contributor joining an existing project? Read
