@@ -149,12 +149,15 @@ any project built with it.
   `scripts/check.sh` also gains its first test.
 
 - **The interactive setup no longer licenses your project open source by default.** `init.sh` asks
-  whether the project is open source or private/proprietary, and that question used to default to
+  whether the project is open source or proprietary, and that question used to default to
   open source, with the license question after it defaulting to MIT — so two bare Enters granted
   everyone an irrevocable license to the project's code without the user ever naming one. The
-  project-type question now defaults to **private / proprietary**, which writes no project
+  project-type question now defaults to **proprietary**, which writes no project
   `LICENSE` at all and leaves the decision to be made deliberately later. The open-source
-  sub-question keeps its MIT default: by the time it is asked, open source is an explicit choice.
+  sub-question no longer defaults to MIT either: once open source is the posture, which licence it
+  is has to be typed. (That half came later in this same cycle — see the wizard-answers entry
+  below — and is recorded here rather than as its own reversal, since no release ever shipped the
+  in-between state.)
   Nothing changes for `--license=…` or `--non-interactive`, which have always required the posture
   to be stated. Existing projects are unaffected — their posture is already recorded in
   `.throughstone/project-license`.
@@ -320,9 +323,124 @@ any project built with it.
   let an empty value through — into `AGENTS.md`, `templates/planning-session.md` and every
   architecture session template. A blank copyright holder did the same to an open-source project,
   shipping `Copyright (c) 2026 ` with nothing after it in every generated repo, with the doctor
-  reporting no failures. End of input still ends the run rather than looping: an exhausted answer
-  stream takes the advertised default at a yes/no question and exits 2 with the missing prompt
-  named at a required one.
+  reporting no failures. An exhausted answer stream takes the advertised default at a yes/no
+  question and exits 2 with the missing prompt named at a required one. The questions that go
+  through `ask` rather than `yesno` or `want` were not covered by that and are fixed in the entry
+  below.
+- **The setup wizard no longer acts on an answer nobody gave, and says what it discarded.** Four
+  of its questions offered the answer you get by leaning on Enter, and each of the four is fixed
+  at the moment the project is created or reaches off this machine: the open-source licence menu
+  handed out MIT, an irrevocable grant nobody named; the repo layout menu picked multi; the
+  solo/team menu picked solo, which writes an ADR register naming the reader as its own acceptance
+  authority; and the remote setup menu picked *create repositories on GitHub under your account*.
+  None of the four has a default now — blank and whitespace are not answers to them, and the
+  question comes back. An unrecognised answer at the remote menu is re-asked too, rather than
+  ending the run, which is how every other menu here already behaved. Three defaults were weighed
+  in the same pass and deliberately kept, because accepting one by accident costs a setting rather
+  than a project: the project-type question (proprietary, which licenses nobody), GitHub
+  visibility (private), and who accepts ADRs. The `main` trunk branch keeps its value too, and
+  nobody is ever asked about it, so there is nothing there to fat-finger.
+
+  **End of input ends the run.** `ask` ignored `read`'s exit status, so an unattended run — an
+  agent, a script, `< /dev/null` — was handed an unlimited supply of empty answers. At the slug
+  question, which re-asks until the answer is valid and where blank never is, that was not a wrong
+  result but no result: measured at 94KB of the same re-ask notice in twelve seconds before it was
+  killed. A question with a default now takes that default at end of input, the way `yesno` and
+  `want` already did; a question without one stops the run and names the answer it is missing. The
+  fix is a precondition for the removals above, since a question made to insist on an answer
+  inherits that loop.
+
+  **A repository that is already under `prompts/` is refused.** The fresh-template guard only ever
+  read the workspace root, and the multi layout initializes a second durable repo one directory
+  down. Measured: `git init`, a commit, and `git branch -M` ran inside a repository that was
+  already there, leaving it two commits deep with its branch renamed from `work` to `main`, and
+  the run exited 0. It is refused before the destructive boundary now, by the same check that
+  refuses the other five shapes, and refusing leaves that repository byte-for-byte as it was found.
+
+  **A flag that cannot apply is named rather than dropped in silence.** Each layout reads the
+  remote-URL flags that match its shape, so one of the two sets is always unusable: a mono project
+  has one repository and no use for `--docs-remote` or `--prompts-remote`, and a multi project has
+  two and no use for `--remote-url`. Passing the wrong set produced a project whose remotes
+  contradicted the command that created it, with nothing in the run admitting the difference. Each
+  now prints a line of the form `note: ignoring --docs-remote — mono layout has one repo` and the
+  run continues. Refusing was considered and rejected: a wrapper passing one harmless extra flag
+  should not fail, and being told is the whole of what was missing.
+
+  **The same goes for an answer that cannot apply.** A mono project's one repository is the
+  workspace root, so when that folder already has an empty Git origin there is nothing for
+  "create a repository on GitHub" to create — the origin is reused instead. That is the right
+  outcome, since replacing a remote you attached yourself would be the real surprise. Saying
+  nothing about it was not: `gh` was never called, the owner question simply did not appear, and
+  the substitution surfaced only as a line calling the result a reuse, printed after the point
+  where the run stops being reversible. It is now named where it happens, before that point, with
+  the URL that will be used and the fact that stopping there costs nothing.
+
+  **And the slug question's refusal now describes the rule it enforces.** The pattern requires a
+  first character that is a letter; the refusal read "lowercase letters, digits, hyphens only",
+  which `3d-printer` obeys and the pattern still rejects. On the flag path that costs a minute. At
+  the prompt it costs more, because the question re-asks and the reader has been told to correct
+  something already correct, with nothing in the message leading anywhere that works. One string
+  serves both paths and now names the whole pattern. What is accepted has not changed.
+
+  **The layout menu says what each layout does to the folder you are standing in.** Multi-repo
+  leaves the workspace root a per-machine shell with no repository at all, so a file put there
+  afterwards is tracked by nothing and backed up by nowhere. The menu said only that `prompts/`
+  and the docs hub "become separate repos", which never said separate from *what* — separate from
+  each other, or separate from a root repo that still exists? The `README` states it twice and the
+  wizard stated it nowhere, which is the wrong way round, because the wizard is where the choice
+  is made and cannot be revisited. Both options now name their own consequence.
+
+  **`private` and `proprietary` no longer mean the same thing.** The licence question offered
+  "Private / proprietary" and a question twenty lines later offers "1) Private" for who can see the
+  repository — the same word for two unrelated settings, in one run. They are independent: a private
+  repo can carry MIT, and a public repo can be proprietary. Read the first question as being about
+  visibility and you answer it, and get a project licensed to nobody. `proprietary` is now the
+  licence word everywhere — the menu label, the flag value, and the internal token, which had stayed
+  `private` while `.throughstone/project-license` already wrote `Proprietary` — and `private` refers
+  to repository visibility and nothing else. The licence question also says, in one line, that
+  visibility is asked separately later.
+
+  `--license=private` still works and still produces exactly the same project, so a wrapper that has
+  always passed it does not break; it prints a deprecation notice naming `--license=proprietary` and
+  will be removed in a future release. Deprecating rather than refusing, for the same reason an
+  unusable flag is named rather than refused. `--visibility=private` is untouched.
+
+  **The mono-repo + team caveat now turns on the two answers it is about.** Choosing that
+  combination makes the overlap warning useless — it is repo-granular, and there is one repo — and
+  the note saying so sat inside the branch that *asks* who accepts ADRs. Its real condition was how
+  that one unrelated value arrived: measured on three identical mono + team projects, typing the
+  ADR authority printed the note, passing `--adr-authority` did not, and `--non-interactive` did
+  not. Same project, same limitation, one warning. It now prints for all three, and for neither
+  neighbouring combination. It also says that nothing has been created yet and the run can still be
+  stopped — which was already true and which nothing on screen admitted.
+
+  The line above it had the same defect and is fixed with it: **every team is now told that team
+  collaboration relies on shared remotes**, not only the teams that happened to type their ADR
+  authority rather than pass it.
+
+  **And `--adr-authority` on a solo project is named rather than dropped.** A solo project records
+  the author as the authority — the register is stamped `_solo author_` and the question is never
+  asked — so a supplied authority has nothing to attach to. It used to exit 0 with no mention of the
+  flag at all. It now prints `note: ignoring --adr-authority — a solo project records you as the
+  authority`, and a team project passing the same flag still gets exactly what it asked for, in
+  silence. `INIT_ADR_AUTHORITY` is the same story.
+
+  **"Use existing remote URLs" now says what those URLs have to be.** Each repository must already
+  exist, be empty, and be reachable with your credentials — three requirements you used to discover
+  by refusal, after typing both URLs. Nothing is lost when that happens, because the check runs
+  before the run touches anything; what is lost is the whole interview, since there is no resume and
+  one pasted string sends you back to the project name. The requirements were already written down,
+  but only on the branch taken when `gh` is missing — so the wizard explained itself exactly where it
+  could not offer the easier option, and not where it could.
+
+  **And the closing note agrees with the layout menu about what is actually saved.** Telling a
+  multi-repo reader that the workspace root is not a repository — which the menu now does — left the
+  closing line *"your project is saved locally with Git"* contradicting it a few screens later, in
+  the same run. Between a warning and a reassurance a reader takes the reassurance, which is the
+  wrong one here. The line is now per-layout, the way the `init.sh`-deletion note beside it already
+  was: a mono project is told everything in the folder is in its repository, and a multi project is
+  told which two repositories hold the committed work and that files at the root are in neither.
+  Both now also say the work was **committed**, which neither of them used to mention at all.
 - **The check-in report template has somewhere to record deferred coverage.** An architecture doc
   may deliberately leave part of its area unwritten, marked in its `Coverage:` field.
   `runbooks/check-in.md` treats that as a standing obligation — the deferral must be "resurfaced,

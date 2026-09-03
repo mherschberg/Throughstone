@@ -121,10 +121,26 @@ yours changes and there is no action here. It matters only the next time you boo
 Throughstone project: do that from 1.8 or later.
 
 The same release changes one bootstrap default, and again there is nothing to do. `init.sh`'s
-interactive project-type question now defaults to private/proprietary rather than open source, so
+interactive project-type question now defaults to proprietary rather than open source, so
 pressing Enter through setup no longer licenses a project MIT without anyone naming a license. Your
 project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
 it does not change. Worth knowing only if you bootstrap another project from muscle memory.
+
+**`private` and `proprietary` now mean two different things, and if you script `init.sh` there is
+one rename.** `private` refers to repository visibility and nothing else; `proprietary` is the
+licence posture. They were the same word in two unrelated questions — the licence question offered
+"Private / proprietary" while a later one offered "1) Private" for who can see the repository — and
+they are genuinely independent: a private repo can carry MIT, and a public repo can be proprietary.
+
+- **Nothing in your project changes.** Your posture is recorded as `Proprietary` in
+  `.throughstone/project-license` and always was; that spelling has not moved. `init.sh` runs once,
+  when a project is created, and an existing project never runs it again.
+- **If you have a wrapper, alias, or CI job that creates projects with `--license=private`, write
+  `--license=proprietary`.** The old spelling still works and produces exactly the same project, so
+  nothing breaks today — but it now prints a deprecation notice naming the new one, and it will be
+  removed in a future release. `INIT_LICENSE=private` is the same story.
+- **`--visibility=private` is unaffected** and stays as it is. That is the flag `private` now
+  belongs to.
 
 **The Check-in STEP now has a title contract, and one row of yours may need renaming.**
 `scripts/status.sh` measures the check-in cadence from the last `Done` STEP it recognises as a

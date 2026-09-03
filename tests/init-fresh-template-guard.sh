@@ -18,6 +18,7 @@
 #   `git init` beside the template, empty      a repo tracking files the template does not ship
 #                                              an unborn HEAD with commits on another branch
 #                                              an unborn HEAD with files staged, never committed
+#   the template's own plain prompts/          a repository of someone else's under prompts/
 #
 # The last check pins the template's root-entry list, which the guard carries as a literal, to the
 # template itself so it cannot rot.
@@ -182,7 +183,51 @@ assert_refused "staged" "$staged" "staged files that were never committed"
 [ -n "$(git -C "$staged" ls-files)" ] \
   || { echo "FAIL: staged — init.sh cleared the user's index before refusing" >&2; exit 1; }
 
-# --- 10. The guard's root-entry list matches what the template actually ships. ------------------
+# --- 10. A repository of someone else's under prompts/ is refused. -----------------------------
+# Checks 1-4 only ever read the workspace root, and the multi layout initializes a second durable
+# repo one directory down. Without this check init_repo ran `git init && git add -A && git commit
+# && git branch -M` inside whatever was already there: a commit added to history that is not this
+# project's, the branch it was on renamed, and exit 0. Nothing above catches it — the root here is
+# an ordinary unpacked template and passes every one of them.
+nested="$TMP_ROOT/nested-prompts"
+copy_template "$nested"
+( cd "$nested/prompts" && git init -q && printf 'my prompt\n' > mine.md && git add -A \
+    && seed_commit "prompts I already had" && git branch -M work )
+nested_sha="$(git -C "$nested/prompts" rev-parse HEAD)"
+if init_once "$nested" nestedprompts --layout=multi >"$TMP_ROOT/nested.out" 2>&1; then
+  echo "FAIL: nested-prompts — init.sh committed into a repository that was already there" >&2
+  cat "$TMP_ROOT/nested.out" >&2
+  exit 1
+fi
+grep -Fq "does not look like a fresh Throughstone template checkout" "$TMP_ROOT/nested.out" \
+  || { echo "FAIL: nested-prompts — refusal did not print the fresh-template message" >&2; cat "$TMP_ROOT/nested.out" >&2; exit 1; }
+grep -Fq "prompts/ is already a Git repository" "$TMP_ROOT/nested.out" \
+  || { echo "FAIL: nested-prompts — refusal did not name the check that fired" >&2; cat "$TMP_ROOT/nested.out" >&2; exit 1; }
+# Refusing has to leave that repository exactly as it was found — same tip commit, same branch,
+# same files. A guard that refuses after committing has still done the damage.
+[ "$(git -C "$nested/prompts" rev-parse HEAD)" = "$nested_sha" ] \
+  || { echo "FAIL: nested-prompts — init.sh added a commit before refusing" >&2; exit 1; }
+[ "$(git -C "$nested/prompts" symbolic-ref --short HEAD)" = "work" ] \
+  || { echo "FAIL: nested-prompts — init.sh renamed the branch before refusing" >&2; exit 1; }
+[ -f "$nested/prompts/mine.md" ] \
+  || { echo "FAIL: nested-prompts — init.sh removed files before refusing" >&2; exit 1; }
+[ -d "$nested/Code/{{PROJECT}}-docs" ] \
+  || { echo "FAIL: nested-prompts — init.sh crossed the destructive boundary before refusing" >&2; exit 1; }
+
+# --- 11. The template's own prompts/ still proceeds (the matching must-proceed case). ----------
+# Every other case in this file leaves prompts/ a plain directory, so this pairing is already
+# carried by case 1 above; assert it here too, next to the refusal it bounds, because a check
+# written as `[ -e prompts ]` would pass every assertion in section 10 and refuse every project.
+plain_prompts="$TMP_ROOT/plain-prompts"
+copy_template "$plain_prompts"
+[ -d "$plain_prompts/prompts" ] && [ ! -e "$plain_prompts/prompts/.git" ] \
+  || { echo "FAIL: plain-prompts — fixture is not the shape this case is about" >&2; exit 1; }
+init_once "$plain_prompts" plainprompts --layout=multi >"$TMP_ROOT/plain-prompts.out" 2>&1 \
+  || { echo "FAIL: guard blocked a template whose prompts/ is a plain directory" >&2; cat "$TMP_ROOT/plain-prompts.out" >&2; exit 1; }
+[ -d "$plain_prompts/prompts/.git" ] \
+  || { echo "FAIL: plain-prompts — init.sh did not make prompts/ a repository" >&2; exit 1; }
+
+# --- 12. The guard's root-entry list matches what the template actually ships. ------------------
 # The list is a literal inside init.sh, so it can rot the moment a root entry is added or removed.
 # Derive the truth from the template and compare, so adding one without the other fails here.
 expected="$TMP_ROOT/root-entries-expected"
