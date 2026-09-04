@@ -727,10 +727,11 @@ say "Detaching from the template's git history..."
 # only the user's initialized project state, not Throughstone's development history.
 rm -rf "$ROOT/.git"
 # The root LICENSE is the Throughstone scaffold's own license (BSD-3-Clause, © Mark A.
-# Herschberg), not the generated project's license. Retained scaffold material (METHOD.md,
-# templates/, runbooks/, scripts/) stays under it, and BSD-3 clause 1 requires preserving the
-# notice. Relocate it as LICENSE-THROUGHSTONE below; open-source projects get their selected
-# project LICENSE separately, while proprietary projects intentionally do not.
+# Herschberg) and covers the whole scaffold repository, so it must not travel into a generated
+# project where it would read as that project's license. Retained scaffold material (METHOD.md,
+# templates/, runbooks/, scripts/) still needs its notice, and BSD-3 clause 1 still requires
+# preserving it -- that job belongs to Code/<project>-docs/LICENSE-THROUGHSTONE, which ships as
+# its own file and opens by saying what it does and does not cover. Drop the root LICENSE here.
 #
 # README/CHANGELOG/TODO/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
 # history, maintainer backlog, and public explanation of the scaffold's output. After bootstrap
@@ -738,6 +739,7 @@ rm -rf "$ROOT/.git"
 # workspace root. Drop them; generated-project context starts in the docs hub. Mono-repo projects
 # can add their own versions later.
 rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md" "$ROOT/ARTIFACT-TRAIL.md"
+rm -f "$ROOT/LICENSE"
 # Community/health files describe the Throughstone template itself: contribution policy,
 # security contact, code of conduct, and trademark posture. Carrying them forward would leak the
 # template maintainer's contacts and assert Throughstone governance inside the user's project.
@@ -794,10 +796,10 @@ grep -rlF '{{TRUNK_BRANCH}}' . --exclude-dir=.git 2>/dev/null | while read -r f;
   TRUNK_BRANCH="$TRUNK_BRANCH" perl -pi -e 's/\Q{{TRUNK_BRANCH}}\E/$ENV{TRUNK_BRANCH}/g' "$f"
 done
 
-# Relocate the scaffold's BSD license into the docs hub (retained as attribution per BSD-3,
-# next to the method files it covers — not deleted). Open-source project licenses are stamped
-# separately into each repo in step 6; private projects get no project LICENSE.
-[ -f "$ROOT/LICENSE" ] && mv "$ROOT/LICENSE" "$DOCS/LICENSE-THROUGHSTONE"
+# The scaffold notice ships as Code/<project>-docs/LICENSE-THROUGHSTONE and is already in
+# place by now — it is a real file with its own scope preamble, not this root LICENSE renamed.
+# The root LICENSE is dropped with the other template files above. Open-source project licenses
+# are stamped separately into each repo in step 6; private projects get no project LICENSE.
 # LICENSE-THROUGHSTONE follows retained scaffold material. In multi-repo mode prompts/ is its
 # own repo and contains Throughstone-authored seed content, so retain the scaffold notice there
 # too; this is distinct from the project LICENSE stamped below for open-source projects. In

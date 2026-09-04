@@ -121,6 +121,19 @@ pressing Enter through setup no longer licenses a project MIT without anyone nam
 project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
 it does not change. Worth knowing only if you bootstrap another project from muscle memory.
 
+**The Throughstone notice now states its scope, and refreshing yours is optional.**
+`LICENSE-THROUGHSTONE` used to be 28 lines of BSD-3 with no sentence saying what it applied to — its
+only scoping was the word in its filename, while the text inside referred to "this software" without
+ever defining it. At the root of a repository, that reads as the repository. It now opens by saying
+it is not the repository's license, that it covers Throughstone-authored material only, and that
+everything else is licensed by the repository's owners on their own terms. The BSD-3 text is
+unchanged, and so is the rule for where the notice goes: every repo in the project has one.
+
+The copies already in your repos are **stamped files — yours, per the bucket table above** — and
+nothing rewrites them. If you want the clearer wording, copy the 1.8
+`Code/<project>-docs/LICENSE-THROUGHSTONE` over each copy you hold; every copy is byte-identical to
+the docs hub's, so one file replaces them all. Nothing breaks if you leave them as they are.
+
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
 works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
