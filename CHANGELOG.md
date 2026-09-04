@@ -113,6 +113,26 @@ any project built with it.
   row can name the procedure instead.
 
 ### Changed
+- **The Throughstone notice now says what it covers.** `LICENSE-THROUGHSTONE` was the scaffold's own
+  `LICENSE` under another name — 28 lines of BSD-3 and a copyright line, with the word "Throughstone"
+  appearing nowhere but the filename. The text inside says "THIS SOFTWARE IS PROVIDED BY THE
+  COPYRIGHT HOLDERS" and never says what "this software" is; sitting at the root of a repository, the
+  only available reading of that is the repository. A file whose entire job is to cover the method's
+  own material could therefore be read as licensing the project's — the opposite of its purpose, and
+  most misleading in exactly the case that matters most: a private codebase the method did not
+  create. The notice now opens with its scope. It states that it is **not** the repository's license,
+  that it covers Throughstone-authored material and nothing else, that everything else is licensed by
+  the repository's owners under their own terms — and that "this software" in the license below means
+  the Throughstone material. The BSD-3 text underneath is unchanged, and the rule for where the
+  notice goes is unchanged and unconditional: every repo in a Throughstone project gets it, whether
+  the method created the repo or adopted one that already existed.
+
+  It is also **a real file now**, shipped at `LICENSE-THROUGHSTONE` in the docs hub, instead of
+  something `init.sh` manufactured at bootstrap by renaming the scaffold's root `LICENSE`. That
+  rename is precisely why the notice could never carry a scope preamble: the same bytes are
+  Throughstone's own repository license, where an opening line saying "this is not this repository's
+  license" would be false. `init.sh` now drops the root `LICENSE` alongside the other template files
+  it removes, and copies the shipped notice as before.
 - **STEP-1 branches, and STEP projections, follow control rather than layout.** STEP-1 work takes the
   `step-0001-architecture` branch in **every** repository it writes into — previously the docs hub and
   `prompts/` in a multi-repo project, or the root repo in mono-repo-for-now, which left a repository
