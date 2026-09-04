@@ -20,7 +20,39 @@ cd "$ROOT"
 # Small UI helpers. They only print/prompt; all validation happens at the call sites so flags,
 # env vars, and interactive answers share the same checks.
 say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
-ask()  { local p="$1" d="${2:-}" a; if [ -n "$d" ]; then read -r -p "$p [$d]: " a; echo "${a:-$d}"; else read -r -p "$p: " a; echo "$a"; fi; }
+# ask PROMPT [DEFAULT] — ask one question and print the answer. With a DEFAULT, a bare Enter takes
+# it. Without one, a blank answer is returned as the blank it is: every such call site loops until
+# the answer is one of its valid options, and blank is never one of them.
+#
+# End of input is not an answer. `read` returns non-zero once the stream is exhausted, and this
+# used to be ignored — so an unattended run (an agent, a script, `< /dev/null`) got an endless
+# supply of empty answers. At a question with a default that quietly built a whole project; at the
+# slug question, whose loop re-asks until the answer is valid and where blank never is, it spun
+# forever: measured `./init.sh < /dev/null`, 94KB of the same re-ask notice in twelve seconds
+# before it was killed. A question with a default now takes that default at end of input, the way
+# yesno and want already do, and a question without one stops the run and names itself.
+#
+# Callers must take the answer through an assignment — `answer="$(ask …)"` — because that is the
+# one position where errexit sees the exit status of a command substitution. Used as a bare
+# argument or a `case` word, `$(ask …)` throws the status away and the caller loops on the empty
+# string instead of stopping. Every call site below is an assignment for that reason, including
+# the ones whose default means they cannot exit today.
+ask() {
+  local p="$1" d="${2:-}" a="" rc=0
+  if [ -n "$d" ]; then
+    read -r -p "$p [$d]: " a || rc=$?
+    [ -n "$a" ] || a="$d"
+  else
+    read -r -p "$p: " a || rc=$?
+  fi
+  # A final line with no trailing newline still fails the read while delivering the answer, so the
+  # value decides, not the status alone.
+  if [ "$rc" -ne 0 ] && [ -z "$a" ]; then
+    echo "init.sh: missing required value (input ended): $p" >&2
+    exit 2
+  fi
+  printf '%s\n' "$a"
+}
 
 # yesno PROMPT — ask a yes/no question that defaults to no. It re-asks on an answer it does not
 # recognise, the way every other question in the wizard does; before this, anything outside
@@ -100,7 +132,7 @@ normalize_license_choice() {
     mit|1)                       NORMALIZED_LICENSE_CHOICE=1 ;;
     bsd|bsd-3|bsd-3-clause|2)   NORMALIZED_LICENSE_CHOICE=2 ;;
     apache|apache-2|apache-2.0|3) NORMALIZED_LICENSE_CHOICE=3 ;;
-    proprietary|private)        NORMALIZED_LICENSE_CHOICE=private ;;
+    proprietary|private)        NORMALIZED_LICENSE_CHOICE=proprietary ;;
     *)                          return 1 ;;
   esac
 }
@@ -155,31 +187,47 @@ validate_trunk_branch() {
 }
 
 # choose_license_interactively — prompt until the project type and license are valid.
-# Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
+# Proprietary is a project-license posture, not a repository visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
 # skip project LICENSE creation later.
 #
-# The project-type question defaults to private/proprietary because that is the recoverable
-# answer. Accepting it writes no project LICENSE at all, which anyone can change later by
-# choosing a license deliberately; accepting an open-source default would grant everyone an
-# irrevocable license to the project's code without the user ever having named one. The
-# open-source sub-question keeps its MIT default — by the time it is asked, open source is an
-# explicit choice and MIT is a reasonable one.
+# One word, one meaning, throughout: `proprietary` is the licence posture and `private` is who can
+# see the repository. This question used to call its own answer "Private / proprietary", and a
+# question twenty lines further on offers "1) Private" for something unrelated — so a reader who
+# took the first one to be about visibility answered it, and got a project licensed to nobody.
+# Both are legitimate settings and they are independent: a private repo can carry MIT, and a
+# public repo can be proprietary. The internal token, the flag value and the label all say
+# `proprietary` now; `--license=private` is still accepted with a deprecation notice so a wrapper
+# that has always passed it keeps working.
+#
+# The project-type question defaults to proprietary because that is the recoverable
+# answer, and that default was weighed again in the sweep that took the defaults off the other
+# menus here — it survived it deliberately. Accepting it writes no project LICENSE at all, which
+# anyone can change later by choosing a license deliberately; accepting an open-source default
+# would grant everyone an irrevocable license to the project's code without the user ever having
+# named one. A default is affordable exactly when accepting it by accident is cheap to reverse,
+# and this one is the cheapest answer on the page.
+#
+# The open-source sub-question has no default, and that is the same test read the other way. It is
+# only reached once open source is chosen, so the question is which licence — and MIT arriving
+# because a key was leaned on is an irrevocable grant nobody named. Blank is not an answer to it;
+# it asks again.
 choose_license_interactively() {
   local project_type license_input
 
   while :; do
-    echo "Is this project open source or private/proprietary?"
-    echo "  1) Open source"
-    echo "  2) Private / proprietary"
+    echo "How should this project's code be licensed?"
+    echo "  1) Open source  (a LICENSE file is created and anyone may reuse the code)"
+    echo "  2) Proprietary  (no LICENSE file is created; nobody is granted reuse rights)"
+    echo "  Not the same as who can see the repository — that is asked separately, later."
     project_type="$(ask 'Choose 1 or 2' '2')"
     case "$project_type" in
       1) break ;;
       2)
-        LICENSE_CHOICE="private"
+        LICENSE_CHOICE="proprietary"
         return 0
         ;;
-      *) echo "  -> choose 1 for open source or 2 for private / proprietary." ;;
+      *) echo "  -> choose 1 for open source or 2 for proprietary." ;;
     esac
   done
 
@@ -188,9 +236,9 @@ choose_license_interactively() {
     echo "  1) MIT           (permissive, simplest)"
     echo "  2) BSD-3-Clause  (permissive + name-endorsement protection)"
     echo "  3) Apache-2.0    (permissive, with patent grant)"
-    license_input="$(ask 'Choose 1, 2, or 3' '1')"
+    license_input="$(ask 'Choose 1, 2, or 3')"
     if normalize_license_choice "$license_input" \
-      && [ "$NORMALIZED_LICENSE_CHOICE" != "private" ]; then
+      && [ "$NORMALIZED_LICENSE_CHOICE" != "proprietary" ]; then
       LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
       return 0
     fi
@@ -248,13 +296,16 @@ init.sh — one-time Throughstone setup wizard.
 Runs interactively by default. Pass flags (or set env vars) to pre-answer any
 question; whatever you leave out is still prompted — unless --non-interactive is
 set, in which case a missing required value is an error (useful for scripts/CI).
+A "(default: …)" below is what --non-interactive falls back to. Most prompts offer
+no default at all: the structural answers have to be typed, so that pressing Enter
+cannot decide the repo layout, the licence, or whether repositories are created.
 
 Usage: ./init.sh [options]
 
 Options:
   --slug=SLUG            Project slug (lowercase kebab-case, e.g. acme-scheduler)
   --desc=TEXT           One-line description
-  --license=NAME        mit | bsd-3 | apache-2.0 | private
+  --license=NAME        mit | bsd-3 | apache-2.0 | proprietary
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
   --registries=yes|no   Deprecated and ignored; registries/ always ships
@@ -421,6 +472,16 @@ if [ -e "$ROOT/.git" ]; then
   fi
 fi
 
+# 5. Checks 1-4 only ever read the workspace root, and the multi layout initializes a second
+#    durable repo one directory down. The template ships prompts/ as plain files, so a repository
+#    there is someone else's: init_repo runs `git init && git add -A && git commit && git branch
+#    -M` inside it, which adds a commit to their history and renames the branch it was on, and the
+#    run exits 0 having said nothing. `-e` rather than `-d` because a linked worktree or submodule
+#    leaves a .git file, and committing into one of those is the same damage.
+if [ -e "$ROOT/prompts/.git" ]; then
+  refuse_not_fresh "prompts/ is already a Git repository, and this would commit on top of it."
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
@@ -443,8 +504,14 @@ say "Throughstone — setup"
 SLUG_MAX=64
 slug_problem() {
   local s="$1"
+  # The message has to name the whole pattern, including the first character. It used to read
+  # "lowercase letters, digits, hyphens only", which a slug like 3d-printer satisfies and the
+  # pattern still rejects — so the refusal described a rule the run does not enforce. On the flag
+  # path that costs a minute; at the prompt it is worse, because the loop re-asks and the reader
+  # is told to fix something already correct, with nothing in the message leading to an answer
+  # that works. One string, both call sites.
   printf '%s' "$s" | grep -Eq '^[a-z][a-z0-9-]*$' \
-    || { echo "lowercase letters, digits, hyphens only"; return; }
+    || { echo "must start with a lowercase letter, then lowercase letters, digits and hyphens"; return; }
   [ "${#s}" -le "$SLUG_MAX" ] \
     || { echo "${#s} characters is too long — keep it to $SLUG_MAX"; return; }
   [ ! -e "Code/${s}-docs" ] \
@@ -474,15 +541,27 @@ DESC="$(want "$DESC_IN" 'One-line description')"
 LICENSE_CHOICE=""
 if [ -n "$LICENSE_IN" ]; then
   normalize_license_choice "$LICENSE_IN" \
-    || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2; }
+    || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2; }
   LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
+  # `private` now means one thing in this wizard and one only: who can see the repository on a
+  # host. As a licence value it meant something unrelated — no LICENSE file at all — and the two
+  # questions sat twenty lines apart using the same word for both. Still accepted, so a wrapper
+  # that has always passed it does not break; said once, so the wrapper can be corrected. Deprecate
+  # rather than refuse for the same reason the ignored flags are named rather than refused.
+  case "$(printf '%s' "$LICENSE_IN" | tr '[:upper:]' '[:lower:]')" in
+    private)
+      echo "init.sh: --license=private is deprecated; write --license=proprietary instead." >&2
+      echo "         'private' now refers only to repository visibility (--visibility=private)." >&2
+      echo "         The spelling still works and will be removed in a future release." >&2
+      ;;
+  esac
 elif [ "$NONINTERACTIVE" = "1" ]; then
-  echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2
+  echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2
 else
   choose_license_interactively
 fi
 HOLDER=""
-if [ "$LICENSE_CHOICE" != "private" ]; then
+if [ "$LICENSE_CHOICE" != "proprietary" ]; then
   HOLDER="$(want "$HOLDER_IN" 'Copyright holder (name or org)')"
 fi
 LICENSE_TEMPLATE_NAME=""
@@ -500,7 +579,7 @@ case "$LICENSE_CHOICE" in
     LICENSE_TEMPLATE_NAME="Apache-2.0.txt"
     PROJECT_LICENSE_ID="Apache-2.0"
     ;;
-  private)
+  proprietary)
     PROJECT_LICENSE_ID="Proprietary"
     ;;
   *)
@@ -528,12 +607,26 @@ if [ -n "$LAYOUT_IN" ]; then
 elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
 else
+  # The menu names what each layout does to this folder, because that is the half a first-time
+  # reader cannot infer and the half that costs them something later. "become separate repos" was
+  # ambiguous in the direction that hurts: separate from each other, or separate from a root repo
+  # that still exists? Multi leaves the root a workspace shell with no repository at all, so a
+  # file left there afterwards is tracked by nothing and backed up by nowhere. The README says
+  # this twice; the wizard said it nowhere, and the wizard is where the choice is made.
   echo "Repo layout:"
-  echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ become separate repos)"
-  echo "  2) mono-repo for now  (one repo at the workspace root; split later)"
+  echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ each become their own repo;"
+  echo "                      this folder is not itself a repo, so anything left here is"
+  echo "                      not tracked or backed up)"
+  echo "  2) mono-repo for now  (one repo at this folder, so everything here is tracked;"
+  echo "                         split into separate repos later)"
+  # No default: the layout is structural and fixed at creation, so Enter cannot be allowed to
+  # pick it. The answer is taken through an assignment rather than passed straight to
+  # normalize_layout, because a `$(ask …)` used as an argument discards the exit status ask
+  # stops the run with — see ask above.
   LAYOUT=""
   while [ -z "$LAYOUT" ]; do
-    if normalize_layout "$(ask 'Choose 1 or 2' '1')"; then
+    LAYOUT_ANSWER="$(ask 'Choose 1 or 2')"
+    if normalize_layout "$LAYOUT_ANSWER"; then
       LAYOUT="$NORMALIZED_LAYOUT"
     else
       echo "  -> answer 1 or 2 (the words multi and mono work too)."
@@ -570,9 +663,13 @@ else
   echo "Working solo for now, or collaborating with others from day one?"
   echo "  1) Solo for now  (team conventions switch on later; nothing here locks you in)"
   echo "  2) Team from day one"
+  # No default, for the same reason as the layout question above: solo is not the safer of the two
+  # answers, it is one of them, and the one it picks by accident writes the ADR register's
+  # acceptance authority as the reader themselves.
   COLLAB=""
   while [ -z "$COLLAB" ]; do
-    if normalize_collab "$(ask 'Choose 1 or 2' '1')"; then
+    COLLAB_ANSWER="$(ask 'Choose 1 or 2')"
+    if normalize_collab "$COLLAB_ANSWER"; then
       COLLAB="$NORMALIZED_COLLAB"
     else
       echo "  -> answer 1 or 2 (the words solo and team work too)."
@@ -590,15 +687,38 @@ if [ "$COLLAB" = "2" ]; then
     echo "  designated authority (recorded in Code/${SLUG}-docs/adr/README.md so it's on"
     echo "  disk, not folklore)."
     ADR_AUTHORITY="$(ask 'Who accepts ADRs? e.g. tech lead / consensus of maintainers / ADR review on PR' 'consensus of maintainers')"
-    echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
-    echo "  from the same place. You can still skip that now and add remotes later."
-    if [ "$LAYOUT" = "2" ]; then
-      echo "  NOTE: you picked mono-repo + team. That works — what a team needs is shared"
-      echo "  remotes, not several repos. One thing to know: the overlap warning is"
-      echo "  repo-granular, so it is meaningless when every STEP touches the one repo."
-      echo "  Fall back to the PLAN's file/area notes — see"
-      echo "  Code/${SLUG}-docs/runbooks/collaboration.md §4."
-    fi
+  fi
+  # Said to every team, not only to the ones that happened to type their ADR authority. This had
+  # the same defect the caveat below had, one line above it: the branch that asks for that one
+  # value is not the condition for advice about something else. The closing instructions already
+  # tell every project how to attach a remote later; this is the half that says why a team needs
+  # one at all, and it belongs where the reader has just said they are a team.
+  echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
+  echo "  from the same place. You can still skip that now and add remotes later."
+  # The mono + team caveat turns on the two answers it is about, and nothing else. It used to sit
+  # inside the branch above, which asks for the ADR authority — so its real condition was how that
+  # one unrelated value arrived. Measured on three identical mono + team projects: typing the
+  # authority printed it, passing --adr-authority did not, and --non-interactive did not. Same
+  # project, same limitation, one warning. It also says that stopping costs nothing, because it
+  # does: the run has created nothing at this point, and the reader had no way to know that.
+  if [ "$LAYOUT" = "2" ]; then
+    echo "  NOTE: you picked mono-repo + team. That works — what a team needs is shared"
+    echo "  remotes, not several repos. One thing to know: the overlap warning is"
+    echo "  repo-granular, so it is meaningless when every STEP touches the one repo."
+    echo "  Fall back to the PLAN's file/area notes — see"
+    echo "  Code/${SLUG}-docs/runbooks/collaboration.md §4."
+    echo "  Nothing has been created yet, so this run can still be stopped and rerun with"
+    echo "  --layout=multi if that changes your mind."
+  fi
+else
+  # A solo project records the author as the authority — the register is stamped `_solo author_`
+  # and the question is never asked — so a supplied authority has nothing to attach to. It was
+  # dropped without a word: measured, `--collab=solo --adr-authority="the CTO"` exits 0 with the
+  # register saying `_solo author_` and not one mention of the flag. Named rather than refused,
+  # for the reason the unusable remote-URL flags are named: a wrapper that passes one uniform flag
+  # set to every project it creates should not fail over a value that costs nothing to drop.
+  if [ -n "$ADR_AUTHORITY_IN" ]; then
+    echo "  note: ignoring --adr-authority — a solo project records you as the authority"
   fi
 fi
 
@@ -693,14 +813,32 @@ elif [ "$NONINTERACTIVE" != "1" ]; then
   if ! yesno "Set up online Git remotes now?"; then
     MK_REMOTES=0
   elif command -v gh >/dev/null 2>&1; then
+    # Option 2's requirements are stated with the option, not discovered by refusal after both URLs
+    # have been typed. They were already written down — but only on the branch below, the one taken
+    # when gh is missing, so the wizard explained itself only where it could not offer the easier
+    # path. Nothing is lost by finding out late, since the check runs before the boundary; what is
+    # lost is the whole interview, because there is no resume and one pasted string sends you back
+    # to the project name.
     echo "Remote setup:"
     echo "  1) Create GitHub remotes now (via gh)"
     echo "  2) Use existing remote URLs (Bitbucket, GitLab, or another Git host)"
-    case "$(ask 'Choose 1 or 2' '1')" in
-      1) MK_REMOTES=1; REMOTE_PROVIDER_IN=github ;;
-      2) MK_REMOTES=1; REMOTE_PROVIDER_IN=manual ;;
-      *) echo "init.sh: invalid remote setup choice." >&2; exit 2 ;;
-    esac
+    echo "     Each repo must already exist, be empty, and be reachable with your"
+    echo "     credentials. All three are checked before anything here changes."
+    # No default. Enter here used to mean "create real GitHub repositories under your account" —
+    # the one answer on the page that reaches outside this machine, and the only one whose
+    # accidental acceptance leaves something to clean up on a host. An unrecognised answer is now
+    # re-asked rather than fatal, the way every other menu in the wizard behaves; the question is
+    # cheap to repeat and there is nothing here worth ending a run over.
+    REMOTE_SETUP_CHOICE=""
+    while [ -z "$REMOTE_SETUP_CHOICE" ]; do
+      REMOTE_SETUP_CHOICE="$(ask 'Choose 1 or 2')"
+      case "$REMOTE_SETUP_CHOICE" in
+        1) MK_REMOTES=1; REMOTE_PROVIDER_IN=github ;;
+        2) MK_REMOTES=1; REMOTE_PROVIDER_IN=manual ;;
+        *) echo "  -> choose 1 to create GitHub remotes, or 2 to use remote URLs you already have."
+           REMOTE_SETUP_CHOICE="" ;;
+      esac
+    done
   else
     echo "  GitHub auto-creation needs the 'gh' CLI, which is not installed."
     echo "  If you already created empty repos online, you can paste their URLs now."
@@ -735,11 +873,17 @@ if [ "$MK_REMOTES" = "1" ]; then
       *) echo "init.sh: invalid --visibility '$VISIBILITY_IN' (private | public)." >&2; exit 2 ;;
     esac
   elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ]; then
+    # This default is kept, and was kept deliberately: accepting Private by accident creates a
+    # repository nobody else can read, which is one setting away from fixing, while the other
+    # answer publishes source. The answer is still taken through an assignment so that every
+    # ask call site obeys the same contract — see ask above — and removing this default later
+    # cannot silently reintroduce the loop that contract exists to stop.
     echo "GitHub repository visibility:"
     echo "  1) Private"
     echo "  2) Public"
     while :; do
-      case "$(ask 'Choose 1 or 2' '1')" in
+      VISIBILITY_ANSWER="$(ask 'Choose 1 or 2' '1')"
+      case "$VISIBILITY_ANSWER" in
         1) REMOTE_VISIBILITY=private; break ;;
         2) REMOTE_VISIBILITY=public; break ;;
         *) echo "  -> choose 1 for private or 2 for public." ;;
@@ -759,7 +903,19 @@ if [ "$MK_REMOTES" = "1" ]; then
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
     if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
+      # Creating a repository on GitHub cannot apply here: a mono project's one repository is this
+      # folder, and this folder already has an empty origin. Reusing it is the right outcome —
+      # replacing a remote the user attached themselves would be the real surprise — but it is not
+      # what was asked for, and it used to be unannounced. The only signals were the owner question
+      # quietly not being asked and, much later and past the destructive boundary, a line calling
+      # the result a reuse without ever saying that creation had been dropped. Named here, before
+      # the boundary, where every other discarded answer is named. The URL is named too: it decides
+      # where the project ends up, and nothing before this point has shown it.
       OWNER=""
+      echo "  note: not creating a repository on GitHub — this folder already has an empty origin"
+      echo "        $ROOT_ORIGIN"
+      echo "        It is reused as the project's remote, so no owner is needed. Nothing has been"
+      echo "        changed yet: stop now and remove that origin if you want a new GitHub repo."
     else
       OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
     fi
@@ -768,13 +924,31 @@ if [ "$MK_REMOTES" = "1" ]; then
       echo "init.sh: --owner is only used with --remote-provider=github." >&2
       exit 2
     fi
+    # Each layout reads the URL flags that match its shape and has no use for the others, so one
+    # of the two sets is always dropped. Say so rather than refuse: a wrapper that passes the same
+    # flag set to every project would break on a refusal, and an unusable URL is harmless. Say so
+    # rather than stay silent: the alternative is a project whose remotes contradict the command
+    # that created it, with nothing in the run admitting the difference. Both directions are here
+    # because a rule that held in one layout only would be the same defect wearing the other hat.
     if [ "$LAYOUT" = "2" ]; then
+      # One repository, so the two multi-repo URL flags have nothing to attach to.
+      if [ -n "$DOCS_REMOTE_IN" ]; then
+        echo "  note: ignoring --docs-remote — mono layout has one repo"
+      fi
+      if [ -n "$PROMPTS_REMOTE_IN" ]; then
+        echo "  note: ignoring --prompts-remote — mono layout has one repo"
+      fi
       if root_origin_can_be_reused && [ -z "$REMOTE_URL_IN" ]; then
         REMOTE_URL=""
       else
         REMOTE_URL="$(want "$REMOTE_URL_IN" 'Project repo remote URL')"
       fi
     else
+      # Two repositories and no single one, so --remote-url has nothing to attach to. Nothing here
+      # asks for the workspace root's URL, because in this layout the root is not a repository.
+      if [ -n "$REMOTE_URL_IN" ]; then
+        echo "  note: ignoring --remote-url — multi layout has two repos"
+      fi
       DOCS_REMOTE="$(want "$DOCS_REMOTE_IN" 'Docs repo remote URL')"
       PROMPTS_REMOTE="$(want "$PROMPTS_REMOTE_IN" 'Prompts repo remote URL')"
     fi
@@ -830,7 +1004,7 @@ if [ "$MK_REMOTES" = "1" ]; then
 fi
 if [ "$MK_REMOTES" = "1" ] \
   && [ "$REMOTE_VISIBILITY" = "public" ] \
-  && [ "$LICENSE_CHOICE" = "private" ]; then
+  && [ "$LICENSE_CHOICE" = "proprietary" ]; then
   cat >&2 <<'WARNING'
 WARNING: public visibility with a proprietary license publishes the source code but grants
 no open-source reuse rights. LICENSE-THROUGHSTONE covers only retained Throughstone scaffold
@@ -1036,7 +1210,7 @@ GI
 # so apply-project-license.sh has the same source of truth as multi-repo projects.
 stamp_license() {
   local src
-  [ "$LICENSE_CHOICE" = "private" ] && return 0
+  [ "$LICENSE_CHOICE" = "proprietary" ] && return 0
   src="$DOCS/templates/licenses/$LICENSE_TEMPLATE_NAME"
   [ -f "$src" ] || {
     echo "init.sh: project license template disappeared during setup: $src" >&2
@@ -1055,7 +1229,7 @@ stamp_license() {
 # Every generated repo gets LICENSING.md so readers do not mistake LICENSE-THROUGHSTONE for the
 # project's license grant.
 write_licensing_summary() {
-  if [ "$LICENSE_CHOICE" = "private" ]; then
+  if [ "$LICENSE_CHOICE" = "proprietary" ]; then
     cat > "$1/LICENSING.md" <<'EOF'
 # Licensing
 
@@ -1340,6 +1514,22 @@ else
   INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is not part of any
 repo here, so deleting the file is the whole of it."
 fi
+# "your project is saved locally with Git" is true of a mono project and only partly true of a
+# multi one, where the workspace root is not a repository — and the layout menu now says so
+# explicitly, in the same run, a few screens earlier. One sentence saying everything is saved and
+# another saying files here are not tracked is a contradiction the reader has to resolve alone, and
+# the reassuring half is the one they will believe. Same treatment as the init.sh tip above: say
+# whichever is true. It also names the commit, which neither layout used to mention at all.
+if [ "$LAYOUT" = "2" ]; then
+  SAVED_TIP="You can start now; your project is committed locally with Git — everything in this
+  folder is in that repository. For backup, sharing, and working from another computer, put the
+  project on a Git host when you're ready."
+else
+  SAVED_TIP="You can start now; both repositories here are committed locally with Git —
+  Code/${SLUG}-docs/ and prompts/. Files at the workspace root are not in any repository, as the
+  layout question said, so keep anything durable inside one of those two. For backup, sharing, and
+  working from another computer, put the project on a Git host when you're ready."
+fi
 if [ -n "$REMOTE_FAILED_REPOS" ]; then
   say "Done — but the backup did not complete."
 else
@@ -1362,8 +1552,7 @@ The agent will interview you, propose a roadmap, and start the architecture STEP
 ${INIT_SH_TIP}
 
 Recommended optional backup:
-  You can start now; your project is saved locally with Git. For backup, sharing,
-  and working from another computer, put the project on a Git host when you're ready.
+  ${SAVED_TIP}
 
   GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
   ${REMOTE_TIP}

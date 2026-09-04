@@ -9,6 +9,29 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-license-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
+# run_with_deadline SECONDS CMD... — run CMD and exit 124 if it outlives the deadline.
+#
+# The wizard's failure mode when a prompt insists on an answer and the answer stream has run out
+# is not a wrong result, it is no result: it re-asks forever. A test that only asserts the exit
+# status hangs the whole suite instead of failing when that comes back. Written in perl because
+# init.sh already requires perl, while `timeout` is GNU coreutils and absent from a stock macOS —
+# the suite must fail on the machine of anyone who downloaded this template, not only on CI's.
+run_with_deadline() {
+  local secs="$1"; shift
+  perl -e '
+    my $secs = shift @ARGV;
+    my $pid = fork();
+    die "fork: $!" unless defined $pid;
+    if (!$pid) { exec { $ARGV[0] } @ARGV or die "exec: $!"; }
+    $SIG{ALRM} = sub { kill 9, $pid; waitpid $pid, 0; exit 124 };
+    alarm $secs;
+    waitpid $pid, 0;
+    my $st = $?;
+    alarm 0;
+    exit($st & 127 ? 128 + ($st & 127) : $st >> 8);
+  ' "$secs" "$@"
+}
+
 # copy_template DEST — build an init.sh fixture from HEAD, then overlay current worktree
 # changes. The overlay keeps uncommitted bootstrap/comment-pass edits under test, while leaving
 # Git metadata behind so init.sh sees the same shape as a downloaded template.
@@ -398,13 +421,22 @@ run_registry_multi_case() {
 # The re-prompts are the cheap half. The assertions that matter are about the project that came
 # out: a hybrid answers the hints identically.
 run_typed_layout_collab_case() {
-  local name="typed-layout-collab"
+  local name="typed-layout-collab" status
   local work="$TMP_ROOT/$name"
 
   copy_template "$work"
+  # The answer stream is exactly as long as the questions that should be asked, so any change that
+  # consumes an answer meant for the next question, or refuses one that should be accepted, runs
+  # it out early. Capture that rather than leaving it to errexit, which would kill the suite from
+  # inside a subshell without writing down which case failed or why.
+  set +e
   (
     cd "$work"
-    printf 'bogus\nmono\nnope\nteam\n' | ./init.sh \
+    # No trailing newline on the last answer. `read` fails on it exactly as it fails on an empty
+    # stream, while still delivering "team" — someone who typed an answer and pressed Ctrl-D. The
+    # status alone cannot tell those apart, so the value has to decide, and this is where that is
+    # measured: if it did not, the run would stop here instead of recording a team project.
+    printf 'bogus\n\nmono\nnope\n \nteam' | ./init.sh \
       --slug="$name" \
       --desc="Typed answer test" \
       --license=mit \
@@ -412,15 +444,53 @@ run_typed_layout_collab_case() {
       --adr-authority="tech lead" \
       --remotes=no
   ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name — the run did not finish (exit $status); an answer this stream carries was refused, or one was consumed by a question that should not have asked" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
 
-  grep -Fq "answer 1 or 2 (the words multi and mono work too)" "$TMP_ROOT/$name.out" || {
-    echo "FAIL: $name did not re-ask the layout question after an unrecognised answer" >&2
+  # Two re-asks each, not one. The first is the unrecognised word; the second is the answer that
+  # is not there — Enter at the layout question, a space at the collaboration one. Neither menu
+  # offers a default any more, and counting the re-asks is the only way to see that: `read -p`
+  # prints its prompt to a terminal only, so under a pipe there is no prompt text in the output to
+  # read a default off. Enter and a space used to buy multi and solo here — a layout fixed at
+  # creation, and an ADR register naming the reader as its own acceptance authority.
+  [ "$(grep -c -F "answer 1 or 2 (the words multi and mono work too)" "$TMP_ROOT/$name.out")" = "2" ] || {
+    echo "FAIL: $name — the layout question did not re-ask both an unrecognised answer and a blank one" >&2
     return 1
   }
-  grep -Fq "answer 1 or 2 (the words solo and team work too)" "$TMP_ROOT/$name.out" || {
-    echo "FAIL: $name did not re-ask the collaboration question after an unrecognised answer" >&2
+  [ "$(grep -c -F "answer 1 or 2 (the words solo and team work too)" "$TMP_ROOT/$name.out")" = "2" ] || {
+    echo "FAIL: $name — the collaboration question did not re-ask both an unrecognised answer and a whitespace one" >&2
     return 1
   }
+  # The menu has to name what each layout does to this folder, at the moment the choice is made.
+  # This is a wording assertion and only that: it proves the sentence is on screen, not that a
+  # reader takes it in. What it describes is asserted for real just below, where this case
+  # separates the layouts by what they actually build. Both halves, because a one-sided contrast
+  # is what the old text had — "become separate repos" never said separate from what.
+  grep -Fq "this folder is not itself a repo" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the multi option does not say the workspace root stops being a repository" >&2
+    return 1
+  }
+  grep -Fq "everything here is tracked" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the mono option does not say what it tracks, so the contrast is one-sided" >&2
+    return 1
+  }
+  # This case builds a mono project, so the closing line must be the mono one. The menu telling the
+  # reader that root files are untracked and the ending telling them the project is saved leave a
+  # contradiction for them to resolve, and they will believe the reassuring half — so the two have
+  # to agree per layout. The multi half is asserted in run_saved_tip_multi_case.
+  grep -Fq "everything in this" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — a mono project's closing line does not say the whole folder is in the repo" >&2
+    return 1
+  }
+  if grep -Fq "not in any repository" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — a mono project was told files here are not in a repository" >&2
+    return 1
+  fi
 
   # "mono" has to mean the mono layout, not most of it. The hybrid's signature was prompts/ left
   # as a repository of its own while every other decision went the mono way, so these two
@@ -899,6 +969,705 @@ run_manual_multi_remote_case() {
   git --git-dir="$prompts_remote" rev-parse --verify refs/heads/main >/dev/null
   grep -Fq "remote: \"$docs_remote\"" "$work/Code/$name-docs/registries/repos.yml"
   grep -Fq "remote: \"$prompts_remote\"" "$work/Code/$name-docs/registries/repos.yml"
+  # The matching must-proceed case for the ignored-flag note below: in the layout these two flags
+  # are for, they are obeyed in silence. A note that fired here would be noise about work done.
+  if grep -Fq "note: ignoring" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — a flag the multi layout uses was reported as ignored" >&2
+    grep -F "note: ignoring" "$TMP_ROOT/$name.out" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_end_of_input_case — the run stops when the answers run out.
+#
+# An unattended run — an agent, a `< /dev/null`, a script whose answer stream is shorter than the
+# question list — used to get an unlimited supply of empty answers, because ask discarded read's
+# exit status. At a question with a default that silently built a whole project; at the slug
+# question, whose loop re-asks until the answer is valid and where blank never is, it spun: the
+# behaviour this case pins was measured at 94KB of the same notice in twelve seconds before it was
+# killed. The slug question is the first one asked, so this is also the shortest path to it.
+run_end_of_input_case() {
+  local name="end-of-input" work status
+  work="$TMP_ROOT/$name"
+
+  copy_template "$work"
+  set +e
+  ( cd "$work" && run_with_deadline 60 ./init.sh </dev/null ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+
+  [ "$status" -ne 124 ] || {
+    echo "FAIL: $name — init.sh never stopped; it is looping on an exhausted answer stream" >&2
+    tail -3 "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  [ "$status" -eq 2 ] || {
+    echo "FAIL: $name — expected exit 2 when input ran out, got $status" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Naming the question is the difference between stopping and crashing: the message has to say
+  # which answer is missing, because whoever is reading it did not see the prompt scroll past.
+  grep -Fq "missing required value (input ended): Project slug" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the run stopped without naming the question it stopped at" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Stopping happens before the destructive boundary, so the checkout is still a template.
+  [ -d "$work/Code/{{PROJECT}}-docs" ] || {
+    echo "FAIL: $name — the template docs hub was renamed before the run stopped" >&2
+    return 1
+  }
+  [ -f "$work/README.md" ]
+  assert_maintainer_tests_retained "$name" "$work"
+}
+
+# run_remote_menu_case — the one question in the wizard that reaches outside this machine.
+#
+# "Remote setup" used to default to 1, so Enter meant "create real GitHub repositories under your
+# account" — the only accidental answer here that leaves something to clean up on someone else's
+# server. It now has no default and re-asks instead of exiting, and the same run proves the
+# visibility default below it was kept: that one is cheap to accept by accident, because a repo
+# nobody can read is one setting away from being right.
+run_remote_menu_case() {
+  local name="remote-menu" status
+  local work="$TMP_ROOT/$name"
+  local stub_bin="$TMP_ROOT/$name-bin"
+  local remote_root="$TMP_ROOT/$name-remotes"
+  local gh_log="$TMP_ROOT/$name-gh.log"
+
+  copy_template "$work"
+  mkdir -p "$stub_bin" "$remote_root"
+  cp "$ROOT/tests/fixtures/gh-stub.sh" "$stub_bin/gh"
+  chmod +x "$stub_bin/gh"
+  : > "$gh_log"
+  # The answer stream is exactly as long as the questions that should be asked, so a question
+  # that gains a default consumes an answer meant for the next one and the stream runs out early.
+  # The status is captured rather than left to errexit for that reason: that failure has to name
+  # itself here, not kill the suite from inside a subshell with nothing written down.
+  set +e
+  (
+    cd "$work"
+    # y at "Set up online Git remotes now?", then the remote menu answered blank, then with a
+    # word it does not know, then 1; then Enter at the visibility question, which still has a
+    # default to take.
+    printf 'y\n\nboth\n1\n\n' | \
+      PATH="$stub_bin:$PATH" \
+      GH_LOG="$gh_log" \
+      GH_REMOTE_ROOT="$remote_root" \
+      ./init.sh \
+        --slug="$name" \
+        --desc="Remote menu test" \
+        --license=mit \
+        --holder="Throughstone Test" \
+        --layout=multi \
+        --collab=solo \
+        --owner=throughstone-test
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name — the run did not finish (exit $status); a question asked for an answer this stream does not carry, most likely the visibility default it was meant to keep" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+
+  # The removal and the keep, measured in one run and only by behaviour: `read -p` prints its
+  # prompt to a terminal only, so a pipe never sees the `[1]` that renders a default.
+  #
+  # Removed — the blank answer and the unrecognised one both come back as questions. Two, not one:
+  # a menu that still defaulted would answer the blank itself and re-ask only "both".
+  [ "$(grep -c -F "choose 1 to create GitHub remotes" "$TMP_ROOT/$name.out")" = "2" ] || {
+    echo "FAIL: $name — Enter at the remote menu was taken as 'create GitHub repositories'" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Option 2's requirements are on screen with the option. They were already stated on the branch
+  # taken when gh is missing, so the wizard explained itself only where it could not offer the
+  # easier path; this run is the gh-installed one, where it did not. A wording assertion, and only
+  # that — but the wording is the whole change.
+  grep -Fq "must already exist, be empty, and be reachable" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the existing-URL option does not say what those URLs must be" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Kept — the visibility question got nothing but Enter, and private is what reached the host.
+  # An open-source licence is chosen here for that assertion's sake: under a proprietary one, a
+  # public answer trips the public/proprietary warning and cancels the run, so this case would go
+  # red before ever reading the log and the line below would be measuring nothing.
+  grep -Fq -- "--private" "$gh_log" || {
+    echo "FAIL: $name — Enter at the visibility question did not create private repositories" >&2
+    cat "$gh_log" >&2
+    return 1
+  }
+  [ "$(git -C "$work/Code/$name-docs" remote get-url origin)" = "$remote_root/$name-docs.git" ]
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_ignored_flag_case — a flag that cannot apply is named, not obeyed and not refused.
+#
+# A mono project has one repository, so --docs-remote and --prompts-remote have nothing to attach
+# to. They were dropped without a word, which left a project whose single remote contradicts the
+# command that created it. Refusing instead would break a wrapper that passes the same flag set to
+# every project, and the flags are harmless — so the run says what it discarded and carries on.
+run_ignored_flag_case() {
+  local name="ignored-flag"
+  local work="$TMP_ROOT/$name"
+  local remote="$TMP_ROOT/$name-project.git"
+  local unused_docs="$TMP_ROOT/$name-docs.git"
+
+  copy_template "$work"
+  git init --bare -q "$remote"
+  git init --bare -q "$unused_docs"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Ignored flag test" \
+      --license=private \
+      --layout=mono \
+      --collab=solo \
+      --remotes=yes \
+      --remote-provider=manual \
+      --remote-url="$remote" \
+      --docs-remote="$unused_docs" \
+      --prompts-remote="$unused_docs"
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  grep -Fq "note: ignoring --docs-remote — mono layout has one repo" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — --docs-remote was dropped without saying so" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  grep -Fq "note: ignoring --prompts-remote — mono layout has one repo" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — --prompts-remote was dropped without saying so" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Named, not refused: the project is still built, and built against the URL that does apply.
+  [ "$(git -C "$work" remote get-url origin)" = "$remote" ] || {
+    echo "FAIL: $name — the mono repo did not attach --remote-url" >&2
+    return 1
+  }
+  git --git-dir="$remote" rev-parse --verify refs/heads/main >/dev/null
+  # Named, not obeyed: nothing was pushed to the repo the ignored flags pointed at.
+  if git --git-dir="$unused_docs" rev-parse --verify refs/heads/main >/dev/null 2>&1; then
+    echo "FAIL: $name — an ignored flag's remote was written to anyway" >&2
+    return 1
+  fi
+  # The other direction, in the layout that uses it: --remote-url is this layout's own flag and
+  # must not be reported as dropped. Each of the two cases carries both halves, so a note that
+  # escapes the layout it belongs to is caught wherever it lands.
+  if grep -Fq "ignoring --remote-url" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — the flag this layout actually uses was reported as ignored" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_ignored_flag_multi_case — the same rule in the other layout, which is the whole point of it.
+#
+# A multi project has two durable repos and no single one, so --remote-url has nothing to attach
+# to; it was accepted, never read and never mentioned, exactly as --docs-remote was in mono. A
+# rule that held in one layout only would be the same defect wearing the other hat.
+run_ignored_flag_multi_case() {
+  local name="ignored-flag-multi"
+  local work="$TMP_ROOT/$name"
+  local docs_remote="$TMP_ROOT/$name-docs.git"
+  local prompts_remote="$TMP_ROOT/$name-prompts.git"
+  local unused_root="$TMP_ROOT/$name-root.git"
+
+  copy_template "$work"
+  git init --bare -q "$docs_remote"
+  git init --bare -q "$prompts_remote"
+  git init --bare -q "$unused_root"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$name" \
+      --desc="Ignored flag multi test" \
+      --license=private \
+      --layout=multi \
+      --collab=solo \
+      --remotes=yes \
+      --remote-provider=manual \
+      --docs-remote="$docs_remote" \
+      --prompts-remote="$prompts_remote" \
+      --remote-url="$unused_root"
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  grep -Fq "note: ignoring --remote-url — multi layout has two repos" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — --remote-url was dropped without saying so" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Named, not refused: both repos still got the URLs that do apply.
+  [ "$(git -C "$work/Code/$name-docs" remote get-url origin)" = "$docs_remote" ] || {
+    echo "FAIL: $name — the docs repo did not attach --docs-remote" >&2
+    return 1
+  }
+  [ "$(git -C "$work/prompts" remote get-url origin)" = "$prompts_remote" ] || {
+    echo "FAIL: $name — the prompts repo did not attach --prompts-remote" >&2
+    return 1
+  }
+  # Named, not obeyed: nothing was pushed to the repo the ignored flag pointed at.
+  if git --git-dir="$unused_root" rev-parse --verify refs/heads/main >/dev/null 2>&1; then
+    echo "FAIL: $name — the ignored flag's remote was written to anyway" >&2
+    return 1
+  fi
+  # And the mono layout's two notes must not fire here, where those flags are the ones in use.
+  if grep -Fq "ignoring --docs-remote" "$TMP_ROOT/$name.out" \
+    || grep -Fq "ignoring --prompts-remote" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — a flag this layout actually uses was reported as ignored" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_github_choice_discarded_case — an answer that cannot apply is named, the way a flag is.
+#
+# A mono project's one repository is the workspace root, so when that folder already has an empty
+# origin there is nothing for "create a repository on GitHub" to create. Reusing the origin is the
+# right outcome; not saying so was the defect. Measured before the fix: the run answered y and
+# then 1 at the remote menu, never called `gh`, never asked for the owner, and reported the result
+# only as a reuse — after the destructive boundary, and never as creation having been dropped.
+#
+# Both halves run here. Without a reusable origin the same answers must still create the repo and
+# must not print the note; a note that fired there would be describing work the run actually did.
+run_github_choice_discarded_case() {
+  local name="github-choice-discarded" status
+  local work="$TMP_ROOT/$name" plain="$TMP_ROOT/$name-plain"
+  local stub_bin="$TMP_ROOT/$name-bin"
+  local remote_root="$TMP_ROOT/$name-remotes"
+  local gh_log="$TMP_ROOT/$name-gh.log"
+  local theirs="$TMP_ROOT/$name-theirs.git"
+
+  mkdir -p "$stub_bin" "$remote_root"
+  cp "$ROOT/tests/fixtures/gh-stub.sh" "$stub_bin/gh"
+  chmod +x "$stub_bin/gh"
+
+  # --- reusable origin present: creation is discarded, and says so ---
+  copy_template "$work"
+  git init --bare -q "$theirs"
+  ( cd "$work" && git init -q && git remote add origin "$theirs" )
+  : > "$gh_log"
+  set +e
+  (
+    cd "$work"
+    # y at "Set up online Git remotes now?", 1 at the remote menu, Enter for visibility.
+    printf 'y\n1\n\n' | \
+      PATH="$stub_bin:$PATH" GH_LOG="$gh_log" GH_REMOTE_ROOT="$remote_root" \
+      ./init.sh --slug="$name" --desc="Discarded choice test" --license=private \
+        --layout=mono --collab=solo
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name — the run did not finish (exit $status)" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # Both assertions read only what was printed before the destructive boundary, because "before"
+  # is the whole claim: `reuse_root_origin` already names the same URL afterwards, and telling
+  # someone where their project went once it is too late to stop is the defect, not the fix.
+  # Measured — against the full log, deleting the URL line from the note changes nothing and the
+  # mutation survives.
+  sed -n "1,/Detaching from the template/p" "$TMP_ROOT/$name.out" > "$TMP_ROOT/$name.pre"
+  grep -Fq "note: not creating a repository on GitHub" "$TMP_ROOT/$name.pre" || {
+    echo "FAIL: $name — the GitHub-creation answer was discarded without saying so, or said too late" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  # The URL belongs in the note: it decides where the project ends up and nothing earlier shows it.
+  grep -Fq "$theirs" "$TMP_ROOT/$name.pre" || {
+    echo "FAIL: $name — the note did not name the origin that is used instead" >&2
+    cat "$TMP_ROOT/$name.pre" >&2
+    return 1
+  }
+  # Named, not obeyed: no repository was created on the host, and the existing origin is the one.
+  [ ! -s "$gh_log" ] || {
+    echo "FAIL: $name — a GitHub repository was created after all" >&2
+    cat "$gh_log" >&2
+    return 1
+  }
+  [ "$(git -C "$work" remote get-url origin)" = "$theirs" ] || {
+    echo "FAIL: $name — the existing origin was not the one reused" >&2
+    return 1
+  }
+
+  # --- no reusable origin: creation happens, and the note must stay quiet ---
+  copy_template "$plain"
+  : > "$gh_log"
+  (
+    cd "$plain"
+    printf 'y\n1\n\n' | \
+      PATH="$stub_bin:$PATH" GH_LOG="$gh_log" GH_REMOTE_ROOT="$remote_root" \
+      ./init.sh --slug="$name-plain" --desc="Discarded choice control" --license=private \
+        --layout=mono --collab=solo --owner=throughstone-test
+  ) >"$TMP_ROOT/$name-plain.out" 2>&1
+  if grep -Fq "note: not creating a repository on GitHub" "$TMP_ROOT/$name-plain.out"; then
+    echo "FAIL: $name — the note fired on a run that did create the repository" >&2
+    return 1
+  fi
+  grep -Fq "repo create" "$gh_log" || {
+    echo "FAIL: $name — no repository was created where creation was the right outcome" >&2
+    cat "$TMP_ROOT/$name-plain.out" >&2
+    return 1
+  }
+  assert_maintainer_tests_removed "$name-plain" "$plain"
+}
+
+# run_slug_message_case — a refusal has to describe the rule it actually enforces.
+#
+# The slug pattern is `^[a-z][a-z0-9-]*$`, and the refusal read "lowercase letters, digits,
+# hyphens only" — which `3d-printer` satisfies. Measured: the flag path exited 2 quoting that
+# message back at a slug obeying it. At the prompt the same string is worse, because the loop
+# re-asks and nothing in it leads to an answer that works.
+#
+# Both call sites share one string, so both are checked here — and the prompt run has to go on to
+# build the project, which is the must-proceed half: a refusal that never accepts anything is not
+# an improvement on one that explains itself badly.
+run_slug_message_case() {
+  local name="slug-message" status
+  local flag_work="$TMP_ROOT/$name-flag" prompt_work="$TMP_ROOT/$name-prompt"
+  local rule="must start with a lowercase letter"
+
+  # --- the flag path stops, and names the rule ---
+  copy_template "$flag_work"
+  set +e
+  (
+    cd "$flag_work"
+    ./init.sh --non-interactive --slug=3d-printer --desc="Slug message test" \
+      --license=private --layout=multi --collab=solo --remotes=no
+  ) >"$TMP_ROOT/$name-flag.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 2 ] || {
+    echo "FAIL: $name — a slug starting with a digit was accepted (exit $status)" >&2
+    cat "$TMP_ROOT/$name-flag.out" >&2
+    return 1
+  }
+  grep -Fq "$rule" "$TMP_ROOT/$name-flag.out" || {
+    echo "FAIL: $name — the refusal did not name the first-character rule it enforces" >&2
+    cat "$TMP_ROOT/$name-flag.out" >&2
+    return 1
+  }
+  # Refused before the destructive boundary, like every other slug problem.
+  [ -d "$flag_work/Code/{{PROJECT}}-docs" ] || {
+    echo "FAIL: $name — the run crossed the destructive boundary before refusing the slug" >&2
+    return 1
+  }
+
+  # --- the prompt path re-asks, names the same rule, and then builds the project ---
+  # The answer stream carries exactly one bad slug and one good one, so a rule that refuses the
+  # good one runs the stream out and the wizard stops. Capture that instead of leaving it to
+  # errexit, which would kill the suite from inside the subshell without naming this case.
+  copy_template "$prompt_work"
+  set +e
+  (
+    cd "$prompt_work"
+    printf '3d-printer\nprinter-3d\n' | ./init.sh --desc="Slug message test" \
+      --license=private --layout=multi --collab=solo --remotes=no
+  ) >"$TMP_ROOT/$name-prompt.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name — the prompt run did not finish (exit $status); a slug this stream carries was refused" >&2
+    cat "$TMP_ROOT/$name-prompt.out" >&2
+    return 1
+  }
+  grep -Fq "$rule" "$TMP_ROOT/$name-prompt.out" || {
+    echo "FAIL: $name — the re-ask did not name the first-character rule" >&2
+    cat "$TMP_ROOT/$name-prompt.out" >&2
+    return 1
+  }
+  # A digit anywhere but first is fine, which is the half the message has to leave standing.
+  [ -d "$prompt_work/Code/printer-3d-docs" ] || {
+    echo "FAIL: $name — the corrected slug was not accepted" >&2
+    cat "$TMP_ROOT/$name-prompt.out" >&2
+    return 1
+  }
+  assert_maintainer_tests_removed "$name-prompt" "$prompt_work"
+}
+
+# run_licence_vocabulary_case — one word, one meaning.
+#
+# The licence question called its own answer "Private / proprietary" while a question twenty lines
+# later offers "1) Private" for repository visibility, which is unrelated: a private repo can carry
+# MIT and a public repo can be proprietary. A reader who took the first question to be about
+# visibility answered it and got a project licensed to nobody. `proprietary` is now the licence
+# word everywhere — label, flag value and internal token — and `private` belongs to visibility.
+#
+# Three parts, because the rule is only true if all three hold: the question stops using the word,
+# the new spelling works, and the old spelling keeps working while saying what to write instead.
+# That last part is the must-proceed half — a vocabulary change that breaks every existing wrapper
+# is not an improvement, and four other test files in this suite still pass --license=private.
+run_licence_vocabulary_case() {
+  local name="licence-vocabulary" status
+  local ask_work="$TMP_ROOT/$name-ask"
+  local old_work="$TMP_ROOT/$name-old" new_work="$TMP_ROOT/$name-new"
+
+  # --- the question no longer spends "private" on licensing ---
+  copy_template "$ask_work"
+  (
+    cd "$ask_work"
+    printf '2\n' | ./init.sh --slug="$name-ask" --desc="Vocabulary test" \
+      --layout=multi --collab=solo --remotes=no
+  ) >"$TMP_ROOT/$name-ask.out" 2>&1
+  if grep -Fqi "private" "$TMP_ROOT/$name-ask.out"; then
+    echo "FAIL: $name — the licence question still spends the word 'private' on licensing" >&2
+    grep -Fi "private" "$TMP_ROOT/$name-ask.out" >&2
+    return 1
+  fi
+  grep -Fq "2) Proprietary" "$TMP_ROOT/$name-ask.out" || {
+    echo "FAIL: $name — the licence question does not offer 'Proprietary' by name" >&2
+    cat "$TMP_ROOT/$name-ask.out" >&2
+    return 1
+  }
+  # And it says the two questions are different, which is the whole reason the reader went wrong.
+  grep -Fq "Not the same as who can see the repository" "$TMP_ROOT/$name-ask.out" || {
+    echo "FAIL: $name — nothing tells the reader visibility is a separate question" >&2
+    return 1
+  }
+  grep -Fxq "Proprietary" "$ask_work/Code/$name-ask-docs/.throughstone/project-license" || {
+    echo "FAIL: $name — answering 2 did not record the proprietary posture" >&2
+    return 1
+  }
+
+  # --- the deprecated spelling still builds the same project, and says so once ---
+  copy_template "$old_work"
+  set +e
+  (
+    cd "$old_work"
+    ./init.sh --non-interactive --slug="$name-old" --desc="Vocabulary test" \
+      --license=private --layout=multi --collab=solo --remotes=no
+  ) >"$TMP_ROOT/$name-old.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name — --license=private stopped working; every wrapper passing it would break" >&2
+    cat "$TMP_ROOT/$name-old.out" >&2
+    return 1
+  }
+  grep -Fxq "Proprietary" "$old_work/Code/$name-old-docs/.throughstone/project-license" || {
+    echo "FAIL: $name — --license=private no longer means the proprietary posture" >&2
+    return 1
+  }
+  # `--` before the pattern: without it grep reads a pattern starting with "--" as an option and
+  # the assertion fails on a run that printed exactly the right thing. Measured, right here.
+  grep -Fq -- "--license=private is deprecated" "$TMP_ROOT/$name-old.out" || {
+    echo "FAIL: $name — the deprecated spelling was accepted without saying what to write instead" >&2
+    cat "$TMP_ROOT/$name-old.out" >&2
+    return 1
+  }
+
+  # --- the new spelling builds it too, and says nothing ---
+  copy_template "$new_work"
+  (
+    cd "$new_work"
+    ./init.sh --non-interactive --slug="$name-new" --desc="Vocabulary test" \
+      --license=proprietary --layout=multi --collab=solo --remotes=no
+  ) >"$TMP_ROOT/$name-new.out" 2>&1
+  grep -Fxq "Proprietary" "$new_work/Code/$name-new-docs/.throughstone/project-license" || {
+    echo "FAIL: $name — --license=proprietary did not record the proprietary posture" >&2
+    return 1
+  }
+  if grep -Fq "deprecated" "$TMP_ROOT/$name-new.out"; then
+    echo "FAIL: $name — the spelling being recommended warns about itself" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name-new" "$new_work"
+}
+
+# run_mono_team_caveat_case — a caveat turns on the answers it is about, not on how they arrived.
+#
+# Mono-repo plus team makes the overlap warning useless, because that warning is repo-granular and
+# there is one repo. The note saying so used to sit inside the branch that asks who accepts ADRs,
+# so its real condition was how that unrelated value was supplied. Measured on three identical
+# mono + team projects: typing the authority printed the note, `--adr-authority` did not, and
+# `--non-interactive` did not.
+#
+# Five runs: the three ways a mono + team project can be created, all of which must warn, and the
+# two neighbouring combinations, neither of which may. Without the last two this case would pass
+# for a note printed unconditionally, which is a different defect with the same symptom here.
+run_mono_team_caveat_case() {
+  local name="mono-team-caveat" n out
+  local caveat="you picked mono-repo + team"
+
+  # warns: the ADR authority typed, passed as a flag, and defaulted by --non-interactive
+  for n in typed flag noninteractive; do
+    out="$TMP_ROOT/$name-$n.out"
+    copy_template "$TMP_ROOT/$name-$n"
+    (
+      cd "$TMP_ROOT/$name-$n"
+      case "$n" in
+        typed) printf '2\n2\ntech lead\n' | ./init.sh --slug="$name-$n" \
+                 --desc="Caveat test" --license=proprietary --remotes=no ;;
+        flag)  printf '2\n2\n' | ./init.sh --slug="$name-$n" \
+                 --desc="Caveat test" --license=proprietary --remotes=no \
+                 --adr-authority="tech lead" ;;
+        *)     ./init.sh --non-interactive --slug="$name-$n" --desc="Caveat test" \
+                 --license=proprietary --layout=mono --collab=team --remotes=no ;;
+      esac
+    ) >"$out" 2>&1
+    grep -Fq "$caveat" "$out" || {
+      echo "FAIL: $name — a mono + team project built via '$n' was not warned" >&2
+      cat "$out" >&2
+      return 1
+    }
+    # The line above the caveat had the same defect and is checked on the same three paths: why a
+    # team needs shared remotes is advice about the collaboration answer, not about how the ADR
+    # authority happened to arrive.
+    grep -Fq "Heads-up: team collaboration relies on shared Git remotes" "$out" || {
+      echo "FAIL: $name — a team project built via '$n' was not told a team needs shared remotes" >&2
+      return 1
+    }
+    # Stopping is free at that point, and saying so is what gives the reader a way to act.
+    grep -Fq "Nothing has been created yet" "$out" || {
+      echo "FAIL: $name — the caveat ('$n') did not say the run can still be stopped" >&2
+      return 1
+    }
+  done
+
+  # must not warn: neither neighbouring combination has the limitation
+  for n in mono-solo multi-team; do
+    out="$TMP_ROOT/$name-$n.out"
+    copy_template "$TMP_ROOT/$name-$n"
+    (
+      cd "$TMP_ROOT/$name-$n"
+      case "$n" in
+        mono-solo)  ./init.sh --non-interactive --slug="$name-$n" --desc="Caveat test" \
+                      --license=proprietary --layout=mono --collab=solo --remotes=no ;;
+        *)          ./init.sh --non-interactive --slug="$name-$n" --desc="Caveat test" \
+                      --license=proprietary --layout=multi --collab=team --remotes=no ;;
+      esac
+    ) >"$out" 2>&1
+    if grep -Fq "$caveat" "$out"; then
+      echo "FAIL: $name — '$n' was warned about a limitation it does not have" >&2
+      return 1
+    fi
+    # The team advice is scoped to teams, and the mono+team caveat to mono teams — so these two
+    # runs pull in opposite directions and neither alone would catch a line that fires for all.
+    case "$n" in
+      mono-solo)
+        if grep -Fq "Heads-up: team collaboration" "$out"; then
+          echo "FAIL: $name — a solo project was given team advice" >&2
+          return 1
+        fi ;;
+      multi-team)
+        grep -Fq "Heads-up: team collaboration" "$out" || {
+          echo "FAIL: $name — a multi-repo team was not told a team needs shared remotes" >&2
+          return 1
+        } ;;
+    esac
+  done
+  assert_maintainer_tests_removed "$name-multi-team" "$TMP_ROOT/$name-multi-team"
+}
+
+# run_solo_adr_flag_case — a solo project records the author, so a supplied authority is dropped.
+#
+# `--collab=solo --adr-authority="the CTO"` used to exit 0 with the register stamped `_solo author_`
+# and no mention of the flag at all — measured. That is the fifth instance of one pattern on this
+# branch: the wizard accepting something it cannot use and saying nothing, leaving a project that
+# disagrees with the command that made it. Named rather than refused, because a wrapper passing one
+# flag set to every project should not fail over a value that costs nothing to drop.
+#
+# Both directions, since a note that fires everywhere is a different defect with the same symptom:
+# solo with the flag must say so, and team with the same flag must obey it in silence.
+run_solo_adr_flag_case() {
+  local name="solo-adr-flag" status n out
+  local note="note: ignoring --adr-authority"
+
+  # Three runs. solo and team both pass the flag; quiet passes none, and is the run that keeps the
+  # note off the common path — without it a note that fires for every solo project passes this
+  # case, which is a different defect with the same symptom. Measured: a mutation dropping the
+  # flag test survived until this run existed.
+  for n in solo team quiet; do
+    out="$TMP_ROOT/$name-$n.out"
+    copy_template "$TMP_ROOT/$name-$n"
+    set +e
+    (
+      cd "$TMP_ROOT/$name-$n"
+      case "$n" in
+        quiet) ./init.sh --non-interactive --slug="$name-$n" --desc="Solo flag test" \
+                 --license=proprietary --layout=multi --collab=solo --remotes=no ;;
+        *)     ./init.sh --non-interactive --slug="$name-$n" --desc="Solo flag test" \
+                 --license=proprietary --layout=multi --collab="$n" \
+                 --adr-authority="the CTO" --remotes=no ;;
+      esac
+    ) >"$out" 2>&1
+    status=$?
+    set -e
+    [ "$status" -eq 0 ] || {
+      echo "FAIL: $name — the '$n' run did not finish (exit $status); the flag was refused, not named" >&2
+      cat "$out" >&2
+      return 1
+    }
+  done
+
+  # No flag, nothing to report: the ordinary solo run stays quiet.
+  if grep -Fq -- "$note" "$TMP_ROOT/$name-quiet.out"; then
+    echo "FAIL: $name — a solo project reported ignoring a flag nobody passed" >&2
+    return 1
+  fi
+
+  # Solo: named, and not obeyed — the register still records the author.
+  grep -Fq -- "$note" "$TMP_ROOT/$name-solo.out" || {
+    echo "FAIL: $name — --adr-authority was dropped on a solo project without saying so" >&2
+    cat "$TMP_ROOT/$name-solo.out" >&2
+    return 1
+  }
+  grep -Fq "_solo author_" "$TMP_ROOT/$name-solo/Code/$name-solo-docs/adr/README.md" || {
+    echo "FAIL: $name — a solo project did not record the author as the authority" >&2
+    return 1
+  }
+  # Team: obeyed, and not named — this is the layout the flag is for.
+  if grep -Fq -- "$note" "$TMP_ROOT/$name-team.out"; then
+    echo "FAIL: $name — the flag was reported as ignored on a project that uses it" >&2
+    return 1
+  fi
+  grep -Fq "the CTO" "$TMP_ROOT/$name-team/Code/$name-team-docs/adr/README.md" || {
+    echo "FAIL: $name — a team project did not record the supplied authority" >&2
+    return 1
+  }
+  assert_maintainer_tests_removed "$name-team" "$TMP_ROOT/$name-team"
+}
+
+# run_saved_tip_multi_case — the ending agrees with the layout menu about what is saved.
+#
+# The layout question tells a multi-repo reader that this folder is not a repository and files left
+# here are not tracked. The closing section then said "your project is saved locally with Git",
+# unconditionally, in the same run a few screens later. Two sentences, one contradiction, and the
+# reassuring one is the one a reader believes — so the ending is now per-layout, the way the
+# init.sh tip beside it already was. The mono half is asserted in run_typed_layout_collab_case.
+run_saved_tip_multi_case() {
+  local name="saved-tip-multi"
+  local work="$TMP_ROOT/$name"
+
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh --non-interactive --slug="$name" --desc="Saved tip test" \
+      --license=proprietary --layout=multi --collab=solo --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  grep -Fq "both repositories here are committed locally" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the ending does not say which repositories hold the committed work" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  grep -Fq "Files at the workspace root are not in any repository" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the ending contradicts the layout menu about the workspace root" >&2
+    return 1
+  }
+  # The sentence that caused the contradiction must be gone, not merely joined by a correction.
+  if grep -Fq "your project is saved locally with Git" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — the unqualified 'project is saved' claim is still printed in multi" >&2
+    return 1
+  fi
   assert_maintainer_tests_removed "$name" "$work"
 }
 
@@ -910,11 +1679,24 @@ run_interactive_case \
   $'1\nMIT\n' \
   "MIT License"
 
-# Open source chosen explicitly, then the license sub-prompt's default taken: still MIT.
+# Open source chosen explicitly, then the licence sub-prompt answered blank, then answered with a
+# space, then answered. The sub-prompt used to default to MIT, so both of those middle answers
+# were an MIT grant nobody typed. The project this still builds is half the assertion: taking the
+# default away has to leave the question answerable, not merely refusable.
 run_interactive_case \
-  "license-default" \
-  $'1\n\n' \
+  "license-blank-reasked" \
+  $'1\n\n \n1\n' \
   "MIT License"
+
+# Two re-asks, not one: the blank answer and the whitespace one each have to come back. Counting
+# is the whole assertion, because `read -p` prints its prompt only to a terminal — under a pipe
+# there is no prompt text in the output to read a default off, so what the question offers can
+# only be measured by what it does with an answer nobody gave.
+[ "$(grep -c -F "choose 1/mit, 2/bsd-3, or 3/apache-2.0" "$TMP_ROOT/license-blank-reasked.out")" = "2" ] || {
+  echo "FAIL: license-blank-reasked — Enter or a space at the licence question was taken as an answer" >&2
+  cat "$TMP_ROOT/license-blank-reasked.out" >&2
+  exit 1
+}
 
 run_interactive_case \
   "license-reprompt" \
@@ -922,7 +1704,7 @@ run_interactive_case \
   "Apache License"
 
 grep -Fq \
-  "choose 1 for open source or 2 for private / proprietary" \
+  "choose 1 for open source or 2 for proprietary" \
   "$TMP_ROOT/license-reprompt.out"
 grep -Fq \
   "choose 1/mit, 2/bsd-3, or 3/apache-2.0" \
@@ -997,6 +1779,21 @@ run_remote_failure_mono_case
 # --- Typed answers, not just flags --------------------------------------------
 run_typed_layout_collab_case
 run_missing_canonical_license_case
+
+# --- An answer nobody gave --------------------------------------------------------
+# The wizard must not act on Enter where the answer is structural, must not act on an answer
+# stream that has run out, and must say which flags it dropped. Each case pairs its refusal with
+# the acceptance beside it: a project still gets built in every one of them.
+run_end_of_input_case
+run_remote_menu_case
+run_ignored_flag_case
+run_ignored_flag_multi_case
+run_github_choice_discarded_case
+run_slug_message_case
+run_licence_vocabulary_case
+run_mono_team_caveat_case
+run_solo_adr_flag_case
+run_saved_tip_multi_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------
 # Bad license input and missing license templates are detected before template files,
