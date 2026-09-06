@@ -34,7 +34,7 @@ shopt -s nullglob
 templates=("$SESSIONS"/*.md)
 [ ${#templates[@]} -gt 0 ] || fail "no session templates found under $SESSIONS"
 
-tail_sig=""
+tail_clause=""
 for f in "${templates[@]}"; do
   b="$(basename "$f")"
 
@@ -50,15 +50,20 @@ for f in "${templates[@]}"; do
   grep -qF "$DISCLAIMER" "$f" || fail "$b go-ahead does not release a reader who was not sent here"
 
   # 3. Both sentences byte-identical everywhere: presence alone would pass a file whose wording
-  #    had been weakened while its siblings kept the original.
-  sig="$(tr -s ' \n' ' ' <"$f" \
-    | grep -oE 'If you were not sent here to run it.*follow whatever sent you here\.' \
-    | cksum || true)"
-  [ -n "$sig" ] || fail "$b release clause is malformed (could not extract it)"
-  if [ -z "$tail_sig" ]; then
-    tail_sig="$sig"
-  elif [ "$sig" != "$tail_sig" ]; then
-    fail "$b release clause differs in wording from the other session templates"
+  #    had been weakened while its siblings kept the original. The extraction's own exit status
+  #    is the malformed-clause guard, and the clause is then compared as text. It used to be
+  #    reduced to a `cksum` behind `|| true`, which made the guard dead code: `cksum` of empty
+  #    input prints `4294967295 0`, so the checksum is never empty however badly the extraction
+  #    went, and every template could lose the clause outright while this test printed PASS.
+  clause="$(tr -s ' \n' ' ' <"$f" \
+    | grep -oE 'If you were not sent here to run it.*follow whatever sent you here\.')" \
+    || fail "$b release clause is malformed (could not extract it)"
+  if [ -z "$tail_clause" ]; then
+    tail_clause="$clause"
+  elif [ "$clause" != "$tail_clause" ]; then
+    fail "$b release clause differs in wording from the other session templates:
+  expected: $tail_clause
+  actual:   $clause"
   fi
 done
 
