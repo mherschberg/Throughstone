@@ -53,6 +53,23 @@ run_init_case() {
   ) >"$TMP_ROOT/$name.out" 2>&1
 }
 
+# assert_absent FILE TEXT — fail when TEXT appears in FILE. Negative assertions are written this
+# way rather than as a top-level `! grep -Fq ...`: bash exempts a `!`-inverted command from
+# set -e, so a bare inverted grep mid-script has nowhere for its status to land. All three of the
+# ones below were inert for exactly that reason — a substitution that left every marker and the
+# solo default in place still reported PASS, because the script's status was the closing echo.
+assert_absent() {
+  local file="$1" text="$2"
+  if [ ! -f "$file" ]; then
+    printf 'FAIL: expected %s to exist\n' "$file" >&2
+    exit 1
+  fi
+  if grep -Fq "$text" "$file"; then
+    printf 'FAIL: expected %s not to contain: %s\n' "$file" "$text" >&2
+    exit 1
+  fi
+}
+
 # The template marker is the substitution authority. It must exist in the scaffold so solo and
 # team bootstraps can replace it instead of relying on incidental prose.
 grep -Fq '<!-- ADR-AUTHORITY -->_solo author_<!-- /ADR-AUTHORITY -->' \
@@ -62,15 +79,15 @@ grep -Fq '<!-- ADR-AUTHORITY -->_solo author_<!-- /ADR-AUTHORITY -->' \
 run_init_case "adr-solo" --collab=solo
 solo_adr="$TMP_ROOT/adr-solo/Code/adr-solo-docs/adr/README.md"
 grep -Fq '**Who accepts an ADR in this project:** _solo author_' "$solo_adr"
-! grep -Fq 'ADR-AUTHORITY' "$solo_adr"
+assert_absent "$solo_adr" 'ADR-AUTHORITY'
 
 # Team projects should use the configured authority everywhere and never leak the solo
 # default or marker syntax into the generated ADR registry.
 run_init_case "adr-team" --collab=team --adr-authority="ADR review on PR"
 team_adr="$TMP_ROOT/adr-team/Code/adr-team-docs/adr/README.md"
 grep -Fq '**Who accepts an ADR in this project:** ADR review on PR' "$team_adr"
-! grep -Fq '_solo author_' "$team_adr"
-! grep -Fq 'ADR-AUTHORITY' "$team_adr"
+assert_absent "$team_adr" '_solo author_'
+assert_absent "$team_adr" 'ADR-AUTHORITY'
 grep -Fq 'ADR authority: ADR review on PR' "$TMP_ROOT/adr-team.out"
 
 echo "init.sh ADR authority marker substitution: PASS"
