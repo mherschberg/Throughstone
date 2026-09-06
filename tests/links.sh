@@ -42,6 +42,38 @@ cat > "$fixture/ARTIFACT-TRAIL.md" <<'ARTIFACTS'
 See [docs](Code/acme-docs/README.md).
 ARTIFACTS
 
+# links.sh is scoped to four root files by name, and two of them are the pointers the whole method
+# depends on. The fixture never created either, so nothing here checked that they are looked at.
+cat > "$fixture/AGENTS.md" <<'AGENTSMD'
+# Agents
+
+Context lives in [the docs hub](Code/acme-docs/README.md).
+AGENTSMD
+
+cat > "$fixture/CLAUDE.md" <<'CLAUDEMD'
+# Claude
+
+Context lives in [the docs hub](Code/acme-docs/README.md).
+CLAUDEMD
+
+# Everything a link parser must NOT read: a fenced block, an HTML comment, and an inline code
+# span. Each names a file that does not exist, so if the suppression engine stops suppressing,
+# the clean run below reports findings instead of RESULT: OK. Nothing exercised those 29 lines
+# before, and the whole engine could be replaced with a passthrough with this test still green.
+cat > "$fixture/Code/acme-docs/suppressed.md" <<'SUPPRESSED'
+# Suppressed
+
+```markdown
+[in a fenced block](never-written.md)
+```
+
+<!--
+[in an HTML comment](never-written.md)
+-->
+
+A link written as `[inline code](never-written.md)` is an example, not a link.
+SUPPRESSED
+
 cat > "$fixture/Code/acme-docs/README.md" <<'DOCS'
 # Docs Hub
 
@@ -78,6 +110,11 @@ cat > "$fixture/Code/acme-docs/broken.md" <<'BROKEN'
 [undefined reference][missing-ref]
 BROKEN
 
+# A broken link in a root pointer has to be reported too. Creating AGENTS.md above proves it is
+# parsed; only a finding attributed to it proves it is in scope. Dropping the two pointers from
+# the scoped list is otherwise invisible — they are the files the method depends on most.
+printf '\n[pointer to nowhere](never-written.md)\n' >> "$fixture/AGENTS.md"
+
 set +e
 output="$("$fixture/Code/acme-docs/scripts/links.sh" 2>&1)"
 status=$?
@@ -91,5 +128,6 @@ set -e
 assert_contains "$output" "links to missing file: missing.md"
 assert_contains "$output" "links to missing anchor: runbooks/check-in.md#missing-anchor"
 assert_contains "$output" "uses undefined reference link: [missing-ref]"
+assert_contains "$output" "AGENTS.md:5 links to missing file: never-written.md"
 
 echo "links.sh: PASS"
