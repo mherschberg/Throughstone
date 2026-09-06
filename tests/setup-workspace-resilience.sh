@@ -3,11 +3,14 @@
 # Regression coverage for scripts/setup-workspace.sh — the script every developer after the
 # first runs to assemble the project on their machine.
 #
-# One property is under test: the workspace always gets assembled. The script clones the repos
-# the registry lists, and every measured way a clone could go wrong used to abort it under
+# One property is under test in Parts 1 to 3: the workspace always gets assembled. It clones the
+# repos the registry lists, and every measured way a clone could go wrong used to abort it under
 # `set -e` — leaving the contributor with no AGENTS.md, no CLAUDE.md and no doctor.sh at all,
-# over a repository they may not even need. So every case below asserts the same two things:
-# the run exits 0, and the three workspace files are there.
+# over a repository they may not even need. So every one of those cases asserts the same thing:
+# the run exits 0, and the workspace it left behind is one a contributor can use — the two
+# Markdown pointers naming the docs hub the run itself reported, and a doctor.sh that reaches the
+# dispatcher inside it. Presence was what this used to assert, and presence is satisfied by three
+# zero-byte files. Part 0 is a different property riding on the same two bootstraps; it says so.
 #
 # The second half is about where a clone is allowed to land. A registered location is always a
 # path relative to the workspace root, and one that breaks that shape used to be cloned into
@@ -112,13 +115,48 @@ run_setup() {
 }
 
 # assert_assembled LABEL TW — the guarantee the whole script exists to provide.
+#
+# Presence is not that guarantee; a pointer that points somewhere is. All three of these files
+# exist only to name the docs hub — the two Markdown pointers so an agent opened at the root can
+# find it, doctor.sh so `./doctor.sh` reaches the dispatcher inside it — and `-e` is satisfied by
+# a zero-byte file, so the run could announce a docs hub and write pointers to nothing.
+#
+# The two halves cover different things and neither is redundant. The pointer check compares the
+# pointers against the hub the run itself announced, so it catches pointers that name no hub at
+# all but not a hub path that is wrong in the announcement too. Running doctor.sh is what covers
+# that: it is the only way to find out whether the path the wrapper was written with resolves.
 assert_assembled() {
-  local label="$1" tw="$2" f
+  local label="$1" tw="$2" f docs_rel help_out help_status
   [ "$SETUP_STATUS" -eq 0 ] || bad "$label: expected exit 0, got $SETUP_STATUS"
   for f in AGENTS.md CLAUDE.md doctor.sh; do
     [ -e "$tw/$f" ] || bad "$label: the workspace has no $f"
   done
   [ -x "$tw/doctor.sh" ] || bad "$label: doctor.sh is not executable"
+
+  docs_rel="$(printf '%s\n' "$SETUP_OUT" | sed -n 's/^Docs hub:[[:space:]]*//p' | head -n1)"
+  if [ -z "$docs_rel" ]; then
+    bad "$label: the run never reported which docs hub it wrote into"
+  else
+    for f in AGENTS.md CLAUDE.md; do
+      grep -Fq "$docs_rel/AGENTS.md" "$tw/$f" \
+        || bad "$label: $f does not point at $docs_rel/AGENTS.md"
+    done
+  fi
+
+  # doctor.sh is a wrapper the script writes around the docs hub's dispatcher, and running it is
+  # the only way to find out whether the path it was written with resolves. `help` is the one
+  # command that reaches the dispatcher without running a project check, so it costs nothing to
+  # run in every case. An empty file exits 0 and prints nothing; a wrapper pointed at a hub that
+  # is not there exits 1 and says so — neither can produce the dispatcher's own usage banner.
+  help_out="$("$tw/doctor.sh" help 2>&1)"; help_status=$?
+  if [ "$help_status" -ne 0 ]; then
+    bad "$label: ./doctor.sh help exited $help_status: $help_out"
+  else
+    case "$help_out" in
+      *"Throughstone project helper dispatcher"*) ;;
+      *) bad "$label: ./doctor.sh help did not reach the dispatcher: $help_out" ;;
+    esac
+  fi
 }
 
 assert_out() {
@@ -132,18 +170,38 @@ assert_not_out() {
     *"$2"*) bad "$1: output should not mention: $2" ;;
   esac
 }
+
+# assert_cloned LABEL DIR — a clone that arrived, not just a directory shaped like one.
+# `git clone` creates .git before it writes a single working-tree file, so `[ -d .git ]` is true
+# even for a clone that fetched every object and then checked nothing out — which is exactly what
+# a remote whose HEAD names a branch it does not carry produces, exit 0 and all. Ask the
+# repository what it holds instead of asking the filesystem: `ls-files` reads the index, which is
+# empty for precisely that clone, and nothing but git can put an entry in it, so a stray file
+# left at the location by an earlier case cannot satisfy this either.
 assert_cloned() {
-  [ -d "$2/.git" ] || bad "$1: expected a clone at $2"
+  [ -d "$2/.git" ] || { bad "$1: expected a clone at $2"; return; }
+  [ -n "$(git -C "$2" ls-files)" ] || bad "$1: the clone at $2 checked out no files"
 }
 assert_not_cloned() {
   [ -e "$2" ] && bad "$1: nothing should have been written to $2"
 }
 
+# bare_remote PATH [BRANCH] — create a bare fixture remote whose HEAD names BRANCH (default
+# `main`, which is what every fixture in this file is pushed as). `git init --bare` alone
+# leaves HEAD at `init.defaultBranch`, and where that is unset — CI, and any machine nobody has
+# configured — that is `refs/heads/master`: a branch the pushed content never reaches. Cloning
+# such a remote still exits 0 and still creates `.git`, so a clone-based assertion passes over a
+# working tree with nothing in it. Name the branch at creation, the way a real host does.
+bare_remote() {
+  git init --bare -q -b "${2:-main}" "$1"
+}
+
 # A real, local, cloneable remote. Without one, "the clone was refused" and "the clone failed"
 # look identical, and the out-of-workspace cases below are exactly about a clone that would
-# otherwise have succeeded.
+# otherwise have succeeded. The seed below is pushed as `main`, which is why this one takes the
+# helper's default: a bare HEAD naming anything else checks nothing out.
 REACHABLE="$TMP_ROOT/reachable.git"
-git init -q --bare "$REACHABLE"
+bare_remote "$REACHABLE"
 seed="$TMP_ROOT/seed"
 mkdir -p "$seed"
 (
@@ -165,6 +223,92 @@ MULTI_DOCS="$multi/Code/multi-docs"
 MONO_DOCS="$mono/Code/mono-docs"
 note "multi: $MULTI_DOCS"
 note "mono:  $MONO_DOCS"
+
+# --- Part 0. The generated projects carry no unresolved template placeholders ----------------
+# Not a property of setup-workspace.sh, and it is here for what the two bootstraps above already
+# provide: the suite's only pair covering both layouts with a real project license stamped.
+# init.sh step 3 turns {{PROJECT}} into the slug, and nothing anywhere checked that it happened.
+# A project that shipped literal {{PROJECT}} in METHOD.md and the three runbook families passed
+# every test in this suite and reported RESULT: OK from its own doctor.sh, while every path
+# those documents tell an agent to open was wrong.
+#
+# The list below is what a generated project is allowed to keep: the fill-in-the-blank templates
+# a human completes later, the seeded STEP index, and init.sh itself, which keeps the
+# {{YEAR}}/{{HOLDER}} pair it stamps a license with. Holding it as a literal means a newly
+# leaked file arrives as an added line rather than as silence, and comparing the whole set
+# rather than hunting for stragglers doubles as the positive control: a grep that had quietly
+# stopped seeing files comes up short here instead of passing on an empty result.
+RETAINED_PLACEHOLDERS="$TMP_ROOT/placeholders-retained"
+cat > "$RETAINED_PLACEHOLDERS" <<'EOF'
+Code/DOCS/BOOTSTRAP-PROMPT.md
+Code/DOCS/ONBOARDING.md
+Code/DOCS/UPDATING-THROUGHSTONE.md
+Code/DOCS/templates/adr-template.md
+Code/DOCS/templates/architecture-doc-template.md
+Code/DOCS/templates/licenses/Apache-2.0.txt
+Code/DOCS/templates/licenses/BSD-3-Clause.txt
+Code/DOCS/templates/licenses/MIT.txt
+Code/DOCS/templates/licenses/README.md
+Code/DOCS/templates/phase-readme-template.md
+Code/DOCS/templates/release-notes-template.md
+Code/DOCS/templates/repo-readme-template.md
+Code/DOCS/templates/reports/check-in-report-template.md
+Code/DOCS/templates/reports/incidents/incident-postmortem-report-template.md
+Code/DOCS/templates/reports/test-results/test-results-summary-template.md
+Code/DOCS/templates/step-index-seed.md
+Code/DOCS/templates/step-plan-template.md
+Code/DOCS/templates/substep-prompt-template.md
+init.sh
+prompts/STEP-index.md
+EOF
+
+# assert_no_placeholders SLUG WORK — sweep one generated workspace root. The slug doubles as the
+# label: both projects are named for their layout.
+assert_no_placeholders() {
+  local slug="$1" work="$2"
+  local leaked named actual="$TMP_ROOT/placeholders-$slug"
+
+  # The three tokens init.sh has a value for. They have to be named rather than inferred from the
+  # file list, because fourteen of the files pinned above legitimately hold other {{ tokens: a
+  # {{PROJECT}} that survived inside one of those would leave the list below entirely unchanged.
+  leaked="$( cd "$work" && grep -rlF --exclude-dir=.git \
+    -e '{{PROJECT}}' -e '{{PROJECT_DESCRIPTION}}' -e '{{TRUNK_BRANCH}}' . 2>/dev/null \
+    | sed 's|^\./||' | sort )"
+  if [ -n "$leaked" ]; then
+    bad "$slug: init.sh left a token it owns unresolved in $(printf '%s\n' "$leaked" | wc -l | tr -d ' ') file(s)"
+    printf '%s\n' "$leaked" >&2
+  fi
+
+  # Absence is only half of it: a substitution that resolved to NOTHING satisfies every check in
+  # this function. One character in init.sh's perl expression — a mistyped %ENV key — empties
+  # every token it owns and leaves a tree with no placeholder in it anywhere. So assert the value
+  # arrived as well as the token leaving. The docs hub's own path is the one string every
+  # generated project spells out, in its pointers, its runbooks and its registry.
+  if ! ( cd "$work" && grep -rqF --exclude-dir=.git "Code/$slug-docs" . 2>/dev/null ); then
+    bad "$slug: nothing names Code/$slug-docs — the {{PROJECT}} substitution resolved to nothing"
+  fi
+
+  # Every other file still holding a {{ token has to be one the project is meant to keep. The
+  # docs hub is named for the slug, so normalise that one directory out of the path; without it
+  # the two layouts spell the same twenty files two different ways.
+  ( cd "$work" && grep -rlF '{{' . --exclude-dir=.git 2>/dev/null ) \
+    | sed -e 's|^\./||' -e "s|^Code/$slug-docs/|Code/DOCS/|" | sort > "$actual"
+  diff -u "$RETAINED_PLACEHOLDERS" "$actual" \
+    || bad "$slug: the files still holding a {{ token have drifted (- expected, + found)"
+
+  # A content grep never looks at a path. The docs hub ships as the literal directory
+  # Code/{{PROJECT}}-docs and is renamed at the end of step 3 — drop that one line and every file
+  # inside it reads correctly while the directory holding them still says {{PROJECT}}.
+  named="$( find "$work" -name .git -prune -o -name '*{{*' -print 2>/dev/null )"
+  if [ -n "$named" ]; then
+    bad "$slug: a generated path still contains a placeholder"
+    printf '%s\n' "$named" >&2
+  fi
+}
+
+echo "Sweeping both generated projects for unresolved placeholders ..."
+assert_no_placeholders multi "$multi"
+assert_no_placeholders mono  "$mono"
 
 # --- Part 1. A clone that cannot happen never costs the contributor the workspace -----------
 
