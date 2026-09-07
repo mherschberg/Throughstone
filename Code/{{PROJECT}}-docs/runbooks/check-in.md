@@ -1,7 +1,8 @@
 # Runbook — Periodic Check-In
 
-> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). About **every
-> 20 STEPs** (the project's cadence, adjustable) the roadmap should include a *Check-in STEP* whose job is to run this
+> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). About every **N**
+> STEPs — where **N** is the project's check-in cadence, the `CHECK-IN-CADENCE` value in
+> `overview.md`, recommended **20** — the roadmap should include a *Check-in STEP* whose job is to run this
 > runbook — the agent proposes one at a sensible breakpoint (e.g. after a capability lands,
 > not mid-feature). When you run that STEP, tell the agent *"run the check-in"* and it
 > follows this file **end to end** — both substeps, in one go. That is a **deliberate exception**

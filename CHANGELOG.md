@@ -121,6 +121,22 @@ any project built with it.
   ordinary forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
 
 ### Changed
+- **Five documents said how often to run a check-in; the project's own setting says it.** The
+  cadence has been a per-project setting since 1.7 — `<!-- CHECK-IN-CADENCE: N -->` in
+  `overview.md`, read by `scripts/status.sh`, which flags a heads-up 5 STEPs before the target and
+  overdue 5 after — but six passages across five shipped documents still stated a bare number
+  instead of naming it. A project that set its cadence to 10 was told 10 by the helper and 20 by
+  every document its agent planned from, and nothing detected the disagreement. `ARTIFACT-TRAIL.md` was worse than the
+  others: it said *"Every 10-20 STEPs"*, a third figure matching neither the default nor the window
+  the helper reports. All six now name the setting and give **20** as the recommended starting
+  point, so a reader with no project in front of them still has a number: `ARTIFACT-TRAIL.md`
+  §6, `AGENTS.md`'s check-in rule, `METHOD.md` §5's opening sentence and §10 rule 7,
+  `templates/planning-session.md`'s *Interleave check-in STEPs* item, and
+  `runbooks/check-in.md`'s "How to run" note. **The hedge is deliberate and survives every one of
+  them**: the cadence advises and never gates (§10 rule 7), so *about* every N STEPs is the
+  meaning, and a sentence that read as a hard trigger would be a regression even with the right
+  number. Nothing else changes — no new field, no new check, and `status.sh`'s own behaviour and
+  its fallback to 20 are untouched.
 - **STEP-1 takes the same branch in every repository it writes into.** STEP-1 work takes the
   `step-0001-architecture` branch in **every** repository it writes into — previously the docs hub
   and `prompts/` in a multi-repo project, or the root repo in mono-repo-for-now, which left a

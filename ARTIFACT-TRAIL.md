@@ -180,9 +180,10 @@ and
 
 ## 6. Check-In Reports
 
-Every 10-20 STEPs, a check-in STEP runs a deliberate sweep. It compares architecture docs
-against code in both directions, re-evaluates conditional architecture sessions, reviews
-accepted risks and debt, and runs the full test suite.
+About every N STEPs — where N is the project's check-in cadence, the `CHECK-IN-CADENCE`
+value in `Code/<project>-docs/overview.md`, recommended 20 — a check-in STEP runs a deliberate
+sweep. It compares architecture docs against code in both directions, re-evaluates conditional
+architecture sessions, reviews accepted risks and debt, and runs the full test suite.
 
 Completed check-in reports live directly under `Code/<project>-docs/reports/`. The STEP folder
 in `prompts/` keeps the thin PLAN and any execution notes.
