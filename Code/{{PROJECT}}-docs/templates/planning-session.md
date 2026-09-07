@@ -86,7 +86,8 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    **No — create it.** The usual case on a first run. **If the path already holds files this
    project did not put there, stop and settle that with the user rather than scaffolding into
    it.** Otherwise the first implementation STEP is almost always *"scaffold the repos and the
-   skeleton"* — unless item 2 puts a baseline check-in ahead of it: create each new code repo from
+   skeleton"*. Where **Inherited code** below has put a baseline check-in ahead of it, that
+   check-in goes first and this STEP follows it. Scaffolding means: create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
@@ -133,17 +134,17 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 
    **If the answer is yes, that code gets a baseline check-in before anything is built on it.**
    STEP-1 writes documents and runs nothing, so the architecture describes a baseline nobody has
-   checked. Title the row `Check-in: baseline` — the `Check-in` prefix per item 4 — and give it
-   the ordinary job: `runbooks/check-in.md`, once, end to end, **both** substeps. Nothing about
-   that runbook changes here, a failing inherited suite included.
+   checked. Title the row `Check-in: baseline` — the same `Check-in` prefix the periodic check-ins
+   below use — and give it the ordinary job: `runbooks/check-in.md`, once, end to end, **both**
+   substeps. Nothing about that runbook changes here, a failing inherited suite included.
 
    Place it at the **front** of this phase's STEPs — ahead of the scaffold STEP, so the suite is
    measured on the code as you took it on, before this project has written anything into it.
 3. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
    **build or extend what this milestone needs, given what already exists.** On an ordinary first
    run nothing is built yet, so scaffolding and the core data layer come first and you build
-   outward from there; that's the usual case, and the typical shape is (item 2's baseline
-   check-in, where there is one, slots in at the front):
+   outward from there; that's the usual case, and the typical shape is (a baseline check-in from
+   **Inherited code**, where there is one, slots in at the front):
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
    - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
