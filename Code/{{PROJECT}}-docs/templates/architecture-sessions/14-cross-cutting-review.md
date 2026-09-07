@@ -71,14 +71,41 @@ between "we have a pile of docs" and "we have a coherent architecture."
    backup/RPO and availability target vs. the data model's loss-tolerance decisions;
    security boundaries vs. the actual component boundaries; terms used
    differently than the Glossary architecture doc defines them.
+
+   **Where code already exists, settle the conflict against the code rather than by re-deciding
+   it.** The code is authoritative for what the system *does*; the docs stay authoritative for
+   what it is *meant* to do. Read the code, then classify each conflict:
+   - **A doc got it wrong** — one doc misread code that is itself consistent. An ordinary doc
+     fix: no decision to take to the user, and no risk row, because nothing is left behind.
+   - **Both patterns really are in the code.** Record both, and file a `registries/risks.yml`
+     row with a revisit trigger so each check-in re-reads it. If the user decides now which one
+     the project converges on, write that decision up as an ADR.
+   - **Intent vs. reality** — a doc states a design the code contradicts. If the intent was
+     never a decision this project took, the architecture docs record what is built and the
+     intent becomes forward work, with a `registries/risks.yml` row so the gap is re-read at
+     each check-in rather than widening unwatched. If the doc records a decision the project
+     *did* take and the code drifted from it, the code is the defect — file a bug rather than
+     rewriting the doc to bless the drift (`runbooks/check-in.md`).
+
+   The classification turns on what the doc meant, which you often cannot tell from the doc
+   alone. Where you cannot, treat it as intent vs. reality and file the row: an extra row the
+   next check-in closes costs little, and an intention deleted by a doc fix is not recoverable.
+   Being unsure what the *code* does is the opposite case — re-read it before filing a risk, and
+   never record debt for our own misreading.
 3. **Completeness.** Is anything referenced but never specified? Any area that should have
    been covered for *this* project but wasn't? Any **Open Questions** still unresolved that
    would block implementation?
 4. **Foreclosure check.** Walk the "Forecloses / tradeoff" entries across all docs. Does any
    Phase-1 shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
-   flag it — it may need a cheaper approach now.
+   flag it — it may need a cheaper approach now. Then ask the same question of the architecture
+   as a whole: does it, as designed or as already built, support what that doc commits to later,
+   or is rework needed before that phase starts? Record required rework as forward STEPs or risks.
 5. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
-   **ADRs**? Write any that are missing (`templates/adr-template.md`).
+   **ADRs**? Write any that are missing (`templates/adr-template.md`). A decision made *during*
+   this review is contemporaneous — it gets an ordinary ADR like any other. **What you must not
+   do is reconstruct history:** where a choice was made before the project kept ADRs and nobody
+   available knows why, record what was chosen in the architecture doc and leave it there. An
+   ADR is a dated record of *why*, and a guessed rationale is worse than no ADR at all.
 6. **Index accuracy.** Does `prompts/STEP-index.md` match what actually got produced
    (statuses, output docs)? And does `architecture/README.md`'s index list every
    architecture doc that exists (number, title, version, status)?
@@ -86,8 +113,8 @@ between "we have a pile of docs" and "we have a coherent architecture."
 ## Output
 - A **review summary** — write it to the STEP-1 folder
   (`Upcoming Prompts/{{PROJECT}}-STEP-1-REVIEW.md`): what was checked, findings, fixes
-  applied, the disposition of every discovered conditional-session template, and any
-  decisions still needed from the user.
+  applied, any `registries/risks.yml` rows filed, the disposition of every discovered
+  conditional-session template, and any decisions still needed from the user.
 - **Apply the fixes** to the affected architecture docs (bump their Version Logs); write any
   missing ADRs and add them to the `adr/README.md` registry.
 - **Populate `architecture/README.md`'s index** — one row per architecture doc produced
