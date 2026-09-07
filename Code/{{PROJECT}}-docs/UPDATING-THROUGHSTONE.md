@@ -415,9 +415,9 @@ a literal `~` folder under the workspace root and report it as an ordinary clone
 `$HOME/lib` still makes a literal `$HOME` directory, and no guard can tell that from a directory
 somebody meant to call that.
 
-**Templates and guidance text, with nothing to undo.** Two edits to
-`templates/architecture-sessions/*.md` and four documentation fixes. None of them rewrites
-anything you already produced; they affect work you do after pulling them.
+**Templates and guidance text, with nothing to undo.** Three edits to
+`templates/architecture-sessions/*.md`, one to `METHOD.md` §3, and four documentation fixes. None
+of them rewrites anything you already produced; they affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
@@ -431,6 +431,20 @@ anything you already produced; they affect work you do after pulling them.
   items are. If you have **customized session templates or added your own**, adopt the same heading so
   generic readers find your work list too — `METHOD.md` §4 documents the skeleton, and it is the only
   change you might want to make by hand.
+- **The Cross-Cutting Review reads the code when the docs disagree.** Session 1.14's consistency
+  check now says that where code exists, a contradiction between two architecture docs is settled
+  by reading the code rather than by re-deciding it, and that the two outcomes leaving a real gap
+  behind — two patterns genuinely both in the code, or a doc stating an intent the code
+  contradicts — each file a `registries/risks.yml` row, so every check-in re-reads them. The
+  foreclosure check keeps its walk and gains a forward question about the roadmap. Decision
+  coverage still asks for the ADRs that are missing, and now says a decision made *during* the
+  review is an ordinary ADR while a pre-method choice nobody can explain is recorded in the
+  architecture doc rather than given an invented rationale. `METHOD.md` §3 moves with it:
+  architecture docs are the single source of truth for the **intended** design, and where a doc
+  and the code disagree the code is authoritative for what the system does. Nothing to undo — this
+  changes reviews you run from now on. If you have **already run session 1.14** on a project that
+  has code, the three rules are worth one pass at your next check-in, which reconciles the docs
+  against the code anyway.
 - **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
   check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
@@ -455,7 +469,7 @@ anything you already produced; they affect work you do after pulling them.
   `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
   it is worth re-running the sweep once by hand.
 
-Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4 and §6, `inputs/README.md`,
+Pull `templates/architecture-sessions/*.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md`,
 `templates/architecture-doc-template.md`, and `runbooks/check-in.md` as a group. Nothing else in this group is affected: these files
 change no script behavior and touch no project state.
 

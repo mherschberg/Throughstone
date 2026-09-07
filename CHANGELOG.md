@@ -189,6 +189,44 @@ any project built with it.
   reading a session file now finds the work list under one name instead of learning a per-file name.
   `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
   maintainer test enforces it.
+- **The Cross-Cutting Review now settles a doc-versus-code contradiction by reading the code, and
+  says which decisions may never get an ADR.**
+  `templates/architecture-sessions/14-cross-cutting-review.md` is the closing pass of the
+  architecture STEP: it reads everything the other thirteen sessions produced and checks it hangs
+  together. It was written for docs describing a system nobody has built yet, so on a project that
+  already has code — one brought into the method, or a repository registered in place — three of
+  its six checks had nothing to say about the one thing that can settle an argument. Three rules
+  close that, and none of them changes what the review does on a project with no code yet.
+
+  **Consistency (check 2)**: where code exists, a contradiction is settled by reading the code
+  rather than by re-deciding it — the code is authoritative for what the system *does*, the docs
+  for what it is *meant* to do. A doc that misread consistent code is an ordinary doc fix, with no
+  decision to take and no row to file. The two outcomes that leave a real gap behind — two
+  patterns genuinely both live in the code, or a doc states an intent the project never actually
+  decided on — each file a `registries/risks.yml` row, because the periodic check-in already
+  re-reads every open row and a gap left in a document nobody opens again only widens. One case
+  is deliberately carved out and sent to `runbooks/check-in.md` instead: where the doc records a
+  decision the project really took and the code has drifted from it, the code is the defect, and
+  rewriting the doc to match would bless the drift. The classification turns on what the doc
+  meant, which the doc often does not say, so **where you cannot tell, file the row**: an extra
+  row the next check-in closes costs little, and an intention deleted by a doc fix is not
+  recoverable. Being unsure what the *code* does is the opposite case — **re-read it before
+  filing a risk**, so the register never carries debt invented out of our own misreading.
+
+  **Foreclosure (check 4)**: the walk over the "Forecloses / tradeoff" entries is unchanged and
+  gains one forward question — does the architecture, as designed or as already built, support
+  what the Phasing & Roadmap doc commits to later, or is rework needed before that phase starts?
+
+  **Decision coverage (check 5)**: still write the ADRs that are missing, and a decision made
+  *during* the review is contemporaneous and gets an ordinary one. What is ruled out is
+  reconstructing history — a choice made before the project kept ADRs, whose reasons nobody
+  available knows, is recorded in the architecture doc and left there. An ADR is a dated record of
+  *why*, and a guessed rationale is worse than no ADR.
+
+  `METHOD.md` §3 moves with it. Architecture docs are the single source of truth for the
+  **intended** design; the sentence used to say "the current design", which read as though a doc
+  outranked the code on a question of fact, while `runbooks/check-in.md` has always reconciled the
+  two in both directions.
 - **`registries/` now ships with every project, and `--registries` is deprecated.** The flag pruned
   the directory in mono-repo layout, on the reasoning that one self-contained repo has no siblings
   to inventory. But `registries/` is not only `repos.yml`: pruning it also took `risks.yml`, the

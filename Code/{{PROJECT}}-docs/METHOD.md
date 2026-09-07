@@ -78,8 +78,10 @@ Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
 | **Architecture docs** | `architecture/NN-*.md` | *What is the system?* | Living. Versioned (see §6), maintained as reality changes. |
 | **ADRs** | `adr/ADR-NNNN-*.md` | *Why is it this way?* | Point-in-time. Never rewritten — superseded or amended. |
 
-- **Architecture docs** are the single source of truth for the current design. When
-  something changes, you update the doc and bump its version log.
+- **Architecture docs** are the single source of truth for the intended design. When
+  something changes, you update the doc and bump its version log. Where a doc and the code
+  disagree, the code is authoritative for what the system *does* and the doc for what it is
+  *meant* to do — reconcile the two rather than leaving them apart (`runbooks/check-in.md`).
 - **ADRs** capture a decision at the moment it's made — context, the choice, alternatives
   rejected, consequences. You don't edit an ADR's decision later; you write a new ADR that
   supersedes it, or append a dated amendment. There's an index at `adr/README.md`.
