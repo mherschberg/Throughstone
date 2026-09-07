@@ -133,6 +133,22 @@ defaults to proprietary rather than open source, so pressing Enter through setup
 licenses a project MIT without anyone naming one. Your own posture was chosen when this project was
 created, is recorded in `.throughstone/project-license`, and does not change.
 
+**A finished STEP-1 is no longer sent back into architecture, and there is nothing for you to do.**
+`./doctor.sh status` walks `METHOD.md` §10's rules in order and stops at the first one that
+matches. The rule about open STEP-1 substeps sat above the point where the helper read the STEP-1
+row's own status, so a project whose STEP-1 row says `Done` while a session row is still `Planned`
+was told *"Architecture (STEP-1) in progress — run STEP-1.N"*. Because that rule stops the walk,
+the answer never changed again: a STEP `In progress` twenty STEPs later printed the same line, and
+the STEP actually in flight was invisible to the helper. **The row now decides.** Once STEP-1 reads
+`Done`, an open substep is no longer resolvable and the helper answers from the rules below it —
+the planning session, or whatever STEP your index says is next. The mirror case is unchanged:
+substeps all final while the row is still open still tells you to close STEP-1 out. Nothing of
+yours is rewritten, and no row needs renaming; if you flipped session rows to `Done` only to get a
+sensible answer out of the helper, you no longer need to. Optional sessions left `Deferred` are
+swept by the check-in either way — `runbooks/check-in.md`'s conditional-session coverage
+enumerates every conditional template and asks for a current disposition each time, without
+consulting the STEP-1 row.
+
 **`private` and `proprietary` now mean two different things, and if you script `init.sh` there is
 one rename.** `private` refers to repository visibility and nothing else; `proprietary` is the
 licence posture. They were the same word in two unrelated questions — the licence question offered

@@ -691,7 +691,7 @@ Quick resolver:
 
 | First matching state in `prompts/STEP-index.md` | Next action |
 | --- | --- |
-| STEP-1 has an open design substep | Run the lowest-numbered open session |
+| STEP-1's own row is not `Done`, and it has an open design substep | Run the lowest-numbered open session |
 | STEP-1 design is done, Cross-Cutting Review open | Run Cross-Cutting Review |
 | STEP-1 complete and no implementation STEPs exist yet | Run the planning session |
 | Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
@@ -706,9 +706,15 @@ never in place of it. It never blocks work, and no rule below it is skipped beca
 due.
 
 
-1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one
+1. **STEP-1's own row is not `Done`, and STEP-1 has a `Planned` / `In progress` substep?** →
+   run the lowest-numbered open one
    in a fresh chat using `Run STEP-1.N: <Session label from the index>`; the label is
-   optional but preferred because it gives the chat/task a clearer title. Skip any substep marked `N/A` or `Deferred`. A substep with a
+   optional but preferred because it gives the chat/task a clearer title. Skip any substep marked `N/A` or `Deferred`.
+   **The row is what says whether architecture is over.** Once STEP-1 reads `Done` an open substep
+   is no longer the next action, and the rules below answer instead: a baseline that closed STEP-1
+   without running every session is a legitimate state, not a mistake to route back into. The
+   mirror holds as well — substeps all final while the row is still open means the close-out is
+   the work (§5), not the planning session. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — use `Run STEP-1.Xa: <Conditional session label>` plus the invocation **by name**
    (*"run the identity-auth session"* / *"run the native-app session"* / *"run the privacy
