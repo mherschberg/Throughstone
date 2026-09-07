@@ -1,0 +1,60 @@
+name: Tests
+
+# Every test, on every branch. The suite is the scaffold's own safety net and it is not wired to
+# anything else: with only the site-publish job here, deleting the STEP-index seeding from init.sh
+# was caught by exactly one of the fourteen tests, because the other thirteen only run when a
+# person remembers. No `paths:` filter and no branch filter — a branch that skips the suite is
+# the case this job exists for.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    name: Scaffold test suite
+    runs-on: ubuntu-latest
+    # The default is six hours. Only init-license-validation.sh has a watchdog of its own.
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          # The tests bootstrap real projects and some drive init.sh with --remotes=yes. Leaving
+          # the checkout token in .git/config would put a credential inside their reach.
+          persist-credentials: false
+
+      - name: Give the runner a Git identity
+        # init.sh's preflight makes a real commit and exits when it cannot. Hosted runners set no
+        # global user.name/user.email and their hostname has no domain for Git to guess from, so
+        # without this most init-* tests fail with messages that never mention Git config.
+        # init.defaultBranch is deliberately left unset. Unset is what an unconfigured machine
+        # has; it is the condition a bare fixture created without an explicit branch misbehaves
+        # in, and setting it here would hide that class of defect from the one place that runs
+        # the whole suite.
+        run: |
+          git config --global user.name "Throughstone CI"
+          git config --global user.email "throughstone-ci@users.noreply.github.com"
+
+      - name: Run every test
+        # `env -u CI`: check.sh skips its workspace-root hygiene section on any non-empty CI, and
+        # Actions sets CI=true in every step. Running with it set would silently drop coverage.
+        run: |
+          status=0
+          for t in tests/*.sh; do
+            name="$(basename "$t")"
+            echo "::group::$name"
+            start=$SECONDS
+            if env -u CI "$t"; then
+              echo "PASS  $name  ($((SECONDS - start))s)"
+            else
+              rc=$?
+              echo "::error file=$t::$name failed (exit $rc)"
+              echo "FAIL  $name  (exit $rc, $((SECONDS - start))s)"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $status

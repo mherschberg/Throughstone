@@ -78,7 +78,14 @@ assert_profile_output "$multi_work" "Code/$multi-docs"
 assert_contains "$multi_work/Code/$multi-docs/.gitignore" "/.throughstone/local-user.md"
 assert_contains "$multi_work/prompts/.gitignore" "/.throughstone/local-user.md"
 
-check_output="$("$multi_work/doctor.sh" check)"
+# `env -u CI`: check.sh skips its workspace-root hygiene section outright on any non-empty CI,
+# so the stray-entry assertion below is unfalsifiable whenever the caller happens to have CI set
+# — which is every hosted runner. The variable is pinned here rather than left to whoever invokes
+# the test, for the same reason LC_ALL is pinned at the top of this file: an assertion whose
+# meaning depends on the ambient environment is not one, and this suite has no runner to pin it
+# on our behalf. Nothing else in the bootstrap reads CI, so this scopes to the single command
+# whose behaviour it changes.
+check_output="$(env -u CI "$multi_work/doctor.sh" check)"
 printf '%s\n' "$check_output" | grep -Fq \
   'overview.md has no legacy local user preference sections' || {
     printf 'FAIL: doctor check did not report clean legacy local profile fields\n' >&2
@@ -90,6 +97,19 @@ if printf '%s\n' "$check_output" | grep -Fq 'unexpected entr'; then
   printf '%s\n' "$check_output" >&2
   exit 1
 fi
+# The check above passes on silence, and every way of producing that silence is silent: the
+# section skipped for a set CI or for a root that is itself a repo, or a scan that walks nothing
+# and reports a clean root over zero inspected entries. So hand the doctor an entry it has to
+# name back. A stray file is a warning rather than a failure, so the run still exits 0, and this
+# separates "the root was inspected and .throughstone was allowed" from "nothing was looked at".
+touch "$multi_work/stray-probe.txt"
+probe_output="$(env -u CI "$multi_work/doctor.sh" check)"
+rm -f "$multi_work/stray-probe.txt"
+printf '%s\n' "$probe_output" | grep -Fq 'stray-probe.txt' || {
+  printf 'FAIL: doctor check did not report a stray entry at the workspace root\n' >&2
+  printf '%s\n' "$probe_output" >&2
+  exit 1
+}
 
 mono="local-profile-mono"
 mono_work="$TMP_ROOT/$mono"

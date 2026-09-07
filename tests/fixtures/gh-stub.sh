@@ -39,7 +39,11 @@ done
 
 repo_name="${3##*/}"
 remote="$GH_REMOTE_ROOT/$repo_name.git"
-git init --bare -q "$remote"
+# `main` is what a real `gh repo create` hands back. Without a branch here the repo is born
+# pointing at `init.defaultBranch` -- `refs/heads/master` wherever that is unset -- and while the
+# push below corrects HEAD on the path that pushes, the path that does not leaves a repository
+# whose HEAD names a branch anything pushed to it later will not be on.
+git init --bare -q -b main "$remote"
 
 # --source tells gh which checkout to attach; without it there is nothing to attach or upload.
 [ "$want_source" = "1" ] || exit 0

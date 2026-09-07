@@ -67,6 +67,16 @@ copy_template() {
   printf '%s\n' "maintainer-only ignored fixture" > "$dest/.test-fixtures/sentinel.txt"
 }
 
+# bare_remote PATH [BRANCH] — create a bare fixture remote whose HEAD names BRANCH (default
+# `main`, the trunk init.sh generates unless a case asks for another). `git init --bare` alone
+# leaves HEAD at `init.defaultBranch`, and where that is unset — CI, and any machine nobody has
+# configured — that is `refs/heads/master`: a branch the pushed content never reaches. Cloning
+# such a remote still exits 0 and still creates `.git`, so a clone-based assertion passes over a
+# working tree with nothing in it. Name the branch at creation, the way a real host does.
+bare_remote() {
+  git init --bare -q -b "${2:-main}" "$1"
+}
+
 # Successful bootstraps must remove maintainer-only test assets from generated projects.
 assert_maintainer_tests_removed() {
   local name="$1" work="$2"
@@ -243,7 +253,14 @@ run_private_case() {
   grep -Fq "does not grant permission" "$work/Code/$name-api/LICENSING.md"
 
   assert_maintainer_tests_removed "$name" "$work"
-  ! grep -Fq "Copyright holder" "$TMP_ROOT/$name.out"
+  # Nothing here greps the captured output for the copyright-holder prompt. That assertion used to
+  # exist and could never fail: bash writes a `read -p` prompt only when input is coming from a
+  # terminal, and every case runs under a pipe, so the prompt was written nowhere and the grep was
+  # true whatever init.sh asked. What stands in its place is the invocation above: these cases run
+  # `--non-interactive`, where a question with no answer and no default is an error rather than a
+  # prompt, so a wizard that asked a proprietary project for a copyright holder would exit 2 and
+  # fail the case outright. Driving these cases under a pty to make the prompt real would buy a
+  # weaker signal at the price of a BSD/GNU fork in `script(1)`.
 }
 
 # run_mono_case — mono mode keeps both the root project LICENSE and the docs-hub canonical
@@ -330,6 +347,26 @@ run_registry_mono_case() {
     }
   done
 
+  # A register that exists is not a register. Both of these ship a {{PROJECT}} token in their
+  # header comment and a top-level key the docs tell agents to append rows under, and the `-f`
+  # above is satisfied by a zero-byte file — so a prune that emptied either one, or a rename that
+  # took the substitution pass past them, would land in silence. Nothing else looks: check.sh
+  # reads repos.yml and no other registry, in either layout. `^risks:` is anchored because
+  # risks.yml also carries a commented-out example row repeating the key verbatim; the security
+  # ledger's keys are anchored to match, not because anything there needs it.
+  for field in "register for $name." "^risks:"; do
+    grep -q "$field" "$work/Code/$name-docs/registries/risks.yml" || {
+      echo "FAIL: $name registries/risks.yml does not match: $field" >&2
+      return 1
+    }
+  done
+  for field in "ledger for $name." "^security_reviews:" "^  S0:" "^  S1:" "^  S2:"; do
+    grep -q "$field" "$work/Code/$name-docs/registries/security-reviews.yml" || {
+      echo "FAIL: $name registries/security-reviews.yml does not match: $field" >&2
+      return 1
+    }
+  done
+
   # The workspace root leads the inventory. Generated with --remotes=no, so nothing recorded a
   # remote on that row; with no `remote:` the clone parser in setup-workspace.sh passes over it.
   reg="$work/Code/$name-docs/registries/repos.yml"
@@ -399,6 +436,21 @@ run_registry_multi_case() {
     echo "FAIL: $name pruned registries/ in multi-repo layout" >&2
     return 1
   }
+  # The other two registers ship in this layout too, and nothing looked at them here at all —
+  # not their content, not even their existence. Same assertions as the mono case above: the
+  # substituted half of each header comment, and the top-level key rows are appended under.
+  for field in "register for $name." "^risks:"; do
+    grep -q "$field" "$work/Code/$name-docs/registries/risks.yml" || {
+      echo "FAIL: $name registries/risks.yml does not match: $field" >&2
+      return 1
+    }
+  done
+  for field in "ledger for $name." "^security_reviews:" "^  S0:" "^  S1:" "^  S2:"; do
+    grep -q "$field" "$work/Code/$name-docs/registries/security-reviews.yml" || {
+      echo "FAIL: $name registries/security-reviews.yml does not match: $field" >&2
+      return 1
+    }
+  done
   if grep -Fq 'location: "."' "$work/Code/$name-docs/registries/repos.yml"; then
     echo "FAIL: $name seeded a workspace-root row in multi-repo layout" >&2
     return 1
@@ -526,7 +578,7 @@ run_typed_layout_collab_case() {
 # it: after the project is generated and committed, which is the only place the two layouts ever
 # disagreed about what to do next.
 refusing_remote() {
-  git init --bare -q "$1"
+  bare_remote "$1"
   printf '#!/bin/sh\nexit 1\n' >"$1/hooks/pre-receive"
   chmod +x "$1/hooks/pre-receive"
 }
@@ -544,7 +596,7 @@ run_remote_failure_multi_case() {
   local status
 
   copy_template "$work"
-  git init --bare -q "$docs_remote"
+  bare_remote "$docs_remote"
   refusing_remote "$prompts_remote"
   set +e
   (
@@ -945,8 +997,8 @@ run_manual_multi_remote_case() {
   local prompts_remote="$TMP_ROOT/$name-prompts.git"
 
   copy_template "$work"
-  git init --bare -q "$docs_remote"
-  git init --bare -q "$prompts_remote"
+  bare_remote "$docs_remote"
+  bare_remote "$prompts_remote"
   (
     cd "$work"
     ./init.sh \
@@ -1118,8 +1170,8 @@ run_ignored_flag_case() {
   local unused_docs="$TMP_ROOT/$name-docs.git"
 
   copy_template "$work"
-  git init --bare -q "$remote"
-  git init --bare -q "$unused_docs"
+  bare_remote "$remote"
+  bare_remote "$unused_docs"
   (
     cd "$work"
     ./init.sh \
@@ -1180,9 +1232,9 @@ run_ignored_flag_multi_case() {
   local unused_root="$TMP_ROOT/$name-root.git"
 
   copy_template "$work"
-  git init --bare -q "$docs_remote"
-  git init --bare -q "$prompts_remote"
-  git init --bare -q "$unused_root"
+  bare_remote "$docs_remote"
+  bare_remote "$prompts_remote"
+  bare_remote "$unused_root"
   (
     cd "$work"
     ./init.sh \
@@ -1251,7 +1303,7 @@ run_github_choice_discarded_case() {
 
   # --- reusable origin present: creation is discarded, and says so ---
   copy_template "$work"
-  git init --bare -q "$theirs"
+  bare_remote "$theirs"
   ( cd "$work" && git init -q && git remote add origin "$theirs" )
   : > "$gh_log"
   set +e
