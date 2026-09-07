@@ -195,14 +195,20 @@ all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
 # First-match precedence is intentional:
-# - open STEP-1 substeps come before implementation planning;
+# - open STEP-1 substeps come before implementation planning, but only while the STEP-1 row is
+#   itself open;
 # - active ordinary or conditional STEPs beat planned follow-up conditional STEPs;
 # - planned conditional follow-ups beat ordinary planned implementation STEPs.
 where=""; next=""
 if [ "$unknown_sub" -gt 0 ]; then
   where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
   next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
-elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
+# Both substep arms are gated on the STEP-1 row: the row is what says whether architecture is
+# over, and it decides in both directions. The close-out arm below reads it from the other side —
+# substeps all final while the row is still open means the close-out is the work — so a Done
+# STEP-1 falls through to that same pair (METHOD.md §10, whose closing rule makes the index
+# authoritative for which STEP is next).
+elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
@@ -229,7 +235,9 @@ elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
   else
     next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
-elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
+# Gated for the same reason, and the gate is load-bearing: this arm is otherwise unreachable, so
+# without it a Done STEP-1 with open substeps lands here and is told to fix statuses that are valid.
+elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ] && [ "$step1_st" != "Done" ]; then
   where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
   next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)

@@ -275,6 +275,20 @@ any project built with it.
   creep back in.
 
 ### Fixed
+- **A project that has finished its architecture STEP is no longer sent back into it — forever.**
+  `./doctor.sh status` answers "what do I do next?" by walking `METHOD.md` §10's rules in order and
+  stopping at the first match. The rule about open STEP-1 substeps sat above the point where the
+  helper read the STEP-1 row's own status, so a STEP-1 marked `Done` over any session row still
+  `Planned` was reported as *"Architecture (STEP-1) in progress"* with the open session as the next
+  action. Because that rule stops the walk, this was not a wrong answer at one moment: it was the
+  answer from then on. A STEP `In progress` five STEPs later printed the identical line, and the
+  work actually in flight was invisible to the helper. The STEP-1 row now decides, in both
+  directions — the close-out rule already read it that way, since substeps all final under a row
+  that is still open means closing STEP-1 *is* the work, and this is the same rule facing the other
+  way: the row says architecture is over, so no open substep is resolvable and the rules below
+  answer instead. A baseline that closes STEP-1 without running every session is a legitimate
+  state, not a mistake to route back into. §10 said none of this and now says it, in the rule and
+  in the quick-resolver table above it.
 - **Two rules now say what they left to inference.** `runbooks/check-in.md` says to tell the agent
   *"run the check-in"*, while `METHOD.md` §10 says an in-progress STEP runs only the substep you
   ask for by name — and a check-in has two substeps. Nothing said whether that phrase authorised
