@@ -30,7 +30,7 @@ prompts/
 The STEP you're *currently* working on lives in `Upcoming Prompts/` (at the workspace root) as
 **loose files** — the PLAN, its substep prompts, and any review doc, named per the conventions
 below. There's no `step-NNNN/` subfolder while it's in flight; on completion you **gather those
-files into a new `step-NNNN/` folder** in the right phase here (see the recipe, step 6).
+files into a new `step-NNNN/` folder** in the right phase here (see the recipe, step 7).
 
 ## Conventions
 
