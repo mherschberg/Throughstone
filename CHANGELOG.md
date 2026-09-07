@@ -311,6 +311,35 @@ any project built with it.
   `prompts/README.md` no longer describes a due Check-in STEP as something the resolver answers
   with. `tests/status-checkin-cadence.sh` now holds both halves of the contract, so a gate cannot
   creep back in.
+- **The planning session now asks whether it is planning against code somebody else wrote, and
+  runs that code's tests before anything is built on it.** Before it proposes the STEP sequence it
+  puts one question to you — *is any of the code this phase builds on code this project did not
+  write, that no check-in has yet run over?* — and if the answer is yes, it puts a check-in titled
+  `Check-in: baseline` at the front of the phase, whose job is `runbooks/check-in.md` run once,
+  end to end, both substeps. The runbook itself is unchanged, a failing inherited suite included.
+  Where the phase has a STEP that takes the repository on, the check-in follows that STEP rather
+  than preceding it — it has nothing to reconcile against until the repo is registered.
+
+  Nothing ran that suite before the project started building on top of it. STEP-1 writes documents
+  and runs nothing, which is correct when there is no code yet; but a project whose architecture
+  names a repository that already exists registers it where it sits rather than scaffolding into
+  it, and then finished STEP-1 holding a full set of architecture documents describing a baseline
+  **nobody had checked against a green build** — and started adding features on it. The periodic
+  check-in would have reached that suite eventually, twenty STEPs of new work later, with the
+  inherited baseline and everything built on top of it already mixed together.
+
+  **It asks instead of working the answer out.** The registry records how each repo arrived, and
+  reading that was the obvious implementation, but it is not readable at the moment the decision
+  has to be made: on the path where the planning session is what takes the repository on, the row
+  is written later, by the STEP this session is in the middle of outlining. A project can also be
+  set up around a codebase that was already there, and a repo can be taken on in a phase long
+  after the first. The person in the chair knows the answer in every case, so the session asks
+  them — nothing reads how a repo arrived, and that rule is unchanged.
+
+  **The question carries its own stop**, which is why there is no second rule to keep in step with
+  it: it asks about code no check-in has run over yet, so a project re-planning a later phase does
+  not spend a whole STEP re-baselining code the cadence has already swept, and a repository taken
+  on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
 - **A project that has finished its architecture STEP is no longer sent back into it — forever.**

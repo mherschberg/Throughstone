@@ -86,7 +86,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    **No — create it.** The usual case on a first run. **If the path already holds files this
    project did not put there, stop and settle that with the user rather than scaffolding into
    it.** Otherwise the first implementation STEP is almost always *"scaffold the repos and the
-   skeleton"*: create each new code repo from
+   skeleton"* — unless item 2 puts a baseline check-in ahead of it: create each new code repo from
    `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
    baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
    named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
@@ -122,10 +122,29 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    scaffolding STEP to inherit the work.
    Confirm the repo list with the user: which are new, which already exist, and name any you
    could not reach.
-2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
-   **build or extend what this milestone needs, given what already exists.** On a first run
-   nothing is built yet, so scaffolding and the core data layer come first and you build
-   outward from there; that's the usual case, and the typical shape is:
+2. **Inherited code.** Item 1 has established which repos already existed. Settle the part it does
+   not answer, by asking rather than working it out: **is any of the code this phase builds on
+   code this project did not write, that no check-in has yet run over?** The user knows — whether
+   a repo was taken on rather than created, whether the project was set up around a codebase that
+   was already there, and what has been run over it since. Don't reach for
+   `registries/repos.yml` to answer it; how a repo arrived is not what decides this, and on the
+   path where this session is what takes a repo on, nothing has been recorded yet anyway. On an
+   ordinary first run nothing is built and the answer is no; ask anyway.
+
+   **If the answer is yes, that code gets a baseline check-in before anything is built on it.**
+   STEP-1 writes documents and runs nothing, so the architecture describes a baseline nobody has
+   checked. Title the row `Check-in: baseline` — the `Check-in` prefix per item 4 — and give it
+   the ordinary job: `runbooks/check-in.md`, once, end to end, **both** substeps. Nothing about
+   that runbook changes here, a failing inherited suite included.
+
+   Place it at the front of this phase's STEPs, **except that it follows the STEP that takes the
+   inherited repo on**, where this phase has one — the check-in reconciles documents against a
+   repo the project has registered, so it cannot usefully run before that has happened.
+3. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
+   **build or extend what this milestone needs, given what already exists.** On an ordinary first
+   run nothing is built yet, so scaffolding and the core data layer come first and you build
+   outward from there; that's the usual case, and the typical shape is (item 2's baseline
+   check-in, where there is one, slots in at the front):
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
    - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
@@ -133,11 +152,12 @@ STEP's PLAN with its owner rather than silently replacing its index row.
      against the data layer and component boundaries.
    - **Integration / end-to-end** — wire the capabilities together; the launch-criteria
      path from the phase plan works end to end.
-   On a **re-run**, or a later phase whose scaffold and core data layer already exist, start
+   On a **re-run**, a later phase whose scaffold and core data layer already exist, or a first run
+   against a codebase that was already there, start
    from what's built and plan the STEPs that **extend** it, rather than re-scaffolding or
    rebuilding what's already there. Adjust to the actual project. Each STEP gets a
    global STEP number (continuing from STEP-1).
-3. **Interleave check-in STEPs.** About **every 20 STEPs** (the project's cadence, adjustable), add a **Check-in STEP**
+4. **Interleave check-in STEPs.** About **every 20 STEPs** (the project's cadence, adjustable), add a **Check-in STEP**
    that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
    accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
    capability lands, not mid-feature — rather than mechanically on a fixed count. Title each
@@ -145,7 +165,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    it — `METHOD.md` §5. For a
    target phase with only a handful of STEPs, one check-in near the end (or none) is fine; use
    judgment.
-4. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
+5. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
    what it delivers and how it depends on the others. Roughly **2–3 sentences each** — a
    guideline, not a rule. Don't write the detailed plan, the substeps, or the definition of
    done here; those come when the STEP is started.
