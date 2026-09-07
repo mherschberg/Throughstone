@@ -499,6 +499,21 @@ root. `AGENTS.md` described that same old order and is corrected too — it is a
 process-docs group above, so pulling that group picks it up. Review the three like the other
 process docs; nothing of yours is rewritten.
 
+**If you changed your check-in cadence, the docs now agree with you.** The cadence has been a
+per-project setting since 1.7 — `<!-- CHECK-IN-CADENCE: N -->` in your `overview.md`, read by
+`scripts/status.sh` — but five passages in the documents your agent plans from still stated a
+bare **20** rather than naming the setting, so a project that set 10 was told 10 by the helper and
+20 by the docs. They now name the setting and give 20 as the recommendation: `METHOD.md` §5's opening
+sentence and §10 rule 7, `AGENTS.md`'s check-in rule, `templates/planning-session.md`'s
+*Interleave check-in STEPs* item, and `runbooks/check-in.md`'s "How to run" note. **All four
+files are already in the process-docs group at step 1 of the fast path** — pull that group and you
+have this. **Nothing of yours is rewritten and no behaviour changes**: `status.sh` read your setting
+before this release and reads it the same way now, its fallback to 20 when the line is absent is
+unchanged, and the check-in remains a proposal rather than a gate. If you are still on the
+default there is nothing to notice; if you are not, the prose stops contradicting your
+`overview.md`. Worth one look while you are there: if your `overview.md` predates the marker
+entirely, add the line so the number you want is the number the helper uses.
+
 **One thing this guide does not do for you.** `adr/README.md` is *Project state* under §2 —
 never auto-updated — so the ADR duplicate-number scan fixed in this release stays broken in your
 copy until you carry the fix across by hand. Open your `adr/README.md`, find the scan command, and

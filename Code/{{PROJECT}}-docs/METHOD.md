@@ -388,8 +388,9 @@ dedicated final verification substep; choose deliberately in the PLAN. A code-ch
 without tests needs a stated reason, not silence.
 
 ### Check-in STEPs
-About **every 20 STEPs** (the project's cadence, adjustable), the roadmap includes a **Check-in STEP** — a full STEP whose
-job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
+About every **N** STEPs (where **N** is the project's check-in cadence — the `CHECK-IN-CADENCE`
+value in `overview.md`, recommended **20**), the roadmap includes a **Check-in STEP** — a full STEP
+whose job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
 **both directions** (stale doc → fix the doc/write an ADR; code drifted from a still-correct
 doc → file a bug), re-evaluate every available conditional architecture session, review the
 accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
@@ -743,7 +744,8 @@ due.
    then archive it (§5) and mark it `Done`. **A Check-in STEP is the exception**: its two substeps
    are fixed and `runbooks/check-in.md` is their prompt, so *"run the check-in"* runs both, end to
    end. Nothing else is invoked whole.
-7. **~20 STEPs (the project's cadence) since the last check-in?** → **propose** a **Check-in
+7. **About N STEPs since the last check-in, where N is the project's check-in cadence (the
+   `CHECK-IN-CADENCE` value in `overview.md`, recommended 20)?** → **propose** a **Check-in
    STEP** at the next sensible breakpoint (§5; `runbooks/check-in.md`) — and then go on with
    whatever the rules above answered. **This rule never becomes the next action**, and it is
    deliberately not a gate: the check-in belongs at a breakpoint, and a rule that fired the

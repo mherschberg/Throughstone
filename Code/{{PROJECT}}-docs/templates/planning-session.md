@@ -157,7 +157,8 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    from what's built and plan the STEPs that **extend** it, rather than re-scaffolding or
    rebuilding what's already there. Adjust to the actual project. Each STEP gets a
    global STEP number (continuing from STEP-1).
-4. **Interleave check-in STEPs.** About **every 20 STEPs** (the project's cadence, adjustable), add a **Check-in STEP**
+4. **Interleave check-in STEPs.** About every **N** STEPs (where **N** is the project's check-in
+   cadence — the `CHECK-IN-CADENCE` value in `overview.md`, recommended **20**), add a **Check-in STEP**
    that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
    accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
    capability lands, not mid-feature — rather than mechanically on a fixed count. Title each
