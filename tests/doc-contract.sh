@@ -209,6 +209,29 @@ cad_line="$(grep -F 'CHECK-IN-CADENCE:' "$OVERVIEW_TPL" | head -1 || true)"
 [ -n "$cad_line" ] || fail "templates/overview-template.md no longer seeds a CHECK-IN-CADENCE marker"
 printf '%s\n' "$cad_line" | grep -qE "$cad_re" || fail "the CHECK-IN-CADENCE marker seeded in templates/overview-template.md is not one status.sh can read: $cad_line"
 
+# The cadence is a per-project setting, and five documents tell an author how often to run a
+# check-in. Each must point at the setting rather than restate a number: a project that changes
+# its cadence is otherwise told one figure by status.sh and another by every document its agent
+# plans from, and nothing else detects the disagreement. These files carried a bare 20 (and, in
+# ARTIFACT-TRAIL.md, a bare "10-20") until the wording was fixed; no other check covers them.
+#
+# The second assertion pins the literal that actually drifted rather than every possible number,
+# because METHOD.md legitimately says "heads-up 5 STEPs before" in the sentence checked above.
+# It earns its place: reverting METHOD.md's wording leaves CHECK-IN-CADENCE in the section body,
+# so the first assertion alone passes on a file that has regressed. It flattens '>' as well as
+# whitespace because check-in.md's phrase straddles a line break inside a blockquote; today the
+# marker falls before the number so plain whitespace flattening would also match, but where the
+# line wraps is not a property anyone maintains.
+for f in "$METHOD" "$AGENTS" "$CHECKIN" "$DOCS/templates/planning-session.md" "$ROOT/ARTIFACT-TRAIL.md"; do
+  rel="${f#"$ROOT/"}"
+  [ -f "$f" ] || fail "$rel is missing; the check-in cadence wording cannot be checked"
+  contains "$f" 'CHECK-IN-CADENCE' \
+    || fail "$rel tells an author how often to run a check-in without naming the CHECK-IN-CADENCE setting, so a project that changed its cadence would be told a different number here than status.sh reports"
+  case "$(tr -s ' \t\n>' ' ' < "$f")" in
+    *"20 STEPs"*) fail "$rel states the cadence as a bare \"20 STEPs\" instead of pointing at the CHECK-IN-CADENCE setting" ;;
+  esac
+done
+
 # --- 6. Index-row titles the resolver keys on ---------------------------------
 # Two next-action behaviours are triggered by how a human titles a row in prompts/STEP-index.md:
 # status.sh measures the check-in cadence from the last Done STEP whose Title begins "Check-in",
