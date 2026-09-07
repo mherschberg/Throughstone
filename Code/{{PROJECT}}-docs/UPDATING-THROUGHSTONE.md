@@ -416,7 +416,8 @@ a literal `~` folder under the workspace root and report it as an ordinary clone
 somebody meant to call that.
 
 **Templates and guidance text, with nothing to undo.** Three edits to
-`templates/architecture-sessions/*.md`, one to `METHOD.md` §3, and four documentation fixes. None
+`templates/architecture-sessions/*.md`, one to `METHOD.md` §3, one to
+`templates/planning-session.md`, and four documentation fixes. None
 of them rewrites anything you already produced; they affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
@@ -445,6 +446,18 @@ of them rewrites anything you already produced; they affect work you do after pu
   changes reviews you run from now on. If you have **already run session 1.14** on a project that
   has code, the three rules are worth one pass at your next check-in, which reconciles the docs
   against the code anyway.
+- **The planning session asks whether you are building on somebody else's code.** Before it
+  proposes the STEP list it puts one question to you — is any of the code this phase builds on
+  code this project did not write, that no check-in has yet run over? — and if you say yes, it
+  puts a check-in titled `Check-in: baseline` at the front of the phase, running
+  `runbooks/check-in.md` end to end, both substeps. That is the **first** point in the method
+  where a codebase you took on gets its tests run: the architecture STEP writes documents and
+  runs nothing, so until then nothing had. The runbook is unchanged. Nothing to undo — this
+  changes planning sessions you run from now on. **On an existing project**, answer the question
+  the way it is written: if a check-in has already swept that code, say so and no baseline is
+  added; if it genuinely has never been run, you get one. Either way it is the same runbook, so a
+  deliberate check-in at your next sensible breakpoint does the same work if you would rather not
+  wait for the next planning run.
 - **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
   check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
@@ -470,7 +483,8 @@ of them rewrites anything you already produced; they affect work you do after pu
   it is worth re-running the sweep once by hand.
 
 Pull `templates/architecture-sessions/*.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md`,
-`templates/architecture-doc-template.md`, and `runbooks/check-in.md` as a group. Nothing else in this group is affected: these files
+`templates/architecture-doc-template.md`, `templates/planning-session.md`, and
+`runbooks/check-in.md` as a group. Nothing else in this group is affected: these files
 change no script behavior and touch no project state.
 
 
@@ -583,7 +597,7 @@ apply each area as a coherent review-required group, as with the legacy migratio
 **Milestone-relative planning STEP-shape.**
 
 - *Process docs* (`templates/planning-session.md`): the implementation planning session's STEP
-  sequence (work-item 2, plus work-item 1's "first STEP is scaffold" line) is now milestone-relative —
+  sequence work-item, plus the repo-scaffolding work-item's "first STEP is scaffold" line, is now milestone-relative —
   build or extend what the milestone needs, in dependency order, given what already exists, with the
   scaffold → data → capabilities → integration shape kept as the worked example for a first run. Adopt
   the reworded work-items. No `status.sh` / `check.sh` change.
