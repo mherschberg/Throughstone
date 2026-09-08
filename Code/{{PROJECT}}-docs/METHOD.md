@@ -385,6 +385,9 @@ and make the STEP's final test command or CI gate explicit. Tests may run per su
 dedicated final verification substep; choose deliberately in the PLAN. A code-changing substep
 without tests needs a stated reason, not silence.
 
+### Closing a STEP
+When closing a STEP or substep, its status may only be flipped to **Done** when the evidence file's own wording supports it. The index row's status must be derived from the latest findings, not from earlier optimism. Furthermore, claimed commits and artifacts must be verified against disk before a STEP or substep is marked `Done` — a claimed commit must be verifiable (e.g., via `git rev-parse`, run URL, or file existence) before it counts.
+
 ### Check-in STEPs
 About **every 20 STEPs** (the project's cadence, adjustable), the roadmap includes a **Check-in STEP** — a full STEP whose
 job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
@@ -713,7 +716,7 @@ Resolve the next action top-down against the index — the first rule that match
 6. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run only the
    explicitly requested substep: *"run substep N.M"*. If the user says only *"run STEP N"*,
    identify the lowest open substep and wait for that explicit substep command. When the last
-   substep is done, run the STEP's review,
+   substep is done, run the STEP's review (ensuring commits and cited artifacts are verified against disk),
    then archive it (§5) and mark it `Done`.
 7. **~20 STEPs (the project's cadence) since the last check-in?** → propose a **Check-in STEP** at the next
    sensible breakpoint (§5; `runbooks/check-in.md`).

@@ -122,6 +122,8 @@
 - [ ] All tests named in the STEP test plan pass at the end of this STEP — ideally the full
       suite (unit + integration/API/e2e/security as applicable). <!-- the default bar; narrow
       or widen with a stated reason -->
+- [ ] Substep status table reconciled against each substep's evidence file; no substep marked `Done` if a required deliverable is recorded `Unverified`.
+- [ ] Disk verification: for each projected repo, the branch exists (or was merged), commits exist and are pushed, and cited artifacts/reports exist at their cited paths. A row whose cited evidence does not exist on disk cannot close the STEP.
 - [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
       <!-- For a Check-in STEP, the completed report is saved under reports/, not in the
            archived STEP folder. -->

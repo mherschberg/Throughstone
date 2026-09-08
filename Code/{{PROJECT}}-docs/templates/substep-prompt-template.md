@@ -91,6 +91,7 @@
 - **Run timing:** either run the relevant tests before marking this substep done, or confirm
   that the STEP PLAN assigns them to a later final verification substep. Tests that are deferred
   this way still must pass before the STEP is Done.
+- **Honesty at close:** an unrunnable or unrun verification must be reported in the findings/evidence file as **Unverified with reason**, never claimed as a pass. The substep's status inherits the evidence's verdict.
 
 ## Keeping the docs true  (always)
 <!-- The architecture docs are the source of truth for the design. Implementation drifts
@@ -139,6 +140,7 @@ Leaving the doc stale is a defect, not a follow-up.
       (`runbooks/register-repo.md`).
 - [ ] Any accepted risk or deferred technical debt created or changed by this substep is
       recorded in `registries/risks.yml` or explicitly marked not applicable.
+- [ ] Findings/evidence file recorded truthfully; substep status inherits the evidence verdict (no `Unverified` items claimed as a pass).
 
 ## Next
 When this substep is done, update its status in the STEP PLAN, then tell the user the next
