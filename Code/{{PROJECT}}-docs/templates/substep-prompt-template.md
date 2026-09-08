@@ -92,6 +92,7 @@
   that the STEP PLAN assigns them to a later final verification substep. Tests that are deferred
   this way still must pass before the STEP is Done.
 - **Honesty at close:** an unrunnable or unrun verification must be reported in the findings/evidence file as **Unverified with reason**, never claimed as a pass. The substep's status inherits the evidence's verdict.
+- **Runtime pre-flight:** if this substep executes against a runtime (e.g. E2E, staging, device/emulator, deployment), it must explicitly state its runtime preconditions. If those prerequisites are unmet (e.g. credentials missing, toolchain broken), the execution must be skipped and reported as **Unverified with reason**.
 
 ## Keeping the docs true  (always)
 <!-- The architecture docs are the source of truth for the design. Implementation drifts

@@ -385,6 +385,8 @@ and make the STEP's final test command or CI gate explicit. Tests may run per su
 dedicated final verification substep; choose deliberately in the PLAN. A code-changing substep
 without tests needs a stated reason, not silence.
 
+**Runtime pre-flight rule:** For any STEP executing against a runtime (e.g. E2E, integration against staging, device/emulator, deployment), the STEP's first substep (substep 0) must be reserved as a **pre-flight**. This pre-flight proves required credentials (by placeholder name) and host toolchain readiness with evidence before any remaining substeps are authored. See the planning-session template for details.
+
 ### Closing a STEP
 When closing a STEP or substep, its status may only be flipped to **Done** when the evidence file's own wording supports it. The index row's status must be derived from the latest findings, not from earlier optimism. Furthermore, claimed commits and artifacts must be verified against disk before a STEP or substep is marked `Done` — a claimed commit must be verifiable (e.g., via `git rev-parse`, run URL, or file existence) before it counts.
 
