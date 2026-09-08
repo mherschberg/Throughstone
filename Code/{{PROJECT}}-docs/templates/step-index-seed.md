@@ -4,7 +4,7 @@ The living roadmap. Every STEP, its status, and a one-line scope. **This is the 
 place to look to understand where the project is.** Keep it current as STEPs are planned,
 worked, and completed.
 
-> Status values: **Planned** · **In progress** · **Done** (archived to `prompts/`) ·
+> Status values: **Planned** · **In progress** · **Done** (archived to `prompts/`; requires positive verification, unverified required deliverables cannot close a row as Done) ·
 > **Deferred** (consciously not needed now; keep a revisit trigger) ·
 > **Abandoned** (reserved but won't be built — keep the row so the number is never reused).
 > Those five are the STEP states. A **substep** row uses the same values plus **N/A** (this area

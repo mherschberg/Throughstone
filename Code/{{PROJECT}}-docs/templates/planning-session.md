@@ -136,6 +136,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    from what's built and plan the STEPs that **extend** it, rather than re-scaffolding or
    rebuilding what's already there. Adjust to the actual project. Each STEP gets a
    global STEP number (continuing from STEP-1).
+   **Runtime pre-flight rule:** Any STEP whose substeps must *execute* against a runtime (E2E, integration against staging, device/emulator, deployment) must reserve its **first substep as a pre-flight** (substep 0). This pre-flight proves, with recorded evidence, that required credentials exist (name them by placeholder, never value), the host toolchain can build/run the target, and the baseline gates pass. The STEP's remaining substeps are authored *after* the pre-flight verdict, and any unprovable surface is scoped as Unverified-with-reason rather than assumed.
 3. **Interleave check-in STEPs.** About **every 20 STEPs** (the project's cadence, adjustable), add a **Check-in STEP**
    that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
    accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
