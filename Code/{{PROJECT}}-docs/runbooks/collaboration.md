@@ -37,6 +37,7 @@ step-NNNN-short-name        e.g. step-0042-payment-webhooks
   one logical STEP stays recognizable across repos.
 - This holds **even when you're solo.** It costs nothing alone and means the workflow is
   identical the day a second contributor arrives — no mode switch.
+- **Commit per completed substep.** As you complete each substep, commit its deliverables on the STEP branch with a message naming the substep (e.g., "STEP-42.1: ..."). Do not save up the whole STEP's work for one multi-repo close — an uncommitted close spanning multiple repos will strand your shared trunk and block the next STEP reservation entirely.
 - Branch lifetime, PR gates, and how the branch merges are **standard practice** — the method
   only fixes the name and the cross-repo consistency.
 
@@ -101,6 +102,14 @@ or it's invisible to everyone else's overlap check.
 > (`templates/planning-session.md`) lays down all of a phase's STEP numbers in one batch
 > after STEP-1. The reserve-then-push dance only matters for **ad-hoc STEPs** added later
 > (bugs, inserted work) — which is exactly when two people might grab a number at once.
+
+### Recovering a stranded close
+If you violate the commit-per-substep discipline and leave `prompts/STEP-index.md` dirty on a `step-NNNN` branch, `git switch main` will refuse to switch branches, blocking the next STEP reservation entirely. (For a worked example, see mine-flow's STEP-45, where an uncommitted close stranded the trunk and was successfully recovered this way before reserving STEPs 47-49.) Do not blindly stash or discard. To recover safely:
+1. **Preserve and reconcile:** Keep the uncommitted files. Re-truth the index row and substep summary against actual evidence (apply the Unverified honesty gate — if a deliverable failed, mark it Unverified, never Done).
+2. **Review:** Run `git diff --check` to catch whitespace or format damage, and run the duplicate STEP-number scan to ensure no collisions were introduced.
+3. **Commit locally:** Commit the reconciled changes on your current `step-NNNN` branch.
+4. **Merge and switch:** Push the branch, merge it, then `git switch main` and fast-forward your local trunk.
+5. **Reserve:** Now you can safely allocate the next STEP number on the shared trunk.
 
 ## 3. The shared coordination surface is the index row
 While a STEP is in flight its PLAN and substep prompts live in `Upcoming Prompts/`, which is
@@ -259,6 +268,7 @@ repos it touches — that single record is what keeps the history coherent acros
 - Its **PLAN lists the repos it touches and the order they merge in** (cross-repo
   sequencing). Reference commits / PRs / tags where ordering matters.
 - It uses the **same `step-NNNN` branch name in each repo** (§1).
+- **It must not accumulate an uncommitted close across repos.** Commit each completed substep's deliverables immediately on the STEP branches. If you leave a final cross-repo close uncommitted, your dirty `prompts/STEP-index.md` on the STEP branch will prevent switching to trunk, completely blocking the next STEP reservation.
 - If it creates a new repo, **register it** (`register-repo.md`) — your row only (§5).
 
 ## 9. Going from solo to team

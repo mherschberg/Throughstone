@@ -111,7 +111,7 @@ teammate will need later.
    pull, renumber, push again. Before every push, even on a clean merge, scan for a duplicate
    (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`); two appended rows merge
    with no conflict into a silent duplicate. (Solo with no remote, this is just a local edit.)
-   See `Code/{{PROJECT}}-docs/runbooks/collaboration.md`.
+   If your `prompts/` trunk switch is blocked by uncommitted changes (a stranded close), see the recovery recipe in `Code/{{PROJECT}}-docs/runbooks/collaboration.md`.
 2. **Confirm scope** with the user before writing anything — a STEP is a real commitment.
    Ask clarifying questions where the planned work, dependencies, repo ownership, or order
    are uncertain. When there are real alternatives, present appropriate options with short
@@ -155,7 +155,7 @@ teammate will need later.
    present the PLAN and substep list to the user and **stop for approval** before running any
    substep. Do not continue from planning into execution unless the user explicitly asks for a
    specific substep, e.g. `run substep N.1`.
-7. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
+7. **On completion:** (Note that commits are created per substep on the STEP branch as work proceeds; archiving is the final bookkeeping.) Run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
    in the phase folder in this repo and mark it **Done** in the index. (If this is the phase's

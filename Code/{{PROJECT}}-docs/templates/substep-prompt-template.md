@@ -144,6 +144,6 @@ Leaving the doc stale is a defect, not a follow-up.
 - [ ] Findings/evidence file recorded truthfully; substep status inherits the evidence verdict (no `Unverified` items claimed as a pass).
 
 ## Next
-When this substep is done, update its status in the STEP PLAN, then tell the user the next
+When this substep is done, commit its deliverables on the STEP branch (with a message naming the substep), update its status in the STEP PLAN, then tell the user the next
 action: the next open substep — *"run substep N.M"*, in a **fresh chat** — or, if this was
 the last substep, the STEP's review. (`METHOD.md` §10.)
