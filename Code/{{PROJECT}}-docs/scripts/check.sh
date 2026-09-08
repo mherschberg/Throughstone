@@ -16,8 +16,7 @@
 #   7. (multi-repo only) No stray files at the workspace root
 #   8. Architecture-session template numbers match the STEP-index seed
 #   9. Conditional-session templates expose the metadata generic review gates require
-#  10. overview.md's optional CHECK-IN-CADENCE marker, if present, is a positive integer
-#  11. (--check-in only) Every registries/repos.yml row has a location, and any repo no
+#  10. (--check-in only) Every registries/repos.yml row has a location, and any repo no
 #      recorded remote covers is flagged as a bus-factor risk
 #
 # The registry changes on the rare path — a repo created, adopted or split out — so it is not
@@ -404,26 +403,7 @@ else
   fi
 fi
 
-# --- 10. Check-in cadence marker (overview.md) --------------------------------
-hdr "10. Check-in cadence marker ($DOCS_REL/overview.md)"
-# The optional `<!-- CHECK-IN-CADENCE: N -->` line in overview.md sets the check-in target N
-# (status.sh defaults to 20 when the line is absent). Warn — never fail — if the line is present
-# but N isn't a positive integer; its absence is always fine.
-if [ -f "$OVERVIEW" ]; then
-  if ! grep -qE 'CHECK-IN-CADENCE:' "$OVERVIEW"; then
-    pass "no CHECK-IN-CADENCE line — status.sh uses the default cadence of 20"
-  elif grep -qE 'CHECK-IN-CADENCE:[[:space:]]*[1-9][0-9]*([[:space:]]|-->|$)' "$OVERVIEW"; then
-    pass "CHECK-IN-CADENCE is a positive integer"
-  else
-    warn "$DOCS_REL/overview.md CHECK-IN-CADENCE is not a positive integer — status.sh falls back to the default (20):"
-    printf '         %s\n' "$(grep -E 'CHECK-IN-CADENCE:' "$OVERVIEW" | head -1)"
-    hint "set it to a positive whole number of STEPs (e.g. <!-- CHECK-IN-CADENCE: 20 -->), or delete the line to accept the default."
-  fi
-else
-  pass "no $DOCS_REL/overview.md yet (project not initialized?) — skipping check-in cadence check"
-fi
-
-# --- 11. Repo registry (registries/repos.yml) — check-in only ------------------
+# --- 10. Repo registry (registries/repos.yml) — check-in only ------------------
 # Deliberately minimal, and deliberately not run on every invocation. The registry changes when
 # a repo is created, adopted or split out; the doctor runs constantly during STEPS. Validating
 # the rare path on the common one is what this check used to do, at 285 lines.
@@ -438,7 +418,7 @@ fi
 # named. The root row is covered by nothing else: if it has no remote, it is flagged like any
 # other repo.
 if [ "$CHECK_IN" -eq 1 ]; then
-  hdr "11. Repo registry ($DOCS_REL/registries/repos.yml)"
+  hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then
     warn "no $DOCS_REL/registries/repos.yml — skipping repo registry check"
   else
@@ -484,7 +464,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
     [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
   fi
 else
-  hdr "11. Repo registry ($DOCS_REL/registries/repos.yml)"
+  hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"
   pass "skipped — run with --check-in (this check belongs to the periodic check-in)"
 fi
 

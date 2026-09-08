@@ -31,7 +31,7 @@ AGENTS.md and follow it."*
 - **`kickoff-complete` → Resume mode.** Kickoff already happened. **Do not re-run kickoff.**
   Pick up the next action via the next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10): **run
   `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`)** — it resolves §10 mechanically from disk and
-  prints where you are, the next action, and the check-in cadence. Read
+  prints where you are, the next action, and when the next check-in is due. Read
   `prompts/STEP-index.md` to confirm (and for the sub-STEP detail the script doesn't carry —
   the in-flight PLAN in `Upcoming Prompts/`), then tell the user what's next. If the script
   isn't available (older project, no shell), fall back to reading the index and applying §10
@@ -197,12 +197,14 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Document code as you write it.** Every class, function, and method gets a docstring;
   comment the *why* of non-obvious logic (see
   `Code/{{PROJECT}}-docs/coding-standards/README.md`).
-- **Suggest a check-in on the project's cadence** — the `CHECK-IN-CADENCE` value in
-  `Code/{{PROJECT}}-docs/overview.md`, recommended **20**. When about that
-  many STEPs have passed since the last check-in, proactively propose inserting a **Check-in STEP** that runs
+- **Propose a check-in when the scheduled one comes up.** `Code/{{PROJECT}}-docs/overview.md`
+  carries `<!-- NEXT-CHECK-IN: … -->` — a STEP number or a date. When it is reached, or when no
+  check-in is scheduled at all, proactively propose a **Check-in STEP** that runs
   `Code/{{PROJECT}}-docs/runbooks/check-in.md` (doc-drift reconciliation both ways,
-  conditional-session coverage, accepted-risk review, and a full test run). See `Code/{{PROJECT}}-docs/METHOD.md`
-  §5.
+  conditional-session coverage, accepted-risk review, and a full test run). **Ask the user when
+  the next one should be and write their answer into that line** — they answer in their own terms
+  (*"in about three STEPs"*, *"after the launch"*) and you turn it into a STEP number or a date.
+  See `Code/{{PROJECT}}-docs/METHOD.md` §5.
 - **Flag milestone docs at a phase/release.** When a phase completes or you cut a release,
   proactively ask the user about **release notes** and **user-facing doc updates** — neither
   is produced by normal STEP work. If the user wants release notes, start from
@@ -217,7 +219,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
   user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
   running `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`) — it runs the **next-action resolver**
-  (`Code/{{PROJECT}}-docs/METHOD.md` §10) mechanically from disk (where you are · next action · check-in cadence) —
+  (`Code/{{PROJECT}}-docs/METHOD.md` §10) mechanically from disk (where you are · next action · next check-in) —
   then confirming against `prompts/STEP-index.md`. From disk, never from memory.
 - One decision/question cluster at a time. Recommend defaults; flag what they foreclose.
 

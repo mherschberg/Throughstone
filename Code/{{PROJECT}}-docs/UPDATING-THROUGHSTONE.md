@@ -81,8 +81,8 @@ not fail the check.
 `registries/repos.yml`** — **whether any `location:` points outside the workspace root**, which 1.7
 allowed and this release does not, and, **if your project is mono-repo-for-now, whether the
 workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
-whether your CI gate has ever actually run — **and one rename**, if any past Check-in STEP row is
-titled something the cadence helper no longer recognises. Beyond the fast path below, nothing is
+whether your CI gate has ever actually run — **and one line to change** in `overview.md`, where the
+check-in cadence setting is replaced by the date or STEP your next check-in is due. Beyond the fast path below, nothing is
 required of you unless you are about to split a repository. The release adds a runbook for that, repeals one rule, and writes down
 how a repo is brought into a project at all — in a second new runbook. Fast path:
 
@@ -109,8 +109,10 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
    section.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
-6. **Check the Title of every past Check-in STEP row in `prompts/STEP-index.md`.** The cadence
-   helper now requires it to *begin* `Check-in` — details just below.
+6. **Put a `<!-- NEXT-CHECK-IN: STEP-<number> -->` line in your `overview.md`** — the STEP you
+   want your next check-in at — replacing the `CHECK-IN-CADENCE` line if you have one. **Do this
+   even if you never set a cadence**, or the helper will tell you nothing is scheduled on every
+   run. Details just below.
 7. **If a wrapper or CI step of yours calls `check.sh`, `status.sh`, `links.sh`,
    `setup-workspace.sh`, `apply-project-license.sh` or `./doctor.sh help` with a stray argument**,
    it will now print the argument and exit 2 instead of ignoring it. Every valid invocation is
@@ -165,30 +167,30 @@ they are genuinely independent: a private repo can carry MIT, and a public repo 
 - **`--visibility=private` is unaffected** and stays as it is. That is the flag `private` now
   belongs to.
 
-**The Check-in STEP now has a title contract, and one row of yours may need renaming.**
-`scripts/status.sh` measures the check-in cadence from the last `Done` STEP it recognises as a
-check-in. **Two things changed: only a `Done` row counts now** — a `Planned` check-in row used to
-reset the clock, so filing the row silenced the warning before anyone did the work — and it used to
-recognise one by looking for the words *check* and *in* anywhere in the
-Title, which was wrong in both directions: a bug STEP called `Fix the check-in report generator`
-reset the clock — and `runbooks/check-in.md`'s own Carry-forward step is what produces bug STEPs
-named after the check-in that found them — while the requirement to use those words at all was
-written down nowhere, so a descriptively-titled check-in was invisible. The rule is now stated, in
-`METHOD.md` §5, `runbooks/check-in.md`, `templates/planning-session.md` and `prompts/README.md`:
-**the row's Title begins `Check-in`**, optionally followed by a scope (`Check-in: phase 1`).
-Markdown emphasis around it is fine, and matching ignores case.
+**The check-in is scheduled now, not calculated — one line of your `overview.md` changes.**
+1.7 gave you a cadence setting, `<!-- CHECK-IN-CADENCE: N -->`, and `scripts/status.sh` combined it
+with the last `Done` STEP whose Title looked like a check-in to work out whether you were due. Both
+halves are gone. The helper reads one line that simply says when the next check-in is:
+`<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or a date (`2026-11-15`).
 
-Open `prompts/STEP-index.md` and look at every check-in row you already have. `Check-in`,
-`Check-In`, `CHECK-IN` and `**Check-in**` all still count. Titles like `Mid-phase check-in`,
-`Phase 1 check-in` or `Docs and test sweep` no longer do — rename them to lead with `Check-in`
-and keep the old wording after it if you want it (`Check-in: mid-phase`). Nothing fails if you
-skip this — `scripts/check.sh` does not police STEP titles — but the cost is not that the cadence
-goes quiet. An unrecognised row simply drops out of the calculation, so `./doctor.sh status` keeps
-printing a cadence line and measures it from whatever older row still qualifies: with a recognised
-check-in at STEP-2 and an unrecognised one at STEP-28, a project at STEP-30 is told
-`last at STEP-2, 28 STEPs ago — OVERDUE (25+)`. Only when *no* row qualifies does it fall back to
-"no Check-in STEP yet". Either way the advice is wrong rather than absent, which is why the rename
-is worth doing.
+**Do this once.** Open `overview.md`, delete the `CHECK-IN-CADENCE` line, and write a
+`NEXT-CHECK-IN` line in its place. If your last check-in was STEP-30 and your cadence was 20,
+that is `<!-- NEXT-CHECK-IN: STEP-50 -->`. If you never set a cadence, 20 STEPs past your last
+check-in reproduces the old default. If you have never run one, pick any STEP number ahead of you,
+or a date. New projects are seeded `STEP-20` from `templates/overview-template.md`.
+
+**If you skip it, nothing breaks.** A missing or unrecognised value reads as *none scheduled*, and
+`./doctor.sh status` says so and asks you to set one — on every run, until you do. A leftover
+`CHECK-IN-CADENCE` line is inert: nothing reads it, and nothing reports it as an error.
+
+**Two things you no longer have to do.** Past Check-in STEP rows need no particular Title — nothing
+counts them, so nothing has to be renamed. (`Check-in` stays in the documents as a roadmap
+convention; it is simply not a contract any more.) And the cadence is no longer a number your
+documents have to keep in step with a setting, so the passages that named it now describe the
+scheduled line instead — all of them in the process-docs group at step 1 of the fast path.
+`scripts/check.sh` loses the check that validated the setting. That was **check 10 in 1.7**, and
+check 10 in the release you are pulling is the new repo-registry pass instead — so if anything of
+yours reads the doctor's output by check number, that number now means something else.
 
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
@@ -235,8 +237,8 @@ appendix covers purging history first when that matters.
   `check-in.md` tells you to fill in. `templates/planning-session.md` is the fifth, and it is the
   one that changes behavior — see below.
   Apply them as a coherent group; they reference each other. No split-specific check: the new `check.sh` registry pass looks only for a missing `location:` and for
-  repos no recorded remote covers. The one script change these docs pair with is the check-in title
-  contract in `status.sh` (item 6 above) — pulling it also makes a STEP row carrying an inline
+  repos no recorded remote covers. The script change these docs pair with is the scheduled check-in
+  in `status.sh` (item 6 above) — pulling it also makes a STEP row carrying an inline
   `<!-- … -->` note visible to the resolver again, where the note used to swallow the row. Nothing
   detects registry drift *after a split* — a row that still describes a
   folder that is now its own repo — which is accepted rather than overlooked.
@@ -499,21 +501,6 @@ root. `AGENTS.md` described that same old order and is corrected too — it is a
 process-docs group above, so pulling that group picks it up. Review the three like the other
 process docs; nothing of yours is rewritten.
 
-**If you changed your check-in cadence, the docs now agree with you.** The cadence has been a
-per-project setting since 1.7 — `<!-- CHECK-IN-CADENCE: N -->` in your `overview.md`, read by
-`scripts/status.sh` — but five passages in the documents your agent plans from still stated a
-bare **20** rather than naming the setting, so a project that set 10 was told 10 by the helper and
-20 by the docs. They now name the setting and give 20 as the recommendation: `METHOD.md` §5's opening
-sentence and §10 rule 7, `AGENTS.md`'s check-in rule, `templates/planning-session.md`'s
-*Interleave check-in STEPs* item, and `runbooks/check-in.md`'s "How to run" note. **All four
-files are already in the process-docs group at step 1 of the fast path** — pull that group and you
-have this. **Nothing of yours is rewritten and no behaviour changes**: `status.sh` read your setting
-before this release and reads it the same way now, its fallback to 20 when the line is absent is
-unchanged, and the check-in remains a proposal rather than a gate. If you are still on the
-default there is nothing to notice; if you are not, the prose stops contradicting your
-`overview.md`. Worth one look while you are there: if your `overview.md` predates the marker
-entirely, add the line so the number you want is the number the helper uses.
-
 **One thing this guide does not do for you.** `adr/README.md` is *Project state* under §2 —
 never auto-updated — so the ADR duplicate-number scan fixed in this release stays broken in your
 copy until you carry the fix across by hand. Open your `adr/README.md`, find the scan command, and
@@ -529,6 +516,8 @@ cadence. Fast path:
    `runbooks/check-in.md`, `templates/planning-session.md`, `scripts/status.sh`, `scripts/check.sh`).
 2. Want the old check-in window (DUE 10 / OVERDUE 20)? Add `<!-- CHECK-IN-CADENCE: 15 -->` to
    `overview.md`; otherwise omit it to take the new default of 20 (DUE 15 / OVERDUE 25).
+   **Superseded in 1.8** — the cadence setting is gone and `overview.md` records when the next
+   check-in is due instead. Going straight to 1.8? Skip this step and follow the 1.8 section.
 3. Optionally reinterpret old `Status: MVP` / `Status: Stable` architecture docs as
    `Status: Current` (no forced change; `check.sh` keeps passing either way).
 4. Create `inputs/` and copy its `README.md` if you want the bring-your-own-docs drop point.
@@ -633,7 +622,8 @@ apply each area as a coherent review-required group, as with the legacy migratio
   next phase's scope and outlines its STEPs instead of being pointed back at Phase 1; a first run still
   targets Phase 1 with the same outline as before.
 
-**Project-selectable check-in cadence.**
+**Project-selectable check-in cadence.** *(Superseded in 1.8, which replaces the setting with a
+recorded `NEXT-CHECK-IN` line — read the 1.8 section instead if you are upgrading past 1.7.)*
 
 - *Templates for future use* (`templates/overview-template.md`): new projects get the optional,
   documented `<!-- CHECK-IN-CADENCE: 20 -->` marker beside `PROJECT-STATUS`; existing generated
