@@ -74,7 +74,7 @@ any project built with it.
 
 - **The doctor gained a `--check-in` flag, and the periodic check-in is where the repo registry gets
   checked.** `scripts/check.sh` took no options at all; it now takes `--check-in`, which turns on the
-  checks that belong to the periodic check-in rather than to every run — today, one. Check 11 reads
+  checks that belong to the periodic check-in rather than to every run — today, one. Check 10 reads
   `registries/repos.yml` and makes two mechanical checks and only those two. **A row with no
   `location:` fails the run**, because nothing can find that repo and guessing a path is worse than
   asking. **A repo that no recorded remote covers is a warning**, because as far as the project knows
@@ -88,7 +88,7 @@ any project built with it.
   the design** — `scripts/setup-workspace.sh` still guards a `location:`'s shape at clone time,
   because that one can put a repository somewhere it does not belong. The registry changes only
   when a repo is created, adopted or split out — a rare action — while the doctor runs constantly
-  during STEPs. So a plain `./doctor.sh check` now prints an eleventh section that reads
+  during STEPs. So a plain `./doctor.sh check` now prints a tenth section that reads
   `skipped — run with --check-in`, and the generated CI workflow never passes the flag: a typo in the
   registry has no business failing a build on every push. `runbooks/check-in.md` is what passes it,
   where a person is already looking, and it says what to do with each finding — a `[FAIL]` gets
@@ -121,22 +121,34 @@ any project built with it.
   ordinary forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
 
 ### Changed
-- **Five documents said how often to run a check-in; the project's own setting says it.** The
-  cadence has been a per-project setting since 1.7 — `<!-- CHECK-IN-CADENCE: N -->` in
-  `overview.md`, read by `scripts/status.sh`, which flags a heads-up 5 STEPs before the target and
-  overdue 5 after — but six passages across five shipped documents still stated a bare number
-  instead of naming it. A project that set its cadence to 10 was told 10 by the helper and 20 by
-  every document its agent planned from, and nothing detected the disagreement. `ARTIFACT-TRAIL.md` was worse than the
-  others: it said *"Every 10-20 STEPs"*, a third figure matching neither the default nor the window
-  the helper reports. All six now name the setting and give **20** as the recommended starting
-  point, so a reader with no project in front of them still has a number: `ARTIFACT-TRAIL.md`
-  §6, `AGENTS.md`'s check-in rule, `METHOD.md` §5's opening sentence and §10 rule 7,
-  `templates/planning-session.md`'s *Interleave check-in STEPs* item, and
-  `runbooks/check-in.md`'s "How to run" note. **The hedge is deliberate and survives every one of
-  them**: the cadence advises and never gates (§10 rule 7), so *about* every N STEPs is the
-  meaning, and a sentence that read as a hard trigger would be a regression even with the right
-  number. Nothing else changes — no new field, no new check, and `status.sh`'s own behaviour and
-  its fallback to 20 are untouched.
+- **The check-in is scheduled, not calculated.** `scripts/status.sh` used to work out whether a
+  check-in was due from two facts it reconstructed on every run: *how often* — the
+  `<!-- CHECK-IN-CADENCE: N -->` setting in `overview.md`, plus a default, plus a window of five
+  STEPs either side — and *when the last one was*, taken from the most recent `Done` STEP whose
+  Title began `Check-in`. Both existed only so a script could recover something nobody had written
+  down, and each forced a contract on the documents: six passages had to name the setting so the
+  prose and the helper could not quote different numbers, and four had to state the title rule so a
+  check-in row would be countable at all. Neither contract served a reader, and both had to be
+  policed by tests.
+
+  **`overview.md` carries one recorded fact instead**: `<!-- NEXT-CHECK-IN: … -->`, holding either a
+  STEP number (`STEP-45`) or a date (`2026-11-15`). Whoever schedules a check-in writes it — the
+  planning session as it lays out a phase, the check-in itself before it closes, or the user at any
+  moment. **The user answers in their own terms** (*"in about three STEPs"*, *"after the launch"*,
+  *"remind me in November"*) and the agent turns that into a STEP number or a date. `status.sh`
+  reports it as due once that point is reached and keeps saying so until someone moves it. Anything
+  it cannot read — a mangled value, or no line at all — reads as *none scheduled*, which is the
+  nudge to set one and the floor this advice can never fall below. Nothing validates the line and
+  nothing enforces it: it stays advice, and §10 rule 7 still never becomes the next action.
+
+  **What went with it.** The cadence setting and its default; the DUE/OVERDUE windows and the
+  arithmetic around them; the doctor check that validated the setting (which renumbers the
+  repo-registry check from 11 to 10); and the `Check-in` title rule as a machine contract — it
+  survives in the documents as a plain roadmap convention, policed by nothing. New projects are
+  seeded `STEP-20`, a starting suggestion rather than a rule. One hazard survives and stays
+  guarded: a hand-written `STEP-08` is forced to base 10, because `$(( ))` reads a leading zero as
+  octal — the shape that used to abort the whole resolver. The date form needs no arithmetic at
+  all.
 - **STEP-1 takes the same branch in every repository it writes into.** STEP-1 work takes the
   `step-0001-architecture` branch in **every** repository it writes into — previously the docs hub
   and `prompts/` in a multi-repo project, or the root repo in mono-repo-for-now, which left a
@@ -311,22 +323,20 @@ any project built with it.
   moment the failure is a one-line fix. The contract is now *"it writes no new features"*: it fixes
   docs, files bugs, proves the tests pass, **and may make a small corrective code or test fix to
   clear a failure it found**. Anything larger is still a bug STEP of its own.
-- **The check-in cadence advises and proposes; it never becomes the next action.** `METHOD.md`
-  §10 is a first-match-wins list, and rule 7 — the check-in cadence — sat between "plan the next
-  STEP" and "the phase is complete". `scripts/status.sh` never implemented it, so an overdue
-  project got `OVERDUE; insert a Check-in STEP now` on one line and `plan STEP-41` on the next,
-  which reads like the tool contradicting itself. The resolution is not a new resolver branch.
+- **The check-in advises and proposes; it never becomes the next action.** `METHOD.md`
+  §10 is a first-match-wins list, and rule 7 — the check-in — sat between "plan the next
+  STEP" and "the phase is complete". `scripts/status.sh` never implemented it, so a project past
+  its check-in got an imperative on one line and `plan STEP-41` on the next, which reads like the
+  tool contradicting itself. The resolution is not a new resolver branch.
   Rule 7's own wording puts the check-in "at the next sensible breakpoint", and a rule that fired
-  the moment a project went overdue would fire mid-feature — the one place §5 says not to put
-  one. So §10 now says plainly that rule 7 is the exception to first-match-wins: the cadence is
-  reported *alongside* the next action and never in place of it, it never blocks work, and no
-  rule below it is skipped because a check-in is due. `status.sh` prints it that way — when the
-  cadence is due or overdue it offers a Check-in STEP under the next action, marked as advice,
-  and the next action itself is untouched. `OVERDUE (>25); insert a Check-in STEP now.` loses its
-  imperative and becomes `OVERDUE (25+).`, with the proposal carrying the suggestion instead.
-  `prompts/README.md` no longer describes a due Check-in STEP as something the resolver answers
-  with. `tests/status-checkin-cadence.sh` now holds both halves of the contract, so a gate cannot
-  creep back in.
+  the moment a project went past the point would fire mid-feature — the one place §5 says not to
+  put one. So §10 now says plainly that rule 7 is the exception to first-match-wins: the check-in
+  is reported *alongside* the next action and never in place of it, it never blocks work, and no
+  rule below it is skipped because one is due. `status.sh` prints it that way — when the scheduled
+  point is reached it offers a Check-in STEP under the next action, marked as advice, and the next
+  action itself is untouched. `prompts/README.md` no longer describes a due Check-in STEP as
+  something the resolver answers with, and `tests/status-next-check-in.sh` holds both halves of the
+  contract so a gate cannot creep back in.
 - **The planning session now asks whether it is planning against code somebody else wrote, and
   runs that code's tests before anything is built on it.** Before it proposes the STEP sequence it
   puts one question to you — *is any of the code this phase builds on code this project did not
@@ -354,7 +364,7 @@ any project built with it.
 
   **The question carries its own stop**, which is why there is no second rule to keep in step with
   it: it asks about code no check-in has run over yet, so a project re-planning a later phase does
-  not spend a whole STEP re-baselining code the cadence has already swept, and a repository taken
+  not spend a whole STEP re-baselining code the check-ins have already swept, and a repository taken
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
@@ -386,8 +396,7 @@ any project built with it.
   `Desktop publishing pipeline` was pointed at the native-app session. Anchoring alone would not
   have fixed the second — that label genuinely does begin with *desktop* — so the match is now
   against the session's own name rather than a loose keyword. A label matching none of them falls
-  back to the generic "invoke it by name", which was always correct advice. It is the same
-  defect as the check-in title match below, in the four remaining places it appeared. Anchoring
+  back to the generic "invoke it by name", which was always correct advice. Anchoring
   also cost one keyword on the way past: the privacy session had matched a bare `compliance`
   anywhere in a label, which is now gone — `privacy` and `data governance` still match, at the
   start of the label.
@@ -401,30 +410,6 @@ any project built with it.
   in either case, and nobody writing the note had any reason to expect it. Comments are now
   stripped from the line rather than taking the line with them. Example rows that sit wholly
   inside a comment block are still ignored, which is the only thing this behaviour was ever for.
-- **The check-in cadence line no longer names the same STEP on both sides of the line.** With the
-  default cadence of 20, a project 25 STEPs past its last check-in is overdue — that is what
-  "OVERDUE at N+5" means. But `scripts/status.sh` printed `OVERDUE (>25)` while firing *at* 25,
-  and the sentence beside it called 15–25 the DUE window when 25 was already out of it.
-  Both bounds now read as they behave: `DUE (you're in the 15–24 window)` and `OVERDUE (25+)`.
-  The thresholds themselves are unchanged.
-- **A STEP that merely mentions a check-in no longer counts as one.** `scripts/status.sh` measures
-  the cadence from the last `Done` STEP it recognises as a check-in, and it recognised one by
-  looking for the words *check* and *in* anywhere in the Title. So a bug STEP called `Fix the
-  check-in report generator` at STEP-30 turned `OVERDUE, 26 STEPs ago` into `~14 STEPs of
-  headroom` — and `runbooks/check-in.md`'s own Carry-forward step is exactly what produces bug
-  STEPs named after the check-in that found them. `Add checkinventory endpoint` matched too. The
-  mirror held as well: the clock depended on those words appearing in the Title, and that
-  requirement was written down nowhere, so a descriptively-titled check-in was invisible to it.
-  The contract is now stated — **the row's Title begins `Check-in`**, optionally followed by a
-  scope (`Check-in: phase 1`) — in `METHOD.md` §5, `runbooks/check-in.md`,
-  `templates/planning-session.md` and `prompts/README.md`, and the match is anchored to it. This
-  is the same shape the method already used for `Conditional session: <topic>`, which
-  `status.sh` has always matched anchored. Case is ignored, and leading emphasis or backticks
-  around the phrase are allowed.
-  An existing project whose check-in rows are titled some other way needs one rename each;
-  `UPDATING-THROUGHSTONE.md` says which spellings still count and what it costs to skip it — the
-  cadence line does not go quiet, it keeps measuring from whatever older row still qualifies, so
-  the advice is wrong rather than absent.
 - **A backup the wizard could not create is now reported, and the exit status says so.** `init.sh`
   offers to create Git remotes and push to them. When a push was refused — the repository exists but
   the account cannot write to it, credentials have expired — what happened next was decided by where
@@ -623,13 +608,6 @@ any project built with it.
   exit 2, so one entry point behaves one way. Every valid invocation is untouched, `--check-in`
   included. **If you drive these from a wrapper or a CI step that passes a stray argument, it will
   now fail rather than be ignored.**
-- **A short check-in cadence no longer prints a negative window.** The check-in window is the
-  project's `CHECK-IN-CADENCE` plus or minus 5, so a cadence of 5 or less put its left edge at
-  zero or below: `scripts/status.sh` reported things like `DUE (you're in the -2–8 window)`, and
-  it said so from the STEP the check-in happened on — a project that had just checked in was
-  told it was due for another. The lower edge is now floored at 1. This only ever raises the
-  threshold, so any cadence of 6 or more — which is every value the documentation uses — behaves
-  exactly as before.
 - **The architecture STEP's close-out is no longer skipped.** `scripts/status.sh` decided STEP-1
   was finished by counting substeps, and ignored the STEP-1 row's own status. But the row is what
   records completion: the Cross-Cutting Review has to run and STEP-1 has to be archived to
@@ -641,23 +619,6 @@ any project built with it.
   `METHOD.md` §10 ends by making the index authoritative for which STEP is next. It now names the
   close-out as the next action and quotes the row status back to you, and it is unchanged when the
   row reads `Done`, `Deferred` or `Abandoned`, or when there is no STEP-1 row at all.
-- **Scheduling a check-in no longer counts as having done one.** `scripts/status.sh` measures the
-  check-in cadence from the highest-numbered STEP whose title looks like a check-in — but it
-  ignored that row's status. So when the cadence line said `OVERDUE (>25); insert a Check-in STEP now.`
-  and you did exactly that, the new `Planned` row immediately reported `0 STEPs ago — ~15 STEPs of
-  headroom`, before the check-in had happened. Acting on the advice cleared the advice, and the
-  sweep it exists to schedule could be postponed indefinitely without the cadence ever noticing.
-  Only a `Done` check-in resets the clock now; `Planned` and `In progress` rows are the work, not
-  the record of it.
-- **A zero-padded check-in cadence no longer kills `./doctor.sh status`.** `overview.md`'s optional
-  `<!-- CHECK-IN-CADENCE: N -->` marker is meant to be edited by hand. Writing `08` or `09` aborted
-  `scripts/status.sh` outright — `[ 08 -gt 0 ]` reads base 10 and passed the guard, but `$(( 08 - 5 ))`
-  reads octal and fails — so the whole next-action resolver printed nothing and exited 1. `010`
-  did not fail; it silently meant 8, moving the check-in window from ~15–25 to ~3–13 with no
-  indication. `scripts/check.sh` check 10 flagged both, but told the reader something untrue:
-  "status.sh falls back to the default (20)", which it did not do. status.sh now reads the marker
-  with check 10's own pattern, so a marker check 10 rejects is a marker status.sh ignores, and
-  check 10's sentence is accurate.
 - **A slug that cannot work is refused before anything is destroyed.** `init.sh` is one-time and
   destructive: from "Detaching from the template's git history" onward it has removed `.git` and
   started renaming. Two slug problems were only discovered after that point, by `mv` or `cp`

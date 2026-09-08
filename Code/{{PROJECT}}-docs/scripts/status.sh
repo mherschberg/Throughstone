@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
 # status.sh — mechanically run the next-action helper for METHOD.md §10 and print where the
-# project is, what to do next, and the check-in cadence. Read-only. It reads the kickoff marker
-# in overview.md and the roadmap in prompts/STEP-index.md — the same disk state the resolver
-# uses — so a fresh chat (or a new teammate) can answer "what do I do next?" without guessing.
+# project is, what to do next, and when the next check-in is due. Read-only. It reads the kickoff
+# marker and the scheduled check-in in overview.md and the roadmap in prompts/STEP-index.md — the
+# same disk state the resolver uses — so a fresh chat (or a new teammate) can answer "what do I do
+# next?" without guessing.
 #
 # This is a *helper*: METHOD.md §10 remains authoritative. When the index can't determine the
 # answer, the script says so and points there.
@@ -158,7 +159,7 @@ done
 # --- Main STEP state ----------------------------------------------------------
 # Scan implementation STEPs once and retain the lowest-numbered candidate in each resolver
 # bucket: active STEP, planned conditional follow-up, and ordinary planned STEP.
-maxnum=0; have_impl=0; nonfinal=0; last_ci=0; step1_st=""
+maxnum=0; have_impl=0; nonfinal=0; step1_st=""
 inprog=""; inprog_ti=""; inprog_n=999999
 lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
 lowplanned=""; lowplanned_ti=""; lowplanned_n=999999
@@ -176,19 +177,6 @@ while [ "$i" -lt "$n_steps" ]; do
   fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
   case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
-  # Only a Done check-in resets the clock. A Planned row is the work, not the record of it —
-  # counting it meant that adding the row the OVERDUE warning tells you to add silenced the
-  # warning before the check-in happened, so acting on the advice cleared the advice.
-  #
-  # The Title must *begin* Check-in — the contract METHOD.md §5 and runbooks/check-in.md state,
-  # the same shape as the `Conditional session:` prefix matched twelve lines above. An unanchored
-  # substring match read any title mentioning a check-in as being one, so a bug STEP named after
-  # the check-in that found it reset the clock — and check-in.md's own Carry-forward step is what
-  # produces those. Markdown emphasis around the phrase is allowed because every document that
-  # states the contract writes it in bold.
-  if [ "$st" = "Done" ] && printf '%s' "$ti" | grep -qiE '^[*`_ ]*check-in\b'; then
-    [ "$n" -gt "$last_ci" ] && last_ci=$n
-  fi
   i=$((i + 1))
 done
 all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
@@ -283,45 +271,64 @@ else
   next="resolve by hand via the next-action resolver in $DOCS_REL/METHOD.md §10."
 fi
 
-# --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
-# Cadence is measured by highest indexed STEP minus the latest Done STEP whose Title begins
-# `Check-in` (METHOD.md §5 states the contract). The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
-# when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
-# at N+5 — both inclusive, so with the default 20 the DUE window is 15-24 and 25 is already
-# OVERDUE. The printed bounds say exactly that; they used to name 25 on both sides of the line.
-# The pattern is check.sh check 10's, character for character, because check 10 tells the reader
-# what this script will do with a malformed marker ("status.sh falls back to the default (20)")
-# and that sentence has to be true. It also has to reject a leading zero before the value reaches
-# the arithmetic below: `[ 08 -gt 0 ]` is base 10 and passes, but `$(( 08 - 5 ))` is octal and
-# aborts the script, so `CHECK-IN-CADENCE: 08` used to kill the whole next-action resolver.
-cadence=20
+# --- Next check-in (METHOD.md §10 rule 7) -------------------------------------
+# overview.md carries `<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or an
+# ISO date (`2026-11-15`). Whoever last scheduled a check-in wrote it: the check-in itself, the
+# planning session, or the user saying when. Nothing validates it — an unreadable or missing value
+# reads as "none scheduled", which is an actionable state rather than an error, and is the floor
+# this advice can never fall below.
+#
+# METHOD.md §10 rule 7 is deliberately not a resolver branch: this advises and proposes, and never
+# becomes the next action, because a gate would fire mid-feature — the one place §5 says not to
+# put a check-in. So it prints beside the next action, never instead of it.
+nci=""
 if [ -f "$OVERVIEW" ]; then
-  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[1-9][0-9]*([[:space:]]|-->|$)' "$OVERVIEW" \
-       | head -1 | grep -oE '[1-9][0-9]*' | head -1)"
-  if [ -n "$n" ]; then cadence="$n"; fi
+  nci="$(sed -n 's/.*NEXT-CHECK-IN:[[:space:]]*\(.*\)/\1/p' "$OVERVIEW" | head -1 \
+         | sed 's/-->.*//; s/[[:space:]]*$//')"
 fi
-# The window is the cadence plus or minus 5, floored at 1: a cadence of 5 or less would otherwise
-# put its left edge at zero or below, printing "the -2-8 window" and reporting DUE from the STEP
-# the check-in happened on. The floor only ever raises `due`, so every cadence of 6 or more is
-# untouched.
-due=$(( cadence - 5 )); [ "$due" -lt 1 ] && due=1
-over=$(( cadence + 5 ))
-# ci_propose is set whenever the cadence has something to suggest. METHOD.md §10 rule 7 is
-# deliberately not a resolver branch: the cadence advises and proposes, and never becomes the next
-# action. A gate that fired the moment a project went overdue would fire mid-feature, which is the
-# one place §5 says not to put a check-in — so this is printed beside the next action, never
-# instead of it, and the wording proposes rather than commands.
+# Both forms are matched strictly, so anything else falls through to "none scheduled" instead of
+# reaching the comparisons below as a fragment.
+nci_step="$(printf '%s' "$nci" | grep -oE '^STEP-[0-9]+$' | grep -oE '[0-9]+$')"
+nci_date="$(printf '%s' "$nci" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"
+
+# Where the project actually is — the STEP the next action above just named, which is what a
+# scheduled STEP has to be measured against. It is NOT the highest row in the index: the planning
+# session writes a whole phase of Planned rows at once, so the highest row is where the phase
+# ends, and comparing against it would report every freshly-planned phase as due on its first day.
+#
+# This follows the resolver's own precedence rather than taking the lowest of the three, so the
+# two halves of the output cannot name different STEPs: an active STEP wins, then the lowest
+# Planned one, and only when every row is final (§10.8, the phase is over) is the highest row the
+# position.
+if   [ "$inprog_n"    -lt 999999 ]; then atstep=$inprog_n
+elif [ "$lowplanned_n" -lt 999999 ]; then atstep=$lowplanned_n
+else atstep=$maxnum
+fi
+
 ci_propose=""
-if [ "$last_ci" -gt 0 ]; then
-  since=$(( maxnum - last_ci ))
-  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (${over}+)."; ci_propose=1
-  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–$(( over - 1 )) window)."; ci_propose=1
-  else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( due - since )) STEPs of headroom."
+if [ -n "$nci_step" ]; then
+  # 10# forces base 10: a hand-written `STEP-08` is octal to $(( )). The normalised number is
+  # what gets printed, so the line says what was read rather than what was typed.
+  nci_n=$((10#$nci_step))
+  if [ "$nci_n" -le "$atstep" ]; then
+    ci="due — scheduled for STEP-${nci_n}, and the project is at STEP-${atstep}."; ci_propose=1
+  else
+    ci="next at STEP-${nci_n} (the project is at STEP-${atstep})."
   fi
-elif [ "$maxnum" -ge "$due" ]; then
-  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."; ci_propose=1
+elif [ -n "$nci_date" ]; then
+  # ISO dates sort lexically, so this needs no date arithmetic.
+  today="$(date +%F)"
+  if [[ "$nci_date" > "$today" ]]; then
+    ci="next on ${nci_date} (today is ${today})."
+  else
+    ci="due — scheduled for ${nci_date}."; ci_propose=1
+  fi
+elif [ -n "$nci" ]; then
+  # A value that is present but unreadable is reported as itself. Nothing validates the line any
+  # more, so this message is the only place a typo surfaces.
+  ci="none scheduled — $DOCS_REL/overview.md's NEXT-CHECK-IN reads \"$nci\", which is neither a STEP number (STEP-45) nor a date (2026-11-15)."; ci_propose=1
 else
-  ci="no Check-in STEP yet — fine (${maxnum} STEP(s) in; first due ~STEP-${due}–${over})."
+  ci="none scheduled — add a NEXT-CHECK-IN line to $DOCS_REL/overview.md: a STEP number (STEP-45) or a date (2026-11-15)."; ci_propose=1
 fi
 
 # --- Output -------------------------------------------------------------------
@@ -335,8 +342,8 @@ if [ -n "$ci_propose" ]; then
   echo
   echo "  Also worth proposing: a Check-in STEP, at the next sensible breakpoint — after a"
   echo "  capability lands, not mid-feature. Advice, not a gate ($DOCS_REL/METHOD.md §10 rule 7): it does"
-  echo "  not replace the action above, and the cadence never blocks work."
+  echo "  not replace the action above, and a scheduled check-in never blocks work."
 fi
 echo
-echo "Check-in cadence:"
+echo "Check-in:"
 echo "  $ci"

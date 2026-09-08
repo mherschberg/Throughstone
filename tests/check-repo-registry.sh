@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for check 11 — scripts/check.sh's repo registry check.
+# Regression coverage for check 10 — scripts/check.sh's repo registry check.
 #
 # Two things are under test, and the second matters as much as the first: what the check
 # reports, and that without --check-in it prints a skipped section and produces no finding. The
@@ -9,7 +9,7 @@
 # exercised --check-in would not notice the check leaking back onto the common path, which is
 # the thing it was moved off.
 #
-# Findings are read out of check 11's own section, WITH their severity marker, so that a finding
+# Findings are read out of check 10's own section, WITH their severity marker, so that a finding
 # from an unrelated check cannot satisfy one of these and a FAIL quietly downgraded to a WARN
 # cannot hide behind some other check's failure. Exit status is necessarily whole-run — that is
 # what a FAIL means — so it is asserted beside the section, never instead of it. A missing
@@ -60,7 +60,7 @@ copy_template() {
 
 # bootstrap NAME LAYOUT LICENSE — generate a project and echo its workspace root. The layout is
 # what this file turns on; the license is varied only so that neither fixture is an all-default
-# configuration, and has nothing to do with check 11.
+# configuration, and has nothing to do with check 10.
 bootstrap() {
   local name="$1" layout="$2" license="$3"
   local work="$TMP_ROOT/$name"
@@ -88,23 +88,23 @@ registry_of() { set -- "$1"/Code/*-docs/registries/repos.yml; printf '%s\n' "$1"
 doctor_of()   { set -- "$1"/Code/*-docs/scripts/check.sh;      printf '%s\n' "$1"; }
 
 # doctor WORK [ARGS...] — run the generated project's doctor. DOC_STATUS is the exit status and
-# DOC_OUT the whole run; SEC is check 11's section alone, which is what the assertions read.
+# DOC_OUT the whole run; SEC is check 10's section alone, which is what the assertions read.
 doctor() {
   local work="$1"; shift
   DOC_OUT="$(bash "$(doctor_of "$work")" "$@" 2>&1)"
   DOC_STATUS=$?
   # The heading names the registry file, and that name now carries the project slug, so the
   # assertions read the section body only: a refutation must not match the path in a heading.
-  SEC="$(printf '%s\n' "$DOC_OUT" | awk '/^11\. Repo registry/ { f = 1; next } f && /^Summary$/ { exit } f')"
+  SEC="$(printf '%s\n' "$DOC_OUT" | awk '/^10\. Repo registry/ { f = 1; next } f && /^Summary$/ { exit } f')"
   case "$DOC_OUT" in
-    *"11. Repo registry"*) ;;
-    *) bad "the doctor printed no check 11 section at all (args: ${*:-none})" ;;
+    *"10. Repo registry"*) ;;
+    *) bad "the doctor printed no check 10 section at all (args: ${*:-none})" ;;
   esac
 }
 
 has()    { case "$SEC" in *"$1"*) return 0 ;; *) return 1 ;; esac; }
-expect() { has "$1" || bad "$2 — expected check 11 to report: $1"; }
-refute() { has "$1" && bad "$2 — check 11 should NOT report: $1"; return 0; }
+expect() { has "$1" || bad "$2 — expected check 10 to report: $1"; }
+refute() { has "$1" && bad "$2 — check 10 should NOT report: $1"; return 0; }
 result() { case "$DOC_OUT" in *"RESULT: $1"*) ;; *) bad "$2 — expected RESULT: $1" ;; esac; }
 
 # clean LABEL — the section reported nothing and the run passed. The guard against an assertion

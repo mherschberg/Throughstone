@@ -18,7 +18,7 @@ doctor.sh — Throughstone project helper dispatcher.
 Usage: ./doctor.sh <command> [args]
 
 Commands:
-  status    Show where the project is, the next action, and check-in cadence.
+  status    Show where the project is, the next action, and when the next check-in is due.
   check     Run the read-only structural project checks.
             Add --check-in for the extra checks the periodic check-in makes.
   links     Check durable docs for stale local Markdown links.

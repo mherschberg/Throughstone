@@ -388,27 +388,26 @@ dedicated final verification substep; choose deliberately in the PLAN. A code-ch
 without tests needs a stated reason, not silence.
 
 ### Check-in STEPs
-About every **N** STEPs (where **N** is the project's check-in cadence — the `CHECK-IN-CADENCE`
-value in `overview.md`, recommended **20**), the roadmap includes a **Check-in STEP** — a full STEP
-whose job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
-**both directions** (stale doc → fix the doc/write an ADR; code drifted from a still-correct
-doc → file a bug), re-evaluate every available conditional architecture session, review the
-accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
-implementation planning session
+Periodically the roadmap includes a **Check-in STEP** — a full STEP whose job is to run
+`runbooks/check-in.md`: reconcile the architecture docs against the code in **both directions**
+(stale doc → fix the doc/write an ADR; code drifted from a still-correct doc → file a bug),
+re-evaluate every available conditional architecture session, review the accepted risks/debt in
+`registries/risks.yml`, and **run the full test suite**. The implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
-capability lands, not mid-feature). **Its index title starts `Check-in`** — a scope may follow
-(`Check-in: phase 1`) — so `scripts/status.sh` can find the last one and measure the cadence
-from it; a row titled anything else is invisible to that clock, exactly as a conditional
-follow-up not titled `Conditional session:` is invisible to the resolver (§4).
-Treat the cadence as a guideline — pick the breakpoint by
-judgment. **The cadence is a per-project setting** (recommended **20**): the target is recorded as
-`<!-- CHECK-IN-CADENCE: N -->` in `overview.md`, and any project can change it at any time — including
-one that pulls this scaffold into an existing codebase and wants a different rhythm. `status.sh` reads
-that value (defaulting to **20** when the line is absent) and flags a heads-up **5 STEPs before** the
-target and overdue **5 after** — so the default 20 gives a heads-up at 15 and overdue at 25. The agent
-should also **proactively suggest** inserting a check-in when about that
-many STEPs have passed since the last one. This is the periodic safety net; it's separate
-from the continuous rule that every substep updates the doc it changes.
+capability lands, not mid-feature). Title its index row `Check-in` — a scope may follow
+(`Check-in: phase 1`) — so the roadmap reads clearly.
+
+**When the next one is due is recorded, not calculated.** `overview.md` carries
+`<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or a date (`2026-11-15`).
+`scripts/status.sh` reports it as due once that point is reached, and keeps saying so until
+someone moves it. Whoever schedules a check-in writes the line — the planning session as it lays
+out a phase, the check-in itself before it closes, or the user at any time. **The user answers in
+whatever terms suit them** (*"in about three STEPs"*, *"after the launch"*, *"remind me in
+November"*); the agent turns that into a STEP number or a date and writes it. A missing or
+unreadable value reads as *none scheduled*, which is the nudge to set one. Nothing validates the
+line and nothing enforces it: it is a plan, moving it is free, and a new project starts on the
+seeded **STEP-20** as a suggestion rather than a rule. This is the periodic safety net; it's
+separate from the continuous rule that every substep updates the doc it changes.
 The completed check-in report is written to `reports/YYYY-MM-DD-step-NNNN-check-in-report.md`;
 the archived STEP folder in `prompts/` keeps the thin PLAN, not the durable report.
 
@@ -686,7 +685,7 @@ to start a fresh chat for it — clearing context between units is the norm, sin
 lives in files (§4, §5).
 
 > **Shortcut:** `./doctor.sh status` runs this resolver mechanically — it prints where you
-> are, the next action, and the check-in cadence straight from the index. It's the mechanism a
+> are, the next action, and when the next check-in is due, straight from disk. It's the mechanism a
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.
 
@@ -700,11 +699,11 @@ Quick resolver:
 | Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
 | Planned implementation STEPs exist and none in progress | Plan the lowest-numbered planned STEP, then wait for approval |
 | A STEP is in progress | Open its PLAN, identify the lowest open substep, and wait for an explicit substep command |
-| Check-in cadence is due | Propose a Check-in STEP — *alongside* the answer above, never instead of it |
+| The scheduled check-in has been reached, or none is scheduled | Propose a Check-in STEP — *alongside* the answer above, never instead of it |
 | Phase is complete | Do milestone doc review, then plan the next phase |
 
 Resolve the next action top-down against the index — the first rule that matches wins. **Rule 7
-is the one exception**: the check-in cadence is *advice*, reported alongside the next action and
+is the one exception**: the scheduled check-in is *advice*, reported alongside the next action and
 never in place of it. It never blocks work, and no rule below it is skipped because a check-in is
 due.
 
@@ -744,14 +743,14 @@ due.
    then archive it (§5) and mark it `Done`. **A Check-in STEP is the exception**: its two substeps
    are fixed and `runbooks/check-in.md` is their prompt, so *"run the check-in"* runs both, end to
    end. Nothing else is invoked whole.
-7. **About N STEPs since the last check-in, where N is the project's check-in cadence (the
-   `CHECK-IN-CADENCE` value in `overview.md`, recommended 20)?** → **propose** a **Check-in
-   STEP** at the next sensible breakpoint (§5; `runbooks/check-in.md`) — and then go on with
-   whatever the rules above answered. **This rule never becomes the next action**, and it is
-   deliberately not a gate: the check-in belongs at a breakpoint, and a rule that fired the
-   moment you went overdue would fire mid-feature, which is the one place §5 says not to put it.
-   The user decides whether to take the proposal. `scripts/status.sh` prints it this way — the
-   cadence line advises, the next action is whatever rules 1-6 or 8 produced.
+7. **The scheduled check-in reached, or none scheduled at all (§5 — the `NEXT-CHECK-IN` line
+   in `overview.md`)?** → **propose** a **Check-in STEP** at the next sensible breakpoint
+   (§5; `runbooks/check-in.md`) — and then go on with whatever the rules above answered. **This
+   rule never becomes the next action**, and it is deliberately not a gate: the check-in belongs
+   at a breakpoint, and a rule that fired the moment the date passed would fire mid-feature,
+   which is the one place §5 says not to put it. The user decides whether to take the proposal,
+   and either takes it or moves the line. `scripts/status.sh` prints it this way — the check-in
+   line advises, the next action is whatever rules 1-6 or 8 produced.
 8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
    notes** (use `templates/release-notes-template.md` if yes) and **any user-facing doc updates** (§5,
    *Milestone doc review*), then open the next phase and re-run the planning session for it.

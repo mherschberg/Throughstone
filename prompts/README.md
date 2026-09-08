@@ -57,15 +57,15 @@ PLANs, no substep prompts. From then on you build the STEPs one at a time, autho
 STEP's PLAN + substep prompts with the recipe below **when you start that STEP**. Starting a
 STEP means planning it, then stopping for approval before any substep runs.
 
-The outline also interleaves a **Check-in STEP** at the project's cadence — titled `Check-in`
-in the index (a scope may follow, e.g. `Check-in: phase 1`) so the cadence helper can find it,
-the same way a conditional follow-up is titled `Conditional session: <topic>` — a full STEP that runs
+The outline also interleaves **Check-in STEPs** — asked for, not calculated: the planning
+session asks where they belong and records the first one in `Code/{{PROJECT}}-docs/overview.md`'s
+`<!-- NEXT-CHECK-IN: … -->` line. Each is titled `Check-in` in the index (a scope may follow,
+e.g. `Check-in: phase 1`) and is a full STEP that runs
 `Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
 conditional-session coverage, review accepted risks/debt in
 `Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). Its completed
 report is written under `Code/{{PROJECT}}-docs/reports/`; the archived STEP folder here keeps
-the thin PLAN. The agent suggests one at a sensible breakpoint if it's been about that long
-since the last (see `METHOD.md` §5).
+the thin PLAN. The agent proposes one when the scheduled point is reached (see `METHOD.md` §5).
 
 ## When not to add a STEP
 

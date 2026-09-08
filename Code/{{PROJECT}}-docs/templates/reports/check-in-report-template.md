@@ -57,5 +57,5 @@
 
 ## Summary
 
-{{Brief statement of project health, material changes made during the check-in, and when the
-next check-in should be considered.}}
+{{Brief statement of project health, material changes made during the check-in, and the STEP or
+date written into overview.md's NEXT-CHECK-IN line for the next one.}}

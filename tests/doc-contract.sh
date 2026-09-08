@@ -189,73 +189,45 @@ for f in "$AGENTS" "$BOOT"; do
   contains "$f" "kickoff-complete" || fail "$(basename "$f") no longer names 'kickoff-complete', the value the kickoff writes over $gate_name; if the two documents disagree the gate is flipped to something AGENTS.md does not recognize"
 done
 
-# --- 5. The check-in cadence numbers ------------------------------------------
-# METHOD.md §5 states the cadence window in words and in numbers. status.sh computes it. The
-# sentence has to be arithmetically true of the script, or an operator reads one window and the
-# helper prints another.
-cad_default="$(sed -n 's/^cadence=\([0-9][0-9]*\).*/\1/p' "$STATUS_SH" | head -1)"
-cad_before="$(sed -n 's/^due=.*cadence - \([0-9][0-9]*\).*/\1/p' "$STATUS_SH" | head -1)"
-cad_after="$(sed -n 's/^over=.*cadence + \([0-9][0-9]*\).*/\1/p' "$STATUS_SH" | head -1)"
-[ -n "$cad_default" ] && [ -n "$cad_before" ] && [ -n "$cad_after" ] \
-  || fail "could not read the cadence default and window offsets out of status.sh"
-cad_sentence="so the default $cad_default gives a heads-up at $((cad_default - cad_before)) and overdue at $((cad_default + cad_after))"
-contains "$METHOD" "$cad_sentence" || fail "METHOD.md §5 no longer states the window status.sh computes; from status.sh the sentence must read \"$cad_sentence\""
-
-# The cadence marker itself: the seeded overview must carry a value status.sh's own extraction
-# regex can read, or the project silently falls back to the default it thinks it overrode.
-cad_re="$(awk -F"'" '/grep -oE .CHECK-IN-CADENCE/ { print $2 }' "$STATUS_SH")"
-[ -n "$cad_re" ] || fail "could not read status.sh's CHECK-IN-CADENCE pattern"
-cad_line="$(grep -F 'CHECK-IN-CADENCE:' "$OVERVIEW_TPL" | head -1 || true)"
-[ -n "$cad_line" ] || fail "templates/overview-template.md no longer seeds a CHECK-IN-CADENCE marker"
-printf '%s\n' "$cad_line" | grep -qE "$cad_re" || fail "the CHECK-IN-CADENCE marker seeded in templates/overview-template.md is not one status.sh can read: $cad_line"
-
-# The cadence is a per-project setting, and five documents tell an author how often to run a
-# check-in. Each must point at the setting rather than restate a number: a project that changes
-# its cadence is otherwise told one figure by status.sh and another by every document its agent
-# plans from, and nothing else detects the disagreement. These files carried a bare 20 (and, in
-# ARTIFACT-TRAIL.md, a bare "10-20") until the wording was fixed; no other check covers them.
+# --- 5. The scheduled-check-in marker -----------------------------------------
+# overview.md's NEXT-CHECK-IN line is the only record of when a check-in is due, and nothing
+# validates it at runtime: status.sh reads what it recognises and treats everything else as
+# "none scheduled". Two things therefore have to hold in the documents.
 #
-# The second assertion pins the literal that actually drifted rather than every possible number,
-# because METHOD.md legitimately says "heads-up 5 STEPs before" in the sentence checked above.
-# It earns its place: reverting METHOD.md's wording leaves CHECK-IN-CADENCE in the section body,
-# so the first assertion alone passes on a file that has regressed. It flattens '>' as well as
-# whitespace because check-in.md's phrase straddles a line break inside a blockquote; today the
-# marker falls before the number so plain whitespace flattening would also match, but where the
-# line wraps is not a property anyone maintains.
-for f in "$METHOD" "$AGENTS" "$CHECKIN" "$DOCS/templates/planning-session.md" "$ROOT/ARTIFACT-TRAIL.md"; do
+# First, the template a new project's overview.md is copied from must seed a value status.sh
+# actually recognises, or every project reads as "none scheduled" from its first run.
+nci_line="$(grep -F 'NEXT-CHECK-IN:' "$OVERVIEW_TPL" | head -1 || true)"
+[ -n "$nci_line" ] || fail "templates/overview-template.md no longer seeds a NEXT-CHECK-IN marker"
+nci_val="$(printf '%s\n' "$nci_line" | sed -n 's/.*NEXT-CHECK-IN:[[:space:]]*\(.*\)/\1/p' | sed 's/-->.*//; s/[[:space:]]*$//')"
+# The accepted shapes are read out of status.sh rather than restated here, so this cannot pass on
+# a template the script has stopped recognising.
+nci_re_step="$(awk -F"'" '/^nci_step=/ { print $4 }' "$STATUS_SH")"
+nci_re_date="$(awk -F"'" '/^nci_date=/ { print $4 }' "$STATUS_SH")"
+[ -n "$nci_re_step" ] && [ -n "$nci_re_date" ] || fail "could not read status.sh's NEXT-CHECK-IN patterns"
+printf '%s\n' "$nci_val" | grep -qE "$nci_re_step|$nci_re_date" \
+  || fail "templates/overview-template.md seeds a NEXT-CHECK-IN value status.sh does not recognise (\"$nci_val\"); a project created from it would read as having no check-in scheduled"
+
+# Second, the line is written by agents following prose, so every document that tells someone to
+# schedule a check-in has to name it. If they stop, nothing writes the line and nothing reports it
+# missing — the project just quietly never has one scheduled again.
+for f in "$METHOD" "$AGENTS" "$CHECKIN" "$DOCS/templates/planning-session.md"; do
   rel="${f#"$ROOT/"}"
-  [ -f "$f" ] || fail "$rel is missing; the check-in cadence wording cannot be checked"
-  contains "$f" 'CHECK-IN-CADENCE' \
-    || fail "$rel tells an author how often to run a check-in without naming the CHECK-IN-CADENCE setting, so a project that changed its cadence would be told a different number here than status.sh reports"
-  case "$(tr -s ' \t\n>' ' ' < "$f")" in
-    *"20 STEPs"*) fail "$rel states the cadence as a bare \"20 STEPs\" instead of pointing at the CHECK-IN-CADENCE setting" ;;
-  esac
+  [ -f "$f" ] || fail "$rel is missing; the scheduled-check-in wording cannot be checked"
+  contains "$f" 'NEXT-CHECK-IN' \
+    || fail "$rel tells an author about check-ins without naming the NEXT-CHECK-IN line that records when the next one is due"
 done
 
-# --- 6. Index-row titles the resolver keys on ---------------------------------
-# Two next-action behaviours are triggered by how a human titles a row in prompts/STEP-index.md:
-# status.sh measures the check-in cadence from the last Done STEP whose Title begins "Check-in",
-# and prioritizes a follow-up whose Title begins "Conditional session:". Both are anchored
-# regexes. Every document that tells an author how to title the row must give a title those
-# regexes actually match — the documents are the only specification an author ever sees.
-ci_re="$(awk -F"'" '/grep -qiE/ && /check-in/ { print $4 }' "$STATUS_SH" | head -1)"
+# --- 6. The index-row title the resolver keys on ------------------------------
+# One next-action behaviour is triggered by how a human titles a row in prompts/STEP-index.md:
+# status.sh prioritizes a follow-up whose Title begins "Conditional session:". It is an anchored
+# regex, and every document that tells an author how to title the row must give a title it
+# actually matches — the documents are the only specification an author ever sees.
 cond_re="$(awk -F"'" '/grep -qiE/ && /conditional session:/ { print $4 }' "$STATUS_SH" | head -1)"
-[ -n "$ci_re" ] && [ -n "$cond_re" ] || fail "could not read status.sh's Title-matching patterns"
+[ -n "$cond_re" ] || fail "could not read status.sh's Title-matching pattern"
 
-CI_TITLE='Check-in: phase 1'          # the example METHOD.md §5 and check-in.md both print
 COND_TITLE='Conditional session: '    # the prefix check-in.md tells the author to use
-printf '%s\n' "$CI_TITLE" | grep -qiE "$ci_re" || fail "the check-in row title the documents give as an example (\"$CI_TITLE\") does not match status.sh's cadence pattern, so a project following them would have no measurable check-in"
 printf '%s\n' "${COND_TITLE}identity-auth" | grep -qiE "$cond_re" || fail "the conditional follow-up title the documents prescribe (\"$COND_TITLE…\") does not match status.sh's pattern, so such a STEP would never be prioritized"
-# The anchor is the whole point of the check-in pattern: check-in.md's own Carry-forward step
-# produces rows *named after* the check-in that found them, and an unanchored match read those
-# as check-ins and reset the clock. Keep a title that merely mentions one from matching.
-if printf '%s\n' 'Bug found by the check-in' | grep -qiE "$ci_re"; then
-  fail "status.sh's check-in Title pattern is no longer anchored — a STEP merely named after a check-in now resets the cadence clock"
-fi
 
-for f in "$METHOD" "$CHECKIN" "$DOCS/templates/planning-session.md" "$ROOT/prompts/README.md"; do
-  contains "$f" "$CI_TITLE" || fail "${f#$ROOT/} no longer shows '$CI_TITLE' as the check-in row title; it is one of the documents an author writes that row from"
-done
 for f in "$METHOD" "$CHECKIN" "$AGENTS"; do
   contains "$f" "$COND_TITLE" || fail "${f#$ROOT/} no longer names the '$COND_TITLE<topic>' row title the next-action resolver prioritizes on"
 done

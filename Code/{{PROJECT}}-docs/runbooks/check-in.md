@@ -1,15 +1,14 @@
 # Runbook — Periodic Check-In
 
-> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). About every **N**
-> STEPs — where **N** is the project's check-in cadence, the `CHECK-IN-CADENCE` value in
-> `overview.md`, recommended **20** — the roadmap should include a *Check-in STEP* whose job is to run this
-> runbook — the agent proposes one at a sensible breakpoint (e.g. after a capability lands,
+> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). The roadmap should
+> include a *Check-in STEP* whenever the `<!-- NEXT-CHECK-IN: … -->` line in `overview.md` comes
+> up — the agent proposes one at a sensible breakpoint (e.g. after a capability lands,
 > not mid-feature). When you run that STEP, tell the agent *"run the check-in"* and it
 > follows this file **end to end** — both substeps, in one go. That is a **deliberate exception**
 > to `METHOD.md` §10's rule that an in-progress STEP runs only the substep you ask for by name:
 > the two substeps here are fixed, this runbook is their prompt, and there is nothing to approve
 > between them. **Title its index row `Check-in`** (a scope may follow, e.g.
-> `Check-in: phase 1`) so the cadence helper can find it — see `METHOD.md` §5.
+> `Check-in: phase 1`) so the roadmap reads clearly.
 >
 > **Its PLAN is thin and it has exactly two substeps** — you don't author substep prompts for
 > it (like the architecture STEP, it's a special case of the recipe in `prompts/README.md`).
@@ -280,4 +279,12 @@ Write a short **check-in report** under `reports/` in the docs hub. Use
 Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
 follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
 `adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
-STEP. Note when the next check-in is due (at the project's cadence).
+STEP.
+
+**Last, schedule the next one.** Ask the user when it should be. They answer in their own terms
+(*"in about 20 STEPs"*, *"after we launch"*, *"February"*); turn that into a STEP number or a
+date and write it into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is
+there. Nothing else records it, so a check-in that closes without an answer leaves the **old**
+line in place and `./doctor.sh status` goes on reporting a check-in due — the one you just ran.
+That is a nudge, not a gate, and it is not a reason to invent a date: leave the line alone and
+tell the user it is still waiting on them.

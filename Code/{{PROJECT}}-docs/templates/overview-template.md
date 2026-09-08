@@ -6,11 +6,11 @@
      reads "not-started", opening this project in an AI agent starts the kickoff interview
      automatically; once "kickoff-complete", agents resume from prompts/STEP-index.md instead. -->
 
-<!-- CHECK-IN-CADENCE: 20 -->
-<!-- ^ Check-in cadence (optional): aim for a Check-in STEP about every this-many STEPs. 20 is the
-     recommended default — edit it for a tighter (e.g. 15) or looser (e.g. 50) rhythm, or delete the
-     line to accept 20. It stays a judgment-based guideline. See METHOD.md §5 for how status.sh uses
-     it (a heads-up 5 STEPs before the target, overdue 5 after). -->
+<!-- NEXT-CHECK-IN: STEP-20 -->
+<!-- ^ When the next Check-in STEP is due: a STEP number (STEP-45) or a date (2026-11-15).
+     Whoever schedules a check-in writes it here, and each check-in sets the next one before it
+     closes. `status.sh` reports it as due once it is reached, and keeps saying so until you move
+     it. Move it whenever you like — it is a plan, not a rule. See METHOD.md §5. -->
 
 > This is the template for your project brief. `init.sh` creates
 > `Code/{{PROJECT}}-docs/overview.md` from it — **open that copy and fill it in** (1–2

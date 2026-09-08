@@ -157,15 +157,19 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    from what's built and plan the STEPs that **extend** it, rather than re-scaffolding or
    rebuilding what's already there. Adjust to the actual project. Each STEP gets a
    global STEP number (continuing from STEP-1).
-4. **Interleave check-in STEPs.** About every **N** STEPs (where **N** is the project's check-in
-   cadence — the `CHECK-IN-CADENCE` value in `overview.md`, recommended **20**), add a **Check-in STEP**
-   that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
-   accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
-   capability lands, not mid-feature — rather than mechanically on a fixed count. Title each
-   row `Check-in` (a scope may follow, e.g. `Check-in: phase 1`) so the cadence helper can find
-   it — `METHOD.md` §5. For a
-   target phase with only a handful of STEPs, one check-in near the end (or none) is fine; use
-   judgment.
+4. **Interleave check-in STEPs.** Ask the user directly, with the STEP list in front of them:
+   *"after which of these should we stop and do a health check?"* Recommend one about every
+   20 STEPs if they have no view, and place each at a sensible breakpoint — after a capability
+   lands, not mid-feature — rather than mechanically on a count. A check-in STEP runs
+   `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage, accepted-risk
+   review, and a full test run). Title each row `Check-in` (a scope may follow, e.g.
+   `Check-in: phase 1`). For a target phase with only a handful of STEPs, one check-in near the
+   end (or none) is fine; use judgment.
+
+   **Then write the first one into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line** — the STEP
+   number you just placed it at. That line is the only record of when a check-in is due
+   (`METHOD.md` §5). It matters most on a **re-run**: a line still naming a check-in the project
+   has already worked past reads as due on every run until someone moves it.
 5. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
    what it delivers and how it depends on the others. Roughly **2–3 sentences each** — a
    guideline, not a rule. Don't write the detailed plan, the substeps, or the definition of
