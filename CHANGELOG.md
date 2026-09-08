@@ -18,6 +18,28 @@ any project built with it.
 > remains v1.7.1.
 
 ### Added
+- **Five process failure guards against phantom closes, stranded trunks, and unverified work.**
+  Scaffold templates, runbooks, and method documentation now enforce five durable process disciplines
+  earned from field failure modes:
+  - **Guard ① (Honesty gate):** A STEP or substep cannot close as `Done` if any required deliverable
+    or test is recorded as `Unverified`; row status must derive from the latest findings and inherit
+    the evidence verdict (`templates/step-plan-template.md`, `templates/substep-prompt-template.md`,
+    `templates/step-index-seed.md`, `METHOD.md` §1, §5).
+  - **Guard ② (Phantom-close detection):** Claimed branches, commits, and cited artifacts must be
+    verified against disk before a STEP or substep is marked `Done` (`templates/step-plan-template.md`,
+    `METHOD.md` §5, §10).
+  - **Guard ③ (Runtime pre-flight substep):** STEPs executing against an active runtime (E2E, staging,
+    device/emulator, deployment) must reserve substep 0 as a pre-flight to prove credentials (by
+    placeholder name) and host toolchain readiness before authoring functional journeys
+    (`templates/planning-session.md`, `templates/substep-prompt-template.md`, `METHOD.md` §5).
+  - **Guard ④ (Commit-per-substep discipline):** Executors must commit each completed substep's
+    deliverables immediately on the STEP branch instead of accumulating uncommitted work across repos
+    that strands the shared trunk (`runbooks/collaboration.md` §1, §8, `templates/substep-prompt-template.md`,
+    `prompts/README.md`).
+  - **Guard ⑤ (Stranded-trunk recovery recipe):** A structured recovery procedure for safely reconciling,
+    committing, merging, and switching when a dirty `STEP-index.md` on a STEP branch blocks `git switch main`
+    and halts reservation on the shared trunk (`runbooks/collaboration.md` §2, `prompts/README.md`).
+
 - **A runbook for splitting a repository** — `runbooks/splitting-repos.md`. The method used to say
   splitting was "standard git," which is not something you can act on: the recipe you find
   elsewhere makes the extracted repo *new*, with its history rewritten by `git filter-repo`, a
