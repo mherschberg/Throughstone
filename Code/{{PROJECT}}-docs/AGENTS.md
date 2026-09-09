@@ -156,9 +156,9 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
   explaining a decision, read root `.throughstone/local-user.md` and use its recorded
   **Experience level** (how much technical background you can assume) and **Communication style**
   (how much reasoning comes with a decision) as the communication baseline. This file
-  is personal local state; don't duplicate its values into STEP plans or prompts. If it is
-  missing, ask the two local-profile questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create it,
-  and continue. An explicit chat instruction overrides the profile for the current
+  is personal local state; don't duplicate its values into STEP plans or prompts. If the file is
+  missing or either value isn't one of the listed answers, ask the two local-profile questions
+  from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, write it, and continue. An explicit chat instruction overrides the profile for the current
   session only; edit `.throughstone/local-user.md` to change future defaults.
 - **Use judgment before creating a STEP.** For tiny, well-understood changes that do not affect
   architecture, public contracts, data model, security posture, deployment behavior, multiple

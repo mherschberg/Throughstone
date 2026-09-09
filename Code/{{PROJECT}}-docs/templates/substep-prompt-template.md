@@ -18,8 +18,9 @@
        - root .throughstone/local-user.md — experience level (how much technical
                                       background you can assume) and communication style
                                       (how much reasoning comes with a decision); if
-                                      missing, ask the two local-profile questions from
-                                      `BOOTSTRAP-PROMPT.md` Stage 0, create it, and
+                                      missing, or either value isn't one of the listed
+                                      answers, ask the two local-profile questions from
+                                      `BOOTSTRAP-PROMPT.md` Stage 0, write it, and
                                       calibrate to both
        - overview.md                — project brief
        - inputs/                    — point-in-time specs & prior docs you provided (e.g. a

@@ -8,7 +8,8 @@
 > `templates/architecture-sessions/conditional-*.md`, plus the STEP-1 PLAN and
 > `prompts/STEP-index.md`. **Experience level** sets how much technical background you can
 > assume, **Communication style** how much reasoning comes with a decision; calibrate your
-> findings and any question you surface to both. If the local profile is missing, ask the two local-profile
+> findings and any question you surface to both. If the file is missing or either value isn't
+> one of the listed answers, ask the two local-profile
 > questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue.
 
 ## About {{PROJECT}}
@@ -144,7 +145,8 @@ implementation STEPs. See the next-action resolver (`METHOD.md` §10).
 is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't
 recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, all the
 STEP-1 architecture docs and ADRs, every `conditional-*.md` template, the STEP-1 PLAN, and
-`prompts/STEP-index.md` silently. If the profile is missing, ask the two local-profile
+`prompts/STEP-index.md` silently. If the profile is missing or either value isn't one of the
+listed answers, ask the two local-profile
 questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Run the
 conditional-session gate before the rest of the review. Then, in this one reply: **(1)** tell
 the user — in the one or two sentences from **What this session does** above — what you're

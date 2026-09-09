@@ -61,7 +61,8 @@ Create or update root `.throughstone/local-user.md` with those two answers under
 state**, not a project fact and not something to commit; each additional contributor creates
 their own copy during onboarding. The user can edit it later or override it in chat for a
 single session. Override precedence is: explicit chat instruction for this session, then
-`.throughstone/local-user.md`, then ask and create the missing profile.
+`.throughstone/local-user.md`, then ask and write the profile. Treat a file whose values are
+missing or not among the listed answers exactly as you would a missing one.
 
 Use this shape:
 

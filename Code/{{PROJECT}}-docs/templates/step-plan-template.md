@@ -91,8 +91,9 @@
      what 'done' means for a substep, review gates. -->
 - **Calibrate communication from root `.throughstone/local-user.md`.** Substep prompts and
   STEP planning read both values: **Experience level** sets how much technical background
-  you can assume, **Communication style** sets how much reasoning comes with a decision. If the file is missing, ask the two local-profile questions from
-  `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. An explicit chat instruction
+  you can assume, **Communication style** sets how much reasoning comes with a decision. If the
+  file is missing or either value isn't one of the listed answers, ask the two local-profile
+  questions from `BOOTSTRAP-PROMPT.md` Stage 0, write it, and continue. An explicit chat instruction
   overrides the profile for this session only. Don't copy either value into this PLAN.
 - **Plan interactively.** Before this PLAN is finalized, confirm scope with the user and ask
   clarifying questions for ambiguous requirements, sequencing, dependencies, ownership, or

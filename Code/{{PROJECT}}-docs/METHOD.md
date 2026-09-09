@@ -278,9 +278,9 @@ explaining changes.
 
 At any agent entry point — kickoff, resume, an architecture session, the planning session,
 STEP planning, substep execution, or contributor onboarding — if root
-`.throughstone/local-user.md` is missing, or either value is missing or not one of the listed
-answers, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write the
-file, and then continue. If the user gives an explicit instruction in chat,
+`.throughstone/local-user.md` is missing or either value isn't one of the listed answers, ask
+the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write the file, and then
+continue. If the user gives an explicit instruction in chat,
 honor it for the current session; otherwise use `.throughstone/local-user.md`. To change the
 default for future sessions, edit that file.
 
@@ -334,7 +334,7 @@ going. A chat instruction changes it for the session; only the user edits the st
 Read **both** values at every entry point listed above, and treat them as saved defaults so
 the user is not asked the same question repeatedly. Override precedence is:
 **explicit chat instruction for this session** → **`.throughstone/local-user.md` default** →
-**ask and create the missing profile**.
+**ask, and write the profile**.
 
 **Worked examples** — all of these are illustrations, not text to reuse. Each set renders the
 *same* canonical question against one dial: the ask, the recommendation and the reasoning stay
