@@ -131,18 +131,20 @@ any project built with it.
   effect was that a saved communication style had no defined behaviour anywhere — no document said
   what Terse, Normal or Explanatory makes an agent do — while the level silently decided verbosity
   on its own, so "level 3 plus Explanatory", an expert who wants the reasoning spelled out, was
-  unrepresentable. The two now have one job each and say so in the same words everywhere: the
-  **experience level** sets how technical the vocabulary can be, the **communication style** sets
-  how much you explain why a decision matters, and they are independent — in the same words in
-  every instruction an agent reads. Each of the three values
-  on both dials is defined, `METHOD.md` §4 carries a worked example of one question moved along
-  each dial in turn, and every site that already told an agent to read the style now says what
-  reading it should change. Two behaviours that were riding on the level are lifted out of it:
+  unrepresentable. The two now have one job each, in the same words in every instruction an agent
+  reads: the **experience level** sets how much technical background you can assume — which terms,
+  concepts and options need explaining — and the **communication style** sets how much you explain
+  why a decision matters. Each of the three values on both dials is defined, and every site that
+  already told an agent to read the style now says what reading it should change. `METHOD.md` §4's
+  worked examples were rebuilt so that each set asks the *same* question with the *same*
+  recommendation and moves only the one dial it names; two of them used to change the decision
+  itself between levels, which taught the coupling the section says it removes. Two behaviours that were riding on the level are lifted out of it:
   leading with a recommended default no longer depends on the level, and a request to clarify is
   answered in kind, so asking "why does that matter?" gets more reasoning rather than a drop into
   beginner vocabulary. **If you have a saved profile, this changes what your sessions sound
-  like**: level 3 used to mean terse on its own, so the setting that reproduces what you had is
-  level 3 plus Terse.
+  like**. Level 3 used to force terseness, so level 3 plus Terse is what reproduces it; Levels 1-2
+  used to force a why-explanation, so pick at least Normal to keep that. Because the communication
+  style had no defined behaviour before, other old combinations have no exact equivalent.
 - **Onboarding asks the local-profile questions instead of restating them.** `ONBOARDING.md` §3
   carried its own copy of both questions and a byte-identical duplicate of the profile file's
   shape, even though `BOOTSTRAP-PROMPT.md` Stage 0 is the declared owner of both and twenty-four

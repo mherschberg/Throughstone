@@ -263,8 +263,8 @@ The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the active user two questions 
 answers in root `.throughstone/local-user.md`. Stage 0 owns the question wording, the answer
 labels and the file shape. The answers set two **independent** dials:
 
-- **Experience level** — **1**, **2**, or **3**. This governs **how technical your vocabulary
-  can be**, and nothing else.
+- **Experience level** — **1**, **2**, or **3**. This governs **how much technical background
+  you can assume** — which terms, concepts and options need explaining — and nothing else.
 - **Communication style** — **Terse**, **Normal**, or **Explanatory**. This governs **how much
   you explain why a decision matters** to the project, and nothing else.
 
@@ -278,12 +278,13 @@ explaining changes.
 
 At any agent entry point — kickoff, resume, an architecture session, the planning session,
 STEP planning, substep execution, or contributor onboarding — if root
-`.throughstone/local-user.md` is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0,
-create the file, and then continue. If the user gives an explicit instruction in chat,
+`.throughstone/local-user.md` is missing, or either value is missing or not one of the listed
+answers, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write the
+file, and then continue. If the user gives an explicit instruction in chat,
 honor it for the current session; otherwise use `.throughstone/local-user.md`. To change the
 default for future sessions, edit that file.
 
-**Experience level — the vocabulary you may use:**
+**Experience level — the background you may assume:**
 
 - **Level 1** — don't assume the concept itself. Name it in non-technical terms, and frame the
   options the same way. Concepts like scaling, security, threat model, infrastructure and
@@ -291,9 +292,12 @@ default for future sessions, edit that file.
   also say why the choice matters is the style dial, not this one.
 - **Level 2** — the concept is known; the options may not be. Use the real terms and gloss each
   *option* in a clause the first time.
-- **Level 3** — assume fluency. Use the real terms bare.
+- **Level 3** — assume fluency. Use the real terms bare and don't re-explain the mechanics.
 
-> *Caching, at each level, style held at Terse:* **L1** — "caching: keeping a copy of an answer so the app doesn't work it out again every time. Save the copy as you write it, save it in the background, or skip it on writes? I'd save as you write"; **L2** — "write-through, write-behind, or write-around — write to the store as you cache, queue the store, or skip the cache on writes? I'd take write-through"; **L3** — "write-through, write-behind, write-around? I'd take write-through"
+The level is a default, not a fact about the person: someone fluent in one area can be new to
+another. When a user is plainly out of their depth on one topic, explain that one and carry on.
+
+> *For example* — one caching question at each level, style held at Terse. Same ask, same recommendation; only the assumed background moves. **L1:** "Caching means keeping a copy of an answer so the app doesn't work it out again every time. I'd save the copy as you write. That, save it in the background, or skip it on writes?" **L2:** "Caching — I'd take write-through. Write-through (store and cache together), write-behind (queue the store), or write-around (skip the cache on writes)?" **L3:** "Caching — I'd take write-through. Write-through, write-behind, or write-around?"
 
 **Communication style — how much of the reasoning comes with it:**
 
@@ -316,7 +320,8 @@ the profile (or at the first session), tell the user in plain terms that they ca
 explain any question at any time; don't make them discover the affordance.
 
 The level is advisory, not a gate: if the conversation shows the user is more or less fluent
-than they marked, adjust on the fly and correct the value in `.throughstone/local-user.md`. The
+than they marked, adjust on the fly. If the mismatch holds across topics rather than one
+unfamiliar area, ask whether they want the stored value changed — don't rewrite it silently. The
 style is a stated preference, not an inference: never adjust it from how the conversation is
 going. A chat instruction changes it for the session; only the user edits the stored value.
 
@@ -325,31 +330,32 @@ the user is not asked the same question repeatedly. Override precedence is:
 **explicit chat instruction for this session** → **`.throughstone/local-user.md` default** →
 **ask and create the missing profile**.
 
-**Worked examples** — the *same* canonical question, rendered against each dial in turn. The
-substance is identical; only the framing changes. The first three sets hold the style at
-**Normal** and move the level, so the vocabulary axis shows on its own: Level 1 names the
-concept in non-technical terms, Level 2 keeps the real term and glosses each option inline,
-Level 3 uses it bare. The last set holds the level at **3** and moves the style instead.
+**Worked examples** — all of these are illustrations, not text to reuse. Each set renders the
+*same* canonical question against one dial: the ask, the recommendation and the reasoning stay
+put, and only the named thing moves. The first three hold the style at **Normal** and move the
+level, so the background axis shows on its own: Level 1 names the concept in non-technical
+terms, Level 2 keeps the real term and glosses each option inline, Level 3 uses it bare. The
+last set holds the level at **3** and moves the style instead.
 
 > *Non-goals (Session 1.1):*
-> - **L1:** "Now the most important — and strangest — question: what are you deliberately **not** building, at least for now? Naming what you skip is the #1 thing that stops a project ballooning forever and never shipping. Two buckets: 'not yet' (good for later) and 'never' (just not what this is). One feature you'd firmly set aside for v1?"
-> - **L2:** "Let's pin down non-goals — what you're deliberately leaving out, since that's what stops scope creep. Split 'not now' (deferred) vs. 'not ever' (out of scope by design). What's on each list?"
-> - **L3:** "Non-goals — split 'not now' vs. 'not ever'; this is the lever that stops scope creep later. What are you explicitly excluding from v1?"
+> - **L1:** "Now the strangest question: what are you deliberately **not** building, at least for now? Naming what you skip is what stops a project growing forever and never shipping. Two lists — 'not yet' (good idea, later) and 'never' (just not what this is). What goes on each?"
+> - **L2:** "Non-goals — what you're deliberately leaving out, since that's what stops scope creep. Split 'not now' (deferred) from 'not ever' (out of scope by design). What's on each list?"
+> - **L3:** "Non-goals — 'not now' vs. 'not ever'; it's the lever against scope creep. What's on each list?"
 
 > *Threat model (Session 1.6):*
-> - **L1:** "Now security. The common mistake is 'we're too small for anyone to attack us' — but most attacks are automated bots probing *everything*, not personal. So: if someone broke in, what would hurt most — leaking users' info, tampering with data, or the site going down? You don't need to know how to defend it, just what matters most."
-> - **L2:** "A lightweight threat model. Skip the 'too small to be a target' instinct — anything public gets probed automatically. Name the assets worth protecting and the top threats: what would do the most damage if it leaked, got tampered with, or went down?"
-> - **L3:** "Threat model — anything public gets probed automatically, so this is worth pinning before infrastructure. Assets, trust boundaries, threats you actually care about: crown-jewel data, and your stance on authn/authz, secrets, tenant isolation?"
+> - **L1:** "Now security. The common mistake is 'we're too small for anyone to attack us' — but most attacks are automated bots probing *everything*, not someone choosing you. So: which of the things you're storing would hurt most if they leaked, got changed, or went offline? You don't need to know how to defend them, just which ones matter."
+> - **L2:** "A lightweight threat model. Skip the 'too small to be a target' instinct — anything public gets probed automatically. Which assets are worth protecting, and what would do the most damage if it leaked, got tampered with, or went down?"
+> - **L3:** "Threat model — anything public gets probed automatically, so it's worth pinning before infrastructure. Which assets are worth protecting, and which threats do you actually care about: disclosure, tampering, availability?"
 
 > *Observability (Session 1.10):*
-> - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is angry users — and even then you can't tell why. The fix is leaving yourself a trail of breadcrumbs to answer 'what happened?'. For v1 I'd suggest just good logs plus an alert if the site goes down. Enough to start?"
-> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' Logs (what happened), metrics (is it healthy), alerts (tell me when it's not). For a first release I'd default to structured logs + an error/uptime alert and add dashboards later. Start there?"
-> - **L3:** "Observability — the failure mode is finding out from users and not being able to say why. Logs/metrics/traces and alerting; SLOs now or later? I'd default to structured logging + error tracking + an uptime alert for a first release and defer tracing/SLOs unless you're latency-sensitive."
+> - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is annoyed users — and even then you can't tell why. For a first release I'd suggest good logs plus an alert when the site goes down. Enough to start, or do you want more?"
+> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' For a first release I'd default to structured logs plus an error and uptime alert, and add dashboards later. Start there, or do you want more?"
+> - **L3:** "Observability — the failure mode is finding out from users and not being able to say why. I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
 
 > *Caching (Session 1.5) — level held at 3, style moved:*
-> - **Terse:** "Caching — write-through, write-behind, write-around? I'd take write-through."
-> - **Normal:** "Caching strategy — worth pinning now, since reads dominate writes here and the write policy is what sets your staleness window. Write-through, write-behind, write-around? I'd default to write-through."
-> - **Explanatory:** "Caching strategy. Reads dominate writes here, so the cache sits on the hot path and the write policy decides both your staleness window and your failure mode. Write-through costs write latency but keeps the store authoritative; write-behind hides that latency and buys a window where a crash loses acknowledged writes. Write-through, write-behind, write-around? I'd default to write-through."
+> - **Terse:** "Caching — I'd take write-through. Write-through, write-behind, or write-around?"
+> - **Normal:** "Caching — I'd take write-through, since reads dominate writes here and correctness matters more to you than write latency. Write-through, write-behind, or write-around?"
+> - **Explanatory:** "Caching — I'd take write-through. Reads dominate writes here, so the cache sits on the hot path and the write policy sets both your staleness window and your failure mode: write-through costs write latency but keeps the store authoritative; write-behind hides that latency and buys a window where a crash loses acknowledged writes; write-around keeps writes cheap and pays for it with a cold read after each one. Write-through, write-behind, or write-around?"
 
 ### Calibrating defaults to the project's facts
 The local profile (above) changes *how* a session asks; the project's own recorded facts change

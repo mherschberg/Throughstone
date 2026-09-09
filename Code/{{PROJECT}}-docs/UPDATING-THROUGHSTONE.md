@@ -132,9 +132,11 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
    job each — the level sets how technical an agent's vocabulary may be, the style sets how much it
    explains why a decision matters — where the old text let the level decide both. **Nothing of
    yours is rewritten and no value is re-keyed**: your `.throughstone/local-user.md` keeps working
-   as it is, and 1/2/3 and Terse/Normal/Explanatory still mean the same positions. **What does
-   change is how your sessions sound**: level 3 used to mean terse on its own, so if that is what
-   you had, set the style to Terse to keep it. Two cosmetic
+   as it is, and the stored tokens stay valid. **What does change is how your sessions sound.**
+   Level 3 used to force terseness on its own, so set the style to Terse if that is what you
+   want back; Levels 1-2 used to force a why-explanation, so set the style to at least Normal if
+   you want that back. Because the communication style had no defined behaviour before this
+   release, other old combinations have no exact equivalent. Two cosmetic
    notes: the level's self-report labels changed wording, so an existing profile keeps its old
    label until its owner edits it, which is harmless; and `ONBOARDING.md` §3 no longer repeats the
    two questions or the profile's file shape — it points at `BOOTSTRAP-PROMPT.md` Stage 0, which

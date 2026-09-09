@@ -154,7 +154,7 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 ## Ground rules
 - **Calibrate to the local user profile.** Before asking user-facing questions or
   explaining a decision, read root `.throughstone/local-user.md` and use its recorded
-  **Experience level** (how technical your vocabulary can be) and **Communication style**
+  **Experience level** (how much technical background you can assume) and **Communication style**
   (how much you explain why a decision matters) as the communication baseline. This file
   is personal local state; don't duplicate its values into STEP plans or prompts. If it is
   missing, ask the two local-profile questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create it,

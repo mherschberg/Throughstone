@@ -16,7 +16,7 @@
 <!-- Decisions from prior STEPs/ADRs that this STEP must respect. Reference by ADR number
      or architecture doc. Carrying these forward keeps a shared mental model. -->
 - root `.throughstone/local-user.md` — read both values before any user-facing turn:
-  **Experience level** sets how technical your vocabulary can be, **Communication style**
+  **Experience level** sets how much technical background you can assume, **Communication style**
   sets how much you explain why a decision matters. Keep that file as the personal local
   source of truth for both.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that

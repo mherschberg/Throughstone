@@ -15,7 +15,7 @@
 > `inputs/archive/`, and where an `architecture/` doc already covers an input, that doc wins),
 > `prompts/STEP-index.md`, and — for multi-repo
 > projects — `registries/repos.yml`.
-> **Calibrate to the local user profile.** Read both values in root `.throughstone/local-user.md`: **Experience level** sets how technical your vocabulary can be, **Communication style** sets how much you explain why a decision matters. They are independent — Level 3 + Explanatory is ordinary. Lead with a recommended default at every level. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue; an explicit chat instruction overrides the profile for this session only. Treat any confusion or request to clarify — in any words, not just those — as a cue, answer in kind, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+> **Calibrate to the local user profile.** Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much technical background you can assume, **Communication style** sets how much you explain why a decision matters. They are independent — Level 3 + Explanatory is ordinary. Lead with a recommended default at every level. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue; an explicit chat instruction overrides the profile for this session only. Treat any confusion or request to clarify — in any words, not just those — as a cue, answer in kind, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}

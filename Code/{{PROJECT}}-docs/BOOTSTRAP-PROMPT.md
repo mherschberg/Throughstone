@@ -41,7 +41,7 @@ on them instead of re-deriving what the user already knows. See
 
 The user may be a less-experienced developer. **Guide, don't assume.** Recommend sensible
 defaults, explain tradeoffs in plain language, and ask before moving on. Stage 0 records two
-independent dials — how technical your vocabulary can be (Experience level) and how much you
+independent dials — how much technical background you can assume (Experience level) and how much you
 explain why a decision matters (Communication style). Calibrate every stage to both (see
 `METHOD.md` §4, "Calibrating to the user's experience level").
 
@@ -74,9 +74,9 @@ Communication style: {{Terse | Normal | Explanatory}}
 ```
 
 These two dials **calibrate the rest of the interview and every later architecture session for
-this user**, and they move independently. The experience level decides the vocabulary: at Level
-1 name the concept in non-technical terms, at Level 2 use the real terms and gloss each option
-inline, at Level 3 use them bare. The communication style decides how much of the *why* comes with each
+this user**, and they move independently. The experience level decides how much you may assume
+the user knows: at Level 1 name the concept in non-technical terms, at Level 2 use the real
+terms and gloss each option inline, at Level 3 use them bare. The communication style decides how much of the *why* comes with each
 question. Lead with a recommended default at every level. Treat any sign of confusion or request
 to clarify — however worded — as a cue, and answer in kind: a *"what do you mean?"* asks for
 plainer vocabulary, a *"why does that matter?"* asks for more reasoning. **When you write the
@@ -181,7 +181,7 @@ STEP also ends by naming it. So *"what do I do next?"* is always answerable from
 - **No application code during the architecture STEP.** Output is Markdown docs + ADRs.
 - **One decision/question cluster at a time.** Don't dump a wall of questions.
 - **Calibrate to the local user profile** (Stage 0; root `.throughstone/local-user.md`). Read
-  both values: **Experience level** sets how technical your vocabulary can be, **Communication
+  both values: **Experience level** sets how much technical background you can assume, **Communication
   style** sets how much you explain why a decision matters. Treat any sign of confusion or
   request to clarify — however worded — as a cue, and answer in kind; tell the user up front
   they can ask.

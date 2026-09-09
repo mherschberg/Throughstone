@@ -63,15 +63,15 @@ with this user's answers. This file is personal local state, not project documen
 something to commit. If an agent is guiding onboarding, this is its first user-facing step for
 every second-or-later contributor.
 
-Ask the active user the two local-profile questions from `Code/<project>-docs/BOOTSTRAP-PROMPT.md`
+**First**, read `Code/<project>-docs/METHOD.md` §4, "Calibrating to the user's experience
+level". It says what the two answers change: the **Experience level** sets how much technical
+background an agent may assume, the **Communication style** sets how much it explains why a
+decision matters, and the two are independent. Reading it first is what lets you tell the new
+contributor up front that they can ask for any question to be explained.
+
+**Then** ask the two local-profile questions from `Code/<project>-docs/BOOTSTRAP-PROMPT.md`
 Stage 0 and record the answers in the shape it gives. Stage 0 owns the question wording, the
 answer labels, the file shape and the override precedence — don't restate them here.
-
-`Code/<project>-docs/METHOD.md` §4, "Calibrating to the user's experience level", says what the
-answers change: the **Experience level** sets how technical an agent's vocabulary can be, the
-**Communication style** sets how much it explains why a decision matters, and the two are
-independent. An agent guiding onboarding reads §4 **before** asking, so it can tell the new
-contributor up front that they can ask for any question to be explained.
 
 Each contributor keeps their own profile. Never inherit another person's values from project
 docs.
