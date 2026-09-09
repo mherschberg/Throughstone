@@ -4,6 +4,12 @@
 > defines it, e.g. `{{PROJECT}}-docs/architecture/*-architecture-overview.md`.)
 
 <!--
+  **Making a repo public takes an explicit instruction from the user naming that repo** — a
+  license, a public sibling repo, a remote, or a project that calls itself open source is not
+  that instruction, and neither is silence. The rule does not change at the divider below.
+  Publishing cannot be walked back: a repo made private again does not un-publish what has
+  already been cloned, forked, and cached.
+
   Stamp a copy of this into each code repo **as Throughstone creates it** — every created repo,
   including in a multi-repo design, must carry one. Keep the section headings consistent across
   all repos so the project reads uniformly. Sections that don't apply can be dropped (e.g. no
@@ -23,8 +29,9 @@
 
   ---- A repo that already exists: augment, don't stamp ----
 
-  Everything above is for a repo Throughstone creates. For a repo that already has a README,
-  **never stamp this file over it, and never create a second README.** Add one section instead:
+  The stamping, CI, and licensing instructions above are for a repo Throughstone creates. For a
+  repo that already has a README, **never stamp this file over it, and never create a second
+  README.** Add one section instead:
 
       ## Role in <project>
 

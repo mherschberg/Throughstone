@@ -403,6 +403,27 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **The method now has a rule for the one thing it can do to a repo that cannot be undone.**
+  `METHOD.md` §7 sets out what the method does to a repo — stamps a README, applies the project's
+  licensing posture, writes a registry row — and every one of those writes a file, which the next
+  commit can take back. Publishing one is the exception, and §7 did not mention repository
+  visibility at all; the nearest thing to a rule was a note in `templates/planning-session.md`
+  telling you to choose private or public deliberately rather than infer it from the license,
+  which is how to choose and not whose choice it is. **Making a repo public takes an explicit
+  instruction from the user naming that repo** — a license, a public sibling repo, a remote, or a
+  project that calls itself open source is not that instruction, and neither is silence. It is
+  absolute because publishing cannot be taken back: a repo that goes public exposes its whole
+  history at once — the key that was committed and removed a week later, the customer name in a
+  fixture — and forks, mirrors and crawlers have it before anyone notices, while setting the repo
+  private again recovers none of it. The rule reads the same for every repo however it arrived:
+  not one wording for a repo the method created and another for one it adopted, and nothing
+  consults `added_as:` to pick between them. A default applies at one moment and no other — when a
+  repo is being stood up: create it **private**, widening being a separate decision made
+  deliberately later, the words `runbooks/splitting-repos.md` already uses at the step that gives
+  a new repo its remote. The sentence is written into `METHOD.md` §7,
+  `templates/planning-session.md` and `templates/repo-readme-template.md`, in the same words in
+  each. No tooling changed: nothing gained a field, a flag or a check. It is doctrine rather than
+  machinery, and the instruction it names comes from the user, ahead of the run.
 - **A project that has finished its architecture STEP is no longer sent back into it — forever.**
   `./doctor.sh status` answers "what do I do next?" by walking `METHOD.md` §10's rules in order and
   stopping at the first match. The rule about open STEP-1 substeps sat above the point where the

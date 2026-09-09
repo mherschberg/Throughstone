@@ -534,6 +534,19 @@ adds an `ARCHITECTURE.md` at its root for its internal design. **Licensing follo
 `.throughstone/project-license` and applied per repo by `scripts/apply-project-license.sh` when the
 repo is brought in.
 
+**Making a repo public takes an explicit instruction from the user naming that repo** — a license,
+a public sibling repo, a remote, or a project that calls itself open source is not that
+instruction, and neither is silence. It reads the same for every repo in the project, whatever its
+history, and an instruction naming one repo does not carry to the next. It governs the act of
+publishing, not the visibility a repo already carries: a license says what may be done with the
+code, never who may read it. Where a repo is being stood up for the first time, create it
+**private** — widening is a separate decision, made deliberately later.
+
+The rule takes no exceptions because publishing cannot be taken back. Most of what goes wrong in
+this section ends in a file, and a file can be corrected; a repository that goes public hands its
+whole history — every commit, every key committed once and removed a week later — to forks, caches
+and crawlers before anyone notices.
+
 **Where a repo lives — always inside the workspace.** A repo's `registries/repos.yml`
 `location:` is **a path relative to the workspace root, identical on every machine; it never
 begins with `/` or `~`, and no segment of it is `..`.** Usually that is a `Code/*`
