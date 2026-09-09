@@ -59,28 +59,22 @@ entry and ask the maintainer how that repo is provided.
 
 Before reading or running project sessions, create root `.throughstone/local-user.md`. If it
 already exists on this machine, confirm it belongs to the active user; otherwise replace it
-with this user's answers. This file is personal local state, not project documentation and
-not something to commit. If an agent is guiding onboarding, this is its first user-facing
-step for every second-or-later contributor. Ask the active user:
+with this user's answers. This file is personal local state, not project documentation and not
+something to commit. If an agent is guiding onboarding, this is its first user-facing step for
+every second-or-later contributor.
 
-1. How much experience do you have building a software project like this? Level **1** (no
-   coding experience), **2** (basic coding experience), or **3** (senior developer or above).
-2. How terse or explanatory should project discussions be by default? **Terse**,
-   **Normal**, or **Explanatory**.
+**First**, read `Code/<project>-docs/METHOD.md` §4, "Calibrating to the user's experience
+level". It says what the two answers change: the **Experience level** sets how much technical
+background an agent may assume, the **Communication style** sets how much reasoning it gives
+with a decision, and the two are independent. Reading it first is what lets you tell the new
+contributor up front that they can ask for any question to be explained.
 
-Record the answers as **Experience level** and **Communication style**. Agents use this file
-to calibrate explanations and questions for this contributor; they should not inherit another
-person's preferences from project docs. An explicit style request in chat overrides this file
-for the current session only; edit the file to change future defaults.
+**Then** ask the two local-profile questions from `Code/<project>-docs/BOOTSTRAP-PROMPT.md`
+Stage 0 and record the answers in the shape it gives. Stage 0 owns the question wording, the
+answer labels, the file shape and the override precedence — don't restate them here.
 
-Use this shape:
-
-```md
-# Local User Profile
-
-Experience level: {{1 | 2 | 3}} - {{label}}
-Communication style: {{Terse | Normal | Explanatory}}
-```
+Each contributor keeps their own profile. Never inherit another person's values from project
+docs.
 
 ## 4. Read the project state
 

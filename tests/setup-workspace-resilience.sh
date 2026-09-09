@@ -241,7 +241,6 @@ note "mono:  $MONO_DOCS"
 RETAINED_PLACEHOLDERS="$TMP_ROOT/placeholders-retained"
 cat > "$RETAINED_PLACEHOLDERS" <<'EOF'
 Code/DOCS/BOOTSTRAP-PROMPT.md
-Code/DOCS/ONBOARDING.md
 Code/DOCS/UPDATING-THROUGHSTONE.md
 Code/DOCS/templates/adr-template.md
 Code/DOCS/templates/architecture-doc-template.md

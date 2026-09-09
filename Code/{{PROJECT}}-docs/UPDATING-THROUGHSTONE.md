@@ -60,7 +60,7 @@ not just a `METHOD.md` change:
   `templates/step-plan-template.md`, `templates/substep-prompt-template.md`, and
   `templates/architecture-sessions/*.md` keep future sessions from reading project-level
   preference fields.
-- `prompts/README.md` carries the STEP-planning communication-style behavior.
+- `prompts/README.md` carries the STEP-planning behavior for both local-profile values.
 - `runbooks/collaboration.md` explains the multi-contributor local-profile expectation.
 
 During an update, treat those old `overview.md` sections as legacy project-state drift:
@@ -123,7 +123,31 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
    replace `{{PROJECT}}` with your project slug throughout and delete any seeded row that does not
    describe a repo you have. The flag is deprecated in this release and the directory now always
    ships.
-9. Nothing else. A project that never splits reads none of the splitting material.
+9. **Pull the local-profile group as one review-required set** — four of these travel with item
+   1's group already, so pull them once. `BOOTSTRAP-PROMPT.md` Stage 0,
+   `METHOD.md` §4, `ONBOARDING.md` §3, `AGENTS.md`, `prompts/README.md`,
+   `templates/step-plan-template.md`, `templates/substep-prompt-template.md`,
+   `templates/planning-session.md` and all sixteen `templates/architecture-sessions/` files that
+   carry the calibration blockquote, plus `templates/architecture-sessions/14-cross-cutting-review.md`,
+   which carries a shorter version of the same text. The experience level and the communication
+   style now do one job each — the level sets how much technical background an agent may assume,
+   the style sets how much reasoning comes with a decision — where the old text let the level
+   decide both. **Nothing of
+   yours is rewritten and no value is re-keyed**: your `.throughstone/local-user.md` keeps working
+   as it is, and the stored tokens stay valid. **What does change is how your sessions sound.**
+   Level 3 used to force terseness on its own, so set the style to Terse if that is what you
+   want back; Levels 1-2 used to force a why-explanation, so set the style to at least Normal if
+   you want that back. Because the communication style had no defined behaviour before this
+   release, other old combinations have no exact equivalent. Two cosmetic
+   notes: the level's self-report labels changed wording, so an existing profile keeps its old
+   label until its owner edits it, which is harmless; and `ONBOARDING.md` §3 no longer repeats the
+   two questions or the profile's file shape — it points at `BOOTSTRAP-PROMPT.md` Stage 0, which
+   already owned both. If you have hand-edited any of these files, take the `METHOD.md` §4 and
+   `BOOTSTRAP-PROMPT.md` Stage 0 changes first; every other file in the group restates those two.
+   These templates travel with the group even though §2's buckets call templates future-only: a
+   1.7 copy still tells an agent to explain a question's *what* and *why* together at Levels 1-2,
+   which is half of the coupling this item removes.
+10. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and

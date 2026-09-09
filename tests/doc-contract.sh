@@ -123,11 +123,11 @@ for doc in $cited_docs; do
 done
 
 # --- 2. BOOTSTRAP-PROMPT.md's stages ------------------------------------------
-# AGENTS.md, METHOD.md and all 17 session templates send the agent to a stage of the kickoff
+# AGENTS.md, METHOD.md, ONBOARDING.md and all 17 session templates send the agent to a stage of the kickoff
 # BY NUMBER — "ask the two local-profile questions from BOOTSTRAP-PROMPT.md Stage 0". A stage
 # that is renamed, renumbered or dropped makes every one of those instructions a dead end.
 stages="$(
-  for f in "$AGENTS" "$METHOD" "$CHECKIN" "$SESSIONS"/*.md "$DOCS/templates/planning-session.md"; do
+  for f in "$AGENTS" "$METHOD" "$ONBOARD" "$CHECKIN" "$SESSIONS"/*.md "$DOCS/templates/planning-session.md"; do
     [ -f "$f" ] || continue
     flat "$f" | grep -oE 'BOOTSTRAP-PROMPT\.md.{0,3}Stage [0-9]+' | grep -oE '[0-9]+$' || true
   done | sort -un

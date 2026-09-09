@@ -39,7 +39,7 @@ risk of creating unmaintainable code.
   Throughstone gives them a repeatable process — architecture docs, ADRs, scoped STEPs, and
   review points — so you can review decisions and project shape instead of
   reverse-engineering a pile of generated code later. *(Want it for your own projects? Set
-  your local profile to senior + terse at the start and the sessions stay decision-focused.)*
+  your local profile to Level 3 + Terse at the start and the sessions stay decision-focused.)*
 - **Early-career developers.** You can write code, but the *project-shaping* part — what
   to decide first, how to phase the work, what the architecture should be — is exactly
   where AI agents tend to leave you with a tangle. This puts that discipline up front, so
@@ -58,14 +58,16 @@ interview you — they ask about the things developers routinely skip (scaling, 
 phasing) and recommend sensible defaults while flagging what each choice forecloses. Two
 things keep them approachable whatever your background:
 
-- **Tell it how much you know.** Up front you set your local user profile — experience level
-  and communication style — and every session speaks to it: plain-language framing and a
-  recommended default for newer builders, terse and decision-focused for veterans. In a team,
-  each contributor keeps their own local profile. A one-off instruction in chat overrides
-  that profile for the current session only.
-- **Ask whenever something's unclear.** At any point you can ask what a question means or
-  why it matters and get a from-scratch explanation. The agent also offers one when you
-  seem stuck.
+- **Tell it how much you know — and how much you want explained.** Two independent settings
+  in your local user profile: your experience level decides how much it assumes you know,
+  your communication style decides how much reasoning comes with each decision. A newer
+  builder who wants the full reasoning sets Level 1 + Explanatory; a senior developer who just
+  wants the call sets Level 3 + Terse. In a team, each contributor keeps their own local
+  profile. A one-off instruction in chat overrides that profile for the current session
+  only.
+- **Ask whenever something's unclear.** At any point you can ask what a question means and get
+  it in plainer terms, or ask why it matters and get the reasoning — whichever you asked for.
+  The agent also offers when you seem stuck.
 
 That said, "plain language" does not mean "no software concepts." Some topics, like
 deployment, observability, authentication, security, or data retention, may still introduce

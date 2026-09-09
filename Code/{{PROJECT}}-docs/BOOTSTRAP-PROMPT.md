@@ -40,25 +40,29 @@ on them instead of re-deriving what the user already knows. See
 ## Work through these stages, pausing at each checkpoint
 
 The user may be a less-experienced developer. **Guide, don't assume.** Recommend sensible
-defaults, explain tradeoffs in plain language, and ask before moving on. Stage 0 establishes
-the active user's local communication profile — calibrate every stage to it (see
+defaults, explain tradeoffs in plain language, and ask before moving on. Stage 0 records two
+independent dials — how much technical background you can assume (Experience level) and how much
+reasoning comes with a decision (Communication style). Calibrate every stage to both (see
 `METHOD.md` §4, "Calibrating to the user's experience level").
 
 ### Stage 0 — Interview  ▸ checkpoint
 **Ask these local-profile questions first, before any project question:**
 
-1. *How much experience does the user have building a software project like this?* — Level
-   **1** (no coding experience), **2** (basic coding experience), or **3** (senior developer
-   or above).
-2. *How terse or explanatory should project discussions be by default?* — **Terse**,
-   **Normal**, or **Explanatory**.
+1. *What's your level of experience with software development?* — **1** (little coding
+   experience or vibe-coding), **2** (some coding experience), or **3** (senior developer or
+   above).
+2. *How much explanation do you want along with each decision?* — **Terse** (a line),
+   **Normal** (a few sentences), or **Explanatory** (the detail).
+
+The two are independent — don't infer one from the other.
 
 Create or update root `.throughstone/local-user.md` with those two answers under
 **Experience level** and **Communication style**. This file is **personal, per-machine local
 state**, not a project fact and not something to commit; each additional contributor creates
 their own copy during onboarding. The user can edit it later or override it in chat for a
 single session. Override precedence is: explicit chat instruction for this session, then
-`.throughstone/local-user.md`, then ask and create the missing profile.
+`.throughstone/local-user.md`, then ask and write the profile. Treat a file whose values are
+missing or not among the listed answers exactly as you would a missing one.
 
 Use this shape:
 
@@ -69,13 +73,15 @@ Experience level: {{1 | 2 | 3}} - {{label}}
 Communication style: {{Terse | Normal | Explanatory}}
 ```
 
-The experience level **calibrates the rest of the interview and every later architecture
-session for this user**: at Level 1–2, explain each question's *what* and *why* in plain
-language, lead with a recommended default, and avoid unexplained jargon (scaling, threat
-model, environments …); at any level, treat any sign of confusion or request to clarify —
-however worded — as a cue to explain plainly. **When you write the profile, tell the user in
-plain terms they can ask you to explain any question at any time** — don't make them discover
-it. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+These two dials **calibrate the rest of the interview and every later architecture session for
+this user**, and they move independently. The experience level decides how much you may assume
+the user knows: at Level 1 name the concept in non-technical terms, at Level 2 use the real
+terms and gloss each option inline, at Level 3 use them bare. The communication style decides how much reasoning comes with
+each decision. Lead with a recommended default at every level. Treat any sign of confusion or request
+to clarify — however worded — as a cue, and answer in kind: a *"what do you mean?"* asks for
+plainer vocabulary, a *"why does that matter?"* asks for more reasoning. **When you write the
+profile, tell the user in plain terms they can ask you to explain any question at any time** —
+don't make them discover it. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 Then read `overview.md` and fill the gaps a brief usually misses. Ask about: who uses it and
 who else is affected; expected scale now vs. in a year; hard constraints (regulatory,
@@ -174,10 +180,11 @@ STEP also ends by naming it. So *"what do I do next?"* is always answerable from
 ## Rules
 - **No application code during the architecture STEP.** Output is Markdown docs + ADRs.
 - **One decision/question cluster at a time.** Don't dump a wall of questions.
-- **Calibrate to the local user profile** (Stage 0; root `.throughstone/local-user.md`). At
-  Level 1–2, explain what you're asking and why before asking it; at any level, treat any
-  sign of confusion or request to clarify — however worded — as a cue to explain plainly,
-  and tell the user up front they can ask.
+- **Calibrate to the local user profile** (Stage 0; root `.throughstone/local-user.md`). Read
+  both values: **Experience level** sets how much technical background you can assume, **Communication
+  style** sets how much reasoning comes with a decision. Treat any sign of confusion or
+  request to clarify — however worded — as a cue, and answer in kind; tell the user up front
+  they can ask.
 - **Record decisions.** Significant choices become ADRs
   (`Code/{{PROJECT}}-docs/templates/adr-template.md`); the current design lives in architecture docs
   (`Code/{{PROJECT}}-docs/templates/architecture-doc-template.md`).
