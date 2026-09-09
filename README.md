@@ -574,7 +574,7 @@ reports, fixes, and ideas are genuinely welcome. A few starting points:
 
 This Throughstone template is released under the [BSD 3-Clause License](LICENSE) — use
 it freely. `init.sh` asks whether **your** project is open source (MIT, BSD-3, or Apache-2.0)
-or private/proprietary. Open-source projects get the selected project `LICENSE`; private
+or proprietary. Open-source projects get the selected project `LICENSE`; proprietary
 projects get no project license file. The selected license in the docs hub is the source copied
 into application-code repos when they are created later. The durable selection is recorded in
 the docs hub's `.throughstone/project-license`, so deleting or losing the canonical `LICENSE`

@@ -1095,7 +1095,7 @@ done
 
 # Relocate the scaffold's BSD license into the docs hub (retained as attribution per BSD-3,
 # next to the method files it covers — not deleted). Open-source project licenses are stamped
-# separately into each repo in step 6; private projects get no project LICENSE.
+# separately into each repo in step 6; proprietary projects get no project LICENSE.
 [ -f "$ROOT/LICENSE" ] && mv "$ROOT/LICENSE" "$DOCS/LICENSE-THROUGHSTONE"
 # LICENSE-THROUGHSTONE follows retained scaffold material. In multi-repo mode prompts/ is its
 # own repo and contains Throughstone-authored seed content, so retain the scaffold notice there

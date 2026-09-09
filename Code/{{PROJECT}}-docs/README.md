@@ -37,7 +37,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 > Built with **Throughstone**. The scaffold files (`METHOD.md`, `templates/`, `runbooks/`,
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
 > `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the
-> open-source license you chose at setup or kept private/proprietary. For open-source projects,
+> open-source license you chose at setup or kept proprietary. For open-source projects,
 > this repo's `LICENSE` is the canonical project-license file copied unchanged into each
 > application-code repo when it is created. `.throughstone/project-license` records the durable
 > selection independently, and the repo-scaffolding helper validates the two before copying.

@@ -5,7 +5,7 @@
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
 > retained as `LICENSE-THROUGHSTONE` in this docs hub. Your own application code is under the
-> open-source license you chose at setup or remains private/proprietary. For open-source
+> open-source license you chose at setup or remains proprietary. For open-source
 > projects, the docs hub's `LICENSE` is the canonical project-license file copied into each
 > application-code repo when that repo is created. The durable selection is recorded separately
 > in `.throughstone/project-license`, so a missing license file cannot silently change it.
