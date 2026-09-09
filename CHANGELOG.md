@@ -125,14 +125,14 @@ any project built with it.
   a communication style, and the docs had quietly welded them together: `METHOD.md` told an agent
   that Level 3 means "keep it terse and decision-focused", and its Level 1-2 twin bundled
   explaining *what* a question asks (vocabulary) with explaining *why* it matters (verbosity) into
-  one clause. Both halves of that pairing were then paraphrased into the sixteen architecture-session
-  templates and the planning session, the kickoff prompt, `AGENTS.md`, onboarding,
-  `prompts/README.md`, the STEP plan and substep templates, and the public README. The
+  one clause. That pairing was then paraphrased into the sixteen architecture-session templates,
+  the planning session, the kickoff prompt and the public README, and half a dozen more files
+  named the two settings without saying what either one did. The
   effect was that a saved communication style had no defined behaviour anywhere — no document said
   what Terse, Normal or Explanatory makes an agent do — while the level silently decided verbosity
   on its own, so "level 3 plus Explanatory", an expert who wants the reasoning spelled out, was
-  unrepresentable. The two now have one job each, in the same words in every instruction an agent
-  reads: the **experience level** sets how much technical background you can assume — which terms,
+  unrepresentable. The two now have one job each, and say so in the same words wherever an agent
+  is told to read them: the **experience level** sets how much technical background you can assume — which terms,
   concepts and options need explaining — and the **communication style** sets how much reasoning
   comes with a decision. Both are rough guides for an agent to use judgment against, not rules to
   measure. Each of the three values on both dials is defined, and every site that

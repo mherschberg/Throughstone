@@ -128,9 +128,11 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
    `METHOD.md` §4, `ONBOARDING.md` §3, `AGENTS.md`, `prompts/README.md`,
    `templates/step-plan-template.md`, `templates/substep-prompt-template.md`,
    `templates/planning-session.md` and all sixteen `templates/architecture-sessions/` files that
-   carry the calibration blockquote. The experience level and the communication style now do one
-   job each — the level sets how technical an agent's vocabulary may be, the style sets how much it
-   explains why a decision matters — where the old text let the level decide both. **Nothing of
+   carry the calibration blockquote, plus `templates/architecture-sessions/14-cross-cutting-review.md`,
+   which carries a shorter version of the same text. The experience level and the communication
+   style now do one job each — the level sets how much technical background an agent may assume,
+   the style sets how much reasoning comes with a decision — where the old text let the level
+   decide both. **Nothing of
    yours is rewritten and no value is re-keyed**: your `.throughstone/local-user.md` keeps working
    as it is, and the stored tokens stay valid. **What does change is how your sessions sound.**
    Level 3 used to force terseness on its own, so set the style to Terse if that is what you
@@ -141,10 +143,10 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
    label until its owner edits it, which is harmless; and `ONBOARDING.md` §3 no longer repeats the
    two questions or the profile's file shape — it points at `BOOTSTRAP-PROMPT.md` Stage 0, which
    already owned both. If you have hand-edited any of these files, take the `METHOD.md` §4 and
-   `BOOTSTRAP-PROMPT.md` Stage 0 changes first. `ONBOARDING.md` §3 is now only a pointer at Stage
-   0; every other file in the group is a paraphrase of those two. These templates travel with the
-   group even though §2's buckets call templates future-only: a 1.7 copy still tells an agent that
-   Level 3 means terse, which is the behaviour this item removes.
+   `BOOTSTRAP-PROMPT.md` Stage 0 changes first; every other file in the group restates those two.
+   These templates travel with the group even though §2's buckets call templates future-only: a
+   1.7 copy still tells an agent to explain a question's *what* and *why* together at Levels 1-2,
+   which is half of the coupling this item removes.
 10. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
@@ -234,8 +236,7 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §3, §4, §5, §7 and §10, `BOOTSTRAP-PROMPT.md`,
-  `ONBOARDING.md`, `runbooks/collaboration.md` §6, §8
+  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` §6, §8
   and §9, `prompts/README.md`, `registries/README.md`, `registries/repos.yml`'s header,
   `AGENTS.md`, `runbooks/check-in.md`, `runbooks/dependency-supply-chain.md`,
   `runbooks/incident-postmortem.md`, and the templates `repo-readme-template.md`,

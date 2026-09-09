@@ -351,11 +351,11 @@ last set holds the level at **3** and moves the style instead.
 > *Threat model (Session 1.6):*
 > - **L1:** "Now security. The common mistake is 'we're too small for anyone to attack us' — but most attacks are automated bots probing *everything*, not someone choosing you. So: which of the things you're storing would hurt most if they leaked, got changed, or went offline? You don't need to know how to defend them, just which ones matter."
 > - **L2:** "A lightweight threat model. Skip the 'too small to be a target' instinct — anything public gets probed automatically. Which assets are worth protecting, and what would do the most damage if it leaked, got tampered with, or went down?"
-> - **L3:** "Threat model — anything public gets probed automatically, so it's worth pinning before infrastructure. Which assets are worth protecting, and which threats do you actually care about: disclosure, tampering, availability?"
+> - **L3:** "Threat model — anything public gets probed automatically. Which assets are worth protecting, and which threats do you actually care about: disclosure, tampering, availability?"
 
 > *Observability (Session 1.10):*
-> - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is annoyed users — and even then you can't tell why. For a first release I'd suggest good logs plus an alert when the site goes down. Enough to start, or do you want more?"
-> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' For a first release I'd default to structured logs plus an error and uptime alert, and add dashboards later. Start there, or do you want more?"
+> - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is annoyed users — and even then you can't tell why. For a first release I'd suggest good notes of what happened, something watching for errors, and an alert when the site goes down. Enough to start, or do you want more?"
+> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' For a first release I'd default to structured logs, error tracking and an uptime alert. Start there, or do you want more?"
 > - **L3:** "Observability — the failure mode is finding out from users and not being able to say why. I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
 
 > *Caching (Session 1.5) — level held at 3, style moved:*
