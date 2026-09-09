@@ -59,28 +59,22 @@ entry and ask the maintainer how that repo is provided.
 
 Before reading or running project sessions, create root `.throughstone/local-user.md`. If it
 already exists on this machine, confirm it belongs to the active user; otherwise replace it
-with this user's answers. This file is personal local state, not project documentation and
-not something to commit. If an agent is guiding onboarding, this is its first user-facing
-step for every second-or-later contributor. Ask the active user:
+with this user's answers. This file is personal local state, not project documentation and not
+something to commit. If an agent is guiding onboarding, this is its first user-facing step for
+every second-or-later contributor.
 
-1. How much experience do you have building a software project like this? Level **1** (no
-   coding experience), **2** (basic coding experience), or **3** (senior developer or above).
-2. How terse or explanatory should project discussions be by default? **Terse**,
-   **Normal**, or **Explanatory**.
+Ask the active user the two local-profile questions from `Code/<project>-docs/BOOTSTRAP-PROMPT.md`
+Stage 0 and record the answers in the shape it gives. Stage 0 owns the question wording, the
+answer labels, the file shape and the override precedence — don't restate them here.
 
-Record the answers as **Experience level** and **Communication style**. Agents use this file
-to calibrate explanations and questions for this contributor; they should not inherit another
-person's preferences from project docs. An explicit style request in chat overrides this file
-for the current session only; edit the file to change future defaults.
+`Code/<project>-docs/METHOD.md` §4, "Calibrating to the user's experience level", says what the
+answers change: the **Experience level** sets how technical an agent's vocabulary can be, the
+**Communication style** sets how much it explains why a decision matters, and the two are
+independent. An agent guiding onboarding reads §4 **before** asking, so it can tell the new
+contributor up front that they can ask for any question to be explained.
 
-Use this shape:
-
-```md
-# Local User Profile
-
-Experience level: {{1 | 2 | 3}} - {{label}}
-Communication style: {{Terse | Normal | Explanatory}}
-```
+Each contributor keeps their own profile. Never inherit another person's values from project
+docs.
 
 ## 4. Read the project state
 

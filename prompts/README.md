@@ -89,7 +89,7 @@ teammate will need later.
 >
 > STEP planning is an interactive discussion. Confirm the scope before drafting, ask for
 > clarification whenever the work is ambiguous, and when a decision is needed offer
-> appropriate options with brief pros and cons rather than forcing the user to start from a
+> appropriate options with pros and cons rather than forcing the user to start from a
 > blank page.
 > A whole-STEP command such as **"run STEP 6"**, **"run STEP-6"**, **"start STEP 6"**,
 > **"kick off STEP 6"**, or **"do STEP 6"** means **write or revise this STEP plan and its
@@ -99,11 +99,12 @@ teammate will need later.
 > substeps instead of authoring normal substep prompts; still stop for approval before running
 > the runbook or session.
 > Substep execution requires an explicit substep command such as **"run substep 6.1"**.
-> Read the saved **Communication style** in root `.throughstone/local-user.md` and use it as
-> the default verbosity. If the file or value is missing, ask the two local-profile
+> Read both values in root `.throughstone/local-user.md`: **Experience level** sets how
+> technical your vocabulary can be, **Communication style** sets how much you explain why a
+> decision matters. If the file or either value is missing, ask the two local-profile
 > questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create/update the file,
 > and continue.
-> An explicit style request in chat overrides the profile for the current session only.
+> An explicit chat instruction overrides the profile for the current session only.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's
    not there, add a row — and that row *is* the number reservation. **Pull first**, take the
@@ -116,8 +117,8 @@ teammate will need later.
    See `Code/{{PROJECT}}-docs/runbooks/collaboration.md`.
 2. **Confirm scope** with the user before writing anything — a STEP is a real commitment.
    Ask clarifying questions where the planned work, dependencies, repo ownership, or order
-   are uncertain. When there are real alternatives, present appropriate options with short
-   pros and cons and let the user choose or adjust. Work the STEP on a branch named
+   are uncertain. When there are real alternatives, present appropriate options with pros
+   and cons and let the user choose or adjust. Work the STEP on a branch named
    `step-NNNN-short-name` (the same name in every repo it touches).
 3. **Plan the tests before finalizing the substeps.** Read the Test Strategy architecture doc
    (`Code/{{PROJECT}}-docs/architecture/*-test-strategy.md`) and decide which test tiers this

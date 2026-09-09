@@ -259,68 +259,100 @@ When in doubt, prefer a conditional: it carries the same interview-and-document 
 the renumber.
 
 ### Calibrating to the user's experience level
-The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the active user how much experience they
-have building a project like this and records it in root `.throughstone/local-user.md`:
-**Level 1** (no coding experience), **Level 2** (basic coding experience), **Level 3**
-(senior developer or above). This is a **personal, per-machine local profile**, not a
-project fact. Each additional contributor creates their own profile during onboarding.
-Every session reads this profile first, so each one sees it and **adjusts how it asks** —
-the decisions reached are the same; only the explaining changes:
+The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the active user two questions and records the
+answers in root `.throughstone/local-user.md`. Stage 0 owns the question wording, the answer
+labels and the file shape. The answers set two **independent** dials:
+
+- **Experience level** — **1**, **2**, or **3**. This governs **how technical your vocabulary
+  can be**, and nothing else.
+- **Communication style** — **Terse**, **Normal**, or **Explanatory**. This governs **how much
+  you explain why a decision matters** to the project, and nothing else.
+
+Never infer one from the other. *Level 3 + Explanatory* — an expert who wants the reasoning
+spelled out — is as ordinary as *Level 1 + Terse*.
+
+This is a **personal, per-machine local profile**, not a project fact. Each additional
+contributor creates their own profile during onboarding. Every session reads it first, so each
+one sees it and **adjusts how it asks** — the decisions reached are the same; only the
+explaining changes.
 
 At any agent entry point — kickoff, resume, an architecture session, the planning session,
 STEP planning, substep execution, or contributor onboarding — if root
 `.throughstone/local-user.md` is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0,
-create the file, and then continue. If the user gives an explicit style instruction in chat,
+create the file, and then continue. If the user gives an explicit instruction in chat,
 honor it for the current session; otherwise use `.throughstone/local-user.md`. To change the
 default for future sessions, edit that file.
 
-- **Level 1–2** — before each question, say in plain language *what* it's asking and *why* it
-  matters, and lead with a recommended default. Don't assume jargon: concepts like scaling,
-  security, threat model, infrastructure, and environments get a one-line "here's what this
-  means for you" framing rather than being named and left bare.
-- **Level 3** — assume fluency; keep it terse and decision-focused.
-- **At any level**, the user can ask for a question to be unpacked — and they won't use a
-  set phrase. Treat *any* sign of confusion or request to clarify as the cue: "what do you
-  mean?", "why does that matter?", "huh?", a hesitation, a guess that misreads the question,
-  or a literal *"explain what you're asking and why it matters."* Give the Level-1/2
-  explanation on the spot, then re-ask. **Say so up front** — when you set the level (or at
-  the first session), tell the user in plain terms that they can ask you to explain any
-  question at any time; don't make them discover the affordance.
+**Experience level — the vocabulary you may use:**
 
-The level is advisory, not a gate: if the conversation shows the user is more or less
-comfortable than they marked, adjust on the fly and correct the value in
-`.throughstone/local-user.md`.
+- **Level 1** — don't assume the concept itself. Name it in non-technical terms, and frame the
+  options the same way. Concepts like scaling, security, threat model, infrastructure and
+  environments get said in ordinary words rather than being named and left bare. Whether you
+  also say why the choice matters is the style dial, not this one.
+- **Level 2** — the concept is known; the options may not be. Use the real terms and gloss each
+  *option* in a clause the first time.
+- **Level 3** — assume fluency. Use the real terms bare.
 
-The same profile also records the user's default **Communication style**:
-**Terse**, **Normal**, or **Explanatory**. Read it before user-facing project discussions,
-especially STEP planning, and treat it as the saved default so the user is not asked the
-same verbosity question repeatedly. Override precedence is: **explicit chat instruction for
-this session** → **`.throughstone/local-user.md` default** → **ask and create the missing
-profile**.
+> *Caching, at each level, style held at Terse:* **L1** — "caching: keeping a copy of an answer so the app doesn't work it out again every time. Save the copy as you write it, save it in the background, or skip it on writes? I'd save as you write"; **L2** — "write-through, write-behind, or write-around — write to the store as you cache, queue the store, or skip the cache on writes? I'd take write-through"; **L3** — "write-through, write-behind, write-around? I'd take write-through"
 
-**Worked examples** — the *same* canonical question, rendered at each level. The substance is
-identical; only the framing changes. Notice the recurring moves: Level 1 names the failure it
-prevents and ends with a yes/no default so the user is never facing a blank prompt; Level 2
-keeps the term but defines it inline the first time; Level 3 is terse and surfaces the
-interesting trade-off, not the basics.
+**Communication style — how much of the reasoning comes with it:**
+
+- **Terse** — the decision and the recommendation. No rationale unless asked.
+- **Normal** — a sentence on why this matters for this project, then the question.
+- **Explanatory** — the reasoning in full: what it affects downstream, and what it forecloses.
+
+**When a project question has a defensible default — at every level and every style** — lead
+with it rather than a blank prompt. Pure elicitation has no default to recommend: which
+non-goals are yours, which assets are your crown jewels. There, give the shape of the answer
+instead. Neither is a calibration; both are how every question is asked.
+
+**When the user pushes back**, they won't use a set phrase. Treat *any* sign of confusion or
+request to clarify as the cue: "what do you mean?", "why does that matter?", "huh?", a
+hesitation, a guess that misreads the question, or a literal *"explain what you're asking and
+why it matters."* Answer in kind, whatever the level or style — a *"what do you mean?"* asks for
+plainer vocabulary, a *"why does that matter?"* asks for more reasoning. Don't answer a
+why-question by dropping to Level-1 vocabulary. Then re-ask. **Say so up front** — when you set
+the profile (or at the first session), tell the user in plain terms that they can ask you to
+explain any question at any time; don't make them discover the affordance.
+
+The level is advisory, not a gate: if the conversation shows the user is more or less fluent
+than they marked, adjust on the fly and correct the value in `.throughstone/local-user.md`. The
+style is a stated preference, not an inference: never adjust it from how the conversation is
+going. A chat instruction changes it for the session; only the user edits the stored value.
+
+Read **both** values at every entry point listed above, and treat them as saved defaults so
+the user is not asked the same question repeatedly. Override precedence is:
+**explicit chat instruction for this session** → **`.throughstone/local-user.md` default** →
+**ask and create the missing profile**.
+
+**Worked examples** — the *same* canonical question, rendered against each dial in turn. The
+substance is identical; only the framing changes. The first three sets hold the style at
+**Normal** and move the level, so the vocabulary axis shows on its own: Level 1 names the
+concept in non-technical terms, Level 2 keeps the real term and glosses each option inline,
+Level 3 uses it bare. The last set holds the level at **3** and moves the style instead.
 
 > *Non-goals (Session 1.1):*
 > - **L1:** "Now the most important — and strangest — question: what are you deliberately **not** building, at least for now? Naming what you skip is the #1 thing that stops a project ballooning forever and never shipping. Two buckets: 'not yet' (good for later) and 'never' (just not what this is). One feature you'd firmly set aside for v1?"
 > - **L2:** "Let's pin down non-goals — what you're deliberately leaving out, since that's what stops scope creep. Split 'not now' (deferred) vs. 'not ever' (out of scope by design). What's on each list?"
-> - **L3:** "Non-goals — split 'not now' vs. 'not ever'. What are you explicitly excluding from v1?"
+> - **L3:** "Non-goals — split 'not now' vs. 'not ever'; this is the lever that stops scope creep later. What are you explicitly excluding from v1?"
 
 > *Threat model (Session 1.6):*
 > - **L1:** "Now security. The common mistake is 'we're too small for anyone to attack us' — but most attacks are automated bots probing *everything*, not personal. So: if someone broke in, what would hurt most — leaking users' info, tampering with data, or the site going down? You don't need to know how to defend it, just what matters most."
 > - **L2:** "A lightweight threat model. Skip the 'too small to be a target' instinct — anything public gets probed automatically. Name the assets worth protecting and the top threats: what would do the most damage if it leaked, got tampered with, or went down?"
-> - **L3:** "Threat model — assets, trust boundaries, threats you actually care about. Crown-jewel data, and your stance on authn/authz, secrets, tenant isolation?"
+> - **L3:** "Threat model — anything public gets probed automatically, so this is worth pinning before infrastructure. Assets, trust boundaries, threats you actually care about: crown-jewel data, and your stance on authn/authz, secrets, tenant isolation?"
 
 > *Observability (Session 1.10):*
 > - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is angry users — and even then you can't tell why. The fix is leaving yourself a trail of breadcrumbs to answer 'what happened?'. For v1 I'd suggest just good logs plus an alert if the site goes down. Enough to start?"
 > - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' Logs (what happened), metrics (is it healthy), alerts (tell me when it's not). For a first release I'd default to structured logs + an error/uptime alert and add dashboards later. Start there?"
-> - **L3:** "Observability — logs/metrics/traces and alerting. SLOs now or later? I'd default to structured logging + error tracking + an uptime alert for a first release and defer tracing/SLOs unless you're latency-sensitive."
+> - **L3:** "Observability — the failure mode is finding out from users and not being able to say why. Logs/metrics/traces and alerting; SLOs now or later? I'd default to structured logging + error tracking + an uptime alert for a first release and defer tracing/SLOs unless you're latency-sensitive."
+
+> *Caching (Session 1.5) — level held at 3, style moved:*
+> - **Terse:** "Caching — write-through, write-behind, write-around? I'd take write-through."
+> - **Normal:** "Caching strategy — worth pinning now, since reads dominate writes here and the write policy is what sets your staleness window. Write-through, write-behind, write-around? I'd default to write-through."
+> - **Explanatory:** "Caching strategy. Reads dominate writes here, so the cache sits on the hot path and the write policy decides both your staleness window and your failure mode. Write-through costs write latency but keeps the store authoritative; write-behind hides that latency and buys a window where a crash loses acknowledged writes. Write-through, write-behind, write-around? I'd default to write-through."
 
 ### Calibrating defaults to the project's facts
-Experience level (above) changes *how* a session asks; the project's own recorded facts change
+The local profile (above) changes *how* a session asks; the project's own recorded facts change
 *what* it recommends. A session's default is **never** keyed to an assumed "MVP" — it reads the
 facts the brief and earlier sessions captured, and it **splits breadth from rigor**:
 
@@ -377,9 +409,9 @@ by-name conditional-session invocation).
 Treat STEP planning as an interactive discussion, not a silent document-generation task.
 Before writing the PLAN, confirm the scope with the user and ask for clarification when
 requirements, sequencing, dependencies, or ownership are unclear. When the user needs to
-make a planning choice, offer plausible options with brief pros and cons, then wait for
-direction. Use the saved **Communication style** in `.throughstone/local-user.md` as the
-default level of detail while still asking the questions needed to make the STEP coherent.
+make a planning choice, offer plausible options with pros and cons, then wait for
+direction. Use both saved values in `.throughstone/local-user.md` while still asking the
+questions needed to make the STEP coherent.
 For any code-changing STEP, read the Test Strategy architecture doc during planning, assign
 the relevant test tiers (unit, integration, API/contract, end-to-end, security/authorization,
 migration/data, performance, or project-specific) to the substeps that introduce the behavior,

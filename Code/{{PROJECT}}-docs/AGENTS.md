@@ -72,7 +72,7 @@ acknowledge, summarize the file, restate the plan, or ask whether to start (no "
 you are"). Read root `.throughstone/local-user.md`, `Code/{{PROJECT}}-docs/overview.md`, anything relevant in `inputs/` (its live
 material, not `inputs/archive/`), and
 any earlier architecture docs silently, then immediately **ask the session's first question**,
-calibrated to the profile's experience level. The user types one short command and expects
+calibrated to the local profile. The user types one short command and expects
 the first question back, not a confirmation prompt.
 
 **Conditional sessions** are invoked **by name**, not by number, and their templates live in
@@ -154,10 +154,11 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 ## Ground rules
 - **Calibrate to the local user profile.** Before asking user-facing questions or
   explaining a decision, read root `.throughstone/local-user.md` and use its recorded
-  **Experience level** and **Communication style** as the communication baseline. This file
+  **Experience level** (how technical your vocabulary can be) and **Communication style**
+  (how much you explain why a decision matters) as the communication baseline. This file
   is personal local state; don't duplicate its values into STEP plans or prompts. If it is
   missing, ask the two local-profile questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create it,
-  and continue. An explicit style request in chat overrides the profile for the current
+  and continue. An explicit chat instruction overrides the profile for the current
   session only; edit `.throughstone/local-user.md` to change future defaults.
 - **Use judgment before creating a STEP.** For tiny, well-understood changes that do not affect
   architecture, public contracts, data model, security posture, deployment behavior, multiple

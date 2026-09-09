@@ -15,9 +15,10 @@
 ## Decisions already locked
 <!-- Decisions from prior STEPs/ADRs that this STEP must respect. Reference by ADR number
      or architecture doc. Carrying these forward keeps a shared mental model. -->
-- root `.throughstone/local-user.md` — read **Experience level** before user-facing
-  questions or explanations, and read **Communication style** before planning discussions;
-  keep that file as the personal local source of truth for both values.
+- root `.throughstone/local-user.md` — read both values before any user-facing turn:
+  **Experience level** sets how technical your vocabulary can be, **Communication style**
+  sets how much you explain why a decision matters. Keep that file as the personal local
+  source of truth for both.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that
   touches their area.
 - The Test Strategy architecture doc (`architecture/*-test-strategy.md`) — use it to decide
@@ -88,17 +89,17 @@
 ## Ground rules
 <!-- The working agreement for this STEP. e.g. "no code in this STEP", commit discipline,
      what 'done' means for a substep, review gates. -->
-- **Calibrate communication from root `.throughstone/local-user.md`.** Substep prompts
-  should read the recorded **Experience level** and adjust explanations/questions
-  accordingly. STEP planning should use the saved **Communication style** as the default
-  verbosity. If the file is missing, ask the two local-profile questions from
-  `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. An explicit style request in chat
+- **Calibrate communication from root `.throughstone/local-user.md`.** Substep prompts and
+  STEP planning read both values: **Experience level** sets how technical your
+  vocabulary can be, **Communication style** sets how much you explain why a decision
+  matters. If the file is missing, ask the two local-profile questions from
+  `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. An explicit chat instruction
   overrides the profile for this session only. Don't copy either value into this PLAN.
 - **Plan interactively.** Before this PLAN is finalized, confirm scope with the user and ask
   clarifying questions for ambiguous requirements, sequencing, dependencies, ownership, or
-  repo boundaries. When a planning decision is needed, offer appropriate options with brief
-  pros and cons. Respect the saved communication style while still asking the questions
-  needed to make the STEP coherent.
+  repo boundaries. When a planning decision is needed, offer appropriate options with pros
+  and cons. Respect both saved values while still asking the questions needed to make the STEP
+  coherent.
 - **Tests ship with the code.** Every substep that writes or changes code also writes or updates
   the relevant tests for it (unit, integration, API/contract, e2e, security/authorization,
   migration/data, performance, or project-specific). The PLAN chooses whether tests run as each

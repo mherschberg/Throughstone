@@ -60,7 +60,7 @@ not just a `METHOD.md` change:
   `templates/step-plan-template.md`, `templates/substep-prompt-template.md`, and
   `templates/architecture-sessions/*.md` keep future sessions from reading project-level
   preference fields.
-- `prompts/README.md` carries the STEP-planning communication-style behavior.
+- `prompts/README.md` carries the STEP-planning behavior for both local-profile values.
 - `runbooks/collaboration.md` explains the multi-contributor local-profile expectation.
 
 During an update, treat those old `overview.md` sections as legacy project-state drift:
@@ -123,7 +123,27 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
    replace `{{PROJECT}}` with your project slug throughout and delete any seeded row that does not
    describe a repo you have. The flag is deprecated in this release and the directory now always
    ships.
-9. Nothing else. A project that never splits reads none of the splitting material.
+9. **Pull the local-profile group as one review-required set** — four of these travel with item
+   1's group already, so pull them once. `BOOTSTRAP-PROMPT.md` Stage 0,
+   `METHOD.md` §4, `ONBOARDING.md` §3, `AGENTS.md`, `prompts/README.md`,
+   `templates/step-plan-template.md`, `templates/substep-prompt-template.md`,
+   `templates/planning-session.md` and all sixteen `templates/architecture-sessions/` files that
+   carry the calibration blockquote. The experience level and the communication style now do one
+   job each — the level sets how technical an agent's vocabulary may be, the style sets how much it
+   explains why a decision matters — where the old text let the level decide both. **Nothing of
+   yours is rewritten and no value is re-keyed**: your `.throughstone/local-user.md` keeps working
+   as it is, and 1/2/3 and Terse/Normal/Explanatory still mean the same positions. **What does
+   change is how your sessions sound**: level 3 used to mean terse on its own, so if that is what
+   you had, set the style to Terse to keep it. Two cosmetic
+   notes: the level's self-report labels changed wording, so an existing profile keeps its old
+   label until its owner edits it, which is harmless; and `ONBOARDING.md` §3 no longer repeats the
+   two questions or the profile's file shape — it points at `BOOTSTRAP-PROMPT.md` Stage 0, which
+   already owned both. If you have hand-edited any of these files, take the `METHOD.md` §4 and
+   `BOOTSTRAP-PROMPT.md` Stage 0 changes first. `ONBOARDING.md` §3 is now only a pointer at Stage
+   0; every other file in the group is a paraphrase of those two. These templates travel with the
+   group even though §2's buckets call templates future-only: a 1.7 copy still tells an agent that
+   Level 3 means terse, which is the behaviour this item removes.
+10. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -212,7 +232,8 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` §6, §8
+  `runbooks/README.md`, `METHOD.md` §3, §4, §5, §7 and §10, `BOOTSTRAP-PROMPT.md`,
+  `ONBOARDING.md`, `runbooks/collaboration.md` §6, §8
   and §9, `prompts/README.md`, `registries/README.md`, `registries/repos.yml`'s header,
   `AGENTS.md`, `runbooks/check-in.md`, `runbooks/dependency-supply-chain.md`,
   `runbooks/incident-postmortem.md`, and the templates `repo-readme-template.md`,

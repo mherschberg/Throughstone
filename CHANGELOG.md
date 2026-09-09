@@ -121,6 +121,38 @@ any project built with it.
   ordinary forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
 
 ### Changed
+- **The two local-profile settings each do one job.** The kickoff records an experience level and
+  a communication style, and the docs had quietly welded them together: `METHOD.md` told an agent
+  that Level 3 means "keep it terse and decision-focused", and its Level 1-2 twin bundled
+  explaining *what* a question asks (vocabulary) with explaining *why* it matters (verbosity) into
+  one clause. Both halves of that pairing were then paraphrased into the sixteen architecture-session
+  templates and the planning session, the kickoff prompt, `AGENTS.md`, onboarding,
+  `prompts/README.md`, the STEP plan and substep templates, and the public README. The
+  effect was that a saved communication style had no defined behaviour anywhere — no document said
+  what Terse, Normal or Explanatory makes an agent do — while the level silently decided verbosity
+  on its own, so "level 3 plus Explanatory", an expert who wants the reasoning spelled out, was
+  unrepresentable. The two now have one job each and say so in the same words everywhere: the
+  **experience level** sets how technical the vocabulary can be, the **communication style** sets
+  how much you explain why a decision matters, and they are independent — in the same words in
+  every instruction an agent reads. Each of the three values
+  on both dials is defined, `METHOD.md` §4 carries a worked example of one question moved along
+  each dial in turn, and every site that already told an agent to read the style now says what
+  reading it should change. Two behaviours that were riding on the level are lifted out of it:
+  leading with a recommended default no longer depends on the level, and a request to clarify is
+  answered in kind, so asking "why does that matter?" gets more reasoning rather than a drop into
+  beginner vocabulary. **If you have a saved profile, this changes what your sessions sound
+  like**: level 3 used to mean terse on its own, so the setting that reproduces what you had is
+  level 3 plus Terse.
+- **Onboarding asks the local-profile questions instead of restating them.** `ONBOARDING.md` §3
+  carried its own copy of both questions and a byte-identical duplicate of the profile file's
+  shape, even though `BOOTSTRAP-PROMPT.md` Stage 0 is the declared owner of both and twenty-four
+  other files already cite it. The copy had drifted: it gave two of the three override-precedence
+  branches, omitted the rule requiring an agent to tell the user they can ask for an explanation,
+  and sat ahead of the step that says to read `METHOD.md` — so an agent onboarding a second
+  contributor wrote their profile having never read the calibration rule. §3 now points at Stage 0
+  for the wording, the labels, the file shape and the precedence, and at `METHOD.md` §4 for what
+  the answers change. The kickoff's two questions are phrased as what the agent actually says,
+  which is what lets one copy serve both the kickoff and a contributor joining later.
 - **The check-in is scheduled, not calculated.** `scripts/status.sh` used to work out whether a
   check-in was due from two facts it reconstructed on every run: *how often* — the
   `<!-- CHECK-IN-CADENCE: N -->` setting in `overview.md`, plus a default, plus a window of five
