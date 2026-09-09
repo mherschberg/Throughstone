@@ -101,9 +101,10 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
    and CI starter are retained Throughstone-authored scaffold material, and writes
    `LICENSING.md` to make clear that notice is not the application-code license. Repository
-   visibility is separate: when adding a remote for each code repo, choose private or public
-   deliberately rather than inferring it from the license. Publishing a proprietary repo makes
-   its source visible without granting open-source reuse rights, so call that out explicitly.
+   visibility is decided on its own, not read off the license. Where a new code repo is given a
+   remote, create it **private** — widening is a separate decision, made deliberately later
+   under the rule at the end of this item, and when it comes up, say plainly that publishing a
+   proprietary repo makes its source visible without granting open-source reuse rights.
    **Each repo's README isn't just stamped — its role one-liner and Overview get filled in**
    (what the repo is and the slice of the system it owns); a repo isn't scaffolded until it can
    explain itself.
@@ -123,6 +124,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    scaffolding STEP to inherit the work.
    Confirm the repo list with the user: which are new, which already exist, and name any you
    could not reach.
+   The rule works the same for every repo on that list, new or already there.
+   **Making a repo public takes an explicit instruction from the user naming that repo** — a
+   license, a public sibling repo, a remote, or a project that calls itself open source is not
+   that instruction, and neither is silence. Publishing cannot be taken back: a later
+   visibility change does not recall what was already copied.
 2. **Inherited code.** Item 1 has established which repos already existed. Settle the part it does
    not answer, by asking rather than working it out: **is any of the code this phase builds on
    code this project did not write, that no check-in has yet run over?** The user knows — whether

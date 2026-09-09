@@ -336,6 +336,23 @@ differently:
   Nothing of yours is rewritten, and a first run on a fresh project behaves exactly as it did in
   1.7.
 
+**The rule for making a repo public is now written down, and there is nothing of yours to
+change.** A repo goes public only on an explicit instruction from you that names that repo — a
+license, a public sibling repo, a remote, or a project that calls itself open source is not that
+instruction, and neither is silence. It reads the same whether Throughstone created the repo or
+took on one that already existed. Where a repo is being stood up, create it **private** — widening is a separate decision, made deliberately later. The rule
+lives in `METHOD.md` §7 and in the two templates that touch a repo as it is brought in,
+`templates/planning-session.md` and `templates/repo-readme-template.md`; all three travel with
+item 1's group above, so pull them together — the rule is only as good as the least-updated of
+them — and there is no new step to take. **No tooling changed with it**: nothing in your project
+records a visibility decision, no check tests for one, and no script behaves differently. What
+changes is that an agent working in your project finds the rule stated rather than having to
+arrive at it. **One thing to check:** if you are not sure how a repo of yours came to be public,
+this is a cheap moment to look — one glance at each repo's host page. 1.7 asked you to choose
+visibility deliberately but never said what a public answer had to come from, and setting a repo
+private again governs only what happens next: it retrieves nothing already cloned, cached, or
+crawled.
+
 **Three read-only sweeps stop over-promising.** The check-in's full test run, the dependency
 audit and the incident runbook's hunt for similar issues each asked for "all repos"; they now ask
 for every repo you can reach, and for the ones you can't to be named. What that guards against is
