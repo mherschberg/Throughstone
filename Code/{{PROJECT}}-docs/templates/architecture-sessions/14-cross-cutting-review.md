@@ -7,7 +7,7 @@
 > Reads root `.throughstone/local-user.md`, **all** of `architecture/*`, `adr/*`, and
 > `templates/architecture-sessions/conditional-*.md`, plus the STEP-1 PLAN and
 > `prompts/STEP-index.md`. **Experience level** sets how much technical background you can
-> assume, **Communication style** how much you explain why a decision matters; calibrate your
+> assume, **Communication style** how much reasoning comes with a decision; calibrate your
 > findings and any question you surface to both. If the local profile is missing, ask the two local-profile
 > questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue.
 

@@ -41,8 +41,8 @@ on them instead of re-deriving what the user already knows. See
 
 The user may be a less-experienced developer. **Guide, don't assume.** Recommend sensible
 defaults, explain tradeoffs in plain language, and ask before moving on. Stage 0 records two
-independent dials — how much technical background you can assume (Experience level) and how much you
-explain why a decision matters (Communication style). Calibrate every stage to both (see
+independent dials — how much technical background you can assume (Experience level) and how much
+reasoning comes with a decision (Communication style). Calibrate every stage to both (see
 `METHOD.md` §4, "Calibrating to the user's experience level").
 
 ### Stage 0 — Interview  ▸ checkpoint
@@ -51,9 +51,8 @@ explain why a decision matters (Communication style). Calibrate every stage to b
 1. *What's your level of experience with software development?* — **1** (little coding
    experience or vibe-coding), **2** (some coding experience), or **3** (senior developer or
    above).
-2. *When I recommend something, how much should I explain why?* — **Terse** (just the decision
-   and the recommendation), **Normal** (a sentence on why it matters here), or **Explanatory**
-   (the full reasoning).
+2. *How much explanation do you want along with each decision?* — **Terse** (a line),
+   **Normal** (a few sentences), or **Explanatory** (the detail).
 
 The two are independent — don't infer one from the other.
 
@@ -76,8 +75,8 @@ Communication style: {{Terse | Normal | Explanatory}}
 These two dials **calibrate the rest of the interview and every later architecture session for
 this user**, and they move independently. The experience level decides how much you may assume
 the user knows: at Level 1 name the concept in non-technical terms, at Level 2 use the real
-terms and gloss each option inline, at Level 3 use them bare. The communication style decides how much of the *why* comes with each
-question. Lead with a recommended default at every level. Treat any sign of confusion or request
+terms and gloss each option inline, at Level 3 use them bare. The communication style decides how much reasoning comes with
+each decision. Lead with a recommended default at every level. Treat any sign of confusion or request
 to clarify — however worded — as a cue, and answer in kind: a *"what do you mean?"* asks for
 plainer vocabulary, a *"why does that matter?"* asks for more reasoning. **When you write the
 profile, tell the user in plain terms they can ask you to explain any question at any time** —
@@ -182,7 +181,7 @@ STEP also ends by naming it. So *"what do I do next?"* is always answerable from
 - **One decision/question cluster at a time.** Don't dump a wall of questions.
 - **Calibrate to the local user profile** (Stage 0; root `.throughstone/local-user.md`). Read
   both values: **Experience level** sets how much technical background you can assume, **Communication
-  style** sets how much you explain why a decision matters. Treat any sign of confusion or
+  style** sets how much reasoning comes with a decision. Treat any sign of confusion or
   request to clarify — however worded — as a cue, and answer in kind; tell the user up front
   they can ask.
 - **Record decisions.** Significant choices become ADRs

@@ -16,8 +16,8 @@
 <!-- Start from the main docs this substep depends on, then follow the indexes to find
      anything else relevant — don't try to read everything. The indexes point the way:
        - root .throughstone/local-user.md — experience level (how technical your
-                                      vocabulary can be) and communication style (how
-                                      much you explain why a decision matters); if
+                                      background you can assume) and communication style
+                                      (how much reasoning comes with a decision); if
                                       missing, ask the two local-profile questions from
                                       `BOOTSTRAP-PROMPT.md` Stage 0, create it, and
                                       calibrate to both

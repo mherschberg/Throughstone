@@ -60,7 +60,7 @@ things keep them approachable whatever your background:
 
 - **Tell it how much you know — and how much you want explained.** Two independent settings
   in your local user profile: your experience level decides how much it assumes you know,
-  your communication style decides how much of the *why* comes with each question. A newer
+  your communication style decides how much reasoning comes with each decision. A newer
   builder who wants the full reasoning sets Level 1 + Explanatory; a senior developer who just
   wants the call sets Level 3 + Terse. In a team, each contributor keeps their own local
   profile. A one-off instruction in chat overrides that profile for the current session

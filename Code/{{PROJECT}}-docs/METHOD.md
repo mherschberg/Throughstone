@@ -266,7 +266,7 @@ labels and the file shape. The answers set two **independent** dials:
 - **Experience level** — **1**, **2**, or **3**. This governs **how much technical background
   you can assume** — which terms, concepts and options need explaining — and nothing else.
 - **Communication style** — **Terse**, **Normal**, or **Explanatory**. This governs **how much
-  you explain why a decision matters** to the project, and nothing else.
+  reasoning comes with a decision**, and nothing else.
 
 Never infer one from the other. *Level 3 + Explanatory* — an expert who wants the reasoning
 spelled out — is as ordinary as *Level 1 + Terse*.
@@ -299,11 +299,17 @@ another. When a user is plainly out of their depth on one topic, explain that on
 
 > *For example* — one caching question at each level, style held at Terse. Same ask, same recommendation; only the assumed background moves. **L1:** "Caching means keeping a copy of an answer so the app doesn't work it out again every time. I'd save the copy as you write. That, save it in the background, or skip it on writes?" **L2:** "Caching — I'd take write-through. Write-through (store and cache together), write-behind (queue the store), or write-around (skip the cache on writes)?" **L3:** "Caching — I'd take write-through. Write-through, write-behind, or write-around?"
 
-**Communication style — how much of the reasoning comes with it:**
+**Communication style — how much reasoning comes with a decision:**
 
-- **Terse** — the decision and the recommendation. No rationale unless asked.
-- **Normal** — a sentence on why this matters for this project, then the question.
-- **Explanatory** — the reasoning in full: what it affects downstream, and what it forecloses.
+- **Terse** — a sentence, sometimes a fragment: the recommendation and the question.
+- **Normal** — a few sentences: why this matters here, and what the options cost where that
+  isn't obvious.
+- **Explanatory** — the detail: why it matters, why your recommendation fits, and what the
+  alternatives cost.
+
+That's a rough guide, not a word count, and *what* the reasoning is about — the decision, the
+recommendation, the options — is whatever the question needs. The dial sets how much of it you
+give. Use judgment; approximately right is the goal.
 
 **When a project question has a defensible default — at every level and every style** — lead
 with it rather than a blank prompt. Pure elicitation has no default to recommend: which

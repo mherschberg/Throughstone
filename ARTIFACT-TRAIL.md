@@ -12,7 +12,7 @@ shape is stable.
 | Artifact | Where it lives | What it gives you |
 |----------|----------------|-------------------|
 | Project brief | `Code/<project>-docs/overview.md` | The seed: users, scope, constraints, and risks. |
-| Local user profile | `.throughstone/local-user.md` | Per-machine settings for the active contributor: experience level sets the background assumed, communication style sets how much *why* comes with it. |
+| Local user profile | `.throughstone/local-user.md` | Per-machine settings for the active contributor: experience level sets the background assumed, communication style sets how much reasoning comes with a decision. |
 | STEP roadmap | `prompts/STEP-index.md` | The project plan: every STEP, status, owner, touched repos, and one-line scope. |
 | Architecture docs | `Code/<project>-docs/architecture/NN-*.md` | Current design: the system as it is supposed to work now. |
 | ADRs | `Code/<project>-docs/adr/ADR-NNNN-*.md` | Decision history: why important choices were made. |

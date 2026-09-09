@@ -65,8 +65,8 @@ every second-or-later contributor.
 
 **First**, read `Code/<project>-docs/METHOD.md` §4, "Calibrating to the user's experience
 level". It says what the two answers change: the **Experience level** sets how much technical
-background an agent may assume, the **Communication style** sets how much it explains why a
-decision matters, and the two are independent. Reading it first is what lets you tell the new
+background an agent may assume, the **Communication style** sets how much reasoning it gives
+with a decision, and the two are independent. Reading it first is what lets you tell the new
 contributor up front that they can ask for any question to be explained.
 
 **Then** ask the two local-profile questions from `Code/<project>-docs/BOOTSTRAP-PROMPT.md`

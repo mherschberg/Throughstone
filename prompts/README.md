@@ -99,9 +99,9 @@ teammate will need later.
 > substeps instead of authoring normal substep prompts; still stop for approval before running
 > the runbook or session.
 > Substep execution requires an explicit substep command such as **"run substep 6.1"**.
-> Read both values in root `.throughstone/local-user.md`: **Experience level** sets how
-> technical your vocabulary can be, **Communication style** sets how much you explain why a
-> decision matters. If the file or either value is missing, ask the two local-profile
+> Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much
+> technical background you can assume, **Communication style** sets how much reasoning comes
+> with a decision. If the file or either value is missing, ask the two local-profile
 > questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create/update the file,
 > and continue.
 > An explicit chat instruction overrides the profile for the current session only.

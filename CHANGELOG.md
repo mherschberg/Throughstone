@@ -133,8 +133,9 @@ any project built with it.
   on its own, so "level 3 plus Explanatory", an expert who wants the reasoning spelled out, was
   unrepresentable. The two now have one job each, in the same words in every instruction an agent
   reads: the **experience level** sets how much technical background you can assume — which terms,
-  concepts and options need explaining — and the **communication style** sets how much you explain
-  why a decision matters. Each of the three values on both dials is defined, and every site that
+  concepts and options need explaining — and the **communication style** sets how much reasoning
+  comes with a decision. Both are rough guides for an agent to use judgment against, not rules to
+  measure. Each of the three values on both dials is defined, and every site that
   already told an agent to read the style now says what reading it should change. `METHOD.md` §4's
   worked examples were rebuilt so that each set asks the *same* question with the *same*
   recommendation and moves only the one dial it names; two of them used to change the decision
