@@ -403,6 +403,29 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **Seven documents still glued `private` and `proprietary` into one word, and two of them
+  described a wizard question that no longer exists.** 1.8 split the two deliberately —
+  `private` is who can see the repository, `proprietary` is what the code is licensed under, and
+  they are independent, since a private repo can carry MIT and a public repo can be proprietary.
+  That cleanup reached `init.sh`'s tokens, flags and on-screen labels but not the prose around
+  them. `templates/licenses/README.md` and the root `README.md` both told you `init.sh` asks
+  whether the project is *open source or private/proprietary*; it asks *Open source* or
+  *Proprietary*, and prints a line saying visibility is a separate question asked later, so those
+  two were describing a prompt the wizard does not show. The remaining five were the fused pair
+  used as the name of the licensing posture, in the licence banners of `METHOD.md` and the docs
+  hub's `README.md`, twice more in the two files above, and in one `init.sh` comment. All seven
+  now say `proprietary` where they mean the licence and `private` only where they mean
+  visibility. Nothing changed about what is licensed, what the wizard does, or what any project
+  already records in `.throughstone/project-license`.
+- **A repo the method did not create could be read as needing an `.env.example`.** The planning
+  session's scaffolding sentence scoped its `.gitignore` to "each new code repo" and, in the same
+  breath, `templates/env-example.txt` to "each repo" — two items in one sentence, scoped two ways,
+  which reads as a distinction someone meant. The branch it sits in only ever handles repos being
+  created, and the branch beside it already refuses `.env.example` outright, so nothing was
+  actually writing into somebody's existing repository; what was wrong was a sentence that said
+  otherwise. It now says "each new code repo" for both. The two lines carrying it were the widest
+  in the file at 130 and 124 columns, which is the reason it survived this long, and they are
+  rewrapped to the file's own width.
 - **The method now has a rule for the one thing it can do to a repo that cannot be undone.**
   `METHOD.md` §7 sets out what the method does to a repo — stamps a README, applies the project's
   licensing posture, writes a registry row — and every one of those writes a file, which the next

@@ -4,13 +4,13 @@ Source text for the open-source license that `init.sh` stamps into your project 
 Each file uses two placeholders that `init.sh` fills in: `{{YEAR}}` and `{{HOLDER}}` (the
 copyright holder).
 
-`init.sh` first asks whether the project is **open source** or **private/proprietary**.
+`init.sh` first asks whether the project is **open source** or **proprietary**.
 Open source then picks one of the three permissive licenses and writes the filled text to
 `LICENSE` in the bootstrap repos. The docs hub's copy is canonical and is copied unchanged
 into each application-code repo when that repo is created later. The selection is also recorded
 as a validated token in `.throughstone/project-license`; the propagation helper fails if an
-open-source selection's canonical `LICENSE` is missing. Private projects record `Proprietary`
-and do not get a project `LICENSE` file.
+open-source selection's canonical `LICENSE` is missing. A proprietary project records
+`Proprietary` and gets no project `LICENSE` file.
 
 | File | License | When `init.sh` uses it |
 |------|---------|------------------------|
