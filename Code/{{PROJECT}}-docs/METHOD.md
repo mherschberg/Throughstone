@@ -341,7 +341,8 @@ the user is not asked the same question repeatedly. Override precedence is:
 put, and only the named thing moves. The first three hold the style at **Normal** and move the
 level, so the background axis shows on its own: Level 1 names the concept in non-technical
 terms, Level 2 keeps the real term and glosses each option inline, Level 3 uses it bare. The
-last set holds the level at **3** and moves the style instead.
+last set takes the observability question again, holds the level at **3**, and moves the style
+instead.
 
 > *Non-goals (Session 1.1):*
 > - **L1:** "Now the strangest question: what are you deliberately **not** building, at least for now? Naming what you skip is what stops a project growing forever and never shipping. Two lists — 'not yet' (good idea, later) and 'never' (just not what this is). What goes on each?"
@@ -358,10 +359,10 @@ last set holds the level at **3** and moves the style instead.
 > - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' For a first release I'd default to structured logs, error tracking and an uptime alert. Start there, or do you want more?"
 > - **L3:** "Observability — the failure mode is finding out from users and not being able to say why. I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
 
-> *Caching (Session 1.5) — level held at 3, style moved:*
-> - **Terse:** "Caching — I'd take write-through. Write-through, write-behind, or write-around?"
-> - **Normal:** "Caching — I'd take write-through, since reads dominate writes here and correctness matters more to you than write latency. Write-through, write-behind, or write-around?"
-> - **Explanatory:** "Caching — I'd take write-through. Reads dominate writes here, so the cache sits on the hot path and the write policy sets both your staleness window and your failure mode: write-through costs write latency but keeps the store authoritative; write-behind hides that latency and buys a window where a crash loses acknowledged writes; write-around keeps writes cheap and pays for it with a cold read after each one. Write-through, write-behind, or write-around?"
+> *Observability again (Session 1.10) — level held at 3, style moved:*
+> - **Terse:** "Observability — I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
+> - **Normal:** "Observability — the failure mode is finding out from users and not being able to say why. I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
+> - **Explanatory:** "Observability — I'd default to structured logging, error tracking and an uptime alert for a first release. The failure mode it prevents is finding out from users and not being able to say why: unstructured logs tell you a request failed but not which one or in what state, and without error tracking one recurring exception arrives as a stream of unrelated reports. Tracing and SLOs answer questions you don't have yet at this size and cost you instrumentation on every call path, so I'd defer them unless you're latency-sensitive. Start there, or do you want more?"
 
 ### Calibrating defaults to the project's facts
 The local profile (above) changes *how* a session asks; the project's own recorded facts change
