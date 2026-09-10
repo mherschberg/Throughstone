@@ -437,7 +437,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
         have = 0
       }
       /^[[:space:]]*#/ { next }
-      /^[[:space:]]*-([[:space:]]|$)/ { entries++ }
+      /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
       /^[[:space:]]*-[[:space:]]*name:/ { stash(); name = val($0); loc = ""; rem = ""; have = 1; next }
       /^[[:space:]]*location:/ { loc = val($0) }
       /^[[:space:]]*remote:/   { rem = val($0) }

@@ -83,7 +83,8 @@ mkdir -p "$ROOT/.throughstone"
 # Nothing in this step is allowed to be fatal. A contributor who cannot reach one repository —
 # or whose registry names a path this workspace has no business writing to — must still end up
 # with a usable workspace, so every repo that does not arrive is reported and counted rather
-# than aborting the run.
+# than aborting the run. A registry with a row that cannot be read is the one exception to the
+# count: it is reported once, and nothing in it is cloned.
 REG="$DOCS_DIR/registries/repos.yml"
 missing=0
 # A row is found by its `- name:` line, so a row written any other way is not read, and its fields
@@ -95,7 +96,7 @@ if [ ! -f "$REG" ]; then
   echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
 elif awk '
     /^[[:space:]]*#/ { next }
-    /^[[:space:]]*-([[:space:]]|$)/ { entries++ }
+    /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
     /^[[:space:]]*-[[:space:]]*name:/ { rows++ }
     END { exit (entries == rows) }
   ' "$REG" 2>/dev/null; then
