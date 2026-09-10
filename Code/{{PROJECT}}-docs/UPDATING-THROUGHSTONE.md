@@ -344,14 +344,26 @@ took on one that already existed. Where a repo is being stood up, create it **pr
 lives in `METHOD.md` §7 and in the two templates that touch a repo as it is brought in,
 `templates/planning-session.md` and `templates/repo-readme-template.md`; all three travel with
 item 1's group above, so pull them together — the rule is only as good as the least-updated of
-them — and there is no new step to take. **No tooling changed with it**: nothing in your project
-records a visibility decision, no check tests for one, and no script behaves differently. What
+them — and there is no new step to take. **Nothing of yours changes with it**: nothing in your
+project records a visibility decision, and no check tests for one. What
 changes is that an agent working in your project finds the rule stated rather than having to
 arrive at it. **One thing to check:** if you are not sure how a repo of yours came to be public,
 this is a cheap moment to look — one glance at each repo's host page. 1.7 asked you to choose
 visibility deliberately but never said what a public answer had to come from, and setting a repo
 private again governs only what happens next: it retrieves nothing already cloned, cached, or
 crawled.
+
+**And the rule now reaches the two pages that are open when a remote gets created.** Stating it in
+`METHOD.md` and the templates left out `runbooks/register-repo.md`, where a repository is brought
+into a project, and `runbooks/check-in.md`, where the doctor reports a repo with no remote and
+somebody acts on it. Both told you to push the repo somewhere and neither mentioned visibility.
+All three now say a remote created for a repo that has none is created **private**. The doctor's
+own fix line changes with them, and it stops conflating two situations: it reads
+`registries/repos.yml` and not git, so a row with no `remote:` may mean the repo has one nobody
+recorded — write it in — or that it has none — create it, private, or accept the risk deliberately.
+All three files are in item 1's group above; **nothing else of yours changes**, and the registry's
+`remote:` field is still never created and never repointed by registration, which records what is
+already there.
 
 **Three read-only sweeps stop over-promising.** The check-in's full test run, the dependency
 audit and the incident runbook's hunt for similar issues each asked for "all repos"; they now ask
@@ -373,8 +385,10 @@ and only two:
 - **A repo that no recorded remote covers is a warning**, named row by row: as far as the project
   knows, that repo's work lives on exactly one laptop. **Most 1.7 projects will see this at their
   first check-in after upgrading**, because a 1.7 registry ships two rows with no `remote:`, and
-  `init.sh` fills one in only if your bootstrap actually created remotes. Push the repo somewhere and *then* record the URL — the field
-  records that a remote exists, it does not prove anything was pushed to it — or decide that
+  `init.sh` fills one in only if your bootstrap actually created remotes. Record the URL if the repo
+  already has a remote; if it has none, create one — **private**, widening being a separate decision
+  made deliberately later — then push and record the URL, because the field records that a remote
+  exists and does not prove anything was pushed to it. Or decide that
   local-only is still fine. **Nothing records that decision**, so the warning comes back every
   check-in. That is the design, not a defect: a `[WARN]` is for deciding about, not for reflexively
   clearing, while a `[FAIL]` gets fixed.
