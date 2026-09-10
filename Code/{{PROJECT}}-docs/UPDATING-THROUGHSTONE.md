@@ -314,9 +314,9 @@ differently:
   rather than by editing either side; and the licensing question is never re-asked per repo,
   because that posture lives in one project-wide file.
 - **`runbooks/collaboration.md` §9 no longer stands up a remote for every repo.** Going solo to
-  team, the create-a-remote-and-push-your-history step is now scoped to repos Throughstone
-  created. As it stood, following it literally would have created a second remote for a
-  repository someone else owns and pushed their history into it. Recording a remote a repo
+  team, the create-a-remote-and-push-your-history step is now scoped to repos that have no
+  remote yet. As it stood, following it literally would have created a second remote for a
+  repository that already had one and pushed its history there. Recording a remote a repo
   already has is unchanged, and every repo that has one still gets its `remote:` field.
 - **The planning session no longer decides a repo exists by reading its README.** Its
   repo-scaffolding step used to count a repo as already there only if it had a registry row

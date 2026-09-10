@@ -320,9 +320,9 @@ any project built with it.
   than about our connection to it. A registry row and its Architecture Overview entry are treated as
   **one** thing that drifts — re-run the registration, never edit either by hand — and the check-in
   now says plainly that licensing is settled once for the whole project and never re-asked per
-  repository. **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to
-  repositories the method created**: as written it would have created a second remote for a
-  repository someone else owns and pushed their history into it.
+  repository. **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to repos
+  that have no remote yet**: as written it would have created a second remote for a repository
+  that already had one and pushed its history there.
   Three read-only sweeps — the check-in's full test run, the dependency audit, and the incident
   runbook's hunt for similar issues — asked for "all repos" and now ask for every repo you can
   reach, with the unreachable ones named. The failure that guards against is not missing a
