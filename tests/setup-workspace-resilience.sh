@@ -18,7 +18,9 @@
 # directory — whenever the path happened to be writable. Those cases
 # assert the absence of a clone, not just the presence of a message. One case is the other side
 # of the same rule: a repo that cannot move is reached through a symlink at a workspace-relative
-# location, and that must still be left alone.
+# location, and that must still be left alone. Another is about which row a clone belongs to: a
+# registry with a row the parser cannot read clones nothing, since that row's fields sit under
+# the row above it.
 #
 # Assertions read the output as well as the exit status: after this change almost everything
 # exits 0, so a test that only looked at $? could not tell a clone from a refusal.
@@ -522,6 +524,35 @@ run_setup "$tw"
 assert_assembled "vendored location" "$tw"
 assert_cloned "vendored location" "$tw/vendor/partner-lib"
 assert_not_out "vendored location" "did not arrive"
+
+# A row is read from its `- name:` line. This registry's second row starts on a bare `-`, so it is
+# not read, and its fields overwrite the first row's: the first repo would never arrive and nothing
+# would say so, and a row out of order the same way pairs one repo's remote with another's location.
+# When the list's entries and the rows read disagree, nothing is cloned — assert both locations
+# stay empty, not just the message.
+echo "A registry row that does not start with its - name: line ..."
+tw="$(teammate unreadrow "$MULTI_DOCS")"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    added_as: created
+    remote: "$REACHABLE"
+    description: "A row the parser reads."
+  -
+    name: "multi-web"
+    location: "Code/multi-web/"
+    type: app
+    added_as: created
+    remote: "$REACHABLE"
+    description: "A row that starts on a bare dash."
+EOF
+run_setup "$tw"
+assert_assembled "unread row" "$tw"
+assert_out "unread row" "does not start with its - name: line"
+assert_not_cloned "unread row" "$tw/Code/multi-api"
+assert_not_cloned "unread row" "$tw/Code/multi-web"
 
 # --- Part 3. The ordinary paths still work --------------------------------------------------
 

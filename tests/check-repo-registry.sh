@@ -15,15 +15,16 @@
 # what a FAIL means — so it is asserted beside the section, never instead of it. A missing
 # remote is a WARN and leaves the exit code at 0, so $? alone would not see that finding at all.
 #
-# Pinned on purpose, so a red assertion is known to be real: the two hint sentences, which are
-# the check's only actionable advice and one of which carries an ordering decision — push first,
-# record the URL after — and the row count in the pass line. Names are listed in registry order
-# and asserted as they fall out; a walk that reorders them shows up here.
+# Pinned on purpose, so a red assertion is known to be real: the hint sentences, which are the
+# check's only actionable advice, and the row counts in the pass line and in the failure for a
+# row the check did not read. Names are listed in registry order and asserted as they fall out; a
+# walk that reorders them shows up here.
 #
 # Deliberately absent, and not an oversight to fill in: anything asserting the registry's shape
-# — the check reads two fields and does not police the file, so a malformed row is fixed by
-# whoever just edited it — and the no-registry branch, which has no logic in it and reports a
-# conspicuous state to someone already reading the output. This file grows only if the check does.
+# beyond whether every row was read — the check reads two fields and does not police the file, so
+# a malformed row is fixed by whoever just edited it — and the no-registry branch, which has no
+# logic in it and reports a conspicuous state to someone already reading the output. This file
+# grows only if the check does.
 
 set -uo pipefail
 export LC_ALL=C
@@ -243,6 +244,49 @@ expect "2 row(s): all have a location, and a recorded remote covers every one" "
 refute "registry-multi-parked" "a row commented out by hand is not read"
 refute "registry-multi-api" "the example row repos.yml ships is not read"
 clean "commented rows are not counted"
+
+# --- 6. A row the check did not read fails --------------------------------------
+# A row is found by its `- name:` line, so a row written any other way is not read, and its
+# fields land on the row above it. Every list entry is counted apart from that walk, and a
+# registry whose two counts disagree fails. Each registry below holds two repos and is read as
+# fewer; the third, where only one row is out of order, is the shape a check for zero rows or a
+# bare `-` would still pass.
+unread() {
+  local label="$1" pin="$2"
+  cat > "$(registry_of "$multi")"
+  doctor "$multi" --check-in
+  expect "[FAIL] $pin" "$label"
+  expect "start every row with its - name: line" "$label hint"
+  refute "all have a location" "$label"
+  result FAIL "$label"
+  [ "$DOC_STATUS" -eq 1 ] || bad "$label — expected exit 1, got $DOC_STATUS"
+}
+
+unread "every row starts with its location" "read 0 of 2 row(s)" <<'YAML'
+repos:
+  - location: "Code/alpha/"
+    name: "alpha"
+  - location: "Code/beta/"
+    name: "beta"
+YAML
+
+unread "the second row starts on a bare dash" "read 1 of 2 row(s)" <<'YAML'
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+  -
+    name: "beta"
+    location: "Code/beta/"
+YAML
+
+unread "only the second row is out of order" "read 1 of 2 row(s)" <<'YAML'
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+    remote: "git@example.com:TEAM/alpha.git"
+  - location: "Code/beta/"
+    name: "beta"
+YAML
 
 if [ "$failures" -ne 0 ]; then
   printf 'check.sh repo registry check: %d FAILURE(S)\n' "$failures" >&2

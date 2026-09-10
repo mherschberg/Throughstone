@@ -86,7 +86,22 @@ mkdir -p "$ROOT/.throughstone"
 # than aborting the run.
 REG="$DOCS_DIR/registries/repos.yml"
 missing=0
-if [ -f "$REG" ]; then
+# A row is found by its `- name:` line, so a row written any other way is not read, and its fields
+# land on the row above it: that repo never arrives, or one repo's remote is cloned into another
+# repo's location. So every list entry is also counted on its own, under the same comment rule, and
+# when the two counts disagree nothing is cloned. The awk succeeds only on that disagreement; a
+# registry it cannot read goes on to the clone step, whose parse is not fatal either.
+if [ ! -f "$REG" ]; then
+  echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
+elif awk '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*-([[:space:]]|$)/ { entries++ }
+    /^[[:space:]]*-[[:space:]]*name:/ { rows++ }
+    END { exit (entries == rows) }
+  ' "$REG" 2>/dev/null; then
+  echo "Not cloning: a row in $DOCS_REL/registries/repos.yml does not start with its - name: line, so"
+  echo "one repo could land at another's location. Fix that row, then re-run this script."
+else
   echo "Cloning sibling repos with remotes from $DOCS_REL/registries/repos.yml ..."
   # Parse repos.yml block-aware: pair each repo's own location with its own remote.
   # The registry is the multi-repo inventory, and remote: is optional. Walking each `- name:`
@@ -135,8 +150,6 @@ if [ -f "$REG" ]; then
     /^[[:space:]]*remote:/   { rem=$0; sub(/^[^:]*:[[:space:]]*"?/,"",rem); sub(/"?[[:space:]]*$/,"",rem) }
     END { if (loc != "" && rem != "") print loc "|" rem }
   ' "$REG")
-else
-  echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
 fi
 
 echo "Done. Open this folder in your agent; it will discover the context via the pointers."

@@ -74,7 +74,8 @@ with its current version/status).
 comparison above — the rows against the repos that actually exist.
 
 - **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
-  into the row; don't guess a path.
+  into the row; don't guess a path. **So does a row the doctor cannot read** — one that does not
+  start with its `- name:` line; show the human that row.
 - **A row with no `remote:` recorded** is a warning: as far as the project knows, that repo's
   work lives on exactly one laptop. If the repo already has a remote, record the URL. If it has
   none, give it one — **created private**, widening being a separate decision made deliberately
