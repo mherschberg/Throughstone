@@ -405,6 +405,21 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **A doctor check that read nothing no longer passes.** Four of the checks `scripts/check.sh` runs
+  every time read rows out of a table or templates out of a folder, and each printed a clean PASS
+  when it found nothing there. Emptying `prompts/STEP-index.md` and `adr/README.md` passed the
+  duplicate-STEP, duplicate-ADR and status checks and ended the run `0 fail(s), 0 warning(s)`, where
+  deleting the same two files warned four times; renaming the STEP table's `Status` header passed
+  the status check over a STEP-1 marked `Bogus`, which with the header intact fails; and removing
+  `templates/architecture-sessions/` passed the conditional-template check as having nothing to
+  check. Each of those now warns. The status check counts STEP rows apart from the header it reads
+  their statuses under, so a header renamed in one phase table of several is caught too, as
+  `read the status of 1 of 2 STEP row(s)`. **Where nothing is a normal state, it still passes** — a
+  project with no ADR yet, whose registry table is still there, or one that deleted its optional
+  conditional templates on purpose — so a fresh project still ends `0 fail(s), 0 warning(s)`. The
+  STEP, ADR and status checks' pass lines now say how many rows they read, as
+  `all statuses valid (1 STEP row(s), 14 substep row(s))`, so a zero shows even where it is
+  allowed. The new findings are warnings: a run that exited 0 before still does.
 - **The workspace setup no longer clones from a registry it cannot fully read.**
   `scripts/setup-workspace.sh` finds a row by its `- name:` line, so a row written any other way —
   starting on a bare `-`, or with another field first — was not read, and its fields landed on the

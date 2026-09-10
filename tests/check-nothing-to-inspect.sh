@@ -112,18 +112,19 @@ edit() {
 base="$(bootstrap)" || exit 1
 
 # --- 1. A fresh project ---------------------------------------------------------
-# Nothing is wrong, so nothing warns: one STEP row, fourteen substep rows, no ADR yet and three
-# conditional templates. The counts are pinned because a count is what shows a zero in a pass
-# line, and a check that had stopped reading would print a zero.
+# Nothing is wrong, so nothing warns: one STEP row, no ADR yet, and a substep row per numbered
+# session. The counts are asserted because a count is what shows a zero in a pass line, and a
+# check that had stopped reading would print one. The substep count is taken from the index by
+# row number rather than written down, so adding a session template does not break this case.
 doctor "$base"
 look "Duplicate STEP numbers"
 expect "[PASS] no duplicate STEP numbers (1 STEP row(s))" "fresh project"
 look "Duplicate ADR numbers"
 expect "[PASS] no duplicate ADR numbers (0 ADR row(s))" "fresh project: no ADR yet passes"
+subs="$(grep -cE '^\| 1\.[0-9]+ \|' "$base/prompts/STEP-index.md")"
+[ "$subs" -gt 0 ] || bad "fixture: the generated index has no STEP-1 substep rows to count"
 look "Statuses valid"
-expect "[PASS] all statuses valid (1 STEP row(s), 14 substep row(s))" "fresh project"
-look "Conditional-session template contract"
-expect "[PASS] all 3 conditional template(s)" "fresh project"
+expect "[PASS] all statuses valid (1 STEP row(s), $subs substep row(s))" "fresh project"
 case "$DOC_OUT" in
   *"0 fail(s), 0 warning(s)"*) ;;
   *) bad "fresh project — expected 0 fail(s), 0 warning(s)" ;;
@@ -140,6 +141,7 @@ doctor "$c"
 look "Statuses valid"
 expect "[FAIL] invalid status value(s):" "bad status, header intact"
 expect 'STEP-1 -> "Bogus"' "bad status, header intact"
+refute "[PASS]" "bad status, header intact"
 [ "$DOC_STATUS" -eq 1 ] || bad "bad status, header intact — expected exit 1, got $DOC_STATUS"
 
 edit "$idx" 's/^(\| STEP \| Title \| Owner \| )Status( \|)/${1}State$2/' "renaming the STEP table's Status header"
@@ -165,34 +167,47 @@ look "Statuses valid"
 expect "[WARN] read the status of 1 of 2 STEP row(s)" "renamed header in one phase table of two"
 refute "[PASS]" "renamed header in one phase table of two"
 
-# --- 3. An emptied STEP index ----------------------------------------------------
+# --- 3. An index with no STEP row ------------------------------------------------
 # init.sh reserves STEP-1 and a STEP number is never deleted, so an index with no STEP row has
-# lost its table. Both checks that read the index warn, as both do when the file is deleted, and
-# a warning leaves the exit code alone.
-c="$(fixture empty-index)"
+# lost it. Both checks that read the index warn, as both do when the file is deleted, and a
+# warning leaves the exit code alone. The row goes first, with the rest of the file kept — its
+# header, prose and substep table — so the warning is shown to key on the row and not on an
+# empty file; then the file is emptied outright.
+no_step_row() {
+  doctor "$c"
+  look "Duplicate STEP numbers"
+  expect "[WARN] found no STEP rows in prompts/STEP-index.md" "$1"
+  expect "a STEP row starts at the left margin" "$1 hint"
+  refute "[PASS]" "$1"
+  look "Statuses valid"
+  expect "[WARN] found no STEP rows in prompts/STEP-index.md" "$1"
+  refute "[PASS]" "$1"
+  [ "$DOC_STATUS" -eq 0 ] || bad "$1 — a WARN must not change the exit code, got $DOC_STATUS"
+}
+c="$(fixture no-step-row)"
+edit "$c/prompts/STEP-index.md" '$_ = "" if /^\| STEP-1 \|/' "deleting the STEP-1 row"
+no_step_row "STEP-1 row deleted"
 : > "$c/prompts/STEP-index.md"
-doctor "$c"
-look "Duplicate STEP numbers"
-expect "[WARN] found no STEP rows in prompts/STEP-index.md" "emptied STEP index"
-expect "a STEP row starts at the left margin" "emptied STEP index hint"
-refute "[PASS]" "emptied STEP index"
-look "Statuses valid"
-expect "[WARN] found no STEP rows in prompts/STEP-index.md" "emptied STEP index"
-refute "[PASS]" "emptied STEP index"
-[ "$DOC_STATUS" -eq 0 ] || bad "emptied STEP index — a WARN must not change the exit code, got $DOC_STATUS"
+no_step_row "emptied STEP index"
 
-# --- 4. An emptied ADR registry ---------------------------------------------------
+# --- 4. An ADR registry with no table --------------------------------------------
 # No ADR row is also how every project starts (case 1), so the row count cannot tell the two
-# apart. The registry table can: it ships with the file and stays while it is empty. The control
-# is a registry that lost its table but still holds a row — the check read that row, so it passes.
-c="$(fixture empty-adr)"
+# apart. The registry table can: it ships with the file and stays while it is empty. The table
+# goes first, with the prose around it kept, then the file is emptied outright. The control is a
+# registry that lost its table but still holds a row — the check read that row, so it passes.
+no_adr_table() {
+  doctor "$c"
+  look "Duplicate ADR numbers"
+  expect "[WARN] found no ADR rows and no registry table" "$1"
+  expect "| ADR | Title | Status | Date |" "$1 hint"
+  refute "[PASS]" "$1"
+}
+c="$(fixture no-adr-table)"
 adr="$c/Code/$SLUG-docs/adr/README.md"
+edit "$adr" '$_ = "" if /^\|/' "deleting the ADR registry table"
+no_adr_table "ADR registry table deleted"
 : > "$adr"
-doctor "$c"
-look "Duplicate ADR numbers"
-expect "[WARN] found no ADR rows and no registry table" "emptied ADR registry"
-expect "| ADR | Title | Status | Date |" "emptied ADR registry hint"
-refute "[PASS]" "emptied ADR registry"
+no_adr_table "emptied ADR registry"
 
 printf '| ADR-0001 | A decision | Accepted | 2026-01-15 |\n' > "$adr"
 doctor "$c"

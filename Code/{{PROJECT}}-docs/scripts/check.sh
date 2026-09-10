@@ -124,8 +124,8 @@ if [ -f "$ADR_INDEX" ]; then
     maxn="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE '[0-9]+' | sed 's/^0*//' | sort -n | tail -1)"
     hint "renumber the later duplicate to $(printf 'ADR-%04d' "$((maxn + 1))") and rename its file to match — never reuse a number. See $DOCS_REL/adr/README.md and $DOCS_REL/runbooks/collaboration.md §6."
   elif [ "$adr_rows" -eq 0 ] && ! grep -qE '^\|[[:space:]]*ADR[[:space:]]*\|' "$ADR_INDEX"; then
-    # No ADR row is how every project starts, so the count alone cannot tell a new registry from
-    # an emptied one. The table header can: it ships with the file and stays while the table is empty.
+    # No ADR row is how every project starts, so the count alone cannot tell a new registry
+    # from an emptied one. The table header can: it ships with the file and stays when empty.
     warn "found no ADR rows and no registry table in $DOCS_REL/adr/README.md — nothing to check"
     hint "the registry table stays even with no ADRs in it: restore its header row, | ADR | Title | Status | Date |, from git history."
   else
@@ -146,8 +146,8 @@ if [ -f "$INDEX" ]; then
   # use N/A because only substeps can be structurally inapplicable.
   #
   # A STEP row under a header with no Status column is never validated, so STEP rows are also
-  # counted by their own shape — the one the duplicate-number check reads — and fewer statuses
-  # read than STEP rows present is a warning, not a pass.
+  # counted by their own shape — the one the duplicate-number check reads — and one that no
+  # Status column covers is a warning, not a pass.
   scan="$(awk -F'|' '
     function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
     {
@@ -165,11 +165,10 @@ if [ -f "$INDEX" ]; then
       if (ishdr && issub)  tablekind = "SUB"
       if (ishdr) { inrow = 1; subtable = issub; next }
       if (!inrow || statuscol == 0) next
-      sc = trim($statuscol)
-      if (sc ~ /^:?-+:?$/) next                                         # separator row
       stepread += steprow
+      sc = trim($statuscol)
+      if (sc == "" || sc ~ /^:?-+:?$/) next                            # blank or separator row
       subread += subtable
-      if (sc == "") next                                                # blank status cell
       if (sc != "Planned" && sc != "In progress" && sc != "Done" && sc != "Deferred" && sc != "Abandoned" && sc != "N/A")
         print trim($2) " -> \"" sc "\""
       else if (sc == "N/A" && tablekind != "SUB")
