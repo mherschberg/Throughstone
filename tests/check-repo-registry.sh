@@ -224,11 +224,14 @@ clean "default run"
 
 # --- 5. A commented row is not a row --------------------------------------------
 # repos.yml ships a fully formed example row inside a comment block, and someone editing the
-# file comments rows in and out. Neither is a repo the project has. The block appended here is
-# missing everything the check looks for, so a reader that stopped anchoring its patterns to
-# the start of the line would report it — and the count would move off the two real rows.
+# file comments rows in and out. Neither is a repo the project has. Every pattern the check
+# matches is anchored to the start of the line, so the comment skip in front of them is a second
+# guard: the block appended here is reported only by a reader that has lost both, and the count
+# would move off the two real rows. A value that mentions `- name:` is not a row either, and it
+# is what a row pattern that has lost its anchor alone trips on.
 set_field "$multi" "prompts" location "prompts/"
 set_field "$multi" "registry-multi-docs" remote "git@example.com:TEAM/registry-multi-docs.git"
+set_field "$multi" "prompts" description "A value that mentions - name: is not a row"
 cat >> "$(registry_of "$multi")" <<'YAML'
 
   # Parked while we decide whether to split this out:
