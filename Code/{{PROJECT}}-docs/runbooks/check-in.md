@@ -76,10 +76,12 @@ comparison above — the rows against the repos that actually exist.
 - **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
   into the row; don't guess a path.
 - **A row with no `remote:` recorded** is a warning: as far as the project knows, that repo's
-  work lives on exactly one laptop. Push it to a git host and *then* record the URL — the row
-  records that a remote exists, it does not prove anything was pushed to it — or decide here
-  that local-only is still fine, because a project may legitimately start local for a while.
-  **Nothing records that decision**: the warning returns every check-in, which is the point. In
+  work lives on exactly one laptop. If the repo already has a remote, record the URL. If it has
+  none, give it one — **created private**, widening being a separate decision made deliberately
+  later — then push to it and record the URL, because the row records that a remote exists and
+  does not prove anything was pushed to it. Or decide here that local-only is still fine, because
+  a project may legitimately start local for a while. **Nothing records that decision**: the
+  warning returns every check-in, which is the point. In
   the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
   inside that one repository, so whatever backs the root up backs them up too.
 

@@ -161,7 +161,7 @@ mono="$(bootstrap "registry-mono" mono bsd-3)"         || exit 1
 doctor "$multi" --check-in
 note "multi greenfield: $(printf '%s\n' "$SEC" | grep -E '^  \[' | head -1)"
 expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/) prompts (prompts/)" "multi greenfield"
-expect "Push it somewhere and record the URL in remote:" "multi greenfield hint"
+expect "private, widening is a separate decision" "multi greenfield hint"
 refute "[FAIL]" "multi greenfield"
 result OK "multi greenfield"
 [ "$DOC_STATUS" -eq 0 ] || bad "multi greenfield — a WARN must not change the exit code, got $DOC_STATUS"

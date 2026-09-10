@@ -442,7 +442,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
         for (i = 1; i <= n; i++) {
           if (locs[i] == "") print "location\t" names[i]
           # Covered by its own remote, or by the remote of a row at "." that contains it.
-          # The location travels with the name: the fix is to push that repo, and a name alone
+          # The location travels with the name: the fix acts on that repo, and a name alone
           # does not say where it is.
           if (rems[i] == "" && !(root && locs[i] != ".")) print "remote\t" names[i] "\t" locs[i]
         }
@@ -459,7 +459,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
     fi
     if [ -n "$no_rem" ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"
-      hint "a repo with no remote lives on one machine — a bus factor of one. Push it somewhere and record the URL in remote:, or accept the risk deliberately."
+      hint "a repo with no remote lives on one machine — a bus factor of one. Record the URL in remote: if it already has one; if not, create one — private, widening is a separate decision — or accept the risk deliberately."
     fi
     [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
   fi

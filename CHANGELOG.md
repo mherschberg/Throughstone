@@ -445,8 +445,22 @@ any project built with it.
   deliberately later, the words `runbooks/splitting-repos.md` already uses at the step that gives
   a new repo its remote. The sentence is written into `METHOD.md` §7,
   `templates/planning-session.md` and `templates/repo-readme-template.md`, in the same words in
-  each. No tooling changed: nothing gained a field, a flag or a check. It is doctrine rather than
+  each. Nothing gained a field, a flag or a check. It is doctrine rather than
   machinery, and the instruction it names comes from the user, ahead of the run.
+- **That rule now reaches the two places that could actually make a repo public.** Stating it in
+  `METHOD.md` and the templates left out the registration runbook, which is where a repository is
+  brought into a project, and the check-in, which is where the doctor reports that a repo has no
+  remote and somebody acts on it. Both told you to push a repo somewhere, neither said anything
+  about visibility, and they are the pages open at the moment a remote gets created. All three now
+  say that **a remote created for a repo that has none is created private**, widening being a
+  separate decision made deliberately later. The registration runbook adds what a public answer has
+  to come from; the doctor's fix line and the check-in keep the short form, because the moment they
+  describe is a repository being stood up rather than one being published. The doctor's line also
+  stops conflating two situations it never told apart: it reads the registry file and not git, so
+  a row with no `remote:` can mean the repo has one that nobody wrote down — record it — or that it
+  has none — create it, private, or accept the risk deliberately. Unchanged in force, and now
+  saying what it always scoped to: the registry's `remote:` field is still never created and never
+  repointed *by registration*, which records what is there.
 - **A project that has finished its architecture STEP is no longer sent back into it — forever.**
   `./doctor.sh status` answers "what do I do next?" by walking `METHOD.md` §10's rules in order and
   stopping at the first match. The rule about open STEP-1 substeps sat above the point where the

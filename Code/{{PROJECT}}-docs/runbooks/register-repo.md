@@ -33,9 +33,15 @@ The goal is that the **result** is the same however a repo arrived.
    teammate reproduces the whole workspace from this file; a repo that genuinely cannot move stays
    where it is, with a symlink at that workspace-relative path pointing at the real checkout.
 
-   **`remote:` is recorded if the repo has one** — never created, never repointed. Put nothing
-   after a `- name:`, `location:` or `remote:` value: the readers take the rest of the line as part
-   of it, so a trailing `# note` ends up inside the name, the path or the clone URL.
+   **`remote:` is recorded if the repo has one** — registration records what is there; it never
+   creates a remote and never repoints one. Put nothing after a `- name:`, `location:` or
+   `remote:` value: the readers take the rest of the line as part of it, so a trailing `# note`
+   ends up inside the name, the path or the clone URL.
+
+   **A remote created for a repo that has none is created private** — widening is a separate
+   decision, made deliberately later. Making a repo public takes an explicit instruction from the
+   user naming that repo (`METHOD.md` §7): a licence, a public sibling repo, a remote, or a
+   project that calls itself open source is not that instruction, and neither is silence.
 
    **A repo split out of another is `added_as: created`** — the method made it — with the split
    history in its `provenance:` block, written by
