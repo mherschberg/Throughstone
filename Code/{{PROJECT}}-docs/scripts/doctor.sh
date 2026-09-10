@@ -53,7 +53,8 @@ run_helper() {
 cmd="${1:-help}"
 case "$cmd" in
   -h|--help|help)
-    shift
+    # A bare ./doctor.sh arrives here through the default above, with nothing to shift.
+    [ "$#" -eq 0 ] || shift
     # Trailing arguments after help are the same usage error as an unknown command; printing the
     # help text and exiting 0 told the caller their argument was understood.
     if [ "$#" -gt 0 ]; then
