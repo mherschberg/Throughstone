@@ -56,19 +56,22 @@ assert_contains "$help_output" "status"
 assert_contains "$help_output" "check"
 assert_contains "$help_output" "links"
 
-# A bare ./doctor.sh is help: the same text on stdout, and exit 0.
-set +e
-bare_output="$("$fixture/doctor.sh" 2>/dev/null)"
-bare_status=$?
-set -e
-[ "$bare_status" -eq 0 ] || {
-  printf 'FAIL: expected bare doctor.sh to exit 0, got %s\n' "$bare_status" >&2
-  exit 1
-}
-[ "$bare_output" = "$help_output" ] || {
-  printf 'FAIL: expected bare doctor.sh to print the help text on stdout, got:\n%s\n' "$bare_output" >&2
-  exit 1
-}
+# A bare call is help: the same text on stdout, and exit 0. Check it at the root wrapper and at
+# the hub dispatcher itself, which the root wrapper setup-workspace.sh writes also execs.
+for entry in doctor.sh Code/acme-docs/scripts/doctor.sh; do
+  set +e
+  bare_output="$("$fixture/$entry" 2>/dev/null)"
+  bare_status=$?
+  set -e
+  [ "$bare_status" -eq 0 ] || {
+    printf 'FAIL: expected bare %s to exit 0, got %s\n' "$entry" "$bare_status" >&2
+    exit 1
+  }
+  [ "$bare_output" = "$help_output" ] || {
+    printf 'FAIL: expected bare %s to print the help text on stdout, got:\n%s\n' "$entry" "$bare_output" >&2
+    exit 1
+  }
+done
 
 # The implemented commands should be thin pass-throughs to the docs-hub helpers.
 output="$("$fixture/doctor.sh" status alpha beta)"
