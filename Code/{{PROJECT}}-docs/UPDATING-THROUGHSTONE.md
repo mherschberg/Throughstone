@@ -175,6 +175,16 @@ swept by the check-in either way — `runbooks/check-in.md`'s conditional-sessio
 enumerates every conditional template and asks for a current disposition each time, without
 consulting the STEP-1 row.
 
+**The link checker no longer reads `inputs/`, and there is nothing for you to do.** A document
+copied into `inputs/` or `inputs/archive/` with a relative link to a path your workspace does not
+have used to fail `./doctor.sh links` for good: the method keeps inputs as they arrived, so there
+was nothing you were allowed to fix, and moving the file to the archive changed nothing.
+`scripts/links.sh` now skips that folder and everything under it, as it already skipped
+`templates/`, so a link check that was red only for that reason goes green with nothing of yours
+changed. A link *to* an input from a doc it does check is still checked. `AGENTS.md`,
+`ONBOARDING.md` §4, `inputs/README.md` and `runbooks/splitting-repos.md` each gain one sentence
+saying so.
+
 **`private` and `proprietary` now mean two different things, and if you script `init.sh` there is
 one rename.** `private` refers to repository visibility and nothing else; `proprietary` is the
 licence posture. They were the same word in two unrelated questions — the licence question offered

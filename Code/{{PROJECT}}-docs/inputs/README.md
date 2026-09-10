@@ -66,6 +66,8 @@ Two things keep this from rotting:
 - These are **your source materials, not method output** — unlike `../architecture/` (*what*
   the system is) and `../adr/` (*why*), nothing here is versioned or rewritten by the sessions (a
   superseded input is *moved* to `inputs/archive/`, never edited in place — see Lifecycle above).
+  For the same reason `./doctor.sh links` does not check this folder: a broken link in an input
+  stays as it arrived.
 - `inputs-index.md` (the live-vs-superseded ledger) and this `README.md` are **guidance, not
   inputs** — a session never treats them as source documents.
 - The folder is **durable and not STEP-1-only**: a later phase, a V2, or a check-in can add

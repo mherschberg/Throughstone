@@ -333,8 +333,9 @@ special here, which is why it gets no steps of its own below.
    boundary decision, and step 9's build-and-test is what fails if it was not made.
    **This step is not optional and is the easiest one to skip:** the hub's link checker
    resolves link targets into the code repos, so a *correct* split makes hub links dangle —
-   `scripts/links.sh` fails on a finished split and passes on an unfinished one. Step 7 is what
-   makes step 9 satisfiable.
+   `scripts/links.sh` fails on a finished split and passes on an unfinished one. It does not
+   check the hub's `inputs/`, whose imported documents are kept as they arrived: a hit in one of
+   them is history you keep, not a repoint. Step 7 is what makes step 9 satisfiable.
 8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
    and the Architecture Overview entry. **Add a `provenance:` block to that row before
    the action commits**, so the registration stays one commit: the repo it came from, today's

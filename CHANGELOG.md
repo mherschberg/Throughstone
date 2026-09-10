@@ -403,6 +403,16 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **A broken link in an imported document no longer keeps the link check red for good.**
+  `./doctor.sh links` checked every Markdown file in the docs hub except `templates/`, and that
+  included `inputs/` — the documents brought in from outside the method, which it keeps as they
+  arrived and, once superseded, moves to `inputs/archive/` rather than editing. A copied spec with
+  a relative link to a path the workspace does not have failed the check, nothing the method
+  allows could clear it, and moving the file to the archive changed nothing. `scripts/links.sh`
+  now skips `inputs/` and everything under it, and its printed scope says so; a link *to* an input
+  from a file it does check is still checked. `AGENTS.md`, `ONBOARDING.md`, `inputs/README.md` and
+  `runbooks/splitting-repos.md` each gain a sentence saying imported documents are not
+  link-checked.
 - **Seven documents still glued `private` and `proprietary` into one word, and two of them
   described a wizard question that no longer exists.** 1.8 split the two deliberately —
   `private` is who can see the repository, `proprietary` is what the code is licensed under, and

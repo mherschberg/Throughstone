@@ -3,9 +3,10 @@
 # links.sh — read-only stale-link checker for durable Throughstone documentation.
 #
 # Scope is intentionally narrow: root pointer/readme/artifact-tour files and durable docs-hub Markdown.
-# It skips prompts/, Upcoming Prompts/, templates/, app repos, links outside the local
+# It skips prompts/, Upcoming Prompts/, templates/, inputs/, app repos, links outside the local
 # workspace, and all external URLs so the result stays useful as a cheap check-in/CI guard
-# instead of becoming a noisy site crawler.
+# instead of becoming a noisy site crawler. inputs/ holds imported documents, which are kept as
+# they arrived, so a broken link inside one is not something anyone may fix.
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/links.sh
 # Exit:   non-zero if any scoped Markdown file links to a missing local path or anchor.
@@ -63,12 +64,9 @@ def scoped_markdown_files():
         candidate = root / name
         if candidate.is_file():
             files.append(candidate)
-    template_dir = docs_dir / "templates"
+    skipped_dirs = (docs_dir / "templates", docs_dir / "inputs")
     for candidate in sorted(docs_dir.rglob("*.md")):
-        try:
-            candidate.relative_to(template_dir)
-            continue
-        except ValueError:
+        if not any(skipped in candidate.parents for skipped in skipped_dirs):
             files.append(candidate)
     return files
 
@@ -399,7 +397,7 @@ print(f"Throughstone links — {root}")
 print()
 print("Scope:")
 print("  root AGENTS.md / CLAUDE.md / README.md / ARTIFACT-TRAIL.md when present")
-print(f"  {rel(docs_dir)}/**/*.md except templates/")
+print(f"  {rel(docs_dir)}/**/*.md except templates/ and inputs/")
 print("  prompts/, Upcoming Prompts/, app repos, external URLs, and paths outside the workspace are skipped")
 print()
 
