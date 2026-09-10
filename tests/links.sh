@@ -22,6 +22,7 @@ fixture="$TMP_ROOT/workspace"
 mkdir -p "$fixture/Code/acme-docs/scripts" \
   "$fixture/Code/acme-docs/runbooks" \
   "$fixture/Code/acme-docs/templates" \
+  "$fixture/Code/acme-docs/inputs/archive" \
   "$fixture/prompts" \
   "$fixture/Upcoming Prompts"
 
@@ -90,6 +91,22 @@ cat > "$fixture/Code/acme-docs/templates/generated.md" <<'TEMPLATE'
 
 This generated-context link should not be checked here: [future file](future-output.md).
 TEMPLATE
+
+# Imported documents are kept as they arrived, so a broken link in one must not fail the run. Each
+# link climbs out of inputs/ and lands on a missing path inside the workspace; one above the
+# workspace root is skipped anyway and would prove nothing. A superseded input is moved to
+# inputs/archive/, so that file stops a skip that covers only the top of inputs/.
+cat > "$fixture/Code/acme-docs/inputs/imported.md" <<'INPUT'
+# Imported Spec
+
+See [the service spec](../../../src/spec.md).
+INPUT
+
+cat > "$fixture/Code/acme-docs/inputs/archive/retired.md" <<'ARCHIVED'
+# Retired Spec
+
+See [the old service spec](../../../../src/spec.md).
+ARCHIVED
 
 cat > "$fixture/prompts/legacy.md" <<'PROMPTS'
 [legacy missing](missing.md)

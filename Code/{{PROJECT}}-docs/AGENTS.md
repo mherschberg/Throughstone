@@ -140,6 +140,8 @@ README and CI scaffolding, and writes `LICENSING.md` to make those scopes explic
 then clones the siblings). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
 `./doctor.sh links` are thin shortcuts to `Code/{{PROJECT}}-docs/scripts/status.sh`,
 `Code/{{PROJECT}}-docs/scripts/check.sh`, and `Code/{{PROJECT}}-docs/scripts/links.sh`.
+`./doctor.sh links` does not check `Code/{{PROJECT}}-docs/inputs/`: imported documents are kept
+as they arrived, broken links included.
 New human or agent contributor joining an existing project? Read
 `Code/{{PROJECT}}-docs/ONBOARDING.md` for the ordered setup and first-contribution STEP path.
 It covers later contributor onboarding; initial project bootstrap still starts from `./init.sh`.

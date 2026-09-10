@@ -94,6 +94,9 @@ Then run the local checks from the workspace root:
 ./doctor.sh links
 ```
 
+`./doctor.sh links` does not check `Code/<project>-docs/inputs/`: imported documents are kept as
+they arrived, broken links included.
+
 Use `./doctor.sh status` as the source of the next action. It reads the project state from
 disk and applies the next-action resolver from `METHOD.md`. Confirm its result against
 `prompts/STEP-index.md`, and if a STEP is already in progress, read its PLAN in
