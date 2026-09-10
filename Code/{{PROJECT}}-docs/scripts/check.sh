@@ -7,15 +7,18 @@
 # Safe to run anytime — intended for the periodic check-in (runbooks/check-in.md) and for CI.
 #
 # Checks:
-#   1. No duplicate STEP numbers in prompts/STEP-index.md
-#   2. No duplicate ADR numbers in adr/README.md
-#   3. STEP / substep statuses are from the allowed set
+#   1. No duplicate STEP numbers in prompts/STEP-index.md — warns when it has no STEP row
+#   2. No duplicate ADR numbers in adr/README.md — warns when it holds neither an ADR row nor a
+#      registry table
+#   3. STEP / substep statuses are from the allowed set — warns on no STEP row, or on a STEP
+#      row under no Status column
 #   4. Every architecture/NN-*.md carries Version / Status / Version Log
 #   5. The ADR registry and the ADR files on disk match (both directions)
 #   6. overview.md does not carry legacy local user preferences
 #   7. (multi-repo only) No stray files at the workspace root
 #   8. Architecture-session template numbers match the STEP-index seed
-#   9. Conditional-session templates expose the metadata generic review gates require
+#   9. Conditional-session templates expose the metadata generic review gates require — none
+#      passes; a missing templates/architecture-sessions/ folder warns
 #  10. (--check-in only) Every registries/repos.yml row can be read and has a location, and
 #      any repo no recorded remote covers is flagged as a bus-factor risk
 #
@@ -81,7 +84,9 @@ hdr "1. Duplicate STEP numbers (prompts/STEP-index.md)"
 if [ -f "$INDEX" ]; then
   # Invariant: STEP numbers are durable IDs. prompts/STEP-index.md is authoritative, and
   # duplicates catch accidental reuse after planning, branching, or folder creation.
-  dups="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE 'STEP-[0-9]+' | sort | uniq -d)"
+  step_ids="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE 'STEP-[0-9]+')"
+  step_rows="$(printf '%s\n' "$step_ids" | grep -c .)"
+  dups="$(printf '%s\n' "$step_ids" | sort | uniq -d)"
   if [ -n "$dups" ]; then
     fail "duplicate STEP number(s): $(echo "$dups" | tr '\n' ' ')"
     for d in $dups; do
@@ -90,8 +95,13 @@ if [ -f "$INDEX" ]; then
     done
     maxn="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE '[0-9]+' | sort -n | tail -1)"
     hint "renumber the duplicate (the one reserved later) to STEP-$((maxn + 1)) — never reuse or delete a number; mark a row Abandoned if it won't be built. See $DOCS_REL/runbooks/collaboration.md §2."
+  elif [ "$step_rows" -eq 0 ]; then
+    # init.sh reserves STEP-1 and a STEP number is never deleted, so an index with no STEP row
+    # has lost its table. A pass here would vouch for rows nobody read.
+    warn "found no STEP rows in prompts/STEP-index.md — nothing to check"
+    hint "a STEP row starts at the left margin with its number, as in | STEP-1 |. Restore the table from git history; a number is never deleted, only marked Abandoned."
   else
-    pass "no duplicate STEP numbers"
+    pass "no duplicate STEP numbers ($step_rows STEP row(s))"
   fi
 else
   warn "no prompts/STEP-index.md yet (project not initialized?) — skipping STEP checks"
@@ -102,7 +112,9 @@ hdr "2. Duplicate ADR numbers ($DOCS_REL/adr/README.md)"
 if [ -f "$ADR_INDEX" ]; then
   # Invariant: ADR numbers are durable decision IDs. adr/README.md is the registry authority,
   # and duplicates catch copy/paste rows or renumbering drift before files are reconciled.
-  dups="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE 'ADR-[0-9]+' | sort | uniq -d)"
+  adr_ids="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE 'ADR-[0-9]+')"
+  adr_rows="$(printf '%s\n' "$adr_ids" | grep -c .)"
+  dups="$(printf '%s\n' "$adr_ids" | sort | uniq -d)"
   if [ -n "$dups" ]; then
     fail "duplicate ADR number(s): $(echo "$dups" | tr '\n' ' ')"
     for d in $dups; do
@@ -111,8 +123,13 @@ if [ -f "$ADR_INDEX" ]; then
     done
     maxn="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE '[0-9]+' | sed 's/^0*//' | sort -n | tail -1)"
     hint "renumber the later duplicate to $(printf 'ADR-%04d' "$((maxn + 1))") and rename its file to match — never reuse a number. See $DOCS_REL/adr/README.md and $DOCS_REL/runbooks/collaboration.md §6."
+  elif [ "$adr_rows" -eq 0 ] && ! grep -qE '^\|[[:space:]]*ADR[[:space:]]*\|' "$ADR_INDEX"; then
+    # No ADR row is how every project starts, so the count alone cannot tell a new registry
+    # from an emptied one. The table header can: it ships with the file and stays when empty.
+    warn "found no ADR rows and no registry table in $DOCS_REL/adr/README.md — nothing to check"
+    hint "the registry table stays even with no ADRs in it: restore its header row, | ADR | Title | Status | Date |, from git history."
   else
-    pass "no duplicate ADR numbers"
+    pass "no duplicate ADR numbers ($adr_rows ADR row(s))"
   fi
 else
   warn "no $DOCS_REL/adr/README.md — skipping ADR-number check"
@@ -127,10 +144,16 @@ if [ -f "$INDEX" ]; then
   # Find each table's Status column from its header row, then validate that cell in data rows.
   # The parser depends on Markdown table headers, not fixed column positions; STEP rows may not
   # use N/A because only substeps can be structurally inapplicable.
-  bad="$(awk -F'|' '
+  #
+  # A STEP row under a header with no Status column is never validated, so STEP rows are also
+  # counted by their own shape — the one the duplicate-number check reads — and one that no
+  # Status column covers is a warning, not a pass.
+  scan="$(awk -F'|' '
     function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
     {
       if ($0 !~ /^[[:space:]]*\|/) { inrow = 0; statuscol = 0; next }   # left a table
+      steprow = ($0 ~ /^\|[[:space:]]*STEP-[0-9]+/)
+      steprows += steprow
       ishdr = 0; isstep = 0; issub = 0
       for (i = 1; i <= NF; i++) {
         c = trim($i)
@@ -140,22 +163,35 @@ if [ -f "$INDEX" ]; then
       }
       if (ishdr && isstep) tablekind = "STEP"
       if (ishdr && issub)  tablekind = "SUB"
-      if (ishdr) { inrow = 1; next }
+      if (ishdr) { inrow = 1; subtable = issub; next }
       if (!inrow || statuscol == 0) next
+      stepread += steprow
       sc = trim($statuscol)
       if (sc == "" || sc ~ /^:?-+:?$/) next                            # blank or separator row
+      subread += subtable
       if (sc != "Planned" && sc != "In progress" && sc != "Done" && sc != "Deferred" && sc != "Abandoned" && sc != "N/A")
         print trim($2) " -> \"" sc "\""
       else if (sc == "N/A" && tablekind != "SUB")
         print trim($2) " -> \"N/A\" (only substeps may use N/A)"
     }
+    END { print "count\t" (stepread + 0) "\t" (steprows + 0) "\t" (subread + 0) }
   ' "$INDEX")"
+  step_read="$(printf '%s\n' "$scan" | awk -F'\t' '$1 == "count" { print $2 }')"
+  step_seen="$(printf '%s\n' "$scan" | awk -F'\t' '$1 == "count" { print $3 }')"
+  sub_read="$(printf '%s\n' "$scan"  | awk -F'\t' '$1 == "count" { print $4 }')"
+  bad="$(printf '%s\n' "$scan" | awk -F'\t' '$1 != "count"')"
   if [ -n "$bad" ]; then
     fail "invalid status value(s):"
     while IFS= read -r line; do printf '         %s\n' "$line"; done <<< "$bad"
     hint "use exactly one of: Planned · In progress · Done · Deferred · Abandoned (a substep may also be N/A). See $DOCS_REL/METHOD.md §1."
-  else
-    pass "all statuses valid"
+  fi
+  if [ "${step_seen:-0}" -eq 0 ]; then
+    warn "found no STEP rows in prompts/STEP-index.md — no STEP status checked"
+  elif [ "${step_read:-0}" -lt "$step_seen" ]; then
+    warn "read the status of ${step_read:-0} of $step_seen STEP row(s) — a status is read only under a header row with a Status column"
+    hint "give every STEP table the header row in $DOCS_REL/templates/step-index-seed.md; a STEP row under a renamed or missing header is not checked."
+  elif [ -z "$bad" ]; then
+    pass "all statuses valid ($step_read STEP row(s), $sub_read substep row(s))"
   fi
 else
   warn "no prompts/STEP-index.md yet — skipping status check"
@@ -373,7 +409,11 @@ hdr "9. Conditional-session template contract"
 # tooling still needs a common metadata contract: applicability, invocation, outputs, next
 # action, active PLAN handling, architecture index updates, and substep completion language.
 conditional_templates=("$SESSION_TEMPLATE_DIR"/conditional-*.md)
-if [ ${#conditional_templates[@]} -eq 0 ]; then
+# Conditional templates are optional and a project may delete them, so having none passes. The
+# folder they live in is not optional — it holds the numbered sessions too — so its absence warns.
+if [ ! -d "$SESSION_TEMPLATE_DIR" ]; then
+  warn "no $DOCS_REL/templates/architecture-sessions/ folder — skipping conditional-session check"
+elif [ ${#conditional_templates[@]} -eq 0 ]; then
   pass "no conditional-session templates found (nothing to check)"
 else
   conditional_ok=1

@@ -185,6 +185,17 @@ changed. A link *to* an input from a doc it does check is still checked. `AGENTS
 `ONBOARDING.md` §4, `inputs/README.md` and `runbooks/splitting-repos.md` each gain one sentence
 saying so.
 
+**A doctor check that read nothing now warns instead of passing, and there is nothing for you to do
+unless it warns.** `./doctor.sh check` used to pass its duplicate-STEP, duplicate-ADR, status and
+conditional-template checks when they found nothing to read — an emptied `prompts/STEP-index.md` or
+`adr/README.md`, a STEP table whose `Status` header had been renamed, or a missing
+`templates/architecture-sessions/` folder. `scripts/check.sh` now prints a `[WARN]` for each. A
+project whose files are intact sees no new warning: no ADR yet still passes, and so do conditional
+templates you deleted on purpose. If one of the new warnings does appear, it is describing something
+that was already wrong — usually a file, folder or table header that git history can restore.
+Warnings never change the doctor's exit code, so no CI run turns red. If anything of yours reads the
+doctor's pass lines word for word, three of them now end in a row count in parentheses.
+
 **`private` and `proprietary` now mean two different things, and if you script `init.sh` there is
 one rename.** `private` refers to repository visibility and nothing else; `proprietary` is the
 licence posture. They were the same word in two unrelated questions — the licence question offered
