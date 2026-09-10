@@ -16,8 +16,8 @@
 #   7. (multi-repo only) No stray files at the workspace root
 #   8. Architecture-session template numbers match the STEP-index seed
 #   9. Conditional-session templates expose the metadata generic review gates require
-#  10. (--check-in only) Every registries/repos.yml row has a location, and any repo no
-#      recorded remote covers is flagged as a bus-factor risk
+#  10. (--check-in only) Every registries/repos.yml row can be read and has a location, and
+#      any repo no recorded remote covers is flagged as a bus-factor risk
 #
 # The registry changes on the rare path — a repo created, adopted or split out — so it is not
 # validated on every run. Pass --check-in; runbooks/check-in.md is what does.
@@ -424,7 +424,10 @@ if [ "$CHECK_IN" -eq 1 ]; then
   else
     # Walk each `- name:` block and report the rows missing a location, and the rows no
     # recorded remote covers. Comment lines are skipped, so the example row at the bottom is not
-    # counted. A row is found by its `- name:` line, so a row without one is not a row at all.
+    # counted. A row is found by its `- name:` line, so a row written any other way is not read,
+    # and its fields land on the row above it. Every list entry is therefore counted apart from
+    # the walk, under the same comment rule, and a registry whose two counts disagree fails: the
+    # other findings may then name the wrong repo, and nothing can say where the unread one lives.
     reg_flat="$(awk '
       function val(t) { sub(/^[^:]*:[[:space:]]*"?/, "", t); sub(/"?[[:space:]]*$/, "", t); return t }
       function stash() {
@@ -434,11 +437,13 @@ if [ "$CHECK_IN" -eq 1 ]; then
         have = 0
       }
       /^[[:space:]]*#/ { next }
+      /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
       /^[[:space:]]*-[[:space:]]*name:/ { stash(); name = val($0); loc = ""; rem = ""; have = 1; next }
       /^[[:space:]]*location:/ { loc = val($0) }
       /^[[:space:]]*remote:/   { rem = val($0) }
       END {
         stash()
+        print "count\t" (n + 0) "\t" (entries + 0)
         for (i = 1; i <= n; i++) {
           if (locs[i] == "") print "location\t" names[i]
           # Covered by its own remote, or by the remote of a row at "." that contains it.
@@ -449,10 +454,15 @@ if [ "$CHECK_IN" -eq 1 ]; then
       }
     ' "$REPOS_REGISTRY")"
 
-    rows="$(awk '/^[[:space:]]*#/ { next } /^[[:space:]]*-[[:space:]]*name:/ { n++ } END { print n + 0 }' "$REPOS_REGISTRY")"
+    rows="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "count" { print $2 }')"
+    entries="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "count" { print $3 }')"
     no_loc="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "location" { print $2 }')"
     no_rem="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "remote"   { print $2 " (" $3 ")" }')"
 
+    if [ "$rows" != "$entries" ]; then
+      fail "read $rows of $entries row(s) — a row is read only from its - name: line"
+      hint "start every row with its - name: line, then run the check again; until the two numbers match, the other findings here may name the wrong repo."
+    fi
     if [ -n "$no_loc" ]; then
       fail "row(s) with no location: $(printf '%s' "$no_loc" | tr '\n' ' ')"
       hint "give every row a location: — the workspace-relative path the repo lives at; without one, nothing can find the repo."
@@ -461,7 +471,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"
       hint "a repo with no remote lives on one machine — a bus factor of one. Record the URL in remote: if it already has one; if not, create one — private, widening is a separate decision — or accept the risk deliberately."
     fi
-    [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
+    [ "$rows" = "$entries" ] && [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
   fi
 else
   hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"

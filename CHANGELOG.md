@@ -77,7 +77,9 @@ any project built with it.
   checks that belong to the periodic check-in rather than to every run — today, one. Check 10 reads
   `registries/repos.yml` and makes two mechanical checks and only those two. **A row with no
   `location:` fails the run**, because nothing can find that repo and guessing a path is worse than
-  asking. **A repo that no recorded remote covers is a warning**, because as far as the project knows
+  asking — **and so does a row the doctor cannot read**: it finds a row by its `- name:` line, counts
+  the list's entries apart from that, and fails when the two disagree rather than pass over a repo
+  it never saw. **A repo that no recorded remote covers is a warning**, because as far as the project knows
   that work lives on exactly one laptop. A row is covered by its own `remote:`, or by the root
   repository's when it lives inside it — in a mono-repo-for-now project the row whose `location` is
   `.` is the one real repository and the folder rows below it are backed up by whatever backs it up,
@@ -403,6 +405,13 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **The workspace setup no longer clones from a registry it cannot fully read.**
+  `scripts/setup-workspace.sh` finds a row by its `- name:` line, so a row written any other way —
+  starting on a bare `-`, or with another field first — was not read, and its fields landed on the
+  row above it: that repo was never cloned and nothing said so, or one repo's remote was cloned into
+  another repo's location. It now counts the list's entries apart from the rows it reads, and when
+  the two disagree it clones nothing and says to fix the row; the workspace's pointer files are
+  still written.
 - **A broken link in an imported document no longer keeps the link check red for good.**
   `./doctor.sh links` checked every Markdown file in the docs hub except `templates/`, and that
   included `inputs/` — the documents brought in from outside the method, which it keeps as they

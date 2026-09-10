@@ -386,12 +386,15 @@ has is on your machine, nothing about these three changes for you.
 you pass the new **`--check-in`** flag. A plain `./doctor.sh check` prints the section as
 `skipped`, and CI never passes the flag, so nothing about the registry can fail a build on a push.
 `runbooks/check-in.md` is what passes it: the check-in's mechanical pass now runs
-`Code/<project>-docs/scripts/check.sh --check-in` from the workspace root. There are two findings
+`Code/<project>-docs/scripts/check.sh --check-in` from the workspace root. It checks two things
 and only two:
 
 - **A row with no `location:` fails the run.** Nothing can find that repo without one. Ask whoever
-  knows where it lives and write the path in; do not guess one. This is the only registry finding
-  that can turn a check-in red, and a 1.7 registry cannot produce it unless a row was hand-edited.
+  knows where it lives and write the path in; do not guess one. **So does a row the doctor cannot
+  read** — one that does not start with its `- name:` line, which leaves its fields on the row
+  above; the doctor counts the list's entries to know it read them all. These are the only registry
+  findings that can turn a check-in red, and a 1.7 registry cannot produce either unless a row was
+  hand-edited.
 - **A repo that no recorded remote covers is a warning**, named row by row: as far as the project
   knows, that repo's work lives on exactly one laptop. **Most 1.7 projects will see this at their
   first check-in after upgrading**, because a 1.7 registry ships two rows with no `remote:`, and
@@ -456,6 +459,12 @@ needs undoing first: repos already cloned are left alone, the pointer files are 
 and the run now finishes whatever happens to the clones. Its closing line says how many repos did not
 arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
 hand — and re-run to pick it up.
+
+**Multi-repo only: the same script now clones nothing from a registry with a row it cannot read.**
+It reads a row only from its `- name:` line. A row that starts any other way used to be passed over
+without a word, its fields landing on the row above — so one repo never arrived, or another repo's
+remote was cloned into its folder. The run now says so instead; fix that row and run it again. A 1.7
+registry cannot produce this unless a row was hand-edited.
 
 **A `location:` that points outside the workspace root stops working, and 1.7 told you it was
 allowed.** 1.7's `registries/repos.yml` header said a `location:` MAY point outside the `Code/*`
