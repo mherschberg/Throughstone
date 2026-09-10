@@ -270,10 +270,10 @@ flow (§6). The transition is mostly mechanical:
 
 1. **Stand up the shared remotes — and push your existing history to them first.** A solo
    dev has been committing locally with no remote, so the order matters: (a) create the remote
-   for `prompts/`, the docs hub, and each code repo **Throughstone created**, then **`git push`
-   your existing history to each** — otherwise newcomers clone empty repos and the STEP-number
-   registry of record is gone. **A repo Throughstone did not create gets neither** — never
-   create a remote for it and never push its history (`register-repo.md`); (b) add the
+   for `prompts/`, the docs hub, and every code repo **that has no remote yet**, then
+   **`git push` your existing history to each** — otherwise newcomers clone empty repos and the
+   STEP-number registry of record is gone. **A repo that already has a remote keeps the one it
+   has** — never create a second and never repoint it (`register-repo.md`); (b) add the
    `remote:` fields in `registries/repos.yml`, for every repo that has one; (c) have each new
    contributor run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, from the workspace root,
    to clone them. Number reservation (§2) relies on this shared `prompts/` remote.
