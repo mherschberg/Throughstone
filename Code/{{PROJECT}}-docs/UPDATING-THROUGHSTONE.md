@@ -157,7 +157,12 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
     nobody meant to commit, `git rm --cached` it and commit — your copy stays on disk, but a
     teammate who pulls that commit loses an unedited copy of theirs, so leave each sheet to whoever
     owns its STEP.
-11. Nothing else. A project that never splits reads none of the splitting material.
+11. **If `./doctor.sh check` now fails a Status that is only dashes, or blank**, write that STEP's or
+    substep's real status in `prompts/STEP-index.md`. The doctor used to skip such a row as though
+    it were the table's separator line, and `./doctor.sh status` still does — so until it is fixed,
+    the helper answers as if the row were not in the index at all. A project whose statuses are all
+    filled in sees no change.
+12. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and

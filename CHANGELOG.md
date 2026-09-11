@@ -405,6 +405,16 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **The status check no longer passes a row whose Status is only dashes, or blank.** To step over
+  each table's separator line, `scripts/check.sh` skipped every row whose Status cell was empty or
+  made only of dashes, so a STEP or substep row with a Status of `-`, `--` or `:-:`, or none at all,
+  passed. `./doctor.sh status` skips the same rows without a word: with STEP-2's Status set to `-`
+  and STEP-3 Planned, it reported no STEP in progress and named STEP-3 as next up, and with substep
+  1.1's set to `-` it left 1.1 out and sent you to 1.2. A row now counts as the separator only when
+  its first cell is dashes as well, so a dash or blank Status on any other row fails the check like
+  any other value outside the vocabulary. `./doctor.sh status` is unchanged; the failing check is
+  what points at the row. A project with such a row sees the check fail after upgrading, and
+  `UPDATING-THROUGHSTONE.md`'s 1.8 section says what to do.
 - **Two doctor messages now describe what their checks look at.** When `scripts/check.sh` finds an
   unexpected entry at the root of a multi-repo workspace, its hint said to move durable content into
   a repo — wrong for a repo registered at a path such as `backend/`, which may sit at any path inside
