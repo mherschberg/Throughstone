@@ -405,7 +405,7 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
-- **A mono-repo-for-now project no longer commits the STEP in flight.** In that layout the
+- **A new mono-repo-for-now project no longer commits the STEP in flight.** In that layout the
   workspace root is the repository, and the `.gitignore` `init.sh` wrote there had no entry for
   `Upcoming Prompts/`, so the first ordinary `git add -A` committed whatever PLAN or substep prompt
   was in progress — the working scratch `METHOD.md` calls un-versioned until the STEP is archived

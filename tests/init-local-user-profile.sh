@@ -147,8 +147,8 @@ rm -f "$mono_work/$sheet" "$mono_work/add-probe.txt"
 }
 # Only the folder's contents are ignored: its placeholder stays committed, so a clone of a mono
 # project still has the folder the next PLAN is written into.
-git -C "$mono_work" ls-files --error-unmatch "Upcoming Prompts/.gitkeep" >/dev/null 2>&1 || {
-  printf 'FAIL: the mono bootstrap commit does not track Upcoming Prompts/.gitkeep\n' >&2
+git -C "$mono_work" cat-file -e "HEAD:Upcoming Prompts/.gitkeep" 2>/dev/null || {
+  printf 'FAIL: the mono bootstrap commit does not contain Upcoming Prompts/.gitkeep\n' >&2
   exit 1
 }
 
