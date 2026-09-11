@@ -1180,6 +1180,11 @@ fi
 # write_gitignore DIR — write the shared baseline ignore file for each generated repo.
 # The contents are intentionally small: editor cruft, per-machine agent config, and local
 # secrets. Project-specific ignores can be added after bootstrap.
+# A mono root also ignores what is inside Upcoming Prompts/: there the workspace root is the
+# repository, and the in-flight STEP's sheets are per-machine scratch until the STEP is archived
+# into prompts/ (METHOD.md §5). Its .gitkeep stays tracked so every clone has the folder. A multi
+# root is not a repository, so the hub and prompts/ get neither line. The lines must be written
+# here, before init_repo's `git add -A`, or a new project starts with a modified .gitignore.
 write_gitignore() {
   cat > "$1/.gitignore" <<'GI'
 # OS / editor cruft
@@ -1202,6 +1207,15 @@ write_gitignore() {
 !.env.example
 .secrets/
 GI
+  if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
+    cat >> "$1/.gitignore" <<'GI'
+
+# The STEP in flight (per-machine scratch until it is archived into prompts/). The .gitkeep stays
+# tracked so every clone has the folder.
+/Upcoming Prompts/*
+!/Upcoming Prompts/.gitkeep
+GI
+  fi
 }
 
 # stamp_license DIR — write the selected project LICENSE for open-source projects.
