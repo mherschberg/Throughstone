@@ -151,11 +151,13 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
 10. **Mono-repo-for-now only: add two lines to the `.gitignore` at your workspace root** —
     `/Upcoming Prompts/*`, then `!/Upcoming Prompts/.gitkeep` below it — and commit it. In that
     layout the root is the repository, so without them a plain `git add -A` commits the PLAN and
-    substep prompts of the STEP in flight, which the method keeps out of every repository until the
+    substep prompts of the STEP in flight, which the method treats as per-machine scratch until the
     STEP is archived into `prompts/`. New projects get the lines from `init.sh`, which runs once.
-    Then run `git ls-files "Upcoming Prompts"`: anything listed besides `.gitkeep` is already
-    tracked, and the new lines do not untrack it — `git rm --cached` it and commit; the file stays
-    on disk. Multi-repo projects have nothing to do: their workspace root is not a repository.
+    Then run `git ls-files "Upcoming Prompts"`: the new lines do not untrack anything listed there
+    besides `.gitkeep`. To untrack a sheet nobody meant to commit, `git rm --cached` it and commit —
+    your copy stays on disk, but a teammate who pulls that commit loses an unedited copy of theirs,
+    so leave each sheet to whoever owns its STEP. Multi-repo projects have nothing to do: their
+    workspace root is not a repository.
 11. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
