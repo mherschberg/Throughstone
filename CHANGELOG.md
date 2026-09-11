@@ -94,7 +94,8 @@ any project built with it.
   `skipped — run with --check-in`, and the generated CI workflow never passes the flag: a typo in the
   registry has no business failing a build on every push. `runbooks/check-in.md` is what passes it,
   where a person is already looking, and it says what to do with each finding — a `[FAIL]` gets
-  fixed, a `[WARN]` gets a decision rather than a reflex fix. `scripts/check.sh` also gains its first
+  fixed, a `[WARN]` gets a decision rather than a reflex fix. `registries/README.md`, which named CI
+  among the file's readers, now names the check-in. `scripts/check.sh` also gains its first
   test, `tests/check-repo-registry.sh`, and the flag is listed in `./doctor.sh --help`, in the
   command list and in the examples.
 
@@ -179,8 +180,8 @@ any project built with it.
   nothing enforces it: it stays advice, and §10 rule 7 still never becomes the next action.
 
   **What went with it.** The cadence setting and its default; the DUE/OVERDUE windows and the
-  arithmetic around them; the doctor check that validated the setting (which renumbers the
-  repo-registry check from 11 to 10); and the `Check-in` title rule as a machine contract — it
+  arithmetic around them; the doctor check that validated the setting; and the `Check-in` title
+  rule as a machine contract — it
   survives in the documents as a plain roadmap convention, policed by nothing. New projects are
   seeded `STEP-20`, a starting suggestion rather than a rule. One hazard survives and stays
   guarded: a hand-written `STEP-08` is forced to base 10, because `$(( ))` reads a leading zero as
