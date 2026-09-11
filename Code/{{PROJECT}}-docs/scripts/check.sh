@@ -280,7 +280,7 @@ else
   done
   if [ -n "$stray" ]; then
     warn "unexpected entr(ies) at workspace root:$stray — should these be inside a repo (usually the docs hub)?"
-    hint "move durable content into a repo (almost always Code/<project>-docs/); the root holds only per-machine pointers, the repo folders, and Upcoming Prompts/. See $DOCS_REL/METHOD.md §7."
+    hint "ask whether each entry is fine where it is: a repo registered in $DOCS_REL/registries/repos.yml may sit at any path inside the workspace and never has to move, and anything else durable belongs in a repo (almost always $DOCS_REL/). See $DOCS_REL/METHOD.md §7."
   else
     pass "only the expected pointers / repos at the workspace root"
   fi
@@ -352,7 +352,7 @@ else
     # exception: it produces a review doc after all numbered architecture docs exist.
     if [[ "$b" != *cross-cutting-review.md ]]; then
       if ! grep -Eq "^Write \`architecture/${prefix}-[^\`]+\`" "$f"; then
-        fail "$b does not instruct the agent to write architecture/${prefix}-… in its Output section"
+        fail "$b has no line starting with Write \`architecture/${prefix}-…\`"
         numbering_ok=0
       fi
       if [ -n "$seed_output" ] && ! printf '%s' "$seed_output" | grep -q "architecture/${prefix}-"; then

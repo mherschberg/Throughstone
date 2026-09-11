@@ -405,6 +405,17 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **Two doctor messages now describe what their checks look at.** When `scripts/check.sh` finds an
+  unexpected entry at the root of a multi-repo workspace, its hint said to move durable content into
+  a repo — wrong for a repo registered at a path such as `backend/`, which may sit at any path inside
+  the workspace and never has to move. The hint now asks whether each entry is fine where it is, and
+  says anything else durable belongs in a repo. The architecture-session numbering check said a
+  template "does not instruct the agent to write architecture/NN-… in its Output section", but it
+  searches the whole file for a line that starts with ``Write `architecture/NN-``, so a template
+  whose instruction is a bullet, `- Write …`, was told it had no such instruction. It now says the
+  file has no line starting with that text. Neither check's logic changed.
+  `templates/ci/README.md` also no longer lists root hygiene among what CI's doctor run checks: that
+  check is skipped whenever `CI` is non-empty, as it is on GitHub Actions.
 - **A new mono-repo-for-now project no longer commits the STEP in flight.** In that layout the
   workspace root is the repository, and the `.gitignore` `init.sh` wrote there had no entry for
   `Upcoming Prompts/`, so the first ordinary `git add -A` committed whatever PLAN or substep prompt
