@@ -617,7 +617,8 @@ else
   echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ each become their own repo;"
   echo "                      this folder is not itself a repo, so anything left here is"
   echo "                      not tracked or backed up)"
-  echo "  2) mono-repo for now  (one repo at this folder, so everything here is tracked;"
+  echo "  2) mono-repo for now  (one repo at this folder, so everything here is tracked"
+  echo "                         except the STEP in flight in Upcoming Prompts/;"
   echo "                         split into separate repos later)"
   # No default: the layout is structural and fixed at creation, so Enter cannot be allowed to
   # pick it. The answer is taken through an assignment rather than passed straight to
@@ -1180,6 +1181,10 @@ fi
 # write_gitignore DIR — write the shared baseline ignore file for each generated repo.
 # The contents are intentionally small: editor cruft, per-machine agent config, and local
 # secrets. Project-specific ignores can be added after bootstrap.
+# A mono root also ignores the in-flight STEP's sheets in Upcoming Prompts/ (METHOD.md §5), since
+# there the workspace root is the repository. A multi root is not a repository, so the hub and
+# prompts/ get neither line. The lines must be written here, before init_repo's `git add -A`, or a
+# new project starts with a modified .gitignore.
 write_gitignore() {
   cat > "$1/.gitignore" <<'GI'
 # OS / editor cruft
@@ -1202,6 +1207,15 @@ write_gitignore() {
 !.env.example
 .secrets/
 GI
+  if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
+    cat >> "$1/.gitignore" <<'GI'
+
+# The STEP in flight (per-machine scratch until it is archived into prompts/). The .gitkeep stays
+# tracked so every clone has the folder.
+/Upcoming Prompts/*
+!/Upcoming Prompts/.gitkeep
+GI
+  fi
 }
 
 # stamp_license DIR — write the selected project LICENSE for open-source projects.
@@ -1522,8 +1536,9 @@ fi
 # whichever is true. It also names the commit, which neither layout used to mention at all.
 if [ "$LAYOUT" = "2" ]; then
   SAVED_TIP="You can start now; your project is committed locally with Git — everything in this
-  folder is in that repository. For backup, sharing, and working from another computer, put the
-  project on a Git host when you're ready."
+  folder is in that repository except the STEP in flight in Upcoming Prompts/, which stays on this
+  computer until it is archived into prompts/. For backup, sharing, and working from another
+  computer, put the project on a Git host when you're ready."
 else
   SAVED_TIP="You can start now; both repositories here are committed locally with Git —
   Code/${SLUG}-docs/ and prompts/. Files at the workspace root are not in any repository, as the

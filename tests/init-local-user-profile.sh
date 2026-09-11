@@ -129,4 +129,27 @@ copy_template "$mono_work"
 
 assert_profile_output "$mono_work" "Code/$mono-docs"
 
+# In the mono layout the workspace root is the repository, so its ignore file is all that keeps an
+# ordinary `git add -A` from committing the in-flight STEP's sheets, which METHOD.md §5 calls
+# un-versioned. Ask git rather than reading .gitignore: a line git does not honour would still
+# match. The probe is a file the dry run has to name, so a dry run that saw nothing cannot pass, and
+# matching the whole output also catches an ignore file the bootstrap commit left modified.
+sheet="Upcoming Prompts/$mono-STEP-2-PLAN.md"
+printf '# in-flight plan\n' >"$mono_work/$sheet"
+printf 'probe\n' >"$mono_work/add-probe.txt"
+dry_run="$(git -C "$mono_work" add -A --dry-run)"
+rm -f "$mono_work/$sheet" "$mono_work/add-probe.txt"
+[ "$dry_run" = "add 'add-probe.txt'" ] || {
+  printf 'FAIL: git add -A in a fresh mono project should list only add-probe.txt, not %s; got:\n' \
+    "$sheet" >&2
+  printf '%s\n' "$dry_run" >&2
+  exit 1
+}
+# Only the folder's contents are ignored: its placeholder stays committed, so a clone of a mono
+# project still has the folder the next PLAN is written into.
+git -C "$mono_work" cat-file -e "HEAD:Upcoming Prompts/.gitkeep" 2>/dev/null || {
+  printf 'FAIL: the mono bootstrap commit does not contain Upcoming Prompts/.gitkeep\n' >&2
+  exit 1
+}
+
 echo "init.sh local user profile output: PASS"
