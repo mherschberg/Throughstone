@@ -410,9 +410,11 @@ any project built with it.
   `Upcoming Prompts/`, so the first ordinary `git add -A` committed whatever PLAN or substep prompt
   was in progress — the working scratch `METHOD.md` calls un-versioned until the STEP is archived
   into `prompts/`. A new mono project's root `.gitignore` now ignores what is inside the folder and
-  keeps its `.gitkeep` tracked, so a clone still arrives with the folder. Multi-repo projects were
-  never affected: their workspace root is not a repository. An existing mono project adds the two
-  lines itself, as the 1.8 migration notes describe.
+  keeps its `.gitkeep` tracked, so a clone still arrives with the folder, and `init.sh`'s layout
+  menu and closing message, which told a mono user everything in the folder is tracked, now name
+  that exception. Multi-repo projects were never affected: their workspace root is not a
+  repository. An existing mono project adds the two lines itself, as `UPDATING-THROUGHSTONE.md`'s
+  1.8 section describes.
 - **A doctor check that read nothing no longer passes.** Four of the checks `scripts/check.sh` runs
   every time read rows out of a table or templates out of a folder, and each printed a clean PASS
   when it found nothing there. Emptying `prompts/STEP-index.md` and `adr/README.md` passed the
