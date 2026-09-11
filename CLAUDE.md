@@ -8,7 +8,9 @@ checkout is the **Throughstone scaffold before project initialization**, not an 
 app/project workspace. In that mode, do **not** start the generated-project kickoff/resume
 flow. Treat the files under the template docs path as templates for future projects, and
 work on the scaffold repo like a normal repository unless the user explicitly asks to run
-`./init.sh` or to simulate/test a generated project.
+`./init.sh` or to simulate/test a generated project. `init.sh` deletes `.git` (reflog included),
+`.dev/` and `TODO.md`, among other files, so run it in this checkout only when it is a fresh clone
+meant to become the project; for anything else, run it in a throwaway copy.
 
 If the docs path below is a concrete project path such as `Code/<name>-docs/AGENTS.md`,
 ignore this guard and follow the normal handoff below.

@@ -270,7 +270,7 @@ assert_no_placeholders() {
   local leaked named actual="$TMP_ROOT/placeholders-$slug"
 
   # The three tokens init.sh has a value for. They have to be named rather than inferred from the
-  # file list, because fourteen of the files pinned above legitimately hold other {{ tokens: a
+  # file list, because many of the files pinned above legitimately hold other {{ tokens: a
   # {{PROJECT}} that survived inside one of those would leave the list below entirely unchanged.
   leaked="$( cd "$work" && grep -rlF --exclude-dir=.git \
     -e '{{PROJECT}}' -e '{{PROJECT_DESCRIPTION}}' -e '{{TRUNK_BRANCH}}' . 2>/dev/null \
@@ -291,7 +291,7 @@ assert_no_placeholders() {
 
   # Every other file still holding a {{ token has to be one the project is meant to keep. The
   # docs hub is named for the slug, so normalise that one directory out of the path; without it
-  # the two layouts spell the same twenty files two different ways.
+  # the two layouts spell the same files two different ways.
   ( cd "$work" && grep -rlF '{{' . --exclude-dir=.git 2>/dev/null ) \
     | sed -e 's|^\./||' -e "s|^Code/$slug-docs/|Code/DOCS/|" | sort > "$actual"
   diff -u "$RETAINED_PLACEHOLDERS" "$actual" \
