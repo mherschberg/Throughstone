@@ -152,7 +152,7 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
     `/Upcoming Prompts/*`, then `!/Upcoming Prompts/.gitkeep` below it — and commit it. In that
     layout the root is the repository, so without them a plain `git add -A` commits the PLAN and
     substep prompts of the STEP in flight, which the method treats as per-machine scratch until the
-    STEP is archived into `prompts/`. Then run `git ls-files "Upcoming Prompts"`: the new lines
+    STEP is archived into `prompts/`. Then, from the workspace root, run `git ls-files "Upcoming Prompts"`: the new lines
     untrack nothing, so anything listed besides `.gitkeep` is still tracked. To untrack a sheet
     nobody meant to commit, `git rm --cached` it and commit — your copy stays on disk, but a
     teammate who pulls that commit loses an unedited copy of theirs, so leave each sheet to whoever
