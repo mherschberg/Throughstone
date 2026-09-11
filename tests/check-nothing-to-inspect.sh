@@ -2,12 +2,15 @@
 #
 # Regression coverage for the every-run doctor checks that read rows out of a table, or templates
 # out of a folder, when there is nothing there to read: scripts/check.sh's duplicate-STEP,
-# duplicate-ADR, status and conditional-template checks.
+# duplicate-ADR, status and conditional-template checks — and for the one row the status check
+# skips on purpose, a table's separator, which a data row with a Status of only dashes, or none,
+# must not pass for.
 #
-# The defect under test is a clean PASS from a check that read nothing — an emptied STEP index or
-# ADR registry, a STEP table whose Status header was renamed, a missing session-templates folder.
-# So every case refutes its section's PASS as well as expecting the WARN: the WARN alone could be
-# printed beside a PASS that still vouches for rows nobody read.
+# The defect under test is a clean PASS over rows the check never read — an emptied STEP index or
+# ADR registry, a STEP table whose Status header was renamed, a missing session-templates folder,
+# or a data row skipped as a separator. So every case refutes its section's PASS as well as
+# expecting the WARN or FAIL: that finding alone could be printed beside a PASS that still vouches
+# for rows nobody read.
 #
 # Half of the rule is staying quiet. Some zeros are how a project starts — no ADR yet — or a
 # choice a project may make — deleting the optional conditional templates — and a doctor that
@@ -232,6 +235,27 @@ doctor "$c"
 look "Conditional-session template contract"
 expect "[WARN] no $sessions/ folder — skipping conditional-session check" "missing session-templates folder"
 refute "[PASS]" "missing session-templates folder"
+
+# --- 6. A Status of only dashes, or none ------------------------------------------
+# The status check skips a table's separator row, whose cells are all dashes. A data row keeps its
+# id in the first cell, so a Status of `-`, or a blank one, on a STEP or substep row is read like
+# any other value and fails the run. A separator written with spaces and alignment colons is still
+# skipped.
+c="$(fixture dash-status)"
+idx="$c/prompts/STEP-index.md"
+edit "$idx" 's/^(\| STEP-1 \| Architecture \| \| )Planned/${1}-/' "setting STEP-1 to -"
+edit "$idx" 's/^(\| 1\.1 \| [^|]*\| )Planned/${1}-/' "setting substep 1.1 to -"
+edit "$idx" 's/^(\| 1\.2 \| [^|]*\| )Planned/${1}/' "blanking substep 1.2"
+edit "$idx" 's/^\|-+\|-+\|-+\|-+\|$/| :------ | ------- | :----: | ---------- |/' "spacing and aligning the substep separator"
+doctor "$c"
+look "Statuses valid"
+expect "[FAIL] invalid status value(s):" "dash or blank status"
+expect 'STEP-1 -> "-"' "a STEP row whose Status is -"
+expect '1.1 -> "-"' "a substep row whose Status is -"
+expect '1.2 -> ""' "a substep row with a blank Status"
+refute ':----:' "a separator written with spaces and colons"
+refute "[PASS]" "dash or blank status"
+[ "$DOC_STATUS" -eq 1 ] || bad "dash or blank status — expected exit 1, got $DOC_STATUS"
 
 if [ "$failures" -ne 0 ]; then
   printf 'check.sh nothing-to-inspect checks: %d FAILURE(S)\n' "$failures" >&2

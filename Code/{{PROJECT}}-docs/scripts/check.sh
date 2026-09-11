@@ -167,7 +167,9 @@ if [ -f "$INDEX" ]; then
       if (!inrow || statuscol == 0) next
       stepread += steprow
       sc = trim($statuscol)
-      if (sc == "" || sc ~ /^:?-+:?$/) next                            # blank or separator row
+      # The separator row is the one whose first cell is dashes too. A data row whose Status is
+      # dashes or blank is checked like any other value, and fails.
+      if (sc ~ /^:?-+:?$/ && trim($2) ~ /^:?-+:?$/) next
       subread += subtable
       if (sc != "Planned" && sc != "In progress" && sc != "Done" && sc != "Deferred" && sc != "Abandoned" && sc != "N/A")
         print trim($2) " -> \"" sc "\""
