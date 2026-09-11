@@ -50,8 +50,19 @@ output="$(run_status "$index")"
 assert_contains "$output" \
   'Architecture follow-up required — STEP-12 (Conditional session: AI feature) is Planned.'
 
+# A conditional session is one whose title starts with the phrase. A planned STEP that only
+# mentions one is ordinary work, so the lowest-numbered planned STEP is still next.
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | Ordinary implementation | | Planned | | Fixture |
+| STEP-12 | Follow-up from Conditional session: AI feature | | Planned | | Fixture |'
+output="$(run_status "$index")"
+assert_contains "$output" \
+  'Building — no STEP In progress; next up is STEP-2 (Ordinary implementation).'
+
 # Active ordinary implementation remains the user's current work and takes precedence over a
-# planned conditional follow-up.
+# planned conditional follow-up. Its guidance is the ordinary substep guidance, read from its own
+# title, even though the last row in the index is the conditional one.
 write_index "$index" \
 '| STEP-1 | Architecture | | Done | | Fixture |
 | STEP-2 | Ordinary implementation | | In progress | | Fixture |
@@ -59,6 +70,8 @@ write_index "$index" \
 output="$(run_status "$index")"
 assert_contains "$output" \
   'Building — STEP-2 (Ordinary implementation) is In progress.'
+assert_contains "$output" \
+  'identify its lowest open substep'
 
 # Active conditional work must emit by-name invocation guidance so agents do not run these
 # thin follow-up prompts by STEP number.
@@ -69,6 +82,15 @@ write_index "$index" \
 output="$(run_status "$index")"
 assert_contains "$output" \
   'identify its conditional template invocation BY NAME'
+
+# The same rule on the active arm: an In-progress STEP that only mentions a conditional session
+# gets the ordinary substep guidance, not the by-name invocation.
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | Follow-up from Conditional session: AI feature | | In progress | | Fixture |'
+output="$(run_status "$index")"
+assert_contains "$output" \
+  'identify its lowest open substep'
 
 # With no conditional follow-up in the index, the resolver should select ordinary planned work.
 write_index "$index" \
