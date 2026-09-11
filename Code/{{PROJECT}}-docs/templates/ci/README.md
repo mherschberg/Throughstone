@@ -8,7 +8,7 @@ checks and the test gate the Test Strategy architecture doc calls for
 ## 1. Method integrity — `method-check.yml`  *(ships live; no template step)*
 
 Runs the project "doctor" (`scripts/check.sh` in the docs hub): duplicate STEP/ADR numbers,
-invalid statuses, architecture-doc frontmatter, ADR registry vs. files on disk, root hygiene,
+invalid statuses, architecture-doc frontmatter, ADR registry vs. files on disk,
 numbered-session/seed alignment, the conditional-session template contract required by
 the Cross-Cutting Review and periodic check-in. It is **already installed** in the docs hub
 at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-repo** project
