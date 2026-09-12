@@ -53,8 +53,9 @@
 #    `- name:`, respecting indentation — never on a bare line prefix.
 # 3. **A `#` on a value line is part of the value, not a comment.** These readers skip only a line
 #    whose first non-blank character is `#`, so the fields they actually read — `- name:`,
-#    `location:` and `remote:` — must carry nothing after the value. (`type:` below carries an
-#    annotation; nothing reads that field.) The annotations in the example block are safe only
+#    `location:` and `remote:` — must carry nothing after the value, and are quoted with double
+#    quotes or not at all: a single quote is read as part of the value too. (`type:` below carries
+#    an annotation; no script reads that field.) The annotations in the example block are safe only
 #    because the whole block is commented out; move them off the value lines before uncommenting
 #    a row.
 

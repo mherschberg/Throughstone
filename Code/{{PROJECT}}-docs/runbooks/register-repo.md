@@ -36,7 +36,8 @@ The goal is that the **result** is the same however a repo arrived.
    **`remote:` is recorded if the repo has one** — registration records what is there; it never
    creates a remote and never repoints one. Put nothing after a `- name:`, `location:` or
    `remote:` value: the readers take the rest of the line as part of it, so a trailing `# note`
-   ends up inside the name, the path or the clone URL.
+   ends up inside the name, the path or the clone URL. Quote those values with double quotes, as
+   above, or not at all — a single quote is read as part of the value too.
 
    **A remote created for a repo that has none is created private** — widening is a separate
    decision, made deliberately later. Making a repo public takes an explicit instruction from the
