@@ -3,7 +3,7 @@
 Bring a repository into the project: record it, give it a README, and put our licence notice in
 it. Run this when a repo is created, adopted, or split out of another.
 
-The goal is that the **result** is the same however a repo arrived.
+The goal is that the **result** is the same however a repo arrived, except for licensing (step 3).
 
 ## Before you start
 

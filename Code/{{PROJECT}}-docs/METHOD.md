@@ -567,10 +567,12 @@ from someone else's machine must not be written to here even when it happens to 
 
 **What a row records, and what it does not.** A row is an inventory entry, never a status board;
 `registries/repos.yml` documents its fields. Two of them are **stamps for a reader** — `added_as`
-and `type`: nothing reads them and nothing decides from them, so the STEP process cannot tell how a
-repo arrived, and if anything ever branches on them, that is the bug. **Nothing else is tracked per
-repo.** The work of bringing a repo in is *done* at the time, never recorded as a status, and
-anything missed is found later by looking at the repo.
+and `type`: no script reads either, and the STEP process must not branch on how a repo arrived.
+When a repo is registered (`runbooks/register-repo.md`), its licensing depends on how it
+arrived: a repo the method created takes the project posture, an adopted one only the Throughstone
+notice. Any other case is a decision taken deliberately, not a pattern to reach for. **Nothing else
+is tracked per repo.** The work of bringing a repo in is *done* at the time, never recorded as a
+status, and anything missed is found later by looking at the repo.
 
 **The registry is checked at the check-in, not on the common path.** The set of repos changes only
 when one is created, adopted or split out, so `scripts/check.sh` checks it under `--check-in` alone,

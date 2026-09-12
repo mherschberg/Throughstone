@@ -34,11 +34,13 @@
 # `added_as:` — `created` if Throughstone made this repo, `adopted` if it already existed. It
 # records how the **repository** was formed, not where its contents came from: a repo split out
 # of another one is `created`, and the history it carries is recorded in `provenance:`. A
-# stamp, written once, never changing. **Nothing reads it and nothing decides from it**; it is
-# recorded so a person can later tell why a repo looks the way it does. The result is the same
-# however a repo arrived — if anything ever branches on this field, that is the bug.
+# stamp, written once, never changing, so a person can later tell why a repo looks the way it
+# does. **No script reads it, and the STEP process must not branch on how a repo arrived.** When
+# a repo is registered, its licensing depends on how it arrived: a created repo takes the project
+# posture, an adopted one only the Throughstone notice. Any other case is a decision taken
+# deliberately, not a pattern to reach for.
 #
-# `type:` — documentation for a human reader. Nothing reads it either.
+# `type:` — documentation for a human reader. No script reads it either.
 #
 # `provenance:` — records that a repo was **split out** of another one: where it came from and
 # where the two histories part company. Only a split-out repo carries it, it is written at the

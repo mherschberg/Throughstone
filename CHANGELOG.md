@@ -42,10 +42,13 @@ any project built with it.
 - **Repo rows record how each repo arrived, and a split-out repo records where it came from.**
   `registries/repos.yml` gains **`added_as:`** (`created` | `adopted`) — whether Throughstone made
   the repo or took on one that was already there. It is a stamp for a human reader, written once
-  when the repo is registered and never changing afterwards: **nothing reads it and nothing decides
-  from it.** `type:` is documentation in the same way, and gains `mono` for the workspace root of a mono-repo-for-now project. A repo split out of
-  another one can also carry an optional **`provenance:`** block recording where it came from and
-  where the two histories part company; it is written at the split and nothing maintains it after.
+  when the repo is registered and never changing afterwards: **no script reads it, and the STEP
+  process must not branch on how a repo arrived.** When a repo is registered its licensing depends
+  on how it arrived, and any other case is a decision taken deliberately. `type:` is
+  documentation that no script reads either, and gains `mono` for the workspace root of a
+  mono-repo-for-now project. A repo split out of another one can also carry an optional
+  **`provenance:`** block recording where it came from and where the two histories part company;
+  it is written at the split and nothing maintains it after.
   **Nothing else is tracked per repo.** A row is an inventory entry, never a status board: the work
   of bringing a repo in is *done* at the time rather than recorded as a status, anything missed is
   found later by looking at the repo, and a case the registry does not cover is raised to a person
@@ -398,7 +401,7 @@ any project built with it.
   is written later, by the STEP this session is in the middle of outlining. A project can also be
   set up around a codebase that was already there, and a repo can be taken on in a phase long
   after the first. The person in the chair knows the answer in every case, so the session asks
-  them — nothing reads how a repo arrived, and that rule is unchanged.
+  them.
 
   **The question carries its own stop**, which is why there is no second rule to keep in step with
   it: it asks about code no check-in has run over yet, so a project re-planning a later phase does

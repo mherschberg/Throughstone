@@ -453,9 +453,9 @@ New projects get this row from `init.sh`; `init.sh` runs once, so nothing adds i
 already exists. Multi-repo projects have nothing to add.
 
 **One new registry field, and nothing to do about it.** Rows may carry `added_as:`
-(`created` | `adopted`), recording how the repo arrived. **Nothing reads it and nothing decides from
-it** — it is a stamp for a human. Existing rows do not need it and are not rewritten; it is written
-when a repo is registered from here on.
+(`created` | `adopted`), recording how the repo arrived. **No script reads it** — it is a stamp for
+a human. Existing rows do not need it and are not rewritten; it is written when a repo is
+registered from here on.
 
 
 **Mono-repo-for-now? Your CI gate has probably never run.** `method-check.yml` ships inside the docs
