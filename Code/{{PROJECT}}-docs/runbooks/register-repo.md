@@ -15,6 +15,9 @@ The goal is that the **result** is the same however a repo arrived.
   in `Code/{{PROJECT}}-docs/registries/repos.yml`.
 - **Do not invent any of these. Ask.** A description or a role you guessed reads exactly like one
   somebody decided.
+- **Steps 2 and 3 write into the repo itself**, so it has to be checked out at its `location:` on
+  this machine — a `.git` there, directly or through a symlink. If it is not, see *When something
+  does not work* before writing anything.
 
 ## The steps
 
@@ -68,12 +71,15 @@ The goal is that the **result** is the same however a repo arrived.
    | project `LICENSE` + `LICENSING.md` | written from the posture | **never** — their licensing is not ours to state |
    | `LICENSE-THROUGHSTONE` | written | written — our material there needs a notice |
 
-   - **Created by us** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh Code/<repo>/`
-   - **Adopted** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only Code/<repo>/`
+   - **Created by us** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <location>`
+   - **Adopted** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <location>`
 
-   Check the path exists first. An existing notice is left alone. A **proprietary** posture writes
-   `LICENSING.md` and the notice but no project `LICENSE` — that is the posture doing its job, not
-   a failure.
+   `<location>` is the row's `location:` as written. An existing notice is left alone. In a repo we
+   created, an existing licence is never overridden without an explicit instruction from the user
+   naming that repo: if the script stops because a licence is already there, run the
+   `--notice-only` command instead, so the notice still lands, and raise the licence in the chat.
+   A **proprietary** posture writes `LICENSING.md` and the notice but no project `LICENSE` — that
+   is the posture doing its job, not a failure.
 
 4. **Add or refresh the Architecture Overview Repos entry** — the repo's role, the slice it owns,
    and where its detail lives. The doc is
@@ -99,6 +105,14 @@ A repo may not be on this machine, may have a dirty tree, may reject the write, 
 may sit inside another repo's work tree. In every case: **do the parts that work, name the parts
 that did not, and let the human decide.** They can commit, stash, grant access, or say skip it.
 
+**Nothing checked out at the row's `location:`** — no directory there, or an empty one — is a
+repo not on this machine. Write nothing there: an empty directory is not the repo, and writing
+into it stops the repo being cloned there. The row, the Architecture Overview entry and the
+docs-hub commit need only the docs hub, so do those; the README, the licence and the repo commit
+wait. The human decides the rest: clone it there, point you at a checkout elsewhere on this
+machine (step 1's symlink rule — remove the empty directory first, or the link lands inside it),
+or skip it. Re-running finishes whatever waited.
+
 ## Report — always, even when everything worked
 
 End the run with one block per repository. **A repo you skipped is named here too**; a silent
@@ -113,7 +127,7 @@ partial run reads as a complete one.
 
 ```
 {{PROJECT}}-api
-  row ✓   README ✓ (stamped)   licence ✓   arch entry ✓   docs commit ✓   repo commit ✓
+  row ✓   README ✓   licence ✓   arch entry ✓   docs commit ✓   repo commit ✓
 
 acme-billing
   row ✓   README —   licence ✓   arch entry ✓   docs commit ✓   repo commit —
@@ -121,7 +135,9 @@ acme-billing
   → repo commit: blocked by the same dirty tree; the notice is written but uncommitted.
 
 internal-tooling
-  SKIPPED — nothing is checked out at Code/internal-tooling/ on this machine.
+  row ✓   README —   licence —   arch entry ✓   docs commit ✓   repo commit —
+  → README, licence, repo commit: nothing is checked out at Code/internal-tooling/ on this
+    machine. Asked whether to clone it there, then re-run.
 ```
 
 `licence ✓` means every artifact that repo's posture requires landed: for one we created,
