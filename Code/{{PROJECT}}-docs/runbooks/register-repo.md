@@ -57,11 +57,18 @@ The goal is that the **result** is the same however a repo arrived.
    location, or a repo pushed to a host for the first time. One that holds a **different** value
    is **raised and changed by nobody** — a repo that moved or was repointed is a decision.
 
-2. **The README — decided by what is in the repo.**
-   - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md`.
-   - **A README already there** — leave it and add a `## Role in <project>` section, shape in the
-     same template. If that section is already present, **update it in place; never append a
-     second one.**
+2. **The README — decided by what is in the repo.** A README is a regular file at the repo root
+   whose name starts with `readme` in any capitalisation — `README.md`, `readme.rst`, a bare
+   `README`; a symlink or a `readme` directory is not one. **With more than one, ask which is
+   canonical** before writing to any of them.
+   - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md` as
+     `README.md`.
+   - **A README already there** — leave it under its own name and add a `## Role in <project>`
+     section, shape in the same template, written in that file's own markup; a format you do not
+     recognise is plain text. If that section is already present, **update it in place; never
+     append a second one.**
+
+   A repo that already has an `ARCHITECTURE.md` keeps it, exactly as its README is kept.
 
 3. **Licensing — decided by whether we created the repo. Two separate artifacts, and they do not
    travel together.**
