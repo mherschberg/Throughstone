@@ -2,7 +2,7 @@
 
 Machine-readable **inventories of the project's state** — structured data, not prose. Unlike
 the other doc folders (whose README *is* the index), a registry's index is the data file
-itself, because tooling and CI parse it. Keep each file the **source of truth**; describe the
+itself, because tooling parses it. Keep each file the **source of truth**; describe the
 *why/when* here and the *schema* in the file's own header — don't duplicate one in the other.
 
 ## Files

@@ -94,8 +94,8 @@ any project built with it.
   `skipped — run with --check-in`, and the generated CI workflow never passes the flag: a typo in the
   registry has no business failing a build on every push. `runbooks/check-in.md` is what passes it,
   where a person is already looking, and it says what to do with each finding — a `[FAIL]` gets
-  fixed, a `[WARN]` gets a decision rather than a reflex fix. `registries/README.md`, which named CI
-  among the file's readers, now names the check-in. `scripts/check.sh` also gains its first
+  fixed, a `[WARN]` gets a decision rather than a reflex fix. `registries/README.md` no longer
+  says CI reads the registries; its table names the check-in. `scripts/check.sh` also gains its first
   test, `tests/check-repo-registry.sh`, and the flag is listed in `./doctor.sh --help`, in the
   command list and in the examples.
 
