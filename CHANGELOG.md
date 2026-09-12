@@ -105,8 +105,11 @@ any project built with it.
   included. Five steps: write its `registries/repos.yml` row, give it a README, apply the
   licensing artifacts, record it in the Architecture Overview, and commit once per repository.
   **Which README a repo gets is decided by what is in the repo, not by how the repo arrived** — a
-  repo with no README is stamped from `templates/repo-readme-template.md`, one that already has a
-  README keeps it and gains a short `## Role in <project>` section, and no repo ends up with two.
+  repo with no README is stamped from `templates/repo-readme-template.md` as `README.md`, one that
+  already has a README keeps it under its own name and gains a short `## Role in <project>` section
+  in that file's own markup, and registration never adds a second. A README is any regular file at
+  the repo root whose name starts with `readme`, in any capitalisation and format; where there is
+  more than one, the runbook asks which is canonical instead of picking.
   Licensing shows its two artifacts separately, because they answer different questions: a repo the
   method created follows the project's own posture, while an adopted repo gets `LICENSE-THROUGHSTONE`
   for the Throughstone-authored material in it and never a project `LICENSE` or `LICENSING.md` —

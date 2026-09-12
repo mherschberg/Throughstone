@@ -39,8 +39,9 @@
   it explicitly does not*, and a link to the architecture doc that defines it. Not a bare pointer
   — the boundary statement is the thing a newcomer cannot get quickly from the code. Default to
   appending it at the end, and offer to place it higher: placement is content, and content is the
-  owner's to shape. That heading through to the next `##` is the whole of Throughstone's part of
-  the file, which is what a check-in sweeps. If the section is already there, update it in place.
+  owner's to shape. That heading through to the next heading at its level is the whole of
+  Throughstone's part of the file, which is what a check-in sweeps. If the section is already
+  there, update it in place.
 
   If the repo has **no** README at all, stamp this file — but **drop `## Licensing`**, whose link
   points at a `LICENSING.md` that is never written into a repo Throughstone did not create.

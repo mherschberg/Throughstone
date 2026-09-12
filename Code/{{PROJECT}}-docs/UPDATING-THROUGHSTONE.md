@@ -312,7 +312,7 @@ procedure for it — whether Throughstone creates the repo or takes on one that 
 everything that changes the set of repositories your project has goes through it, the split
 included. **Which README a repo gets is decided by what is in the repo, not by how the repo
 arrived**: no README means one stamped from the template, an existing README keeps it and gains a
-`## Role in <project>` section, and no repo ends up with two. An adopted repo gets
+`## Role in <project>` section, and registration never adds a second. An adopted repo gets
 `LICENSE-THROUGHSTONE` and never a project `LICENSE` — choosing a licence for code the method did
 not write is not the method's to do. The per-posture licensing detail that used to sit in
 `METHOD.md` §7 moved into the runbook, beside the step that performs it, so §7 no longer answers
