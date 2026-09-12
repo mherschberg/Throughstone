@@ -1154,7 +1154,7 @@ fi
 if [ "$LAYOUT" = "2" ]; then
   # The registry is the source of truth for which repos exist, and the only repository a mono
   # project has is the workspace root — so its row is seeded here. `added_as: created` is a
-  # stamp for a human reader: nothing reads it and nothing decides from it.
+  # stamp for a human reader; no script reads it.
   if [ -f "$DOCS/registries/repos.yml" ]; then
     SLUG="$SLUG" perl -0pi -e '
       my $row = qq{  - name: "$ENV{SLUG}"\n}
