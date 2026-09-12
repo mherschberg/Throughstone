@@ -57,9 +57,10 @@ any project built with it.
   scripts that read it match line prefixes and know nothing about YAML: every value is a single-line
   scalar; a rewrite anchors on the whole row block rather than a bare line prefix; and **a `#` on a
   value line is part of the value, not a comment**, so `- name:`, `location:` and `remote:` must
-  carry nothing after the value. That last one has a concrete failure behind it — the readers strip a
-  closing quote only at end of line, so a trailing `# note` on a `remote:` line ends up inside the
-  clone URL.
+  carry nothing after the value and are quoted with double quotes or not at all. That last one has a
+  concrete failure behind it — the readers strip a double quote only from either end of the value, so
+  a trailing `# note` on a `remote:` line ends up inside the clone URL, and a single-quoted
+  `location:` becomes a folder whose name starts with the quote.
 
 - **`apply-project-license.sh --notice-only <repo>`** — write the Throughstone notice into a
   repository and nothing else. The script's one mode writes three files keyed on the project's

@@ -77,9 +77,10 @@ not fail the check.
 
 ### 1.8 migration
 
-**Upgrading from 1.7? Nothing of yours is rewritten, and there are two things to look at in
+**Upgrading from 1.7? Nothing of yours is rewritten, and there are three things to look at in
 `registries/repos.yml`** — **whether any `location:` points outside the workspace root**, which 1.7
-allowed and this release does not, and, **if your project is mono-repo-for-now, whether the
+allowed and this release does not, **whether anything follows a `- name:`, `location:` or `remote:`
+value**, which 1.7's example row did, and, **if your project is mono-repo-for-now, whether the
 workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
 whether your CI gate has ever actually run — **and one line to change** in `overview.md`, where the
 check-in cadence setting is replaced by the date or STEP your next check-in is due, **and, if your
@@ -104,7 +105,10 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
 3. **Check every `location:` in `registries/repos.yml`.** One that points outside the workspace
    root — an absolute path, or one reaching out with `..` — no longer works, and 1.7 said it was
    allowed. **Details at the end of this section**; this is the only change here that can leave your
-   registry describing a workspace nobody else can reproduce.
+   registry describing a workspace nobody else can reproduce. **While you are in each row, check
+   that nothing follows a `- name:`, `location:` or `remote:` value** — a row copied from 1.7's
+   commented-out example carries a note after its `remote:`, which has kept that repo from cloning
+   on anyone else's machine all along; details in the same place.
 4. **Mono-repo-for-now only: add a row for the workspace root** to `registries/repos.yml`, or the
    new check-in warning will be wrong about every repo you have — details at the end of this
    section.
@@ -436,8 +440,9 @@ and only two:
 A 1.7 registry lists the docs hub and `prompts/` — both folders inside your one repository — and has
 no row for the repository itself. The check treats a row whose `location` is `.` as the thing that
 contains the others, so without it you are told all your repos are unbacked-up even when the one
-real repo is pushed. Add it by hand — and **put nothing after any value**, because these readers
-treat a `#` on a value line as part of the value rather than as a comment. Drop the `remote:` line
+real repo is pushed. Add it by hand. **Put nothing after any value**: these readers treat a `#` on
+a value line as part of the value rather than as a comment. **Quote values with double quotes, as
+below, or not at all**: they read a single quote as part of the value too. Drop the `remote:` line
 if the repo has no remote yet:
 
 ```yaml
@@ -516,6 +521,14 @@ are directory names rather than paths to a home directory. `~/lib` used to clone
 a literal `~` folder under the workspace root and report it as an ordinary clone; it is now skipped.
 `$HOME/lib` still makes a literal `$HOME` directory, and no guard can tell that from a directory
 somebody meant to call that.
+
+**And check that nothing follows a `- name:`, `location:` or `remote:` value.** The scripts that
+read the registry take a `#` on those lines as part of the value, not as a comment. 1.7's
+commented-out example row carried `# team mode: setup-workspace.sh clones this` after its
+`remote:`, so a row copied from it records a clone URL that does not exist. `setup-workspace.sh`
+reports that repo as one that did not arrive, on every machine except the one that already has the
+checkout, where it says `exists` and nothing more; and the check-in counts the value as a recorded
+remote. Move the note to a line of its own, or delete it.
 
 **Templates and guidance text, with nothing to undo.** Three edits to
 `templates/architecture-sessions/*.md`, one to `METHOD.md` §3, one to
