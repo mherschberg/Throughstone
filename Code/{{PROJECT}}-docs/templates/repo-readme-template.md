@@ -45,7 +45,7 @@
   If the repo has **no** README at all, stamp this file — but **drop `## Licensing`**, whose link
   points at a `LICENSING.md` that is never written into a repo Throughstone did not create.
   Either way, do **not** install CI and do **not** apply a project license; for the Throughstone
-  notice, and only where material of ours actually landed, run
+  notice, run
   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>`.
 
   The whole procedure is `Code/{{PROJECT}}-docs/runbooks/register-repo.md`.
