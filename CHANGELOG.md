@@ -390,8 +390,9 @@ any project built with it.
   a sweep found nothing, to say so rather than leave the section out. The closing step writes the
   next check-in's STEP number or date into the report's Summary as well as into `overview.md`'s
   `NEXT-CHECK-IN` line.
-  The repo-README sweep covers only the workspace-root row in a mono-repo-for-now project, as the
-  registry check already does, and it recognises a Role section written in a README's own markup.
+  In a mono-repo-for-now project only the workspace-root row is sent back through the registration,
+  and a folder with neither marker is left as it is; the sweep also recognises a Role section
+  written in a README's own markup.
   Three checks are new. The high-drift list compares the Test Strategy architecture doc's CI gates
   with the gates actually running: nothing in the check-in looked for CI, so a mono-repo-for-now
   project whose root `method-check.yml` had never been placed passed every check-in. For a README

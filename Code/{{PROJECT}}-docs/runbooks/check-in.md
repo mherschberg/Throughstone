@@ -125,8 +125,8 @@ line (to `full` once the area is complete), updates related architecture docs an
 the check-in itself.
 
 Beyond the architecture docs, sweep four things:
-- **Repo READMEs** — sweep each repo present on this machine (in the mono-repo-for-now layout, only
-  the workspace-root row), and let its README decide which case applies.
+- **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
+  case applies.
   **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
   still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
   clean checkout, and any `ARCHITECTURE.md` still matches the design — or, if there is none, whether
@@ -136,8 +136,10 @@ Beyond the architecture docs, sweep four things:
   if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift rather
   than editing it.
   **Neither marker, or no README at all** — re-run the registration (`register-repo.md`), which is
-  safe to re-run and finishes whatever an earlier run left waiting. Licensing is never re-asked per
-  repo — one posture, in `.throughstone/project-license`, covers the project.
+  safe to re-run and finishes whatever an earlier run left waiting; in the mono-repo-for-now layout
+  do that only for the workspace-root row, and leave a folder with neither marker as it is.
+  Licensing is never re-asked per repo — one posture, in `.throughstone/project-license`, covers the
+  project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a
