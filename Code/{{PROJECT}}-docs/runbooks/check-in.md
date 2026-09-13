@@ -129,9 +129,12 @@ Beyond the architecture docs, sweep four things:
   the workspace-root row), and let its README decide which case applies.
   **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
   still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
-  clean checkout, and any `ARCHITECTURE.md` still matches the design.
+  clean checkout, and any `ARCHITECTURE.md` still matches the design — or, if there is none, whether
+  the repo has since grown the internal complexity that warrants one.
   **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
-  only that section, through to the next heading at its level, and leave the rest of the file alone.
+  only that section, through to the next heading at its level, and leave the rest of the file alone;
+  if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift rather
+  than editing it.
   **Neither marker, or no README at all** — re-run the registration (`register-repo.md`), which is
   safe to re-run and finishes whatever an earlier run left waiting. Licensing is never re-asked per
   repo — one posture, in `.throughstone/project-license`, covers the project.
