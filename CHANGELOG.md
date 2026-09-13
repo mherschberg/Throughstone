@@ -397,9 +397,9 @@ any project built with it.
   with the gates actually running: nothing in the check-in looked for CI, so a mono-repo-for-now
   project whose root `method-check.yml` had never been placed passed every check-in. For a README
   the project stamped, the check-in asks whether a repo with no `ARCHITECTURE.md` has grown the
-  internal complexity that warrants one. For a README carrying a Role section, an `ARCHITECTURE.md`
-  the owners keep is checked against the design and any drift is raised rather than edited; whether
-  their repo needs one is not asked.
+  internal complexity that warrants one. For a README carrying a Role section, an existing
+  `ARCHITECTURE.md` is checked against the design and any drift is raised rather than edited;
+  whether the repo needs one is not asked.
 - **The planning session now asks whether it is planning against code somebody else wrote, and
   runs that code's tests before anything is built on it.** Before it proposes the STEP sequence it
   puts one question to you — *is any of the code this phase builds on code this project did not
