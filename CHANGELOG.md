@@ -759,8 +759,8 @@ any project built with it.
   it against what the system now does, and records one explicit disposition in the check-in
   report. The report template had no section for it. The one place it said "Deferred" was a
   conditional-session disposition, which means something else. So the sweep the runbook mandates
-  had nowhere to land, and the gap it exists to keep visible would rest on the same passive line
-  in the same doc. The template now carries a **Deferred Coverage** table beside **Conditional
+  had nowhere to land, and the gap it exists to keep visible would rest on that one `Coverage:`
+  line in the doc. The template now carries a **Deferred Coverage** table beside **Conditional
   Coverage**, in the runbook's own order, with four columns: the doc, what its `Coverage:` field
   says, the disposition, and the follow-up STEP filed or retained.
 - **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh`,

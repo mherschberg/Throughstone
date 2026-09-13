@@ -1,12 +1,10 @@
 # Runbook — Periodic Check-In
 
 > **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). When you run that STEP,
-> tell the agent *"run the check-in"* and it
-> follows this file **end to end** — both substeps, in one go. That is a **deliberate exception**
-> to `METHOD.md` §10's rule that an in-progress STEP runs only the substep you ask for by name:
-> the two substeps here are fixed, this runbook is their prompt, and there is nothing to approve
-> between them. **Title its index row `Check-in`** (a scope may follow, e.g.
-> `Check-in: phase 1`) so the roadmap reads clearly.
+> tell the agent *"run the check-in"* and it follows this file **end to end** — both substeps, in
+> one go. That is a **deliberate exception** to `METHOD.md` §10's rule that an in-progress STEP
+> runs only the substep you ask for by name. **Title its index row `Check-in`** (a scope may
+> follow, e.g. `Check-in: phase 1`) so the roadmap reads clearly.
 >
 > **Its PLAN is thin and it has exactly two substeps** — you don't author substep prompts for
 > it. The two substeps *are* this runbook:
@@ -30,8 +28,7 @@ found.
 > this part otherwise checks by hand, and its output names each check. **The `--check-in` flag is
 > what adds the repo-registry pass below.** Every `[FAIL]` gets fixed. A `[WARN]` gets a decision
 > rather than a reflex fix — the missing-remote warning below is meant to recur until someone acts
-> on it. Then do the judgment-based review below (which a script can't: does the doc still describe
-> what the system actually *does*?).
+> on it. Then do the judgment-based review below.
 
 For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it
 actually is now — in both directions, because they catch different problems:
@@ -126,7 +123,7 @@ follow-up: its PLAN has one substep that points directly at the deferred `archit
 doc and names the section to finish, and it **reuses that doc's existing number**. Unlike a
 conditional follow-up it does **not** take the `Conditional session:` title prefix. Give the row a
 descriptive title (e.g. `Deferred-coverage backfill: <doc topic>`).
-The session that runs it enumerates the postponed payload, clears or narrows the doc's `Coverage:`
+The session that runs it enumerates the postponed area, clears or narrows the doc's `Coverage:`
 line (to `full` once the area is complete), updates related architecture docs and
 `architecture/README.md`, and records significant decisions as ADRs. Do not run the write-up inside
 the check-in itself.
@@ -225,7 +222,8 @@ STEP.
 **Last, schedule the next one.** Ask the user when it should be. They answer in their own terms
 (*"in about 20 STEPs"*, *"after we launch"*, *"February"*); turn that into a STEP number or a
 date and write it into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is
-there. Nothing else records it, so a check-in that closes without an answer leaves the **old**
-line in place and `./doctor.sh status` goes on reporting a check-in due — the one you just ran.
-That is a nudge, not a gate, and it is not a reason to invent a date: leave the line alone and
-tell the user it is still waiting on them.
+there, and put the same answer in the report's Summary. Nothing else records it, so a check-in
+that closes without an answer leaves the **old** line in place and `./doctor.sh status` goes on
+reporting a check-in due — the one you just ran. That is a nudge, not a gate, and it is not a
+reason to invent a date: leave the line alone, say in the report's Summary that the next one isn't
+scheduled yet, and tell the user it is still waiting on them.
