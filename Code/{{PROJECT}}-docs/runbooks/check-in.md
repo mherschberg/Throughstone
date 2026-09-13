@@ -12,15 +12,12 @@
 > it. The two substeps *are* this runbook:
 > - **substep N.1 — doc-drift reconciliation + conditional coverage** (Part 1 below), and
 > - **substep N.2 — full test run** (Part 2 below).
+>
+> Record their status in the index/PLAN like any other substep.
 
 ## Why this runbook exists
-Three kinds of rot accumulate quietly while you build: the architecture docs drift away from
-the code, a once-irrelevant architecture area becomes applicable without its conditional
-session ever running, and the test suite degrades as STEPs add features faster than they add
-coverage. They rarely show up until they hurt. The check-in is a deliberate, periodic sweep
-that catches them before they harden — a scheduled "is the project still healthy?" gate,
-distinct from the per-substep discipline (each substep already updates the doc it changes;
-this is the full reconciliation across everything).
+It's easy to get so in the weeds that things get missed, like doc drift, security issues,
+regression testing, etc. The check-in STEP prevents too much debt from accumulating unnoticed.
 
 This is a **review + verification** STEP: it writes no new features — it fixes docs, files bugs,
 proves the tests pass, and may make a small corrective code or test fix to clear a failure it
@@ -29,21 +26,15 @@ found.
 ## Part 1 — Doc drift and conditional coverage  *(substep N.1)*
 
 > **Start with the mechanical pass.** From the workspace root, run
-> `Code/{{PROJECT}}-docs/scripts/check.sh --check-in` first — in seconds it catches the
-> *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers,
-> invalid statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry
-> that disagrees with the files on disk, plus architecture-session numbering and
-> conditional-template contract drift. **The `--check-in` flag is what adds the repo-registry
-> pass below.** Every `[FAIL]` gets fixed. A `[WARN]` gets a decision rather than a reflex fix —
-> the missing-remote warning below is meant to recur until someone acts on it. Then do the
-> judgment-based review below (which a script can't: does the doc still describe what the system
-> actually *does*?).
+> `Code/{{PROJECT}}-docs/scripts/check.sh --check-in` first — it catches the *structural* drift
+> this part otherwise checks by hand, and its output names each check. **The `--check-in` flag is
+> what adds the repo-registry pass below.** Every `[FAIL]` gets fixed. A `[WARN]` gets a decision
+> rather than a reflex fix — the missing-remote warning below is meant to recur until someone acts
+> on it. Then do the judgment-based review below (which a script can't: does the doc still describe
+> what the system actually *does*?).
 
 For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it
-actually is now — in both directions, because they catch different problems (a `Status:
-Deprecated` doc is **listed as retired** in the index reconciliation below, but **not** reconciled
-against current code or backfilled — it is kept for history, not swept as live;
-`METHOD.md` §6):
+actually is now — in both directions, because they catch different problems:
 
 - **Docs vs. code** — the doc claims something the code no longer does (stale doc).
   → **Fix the doc** and bump its Version Log (`METHOD.md` §6); if a real decision was made in
@@ -106,26 +97,12 @@ list. For each template:
   next-action resolver prioritizes it before ordinary planned implementation work. Do not
   run the architecture interview inside the check-in.
 
-A conditional follow-up is a thin, architecture-only STEP: its PLAN has one substep that
-points directly to the `conditional-*.md` template and records the template's exact
-by-name invocation and assigned output-doc number; reuse the existing doc number for a
-re-interview, otherwise take the next free number above the core block. Do not author a
-duplicate substep prompt. The session writes or revises its architecture doc, updates
-related architecture docs and `architecture/README.md`, and records significant decisions
-as ADRs. Its review checks the new decisions against the rest of the architecture. Before
-returning to implementation, re-run the planning session if those decisions change the
-remaining roadmap.
+For the shape of a conditional follow-up STEP, see `METHOD.md` §4, "Adding a session".
 
 ### Deferred-coverage sweep
 
-Some architecture docs deliberately leave a fat or fast-moving area only *partly* written up,
-marked `Coverage: deferred` (`METHOD.md` §6): the doc itself exists and is `Current`, but one
-payload was consciously postponed. This is distinct from a `Deferred` **session row** (an
-*optional* session that never ran, which the conditional-session sweep above owns) and from
-later-phase **scope** deferral: here the doc *did* run and exists, and only a sub-area inside it
-is unwritten. That deferral must be **resurfaced, not silently forgotten** —
-each check-in re-reads it and decides its fate, so the gap lives in the roadmap instead of resting
-on a passive line in a doc.
+Some architecture docs deliberately leave part of their area unwritten, marked in their
+`Coverage:` field (`METHOD.md` §6).
 
 Enumerate every **non-`Deprecated`** `architecture/NN-*.md` whose **`Coverage:` field** says
 anything other than `full` — **read the field, don't grep for a phrase**. A doc with no `Coverage:`
@@ -175,11 +152,9 @@ Beyond the architecture docs, sweep four things:
   fix, not a bug STEP).
 - **Accepted risks / tech debt** — review `registries/risks.yml`. For every open or monitoring
   item, decide whether the revisit trigger has fired, the severity/owner still matches reality,
-  and the referenced architecture section, ADR, issue, archived STEP plan/execution notes,
-  incident postmortem report under `reports/incidents/`, or check-in report under `reports/`
-  still exists and still explains the risk. Close items that are mitigated, update stale rows,
-  create missing source artifacts, and file follow-up STEPs for anything whose trigger has
-  fired or whose severity is no longer acceptable.
+  and the documents its `refs:` entries point to still exist and still explain the risk. Close
+  items that are mitigated, update stale rows, create missing source artifacts, and file
+  follow-up STEPs for anything whose trigger has fired or whose severity is no longer acceptable.
 
 ### Inputs sweep
 
@@ -189,8 +164,8 @@ protocol/API spec, UI designs); `architecture/` holds the living truth (`inputs/
 parts go stale — but nothing revisits `inputs/` between check-ins, so a superseded seed keeps
 reading as current intent until it's reconciled here.
 
-Read `inputs/inputs-index.md` (`README.md` and `inputs-index.md` are guidance, not inputs).
-Reconcile it against the architecture docs, **treating only live inputs as current:
+Read the ledger, `inputs/inputs-index.md` (`README.md` and `inputs-index.md` are guidance, not
+inputs). Reconcile it against the architecture docs, **treating only live inputs as current:
 `inputs/archive/` is history and is not swept**:
 
 - **Drift into the index.** For each input file under `inputs/` (excluding `inputs/archive/`),
@@ -239,23 +214,8 @@ Update `registries/security-reviews.yml` only when a review actually runs.
 ## Output
 Write a short **check-in report** under `reports/` in the docs hub. Use
 `templates/reports/check-in-report-template.md` and name the completed report
-`reports/YYYY-MM-DD-step-NNNN-check-in-report.md`.
-- **Drift:** docs reviewed, discrepancies found, classified (doc fixed / ADR written / bug
-  filed) — with the fixes applied and the bugs filed.
-- **Conditional coverage:** every discovered conditional-session template and its current
-  disposition; list any whose trigger fired and the follow-up STEP created or already pending.
-- **Deferred coverage:** each non-`Deprecated` doc whose `Coverage:` field is not `full`, its recorded
-  disposition (backfill now / still defer / risk-seeded), and any backfill STEP filed or existing
-  one retained; a `Deprecated` such doc is noted as retired, not backfilled.
-- **Inputs:** live inputs reconciled against the architecture docs — rows newly marked `Superseded`
-  (with the covering doc), any input retired to `inputs/archive/`, and any import missing from
-  `inputs/inputs-index.md` that was added; `inputs/archive/` entries are noted as retired, not swept.
-- **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
-  follow-up STEPs.
-- **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
-  Baseline, Security Review, or Security Audit STEP created.
-- **Tests:** the suite result, and what was done about any failures.
-- **Carry-forward:** anything that became a new bug/STEP, listed for the index.
+`reports/YYYY-MM-DD-step-NNNN-check-in-report.md`. Fill in every section of the template; where a
+sweep found nothing, say so rather than leaving the section out.
 
 Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
 follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
