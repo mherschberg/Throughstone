@@ -43,9 +43,11 @@ architecture doc (`architecture/*-architecture-overview.md`) and
 the Infrastructure & Deployment architecture doc and the Environments architecture doc vs. the
 deployed infrastructure and environments; the Interface Contracts architecture doc vs.
 the published and generated artifacts; security vs. the auth and secrets handling actually in
-place; the Glossary architecture doc vs. the terms the code now uses. Also
-reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
-with its current version/status).
+place; the Test Strategy architecture doc's **CI gates** vs. the gates actually running (in a
+mono-repo-for-now project, `method-check.yml` runs only from the workspace root's
+`.github/workflows/`); the Glossary architecture doc vs. the terms the code now uses. Also reconcile
+`architecture/README.md`'s index against the docs actually present (a row per doc, with its current
+version/status).
 
 **The repo registry.** `scripts/check.sh --check-in` makes two mechanical checks on
 `registries/repos.yml`, and only those two.
