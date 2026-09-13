@@ -344,9 +344,9 @@ differently:
 - **Your next check-in sweeps repo READMEs by what each README says, rather than uniformly.**
   A README stamped from the template is reviewed whole, as it always was — Overview, Setup /
   Running / Testing, and any `ARCHITECTURE.md`. One carrying a `## Role in <project>` section is
-  reviewed only down to the next `##`, leaving the rest of somebody else's file alone. One with
-  neither marker is not edited at all, and gets one question instead: can someone standing in this
-  repo still find their way back to the project?
+  reviewed only through to the next heading at its level, leaving the rest of somebody else's file
+  alone. One with neither marker is not edited at all, and gets one question instead: can someone
+  standing in this repo still find their way back to the project?
   **The "do the setup steps still work from a clean checkout" check now survives only on a README
   we stamped** — on one carrying a `## Role in <project>` section, or with no marker at all, it is a
   judgement about somebody else's repository rather than about your connection to it. Two smaller shifts ride along: a registry row and its Architecture

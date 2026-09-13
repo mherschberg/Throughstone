@@ -128,11 +128,11 @@ Beyond the architecture docs, sweep four things:
   **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
   still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
   clean checkout, and any `ARCHITECTURE.md` still matches the design.
-  **Carrying a `## Role in <project>` section instead** — review only that section, down to the
-  next `##`, and leave the rest of the file alone. **Neither marker** — don't edit it; just
-  re-ask the one question a README has to answer for us: can someone standing in this repo still
-  find their way back to the project? Licensing is never re-asked per repo — one posture, in
-  `.throughstone/project-license`, covers the project.
+  **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
+  only that section, through to the next heading at its level, and leave the rest of the file alone.
+  **Neither marker** — don't edit it; just re-ask the one question a README has to answer for us:
+  can someone standing in this repo still find their way back to the project? Licensing is never
+  re-asked per repo — one posture, in `.throughstone/project-license`, covers the project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a
