@@ -382,6 +382,23 @@ any project built with it.
   action itself is untouched. `prompts/README.md` no longer describes a due Check-in STEP as
   something the resolver answers with, and `tests/status-next-check-in.sh` holds both halves of the
   contract so a gate cannot creep back in.
+- **The periodic check-in runbook is shorter, and its repo sweep checks three things it did not.**
+  `runbooks/check-in.md` restated rules that other documents own, and explained rules right after
+  stating them; that text is gone, or replaced by a pointer to the document that owns the rule. Its
+  Output section described the report in eight bullets beside the template that already lays it out;
+  it now says to fill in every section of `templates/reports/check-in-report-template.md`, and where
+  a sweep found nothing, to say so rather than leave the section out. The closing step writes the
+  next check-in's STEP number or date into the report's Summary as well as into `overview.md`'s
+  `NEXT-CHECK-IN` line.
+  The repo-README sweep covers only the workspace-root row in a mono-repo-for-now project, as the
+  registry check already does, and it recognises a Role section written in a README's own markup.
+  Three checks are new. The high-drift list compares the Test Strategy architecture doc's CI gates
+  with the gates actually running: nothing in the check-in looked for CI, so a mono-repo-for-now
+  project whose root `method-check.yml` had never been placed passed every check-in. For a README
+  the project stamped, the check-in asks whether a repo with no `ARCHITECTURE.md` has grown the
+  internal complexity that warrants one. For a README carrying a Role section, an `ARCHITECTURE.md`
+  the owners keep is checked against the design and any drift is raised rather than edited; whether
+  their repo needs one is not asked.
 - **The planning session now asks whether it is planning against code somebody else wrote, and
   runs that code's tests before anything is built on it.** Before it proposes the STEP sequence it
   puts one question to you — *is any of the code this phase builds on code this project did not

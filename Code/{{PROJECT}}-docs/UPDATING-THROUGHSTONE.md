@@ -346,7 +346,10 @@ differently:
   Running / Testing, and any `ARCHITECTURE.md`. One carrying a `## Role in <project>` section is
   reviewed only through to the next heading at its level, leaving the rest of somebody else's file
   alone. One with neither marker, or no README at all, is sent back through the registration, which
-  finishes whatever an earlier run left waiting.
+  finishes whatever an earlier run left waiting. In a multi-repo project that includes your docs
+  hub's and `prompts/` READMEs, which gain a short Role section at that check-in, once. In a
+  mono-repo-for-now project it is the workspace root: a README of yours there gains the same
+  section, and if there is none, one is stamped from the template.
   **The "do the setup steps still work from a clean checkout" check now survives only on a README
   we stamped** — on one carrying a `## Role in <project>` section, or with no marker at all, it is a
   judgement about somebody else's repository rather than about your connection to it. Two smaller shifts ride along: a registry row and its Architecture
