@@ -123,16 +123,16 @@ line (to `full` once the area is complete), updates related architecture docs an
 the check-in itself.
 
 Beyond the architecture docs, sweep four things:
-- **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
-  case applies.
+- **Repo READMEs** — sweep each repo present on this machine (in the mono-repo-for-now layout, only
+  the workspace-root row), and let its README decide which case applies.
   **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
   still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
   clean checkout, and any `ARCHITECTURE.md` still matches the design.
   **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
   only that section, through to the next heading at its level, and leave the rest of the file alone.
-  **Neither marker** — don't edit it; just re-ask the one question a README has to answer for us:
-  can someone standing in this repo still find their way back to the project? Licensing is never
-  re-asked per repo — one posture, in `.throughstone/project-license`, covers the project.
+  **Neither marker, or no README at all** — re-run the registration (`register-repo.md`), which is
+  safe to re-run and finishes whatever an earlier run left waiting. Licensing is never re-asked per
+  repo — one posture, in `.throughstone/project-license`, covers the project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a

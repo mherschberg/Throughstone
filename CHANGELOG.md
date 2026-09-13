@@ -323,16 +323,16 @@ any project built with it.
   README itself.** It sweeps each repo present on this machine and lets that repo's README say how
   much of it is ours: a README stamped from the template is reviewed whole, one carrying a
   `## Role in <project>` section is reviewed only through to the next heading at its level, with the
-  rest of somebody else's file left alone, and one with neither marker is not edited at all — there
-  it re-asks the single question a README has to answer for the project, whether someone standing in
-  that repo can still find their way back. The "do the setup steps still work from a clean checkout"
-  check survives only on a README we stamped; anywhere else it is a judgement about their repo
-  rather than about our connection to it. A registry row and its Architecture Overview entry are
-  treated as **one** thing that drifts — re-run the registration, never edit either by hand — and
-  the check-in now says plainly that licensing is settled once for the whole project and never
-  re-asked per repository. **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to
-  repos that have no remote yet**: as written it would have created a second remote for a repository
-  that already had one and pushed its history there.
+  rest of somebody else's file left alone, and one with neither marker, or no README at all, is sent
+  back through the registration, which finishes whatever an earlier run left waiting. The "do the
+  setup steps still work from a clean checkout" check survives only on a README we stamped; anywhere
+  else it is a judgement about their repo rather than about our connection to it. A registry row and
+  its Architecture Overview entry are treated as **one** thing that drifts — re-run the
+  registration, never edit either by hand — and the check-in now says plainly that licensing is
+  settled once for the whole project and never re-asked per repository.
+  **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to repos that have no
+  remote yet**: as written it would have created a second remote for a repository that already had
+  one and pushed its history there.
   Three read-only sweeps — the check-in's full test run, the dependency audit, and the incident
   runbook's hunt for similar issues — asked for "all repos" and now ask for every repo you can
   reach, with the unreachable ones named. The failure that guards against is not missing a
