@@ -3,8 +3,7 @@
 > **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). When you run that STEP,
 > tell the agent *"run the check-in"* and it follows this file **end to end** — both substeps, in
 > one go. That is a **deliberate exception** to `METHOD.md` §10's rule that an in-progress STEP
-> runs only the substep you ask for by name. **Title its index row `Check-in`** (a scope may
-> follow, e.g. `Check-in: phase 1`) so the roadmap reads clearly.
+> runs only the substep you ask for by name.
 >
 > **Its PLAN is thin and it has exactly two substeps** — you don't author substep prompts for
 > it. The two substeps *are* this runbook:
@@ -25,10 +24,8 @@ found.
 
 > **Start with the mechanical pass.** From the workspace root, run
 > `Code/{{PROJECT}}-docs/scripts/check.sh --check-in` first — it catches the *structural* drift
-> this part otherwise checks by hand, and its output names each check. **The `--check-in` flag is
-> what adds the repo-registry pass below.** Every `[FAIL]` gets fixed. A `[WARN]` gets a decision
-> rather than a reflex fix — the missing-remote warning below is meant to recur until someone acts
-> on it. Then do the judgment-based review below.
+> this part otherwise checks by hand, and its output names each check. Every `[FAIL]` gets fixed.
+> A `[WARN]` gets a decision rather than a reflex fix. Then do the judgment-based review below.
 
 For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it
 actually is now — in both directions, because they catch different problems:
@@ -51,25 +48,22 @@ reconcile `architecture/README.md`'s index against the docs actually present (a 
 with its current version/status).
 
 **The repo registry.** `scripts/check.sh --check-in` makes two mechanical checks on
-`registries/repos.yml`, and only those two. Everything else about the registry is the by-hand
-comparison above — the rows against the repos that actually exist.
+`registries/repos.yml`, and only those two.
 
 - **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
   into the row; don't guess a path. **So does a row the doctor cannot read** — one that does not
   start with its `- name:` line; show the human that row.
-- **A row with no `remote:` recorded** is a warning: as far as the project knows, that repo's
-  work lives on exactly one laptop. If the repo already has a remote, record the URL. If it has
-  none, give it one — **created private**, widening being a separate decision made deliberately
-  later — then push to it and record the URL, because the row records that a remote exists and
-  does not prove anything was pushed to it. Or decide here that local-only is still fine, because
-  a project may legitimately start local for a while. **Nothing records that decision**: the
-  warning returns every check-in, which is the point. In
-  the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
+- **A row with no `remote:` recorded** is a warning. If the repo already has a remote, record the
+  URL. If it has none, give it one — **created private**, widening being a separate decision made
+  deliberately later — then push to it and record the URL, because the row records that a remote
+  exists and does not prove anything was pushed to it. Or decide here that local-only is still
+  fine. **Nothing records that decision**: the warning returns every check-in, which is the point.
+  In the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
   inside that one repository, so whatever backs the root up backs them up too.
 
 **A repo missing from the registry**, or a row whose Architecture Overview entry disagrees with
 it, is fixed by **re-running the registration** (`register-repo.md`), never by editing either
-side by hand: the runbook writes both together and is safe to re-run.
+side by hand.
 
 ### Conditional-session coverage
 
@@ -129,21 +123,20 @@ line (to `full` once the area is complete), updates related architecture docs an
 the check-in itself.
 
 Beyond the architecture docs, sweep four things:
-- **Repo READMEs** — sweep each repo present on this machine, and let the README itself say how
-  much of it is ours.
-  **Stamped from `templates/repo-readme-template.md`** — we wrote it, so review the whole file:
-  the **Overview** still describes what the repo *is*, the **Setup / Running / Testing** steps
-  still work from a clean checkout, and any `ARCHITECTURE.md` still matches the design.
-  **Carrying a `## Role in <project>` section instead** — the README was already there, so review
-  only that section, down to the next `##`, and leave the rest of their file alone. **Neither
-  marker** — don't edit it; just re-ask the one question a README has to answer for us: can
-  someone standing in this repo still find their way back to the project? Licensing is never
-  re-asked per repo — one posture, in `.throughstone/project-license`, covers the project.
+- **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
+  case applies.
+  **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
+  still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
+  clean checkout, and any `ARCHITECTURE.md` still matches the design.
+  **Carrying a `## Role in <project>` section instead** — review only that section, down to the
+  next `##`, and leave the rest of the file alone. **Neither marker** — don't edit it; just
+  re-ask the one question a README has to answer for us: can someone standing in this repo still
+  find their way back to the project? Licensing is never re-asked per repo — one posture, in
+  `.throughstone/project-license`, covers the project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
-  matches what the service, worker, CLI, library, or import/export path actually exposes. A
-  drifted contract breaks consumers silently, so treat a mismatch as a real defect (fix the
-  contract, or file a bug if the implementation is wrong).
+  matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a
+  mismatch as a real defect (fix the contract, or file a bug if the implementation is wrong).
 - **Docstrings** — spot-check that docstrings describe what the code *now does*, not what it
   was first written to do. A docstring that lies is worse than none; fix it in place (a doc
   fix, not a bug STEP).
@@ -219,11 +212,10 @@ follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any 
 `adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
 STEP.
 
-**Last, schedule the next one.** Ask the user when it should be. They answer in their own terms
-(*"in about 20 STEPs"*, *"after we launch"*, *"February"*); turn that into a STEP number or a
-date and write it into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is
-there, and put the same answer in the report's Summary. Nothing else records it, so a check-in
-that closes without an answer leaves the **old** line in place and `./doctor.sh status` goes on
-reporting a check-in due — the one you just ran. That is a nudge, not a gate, and it is not a
-reason to invent a date: leave the line alone, say in the report's Summary that the next one isn't
-scheduled yet, and tell the user it is still waiting on them.
+**Last, schedule the next one.** Ask the user when it should be. They answer in their own terms;
+turn that into a STEP number or a date and write it into `overview.md`'s
+`<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is there, and write the same STEP number or
+date into the report's Summary. A check-in that closes without an answer leaves the **old** line
+in place and `./doctor.sh status` goes on reporting a check-in due — the one you just ran. That is
+not a reason to invent a date: leave the line alone, say in the report's Summary that the next one
+isn't scheduled yet, and tell the user it is still waiting on them.

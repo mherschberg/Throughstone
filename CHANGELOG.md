@@ -551,9 +551,9 @@ any project built with it.
 - **Two rules now say what they left to inference.** `runbooks/check-in.md` says to tell the agent
   *"run the check-in"*, while `METHOD.md` §10 says an in-progress STEP runs only the substep you
   ask for by name — and a check-in has two substeps. Nothing said whether that phrase authorised
-  both or only planned the STEP. It runs both, end to end: the substeps are fixed, the runbook is
-  their prompt, and there is nothing to approve between them. Both documents now say so, and §10
-  marks it as the one STEP invoked whole.
+  both or only planned the STEP. It runs both, end to end. Both documents now say so, and §10
+  gives the reason (the substeps are fixed and the runbook is their prompt) and marks it as the
+  one STEP invoked whole.
 - **A substep is no longer mistaken for a conditional architecture session it has nothing to do
   with.** When `scripts/status.sh` points you at an optional architecture session, it suggests the
   by-name phrase to invoke it with — and it worked out which session by searching the label for a
