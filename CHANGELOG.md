@@ -405,8 +405,7 @@ any project built with it.
   write, that no check-in has yet run over?* — and if the answer is yes, it puts a check-in titled
   `Check-in: baseline` at the front of the phase, whose job is `runbooks/check-in.md` run once,
   end to end, both substeps. The runbook itself is unchanged, a failing inherited suite included.
-  It goes ahead of the scaffold STEP, so the suite is measured on the code as you took it on,
-  before the method has written a README section or a licence notice into it.
+  It goes ahead of the scaffold STEP, so the suite is measured on the code as you took it on.
 
   Nothing ran that suite before the project started building on top of it. STEP-1 writes documents
   and runs nothing, which is correct when there is no code yet; but a project whose architecture
