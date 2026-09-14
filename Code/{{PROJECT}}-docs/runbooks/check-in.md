@@ -134,8 +134,8 @@ Beyond the architecture docs, sweep four things:
   STEP to write it.
   **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
   only that section, through to the next heading at its level, and leave the rest of the file alone;
-  if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift rather
-  than editing it.
+  if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift in the
+  check-in report rather than editing it.
   **Neither marker, or no README at all** — re-run the registration (`register-repo.md`), which is
   safe to re-run and finishes whatever an earlier run left waiting; in the mono-repo-for-now layout
   do that only for the workspace-root row, and leave a folder with neither marker as it is.
