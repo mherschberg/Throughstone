@@ -130,7 +130,8 @@ Beyond the architecture docs, sweep four things:
   **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
   still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
   clean checkout, and any `ARCHITECTURE.md` still matches the design — or, if there is none, whether
-  the repo has since grown the internal complexity that warrants one.
+  the repo has since grown the internal complexity that warrants one; if it has, file a follow-up
+  STEP to write it.
   **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
   only that section, through to the next heading at its level, and leave the rest of the file alone;
   if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift rather
