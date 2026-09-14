@@ -138,8 +138,6 @@ Beyond the architecture docs, sweep four things:
   **Neither marker, or no README at all** — re-run the registration (`register-repo.md`), which is
   safe to re-run and finishes whatever an earlier run left waiting; in the mono-repo-for-now layout
   do that only for the workspace-root row, and leave a folder with neither marker as it is.
-  Licensing is never re-asked per repo — one posture, in `.throughstone/project-license`, covers the
-  project.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a

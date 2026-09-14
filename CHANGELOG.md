@@ -328,8 +328,7 @@ any project built with it.
   setup steps still work from a clean checkout" check survives only on a README we stamped; anywhere
   else it is a judgement about their repo rather than about our connection to it. A registry row and
   its Architecture Overview entry are treated as **one** thing that drifts — re-run the
-  registration, never edit either by hand — and the check-in now says plainly that licensing is
-  settled once for the whole project and never re-asked per repository.
+  registration, never edit either by hand.
   **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to repos that have no
   remote yet**: as written it would have created a second remote for a repository that already had
   one and pushed its history there.
