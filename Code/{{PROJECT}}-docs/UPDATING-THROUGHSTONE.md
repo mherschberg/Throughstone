@@ -344,15 +344,17 @@ differently:
 - **Your next check-in sweeps repo READMEs by what each README says, rather than uniformly.**
   A README stamped from the template is reviewed whole, as it always was — Overview, Setup /
   Running / Testing, and any `ARCHITECTURE.md`. One carrying a `## Role in <project>` section is
-  reviewed only down to the next `##`, leaving the rest of somebody else's file alone. One with
-  neither marker is not edited at all, and gets one question instead: can someone standing in this
-  repo still find their way back to the project?
+  reviewed only through to the next heading at its level, leaving the rest of somebody else's file
+  alone. One with neither marker, or no README at all, is sent back through the registration, which
+  finishes whatever an earlier run left waiting. In a multi-repo project that includes your docs
+  hub's and `prompts/` READMEs, which gain a short Role section at that check-in, once. In a
+  mono-repo-for-now project it is the workspace root: a README of yours there gains the same
+  section, and if there is none, one is stamped from the template.
   **The "do the setup steps still work from a clean checkout" check now survives only on a README
   we stamped** — on one carrying a `## Role in <project>` section, or with no marker at all, it is a
-  judgement about somebody else's repository rather than about your connection to it. Two smaller shifts ride along: a registry row and its Architecture
-  Overview entry now count as **one** thing that drifts, fixed by re-running the registration
-  rather than by editing either side; and the licensing question is never re-asked per repo,
-  because that posture lives in one project-wide file.
+  judgement about somebody else's repository rather than about your connection to it. One smaller
+  shift rides along: a registry row and its Architecture Overview entry now count as **one** thing
+  that drifts, fixed by re-running the registration rather than by editing either side.
 - **`runbooks/collaboration.md` §9 no longer stands up a remote for every repo.** Going solo to
   team, the create-a-remote-and-push-your-history step is now scoped to repos that have no
   remote yet. As it stood, following it literally would have created a second remote for a

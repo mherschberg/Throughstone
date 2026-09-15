@@ -146,7 +146,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    substeps. Nothing about that runbook changes here, a failing inherited suite included.
 
    Place it at the **front** of this phase's STEPs — ahead of the scaffold STEP, so the suite is
-   measured on the code as you took it on, before this project has written anything into it.
+   measured on the code as you took it on.
 3. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
    **build or extend what this milestone needs, given what already exists.** On an ordinary first
    run nothing is built yet, so scaffolding and the core data layer come first and you build
