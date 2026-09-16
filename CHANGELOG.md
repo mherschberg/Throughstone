@@ -320,19 +320,17 @@ any project built with it.
   none of them knows a field name any more, so they stay correct when the fields change — which is
   the exact way the previous attempt at this rotted.
   Two files change what they actually do. **The check-in's repo-README sweep is now driven by the
-  README itself.** It sweeps each repo present on this machine and lets that repo's README say how
-  much of it is ours: a README stamped from the template is reviewed whole, one carrying a
-  `## Role in <project>` section is reviewed only down to the next `##` with the rest of somebody
-  else's file left alone, and one with neither marker is not edited at all — there it re-asks the
-  single question a README has to answer for the project, whether someone standing in that repo can
-  still find their way back. The "do the setup steps still work from a clean checkout" check
-  survives only on a README we stamped; anywhere else it is a judgement about their repo rather
-  than about our connection to it. A registry row and its Architecture Overview entry are treated as
-  **one** thing that drifts — re-run the registration, never edit either by hand — and the check-in
-  now says plainly that licensing is settled once for the whole project and never re-asked per
-  repository. **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to repos
-  that have no remote yet**: as written it would have created a second remote for a repository
-  that already had one and pushed its history there.
+  README itself.** It sweeps each repo present on this machine and lets that repo's README decide
+  which case applies: a README stamped from the template is reviewed whole, one carrying a
+  `## Role in <project>` section is reviewed only through to the next heading at its level, with the
+  rest of the file left alone, and one with neither marker, or no README at all, is sent back
+  through the registration, which finishes whatever an earlier run left waiting. The "do the setup
+  steps still work from a clean checkout" check survives only on a README we stamped. A registry row
+  and its Architecture Overview entry are treated as **one** thing that drifts — re-run the
+  registration, never edit either by hand.
+  **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to repos that have no
+  remote yet**: as written it would have created a second remote for a repository that already had
+  one and pushed its history there.
   Three read-only sweeps — the check-in's full test run, the dependency audit, and the incident
   runbook's hunt for similar issues — asked for "all repos" and now ask for every repo you can
   reach, with the unreachable ones named. The failure that guards against is not missing a
@@ -382,14 +380,31 @@ any project built with it.
   action itself is untouched. `prompts/README.md` no longer describes a due Check-in STEP as
   something the resolver answers with, and `tests/status-next-check-in.sh` holds both halves of the
   contract so a gate cannot creep back in.
+- **The periodic check-in runbook is shorter, and it checks three things it did not.**
+  `runbooks/check-in.md` restated rules that other documents own, and explained rules right after
+  stating them; that text is gone, or replaced by a pointer to the document that owns the rule. Its
+  Output section described the report in eight bullets beside the template that already lays it out;
+  it now says to fill in every section of `templates/reports/check-in-report-template.md`, and where
+  a sweep found nothing, to say so rather than leave the section out. The closing step writes the
+  next check-in's STEP number or date into the report's Summary as well as into `overview.md`'s
+  `NEXT-CHECK-IN` line.
+  In a mono-repo-for-now project the repo-README sweep sends only the workspace-root row back
+  through the registration, and a folder with neither marker is left as it is; the sweep also
+  recognises a Role section written in a README's own markup.
+  Three checks are new. The high-drift list compares the Test Strategy architecture doc's CI gates
+  with the gates actually running: nothing in the check-in looked for CI, so a mono-repo-for-now
+  project whose root `method-check.yml` had never been placed passed every check-in. For a README
+  the project stamped, the check-in asks whether a repo with no `ARCHITECTURE.md` has grown the
+  internal complexity that warrants one. For a README carrying a Role section, an existing
+  `ARCHITECTURE.md` is checked against the design and any drift is raised rather than edited;
+  whether the repo needs one is not asked.
 - **The planning session now asks whether it is planning against code somebody else wrote, and
   runs that code's tests before anything is built on it.** Before it proposes the STEP sequence it
   puts one question to you — *is any of the code this phase builds on code this project did not
   write, that no check-in has yet run over?* — and if the answer is yes, it puts a check-in titled
   `Check-in: baseline` at the front of the phase, whose job is `runbooks/check-in.md` run once,
-  end to end, both substeps. The runbook itself is unchanged, a failing inherited suite included.
-  It goes ahead of the scaffold STEP, so the suite is measured on the code as you took it on,
-  before the method has written a README section or a licence notice into it.
+  end to end, both substeps. The baseline runs it unchanged, a failing inherited suite included.
+  It goes ahead of the scaffold STEP, so the suite is measured on the code as you took it on.
 
   Nothing ran that suite before the project started building on top of it. STEP-1 writes documents
   and runs nothing, which is correct when there is no code yet; but a project whose architecture
@@ -551,9 +566,9 @@ any project built with it.
 - **Two rules now say what they left to inference.** `runbooks/check-in.md` says to tell the agent
   *"run the check-in"*, while `METHOD.md` §10 says an in-progress STEP runs only the substep you
   ask for by name — and a check-in has two substeps. Nothing said whether that phrase authorised
-  both or only planned the STEP. It runs both, end to end: the substeps are fixed, the runbook is
-  their prompt, and there is nothing to approve between them. Both documents now say so, and §10
-  marks it as the one STEP invoked whole.
+  both or only planned the STEP. It runs both, end to end. Both documents now say so, and §10
+  gives the reason (the substeps are fixed and the runbook is their prompt) and marks it as the
+  one STEP invoked whole.
 - **A substep is no longer mistaken for a conditional architecture session it has nothing to do
   with.** When `scripts/status.sh` points you at an optional architecture session, it suggests the
   by-name phrase to invoke it with — and it worked out which session by searching the label for a
@@ -755,15 +770,13 @@ any project built with it.
   Both now also say the work was **committed**, which neither of them used to mention at all.
 - **The check-in report template has somewhere to record deferred coverage.** An architecture doc
   may deliberately leave part of its area unwritten, marked in its `Coverage:` field.
-  `runbooks/check-in.md` treats that as a standing obligation — the deferral must be "resurfaced,
-  not silently forgotten", so every check-in re-reads it, weighs it against what the system now
-  does, and records one explicit disposition — and the runbook's own Output list names a
-  **Deferred coverage** bullet as part of the report. The report template had no such section.
-  The one place it said "Deferred" was a conditional-session disposition, which the runbook goes
-  out of its way to distinguish. So the sweep the runbook mandates had nowhere to land, and the
-  gap it exists to keep visible would rest on the same passive line in the same doc. The template
-  now carries a **Deferred Coverage** table beside **Conditional Coverage**, in the runbook's own
-  order, with the four things its Output bullet asks for: the doc, what its `Coverage:` field
+  `runbooks/check-in.md` treats that as a standing obligation: every check-in re-reads it, weighs
+  it against what the system now does, and records one explicit disposition in the check-in
+  report. The report template had no section for it. The one place it said "Deferred" was a
+  conditional-session disposition, which means something else. So the sweep the runbook mandates
+  had nowhere to land, and the gap it exists to keep visible would rest on that one `Coverage:`
+  line in the doc. The template now carries a **Deferred Coverage** table beside **Conditional
+  Coverage**, in the runbook's own order, with four columns: the doc, what its `Coverage:` field
   says, the disposition, and the follow-up STEP filed or retained.
 - **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh`,
   `scripts/status.sh`, `scripts/links.sh` and `scripts/setup-workspace.sh` read no arguments at all,

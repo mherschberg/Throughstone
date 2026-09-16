@@ -1,32 +1,20 @@
 # Runbook — Periodic Check-In
 
-> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). The roadmap should
-> include a *Check-in STEP* whenever the `<!-- NEXT-CHECK-IN: … -->` line in `overview.md` comes
-> up — the agent proposes one at a sensible breakpoint (e.g. after a capability lands,
-> not mid-feature). When you run that STEP, tell the agent *"run the check-in"* and it
-> follows this file **end to end** — both substeps, in one go. That is a **deliberate exception**
-> to `METHOD.md` §10's rule that an in-progress STEP runs only the substep you ask for by name:
-> the two substeps here are fixed, this runbook is their prompt, and there is nothing to approve
-> between them. **Title its index row `Check-in`** (a scope may follow, e.g.
-> `Check-in: phase 1`) so the roadmap reads clearly.
+> **How to run:** A check-in is its own **STEP** (see `METHOD.md` §5). When you run that STEP,
+> tell the agent *"run the check-in"* and it follows this file **end to end** — both substeps, in
+> one go. That is a **deliberate exception** to `METHOD.md` §10's rule that an in-progress STEP
+> runs only the substep you ask for by name.
 >
 > **Its PLAN is thin and it has exactly two substeps** — you don't author substep prompts for
-> it (like the architecture STEP, it's a special case of the recipe in `prompts/README.md`).
-> The two substeps *are* this runbook:
+> it. The two substeps *are* this runbook:
 > - **substep N.1 — doc-drift reconciliation + conditional coverage** (Part 1 below), and
 > - **substep N.2 — full test run** (Part 2 below).
 >
-> The PLAN just points here and lists those two; record their status in the index/PLAN like
-> any other substep.
+> Record their status in the index/PLAN like any other substep.
 
 ## Why this runbook exists
-Three kinds of rot accumulate quietly while you build: the architecture docs drift away from
-the code, a once-irrelevant architecture area becomes applicable without its conditional
-session ever running, and the test suite degrades as STEPs add features faster than they add
-coverage. They rarely show up until they hurt. The check-in is a deliberate, periodic sweep
-that catches them before they harden — a scheduled "is the project still healthy?" gate,
-distinct from the per-substep discipline (each substep already updates the doc it changes;
-this is the full reconciliation across everything).
+It's easy to get so in the weeds that things get missed, like doc drift, security issues,
+regression testing, etc. The check-in STEP prevents too much debt from accumulating unnoticed.
 
 This is a **review + verification** STEP: it writes no new features — it fixes docs, files bugs,
 proves the tests pass, and may make a small corrective code or test fix to clear a failure it
@@ -35,28 +23,18 @@ found.
 ## Part 1 — Doc drift and conditional coverage  *(substep N.1)*
 
 > **Start with the mechanical pass.** From the workspace root, run
-> `Code/{{PROJECT}}-docs/scripts/check.sh --check-in` first — in seconds it catches the
-> *structural* drift this part otherwise checks by hand: duplicate STEP/ADR numbers,
-> invalid statuses, architecture docs missing `Version`/`Status`/Version-Log, and an ADR registry
-> that disagrees with the files on disk, plus architecture-session numbering and
-> conditional-template contract drift. **The `--check-in` flag is what adds the repo-registry
-> pass below.** Every `[FAIL]` gets fixed. A `[WARN]` gets a decision rather than a reflex fix —
-> the missing-remote warning below is meant to recur until someone acts on it. Then do the
-> judgment-based review below (which a script can't: does the doc still describe what the system
-> actually *does*?).
+> `Code/{{PROJECT}}-docs/scripts/check.sh --check-in` first — it catches the *structural* drift
+> this part otherwise checks by hand, and its output names each check. Every `[FAIL]` gets fixed.
+> A `[WARN]` gets a decision rather than a reflex fix. Then do the judgment-based review below.
 
 For each **non-`Deprecated`** `architecture/NN-*.md`, compare the doc against the system as it
-actually is now — in both directions, because they catch different problems (a `Status:
-Deprecated` doc is **listed as retired** in the index reconciliation below, but **not** reconciled
-against current code or backfilled — it is kept for history, not swept as live;
-`METHOD.md` §6):
+actually is now — in both directions, because they catch different problems:
 
 - **Docs vs. code** — the doc claims something the code no longer does (stale doc).
   → **Fix the doc** and bump its Version Log (`METHOD.md` §6); if a real decision was made in
   code but never recorded, **write an ADR** (`templates/adr-template.md`) and update the doc to match.
-- **Code vs. docs** — the code diverges from a decision the doc still gets *right* (the code
-  is wrong, not the doc). → **Don't "fix" the doc to bless the drift.** Flag it as a bug /
-  follow-up STEP.
+- **Code vs. docs** — the code diverges from a decision the doc still gets *right*.
+  → **Don't "fix" the doc to bless the drift.** Flag it as a bug / follow-up STEP.
 
 Cover the high-drift areas at least: the Data Model architecture doc
 (`architecture/*-data-model.md`) vs. the real schema/migrations; the Architecture Overview
@@ -65,36 +43,37 @@ architecture doc (`architecture/*-architecture-overview.md`) and
 the Infrastructure & Deployment architecture doc and the Environments architecture doc vs. the
 deployed infrastructure and environments; the Interface Contracts architecture doc vs.
 the published and generated artifacts; security vs. the auth and secrets handling actually in
-place; the Glossary architecture doc vs. the terms the code now uses. Also
-reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
-with its current version/status).
+place; the Test Strategy architecture doc's **CI gates** vs. the gates actually running (in a
+mono-repo-for-now project, `method-check.yml` runs only from the workspace root's
+`.github/workflows/`; confirm it is there, or at the docs hub's root in a multi-repo project,
+whether or not the doc names it; in a mono-repo-for-now project, a code folder's own `ci.yml` never
+runs); the Glossary architecture doc vs. the terms the code now uses. Also reconcile
+`architecture/README.md`'s index against the docs actually present (a row per doc, with its current
+version/status).
 
 **The repo registry.** `scripts/check.sh --check-in` makes two mechanical checks on
-`registries/repos.yml`, and only those two. Everything else about the registry is the by-hand
-comparison above — the rows against the repos that actually exist.
+`registries/repos.yml`, and only those two.
 
 - **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
   into the row; don't guess a path. **So does a row the doctor cannot read** — one that does not
   start with its `- name:` line; show the human that row.
-- **A row with no `remote:` recorded** is a warning: as far as the project knows, that repo's
-  work lives on exactly one laptop. If the repo already has a remote, record the URL. If it has
-  none, give it one — **created private**, widening being a separate decision made deliberately
-  later — then push to it and record the URL, because the row records that a remote exists and
-  does not prove anything was pushed to it. Or decide here that local-only is still fine, because
-  a project may legitimately start local for a while. **Nothing records that decision**: the
-  warning returns every check-in, which is the point. In
-  the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
+- **A row with no `remote:` recorded** is a warning. If the repo already has a remote, record the
+  URL. If it has none, give it one — **created private**, widening being a separate decision made
+  deliberately later — then push to it and record the URL, because the row records that a remote
+  exists and does not prove anything was pushed to it. Or decide here that local-only is still
+  fine. **Nothing records that decision**: the warning returns every check-in, which is the point.
+  In the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
   inside that one repository, so whatever backs the root up backs them up too.
 
 **A repo missing from the registry**, or a row whose Architecture Overview entry disagrees with
-it, is fixed by **re-running the registration** (`register-repo.md`), never by editing either
-side by hand: the runbook writes both together and is safe to re-run.
+it, is fixed by **re-running the registration** (`runbooks/register-repo.md`), never by editing
+either side by hand.
 
 ### Conditional-session coverage
 
 Re-evaluate conditional architecture coverage against the system as it exists now. Enumerate
 every `templates/architecture-sessions/conditional-*.md` file — do not use a hard-coded topic
-list, because projects may add conditional sessions later. For each template:
+list. For each template:
 
 - Read its applicability rule and invocation. Compare the rule with the current architecture,
   implemented code, deployed surfaces, data handled, and product behavior.
@@ -103,8 +82,7 @@ list, because projects may add conditional sessions later. For each template:
   archived), then consider later check-in reports under `reports/` and conditional follow-up STEPs. Do not
   edit archived plans or reports; this check-in report records the new current disposition.
 - Confirm that an applicable conditional has a completed output architecture doc, or that
-  the latest `Deferred` / `N/A` reason remains valid. A newly added template with no earlier
-  record still needs an explicit current disposition in this check-in report.
+  the latest `Deferred` / `N/A` reason remains valid.
 - If the conditional now applies but was never run, its old reason is no longer valid, or
   its existing doc needs a material re-interview rather than an ordinary drift correction,
   first check for an existing `Planned` or `In progress` follow-up for the same template.
@@ -114,87 +92,68 @@ list, because projects may add conditional sessions later. For each template:
   next-action resolver prioritizes it before ordinary planned implementation work. Do not
   run the architecture interview inside the check-in.
 
-A conditional follow-up is a thin, architecture-only STEP: its PLAN has one substep that
-points directly to the `conditional-*.md` template and records the template's exact
-by-name invocation and assigned output-doc number; reuse the existing doc number for a
-re-interview, otherwise take the next free number above the core block. Do not author a
-duplicate substep prompt. The session writes or revises its architecture doc, updates
-related architecture docs and `architecture/README.md`, and records significant decisions
-as ADRs. Its review checks the new decisions against the rest of the architecture. Before
-returning to implementation, re-run the planning session if those decisions change the
-remaining roadmap.
+For the shape of a conditional follow-up STEP, see `METHOD.md` §4, "Adding a session".
 
 ### Deferred-coverage sweep
 
-Some architecture docs deliberately leave a fat or fast-moving area only *partly* written up,
-marked `Coverage: deferred` (`METHOD.md` §6): the doc itself exists and is `Current`, but one
-payload was consciously postponed. This is distinct from a `Deferred` **session row** (an
-*optional* session that never ran, which the conditional-session sweep above owns) and from
-later-phase **scope** deferral: here the doc *did* run and exists, and only a sub-area inside it
-is unwritten. That deferral must be **resurfaced, not silently forgotten** —
-each check-in re-reads it and decides its fate, so the gap lives in the roadmap instead of resting
-on a passive line in a doc.
+Some architecture docs deliberately leave part of their area unwritten, marked in their
+`Coverage:` field (`METHOD.md` §6).
 
 Enumerate every **non-`Deprecated`** `architecture/NN-*.md` whose **`Coverage:` field** says
-anything other than `full` — **read the field, don't grep for a phrase**. The doc writes it as a
-header field and its value is a sentence (`**Coverage:** deferred — 40 of ~600 tables enumerated;
-…`), so a literal search for "Coverage: deferred" matches nothing; a doc with no `Coverage:` line
-at all is fully covered and not swept. A `Status: Deprecated` doc is **listed as retired** by
-the index reconciliation above (`METHOD.md` §6) and is **never** surfaced here for backfill. For
-each deferred doc, weigh the postponed area against what the system now does and what the near-term
-roadmap will build, and record one explicit **disposition** in this check-in report:
+anything other than `full` — **read the field, don't grep for a phrase**. A doc with no `Coverage:`
+line at all is fully covered and not swept. For each deferred doc, weigh the postponed area against
+what the system now does and what the near-term roadmap will build, and record one explicit
+**disposition** in this check-in report:
 
 - **Backfill now — file a STEP.** The area is needed, or now cheap to finish. File a thin
-  architecture-only follow-up STEP that *finishes the existing doc* (below). Don't write the area
-  up inside the check-in.
+  architecture-only follow-up STEP that *finishes the existing doc* (below).
 - **Still defer.** Nothing built or planned yet leans on the postponed area. Record *why* the
   deferral still holds (and, if useful, what would end it); no STEP.
 - **Genuinely risky — seed it now.** Forward work is likely to lean on the un-enumerated part
-  before the next check-in. Don't defer again and don't leave it for a later sweep: file the
-  backfill as a `Planned` STEP **now** *and* add a `registries/risks.yml` row with a revisit
-  trigger, so the gap is both scheduled and tracked as an accepted risk until it lands.
+  before the next check-in. File the backfill as a `Planned` STEP **now** *and* add a
+  `registries/risks.yml` row with a revisit trigger.
 
 Before filing a backfill STEP, check for an existing `Planned` or `In progress` follow-up for the
 same doc; report and retain it if one exists — do not create a duplicate.
 
 A deferred-coverage backfill is a thin, architecture-only STEP, the same shape as a conditional
 follow-up: its PLAN has one substep that points directly at the deferred `architecture/NN-*.md`
-doc and names the section to finish, and it **reuses that doc's existing number** — it completes an
-existing doc, it does not add a new one. Unlike a conditional follow-up it does **not** take the
-`Conditional session:` title prefix: it is an ordinary `Planned` STEP the next-action resolver
-surfaces as normal planned implementation work (`METHOD.md` §10), not ahead of it. Give the row a
-descriptive title (e.g. `Deferred-coverage backfill: <doc topic>`) so a later check-in can find it.
-The session that runs it enumerates the postponed payload, clears or narrows the doc's `Coverage:`
+doc and names the section to finish, and it **reuses that doc's existing number**. Unlike a
+conditional follow-up it does **not** take the `Conditional session:` title prefix. Give the row a
+descriptive title (e.g. `Deferred-coverage backfill: <doc topic>`).
+The session that runs it enumerates the postponed area, clears or narrows the doc's `Coverage:`
 line (to `full` once the area is complete), updates related architecture docs and
 `architecture/README.md`, and records significant decisions as ADRs. Do not run the write-up inside
 the check-in itself.
 
-Beyond the architecture docs, sweep four things that rot just as quietly:
-- **Repo READMEs** — sweep each repo present on this machine, and let the README itself say how
-  much of it is ours.
-  **Stamped from `templates/repo-readme-template.md`** — we wrote it, so review the whole file:
-  the **Overview** still describes what the repo *is*, the **Setup / Running / Testing** steps
-  still work from a clean checkout, and any `ARCHITECTURE.md` still matches the design.
-  **Carrying a `## Role in <project>` section instead** — the README was already there, so review
-  only that section, down to the next `##`, and leave the rest of their file alone. **Neither
-  marker** — don't edit it; just re-ask the one question a README has to answer for us: can
-  someone standing in this repo still find their way back to the project? Licensing is never
-  re-asked per repo — one posture, in `.throughstone/project-license`, covers the project.
+Beyond the architecture docs, sweep four things:
+- **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
+  case applies.
+  **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
+  still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
+  clean checkout, and any `ARCHITECTURE.md` still matches the code and the design — or, if there is
+  none, whether the repo has since grown the internal complexity that warrants one; if it has, file
+  a follow-up STEP to write it.
+  **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
+  only that section, through to the next heading at its level, and leave the rest of the file alone;
+  if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift in the
+  check-in report rather than editing it.
+  **Neither marker, or no README at all** — re-run the registration (`runbooks/register-repo.md`),
+  which is safe to re-run and finishes whatever an earlier run left waiting; in the
+  mono-repo-for-now layout do that only for the workspace-root row, and leave a folder with neither
+  marker as it is.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
-  matches what the service, worker, CLI, library, or import/export path actually exposes. A
-  drifted contract breaks consumers silently, so treat a mismatch as a real defect (fix the
-  contract, or file a bug if the implementation is wrong).
+  matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a
+  mismatch as a real defect (fix the contract, or file a bug if the implementation is wrong).
 - **Docstrings** — spot-check that docstrings describe what the code *now does*, not what it
   was first written to do. A docstring that lies is worse than none; fix it in place (a doc
   fix, not a bug STEP).
 - **Accepted risks / tech debt** — review `registries/risks.yml`. For every open or monitoring
   item, decide whether the revisit trigger has fired, the severity/owner still matches reality,
-  and the referenced architecture section, ADR, issue, archived STEP plan/execution notes,
-  incident postmortem report under `reports/incidents/`, or check-in report under `reports/`
-  still exists and still explains the risk. Close items that are mitigated, update stale rows,
-  create missing source artifacts, and file follow-up STEPs for anything whose trigger has
-  fired or whose severity is no longer acceptable.
+  and the documents its `refs:` entries point to still exist and still explain the risk. Close
+  items that are mitigated, update stale rows, create missing source artifacts, and file
+  follow-up STEPs for anything whose trigger has fired or whose severity is no longer acceptable.
 
 ### Inputs sweep
 
@@ -204,34 +163,28 @@ protocol/API spec, UI designs); `architecture/` holds the living truth (`inputs/
 parts go stale — but nothing revisits `inputs/` between check-ins, so a superseded seed keeps
 reading as current intent until it's reconciled here.
 
-Read `inputs/inputs-index.md` — the ledger of which parts of which input are still `Live` vs.
-`Superseded` (`README.md` and `inputs-index.md` are guidance, not inputs). Reconcile it against the
-architecture docs, **treating only live inputs as current: `inputs/archive/` is history and is not
-swept**, the same way a `Status: Deprecated` doc is listed but not reconciled as live
-(`METHOD.md` §6):
+Read the ledger, `inputs/inputs-index.md` (`README.md` and `inputs-index.md` are guidance, not
+inputs). Reconcile it against the architecture docs, **treating only live inputs as current:
+`inputs/archive/` is history and is not swept**:
 
 - **Drift into the index.** For each input file under `inputs/` (excluding `inputs/archive/`),
   confirm it has row(s) in the ledger; add `Live` rows for anything imported but never recorded, and
   flag ledger rows whose input file is gone.
 - **Newly superseded.** For each `Live` row, check whether a **`Current`** `architecture/` doc (or
   an ADR) now covers that part. If it does, surface it and let the user disposition it: **mark
-  `Superseded`** (update the row, name the covering doc) or **keep `Live`** (still authoritative —
-  e.g. an external spec the design hasn't diverged from, or a seed not yet fully captured). If an
+  `Superseded`** (update the row, name the covering doc) or **keep `Live`**. If an
   input is itself architecture-grade — a protocol/API spec, a formal contract, a finished design
   doc — and still lives only in `inputs/`, flag it to be **lifted** into `architecture/` (often a
   whole-file copy or a light reformat to match doc conventions), then marked `Superseded` here;
   inputs are never the living home. (Use judgment, though — some inputs are better **referenced**
-  from `architecture/` and kept here, e.g. a large external standard you only partially implement;
-  that's one example, not the only one.)
+  from `architecture/` and kept here, e.g. a large external standard you only partially implement.)
 - **Retire the fully superseded.** When **every** row for an input is `Superseded`, offer to retire
-  it: **move the file to `inputs/archive/`** (sessions stop reading it) and leave its rows in the
-  ledger as the record. **Surface-and-decide — never auto-move or auto-delete a file;** a still-`Live`
-  input (e.g. an external contract the design still complies with) is never flagged as superseded.
+  it: **move the file to `inputs/archive/`** and leave its rows in the ledger as the record.
+  **Surface-and-decide — never auto-move or auto-delete a file.**
 
 ### Security-review gate
 
-Nudge security deliberately, but do not turn every check-in into a full audit. Read
-`registries/security-reviews.yml` and `runbooks/security-review.md`, then decide whether a
+Read `registries/security-reviews.yml` and `runbooks/security-review.md`, then decide whether a
 security review is due:
 
 - Has the S1 Security Sweep cadence elapsed?
@@ -246,12 +199,11 @@ security review is due:
 If a review is due, add a separate STEP for it; do not run S1 or S2 inside this check-in. Use a
 **Security Baseline STEP** for S0, a **Security Review STEP** for S1, and a **Security Audit
 STEP** for S2.
-Update `registries/security-reviews.yml` only when a review actually runs, not merely because
-the gate was evaluated.
+Update `registries/security-reviews.yml` only when a review actually runs.
 
 ## Part 2 — Run all tests  *(substep N.2)*
-- Run the **full** test suite — across every repo you can reach, not just the area you last
-  touched — and name any you can't, so a partial sweep reads as partial rather than as clean.
+- Run the **full** test suite — across every repo you can reach — and name any you can't, so a
+  partial sweep reads as partial rather than as clean.
 - Record the result: pass/fail counts, anything skipped, and coverage if you track it. Put
   durable test-result or coverage-report details under `reports/test-results/` and summarize the
   important outcome in the check-in report.
@@ -261,33 +213,18 @@ the gate was evaluated.
 ## Output
 Write a short **check-in report** under `reports/` in the docs hub. Use
 `templates/reports/check-in-report-template.md` and name the completed report
-`reports/YYYY-MM-DD-step-NNNN-check-in-report.md`.
-- **Drift:** docs reviewed, discrepancies found, classified (doc fixed / ADR written / bug
-  filed) — with the fixes applied and the bugs filed.
-- **Conditional coverage:** every discovered conditional-session template and its current
-  disposition; list any whose trigger fired and the follow-up STEP created or already pending.
-- **Deferred coverage:** each non-`Deprecated` doc whose `Coverage:` field is not `full`, its recorded
-  disposition (backfill now / still defer / risk-seeded), and any backfill STEP filed or existing
-  one retained; a `Deprecated` such doc is noted as retired, not backfilled.
-- **Inputs:** live inputs reconciled against the architecture docs — rows newly marked `Superseded`
-  (with the covering doc), any input retired to `inputs/archive/`, and any import missing from
-  `inputs/inputs-index.md` that was added; `inputs/archive/` entries are noted as retired, not swept.
-- **Risks/debt:** `registries/risks.yml` items reviewed, closed, updated, or promoted to
-  follow-up STEPs.
-- **Security review gate:** S0/S1/S2 current status, whether a review is due, and any Security
-  Baseline, Security Review, or Security Audit STEP created.
-- **Tests:** the suite result, and what was done about any failures.
-- **Carry-forward:** anything that became a new bug/STEP, listed for the index.
+`reports/YYYY-MM-DD-step-NNNN-check-in-report.md`. Fill in every section of the template; where a
+sweep found nothing, say so rather than leaving the section out.
 
 Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
 follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
 `adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
 STEP.
 
-**Last, schedule the next one.** Ask the user when it should be. They answer in their own terms
-(*"in about 20 STEPs"*, *"after we launch"*, *"February"*); turn that into a STEP number or a
-date and write it into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is
-there. Nothing else records it, so a check-in that closes without an answer leaves the **old**
-line in place and `./doctor.sh status` goes on reporting a check-in due — the one you just ran.
-That is a nudge, not a gate, and it is not a reason to invent a date: leave the line alone and
-tell the user it is still waiting on them.
+**Last, schedule the next one.** Ask the user when it should be. They answer in their own terms;
+turn that into a STEP number or a date and write it into `overview.md`'s
+`<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is there, and write the same STEP number or
+date into the report's Summary. A check-in that closes without an answer leaves the **old** line
+in place and `./doctor.sh status` goes on reporting a check-in due — the one you just ran. That is
+not a reason to invent a date: leave the line alone, say in the report's Summary that the next one
+isn't scheduled yet, and tell the user it is still waiting on them.
