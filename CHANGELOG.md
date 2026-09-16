@@ -320,14 +320,13 @@ any project built with it.
   none of them knows a field name any more, so they stay correct when the fields change — which is
   the exact way the previous attempt at this rotted.
   Two files change what they actually do. **The check-in's repo-README sweep is now driven by the
-  README itself.** It sweeps each repo present on this machine and lets that repo's README say how
-  much of it is ours: a README stamped from the template is reviewed whole, one carrying a
+  README itself.** It sweeps each repo present on this machine and lets that repo's README decide
+  which case applies: a README stamped from the template is reviewed whole, one carrying a
   `## Role in <project>` section is reviewed only through to the next heading at its level, with the
-  rest of somebody else's file left alone, and one with neither marker, or no README at all, is sent
-  back through the registration, which finishes whatever an earlier run left waiting. The "do the
-  setup steps still work from a clean checkout" check survives only on a README we stamped; anywhere
-  else it is a judgement about their repo rather than about our connection to it. A registry row and
-  its Architecture Overview entry are treated as **one** thing that drifts — re-run the
+  rest of the file left alone, and one with neither marker, or no README at all, is sent back
+  through the registration, which finishes whatever an earlier run left waiting. The "do the setup
+  steps still work from a clean checkout" check survives only on a README we stamped. A registry row
+  and its Architecture Overview entry are treated as **one** thing that drifts — re-run the
   registration, never edit either by hand.
   **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to repos that have no
   remote yet**: as written it would have created a second remote for a repository that already had
@@ -381,7 +380,7 @@ any project built with it.
   action itself is untouched. `prompts/README.md` no longer describes a due Check-in STEP as
   something the resolver answers with, and `tests/status-next-check-in.sh` holds both halves of the
   contract so a gate cannot creep back in.
-- **The periodic check-in runbook is shorter, and its repo sweep checks three things it did not.**
+- **The periodic check-in runbook is shorter, and it checks three things it did not.**
   `runbooks/check-in.md` restated rules that other documents own, and explained rules right after
   stating them; that text is gone, or replaced by a pointer to the document that owns the rule. Its
   Output section described the report in eight bullets beside the template that already lays it out;
@@ -389,9 +388,9 @@ any project built with it.
   a sweep found nothing, to say so rather than leave the section out. The closing step writes the
   next check-in's STEP number or date into the report's Summary as well as into `overview.md`'s
   `NEXT-CHECK-IN` line.
-  In a mono-repo-for-now project only the workspace-root row is sent back through the registration,
-  and a folder with neither marker is left as it is; the sweep also recognises a Role section
-  written in a README's own markup.
+  In a mono-repo-for-now project the repo-README sweep sends only the workspace-root row back
+  through the registration, and a folder with neither marker is left as it is; the sweep also
+  recognises a Role section written in a README's own markup.
   Three checks are new. The high-drift list compares the Test Strategy architecture doc's CI gates
   with the gates actually running: nothing in the check-in looked for CI, so a mono-repo-for-now
   project whose root `method-check.yml` had never been placed passed every check-in. For a README
@@ -404,7 +403,7 @@ any project built with it.
   puts one question to you — *is any of the code this phase builds on code this project did not
   write, that no check-in has yet run over?* — and if the answer is yes, it puts a check-in titled
   `Check-in: baseline` at the front of the phase, whose job is `runbooks/check-in.md` run once,
-  end to end, both substeps. The runbook itself is unchanged, a failing inherited suite included.
+  end to end, both substeps. The baseline runs it unchanged, a failing inherited suite included.
   It goes ahead of the scaffold STEP, so the suite is measured on the code as you took it on.
 
   Nothing ran that suite before the project started building on top of it. STEP-1 writes documents

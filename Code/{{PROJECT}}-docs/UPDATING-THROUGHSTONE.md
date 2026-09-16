@@ -335,26 +335,25 @@ then there is nothing to change.
 it.** Everything that used to send an agent off to write a `registries/repos.yml` row by hand —
 `AGENTS.md`, the substep prompt template, `runbooks/collaboration.md` §8 — names the registration
 action instead. None of them describes a row any more, which is what keeps them correct as the
-fields change. **`runbooks/check-in.md` also changes two of its own rules**: a Check-in STEP may
+fields change. **`runbooks/check-in.md` also changes some of its own rules**: a Check-in STEP may
 now make a small corrective code or test fix to clear a failure it found, where it used to write no
 application code at all, and its mechanical pass now states what to do with each finding — a
 `[FAIL]` gets fixed, a `[WARN]` gets a decision rather than a reflex fix. Three more things behave
 differently:
 
 - **Your next check-in sweeps repo READMEs by what each README says, rather than uniformly.**
-  A README stamped from the template is reviewed whole, as it always was — Overview, Setup /
-  Running / Testing, and any `ARCHITECTURE.md`. One carrying a `## Role in <project>` section is
-  reviewed only through to the next heading at its level, leaving the rest of somebody else's file
-  alone. One with neither marker, or no README at all, is sent back through the registration, which
-  finishes whatever an earlier run left waiting. In a multi-repo project that includes your docs
-  hub's and `prompts/` READMEs, which gain a short Role section at that check-in, once. In a
-  mono-repo-for-now project it is the workspace root: a README of yours there gains the same
-  section, and if there is none, one is stamped from the template.
+  A README stamped from the template is reviewed whole — Overview, Setup / Running / Testing, and
+  any `ARCHITECTURE.md`. One carrying a `## Role in <project>` section is reviewed only through to
+  the next heading at its level, leaving the rest of the file alone. One with neither marker, or no
+  README at all, is sent back through the registration, which finishes whatever an earlier run left
+  waiting. In a multi-repo project that includes your docs hub's and `prompts/` READMEs, which gain
+  a short Role section at that check-in, once. In a mono-repo-for-now project it is the workspace
+  root: a README of yours there gains the same section, and if there is none, one is stamped from
+  the template.
   **The "do the setup steps still work from a clean checkout" check now survives only on a README
-  we stamped** — on one carrying a `## Role in <project>` section, or with no marker at all, it is a
-  judgement about somebody else's repository rather than about your connection to it. One smaller
-  shift rides along: a registry row and its Architecture Overview entry now count as **one** thing
-  that drifts, fixed by re-running the registration rather than by editing either side.
+  we stamped.** One smaller shift rides along: a registry row and its Architecture Overview entry
+  now count as **one** thing that drifts, fixed by re-running the registration rather than by
+  editing either side.
 - **`runbooks/collaboration.md` §9 no longer stands up a remote for every repo.** Going solo to
   team, the create-a-remote-and-push-your-history step is now scoped to repos that have no
   remote yet. As it stood, following it literally would have created a second remote for a
@@ -569,12 +568,11 @@ of them rewrites anything you already produced; they affect work you do after pu
   puts a check-in titled `Check-in: baseline` at the front of the phase, running
   `runbooks/check-in.md` end to end, both substeps. That is the **first** point in the method
   where a codebase you took on gets its tests run: the architecture STEP writes documents and
-  runs nothing, so until then nothing had. The runbook is unchanged. Nothing to undo — this
-  changes planning sessions you run from now on. **On an existing project**, answer the question
-  the way it is written: if a check-in has already swept that code, say so and no baseline is
-  added; if it genuinely has never been run, you get one. Either way it is the same runbook, so a
-  deliberate check-in at your next sensible breakpoint does the same work if you would rather not
-  wait for the next planning run.
+  runs nothing, so until then nothing had. Nothing to undo — this changes planning sessions you run
+  from now on. **On an existing project**, answer the question the way it is written: if a check-in
+  has already swept that code, say so and no baseline is added; if it genuinely has never been run,
+  you get one. Either way it is the same runbook, so a deliberate check-in at your next sensible
+  breakpoint does the same work if you would rather not wait for the next planning run.
 - **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
   told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
   check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
