@@ -46,9 +46,10 @@ the published and generated artifacts; security vs. the auth and secrets handlin
 place; the Test Strategy architecture doc's **CI gates** vs. the gates actually running (in a
 mono-repo-for-now project, `method-check.yml` runs only from the workspace root's
 `.github/workflows/`; confirm it is there, or at the docs hub's root in a multi-repo project,
-whether or not the doc names it); the Glossary architecture doc vs. the terms the code now uses.
-Also reconcile `architecture/README.md`'s index against the docs actually present (a row per doc,
-with its current version/status).
+whether or not the doc names it; in a mono-repo-for-now project, a code folder's own `ci.yml` never
+runs); the Glossary architecture doc vs. the terms the code now uses. Also reconcile
+`architecture/README.md`'s index against the docs actually present (a row per doc, with its current
+version/status).
 
 **The repo registry.** `scripts/check.sh --check-in` makes two mechanical checks on
 `registries/repos.yml`, and only those two.
@@ -65,8 +66,8 @@ with its current version/status).
   inside that one repository, so whatever backs the root up backs them up too.
 
 **A repo missing from the registry**, or a row whose Architecture Overview entry disagrees with
-it, is fixed by **re-running the registration** (`register-repo.md`), never by editing either
-side by hand.
+it, is fixed by **re-running the registration** (`runbooks/register-repo.md`), never by editing
+either side by hand.
 
 ### Conditional-session coverage
 
@@ -137,9 +138,10 @@ Beyond the architecture docs, sweep four things:
   only that section, through to the next heading at its level, and leave the rest of the file alone;
   if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift in the
   check-in report rather than editing it.
-  **Neither marker, or no README at all** — re-run the registration (`register-repo.md`), which is
-  safe to re-run and finishes whatever an earlier run left waiting; in the mono-repo-for-now layout
-  do that only for the workspace-root row, and leave a folder with neither marker as it is.
+  **Neither marker, or no README at all** — re-run the registration (`runbooks/register-repo.md`),
+  which is safe to re-run and finishes whatever an earlier run left waiting; in the
+  mono-repo-for-now layout do that only for the workspace-root row, and leave a folder with neither
+  marker as it is.
 - **Interface contract artifacts** — any artifact named by `architecture/*-interface-contracts.md` (OpenAPI /
   GraphQL / protobuf / event schema / JSON Schema / public package interface, etc.) still
   matches what the service, worker, CLI, library, or import/export path actually exposes. Treat a
