@@ -1,16 +1,37 @@
 #!/usr/bin/env bash
 #
-# Minimal gh repo create stub for local init.sh integration tests.
+# Minimal gh stub for local init.sh integration tests.
 #
 # Required env:
 #   GH_LOG          append-only command log inspected by tests
 #   GH_REMOTE_ROOT  directory where local bare remotes are created
+# Optional env:
+#   GH_STUB_UNREACHABLE=1  every command fails the way gh does with no connection
 
 set -euo pipefail
 
 printf '%s\n' "$*" >> "$GH_LOG"
 
-# Only `gh repo create OWNER/NAME ...` is modeled. The stub creates a local bare repository,
+if [ "${GH_STUB_UNREACHABLE:-}" = "1" ]; then
+  echo "error connecting to api.github.com" >&2
+  exit 1
+fi
+
+# init.sh's readiness check before the destructive boundary: `gh api user` succeeds for a signed-in
+# user, and `gh repo view OWNER/NAME` succeeds only for a repository that exists. A repository
+# exists here when a bare remote of that name does.
+case "${1:-} ${2:-}" in
+  "api user")
+    exit 0
+    ;;
+  "repo view")
+    [ -n "${3:-}" ] && [ -d "$GH_REMOTE_ROOT/${3##*/}.git" ] && exit 0
+    echo "GraphQL: Could not resolve to a Repository with the name '${3:-}'. (repository)" >&2
+    exit 1
+    ;;
+esac
+
+# Otherwise only `gh repo create OWNER/NAME ...` is modeled. The stub creates a local bare repository,
 # adds it as origin in the current checkout, and pushes -- matching the init.sh side effects
 # under test.
 #

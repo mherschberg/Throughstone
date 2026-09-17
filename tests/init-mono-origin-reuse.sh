@@ -41,13 +41,11 @@ bare_remote() {
 
 # path_without_gh - echo a PATH that has everything the current one has, except gh.
 #
-# The case below is named for a machine that has not installed gh, and it used to get there with
-# PATH="/usr/bin:/bin". That only hides gh where gh lives somewhere else - a Homebrew machine,
-# which is where this suite was written. On a GitHub runner gh IS /usr/bin/gh, so the reset left
-# it in plain sight and the case silently ran the opposite branch: init.sh sees gh, keeps the
-# github provider, and reuses the origin from there instead of from the no-gh fallback. Same end
-# state, so every assertion still passed. Mirroring the search path and dropping the one entry is
-# the only reset that does not depend on where a particular machine installed things.
+# The case below is named for a machine that has not installed gh, and shows that reusing an empty
+# origin never needs it. Resetting PATH to "/usr/bin:/bin" only hides gh where gh lives somewhere
+# else; on a GitHub runner gh IS /usr/bin/gh, so the case would run with gh available and every
+# assertion would still pass. Mirroring the search path and dropping the one entry is the only
+# reset that does not depend on where a particular machine installed things.
 path_without_gh() {
   local mirror="$TMP_ROOT/no-gh-bin" dir
   rm -rf "$mirror"
@@ -176,7 +174,7 @@ run_empty_origin_push_without_gh_case() {
 
   # The precondition, asserted rather than assumed. init.sh says so on startup when gh is out of
   # reach, and without this line a PATH reset that stopped working would leave the case quietly
-  # exercising the branch it exists to avoid -- which is exactly what it did on Linux.
+  # running with gh available, which is not what it tests.
   grep -Fq "Note: 'gh' not found" "$TMP_ROOT/$name.out" || {
     echo "FAIL: init.sh could still see gh, so this case did not run without it" >&2
     return 1

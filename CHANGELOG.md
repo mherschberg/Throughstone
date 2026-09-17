@@ -428,6 +428,48 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **The setup wizard checks more before it changes anything, and says where the project will go.**
+  From "Detaching from the template's git history" onward, `init.sh` removes the template's history
+  and renames files. Several problems were only found after that point, when the project was
+  already built and its remotes were left unfinished, or were never reported at all.
+
+  **GitHub.** With `gh` installed but not signed in, or GitHub unreachable, the run built the whole
+  project, then failed to create the repositories and exited 1. A repository that already had the
+  project's name failed the same way; the README's "Use this template" route leaves one behind.
+  Before changing anything, the wizard now checks that `gh` reaches GitHub as a signed-in user and
+  that none of the repositories it would create exists yet.
+
+  **The same URL for both repos.** Passed as both `--docs-remote` and `--prompts-remote`, it cleared
+  validation. The docs push then took the repository and the prompts push was rejected. It is now
+  refused.
+
+  **Free text.** A description or copyright holder of only spaces was accepted from a flag and
+  written into the generated files, so a LICENSE read `Copyright (c) 2026    `, and the doctor
+  reported OK. A line break inside either one split it across lines of the generated documents, 19
+  of them for the description. A `{{TRUNK_BRANCH}}` in the description was replaced with the branch
+  name, while a `{{PROJECT}}` there was left as it was. Each of these is now refused before anything
+  changes, naming the flag, or the question for a blank value; a typed answer with a placeholder is
+  asked for again. A GitHub owner or remote URL of only whitespace is refused the same way.
+
+  **An empty origin the folder already has.** In the mono-repo layout the project keeps such an
+  origin as its remote. Only the GitHub path said so before anything changed. Choosing existing URLs,
+  which asks for no URL in this case, and declining remotes both named it only afterwards. Every
+  path now names that origin first and says whether the project will be pushed to it. When GitHub
+  creation is dropped for it, the wizard says that `--owner` and `--visibility` are ignored and no
+  longer asks the visibility question. On any path, a `--visibility=public` no longer raises the
+  public-proprietary warning for that origin, since the run does not create it; the note below
+  names it instead.
+
+  **A proprietary project pushed to a repository the wizard did not create** got no warning unless
+  `--visibility=public` was passed, because the wizard cannot see such a repository's visibility.
+  That covers a pasted URL and the kept origin above. The wizard now names those URLs and says that
+  if one is public, pushing to it publishes the source.
+
+  **Stray files.** A mono-repo project's first commit takes in everything in the folder that its
+  `.gitignore` does not exclude. As soon as the layout is chosen, the wizard now names each such
+  top-level entry that is not part of the template. It is a warning, and the run carries on.
+
+  Existing projects are unaffected: `init.sh` runs once.
 - **The status check no longer passes a row whose Status is only dashes, or blank.** To step over
   each table's separator line, `scripts/check.sh` skipped every row whose Status cell was empty or
   made only of dashes, so a STEP or substep row with a Status of `-`, `--` or `:-:`, or none at all,
