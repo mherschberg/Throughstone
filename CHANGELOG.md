@@ -17,13 +17,13 @@ any project built with it.
   a different mechanic — clone the whole repo and delete forward — so nothing is rewritten, both
   sides keep the full history, and `git blame`, `git log --follow` and every commit SHA your
   project has recorded keep working in the new repo on day one. It covers both cases behind one
-  routing block: splitting a code repo in two (Part 1), and converting a mono-repo-for-now workspace
-  to multi-repo (Part 2). **The routing is not a free choice**: Part 1 assumes the workspace root is
-  not itself a repository, so a mono-repo-for-now project runs Part 2 first and then Part 1 if it
+  routing block: splitting a code repo in two (Case 1), and converting a mono-repo-for-now workspace
+  to multi-repo (Case 2). **The routing is not a free choice**: Case 1 assumes the workspace root is
+  not itself a repository, so a mono-repo-for-now project runs Case 2 first and then Case 1 if it
   still wants one. **Do the whole split on one machine in one sitting** — it turns on local state no
   repository carries, so it cannot be handed over half-done. Tracking it as a STEP is the method's
-  convention rather than an obligation, and the runbook names the two Part 2 steps to skip together
-  if you would rather not — Part 1 needs no equivalent. Part 2 also deletes the workspace-root registry row on its way through, since the root
+  convention rather than an obligation, and the runbook names the two Case 2 steps to skip together
+  if you would rather not — Case 1 needs no equivalent. Case 2 also deletes the workspace-root registry row on its way through, since the root
   stops being a repository at that step. It asks three questions before you start and the rest at the step that needs them;
   every one but the mapping itself has a default, so answering "use your judgement" still produces
   a correct split. The one real cost is stated plainly in the file: every new repo inherits every
@@ -428,6 +428,11 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **The runbooks index lists the three security-review checklists.** `runbooks/security-review.md`
+  sends every S0, S1 and S2 review to a checklist file of its own, and all three have shipped in
+  `runbooks/` since 1.6, but `runbooks/README.md` did not list them, so someone reading the index
+  could not tell they existed. Each now has a row saying what it holds and that it is opened from
+  `security-review.md`, never on its own.
 - **The setup wizard's closing report describes the run you just had.** Its backup advice was
   chosen by the project layout alone. A run that had just created and pushed its repositories
   still ended with a "Recommended optional backup" section on how to create a remote and push to

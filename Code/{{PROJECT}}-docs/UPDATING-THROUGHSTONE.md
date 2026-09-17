@@ -292,6 +292,8 @@ appendix covers purging history first when that matters.
   `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; and the
   planning session decides whether a repo the architecture names already exists by looking for a
   repository rather than by reading a README.
+  Separately, `runbooks/README.md`'s index now lists the three security-review checklists, which
+  have shipped unlisted since 1.6.
   **Five templates travel with this group even though §2's buckets call templates future-only.**
   `templates/repo-readme-template.md` gained the `## Role in <project>` augment form, which is what
   `runbooks/register-repo.md` sends you to when a repo already has a README, so a 1.7 copy of it

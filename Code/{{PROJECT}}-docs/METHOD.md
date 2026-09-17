@@ -691,7 +691,7 @@ STEP-1 writes into, an adopted repo included**. In a team/shared-remote project,
 **branchless** — there is no `step-NNNN` branch, because the repos that branch would live in are
 the ones being created. Its STEP number is reserved in `prompts/STEP-index.md` and committed on
 the mono repo's trunk — the workspace root, the project's only repo at that point — before the
-split starts (`runbooks/splitting-repos.md`, Part 2). Splitting a code repo later is ordinary
+split starts (`runbooks/splitting-repos.md`, Case 2). Splitting a code repo later is ordinary
 branch-per-STEP work like anything else.
 
 ## 8. Naming conventions
