@@ -1309,8 +1309,9 @@ run_github_choice_discarded_case() {
   set +e
   (
     cd "$work"
-    # y at "Set up online Git remotes now?", 1 at the remote menu, Enter for visibility.
-    printf 'y\n1\n\n' | \
+    # y at "Set up online Git remotes now?", 1 at the remote menu. No visibility question follows,
+    # since no repository is created.
+    printf 'y\n1\n' | \
       PATH="$stub_bin:$PATH" GH_LOG="$gh_log" GH_REMOTE_ROOT="$remote_root" \
       ./init.sh --slug="$name" --desc="Discarded choice test" --license=private \
         --layout=mono --collab=solo
@@ -1349,6 +1350,10 @@ run_github_choice_discarded_case() {
     echo "FAIL: $name — the existing origin was not the one reused" >&2
     return 1
   }
+  if grep -Fq "GitHub repository visibility:" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — asked for the visibility of a repository that is not created" >&2
+    return 1
+  fi
 
   # --- no reusable origin: creation happens, and the note must stay quiet ---
   copy_template "$plain"
@@ -1364,6 +1369,10 @@ run_github_choice_discarded_case() {
     echo "FAIL: $name — the note fired on a run that did create the repository" >&2
     return 1
   fi
+  grep -Fq "GitHub repository visibility:" "$TMP_ROOT/$name-plain.out" || {
+    echo "FAIL: $name — the visibility question was not asked for a repository that is created" >&2
+    return 1
+  }
   grep -Fq "repo create" "$gh_log" || {
     echo "FAIL: $name — no repository was created where creation was the right outcome" >&2
     cat "$TMP_ROOT/$name-plain.out" >&2

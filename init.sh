@@ -90,13 +90,17 @@ need_val() {
   esac
 }
 
-# want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty; otherwise prompt for it.
+# want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty, refusing one that is only
+# whitespace; otherwise prompt for it.
 # In --non-interactive mode, fall back to DEFAULT, or exit with an error if there is none.
 # This is the flag/env bridge: callers pass the already-parsed preset first, so command-line
 # values win over env vars and both bypass prompting.
 want() {
   local val="$1" prompt="$2" def="${3:-}" rc
-  if [ -n "$val" ]; then printf '%s' "$val"; return; fi
+  if [ -n "$val" ]; then
+    is_blank "$val" || { printf '%s' "$val"; return; }
+    echo "init.sh: a blank value is not an answer: $prompt" >&2; exit 2
+  fi
   if [ "$NONINTERACTIVE" = "1" ]; then
     [ -n "$def" ] && { printf '%s' "$def"; return; }
     echo "init.sh: missing required value (--non-interactive): $prompt" >&2; exit 2
@@ -120,6 +124,42 @@ want() {
     [ "$rc" -eq 0 ] || { echo "init.sh: missing required value (input ended): $prompt" >&2; exit 2; }
     echo "  -> $prompt is required." >&2
   done
+}
+
+# is_blank VALUE — true when VALUE is empty or only whitespace.
+is_blank() {
+  case "$1" in
+    *[![:space:]]*) return 1 ;;
+  esac
+}
+
+# text_problem VALUE — say why VALUE cannot be written into the generated files, or print nothing.
+# The description and holder are substituted into Markdown and LICENSE text, where a line break
+# starts a new line of the document, and setup fills its own {{NAME}} placeholders in those same
+# files, so one inside a value would be rewritten or left unresolved.
+text_problem() {
+  case "$1" in
+    *$'\n'*|*$'\r'*) echo "it must be a single line (no line breaks or carriage returns)"; return ;;
+  esac
+  if printf '%s' "$1" | LC_ALL=C grep -Eq '\{\{[A-Z0-9_]+\}\}'; then
+    echo "it must not contain a {{NAME}} placeholder, the form setup uses for its own"
+  fi
+}
+
+# want_text PRESET FLAG PROMPT — want, for free text that setup writes into generated files. A
+# preset that text_problem refuses stops the run; a typed answer it refuses is asked again.
+want_text() {
+  local val why
+  val="$(want "$1" "$3")" || exit
+  while why="$(text_problem "$val")"; [ -n "$why" ]; do
+    if [ -n "$1" ]; then
+      echo "init.sh: invalid $2: $why." >&2
+      exit 2
+    fi
+    echo "  -> $why." >&2
+    val="$(want "" "$3")" || exit
+  done
+  printf '%s' "$val"
 }
 
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
@@ -418,7 +458,8 @@ command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the la
 # own), and `git init` beside an unpacked template to attach an empty origin (no commits, nothing
 # staged). tests/init-fresh-template-guard.sh holds both halves.
 
-# Every top-level entry Throughstone ships, pipe-delimited so entries with spaces stay intact.
+# Every top-level entry Throughstone ships, pipe-delimited so entries with spaces stay intact. The
+# mono layout's stray-file warning in section 1 reads it too.
 # tests/init-fresh-template-guard.sh regenerates this from the template and fails if it drifts.
 TEMPLATE_ROOT_ENTRIES='|.github|.gitignore|AGENTS.md|ARTIFACT-TRAIL.md|CHANGELOG.md|CLAUDE.md|CODE_OF_CONDUCT.md|CONTRIBUTING.md|Code|LICENSE|README.md|SECURITY.md|TRADEMARK.md|Upcoming Prompts|brand|docs|doctor.sh|init.sh|prompts|tests|'
 
@@ -533,7 +574,7 @@ else
     [ -z "$SLUG_WHY" ] || echo "  -> $SLUG_WHY."
   done
 fi
-DESC="$(want "$DESC_IN" 'One-line description')"
+DESC="$(want_text "$DESC_IN" '--desc (or INIT_DESC)' 'One-line description')"
 
 # License — accept a friendly token from --license, else ask the two-part question. The durable
 # result is PROJECT_LICENSE_ID, written later to .throughstone/project-license so generated
@@ -562,7 +603,7 @@ else
 fi
 HOLDER=""
 if [ "$LICENSE_CHOICE" != "proprietary" ]; then
-  HOLDER="$(want "$HOLDER_IN" 'Copyright holder (name or org)')"
+  HOLDER="$(want_text "$HOLDER_IN" '--holder (or INIT_HOLDER)' 'Copyright holder (name or org)')"
 fi
 LICENSE_TEMPLATE_NAME=""
 PROJECT_LICENSE_ID=""
@@ -633,6 +674,36 @@ else
       echo "  -> answer 1 or 2 (the words multi and mono work too)."
     fi
   done
+fi
+
+# A mono project's first commit takes in everything in this folder that its .gitignore does not
+# exclude, so any top-level entry that is not the template's is named as soon as the layout is
+# known, while later questions may still give the reader a chance to stop. Not named: git's own
+# files (.git, .gitattributes), .DS_Store, agent folders (.claude), what the run creates or deletes
+# (.throughstone, .test-fixtures, .dev, TODO.md), and what write_gitignore excludes. The run
+# carries on either way.
+if [ "$LAYOUT" = "2" ]; then
+  STRAY_FOUND=0
+  for entry in .[!.]* ..?* *; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    case "|.git|.gitattributes|.DS_Store|.claude|.throughstone|.test-fixtures|.dev|TODO.md$TEMPLATE_ROOT_ENTRIES" in
+      *"|$entry|"*) continue ;;
+    esac
+    case "$entry" in
+      .env.example) ;;
+      .env|.env.*|.secrets|*.swp) continue ;;
+    esac
+    if [ "$STRAY_FOUND" = "0" ]; then
+      echo "init.sh: warning: the mono-repo layout will commit these, which are not part of the template:" >&2
+      STRAY_FOUND=1
+    fi
+    echo "    $entry" >&2
+  done
+  if [ "$STRAY_FOUND" = "1" ]; then
+    echo "  The run carries on. To keep any of them out of the project's history, press Ctrl-C at the" >&2
+    echo "  next question if there is one, move them out of this folder, and run init.sh again;" >&2
+    echo "  otherwise start again from a fresh copy of the template without them." >&2
+  fi
 fi
 
 # registries/ always ships, in both layouts. It carries the repo inventory that
@@ -771,6 +842,11 @@ fi
 root_origin_can_be_reused() {
   [ "$ROOT_ORIGIN_REUSABLE" = "1" ]
 }
+# The mono layout keeps an empty origin this folder already has, unless --remote-url names another.
+REUSE_ROOT_ORIGIN=0
+if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused && [ -z "$REMOTE_URL_IN" ]; then
+  REUSE_ROOT_ORIGIN=1
+fi
 
 # validate_empty_remote_url LABEL URL — fail before bootstrap mutates the checkout if a manual
 # remote URL is unreachable or already has history. Manual remotes must be pre-created empty repos.
@@ -791,6 +867,27 @@ validate_empty_remote_url() {
   exit 2
 }
 
+# check_github_ready NAME... — the gh path's counterpart to validate_empty_remote_url: fail before
+# bootstrap mutates the checkout unless gh can reach GitHub as a signed-in user and none of the
+# repositories this run would create under $OWNER exists yet.
+check_github_ready() {
+  local name
+  if ! gh api user --silent >/dev/null 2>&1; then
+    echo "init.sh: the gh CLI could not reach GitHub as a signed-in user." >&2
+    echo "  Run 'gh auth status' to see why, fix that, then rerun init.sh." >&2
+    exit 2
+  fi
+  for name in "$@"; do
+    # Only a lookup that succeeds refuses. gh exits non-zero for a missing repository and for any
+    # other failure alike, and missing is what a new project expects.
+    if gh repo view "$OWNER/$name" --json name >/dev/null 2>&1; then
+      echo "init.sh: $OWNER/$name already exists on GitHub, and this run would create it." >&2
+      echo "  Choose another slug or owner, or rename or delete that repository, then rerun init.sh." >&2
+      exit 2
+    fi
+  done
+}
+
 # Remotes. GitHub automation creates repositories with `gh`; manual mode attaches and pushes to
 # existing, empty/pushable Git URLs from any provider. Visibility is independent of the project
 # license: private repos may use open-source licenses, and public repos still need an explicit
@@ -798,6 +895,7 @@ validate_empty_remote_url() {
 # because it publishes source without granting open-source reuse rights.
 MK_REMOTES=0; REMOTE_PROVIDER=""; OWNER=""; REMOTE_URL=""; DOCS_REMOTE=""; PROMPTS_REMOTE=""
 REMOTE_VISIBILITY=private
+GH_NEW_REPOS=""
 HAS_MANUAL_REMOTE_INPUT=0
 [ -n "$REMOTE_URL_IN$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] && HAS_MANUAL_REMOTE_INPUT=1
 if [ -n "$REMOTES_IN" ]; then
@@ -873,7 +971,9 @@ if [ "$MK_REMOTES" = "1" ]; then
       public|2)  REMOTE_VISIBILITY=public ;;
       *) echo "init.sh: invalid --visibility '$VISIBILITY_IN' (private | public)." >&2; exit 2 ;;
     esac
-  elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ]; then
+  elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ] \
+    && [ "$REUSE_ROOT_ORIGIN" = "0" ]; then
+    # Not asked when the folder's own origin is reused, since no repository is created to set it on.
     # This default is kept, and was kept deliberately: accepting Private by accident creates a
     # repository nobody else can read, which is one setting away from fixing, while the other
     # answer publishes source. The answer is still taken through an assignment so that every
@@ -892,33 +992,26 @@ if [ "$MK_REMOTES" = "1" ]; then
     done
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
-    if ! command -v gh >/dev/null 2>&1; then
-      if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
-        REMOTE_PROVIDER=manual
-      else
+    if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
+      # Creating a repository on GitHub cannot apply here: a mono project's one repository is this
+      # folder, and this folder already has an empty origin. Reusing it is the right outcome —
+      # replacing a remote the user attached themselves would be the real surprise. Nothing is
+      # created, so neither gh nor an owner is needed; the note before the boundary names the origin
+      # that is used instead.
+      OWNER=""
+    else
+      if ! command -v gh >/dev/null 2>&1; then
         echo "init.sh: --remotes=yes with --remote-provider=github needs the 'gh' CLI, which isn't installed." >&2
         echo "  For Bitbucket, GitLab, or another Git host, pre-create empty repos and pass --remote-provider=manual with remote URL flags." >&2
         exit 2
       fi
-    fi
-  fi
-  if [ "$REMOTE_PROVIDER" = "github" ]; then
-    if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
-      # Creating a repository on GitHub cannot apply here: a mono project's one repository is this
-      # folder, and this folder already has an empty origin. Reusing it is the right outcome —
-      # replacing a remote the user attached themselves would be the real surprise — but it is not
-      # what was asked for, and it used to be unannounced. The only signals were the owner question
-      # quietly not being asked and, much later and past the destructive boundary, a line calling
-      # the result a reuse without ever saying that creation had been dropped. Named here, before
-      # the boundary, where every other discarded answer is named. The URL is named too: it decides
-      # where the project ends up, and nothing before this point has shown it.
-      OWNER=""
-      echo "  note: not creating a repository on GitHub — this folder already has an empty origin"
-      echo "        $ROOT_ORIGIN"
-      echo "        It is reused as the project's remote, so no owner is needed. Nothing has been"
-      echo "        changed yet: stop now and remove that origin if you want a new GitHub repo."
-    else
       OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+      # The names setup_remote creates, checked by check_github_ready before the boundary.
+      if [ "$LAYOUT" = "2" ]; then
+        GH_NEW_REPOS="$SLUG"
+      else
+        GH_NEW_REPOS="${SLUG}-docs ${SLUG}-prompts"
+      fi
     fi
   else
     if [ -n "$OWNER_IN" ]; then
@@ -939,7 +1032,7 @@ if [ "$MK_REMOTES" = "1" ]; then
       if [ -n "$PROMPTS_REMOTE_IN" ]; then
         echo "  note: ignoring --prompts-remote — mono layout has one repo"
       fi
-      if root_origin_can_be_reused && [ -z "$REMOTE_URL_IN" ]; then
+      if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
         REMOTE_URL=""
       else
         REMOTE_URL="$(want "$REMOTE_URL_IN" 'Project repo remote URL')"
@@ -952,6 +1045,13 @@ if [ "$MK_REMOTES" = "1" ]; then
       fi
       DOCS_REMOTE="$(want "$DOCS_REMOTE_IN" 'Docs repo remote URL')"
       PROMPTS_REMOTE="$(want "$PROMPTS_REMOTE_IN" 'Prompts repo remote URL')"
+      # Each URL passes the emptiness check below on its own, so the same one given twice would
+      # take the docs push and then reject the prompts push, after the boundary.
+      if [ "$DOCS_REMOTE" = "$PROMPTS_REMOTE" ]; then
+        echo "init.sh: the docs and prompts repos need different remote URLs, and both were:" >&2
+        echo "  $DOCS_REMOTE" >&2
+        exit 2
+      fi
     fi
     validate_empty_remote_url "project" "$REMOTE_URL"
     validate_empty_remote_url "docs" "$DOCS_REMOTE"
@@ -1003,8 +1103,31 @@ if [ "$MK_REMOTES" = "1" ]; then
     fi
   fi
 fi
+# The folder's own empty origin decides where the project ends up, and nothing earlier shows it, so
+# it is named on every path that keeps it.
+if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    echo "  note: not creating a repository on GitHub — this folder already has an empty origin"
+  else
+    echo "  note: this folder already has an empty origin"
+  fi
+  echo "        $ROOT_ORIGIN"
+  if [ "$MK_REMOTES" = "1" ]; then
+    echo "        It is reused as the project's remote, and the project will be pushed to it."
+  else
+    echo "        It is kept as the project's remote. Nothing will be pushed to it."
+  fi
+  echo "        To use a different remote, point origin at it afterwards: git remote set-url origin <url>"
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    [ -z "$OWNER_IN" ] || echo "  note: ignoring --owner — no repository is created"
+    [ -z "$VISIBILITY_IN" ] || echo "  note: ignoring --visibility — no repository is created"
+  fi
+fi
+# A declared visibility describes a repository this run creates or was given, not a reused origin,
+# so a reused one gets the note in the second branch instead.
 if [ "$MK_REMOTES" = "1" ] \
   && [ "$REMOTE_VISIBILITY" = "public" ] \
+  && [ "$REUSE_ROOT_ORIGIN" = "0" ] \
   && [ "$LICENSE_CHOICE" = "proprietary" ]; then
   cat >&2 <<'WARNING'
 WARNING: public visibility with a proprietary license publishes the source code but grants
@@ -1016,7 +1139,18 @@ WARNING
     echo "init.sh: public proprietary repository creation cancelled." >&2
     exit 2
   fi
+elif [ "$MK_REMOTES" = "1" ] \
+  && [ "$LICENSE_CHOICE" = "proprietary" ] \
+  && { [ "$REMOTE_PROVIDER" = "manual" ] || [ "$REUSE_ROOT_ORIGIN" = "1" ]; }; then
+  # Setup cannot see the visibility of a repository it does not create, so it asks for a check.
+  echo "  note: this project is proprietary; check these are private, or pushing publishes its source:"
+  [ "$REUSE_ROOT_ORIGIN" = "0" ] || echo "        $ROOT_ORIGIN"
+  for url in "$REMOTE_URL" "$DOCS_REMOTE" "$PROMPTS_REMOTE"; do
+    [ -z "$url" ] || echo "        $url"
+  done
 fi
+# Last, so that a run stopped by any question above never calls gh.
+[ -z "$GH_NEW_REPOS" ] || check_github_ready $GH_NEW_REPOS
 
 # --- 2. Untether from the template origin -----------------------------------
 # Destructive bootstrap boundary. Everything above this line is validation and choice
@@ -1401,6 +1535,10 @@ setup_remote() {
     return 1
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
+    # Like a missing URL above, a missing owner is not a caller error: the GitHub path asks for none
+    # when the folder's origin is kept, so a kept origin that could not be attached arrives here
+    # with nothing to create.
+    [ -n "$OWNER" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
       MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
       echo "  remote: $OWNER/$2"
