@@ -762,9 +762,9 @@ if [ "$COLLAB" = "2" ]; then
   fi
   # Said to every team, not only to the ones that happened to type their ADR authority. This had
   # the same defect the caveat below had, one line above it: the branch that asks for that one
-  # value is not the condition for advice about something else. The closing instructions already
-  # tell every project how to attach a remote later; this is the half that says why a team needs
-  # one at all, and it belongs where the reader has just said they are a team.
+  # value is not the condition for advice about something else. The closing instructions tell a
+  # project that set up no remote how to attach one later; this is the half that says why a team
+  # needs one at all, and it belongs where the reader has just said they are a team.
   echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
   echo "  from the same place. You can still skip that now and add remotes later."
   # The mono + team caveat turns on the two answers it is about, and nothing else. It used to sit
@@ -1366,10 +1366,13 @@ stamp_license() {
   }
   YEAR="$(date +%Y)" HOLDER="$HOLDER" perl -pe \
     's/\Q{{YEAR}}\E/$ENV{YEAR}/g; s/\Q{{HOLDER}}\E/$ENV{HOLDER}/g' "$src" > "$1/LICENSE"
-  echo "  license: $1/LICENSE"
   if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
     cp "$1/LICENSE" "$DOCS/LICENSE"
-    echo "  canonical project license: $DOCS/LICENSE"
+    # One repository, two copies of one text: say what each copy is for.
+    echo "  license: $1/LICENSE (this repository's license)"
+    echo "  license: $DOCS/LICENSE (the canonical copy, same text, which apply-project-license.sh gives new code repos)"
+  else
+    echo "  license: $1/LICENSE"
   fi
 }
 
@@ -1427,7 +1430,7 @@ init_repo() {
   write_licensing_summary "$1"
   ( cd "$1" && git init -q && git add -A && git commit -qm "Initial commit (bootstrapped)" \
     && git branch -M "$TRUNK_BRANCH"; )
-  echo "  git repo: $1"
+  echo "  git repo: $1 (initial commit on $TRUNK_BRANCH)"
 }
 
 # record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
@@ -1541,7 +1544,8 @@ setup_remote() {
     [ -n "$OWNER" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
       MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
-      echo "  remote: $OWNER/$2"
+      echo "  remote: created $OWNER/$2 on GitHub ($REMOTE_VISIBILITY)"
+      echo "  pushed: ${MADE_REMOTE_URL:-$OWNER/$2}"
       return 0
     fi
     # gh creates and pushes in one command, so a failure here says nothing about which half ran.
@@ -1602,9 +1606,9 @@ if [ "$LAYOUT" = "2" ]; then
   # first, setup_remote is a plain command in an if-body, which errexit acts on wherever it sits.
   # In the second it is the final command of an `||` list, the one position in such a list errexit
   # still watches. Either way the run would end right here — after the project is generated and
-  # committed, and before the closing instructions that say how to attach a remote later. Nothing
-  # is swallowed by it: the helpers record the repo in REMOTE_FAILED_REPOS, which is reported at
-  # the end and decides the exit status.
+  # committed, and before the closing instructions and the report on what to do about the failed
+  # backup. Nothing is swallowed by it: the helpers record the repo in REMOTE_FAILED_REPOS, which
+  # is reported at the end and decides the exit status.
   if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$REMOTE_URL" ]; then
     setup_remote "." "$SLUG" "$REMOTE_URL" || true
   else
@@ -1634,20 +1638,32 @@ else
 fi
 
 # --- 7. Done ----------------------------------------------------------------
+# The ending reports what this run did and gives only the next action that applies. How to set up
+# a backup is for a run that asked for none. A run that asked for one either completed it, and the
+# remote lines above say where it went, or did not, and the report after this one says what to do.
+#
 # Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
-if [ "$LAYOUT" = "2" ]; then
-  REMOTE_TIP="If you answered no to remotes, that skipped creating one and pushing to it — not
-  attaching one: an empty origin this folder already had is kept rather than replaced, though
-  attaching it can itself fail. So run 'git remote -v' first to see what you actually have, then
-  either push the root repo's ${TRUNK_BRANCH} branch to what is there, or create one empty repo on
-  your host and push to that. Then record that URL on the row in
-  Code/${SLUG}-docs/registries/repos.yml whose
+if [ "$MK_REMOTES" = "0" ] && [ "$LAYOUT" = "2" ]; then
+  # Read from the repository rather than inferred from the reuse decision, which does not say
+  # whether the attach worked.
+  KEPT_ORIGIN="$(git remote get-url origin 2>/dev/null || true)"
+  if [ -n "$KEPT_ORIGIN" ]; then
+    REMOTE_TIP="This folder's existing origin is kept as the project's remote, and nothing was
+  pushed to it:
+    ${KEPT_ORIGIN}
+  To back up, push the root repo's ${TRUNK_BRANCH} branch to it: git push -u origin ${TRUNK_BRANCH}"
+  else
+    REMOTE_TIP="No remote is attached. To back up, create one empty repo on your host, attach it
+  with 'git remote add origin <url>', and push the root repo's ${TRUNK_BRANCH} branch to it."
+  fi
+  REMOTE_TIP="${REMOTE_TIP}
+  Then record that URL on the row in Code/${SLUG}-docs/registries/repos.yml whose
   location is \".\", the same as any other repo — until it is there the check-in reports this
   project as backed up nowhere. The rows below it are folders inside that one repository, not
   repos to clone."
-else
-  REMOTE_TIP="If you did not set up remotes during init, do this for each of the two repos here,
+elif [ "$MK_REMOTES" = "0" ]; then
+  REMOTE_TIP="No remote was set up for either repo. To back up, do this for each of the two,
   Code/${SLUG}-docs/ and prompts/: create an empty repo on your host, attach it from inside the
   local one with 'git remote add origin <url>', push the ${TRUNK_BRANCH} branch to it, and only
   then record that URL as remote: on that repo's row in Code/${SLUG}-docs/registries/repos.yml.
@@ -1675,13 +1691,32 @@ fi
 if [ "$LAYOUT" = "2" ]; then
   SAVED_TIP="You can start now; your project is committed locally with Git — everything in this
   folder is in that repository except the STEP in flight in Upcoming Prompts/, which stays on this
-  computer until it is archived into prompts/. For backup, sharing, and working from another
-  computer, put the project on a Git host when you're ready."
+  computer until it is archived into prompts/."
+  PUSHED_TIP="It is also pushed to the remote named above."
 else
   SAVED_TIP="You can start now; both repositories here are committed locally with Git —
   Code/${SLUG}-docs/ and prompts/. Files at the workspace root are not in any repository, as the
-  layout question said, so keep anything durable inside one of those two. For backup, sharing, and
-  working from another computer, put the project on a Git host when you're ready."
+  layout question said, so keep anything durable inside one of those two."
+  PUSHED_TIP="Both are also pushed to the remotes named above."
+fi
+if [ "$MK_REMOTES" = "0" ]; then
+  BACKUP_SECTION="Recommended optional backup:
+  ${SAVED_TIP}
+  For backup, sharing, and working from another computer, put the project on a Git host when
+  you're ready.
+
+  GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
+  ${REMOTE_TIP}
+
+  GitHub:
+    https://github.com/"
+elif [ -n "$REMOTE_FAILED_REPOS" ]; then
+  BACKUP_SECTION="Saved:
+  ${SAVED_TIP}"
+else
+  BACKUP_SECTION="Saved:
+  ${SAVED_TIP}
+  ${PUSHED_TIP}"
 fi
 if [ -n "$REMOTE_FAILED_REPOS" ]; then
   say "Done — but the backup did not complete."
@@ -1704,17 +1739,7 @@ Next step:
 The agent will interview you, propose a roadmap, and start the architecture STEP.
 ${INIT_SH_TIP}
 
-Recommended optional backup:
-  ${SAVED_TIP}
-
-  GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
-  ${REMOTE_TIP}
-
-  GitHub:
-    https://github.com/
-
-  GitHub CLI (optional; lets Throughstone create GitHub remotes for you):
-    https://cli.github.com/
+${BACKUP_SECTION}
 EOF
 
 # A remote the user asked for and did not get is a failure, and the exit status has to say so —

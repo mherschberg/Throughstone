@@ -621,8 +621,8 @@ run_remote_failure_multi_case() {
     echo "FAIL: $name exited 0 with a backup that did not complete" >&2
     return 1
   }
-  # The project is finished, so the instructions for attaching a remote by hand are exactly what
-  # the reader needs now and must survive the failure.
+  # The project is finished, so the closing instructions are exactly what the reader needs now and
+  # must survive the failure.
   grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name suppressed the closing instructions" >&2
     return 1
