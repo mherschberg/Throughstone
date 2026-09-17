@@ -428,6 +428,24 @@ any project built with it.
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
 
 ### Fixed
+- **The setup wizard's closing report describes the run you just had.** Its backup advice was
+  chosen by the project layout alone. A run that had just created and pushed its repositories
+  still ended with a "Recommended optional backup" section on how to create a remote and push to
+  it, whose advice began "If you answered no to remotes" or "If you did not set up remotes during
+  init". That section now appears only when no remote was asked for, and it says what the run left:
+  in a mono-repo project, either the folder's existing origin, named, with nothing pushed to it, or
+  no remote at all, followed by the steps that apply to that case. It no longer recommends the
+  GitHub CLI as a way for Throughstone to create remotes, since nothing does that once setup has
+  finished. A run whose backup completed ends by saying so, and points to the remote lines above. A
+  run whose backup failed ends with the report on what to check, and not the general setup section.
+
+  The lines printed as each repository is made say more too. Each `git repo:` line names the branch
+  its initial commit is on. A repository created on GitHub is reported with the visibility it was
+  created with, then the URL it was pushed to. In the mono-repo layout the two license lines say
+  which file is the repository's license, and that the one in the docs folder is the canonical copy
+  of the same text, the one `apply-project-license.sh` gives new code repos.
+
+  Existing projects are unaffected: `init.sh` runs once.
 - **The setup wizard checks more before it changes anything, and says where the project will go.**
   From "Detaching from the template's git history" onward, `init.sh` removes the template's history
   and renames files. Several problems were only found after that point, when the project was
