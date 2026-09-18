@@ -166,7 +166,11 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
     it were the table's separator line, and `./doctor.sh status` still does — so until it is fixed,
     the helper answers as if the row were not in the index at all. A project whose statuses are all
     filled in sees no change.
-12. Nothing else. A project that never splits reads none of the splitting material.
+12. **If your STEP-1 left a core architecture session `Deferred`** — most often 1.6 Security —
+    **check that `registries/risks.yml` has a row for it**, and add one if it does not. A core
+    session deferred wholesale writes no architecture doc, so no check-in sweep could see it;
+    the row is what brings the decision back. Details below.
+13. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -193,6 +197,22 @@ sensible answer out of the helper, you no longer need to. Optional sessions left
 swept by the check-in either way — `runbooks/check-in.md`'s conditional-session coverage
 enumerates every conditional template and asks for a current disposition each time, without
 consulting the STEP-1 row.
+
+**A core session you deferred now needs a risk row — check whether yours has one.** Deferring a
+core architecture session wholesale is still a decision you are allowed to take, but it now files a
+`registries/risks.yml` row alongside the `Deferred` substep row in `prompts/STEP-index.md`, with
+owner, severity and the trigger that revisits it. A session deferred that way writes no architecture
+doc, so neither of the check-in's sweeps can reach it — the conditional sweep enumerates
+`conditional-*.md` templates and the deferred-coverage sweep reads the `Coverage:` field of documents
+that exist — and until now nothing brought the decision back. **This is item 12 of the fast path**:
+if your STEP-1 left a core session `Deferred` — most often 1.6 Security, sometimes 1.7 UI when a UI
+may arrive later — open `registries/risks.yml` and look for a row covering it. If there is none, add
+one: the revisit trigger is whatever you said at the time (*"before we accept real user data"*, *"before the first
+public deployment"*), and its `refs:` entry can point at the archived STEP-1 PLAN that recorded the
+decision. Your next check-in then reads it like every other open row. A session marked `N/A` is not a
+deferral and needs nothing. The rule is in `METHOD.md` §4, which item 9 of the fast path already
+pulls; `templates/architecture-sessions/06-security-threat-model.md` carries a pointer to it and is
+future-only, so pull it too if you expect to run or re-run 1.6.
 
 **The link checker no longer reads `inputs/`, and there is nothing for you to do.** A document
 copied into `inputs/` or `inputs/archive/` with a relative link to a path your workspace does not

@@ -426,6 +426,28 @@ any project built with it.
   it: it asks about code no check-in has run over yet, so a project re-planning a later phase does
   not spend a whole STEP re-baselining code the check-ins have already swept, and a repository taken
   on in phase 3 still gets its one run even though the roadmap is full of earlier check-ins.
+- **A core architecture session deferred wholesale now files a risk row, so something brings it
+  back.** The Security session has always been deferrable as a conscious, dated decision, and the UI
+  session can be deferred when a UI may arrive later — but a session deferred that way writes no
+  architecture doc, and nothing in the method could see it afterwards. `runbooks/check-in.md` has two
+  sweeps and neither reaches it: the conditional sweep enumerates
+  `templates/architecture-sessions/conditional-*.md` files, and the deferred-coverage sweep reads the
+  `Coverage:` field of architecture docs that exist. A deferral that produces no document is invisible
+  to both, so a decision to skip the threat model could sit in a `Deferred` index row for the life of
+  the project with nothing scheduled to revisit it.
+
+  **The mechanism already existed and was simply never invoked.** `registries/risks.yml` is the
+  method's home for a consciously deferred risk or debt item, and the check-in reviews every open row
+  every time — testing whether the revisit trigger has fired, updating stale rows, filing follow-up
+  STEPs. `METHOD.md` §4 now states the rule for any core session: mark the substep `Deferred` **and**
+  file the row, with owner, severity and the trigger that revisits it. The Security session's deferral
+  item points at the same rule, since that is the file an agent has open at the moment it defers. A
+  session marked `N/A` — one the project will never need — is not a deferral and files nothing.
+  **No new sweep, no new check, no new field.** Enumerating sessions would have needed a per-session
+  exception from its first day, because `14-cross-cutting-review` writes a review summary into the
+  STEP folder rather than an `architecture/NN-*.md` like the rest. The tradeoff is stated rather than
+  hidden: a filed row depends on the deferring agent following the instruction in front of it, where
+  an enumerating sweep would catch the deferral whether or not anyone remembered.
 
 ### Fixed
 - **The runbooks index lists the three security-review checklists.** `runbooks/security-review.md`
