@@ -1,12 +1,12 @@
 # Runbook — Splitting a Repository
 
 > **How to run:** Two cases behind one procedure. Answer the three questions in **Before you
-> start**, then go to your part — you run one of them, never both, and you don't pick which: it
+> start**, then go to your case — you run one of them, never both, and you don't pick which: it
 > falls out of the first answer.
 > Tell your agent *"run the split"* and it follows this file.
-> - **Part 1 — Splitting a code repo in two.** The ordinary one: a repo grew two things that
+> - **Case 1 — Splitting a code repo in two.** The ordinary one: a repo grew two things that
 >   should ship separately. Any number of times.
-> - **Part 2 — Converting mono-repo-for-now to multi-repo.** At most once per project, and only
+> - **Case 2 — Converting mono-repo-for-now to multi-repo.** At most once per project, and only
 >   if you started mono (`METHOD.md` §7). The workspace root stops being a repo.
 >
 > **Do the whole split on one machine, in one go.** It turns on local state no repo carries — the
@@ -32,11 +32,11 @@
 > substep prompts for it — this runbook *is* the substeps (the same special case as the check-in,
 > see `prompts/README.md`). *Substeps*, below, names the usual breakpoints.
 >
-> **Two special cases.** **Part 2 is branchless** — there is no `step-NNNN` branch, because the
+> **Two exceptions.** **Case 2 is branchless** — there is no `step-NNNN` branch, because the
 > repos that branch would live in are the ones being created. Its STEP number is reserved
 > *on trunk* at step 4 (`METHOD.md` §7). And **tracking a split as a STEP is the method's
-> convention, not an obligation**: a project that would rather not track this one skips Part 2's
-> steps 4 and 13 together and loses nothing else. Part 1 needs no equivalent — `prompts/` is
+> convention, not an obligation**: a project that would rather not track this one skips Case 2's
+> steps 4 and 13 together and loses nothing else. Case 1 needs no equivalent — `prompts/` is
 > untouched there, so the ordinary recipe in `prompts/README.md` applies unchanged.
 
 ## Why this runbook exists
@@ -63,9 +63,9 @@ gets handled.
 There is no fixed number of them, because the shape of a split follows the shape of your repos.
 The usual breakpoints:
 
-- *Part 1, typically three:* **N.1** pre-flight, extract and stand the new repo up (steps 1–5) ·
+- *Case 1, typically three:* **N.1** pre-flight, extract and stand the new repo up (steps 1–5) ·
   **N.2** prune and repoint (steps 6–8) · **N.3** verify (step 9).
-- *Part 2, typically four:* **N.1** pre-flight and backup (steps 1–3) · **N.2** build the new repos
+- *Case 2, typically four:* **N.1** pre-flight and backup (steps 1–3) · **N.2** build the new repos
   beside (steps 5–7) · **N.3** assemble and verify the workspace (steps 8–10) · **N.4** swap and
   retire (steps 11–12). Steps 4 and 13 are the STEP's own bookkeeping rather than work inside it,
   which is also why they are the pair a project skips together.
@@ -89,18 +89,18 @@ not from `registries/repos.yml` — a folder that was never registered (a vendor
 tools directory, a repo somebody scaffolded and forgot to add) is invisible to every check in this
 runbook and disappears at the split without a word.
 
-If the answer is *"the workspace root stops being a repo"*, you are in **Part 2**. Otherwise
-**Part 1**.
+If the answer is *"the workspace root stops being a repo"*, you are in **Case 2**. Otherwise
+**Case 1**.
 
-**Part 1 assumes the workspace root is not a repo.** In mono-repo-for-now it is, so extracting a
+**Case 1 assumes the workspace root is not a repo.** In mono-repo-for-now it is, so extracting a
 folder there leaves the new repo *nested inside* the origin — the root reports it as an untracked
 directory, and step 9's `git status` check fails on it. It also strands the repo you just made:
 `collaboration.md` §9 tells a mono project not to put `remote:` fields in `registries/repos.yml`
 and not to run `Code/<project>-docs/scripts/setup-workspace.sh`, so nothing on the mono
-onboarding path would ever clone it onto a teammate's machine. **Run Part 2 first**, then
-Part 1 as often as you like on the repos it leaves you.
+onboarding path would ever clone it onto a teammate's machine. **Run Case 2 first**, then
+Case 1 as often as you like on the repos it leaves you.
 
-**2. Should you split at all?** *(Part 1 only — for Part 2 the layout decision was made at
+**2. Should you split at all?** *(Case 1 only — for Case 2 the layout decision was made at
 `init.sh` time.) Default: proceed.* One exchange, and the two questions worth asking are: would
 the two halves be **chatty** with each other, and would an ordinary change require **deploying
 both together**? Either one means the boundary is in the wrong place. Splitting a repo is
@@ -114,7 +114,7 @@ and it has to happen first.
 
 ## The mechanic
 
-Both parts build every new repo the same way, in bash, one repo at a time. `<keep>` is that
+Both cases build every new repo the same way, in bash, one repo at a time. `<keep>` is that
 repo's keep-set — the path or paths from question 1 that this repo is meant to be. `<scope>` is
 what you would call that out loud (`billing`, `the docs hub`); it appears only in the two commit
 messages, which every repo the split produces then carries permanently.
@@ -194,17 +194,17 @@ that moment: the origin's, which the exemption above left at the root, and the k
 still nested — and the move will stop on the collision. Read both, reconcile them into one file at
 the repo root, `git rm` the nested one, and `git add` the reconciled one — nothing further down
 stages that edit for you. *Default: the union of the two.* Re-anchor any rule written against the
-old path (`/Code/<name>/dist/` becomes `/dist/`); it matches nothing after the move. In Part 2 this
+old path (`/Code/<name>/dist/` becomes `/dist/`); it matches nothing after the move. In Case 2 this
 fires for every code folder, and never for `prompts/` or the docs hub, which have no ignore file of
-their own. In Part 1 it usually does not fire at all, because the extracted directory is a
+their own. In Case 1 it usually does not fire at all, because the extracted directory is a
 subdirectory of a code repo — the dead path-anchored rules it would have caught are what step 7's
 repointing grep is for instead.
 
 **The two checks do different jobs, and both are needed.**
 
 - **The guard, before the move**, catches a keep-set that matched nothing. If the path is
-  mistyped — or just the wrong case, since macOS treats `code/` and `Code/` as the same folder
-  and git's pathspecs do not — the forward delete removes *everything*, the move loop iterates
+  mistyped — or just the wrong letter case, since macOS treats `code/` and `Code/` as the same
+  folder and git's pathspecs do not — the forward delete removes *everything*, the move loop iterates
   zero times, and the check after it passes vacuously, because "the old path is empty" is also
   true when it never held anything. The only signal is `nothing to commit, working tree clean`,
   which reads like success. The guard fires at the one moment the mistake is still free.
@@ -237,10 +237,10 @@ thing you split away from. `git push` does not send them, so they stay local unt
 for them. Keep, retag or delete is your call: nothing in the method reads tags.
 
 **The origin side needs none of this.** Its paths are already correct, so it gets no clone, no
-exemption and no un-nest — just a forward `git rm` of what left (Part 1 step 6). In Part 2 there
+exemption and no un-nest — just a forward `git rm` of what left (Case 1 step 6). In Case 2 there
 is no surviving origin; every unit gets the mechanic above.
 
-## Part 1 — Splitting a code repo in two
+## Case 1 — Splitting a code repo in two
 
 The **origin repo** survives and keeps its identity, its remote and its history. The **extracted
 repo** is new. The docs hub and `prompts/` do not move.
@@ -352,7 +352,7 @@ special here, which is why it gets no steps of its own below.
      pre-split commit exists in both.
    - `scripts/links.sh` is clean.
 
-## Part 2 — Converting mono-repo-for-now to multi-repo
+## Case 2 — Converting mono-repo-for-now to multi-repo
 
 The workspace root stops being a repository. `prompts/`, the docs hub and each code folder become
 repos of their own. This happens at most once per project.
@@ -513,7 +513,7 @@ repos of their own. This happens at most once per project.
 
 You are here because a credential or a large binary is in the history and you do not want it copied
 into a second repo. This is the **purge** procedure, not an escape hatch from the default: it
-rewrites history, so it happens *before* either part, on a mirror, once.
+rewrites history, so it happens *before* either case, on a mirror, once.
 
 **Rotate the credential first.** A rewrite does not reach the clones your teammates already have,
 or the copies on the host until it garbage-collects, or anything a CI log captured. Rotation is the
@@ -569,10 +569,10 @@ recorded anywhere — `reviewed_commit:` in `registries/security-reviews.yml`, S
 ADRs, links in issues — stops resolving, and everyone re-clones. That is the trade for not carrying
 the blob.
 
-**Then hand back.** The purged mirror is what the split reads, not a side artifact: Part 1 clones
-the origin you are standing in and Part 2 step 5 clones `.`, so a split run beside a purge copies
+**Then hand back.** The purged mirror is what the split reads, not a side artifact: Case 1 clones
+the origin you are standing in and Case 2 step 5 clones `.`, so a split run beside a purge copies
 the blob into every new repo instead. Copy your untracked and ignored files aside first — a fresh
-clone has none, and Part 2 step 2's two lists come back empty once you re-clone. Then force-push
+clone has none, and Case 2 step 2's two lists come back empty once you re-clone. Then force-push
 the mirror over the origin host, re-clone your workspace from it, and start the split there.
 
 **If the motive is purely size**, there is a cheaper answer that rewrites nothing: let one new repo
@@ -580,8 +580,8 @@ inherit the origin's identity outright rather than cloning it. Move the `.git` d
 folder that is becoming a repo, then inside it `git rm -r --cached .`, `git add -A`, and commit. It
 comes out with the complete un-rewritten history and `--follow` and `blame` resolving through the
 path change — but only one repo can inherit it, and the workspace root stops being a repo the
-moment you move `.git`, so this only makes sense as part of Part 2. **Do it last**, after every
-other unit has been cloned at step 5, not here before Part 2 starts: the move drops those units
+moment you move `.git`, so this only makes sense as part of Case 2. **Do it last**, after every
+other unit has been cloned at step 5, not here before Case 2 starts: the move drops those units
 from HEAD, so their forward delete keeps nothing and the guard fires on a path you typed
 correctly. **Push the mono trunk to its remote before you move `.git`** — step 7 records a commit
 that has to exist on the archive, and after the move nothing on disk can put it there: the
