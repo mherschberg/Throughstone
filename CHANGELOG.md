@@ -1042,6 +1042,18 @@ any project built with it.
   corrected wherever it appeared — the registry header, the setup script's closing tip and the
   solo-to-team runbook. Existing projects are not rewritten; `UPDATING-THROUGHSTONE.md` carries the
   row as a migration step.
+- **The CI starter never said that a mono-repo-for-now project's code gates do not run.** Section 1
+  of `templates/ci/README.md` spells out that a workflow nested under `Code/<project>-docs/` never
+  triggers, and that `method-check.yml` therefore also belongs at the workspace root. Section 2 then
+  tells you to stamp `code-repo-ci.yml` into each code repo with no equivalent note — and in a
+  mono-repo-for-now project a code repo is a folder, so that workflow never triggers either and the
+  template's deliberate `exit 1` sits unseen. The fact was written down in exactly one place,
+  `runbooks/check-in.md`, which a project reaches long after the stamp. Section 2 now carries it at
+  the point of the stamp: stamp and configure the gate anyway, because it starts gating the moment a
+  split makes that folder a repository root, and until then the root's `method-check.yml` is the only
+  gate the project runs — and it checks the method, not your tests.
+  `UPDATING-THROUGHSTONE.md`'s 1.8 mono CI note says the same for a project that already exists. No
+  new action falls out of either: unlike `method-check.yml`, there is no root copy to make.
 
 ## [1.7.1] - 2026-08-10
 
