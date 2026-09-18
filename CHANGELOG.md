@@ -26,7 +26,13 @@ any project built with it.
   if you would rather not — Case 1 needs no equivalent. Case 2 also deletes the workspace-root registry row on its way through, since the root
   stops being a repository at that step. It asks three questions before you start and the rest at the step that needs them;
   every one but the mapping itself has a default, so answering "use your judgement" still produces
-  a correct split. The one real cost is stated plainly in the file: every new repo inherits every
+  a correct split. **A folder the project adopted rather than wrote keeps the licensing it was
+  adopted under when Case 2 makes it a repository** — that split makes it a repository but does not
+  make its code ours to license, so it takes the Throughstone notice and no project `LICENSE`,
+  exactly as registering it did. A repo Case 1 extracts gets the CI gate every created repo gets;
+  in Case 2 each folder brings across the gate it was already stamped with, which starts running
+  the moment the split makes it a repository root.
+  The one real cost is stated plainly in the file: every new repo inherits every
   blob the origin ever committed, including deleted ones, and an appendix covers purging first when
   that matters.
 

@@ -278,11 +278,15 @@ special here, which is why it gets no steps of its own below.
    starting, or accept the loss knowingly. **Commit or stash your working tree too** — the clone
    takes committed state, so an uncommitted edit never reaches the new repo. Edits to tracked files,
    that is: anything untracked under the extracted path is what step 6 moves across by hand.
-3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted and
-   `<new-repo>` set to `Code/<new-name>/`, a sibling of the origin: step 8 writes that path into
-   the registry row's `location:`, and it is where `scripts/setup-workspace.sh` puts the repo on
-   everyone else's machine. When it prints `git ls-files`, read it: it should look like the repo
-   you asked for, at the root, with nothing left nested.
+3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted. The new repo
+   belongs at `Code/<new-name>/`, a sibling of the origin — but **substitute `<new-repo>` as an
+   absolute path**, `<workspace-root>/Code/<new-name>/`, for the reason the mechanic gives: blocks
+   2 and 3 re-enter the repo on their own first line. Step 8 records that same place in the
+   registry row's `location:`, in the **workspace-relative** spelling `Code/<new-name>/` and never
+   the absolute one you typed here, which `scripts/setup-workspace.sh` reports and skips rather
+   than cloning into. The row is what puts the repo at that path on everyone else's machine.
+   When it prints `git ls-files`, read it: it should look like the repo you asked for, at the
+   root, with nothing left nested.
 4. **Make it a repo, not a folder.**
    - Its licence — `Code/<project>-docs/scripts/apply-project-license.sh Code/<new-name>/`, run
      from the **workspace root**, which is where `runbooks/register-repo.md` works from too. A
@@ -292,9 +296,13 @@ special here, which is why it gets no steps of its own below.
      section. Only a repo with no README gets `templates/repo-readme-template.md` stamped, with its
      role one-liner and Overview actually filled in.
    - `templates/env-example.txt` copied in as `.env.example` if it needs one.
-   - **Its build and test entry point.** The forward delete removed the origin's `Makefile`, CI
-     config and test harness, so right now this repo has no way to build itself. Decide what it
-     runs. If the extracted code also calls into code that stayed behind, decide that here too —
+   - **Its build and test entry point, and its CI gate.** The forward delete removed the origin's
+     `Makefile`, CI config and test harness, so right now this repo has no way to build itself.
+     Decide what it runs, then stamp the gate the same way a repo the method creates gets one:
+     `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml`, with its test
+     command filled in — `templates/ci/README.md` says how, and `templates/repo-readme-template.md`
+     asks for it on every created repo. If the extracted code also calls into code that stayed
+     behind, decide that here too —
      the options are duplicate it, put it in a third shared repo, have one side own it and expose
      it as a service, or don't split at this boundary after all. There is no threshold that picks
      for you; the one thing every source agrees on is not to share domain logic.
@@ -341,7 +349,8 @@ special here, which is why it gets no steps of its own below.
    the action commits**, so the registration stays one commit: the repo it came from, today's
    date, and the last commit the two repos share — the tip you wrote down at step 1, which
    resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
-9. **Verify.**
+9. **Verify.** **Push the origin, the extracted repo and the hub first** — step 5's push came
+   before the prune, the repoint and the registration, and nothing since has sent anything.
    - Both repos **build and test**.
    - `git status` shows nothing new in either repo — in the origin, only what was already
      untracked before you started; in the extracted repo, only what step 6 moved across — and each
@@ -372,11 +381,20 @@ repos of their own. This happens at most once per project.
    git ls-files -- . ':!Code/' ':!prompts/'    # everything tracked that no keep-set claims
    ```
 
-   Nine entries on a stock mono root. *Default disposition:* the licence files are stamped into
-   each new repo by `scripts/apply-project-license.sh` (step 6); `CLAUDE.md`, `AGENTS.md` and
+   Ten entries on a stock mono root, or nine on a proprietary one, which has no `LICENSE` — but
+   read the list the command printed rather than the count: it moves whenever the generator does.
+   *Default disposition:* the licence files are stamped into each new repo by
+   `scripts/apply-project-license.sh` (step 6); `CLAUDE.md`, `AGENTS.md` and
    `doctor.sh` change kind at this split — they stop being committed files and become per-machine
-   pointers regenerated by `scripts/setup-workspace.sh` (step 8); and `init.sh` has done its job
-   and is dropped. Anything your project added to the root is yours to place.
+   pointers regenerated by `scripts/setup-workspace.sh` (step 8); `init.sh` has done its job
+   and is dropped; and the root `.github/workflows/`, which `init.sh` placed for a mono project, is
+   dropped too — the docs hub carries its own copy, which becomes that repo's own CI when the hub
+   becomes a repo here. **Do not carry it to the new workspace root:** that root stops being a
+   repository, nothing would run it there, and `scripts/check.sh` check 7 warns on a root entry it
+   does not expect, which step 10 reads as a failure. The last two need no decision of their own:
+   the root `.gitignore` is the one path the mechanic exempts from every forward delete, so each
+   new repo starts from a copy and reconciles it at step 5, and `Upcoming Prompts/.gitkeep` crosses
+   with its folder at step 9. Anything your project added to the root is yours to place.
 2. **Pre-flight.**
    - **What git won't carry.** The swap replaces the workspace, so anything untracked or ignored
      has to be carried across on purpose. Derive both lists; never hand-write them:
@@ -420,9 +438,10 @@ repos of their own. This happens at most once per project.
    the mechanic into its place in the new workspace:
 
    ```bash
-   # Where each unit lands. Substitute <new-repo> absolute — a relative one breaks blocks 2 and 3.
-   git clone --no-local . ../<project>-split/prompts        # <keep> = prompts
-   git clone --no-local . ../<project>-split/Code/<name>    # <keep> = Code/<name>
+   # <build-dir> is the ABSOLUTE path of ../<project>-split/, where the new workspace is assembled.
+   # A relative <new-repo> breaks blocks 2 and 3, which cd back in on their own first line.
+   git clone --no-local . <build-dir>/prompts        # <keep> = prompts
+   git clone --no-local . <build-dir>/Code/<name>    # <keep> = Code/<name>
    ```
 
    Reconcile the ignore file, un-nest, and read the file list each time. The reconcile fires for
@@ -431,10 +450,20 @@ repos of their own. This happens at most once per project.
 6. **Stamp each new repo, and commit it.** Run
    `Code/<project>-docs/scripts/apply-project-license.sh <repo-path>/` once per repo **from the
    build directory's root** — that root is the new workspace root, so every path is written
-   relative to it exactly as the registry writes it. Then **commit the result in that repo**. The
+   relative to it exactly as the registry writes it. **A repo whose registry row reads
+   `added_as: adopted` takes `--notice-only`**, exactly as `runbooks/register-repo.md` step 3 says,
+   and **no row's `added_as:` changes here** — it is written once, and the rule that a split-out
+   repo is `created` is about the row Case 1 writes for a repo it carves out, not about a folder
+   that already had one. This split makes that folder a repository, but it does not make its code
+   ours to license, and the default command would state our posture over their code: a project
+   `LICENSE` and a `LICENSING.md` where that folder carries no licence of its own, and — where it
+   carries one — a refusal that stops the split in the middle of this step.
+   For a repo we did create, if the script stops because a licence is already there, run
+   `--notice-only` for it so the notice still lands and raise the licence with the person running
+   the split — again step 3's rule, and it holds here. Then **commit the result in that repo**. The
    script writes new, untracked files, step 7 pushes, and nothing else in this procedure commits
-   them — skip this and a repo reaches its host with no `LICENSE`, no `LICENSE-THROUGHSTONE` and no
-   `LICENSING.md` while your own copy on disk still shows all three.
+   them — skip this and a repo reaches its host with none of the licensing artifacts its posture
+   requires, while your own copy on disk shows them.
 7. **Remotes.** Create each **private** — every one of them now carries the whole mono repo's
    history, and widening any of them is a separate decision to make deliberately later, not a
    side effect of the split. Push trunk, then record each repo in `registries/repos.yml`.
@@ -451,6 +480,10 @@ repos of their own. This happens at most once per project.
    repositories of their own. **The docs hub and `prompts/` are the exception** — the action runs
    once per *code* repo, and `init.sh` wrote those two rows already, so write their `remote:` fields
    by hand.
+   The action also writes a `## Role in <project>` section into that repo's README and commits it
+   **in that repo** (`register-repo.md` step 5), so **push each code repo again once the action has
+   run** — that commit lands after the push above and nothing else sends it, and left behind it
+   fails step 10's local-trunk-matches-remote check.
    Every **remaining** row is now a split-out repo, so each also gets a `provenance:` block, which
    the action does not write. **Add it to the row while you are there** — for a code repo that
    means before the action's commit, so its registration stays one commit. It names the mono repo,
@@ -482,8 +515,11 @@ repos of their own. This happens at most once per project.
       `node_modules/`, a `dist/` — means that repo's ignore file did not survive step 5's
       reconcile.
     - Each code repo **builds and tests**.
-    - `Code/<project>-docs/scripts/check.sh` at **0 fail(s), 0 warning(s)** — warnings do not
-      fail the run, so "green" is not the criterion.
+    - `Code/<project>-docs/scripts/check.sh --check-in` at **0 fail(s), 0 warning(s)** — warnings
+      do not fail the run, so "green" is not the criterion. **Run it with that flag:** the
+      repo-registry check is the only check in `check.sh` that reads what step 7 just wrote, and
+      it runs only under `--check-in`. Without the flag, a registry whose rows lost a `location:`
+      still reports `RESULT: OK`.
     - `Code/<project>-docs/scripts/links.sh` clean.
     - A **real teammate clone**: a fresh empty directory, clone the docs hub into
       `Code/<project>-docs/` inside it, run `Code/<project>-docs/scripts/setup-workspace.sh` from
