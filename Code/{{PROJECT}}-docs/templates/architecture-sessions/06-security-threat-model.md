@@ -75,7 +75,10 @@ oversight.
    `registries/risks.yml`, or update the existing row if this session revisits it.
 8. **Deferral decision (if applicable).** If you're deferring a full threat model, state it
    explicitly with the trigger to revisit — a conscious, dated decision — and mark substep 1.6
-   `Deferred` in the index rather than `Done`.
+   `Deferred` in the index rather than `Done`. A deferral this size may write no architecture
+   doc at all, so the register is what carries it: add a `registries/risks.yml` row with owner,
+   severity and that revisit trigger, the same as item 7 does for a single threat
+   (`METHOD.md` §4). That row is what puts the decision in front of the next check-in.
 
 ## Output
 Write `architecture/06-security-threat-model.md` — the Security & Threat Model architecture

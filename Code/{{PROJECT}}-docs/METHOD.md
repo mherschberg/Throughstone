@@ -130,6 +130,16 @@ set lives in `templates/architecture-sessions/`.
 | 1.13 | Glossary | `architecture/13-*` |
 | 1.14 | Cross-Cutting Review | review doc |
 
+**A core session deferred wholesale files a risk row.** Leaving a core session unrun is a
+conscious, dated decision — the Security session says so outright, and the UI session when a UI
+may arrive later. If it writes no `architecture/NN-*.md`, no sweep can see it: the check-in
+enumerates the `conditional-*.md` templates and the `Coverage:` fields of docs that exist (§6).
+So mark the substep `Deferred` rather than `Done` in `prompts/STEP-index.md` **and record the
+deferral in `registries/risks.yml`** with owner, severity and the trigger that revisits it, like
+any other consciously deferred item (§7) — the check-in reviews every open row, and that is what
+brings the session back. A session marked `N/A`, one this project will never need, is not a
+deferral and files nothing.
+
 **Conditional sessions** are included only when relevant and are owned by the session that has
 enough information to decide them: **Native app architecture** is decided by Session 1.3's
 client-surfaces question; **Privacy, compliance & data governance** is decided when the Data
