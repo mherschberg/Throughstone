@@ -481,6 +481,13 @@ where it is — that is the copy that gives the docs hub its own CI if you ever 
 run to report findings that have been accumulating unseen. 1.8 places the file for you in **new**
 mono projects; `init.sh` runs once, so nothing places it in a project that already exists.
 
+**Your code repos' own test gates are in the same position, and copying does not fix those.**
+`templates/ci/code-repo-ci.yml` is stamped into each code repo, which in a mono-repo-for-now
+project is a folder — so those workflows never trigger either. Unlike `method-check.yml` there is
+no root copy to make: the root gate runs the method checks, not your tests. They start gating when
+a split makes each folder a repository root (`runbooks/splitting-repos.md`); leave them stamped and
+configured until then. `templates/ci/README.md` §2 now says so at the point of the stamp.
+
 Multi-repo projects have nothing to do here.
 
 **Multi-repo only: a teammate whose workspace setup died part-way can now finish it.** (In a

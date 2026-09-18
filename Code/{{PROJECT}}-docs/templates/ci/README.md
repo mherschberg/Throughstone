@@ -33,6 +33,13 @@ the toolchain + test command for its stack — examples for Node / Python / Go /
 It **fails until configured** on purpose: an unconfigured gate that silently passes is worse than
 none. Replace the `Configure me` step (which `exit 1`s) with your real setup + test command.
 
+- **Mono-repo-for-now:** a code repo is still a folder in the single root repo, and GitHub reads
+  workflows only at a repository root — so a `ci.yml` stamped there never triggers, and the
+  `exit 1` above goes unseen. Stamp it anyway and configure it: it starts gating the moment a
+  split makes that folder a repository root (`runbooks/splitting-repos.md`). Until then the root's
+  `method-check.yml` (§1) is the only gate the project actually runs, and it checks the method,
+  not your tests.
+
 ## Keeping it honest
 
 CI enforces what the method otherwise trusts to discipline. Pair it with the local tools:
