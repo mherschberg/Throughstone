@@ -29,7 +29,10 @@ any project built with it.
   a correct split. **A folder the project adopted rather than wrote keeps the licensing it was
   adopted under when Case 2 makes it a repository** — that split makes it a repository but does not
   make its code ours to license, so it takes the Throughstone notice and no project `LICENSE`,
-  exactly as registering it did. A repo Case 1 extracts gets the CI gate every created repo gets;
+  exactly as registering it did. **A repo Case 1 extracts starts under the licence its origin
+  carried**, whichever way that origin arrived: the split copies code, it does not relicense it,
+  so the extracted repo restores the origin's root licence files out of the shared history and
+  takes the Throughstone notice on top. A repo Case 1 extracts gets the CI gate every created repo gets;
   in Case 2 each folder brings across the gate it was already stamped with, which starts running
   the moment the split makes it a repository root.
   The one real cost is stated plainly in the file: every new repo inherits every

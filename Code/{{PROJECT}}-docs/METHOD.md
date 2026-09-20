@@ -579,8 +579,10 @@ from someone else's machine must not be written to here even when it happens to 
 `registries/repos.yml` documents its fields. Two of them are **stamps for a reader** — `added_as`
 and `type`: no script reads either, and the STEP process must not branch on how a repo arrived.
 When a repo is registered (`runbooks/register-repo.md`), its licensing depends on how it
-arrived: a repo the method created takes the project posture, an adopted one only the Throughstone
-notice. Any other case is a decision taken deliberately, not a pattern to reach for. **Nothing else
+arrived: a repo the method created takes the project posture — except one carved out of another
+repo, which keeps the licensing that came across with the code
+(`runbooks/splitting-repos.md`) — and an adopted one only the Throughstone notice. Any other case
+is a decision taken deliberately, not a pattern to reach for. **Nothing else
 is tracked per repo.** The work of bringing a repo in is *done* at the time, never recorded as a
 status, and anything missed is found later by looking at the repo.
 

@@ -21,7 +21,9 @@
   stack's test command (see `templates/ci/README.md`).
 
   Apply the project license established at bootstrap by running
-  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <this-repo-path>`. It copies the
+  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <this-repo-path>` — except a repo carved
+  out of another one, which keeps the licensing that came across with the code and takes the
+  notice alone (`Code/{{PROJECT}}-docs/runbooks/splitting-repos.md`). It copies the
   docs hub's canonical `LICENSE` unchanged for open-source projects. Proprietary projects
   get no project license file. It also copies `LICENSE-THROUGHSTONE` for this retained
   Throughstone-authored README/CI scaffolding and writes `LICENSING.md` to make the boundary
@@ -43,8 +45,10 @@
   Throughstone's part of the file, which is what a check-in sweeps. If the section is already
   there, update it in place.
 
-  If the repo has **no** README at all, stamp this file — but **drop `## Licensing`**, whose link
-  points at a `LICENSING.md` that is never written into a repo Throughstone did not create.
+  If the repo has **no** README at all, stamp this file — but **cut `## Licensing` back to its
+  `LICENSE-THROUGHSTONE` sentence**: the link points at a `LICENSING.md` that is never written
+  into a repo Throughstone did not create, while the notice itself is written into every repo,
+  and that sentence is the only place this file explains what it covers.
   Either way, do **not** install CI and do **not** apply a project license; for the Throughstone
   notice, run
   `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>`.

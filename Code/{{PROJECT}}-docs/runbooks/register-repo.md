@@ -86,6 +86,10 @@ The goal is that the **result** is the same however a repo arrived, except for l
    created, an existing licence is never overridden without an explicit instruction from the user
    naming that repo: if the script stops because a licence is already there, run the
    `--notice-only` command instead, so the notice still lands, and raise the licence in the chat.
+   **A root with no project `LICENSE` in it is not always a repo that needs one** — a repo carved
+   out of another carries its origin's licensing, and an origin that had none leaves its child
+   with none. Where the posture would write one, the row has a `provenance:` block and none is
+   there, ask before stamping it.
    A **proprietary** posture writes `LICENSING.md` and the notice but no project `LICENSE` — that
    is the posture doing its job, not a failure.
 
@@ -150,7 +154,8 @@ internal-tooling
 
 `licence ✓` means every artifact that repo's posture requires landed: for one we created,
 `LICENSING.md` and `LICENSE-THROUGHSTONE`, plus a project `LICENSE` unless the posture is
-proprietary; for an adopted repo, the notice alone.
+proprietary; for an adopted repo, or one whose existing licence sent step 3 to `--notice-only`,
+the notice alone — with the reason line naming the licence it carries.
 
 ## Running it again
 
