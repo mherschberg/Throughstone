@@ -220,6 +220,21 @@ mkdir -p "$seed"
 
 UNREACHABLE="git@setup-workspace-test.invalid:team/partner-billing.git"
 
+# A remote with nothing wrong with it but one ref: it carries the seed on `main`, and its HEAD
+# names a branch nobody created — the accident `bare_remote` exists to avoid, built here on
+# purpose. Cloning it exits 0, fetches every object, and checks nothing out. Both halves are
+# asserted, because a remote that had quietly become EMPTY would also clone empty and also trip
+# the warning, and the case would then pass while no longer exercising the mismatch it is named
+# for.
+DANGLING_HEAD="$TMP_ROOT/dangling-head.git"
+bare_remote "$DANGLING_HEAD" no-such-branch
+git -C "$seed" push -q "$DANGLING_HEAD" main >/dev/null 2>&1 \
+  || bad "fixture: could not seed the dangling-HEAD remote"
+git -C "$DANGLING_HEAD" rev-parse --verify -q refs/heads/main >/dev/null 2>&1 \
+  || bad "fixture is not exercising the shape it claims: the dangling remote carries no content"
+git -C "$DANGLING_HEAD" rev-parse --verify -q HEAD >/dev/null 2>&1 \
+  && bad "fixture is not exercising the shape it claims: the dangling remote HEAD resolves"
+
 echo "Generating projects in both layouts ..."
 multi="$(bootstrap multi multi apache-2.0)" || exit 1
 mono="$(bootstrap mono mono bsd-3)" || exit 1
@@ -330,6 +345,116 @@ run_setup "$tw"
 assert_assembled "unreachable remote" "$tw"
 assert_out "unreachable remote" "warning: could not clone"
 assert_out "unreachable remote" "did not arrive"
+
+# The other way a repo fails to arrive, and the quiet one. git clone exits 0 here: it fetches
+# everything and checks nothing out, because the remote has no commit on the branch its HEAD
+# names. assert_cloned already knows a .git alone is not a clone; this holds the script to the
+# same thing, in both of the places it decides. An empty checkout is still the root of a work
+# tree, so the re-run below is the half that keeps the directory git left behind from being
+# adopted as the repo.
+#
+# Neither assertion can be satisfied by git's own voice: run_setup captures stderr, so git's
+# "remote HEAD refers to nonexistent ref" is inside SETUP_OUT and would pass with this change
+# reverted. "nothing checked out" and "did not arrive" are strings only the script writes.
+echo "A remote that clones with nothing checked out ..."
+tw="$(teammate danglinghead "$MULTI_DOCS")"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    added_as: created
+    remote: "$DANGLING_HEAD"
+    description: "A reachable remote with no commit on the branch its HEAD names."
+EOF
+run_setup "$tw"
+assert_assembled "dangling remote HEAD" "$tw"
+assert_out "dangling remote HEAD" "nothing checked out"
+assert_out "dangling remote HEAD" "did not arrive"
+# What the run met, asserted as state: git left a .git and no commit at HEAD. Without this the
+# case could pass over a clone that failed outright, which is a different repair.
+[ -e "$tw/Code/multi-api/.git" ] \
+  || bad "dangling remote HEAD: fixture is wrong — git did not leave the directory behind"
+git -C "$tw/Code/multi-api" rev-parse --verify -q HEAD >/dev/null 2>&1 \
+  && bad "dangling remote HEAD: fixture is wrong — the checkout is not empty"
+
+# The half that was silent. The directory is still there, so a re-run meets it again and has to
+# reach the same answer rather than adopting it — and must not say "could not clone", which would
+# send this contributor to check a remote and a network that are both fine and would never
+# mention the directory that has to be deleted first. This directory holds nothing but .git, so
+# deleting it is the right advice and the run gives it.
+run_setup "$tw"
+assert_assembled "dangling remote HEAD re-run" "$tw"
+assert_not_out "dangling remote HEAD re-run" "exists: Code/multi-api/"
+assert_out "dangling remote HEAD re-run" "no commit at HEAD"
+assert_out "dangling remote HEAD re-run" "delete Code/multi-api/"
+assert_out "dangling remote HEAD re-run" "did not arrive"
+assert_not_out "dangling remote HEAD re-run" "could not clone"
+[ -e "$tw/Code/multi-api/.git" ] \
+  || bad "dangling remote HEAD re-run: the run removed what was at the location"
+
+# The same unresolvable HEAD over somebody's work, which is the shape that makes the advice
+# matter. `git init` and a file that was never committed is a real thing to find at a registered
+# location, and init.sh refuses to destroy it for the same reason. The repo still has not arrived
+# and is still counted, but the run must not tell the contributor to delete the directory, and
+# must not describe it as holding nothing.
+echo "A location holding an uncommitted git init over real files ..."
+tw="$(teammate unborn "$MULTI_DOCS")"
+mkdir -p "$tw/Code/multi-api"
+git init -q "$tw/Code/multi-api"
+printf 'work in progress\n' > "$tw/Code/multi-api/main.py"
+git -C "$tw/Code/multi-api" add -A
+git -C "$tw/Code/multi-api" rev-parse --verify -q HEAD >/dev/null 2>&1 \
+  && bad "uncommitted git init: the fixture is not the shape it claims — HEAD resolves"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    added_as: created
+    remote: "$REACHABLE"
+    description: "A repo someone started by hand and has not committed to yet."
+EOF
+run_setup "$tw"
+assert_assembled "uncommitted git init" "$tw"
+assert_out "uncommitted git init" "no commit at HEAD"
+assert_out "uncommitted git init" "did not arrive"
+assert_not_out "uncommitted git init" "delete Code/multi-api/"
+assert_not_out "uncommitted git init" "exists: Code/multi-api/"
+[ -f "$tw/Code/multi-api/main.py" ] \
+  || bad "uncommitted git init: the work at the location is gone"
+
+# A `.git` that git cannot use, at a location inside a workspace that is itself under a checkout.
+# This is what makes the HEAD question worth asking about the location rather than from it: git's
+# discovery walks up, so an enclosing repository answers for the location and the run reports a
+# repo that is not there as present — silently, and on every later run. The enclosing repo is the
+# fixture's whole point; without it this shape is merely unreadable rather than wrongly readable.
+echo "A .git git cannot use, inside an enclosing repository ..."
+enclosing="$TMP_ROOT/enclosing"
+rm -rf "$enclosing"
+mkdir -p "$enclosing"
+git init -q "$enclosing"
+git -C "$enclosing" -c user.email=test@example.com -c user.name=Test commit -q --allow-empty -m enclosing
+tw="$(teammate enclosed "$MULTI_DOCS")"
+cp -R "$tw" "$enclosing/ws"
+tw="$enclosing/ws"
+mkdir -p "$tw/Code/multi-api/.git"
+[ "$(git -C "$tw/Code/multi-api" rev-parse --show-toplevel 2>/dev/null)" = "$(cd "$enclosing" && pwd -P)" ] \
+  || bad "unusable .git: the fixture is not the shape it claims — the location does not resolve to the enclosing repo"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    added_as: created
+    remote: "$REACHABLE"
+    description: "A location whose .git is not a git directory at all."
+EOF
+run_setup "$tw"
+assert_assembled "unusable .git" "$tw"
+assert_not_out "unusable .git" "exists: Code/multi-api/"
+assert_out "unusable .git" "git cannot read the repository"
+assert_out "unusable .git" "did not arrive"
 
 echo "Something that is not a git checkout already sitting at the location ..."
 tw="$(teammate occupied "$MULTI_DOCS")"
