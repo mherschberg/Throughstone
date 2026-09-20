@@ -23,8 +23,9 @@
 # Deliberately absent, and not an oversight to fill in: anything asserting the registry's shape
 # beyond whether every row was read — the check reads two fields and does not police the file, so
 # a malformed row is fixed by whoever just edited it — and the no-registry branch, which has no
-# logic in it and reports a conspicuous state to someone already reading the output. This file
-# grows only if the check does.
+# logic in it and names a file a reader can see is not there. A registry that is there and holds
+# no rows is the opposite case, and it is covered below: nothing in the output says so unless the
+# check says it. This file grows only if the check does.
 
 set -uo pipefail
 export LC_ALL=C
@@ -249,8 +250,8 @@ clean "commented rows are not counted"
 # A row is found by its `- name:` line, so a row written any other way is not read, and its
 # fields land on the row above it. Every list entry is counted apart from that walk, and a
 # registry whose two counts disagree fails. Each registry below holds two repos and is read as
-# fewer; the third, where only one row is out of order, is the shape a check for zero rows or a
-# bare `-` would still pass.
+# fewer; the third, where only one row is out of order, is the shape the zero-row check in
+# section 7, or a test for a bare `-`, passes — which is what the count is here for.
 unread() {
   local label="$1" pin="$2"
   cat > "$(registry_of "$multi")"
@@ -258,6 +259,11 @@ unread() {
   expect "[FAIL] $pin" "$label"
   expect "start every row with its - name: line" "$label hint"
   refute "all have a location" "$label"
+  # The first registry below is read as no rows at all, which is the state the zero-row warning in
+  # section 7 also reads — and the only thing separating them is that this one still holds list
+  # entries. The count failure is the finding that names what to do here, so the warning must not
+  # speak over it with advice to restore rows that are sitting right there in the wrong shape.
+  refute "found no repo rows" "$label — rows the walk could not read are not an empty registry"
   result FAIL "$label"
   [ "$DOC_STATUS" -eq 1 ] || bad "$label — expected exit 1, got $DOC_STATUS"
 }
@@ -287,6 +293,71 @@ repos:
   - location: "Code/beta/"
     name: "beta"
 YAML
+
+# --- 7. A registry with no rows in it ---------------------------------------------
+# Emptying the file is quieter than deleting it: a deleted registry warns before the walk, and a
+# row the walk cannot read fails, but a registry with nothing in it read as a clean pass over zero
+# rows — a pass vouching for the whole inventory on the strength of having read none of it. Zero
+# rows is not a project with no repos: this file lives in the docs hub, which has a row of its
+# own, and init.sh writes that row and prompts/ before anyone can run the doctor.
+#
+# Three shapes, because each rules out a different way of writing the check. The file emptied
+# outright is the plain case. The `repos:` key left behind with nothing under it is what a test
+# for an empty file passes. Every row commented out is what a test that greps the file for a
+# `- name:` line passes, since a commented row still carries one.
+empty_registry() {
+  doctor "$multi" --check-in
+  expect "[WARN] found no repo rows in Code/registry-multi-docs/registries/repos.yml — nothing to check" "$1"
+  expect "a registry with neither has lost them" "$1 hint"
+  refute "[PASS]" "$1"
+  refute "[FAIL]" "$1"
+  result OK "$1"
+  [ "$DOC_STATUS" -eq 0 ] || bad "$1 — a WARN must not change the exit code, got $DOC_STATUS"
+}
+
+: > "$(registry_of "$multi")"
+empty_registry "emptied registry"
+
+printf 'repos:\n' > "$(registry_of "$multi")"
+empty_registry "registry with its key and no rows under it"
+
+cat > "$(registry_of "$multi")" <<'YAML'
+repos:
+  # - name: "registry-multi-parked"
+  #   location: "Code/registry-multi-parked/"
+YAML
+empty_registry "registry whose every row is commented out"
+
+# The control, and the guard against a warning that fires on any registry at all: one row is a
+# row, and the pass line comes back with its count.
+cat > "$(registry_of "$multi")" <<'YAML'
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+    remote: "git@example.com:TEAM/alpha.git"
+YAML
+doctor "$multi" --check-in
+expect "1 row(s): all have a location, and a recorded remote covers every one" "one row is not none"
+refute "found no repo rows" "one row is not none"
+clean "one row is not none"
+
+# --- 8. A registry nothing can read ------------------------------------------------
+# `-f` is type and existence, not readability, so a registry that is entirely intact and merely
+# unreadable walks to zero rows exactly as an empty one does. It gets its own finding, because the
+# empty registry's advice — restore the rows — is wrong for a file whose rows never left.
+chmod 000 "$(registry_of "$multi")"
+# chmod 000 does not stop a privileged reader, and the case would then pass having exercised
+# nothing at all. Establish the precondition rather than assume it, as the setup-workspace suite
+# does for the same fixture.
+head -c1 "$(registry_of "$multi")" >/dev/null 2>&1 \
+  && bad "unreadable registry: the fixture is still readable, so this case proved nothing"
+doctor "$multi" --check-in
+chmod 644 "$(registry_of "$multi")"
+expect "[WARN] cannot read Code/registry-multi-docs/registries/repos.yml — skipping repo registry check" "unreadable registry"
+refute "found no repo rows" "an unreadable registry is not an empty one"
+refute "[PASS]" "unreadable registry"
+refute "[FAIL]" "unreadable registry"
+result OK "unreadable registry"
 
 if [ "$failures" -ne 0 ]; then
   printf 'check.sh repo registry check: %d FAILURE(S)\n' "$failures" >&2

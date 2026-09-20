@@ -447,7 +447,9 @@ and only two:
   read** — one that does not start with its `- name:` line, which leaves its fields on the row
   above; the doctor counts the list's entries to know it read them all. These are the only registry
   findings that can turn a check-in red, and a 1.7 registry cannot produce either unless a row was
-  hand-edited.
+  hand-edited. **A registry with no rows in it at all is a warning** — every project has a row
+  for the docs hub and one for `prompts/`, so one with neither has lost them; a 1.7 registry has
+  both.
 - **A repo that no recorded remote covers is a warning**, named row by row: as far as the project
   knows, that repo's work lives on exactly one laptop. **Most 1.7 projects will see this at their
   first check-in after upgrading**, because a 1.7 registry ships two rows with no `remote:`, and

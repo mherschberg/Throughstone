@@ -90,10 +90,16 @@ missing=0
 # A row is found by its `- name:` line, so a row written any other way is not read, and its fields
 # land on the row above it: that repo never arrives, or one repo's remote is cloned into another
 # repo's location. So every list entry is also counted on its own, under the same comment rule, and
-# when the two counts disagree nothing is cloned. The awk succeeds only on that disagreement; a
-# registry it cannot read goes on to the clone step, whose parse is not fatal either.
+# when the two counts disagree nothing is cloned. Each awk succeeds only on the state its own arm
+# reports, so an awk that cannot run at all falls past both and reaches the clone step, whose parse
+# is not fatal either. A registry nothing can read does not get that far: -r stops it above.
 if [ ! -f "$REG" ]; then
   echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
+elif [ ! -r "$REG" ]; then
+  # -f is type and existence, not readability, and a registry no one can open reads here exactly
+  # like one with nothing in it. Without this arm the clone step announces itself and clones nothing.
+  echo "Not cloning: cannot read $DOCS_REL/registries/repos.yml. Fix its permissions, then re-run"
+  echo "this script."
 elif awk '
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
@@ -102,6 +108,18 @@ elif awk '
   ' "$REG" 2>/dev/null; then
   echo "Not cloning: a row in $DOCS_REL/registries/repos.yml does not start with its - name: line, so"
   echo "one repo could land at another's location. Fix that row, then re-run this script."
+elif awk '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*-[[:space:]]*name:/ { rows++ }
+    END { exit (rows > 0) }
+  ' "$REG" 2>/dev/null; then
+  # A registry with no rows in it is not a workspace with no repos: every project has a row for the
+  # docs hub and one for prompts/. This arm runs after the counts above, so a registry holding
+  # entries the walk could not read has already been reported as that; what is left here is a file
+  # with nothing in it, which the counts cannot see because they agree at zero.
+  echo "Not cloning: $DOCS_REL/registries/repos.yml holds no repo rows, so there is nothing here to"
+  echo "clone. Every project has a row for the docs hub and one for prompts/ — restore the rows from"
+  echo "git history, then re-run this script."
 else
   echo "Cloning sibling repos with remotes from $DOCS_REL/registries/repos.yml ..."
   # Parse repos.yml block-aware: pair each repo's own location with its own remote.
