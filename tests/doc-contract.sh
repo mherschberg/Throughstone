@@ -325,8 +325,8 @@ contains "$CHECKIN" "Coverage:" || fail "runbooks/check-in.md no longer reads th
 # agent receives points at nothing.
 first_h2="$(grep -m1 -E '^## ' "$AGENTS" | sed 's/^## //' || true)"
 [ "$first_h2" = "First action — kickoff or resume?" ] || fail "the docs hub AGENTS.md no longer opens with the 'First action — kickoff or resume?' section (first section is now: $first_h2)"
-for p in "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md"; do
-  contains "$p" "\"$first_h2\"" || fail "the workspace-root ${p#$ROOT/} quotes a different section name than the one the docs hub AGENTS.md actually opens with"
+for p in "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$SETUP_SH"; do
+  contains "$p" "\"$first_h2\"" || fail "${p#$ROOT/} quotes a different section name than the one ${AGENTS#$ROOT/} actually opens with"
 done
 contains "$METHOD" '"First action"' || fail "METHOD.md §10 no longer points a resuming agent at AGENTS.md's \"First action\""
 

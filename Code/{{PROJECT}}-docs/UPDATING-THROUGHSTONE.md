@@ -525,6 +525,12 @@ and the run now finishes whatever happens to the clones. Its closing line says h
 arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
 hand — and re-run to pick it up.
 
+That re-run also repairs the pointers themselves: the `AGENTS.md` and `CLAUDE.md` this script wrote
+at a workspace root before 1.8 were a shortened version of the ones `init.sh` leaves for the first
+developer, without the closing paragraph that turns "Read `AGENTS.md` and follow it" into an
+instruction rather than a filename. Every machine this script set up is still holding the short
+pair until it is run there again.
+
 **Multi-repo only: a repo you supplied by hand as a worktree or a submodule stops being reported as
 missing.** The same script skips a registered location that already holds a checkout, but it asked
 whether `.git` was a directory there — and a linked worktree or an initialized submodule keeps

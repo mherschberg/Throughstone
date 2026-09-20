@@ -44,7 +44,19 @@ echo "Docs hub:       $DOCS_REL"
 echo "Writing per-machine pointers and helpers (CLAUDE.md, AGENTS.md, doctor.sh) ..."
 # The workspace root is a per-machine shell in multi-repo projects, not a durable repo. These
 # pointers are regenerated locally so agents opened at the root can find the canonical docs hub.
+#
+# The wording is the wording init.sh leaves at a generated project's root, closing handoff
+# paragraph included: that paragraph is what turns "Read AGENTS.md and follow it" into an
+# instruction rather than a filename, and this file is the first thing a contributor's agent
+# reads. It is spelled out again here rather than copied from those root pointers, because they
+# sit outside the docs hub and the docs hub is all a contributor has cloned at this point.
 for name in CLAUDE.md AGENTS.md; do
+  # Past their title, the two pointers differ in one clause: each names the tool that reads it.
+  # AGENTS.md is the tool-agnostic one, so its wording is the default.
+  case "$name" in
+    CLAUDE.md) reader="Claude Code" ;;
+    *)         reader="any agent (Codex, etc.)" ;;
+  esac
   cat > "$ROOT/$name" <<EOF
 # $name
 
@@ -52,8 +64,14 @@ The canonical agent context lives in the docs repo:
 **\`$DOCS_REL/AGENTS.md\`** (tool-agnostic). Read it — and the methodology it points to in
 \`$DOCS_REL/METHOD.md\` — before working here.
 
-This is a per-machine pointer (the workspace root is not a repo). Edit the canonical file
-in the docs repo, not this one.
+This is a per-machine pointer so $reader auto-discovers the project context. It is not
+versioned (the workspace root is not a repo). Edit the canonical file in the docs repo, not
+this one. \`$DOCS_REL/scripts/setup-workspace.sh\` regenerates this pointer on a new machine.
+
+**Agents:** the canonical \`AGENTS.md\` (linked above) opens with a "First action — kickoff or
+resume?" section. Read it and follow it now — it decides, from disk, whether to start the
+kickoff interview (new project) or resume the next STEP (existing one). The user's whole
+handoff is the single command *"Read AGENTS.md and follow it."*
 EOF
 done
 
