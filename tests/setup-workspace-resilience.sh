@@ -468,7 +468,7 @@ assert_not_cloned "dotdot location" "$escaped"
 # The escape hatch for a repo that genuinely cannot move: it stays where it is and a symlink at
 # a workspace-relative location points at it, so the row is the same on every machine. Two
 # mechanics carry it — the location is contained, so it passes the shape guard on its text, and
-# the existing-checkout branch reaches `.git` through the link because `-d` follows symlinks.
+# the existing-checkout branch reaches `.git` through the link because `-e` follows symlinks.
 # The second is what this case holds: make a symlinked location stop counting as an existing
 # checkout and the run tries to clone over the link instead.
 # Uncommitted local work, so the failure that matters — the checkout replaced or cleared, the
@@ -641,6 +641,45 @@ run_setup "$tw"
 assert_assembled "re-run" "$tw"
 assert_out "re-run" "exists: Code/multi-api/"
 assert_not_out "re-run" "did not arrive"
+
+# A repo supplied by hand need not be a plain clone. A linked worktree and an initialized
+# submodule are both repositories and both keep `.git` as a FILE, so the skip above has to ask
+# whether `.git` exists and not whether it is a directory — otherwise the run clones over a
+# checkout that is already there, git refuses, and the repo is reported missing on every run.
+# The worktree is the shape built here: both reach the same predicate by the same route, and this
+# one needs no `protocol.file.allow` override to create. The `exists:` line alone would not hold
+# the case — a maintainer restructuring that loop could print it and still re-clone — so the
+# checkout's own state is asserted after the run as well.
+echo "A registered checkout whose .git is a FILE — a linked worktree ..."
+tw="$(teammate worktree "$MULTI_DOCS")"
+wtsrc="$TMP_ROOT/worktree-source"
+rm -rf "$wtsrc"
+git clone -q "$REACHABLE" "$wtsrc" >/dev/null 2>&1
+git -C "$wtsrc" worktree add -q "$tw/Code/multi-api" -b wtbranch >/dev/null 2>&1
+[ -f "$tw/Code/multi-api/.git" ] \
+  || bad "linked worktree: the fixture is not the shape it claims — Code/multi-api/.git is not a file"
+wt_gitfile="$(cat "$tw/Code/multi-api/.git" 2>/dev/null)"
+printf 'local work\n' > "$tw/Code/multi-api/uncommitted.txt"
+add_row "$tw" <<EOF
+
+  - name: "multi-api"
+    location: "Code/multi-api/"
+    type: service
+    added_as: adopted
+    remote: "$REACHABLE"
+    description: "Supplied by hand as a linked worktree, then met by a later run."
+EOF
+run_setup "$tw"
+assert_assembled "linked worktree" "$tw"
+assert_out "linked worktree" "exists: Code/multi-api/"
+assert_not_out "linked worktree" "could not clone"
+assert_not_out "linked worktree" "did not arrive"
+[ "$(cat "$tw/Code/multi-api/.git" 2>/dev/null)" = "$wt_gitfile" ] \
+  || bad "linked worktree: Code/multi-api/.git is no longer the worktree's gitfile"
+[ "$(git -C "$tw/Code/multi-api" rev-parse --abbrev-ref HEAD 2>&1)" = "wtbranch" ] \
+  || bad "linked worktree: the checkout at Code/multi-api/ is no longer the worktree"
+[ -f "$tw/Code/multi-api/uncommitted.txt" ] \
+  || bad "linked worktree: uncommitted work in the worktree is gone"
 
 echo "A target directory that exists but is empty ..."
 tw="$(teammate emptydir "$MULTI_DOCS")"

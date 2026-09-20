@@ -153,9 +153,15 @@ else
     esac
     # Clone side effect: create a missing sibling repo at its registry location. Existing git
     # checkouts are left untouched so rerunning setup is safe for already-cloned repos. That
-    # also covers a location that is a symlink to a checkout elsewhere: -d follows the link,
+    # also covers a location that is a symlink to a checkout elsewhere: -e follows the link,
     # so the repo behind it is reported and left alone rather than cloned over.
-    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
+    #
+    # -e and not -d, which is what someone tidying this line would write: a linked worktree and
+    # an initialized submodule are both repositories and both keep .git as a FILE. Read as
+    # not-a-repo, either one is cloned over, git refuses because the directory is not empty, and
+    # the repo is counted among those that did not arrive — on every run, with nothing the
+    # contributor can do to clear it. init.sh tests prompts/ with -e for the same reason.
+    [ -e "$loc/.git" ] && { echo "  exists: $loc"; continue; }
     echo "  cloning $rem -> $loc"
     # `--` so a value beginning with `-` reaches git as a path rather than as an option.
     git clone -q -- "$rem" "$loc" || {

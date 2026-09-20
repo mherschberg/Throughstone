@@ -996,6 +996,17 @@ any project built with it.
   both described the old order and now describe the new one. A `location:` beginning with `-`
   also used to reach `git` as an option and kill the run — the clone arguments now sit behind `--`. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
   already cloned are left alone.
+- **A repository you put in place by hand is recognised whatever shape its checkout has.** That
+  re-run skips a registered location that already holds a checkout — it is what makes re-running
+  safe, and what the closing advice leans on when it tells you to clone a repo yourself and run
+  again. It asked whether `.git` was a *directory*. A linked worktree and an initialized submodule
+  are both real repositories and both keep `.git` as a *file*, so either one read as "not a repo":
+  the script tried to clone over a checkout that was already there, git refused because the
+  directory was not empty, and the repo was counted among those that did not arrive. Re-running
+  never cleared it, so the closing advice pointed you at a repository already on your own disk,
+  every single run. It now asks whether `.git` is there at all, which is the same test `init.sh`
+  already applies to a `prompts/` folder it is about to write into. A location symlinked at a
+  checkout elsewhere is unaffected — that test follows a link exactly as the old one did.
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
   repository you already had — the natural thing to try when you want Throughstone in a project
   that exists — and running `./init.sh` there deleted that repository's `.git` outright, every

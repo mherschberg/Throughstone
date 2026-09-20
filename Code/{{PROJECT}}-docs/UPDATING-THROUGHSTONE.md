@@ -525,6 +525,14 @@ and the run now finishes whatever happens to the clones. Its closing line says h
 arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
 hand — and re-run to pick it up.
 
+**Multi-repo only: a repo you supplied by hand as a worktree or a submodule stops being reported as
+missing.** The same script skips a registered location that already holds a checkout, but it asked
+whether `.git` was a directory there — and a linked worktree or an initialized submodule keeps
+`.git` as a file. Either one read as "not a repo", so every run tried to clone over it, git refused
+because the directory was not empty, and that repo was counted among the ones that did not arrive —
+telling you to go and clone something already on your disk, with nothing you could do to clear it.
+Pull 1.8 and re-run; there is nothing to undo, and nothing of yours is touched.
+
 **Multi-repo only: the same script now clones nothing from a registry with a row it cannot read.**
 It reads a row only from its `- name:` line. A row that starts any other way used to be passed over
 without a word, its fields landing on the row above — so one repo never arrived, or another repo's
