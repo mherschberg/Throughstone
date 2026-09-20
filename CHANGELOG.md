@@ -26,7 +26,18 @@ any project built with it.
   if you would rather not — Case 1 needs no equivalent. Case 2 also deletes the workspace-root registry row on its way through, since the root
   stops being a repository at that step. It asks three questions before you start and the rest at the step that needs them;
   every one but the mapping itself has a default, so answering "use your judgement" still produces
-  a correct split. **A folder the project adopted rather than wrote keeps the licensing it was
+  a correct split. **Before the first of them it says what it decides and what you decide** — it
+  settles the method's own artifacts, it drives plain git over your repositories with the Stops as
+  the points it will not pass without you, and it decides nothing about how your code divides. Nothing in
+  it reads an import, a call graph or a build file. So where the two things you want apart are
+  interleaved, untangling them is ordinary code work on a STEP of its own, committed before the
+  split runs: the runbook starts from your answer rather than going looking for one.
+  **Case 2's units are whole folders, none of them inside another**, which is both the shape
+  somebody reaches for when they want the split itself to do the dividing and the one the case
+  cannot survive — naming `Code/shop/billing` beside `Code/shop` leaves that code tracked and live
+  in two repositories at once, because Case 2 has no surviving origin to prune. Every check in the
+  case passes on the result, so it would surface after the swap with the old remote already
+  read-only. **A folder the project adopted rather than wrote keeps the licensing it was
   adopted under when Case 2 makes it a repository** — that split makes it a repository but does not
   make its code ours to license, so it takes the Throughstone notice and no project `LICENSE`,
   exactly as registering it did. **A repo Case 1 extracts starts under the licence its origin
@@ -34,7 +45,9 @@ any project built with it.
   so the extracted repo restores the origin's root licence files out of the shared history and
   takes the Throughstone notice on top. A repo Case 1 extracts gets the CI gate every created repo gets;
   in Case 2 each folder brings across the gate it was already stamped with, which starts running
-  the moment the split makes it a repository root.
+  the moment the split makes it a repository root — red on that repo's first push if its
+  `Configure me` step was never filled in, which Case 2 now warns about at the step before the
+  push rather than leaving you to meet it on the host.
   The one real cost is stated plainly in the file: every new repo inherits every
   blob the origin ever committed, including deleted ones, and an appendix covers purging first when
   that matters.
@@ -58,6 +71,11 @@ any project built with it.
   mono-repo-for-now project. A repo split out of another one can also carry an optional
   **`provenance:`** block recording where it came from and where the two histories part company;
   it is written at the split and nothing maintains it after.
+  The header's mono-repo-for-now note used to say the folder rows described the post-split target,
+  which reads like an instruction to plan a split out of this file; the split runbook says the
+  opposite, because a folder nobody registered is absent from the registry and would disappear at
+  the split without a word. The note now says what the file is — an inventory of what was
+  registered — and sends you to the runbook to derive the units.
   **Nothing else is tracked per repo.** A row is an inventory entry, never a status board: the work
   of bringing a repo in is *done* at the time rather than recorded as a status, anything missed is
   found later by looking at the repo, and a case the registry does not cover is raised to a person
@@ -125,10 +143,23 @@ any project built with it.
   exists. Everything that changes the set of repositories a project has goes through it, the split
   included. Five steps: write its `registries/repos.yml` row, give it a README, apply the
   licensing artifacts, record it in the Architecture Overview, and commit once per repository.
+  **A repo counts as checked out at its `location:` only when it is *that* repo**, and the runbook
+  says how to tell: match the row's `remote:` against the checkout's `origin`, or where the row has
+  no remote yet, confirm the path is the top of its own work tree. Looking for a `.git` is what
+  passes wrongly — a plain directory inside another repository's work tree answers every `git`
+  command with the outer repo, and the README and the licence would land in a repository this row
+  does not describe. The split's own registration step carries the other half of the same defect:
+  it now reads the new row's `location:` against where the repo was actually built, before the
+  registration commits — the one moment both spellings are in front of you, since the absolute one
+  lives only in the command that built it and the check-in's registry check reads the rows and
+  never the paths.
   **Which README a repo gets is decided by what is in the repo, not by how the repo arrived** — a
   repo with no README is stamped from `templates/repo-readme-template.md` as `README.md`, one that
   already has a README keeps it under its own name and gains a short `## Role in <project>` section
-  in that file's own markup, and registration never adds a second. A README is any regular file at
+  in that file's own markup, and registration never adds a second. That template used to open by
+  saying every repo the method creates carries a stamped copy of it, which is the case a split
+  disproves — an extracted folder's own README comes up with it — so it now defers to the rule
+  above instead of contradicting it. A README is any regular file at
   the repo root whose name starts with `readme`, in any capitalisation and format; where there is
   more than one, the runbook asks which is canonical instead of picking.
   Licensing shows its two artifacts separately, because they answer different questions: a repo the
