@@ -291,15 +291,47 @@ special here, which is why it gets no steps of its own below.
    When it prints `git ls-files`, read it: it should look like the repo you asked for, at the
    root, with nothing left nested.
 4. **Make it a repo, not a folder.**
-   - Its licence — `Code/<project>-docs/scripts/apply-project-license.sh Code/<new-name>/`, run
-     from the **workspace root**, which is where `runbooks/register-repo.md` works from too. A
-     split-out repo is one the method created, so it takes the full posture, not `--notice-only`.
+   - **Its licence is the origin's, not the project's.** Carving a folder out of a repo does not
+     relicense the code in it, and the origin may be one this project **adopted**, where the
+     default command would state our posture over somebody else's code. The forward delete took
+     the origin's root licence files along with everything else outside the keep-set, and the
+     clone still holds them. List the origin's root, from the tip you wrote down at step 1:
+
+     ```bash
+     cd <new-repo>
+     git ls-tree --name-only <tip>
+     ```
+
+     **Stop, show that list, and say which of those names are licensing.** No pattern picks them
+     out reliably — `LICENSING.md`, `COPYING`, `COPYRIGHT`, `NOTICE`, `PATENTS` and a bare
+     `UNLICENSE` all count — and nothing below re-derives the answer. An origin that carried none
+     is a real answer.
+     **Before restoring anything, look at this repo's own root**: if the extracted directory
+     carried a licence, the un-nest already moved it up, and that one is the extracted code's own.
+     Leave it, skip the restore for that name, and raise it in the chat — the command below
+     overwrites without a word. Then restore the rest, a line per name, **except
+     `LICENSE-THROUGHSTONE`**, which is our notice on our own material and comes fresh below:
+
+     ```bash
+     cd <new-repo>
+     git checkout <tip> -- LICENSE        # one line per name; substitute them, don't loop
+     ```
+
+     Then the notice, **from the workspace root** — `cd` back first, the script resolves its
+     target against where you are standing:
+     `Code/<project>-docs/scripts/apply-project-license.sh --notice-only Code/<new-name>/`. It
+     refuses nothing over a licence already in the repo, so nothing about this repo's licensing
+     can stop the split. **Where the origin is a repo the method created this changes nothing** —
+     its licence files are the project's own. Where it carried no licence at all, nothing is
+     restored and this repo carries our notice alone.
    - Its README, per `runbooks/register-repo.md` step 2 — **the extracted folder's own README came
      up in the un-nest** (step 2 says which file counts: a regular root file whose name starts
      with `readme`, in any capitalisation, and ask if there is more than one), so if there is one,
      leave it and add a `## Role in <project>` section. Only a repo with no README gets
      `templates/repo-readme-template.md` stamped, with its role one-liner and Overview actually
-     filled in.
+     filled in. **If no `LICENSING.md` came across above, cut its `## Licensing` section back to
+     the `LICENSE-THROUGHSTONE` sentence** — the link would dangle, and a root `LICENSE` here is
+     the origin's rather than the project's, which is the opposite of what that section says.
    - `templates/env-example.txt` copied in as `.env.example` if it needs one.
    - **Its build and test entry point, and its CI gate.** The forward delete removed the origin's
      `Makefile`, CI config and test harness, so right now this repo has no way to build itself.
@@ -354,13 +386,20 @@ special here, which is why it gets no steps of its own below.
    kept as they arrived: a hit in one of them is history you keep, not a repoint. Step 7 is what
    makes step 9 satisfiable.
 8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
-   and the Architecture Overview entry. **Add a `provenance:` block to that row before
-   the action commits**, so the registration stays one commit: the repo it came from, today's
+   and the Architecture Overview entry. **Add a `provenance:` block to that row before the action
+   reaches its step 3**, which reads it; putting it in alongside step 1's row also keeps the
+   registration to one commit. It names the repo this one came from, today's
    date, and the last commit the two repos share — the tip you wrote down at step 1, which
    resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
    The action re-does step 4's licence and README on its way through and finds them already
    done — it reports those `✓`, and the repo commit `n/a` if step 4 left nothing new to commit.
-   That is the expected result here, not a sign you missed something.
+   That is the expected result here, not a sign you missed something. **The licence step is the
+   one to watch**: the row reads `added_as: created`, so the action reaches for the project
+   posture and meets the licence step 4 left. Where the two match it reports them already current;
+   where they differ the script stops, which is `register-repo.md` step 3's own case — run its
+   `--notice-only` command instead and say in the chat which licence this repo carries. **Where
+   step 4 restored nothing**, there is nothing to meet and nothing stops it: that is the same
+   step's empty-root case, so ask before the posture is stamped.
 9. **Verify.** **Push the origin, the extracted repo and the hub first** — step 5's push came
    before the prune, the repoint and the registration, and nothing since has sent anything.
    - Both repos **build and test**.
@@ -372,6 +411,10 @@ special here, which is why it gets no steps of its own below.
      the method's own text in the hub.
    - `git log --follow` and `git blame` resolve across the un-nest in the extracted repo, and the
      pre-split commit exists in both.
+   - The extracted repo's root holds the licences step 4 settled on — the ones you restored, any
+     the un-nest brought up, and our notice — and nothing else. Nothing further checks:
+     `check.sh` has no licensing check and `links.sh` skips app repos, so a restore that was
+     skipped shows up here or nowhere.
    - `Code/<project>-docs/scripts/links.sh` is clean.
 
 ## Case 2 — Converting mono-repo-for-now to multi-repo

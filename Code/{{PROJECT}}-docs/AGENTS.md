@@ -130,7 +130,9 @@ entry points to a repo whose **README is its "about"** (what it is, how to set i
 first** — the same way you read the architecture docs before a design change.
 When creating an application-code repo, also apply the project-license posture recorded at
 bootstrap by running
-`Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>`. The authoritative
+`Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` — except a repo carved
+out of another one, which keeps the licensing that came across with the code and takes the notice
+alone (`Code/{{PROJECT}}-docs/runbooks/splitting-repos.md`). The authoritative
 selection is in `Code/{{PROJECT}}-docs/.throughstone/project-license`; the helper validates
 that selection against the docs hub's canonical `LICENSE`, copies the project license unchanged
 for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
