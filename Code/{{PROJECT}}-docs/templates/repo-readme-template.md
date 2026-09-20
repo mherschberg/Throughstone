@@ -10,8 +10,10 @@
   Publishing cannot be walked back: a repo made private again does not un-publish what has
   already been cloned, forked, and cached.
 
-  Stamp a copy of this into each code repo **as Throughstone creates it** — every created repo,
-  including in a multi-repo design, must carry one. Keep the section headings consistent across
+  Stamp a copy of this into each code repo **as Throughstone creates it** — unless that repo
+  already has a README, which is how a repo carved out of another one usually arrives: then it is
+  kept under its own name and gains a `## Role in <project>` section instead, exactly as the
+  divider below says. Keep the section headings consistent across
   all repos so the project reads uniformly. Sections that don't apply can be dropped (e.g. no
   "API / interface" for a library), but keep the order — and never drop the role one-liner
   above or the Overview below: explaining what the repo *is* is the one non-negotiable part.

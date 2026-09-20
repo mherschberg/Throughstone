@@ -1,8 +1,8 @@
 # Runbook — Splitting a Repository
 
 > **How to run:** Two cases behind one procedure. Answer the three questions in **Before you
-> start**, then go to your case — you run one of them, never both, and you don't pick which: it
-> falls out of the first answer.
+> start**, then go to your case — you don't pick which, it falls out of the first answer, and a
+> mono-repo-for-now project that wants one repo out runs Case 2 first and then Case 1.
 > Tell your agent *"run the split"* and it follows this file.
 > - **Case 1 — Splitting a code repo in two.** The ordinary one: a repo grew two things that
 >   should ship separately. Any number of times.
@@ -57,6 +57,33 @@ The cost, stated plainly: **every new repo inherits every blob the origin ever c
 including files deleted long ago. If a secret was ever committed, the split copies it into a
 second repo. The third question below is where that gets decided, and the appendix is where it
 gets handled.
+
+## What this runbook decides — and what you decide
+
+Three different things happen here, and two of them look like the same kind of decision without
+being one.
+
+- **It decides the method's own artifacts**, and they are the minority of what happens here. Where
+  `prompts/` and the docs hub end up, what the registry row and its `provenance:` block say, which
+  licensing artifacts a new repo carries, what its README gains — those pieces exist because the
+  method put them there, so the rules for them are this file's to state.
+- **It drives plain git over your repositories, and the Stops are where you stand in front of it.**
+  The clone, the forward delete, the prune, the swap and the retirement all run against code this
+  runbook did not write and cannot check; the opening block lists the points it will not pass
+  without a go-ahead. That is also why the confirmation points print a file list and wait rather
+  than summarising: the mechanic can succeed and still produce the wrong repo, and somebody reading
+  that list is the only thing between the two.
+- **It decides nothing about how your code divides.** Which folders belong together is question 1
+  below; whether the boundary is in the right place at all is question 2; what to do about code
+  both sides call is Case 1 step 4 — three answers this file asks you for and derives everything
+  else from. Nothing in it reads an import, a call graph or a build file; the only thing that reads
+  the contents of your code at all is Case 1 step 7's literal `git grep` for the old path, which is
+  why it cannot see a package reference that carries no path.
+
+So where the two things you want apart are interleaved, untangling them is ordinary code work, and
+it belongs on a STEP of its own, committed before the split runs. Signalling that you are at that
+boundary is the method's part; doing it is yours. This runbook starts from your answer — it does
+not go looking for one.
 
 ## Substeps
 
@@ -386,11 +413,17 @@ special here, which is why it gets no steps of its own below.
    kept as they arrived: a hit in one of them is history you keep, not a repoint. Step 7 is what
    makes step 9 satisfiable.
 8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
-   and the Architecture Overview entry. **Add a `provenance:` block to that row before the action
-   reaches its step 3**, which reads it; putting it in alongside step 1's row also keeps the
-   registration to one commit. It names the repo this one came from, today's
-   date, and the last commit the two repos share — the tip you wrote down at step 1, which
-   resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
+   and the Architecture Overview entry. **Read that row's `location:` against where the repo
+   actually is, before the action commits** — the absolute `<new-repo>` you typed at step 3 and
+   the row have to name the same directory, the first spelled from `/` and the second
+   workspace-relative (`Code/<new-name>/`). This is the one moment both are in front of you — the
+   absolute path lives only in the command you typed — and check 10 of `check.sh --check-in` reads
+   the rows and never the paths, so a row pointing where the repo is not passes the check-in and
+   fails on everyone else's `setup-workspace.sh`.
+   **Add a `provenance:` block to that row before the action reaches its step 3**, which reads it;
+   putting it in alongside step 1's row also keeps the registration to one commit. It names the
+   repo this one came from, today's date, and the last commit the two repos share — the tip you
+   wrote down at step 1, which resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
    The action re-does step 4's licence and README on its way through and finds them already
    done — it reports those `✓`, and the repo commit `n/a` if step 4 left nothing new to commit.
    That is the expected result here, not a sign you missed something. **The licence step is the
@@ -421,6 +454,20 @@ special here, which is why it gets no steps of its own below.
 
 The workspace root stops being a repository. `prompts/`, the docs hub and each code folder become
 repos of their own. This happens at most once per project.
+
+**Every unit is a whole folder, and no unit sits inside another.** Naming `Code/shop/billing` as a
+unit alongside `Code/shop` is what you reach for when you want the split itself to do the dividing,
+and it is the one shape this case cannot survive: `billing/` comes out at the root of its own repo
+*and* stays tracked and live inside the storefront's. Case 1 pairs every extraction with a prune of
+the origin and says why (its step 6); here there is no surviving origin, so nothing subtracts the
+nested unit from the repo that also carries it. **No check in this case catches it** — `git status`
+is clean in every repo, step 10's *"nothing left under the path it was moved out of"* is true in
+every repo, and `check.sh --check-in` reads rows, not contents. It surfaces after the swap, with
+the old remote already read-only. A scattered keep-set naming the storefront's other folders is not
+the way out either: two or more keep paths buy no un-nest and no post-condition (see the mechanic),
+so that repo's files stay at `Code/shop/web/…` instead of at its root. **If `billing` should be its
+own repo, move it out from under `Code/shop` first** — a plain `git mv` in the mono repo, committed
+before step 5 clones anything — and split two folders that sit beside each other.
 
 > **You build the new workspace beside the old one and swap at the end.** Everything up to step 11
 > happens in `../<project>-split/`, and until step 4 the live workspace is untouched, so abort is
@@ -520,6 +567,22 @@ repos of their own. This happens at most once per project.
    script writes new, untracked files, step 7 pushes, and nothing else in this procedure commits
    them — skip this and a repo reaches its host with none of the licensing artifacts its posture
    requires, while your own copy on disk shows them.
+
+   **The test gate a code folder already carries starts running at step 7.** A code repo is
+   stamped with `templates/ci/code-repo-ci.yml` when it is scaffolded, and in a mono project that
+   workflow has never run once — GitHub reads workflows only at a repository root
+   (`templates/ci/README.md` §2). The un-nest at step 5 carries `.github/` up with everything
+   else, so from step 7's push it sits at a repository root with a remote behind it and gates
+   every push and pull request. **If its `Configure me` step was never replaced it `exit 1`s, and
+   the repo's first push is red** — the gate doing exactly what it was stamped to do, on a repo
+   you created a moment ago. Open each code repo's `.github/workflows/ci.yml` before you push and
+   fill in its toolchain and test command — **and commit that edit with the rest of this step**,
+   since `ci.yml` is a tracked file the clone brought across and step 7 pushes only what is
+   committed — or go in knowing the gate stays red until somebody does. A folder that was never
+   stamped has nothing to go live, and this case does not stamp one: each repo brings across the
+   gate it already had. Step 1's CI decision is a different one — the root workflows the new
+   workspace root must not carry — and step 10's *builds and tests* is your machine rather than
+   the gate.
 7. **Remotes.** Create each **private** — every one of them now carries the whole mono repo's
    history, and widening any of them is a separate decision to make deliberately later, not a
    side effect of the split. Push trunk, then record each repo in `registries/repos.yml`.

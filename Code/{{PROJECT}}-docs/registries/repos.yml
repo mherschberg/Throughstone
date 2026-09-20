@@ -7,8 +7,10 @@
 #
 # Mono-repo-for-now: the row whose `location` is `.` is the workspace root — the one repository
 # the project actually has. The rows below it are folders inside that repository, not separate
-# repos yet, and for those this inventory describes the post-split target. When you do split them
-# apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos are real.
+# repos yet. This is still an inventory of what was registered rather than a plan for a split — a
+# folder nobody registered is simply absent from it — so when you do split them apart, follow
+# `runbooks/splitting-repos.md` and derive the units the way it tells you to, not from here.
+# Delete this note once the repos are real.
 #
 # `location:` — where the repo lives, and it is always inside the workspace: **a path relative
 # to the workspace root, identical on every machine; never begins with `/` or `~`, and no

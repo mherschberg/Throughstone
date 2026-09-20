@@ -16,8 +16,19 @@ The goal is that the **result** is the same however a repo arrived, except for l
 - **Do not invent any of these. Ask.** A description or a role you guessed reads exactly like one
   somebody decided.
 - **Steps 2 and 3 write into the repo itself**, so it has to be checked out at its `location:` on
-  this machine — a `.git` there, directly or through a symlink. If it is not, see *When something
-  does not work* before writing anything.
+  this machine — *that* repo, not whatever repo happens to contain that path.
+  `git -C <location> rev-parse --show-prefix` has to **exit 0 and print nothing**, and printing
+  nothing is not the test on its own: a path with no checkout at it prints nothing too, and exits
+  128. Where the row carries a `remote:` — it may legitimately carry none yet —
+  `git -C <location> config --get remote.origin.url` has to name that same repository, allowing for
+  the row and the checkout spelling one host two ways. Looking for a `.git` instead is what passes
+  wrongly: a plain directory inside another repo's work tree answers every `git` command with the
+  **outer** repo, so steps 2 and 3 would write a README and a licence into a repository this row
+  does not describe. Both commands hold for a checkout reached through a symlink, which is the
+  other way a repo legitimately sits at its `location:`. If either comes back wrong, see *When
+  something does not work* before writing anything — it covers both shapes, the repo that is not
+  on this machine and the path that turns out to be inside somebody else's work tree, and neither
+  one aborts the run.
 
 ## The steps
 
