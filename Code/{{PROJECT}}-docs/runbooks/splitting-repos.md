@@ -95,10 +95,11 @@ If the answer is *"the workspace root stops being a repo"*, you are in **Case 2*
 **Case 1 assumes the workspace root is not a repo.** In mono-repo-for-now it is, so extracting a
 folder there leaves the new repo *nested inside* the origin — the root reports it as an untracked
 directory, and step 9's `git status` check fails on it. It also strands the repo you just made:
-`collaboration.md` §9 tells a mono project not to put `remote:` fields in `registries/repos.yml`
-and not to run `Code/<project>-docs/scripts/setup-workspace.sh`, so nothing on the mono
-onboarding path would ever clone it onto a teammate's machine. **Run Case 2 first**, then
-Case 1 as often as you like on the repos it leaves you.
+a mono project's contributors clone the one root repository and are told not to run
+`Code/<project>-docs/scripts/setup-workspace.sh` — run in a mono clone it overwrites the committed
+root pointers with per-machine ones asserting the root is not a repo (`collaboration.md` §9) — so
+nothing on the mono onboarding path would ever bring your new repo onto a teammate's machine.
+**Run Case 2 first**, then Case 1 as often as you like on the repos it leaves you.
 
 **2. Should you split at all?** *(Case 1 only — for Case 2 the layout decision was made at
 `init.sh` time.) Default: proceed.* One exchange, and the two questions worth asking are: would
@@ -255,12 +256,14 @@ special here, which is why it gets no steps of its own below.
 > **Save anything untracked or ignored first** — `.env`, `.secrets/`, in-flight work. Nothing
 > carries it. What step 6 moved across into the extracted repo needs saving most: that repo holds
 > the only copy of it, and deleting it below destroys it. Then abort is
-> `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if step 9 has
-> already pushed it — plus deleting the extracted repo and its remote, and reverting the hub's
-> step-7 and step-8 commits, pushed if step 9 pushed them: left standing, that registry row sends
-> everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a re-clone:
-> step 9 makes you push the prune, so re-cloning hands the split state back, and on a project with
-> no remotes there is nothing to re-clone from.
+> `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
+> step 9 has already pushed it — plus deleting the extracted repo and its remote, and reverting
+> the hub's step-7 and step-8 commits, pushed if step 9 pushed them: left standing, that registry
+> row sends everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a
+> re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
+> project with no remotes there is nothing to re-clone from. **Then put what you saved back**,
+> where it sat before step 6 moved it — the reset brings the origin's tracked files back from
+> git; these come back only from you.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
    path being extracted, the new repo's name, and the origin's tip (`git rev-parse --short HEAD`,
@@ -291,10 +294,12 @@ special here, which is why it gets no steps of its own below.
    - Its licence — `Code/<project>-docs/scripts/apply-project-license.sh Code/<new-name>/`, run
      from the **workspace root**, which is where `runbooks/register-repo.md` works from too. A
      split-out repo is one the method created, so it takes the full posture, not `--notice-only`.
-   - Its README, per `runbooks/register-repo.md` step 2 — **the extracted folder's own `README.md`
-     came up in the un-nest**, so if there is one, leave it and add a `## Role in <project>`
-     section. Only a repo with no README gets `templates/repo-readme-template.md` stamped, with its
-     role one-liner and Overview actually filled in.
+   - Its README, per `runbooks/register-repo.md` step 2 — **the extracted folder's own README came
+     up in the un-nest** (step 2 says which file counts: a regular root file whose name starts
+     with `readme`, in any capitalisation, and ask if there is more than one), so if there is one,
+     leave it and add a `## Role in <project>` section. Only a repo with no README gets
+     `templates/repo-readme-template.md` stamped, with its role one-liner and Overview actually
+     filled in.
    - `templates/env-example.txt` copied in as `.env.example` if it needs one.
    - **Its build and test entry point, and its CI gate.** The forward delete removed the origin's
      `Makefile`, CI config and test harness, so right now this repo has no way to build itself.
@@ -333,22 +338,29 @@ special here, which is why it gets no steps of its own below.
    remote, no mirror and no clone holds these files.
 7. **Repoint everything that knew the old path.** `git grep -n -F "<old path>"` in the origin, in
    the extracted repo, **and in the docs hub** — including each `.gitignore`, where a rule anchored
-   at the old path is now dead. Every hit is either a repoint or a mention of history you keep on
-   purpose. Stage the files you repointed, not `git add -A` — this commit goes to a shared remote,
+   at the old path is now dead. Every hit is a repoint, a mention of history you keep on purpose,
+   or a line of the method's own text that happens to use your path as an example — the hub carries
+   the whole scaffold, and a hit under `runbooks/` or `templates/` is usually that third kind.
+   Leave the method's own text; anything your project wrote is a repoint wherever it sits.
+   Stage the files you repointed, not `git add -A` — this commit goes to a shared remote,
    and the origin's working tree still holds whatever was untracked there before you started. Note
    what the grep does not find: an `import` or package reference to what left carries
    no path, so it never appears. Whether the two sides still call into each other is step 4's
    boundary decision, and step 9's build-and-test is what fails if it was not made.
-   **This step is not optional and is the easiest one to skip:** the hub's link checker
-   resolves link targets into the code repos, so a *correct* split makes hub links dangle —
-   `scripts/links.sh` fails on a finished split and passes on an unfinished one. It does not
-   check the hub's `inputs/`, whose imported documents are kept as they arrived: a hit in one of
-   them is history you keep, not a repoint. Step 7 is what makes step 9 satisfiable.
+   **This step is not optional and is the easiest one to skip:** the hub's link checker resolves
+   link targets into the code repos, so a *correct* split makes hub links dangle —
+   `Code/<project>-docs/scripts/links.sh` passes right up to step 6 and fails from there until
+   this step repoints them. It does not check the hub's `inputs/`, whose imported documents are
+   kept as they arrived: a hit in one of them is history you keep, not a repoint. Step 7 is what
+   makes step 9 satisfiable.
 8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
    and the Architecture Overview entry. **Add a `provenance:` block to that row before
    the action commits**, so the registration stays one commit: the repo it came from, today's
    date, and the last commit the two repos share — the tip you wrote down at step 1, which
    resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
+   The action re-does step 4's licence and README on its way through and finds them already
+   done — it reports those `✓`, and the repo commit `n/a` if step 4 left nothing new to commit.
+   That is the expected result here, not a sign you missed something.
 9. **Verify.** **Push the origin, the extracted repo and the hub first** — step 5's push came
    before the prune, the repoint and the registration, and nothing since has sent anything.
    - Both repos **build and test**.
@@ -356,10 +368,11 @@ special here, which is why it gets no steps of its own below.
      untracked before you started; in the extracted repo, only what step 6 moved across — and each
      local trunk matches its remote: that is the check that what you can see is what everyone else
      receives.
-   - The step-7 grep now returns only the historical mentions you decided to keep.
+   - The step-7 grep now returns only what you decided to leave: the historical mentions, and
+     the method's own text in the hub.
    - `git log --follow` and `git blame` resolve across the un-nest in the extracted repo, and the
      pre-split commit exists in both.
-   - `scripts/links.sh` is clean.
+   - `Code/<project>-docs/scripts/links.sh` is clean.
 
 ## Case 2 — Converting mono-repo-for-now to multi-repo
 
