@@ -69,27 +69,39 @@ has "$zero" 'due — scheduled for STEP-8, and the project is at STEP-12.'
 has "$zero" 'plan STEP-12'
 
 # --- A date: compared against today, no arithmetic ----------------------------
+# Whether the proposal is offered is asserted on both arms, not just the wording of the line.
+# One flag decides it and five branches set or leave it unset; asserting it on the STEP arms
+# alone let a date-scheduled project stop being offered a check-in, or start being offered one
+# before it was due, without a single test noticing.
 today="$(date +%F)"
-has "$(run '<!-- NEXT-CHECK-IN: 2999-01-15 -->' 12)" "next on 2999-01-15 (today is $today)."
-has "$(run '<!-- NEXT-CHECK-IN: 2000-01-15 -->' 12)" 'due — scheduled for 2000-01-15.'
+future="$(run '<!-- NEXT-CHECK-IN: 2999-01-15 -->' 12)"
+has   "$future" "next on 2999-01-15 (today is $today)."
+hasnt "$future" 'Also worth proposing'
+past="$(run '<!-- NEXT-CHECK-IN: 2000-01-15 -->' 12)"
+has "$past" 'due — scheduled for 2000-01-15.'
+has "$past" 'Also worth proposing: a Check-in STEP'
 has "$(run "<!-- NEXT-CHECK-IN: $today -->" 12)"     "due — scheduled for $today."
 
 # --- Anything unreadable, or nothing at all, is "none scheduled" ---------------
 # This is the floor: a project can lose the line, or write nonsense into it, and still be told to
 # schedule one. Nothing validates the value, so this message is the only place a typo surfaces —
 # which is why the two cases have to read differently. A single "none scheduled" for both would
-# send someone hunting for a line that is sitting right there with a typo in it.
+# send someone hunting for a line that is sitting right there with a typo in it. Being told to
+# schedule one is the proposal block, so both cases assert that too: the floor is the offer, not
+# the wording of the line reporting there is nothing to offer against.
 for marker in '<!-- NEXT-CHECK-IN: sometime soon -->' '<!-- NEXT-CHECK-IN: STEP-20x -->' \
               '<!-- NEXT-CHECK-IN: 2026-13 -->'; do
   out="$(run "$marker" 12)"
   has "$out" 'none scheduled —'
   has "$out" 'which is neither a STEP number'
+  has "$out" 'Also worth proposing: a Check-in STEP'
 done
 # An empty value is a present-but-unreadable line too, but there is nothing to quote back, so it
 # reads as the absent case.
 for marker in '' '<!-- NEXT-CHECK-IN: -->'; do
   out="$(run "$marker" 12)"
   has "$out" 'none scheduled — add a NEXT-CHECK-IN line'
+  has "$out" 'Also worth proposing: a Check-in STEP'
 done
 
 # Two lines: the first wins. Nothing forbids a second, and a stale one left above the live one
