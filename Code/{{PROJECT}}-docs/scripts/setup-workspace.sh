@@ -153,15 +153,93 @@ else
     esac
     # Clone side effect: create a missing sibling repo at its registry location. Existing git
     # checkouts are left untouched so rerunning setup is safe for already-cloned repos. That
-    # also covers a location that is a symlink to a checkout elsewhere: -d follows the link,
+    # also covers a location that is a symlink to a checkout elsewhere: -e follows the link,
     # so the repo behind it is reported and left alone rather than cloned over.
-    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
+    #
+    # -e and not -d, which is what someone tidying this line would write: a linked worktree and
+    # an initialized submodule are both repositories and both keep .git as a FILE. Read as
+    # not-a-repo, either one is cloned over, git refuses because the directory is not empty, and
+    # the repo is counted among those that did not arrive — on every run, with nothing the
+    # contributor can do to clear it. init.sh tests prompts/ with -e for the same reason.
+    #
+    # A .git is not yet the repository, either. A work tree with no commit at HEAD is what a
+    # clone leaves when the remote has no commit on the branch its HEAD names, and a location
+    # holding one does not hold the repo. The test is HEAD and not the index, because an empty
+    # index is a shape people choose — a worktree or a clone, either made with --no-checkout —
+    # and neither is a repo that failed to arrive.
+    #
+    # Two questions, and they are not the same one. --resolve-git-dir reads $loc/.git itself and
+    # never walks up, so a .git git cannot use is not quietly answered by whatever repository
+    # encloses the workspace — without it, a location holding an empty .git directory inside a
+    # workspace that is itself under a checkout reports the enclosing repo's HEAD and is skipped
+    # forever. Only then is HEAD worth asking, and only its exit 1 means "no commit at HEAD";
+    # any other status is git saying it could not answer, which is a different report with a
+    # different remedy. Neither failing call has its stderr swallowed, because git's own message
+    # is the only thing that says what is actually wrong; `--verify -q` is silent on exit 1, so
+    # the ordinary case stays quiet.
+    #
+    # Nothing is written to the location in any arm: what is there is reported, never cloned
+    # over, so the remedy stays the contributor's to apply.
+    if [ -e "$loc/.git" ]; then
+      head_rc=0
+      if ! git rev-parse --resolve-git-dir "$loc/.git" >/dev/null; then
+        head_rc=128
+      else
+        git -C "$loc" rev-parse --verify -q HEAD >/dev/null || head_rc=$?
+      fi
+      if [ "$head_rc" -eq 0 ]; then
+        echo "  exists: $loc"
+      elif [ "$head_rc" -eq 1 ]; then
+        echo "  warning: $loc holds a repository with no commit at HEAD, so the repo is not here."
+        # What to advise depends on what is there, and the script can see it. A directory holding
+        # nothing but .git is what a failed clone leaves, and deleting it is safe. One with files
+        # in it is somebody's work — an uncommitted `git init` over real content is a shape
+        # init.sh itself refuses to destroy — so it is named and left for them to decide about.
+        if [ -z "$(ls -A "$loc" | grep -v '^\.git$')" ]; then
+          echo "           A clone leaves this when the remote has no commit on the branch its"
+          echo "           HEAD names: fix that remote, delete $loc, and re-run this script."
+        else
+          echo "           It also holds files this script did not put there, and nothing in it"
+          echo "           was touched. Move $loc aside, then re-run this script."
+        fi
+        missing=$((missing + 1))
+      else
+        echo "  warning: git cannot read the repository at $loc, so the repo is not here — its"
+        echo "           own message is above. Nothing there was touched: fix what git reports,"
+        echo "           or move $loc aside, then re-run this script."
+        missing=$((missing + 1))
+      fi
+      continue
+    fi
     echo "  cloning $rem -> $loc"
     # `--` so a value beginning with `-` reaches git as a path rather than as an option.
-    git clone -q -- "$rem" "$loc" || {
+    #
+    # Exit 0 from git clone is not a repository on disk. A remote whose HEAD names a branch that
+    # is not on it, and a remote with no commits at all, both clone successfully, fetch every
+    # object there is, and check nothing out. The two failures are reported apart from an
+    # unreachable remote because the remedies are different jobs, and only this one leaves a
+    # directory behind that has to be deleted before a re-run can do anything.
+    if ! git clone -q -- "$rem" "$loc"; then
       echo "  warning: could not clone $rem -> $loc — continuing without it"
       missing=$((missing + 1))
-    }
+    else
+      # The same HEAD question, read the same way, but this arm needs no --resolve-git-dir and no
+      # test of what else is in the directory: git made it a moment ago, so there is nothing of
+      # the contributor's in it and nothing above it can answer for it. Deleting it is safe, and
+      # saying so is the whole difference from the unreachable-remote warning above.
+      head_rc=0
+      git -C "$loc" rev-parse --verify -q HEAD >/dev/null || head_rc=$?
+      if [ "$head_rc" -eq 1 ]; then
+        echo "  warning: $rem arrived at $loc with nothing checked out — it has no commit on the"
+        echo "           branch its HEAD names. Fix that remote, delete $loc, and re-run this"
+        echo "           script."
+        missing=$((missing + 1))
+      elif [ "$head_rc" -ne 0 ]; then
+        echo "  warning: $rem arrived at $loc but git cannot read what it left — its own message"
+        echo "           is above. Delete $loc and re-run this script."
+        missing=$((missing + 1))
+      fi
+    fi
   done < <(awk '
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*-[[:space:]]*name:/ { if (loc != "" && rem != "") print loc "|" rem; loc=""; rem=""; next }

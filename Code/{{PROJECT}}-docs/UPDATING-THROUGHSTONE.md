@@ -525,6 +525,27 @@ and the run now finishes whatever happens to the clones. Its closing line says h
 arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
 hand — and re-run to pick it up.
 
+**Multi-repo only: a repo you supplied by hand as a worktree or a submodule stops being reported as
+missing.** The same script skips a registered location that already holds a checkout, but it asked
+whether `.git` was a directory there — and a linked worktree or an initialized submodule keeps
+`.git` as a file. Either one read as "not a repo", so every run tried to clone over it, git refused
+because the directory was not empty, and that repo was counted among the ones that did not arrive —
+telling you to go and clone something already on your disk, with nothing you could do to clear it.
+Pull 1.8 and re-run; there is nothing to undo, and nothing of yours is touched.
+
+**Multi-repo only: a repo that looks cloned but has no files in it starts being reported.** In the
+other direction, the same script used to read `git clone`'s success as proof the repository had
+arrived. A clone from a remote that has no commit on the branch its `HEAD` names succeeds and
+checks nothing out — an empty remote nobody has pushed to yet, or one created under `master` and
+pushed to `main` — and 1.7 counted that as arrived, then said `exists:` over the empty directory on
+every later run. **Look for a registered location holding a `.git` and nothing else.** 1.8 names it
+instead of passing over it: fix the branch on that remote, **delete the empty directory** — the
+script will not clone over it — and re-run to pick the repo up. Two neighbours of that case are
+now reported too, and neither asks you to delete anything: a location where you ran `git init` and
+never committed, which the run tells you to move aside because your files are still in it, and a
+location whose `.git` is there but unusable, which the run reports in git's own words. Nothing at
+any of these locations is written to or cleared by the script.
+
 **Multi-repo only: the same script now clones nothing from a registry with a row it cannot read.**
 It reads a row only from its `- name:` line. A row that starts any other way used to be passed over
 without a word, its fields landing on the row above — so one repo never arrived, or another repo's

@@ -1027,6 +1027,42 @@ any project built with it.
   both described the old order and now describe the new one. A `location:` beginning with `-`
   also used to reach `git` as an option and kill the run — the clone arguments now sit behind `--`. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
   already cloned are left alone.
+- **A repository you put in place by hand is recognised whatever shape its checkout has.** That
+  re-run skips a registered location that already holds a checkout — it is what makes re-running
+  safe, and what the closing advice leans on when it tells you to clone a repo yourself and run
+  again. It asked whether `.git` was a *directory*. A linked worktree and an initialized submodule
+  are both real repositories and both keep `.git` as a *file*, so either one read as "not a repo":
+  the script tried to clone over a checkout that was already there, git refused because the
+  directory was not empty, and the repo was counted among those that did not arrive. Re-running
+  never cleared it, so the closing advice pointed you at a repository already on your own disk,
+  every single run. It now asks whether `.git` is there at all, which is the same test `init.sh`
+  already applies to a `prompts/` folder it is about to write into. A location symlinked at a
+  checkout elsewhere is unaffected — that test follows a link exactly as the old one did.
+- **A clone that arrives with nothing in it is reported, not counted as done.**
+  `scripts/setup-workspace.sh` read `git clone`'s exit status as proof the repository was there.
+  It is not: cloning a remote that has no commit on the branch its `HEAD` names succeeds, warns
+  once, and leaves a `.git` beside an empty working tree. The script then printed `Done.`, left
+  that repo out of the count of repos that did not arrive — and because an empty checkout is still
+  the root of a git work tree, every later run said `exists:` and skipped it. Loud once, from git,
+  then silent forever, over an empty folder where a repository belongs. Two ordinary remotes do
+  it: one created under one default branch name and pushed to another, `master` against `main`,
+  and one nobody has pushed to yet. A clone now has to leave a resolvable `HEAD` behind to count,
+  and so does a checkout already sitting at the location, so a re-run over the directory the first
+  run left reaches the same answer rather than adopting it. Nothing is written to the location in
+  any of these cases — what is there is reported, never cloned over. The failures are reported
+  apart, because fixing a remote nobody can reach and fixing a remote with no commit on the right
+  branch are not the same job, and only the second has to tell you to delete the directory git
+  left behind.
+
+  Two things to know about the wider net. A location where someone ran `git init` and has not
+  committed yet is now reported too, where before it was silently skipped — and if it holds files,
+  the run says so and tells you to move it aside rather than delete it, because an uncommitted
+  `git init` over real work is a shape `init.sh` already refuses to destroy. And a location whose
+  `.git` is there but unusable — an interrupted copy, a worktree whose main checkout has gone, a
+  checkout git refuses to open as a different user's — is now reported in its own words with git's
+  own message beside it, instead of being described as empty. That last one used to be worse than
+  silent if your workspace sat inside another repository: git answered the question from the
+  enclosing checkout, so the location reported as present and its real repo was never cloned.
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
   repository you already had — the natural thing to try when you want Throughstone in a project
   that exists — and running `./init.sh` there deleted that repository's `.git` outright, every
