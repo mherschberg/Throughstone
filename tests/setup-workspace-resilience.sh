@@ -20,7 +20,9 @@
 # of the same rule: a repo that cannot move is reached through a symlink at a workspace-relative
 # location, and that must still be left alone. Another is about which row a clone belongs to: a
 # registry with a row the parser cannot read clones nothing, since that row's fields sit under
-# the row above it.
+# the row above it. Two more say so out loud rather than going quiet: a registry that holds no
+# rows, and one nothing can read, each of which the script used to announce a clone step over and
+# then clone nothing from.
 #
 # Assertions read the output as well as the exit status: after this change almost everything
 # exits 0, so a test that only looked at $? could not tell a clone from a refusal.
@@ -359,6 +361,13 @@ head -c1 "$(registry_of "$tw")" >/dev/null 2>&1 \
 run_setup "$tw"
 chmod 644 "$(registry_of "$tw")"
 assert_assembled "unreadable registry" "$tw"
+# Surviving is not enough: `-f` is type and existence, not readability, so an intact registry
+# whose permissions were lost reads here exactly as one with nothing in it, and the run used to
+# announce the clone step and clone nothing. It says which of the two it is, because the advice
+# for an empty registry — restore the rows — is wrong for a file whose rows never left.
+assert_out "unreadable registry" "cannot read"
+assert_not_out "unreadable registry" "holds no repo rows"
+assert_not_out "unreadable registry" "Cloning sibling repos"
 
 echo "A project with no registries/ at all ..."
 tw="$(teammate noregistry "$MULTI_DOCS")"
@@ -553,6 +562,54 @@ assert_assembled "unread row" "$tw"
 assert_out "unread row" "does not start with its - name: line"
 assert_not_cloned "unread row" "$tw/Code/multi-api"
 assert_not_cloned "unread row" "$tw/Code/multi-web"
+
+# The same registry read the other way round: every row starts with its `location:`, so the walk
+# reads none of them while the list still holds two entries. Which arm answers is what this case
+# pins — the rows are there and need reordering, and a registry with no rows in it needs its rows
+# restored, so the count check has to speak first or the advice is for the wrong file.
+echo "A registry whose every row starts with its location ..."
+tw="$(teammate everyrowunread "$MULTI_DOCS")"
+cat > "$(registry_of "$tw")" <<EOF
+repos:
+  - location: "Code/multi-api/"
+    name: "multi-api"
+    remote: "$REACHABLE"
+  - location: "Code/multi-web/"
+    name: "multi-web"
+    remote: "$REACHABLE"
+EOF
+run_setup "$tw"
+assert_assembled "every row unread" "$tw"
+assert_out "every row unread" "does not start with its - name: line"
+assert_not_out "every row unread" "holds no repo rows"
+assert_not_cloned "every row unread" "$tw/Code/multi-api"
+assert_not_cloned "every row unread" "$tw/Code/multi-web"
+
+# A registry that is still there and holds no rows at all. Emptying the file is quieter than
+# deleting it: a deleted registry says it is skipping the clone step, while an empty one reached
+# the clone step, announced it, and cloned nothing — so the run ended on "Done." and a teammate
+# was told a workspace with no repos in it was ready. The counts above cannot see this, because
+# rows and entries agree at zero. The same three shapes the doctor's suite pins — the file emptied
+# outright, the `repos:` key left with nothing under it, and every row commented out — because the
+# two readers have to agree about what counts as no rows, which is the drift
+# tests/registry-reader-parity.sh exists to catch in the fields they read. Each asserts the message
+# and the absence of the clone announcement, since the announcement is what made this read as
+# success.
+echo "A registry that holds no rows ..."
+for shape in emptied keyonly commented; do
+  tw="$(teammate "norows-$shape" "$MULTI_DOCS")"
+  case "$shape" in
+    emptied)   : > "$(registry_of "$tw")" ;;
+    keyonly)   printf 'repos:\n' > "$(registry_of "$tw")" ;;
+    commented) printf 'repos:\n  # - name: "parked"\n  #   location: "Code/parked/"\n' > "$(registry_of "$tw")" ;;
+  esac
+  run_setup "$tw"
+  assert_assembled "registry with no rows ($shape)" "$tw"
+  assert_out "registry with no rows ($shape)" "holds no repo rows"
+  assert_out "registry with no rows ($shape)" "restore the rows from"
+  assert_not_out "registry with no rows ($shape)" "Cloning sibling repos"
+  assert_not_out "registry with no rows ($shape)" "does not start with its - name: line"
+done
 
 # --- Part 3. The ordinary paths still work --------------------------------------------------
 

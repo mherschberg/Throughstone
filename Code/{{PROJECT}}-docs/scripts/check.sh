@@ -20,7 +20,8 @@
 #   9. Conditional-session templates expose the metadata generic review gates require — none
 #      passes; a missing templates/architecture-sessions/ folder warns
 #  10. (--check-in only) Every registries/repos.yml row can be read and has a location, and
-#      any repo no recorded remote covers is flagged as a bus-factor risk
+#      any repo no recorded remote covers is flagged as a bus-factor risk — warns when the
+#      registry holds no rows at all, and when it cannot be read
 #
 # The registry changes on the rare path — a repo created, adopted or split out — so it is not
 # validated on every run. Pass --check-in; runbooks/check-in.md is what does.
@@ -463,6 +464,11 @@ if [ "$CHECK_IN" -eq 1 ]; then
   hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then
     warn "no $DOCS_REL/registries/repos.yml — skipping repo registry check"
+  elif [ ! -r "$REPOS_REGISTRY" ]; then
+    # -f is type and existence, not readability. Without this the walk reads nothing out of a
+    # registry that is entirely intact, and the zero-row warning below would tell whoever is
+    # holding it to go and restore rows that never left.
+    warn "cannot read $DOCS_REL/registries/repos.yml — skipping repo registry check"
   else
     # Walk each `- name:` block and report the rows missing a location, and the rows no
     # recorded remote covers. Comment lines are skipped, so the example row at the bottom is not
@@ -513,7 +519,18 @@ if [ "$CHECK_IN" -eq 1 ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"
       hint "a repo with no remote lives on one machine — a bus factor of one. Record the URL in remote: if it already has one; if not, create one — private, widening is a separate decision — or accept the risk deliberately."
     fi
-    [ "$rows" = "$entries" ] && [ -z "$no_loc" ] && [ -z "$no_rem" ] && pass "$rows row(s): all have a location, and a recorded remote covers every one"
+    # Zero rows is not a project with no repos. This file lives in the docs hub, which has a row
+    # of its own, and init.sh writes that row and prompts/ before anyone can run the doctor; no
+    # procedure that edits the registry takes a row away without putting repos in its place. So
+    # no rows means the rows are gone, and a pass here would vouch for the whole inventory on the
+    # strength of having read none of it. Both counts, because a registry with entries the walk
+    # could not read already fails above, and it is that failure the reader needs, not this one.
+    if [ "${rows:-0}" -eq 0 ] && [ "${entries:-0}" -eq 0 ]; then
+      warn "found no repo rows in $DOCS_REL/registries/repos.yml — nothing to check"
+      hint "every project has a row for the docs hub and one for prompts/, and init.sh writes both: a registry with neither has lost them. Restore the rows from git history — $DOCS_REL/runbooks/register-repo.md is what writes a row for a repo that never had one."
+    elif [ "$rows" = "$entries" ] && [ -z "$no_loc" ] && [ -z "$no_rem" ]; then
+      pass "$rows row(s): all have a location, and a recorded remote covers every one"
+    fi
   fi
 else
   hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"

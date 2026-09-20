@@ -89,7 +89,15 @@ any project built with it.
   `location:` fails the run**, because nothing can find that repo and guessing a path is worse than
   asking — **and so does a row the doctor cannot read**: it finds a row by its `- name:` line, counts
   the list's entries apart from that, and fails when the two disagree rather than pass over a repo
-  it never saw. **A repo that no recorded remote covers is a warning**, because as far as the project knows
+  it never saw. **A registry with no rows in it at all warns**, because zero rows is not a
+  project with no repos: this file lives in the docs hub, which has a row of its own, and `init.sh`
+  writes that row and `prompts/` before anyone can run the doctor. A registry that is missing warns
+  and rows the walk cannot read fail, so without this one an emptied file would be the quietest way
+  of all to lose the inventory. `scripts/setup-workspace.sh` reads the same file the same way and
+  was blind the same way — it announced the clone step over an empty registry, cloned nothing, and
+  ended on `Done.`, telling a teammate a workspace with no repos in it was ready. Both readers now
+  also stop on a registry they cannot open, which `-f` alone does not catch.
+  **A repo that no recorded remote covers is a warning**, because as far as the project knows
   that work lives on exactly one laptop. A row is covered by its own `remote:`, or by the root
   repository's when it lives inside it — in a mono-repo-for-now project the row whose `location` is
   `.` is the one real repository and the folder rows below it are backed up by whatever backs it up,

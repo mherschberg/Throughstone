@@ -56,7 +56,9 @@ version/status).
 
 - **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
   into the row; don't guess a path. **So does a row the doctor cannot read** — one that does not
-  start with its `- name:` line; show the human that row.
+  start with its `- name:` line; show the human that row. **A registry with no rows in it at all
+  is a warning**, and that one is not a decision: every project has a row for the docs hub and one
+  for `prompts/`, so one with neither has lost them — restore the rows from git history.
 - **A row with no `remote:` recorded** is a warning. If the repo already has a remote, record the
   URL. If it has none, give it one — **created private**, widening being a separate decision made
   deliberately later — then push to it and record the URL, because the row records that a remote
