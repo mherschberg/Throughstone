@@ -125,9 +125,11 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
 8. **Mono-repo-for-now with no `registries/` directory?** 1.7 let you opt out, by `--registries=no`
    or by answering no to the interactive question, and only in that layout. Nothing in this section
    about the registry applies until you restore one: copy `registries/` from the scaffold, then
-   replace `{{PROJECT}}` with your project slug throughout and delete any seeded row that does not
-   describe a repo you have. The flag is deprecated in this release and the directory now always
-   ships.
+   replace `{{PROJECT}}` with your project slug throughout. **Keep both seeded rows** — the docs hub
+   and `prompts/` are folders inside your one repository rather than repos of their own, and the
+   registry lists them either way; delete a row only if it names something your project does not
+   have. Then do item 4, and you will have the three rows a mono project bootstrapped on 1.8 starts
+   with. The flag is deprecated in this release and the directory now always ships.
 9. **Pull the local-profile group as one review-required set** — four of these travel with item
    1's group already, so pull them once. `BOOTSTRAP-PROMPT.md` Stage 0,
    `METHOD.md` §4, `ONBOARDING.md` §3, `AGENTS.md`, `prompts/README.md`,
