@@ -388,8 +388,13 @@ session on an API-only system, for instance). Don't invent a doc for an area the
 and don't quietly skip it either: record **`N/A`** (structurally inapplicable) or **`Deferred`** (may
 arrive later) on the row, with a one-line reason drawn from the code — "no client surface in any
 adopted repo", not "not needed". Both are ordinary substep statuses in this method, so landing
-carries them into the index unchanged. If it's a conditional, mirror the same disposition in the
-PLAN's *Conditional sessions considered* table.
+carries them into the index unchanged. A **`Deferred`** core session is a consciously deferred item
+like any other, so it also gets a `Code/{{PROJECT}}-docs/registries/risks.yml` row — owner,
+severity, and the trigger that revisits it, in that file's documented row shape and pointing at the
+artifacts named at `inv-5` (`METHOD.md` §7). No doc is written for a deferred session, so there is
+no `Coverage:` line either, and that row is the only thing that brings it back; **`N/A`** files
+nothing. If it's a conditional, mirror the same disposition in the PLAN's *Conditional sessions
+considered* table.
 
 **An asset the harvest finds that the map missed.** Expect this: `inv-2` was a breadth scan, and a
 harvest reads its area far deeper, so `1.4` turns up an unlisted datastore or `1.8` a third deploy
@@ -448,7 +453,7 @@ PLAN instead — a session that asks for something not listed here is redirected
 
 | The session says | You do this instead |
 |------------------|---------------------|
-| mark my substep `Done` (every session) — or `Deferred` (`1.6`) | flip the row in the PLAN's **session table** |
+| mark my substep `Done` (every session) — or `Deferred` (`1.6`) | flip the row in the PLAN's **session table** — and for a `Deferred`, file the risk row *A session whose area doesn't exist* above requires |
 | note the open questions carried forward (`1.1`) | nothing goes in the index — they belong in the **Open Questions** table of the `architecture/` doc you are writing, which the doc template already carries |
 | mark *another* session's row `Deferred` / `N/A` (`1.3` dispositions the UI / Design System row) | flip **that session's** row in the PLAN's session table, with the one-line reason from the code, exactly as *A session whose area doesn't exist* above describes — then mirror it in the *Conditional sessions considered* table if it is a conditional |
 | add a lettered conditional row, e.g. `1.7a` (`1.3`) | append the lettered row to the PLAN's session table (see `inv-5`), and record the decision in the PLAN's *Conditional sessions considered* table |
