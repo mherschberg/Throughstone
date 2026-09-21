@@ -190,6 +190,8 @@ error/corruption and re-run paths, not normal operation.
   reading a session file now finds the work list under one name instead of learning a per-file name.
   `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
   maintainer test enforces it.
+- **Adoption's own documents now write hub paths from the workspace root, drop the retired
+  registered-in-place repo rule, and agree on when a session is `Done` and what landing writes.**
 
 ### Fixed
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
