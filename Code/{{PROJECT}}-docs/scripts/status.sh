@@ -55,23 +55,26 @@ fi
 # --- Missing / unrecognized marker guard --------------------------------------
 # The three recognized PROJECT-STATUS values are not-started, retcon, and kickoff-complete (see
 # overview-template.md). If overview.md exists but carries none of them, the marker was lost or
-# corrupted. Do NOT fall through and confidently resolve the index: a bare seed would misreport
-# "Run STEP-1.1", which is wrong both for a pre-kickoff greenfield (should run kickoff) and for a
-# retcon whose marker was lost (should restore the marker and follow RETCON-PROMPT.md). Say it's
-# indeterminate and point at the AGENTS.md "First action" decision, which restores the marker from
-# disk (status.sh stays a helper; the agent does the recovery).
+# corrupted. Do NOT fall through and confidently resolve the index: that would misreport a next
+# action, which is wrong for a pre-kickoff greenfield (should run kickoff) and for a mid-adoption
+# retcon (should follow RETCON-PROMPT.md) alike. Say it's indeterminate and point at the AGENTS.md
+# "First action" decision, which restores the marker by asking the project's human rather than
+# reading it off the files (status.sh stays a helper; the agent does the recovery).
 if [ -f "$OVERVIEW" ] \
   && ! grep -qE 'PROJECT-STATUS: (not-started|retcon|kickoff-complete)' "$OVERVIEW"; then
   echo "Where you are:  indeterminate — overview.md has no recognized PROJECT-STATUS marker"
   echo "                (expected one of: not-started, retcon, kickoff-complete)."
   echo
   echo "Next action:"
-  echo "  → the kickoff marker is missing or corrupted. Restore it via the AGENTS.md \"First action —"
-  echo "    kickoff or resume?\" decision, which infers the mode from disk. In short: an in-flight"
-  echo "    \"Upcoming Prompts/<project>-STEP-1-PLAN.md\" (or an \"Upcoming Prompts/retcon/\" folder) over a"
-  echo "    still-bare STEP-index seed means a retcon whose marker was lost → restore \"PROJECT-STATUS:"
-  echo "    retcon\" and follow RETCON-PROMPT.md; a bare seed with no such PLAN means kickoff never ran"
-  echo "    → \"not-started\"; otherwise → \"kickoff-complete\" (resume). Then re-run status.sh."
+  echo "  → the kickoff marker is missing or corrupted, and it is not something to work out from"
+  echo "    the files. Ask whoever owns this project — if that is you, answer it yourself — which of"
+  echo "    the three it is, by which door it came through rather than how far along it feels:"
+  echo "      not-started       a new project whose kickoff has not run yet"
+  echo "      retcon            adopting an existing codebase, at any stage before its baseline"
+  echo "                        lands (even if no session has started) — follow RETCON-PROMPT.md"
+  echo "      kickoff-complete  past that point: its kickoff ran, or an adoption landed"
+  echo "    Restore that line in overview.md from the answer — the AGENTS.md \"First action —"
+  echo "    kickoff or resume?\" decision states it — then re-run status.sh."
   exit 0
 fi
 

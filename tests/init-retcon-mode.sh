@@ -9,10 +9,9 @@
 #   - New mode (explicit and default) is unchanged: PROJECT-STATUS: not-started, no stub PLAN,
 #     the greenfield kickoff message.
 #   - An invalid --mode fails before the destructive bootstrap boundary.
-#   - Marker-loss recovery: with PROJECT-STATUS stripped mid-adoption, the two disk signals the
-#     AGENTS.md "First action" fallback keys on (an in-flight stub STEP-1 PLAN over a still-bare
-#     STEP-index seed) still hold; a marker-stripped greenfield presents neither, so it cannot be
-#     misrecovered as a retcon.
+#   - Marker-loss recovery: with PROJECT-STATUS stripped mid-adoption, the shipped recovery rule
+#     tells the agent to ASK the project's human which mode this is, and neither AGENTS.md nor
+#     status.sh asks it to work that out from the files.
 
 set -euo pipefail
 export LC_ALL=C
@@ -49,6 +48,28 @@ assert_file_contains() {
 
 # run_existing_case NAME LAYOUT — adopt an existing codebase in the given layout and assert the
 # retcon front-door state.
+# run_status_for WORK OVERVIEW INDEX — status.sh against one project's files, from its root.
+run_status_for() {
+  ( cd "$1" && THROUGHSTONE_OVERVIEW="$2" THROUGHSTONE_STEP_INDEX="$3" \
+      "$1/Code/$(basename "$1")-docs/scripts/status.sh" )
+}
+
+# assert_marker_ask NAME OUTPUT — the missing-marker guard reports indeterminate, sends the agent to
+# the person, resolves nothing, and prints no trace of the removed seed-comparison inference.
+assert_marker_ask() {
+  local name="$1" out="$2" needle
+  printf '%s\n' "$out" | grep -Fq 'indeterminate' \
+    || { echo "FAIL: $name status.sh did not report indeterminate" >&2; return 1; }
+  printf '%s\n' "$out" | grep -Fq 'Ask whoever owns this project' \
+    || { echo "FAIL: $name status.sh did not tell the reader to ask" >&2; return 1; }
+  for needle in 'still-bare STEP-index seed' 'infers the mode from disk' 'Run STEP-1.1'; do
+    if printf '%s\n' "$out" | grep -Fq "$needle"; then
+      echo "FAIL: $name status.sh still prints \"$needle\"" >&2
+      return 1
+    fi
+  done
+}
+
 run_existing_case() {
   local name="$1" layout="$2"
   local work="$TMP_ROOT/$name"
@@ -86,12 +107,15 @@ run_existing_case() {
   grep -Eq '\*\*Date:\*\* [0-9]{4}-[0-9]{2}-[0-9]{2}' "$plan" \
     || { echo "FAIL: $name stub PLAN date not stamped" >&2; return 1; }
 
-  # 2b. Pre-answer-sheet scratch folder scaffolded (a home for Stage-3 sheets + a marker-loss signal).
+  # 2b. Pre-answer-sheet scratch folder scaffolded (a home for Stage-3 sheets).
   [ -d "$work/Upcoming Prompts/retcon" ] \
     || { echo "FAIL: $name did not scaffold Upcoming Prompts/retcon/" >&2; return 1; }
   assert_file_contains "$work/Upcoming Prompts/retcon/README.md" "pre-answer sheet"
 
-  # 3. STEP index stays byte-identical to the greenfield seed (slug-substituted).
+  # 3. At bootstrap the STEP index is byte-identical to the greenfield seed (slug-substituted):
+  #    adoption adds nothing to it here. This pins what init.sh PRODUCES; it is not a test of
+  #    project history, and nothing may decide what mode a project is in by re-running it later
+  #    (substep 1.2 fills the Phase 1 heading before the baseline lands).
   diff <(sed "s/{{PROJECT}}/$name/g" "$docs/templates/step-index-seed.md") \
        "$work/prompts/STEP-index.md" >/dev/null \
     || { echo "FAIL: $name STEP-index diverged from the greenfield seed" >&2; return 1; }
@@ -197,7 +221,7 @@ run_new_case() {
     return 1
   fi
   if [ -d "$work/Upcoming Prompts/retcon" ]; then
-    echo "FAIL: $name (new mode) scaffolded the retcon scratch folder — would misrecover as retcon" >&2
+    echo "FAIL: $name (new mode) scaffolded the retcon scratch folder" >&2
     return 1
   fi
   assert_file_contains "$TMP_ROOT/$name.out" "interview you, propose a roadmap"
@@ -232,12 +256,13 @@ run_invalid_mode_case() {
   [ -f "$work/README.md" ] || { echo "FAIL: template files were removed on invalid --mode" >&2; return 1; }
 }
 
-# run_marker_recovery_case — simulate marker loss/corruption mid-adoption and assert that the two
-# on-disk signals the AGENTS.md "First action" fallback keys on to restore PROJECT-STATUS: retcon
-# still hold. The recovery *decision* is agent prose (AGENTS.md 57–64), so what a shell test can
-# lock is its INPUTS: an in-flight stub STEP-1 PLAN sitting over a still-bare greenfield STEP-index
-# seed. A future init.sh change that broke either signal would make the fallback misfire silently —
-# this catches it. (status.sh has no fallback by design: the agent restores the marker first.)
+# run_marker_recovery_case — simulate marker loss/corruption mid-adoption and assert the shipped
+# recovery contract: the agent ASKS the project's human which mode this is. The recovery *decision*
+# is agent prose (AGENTS.md "First action"), so what a shell test can lock is the instruction the
+# project actually ships — that it directs the agent to ask, and that it no longer directs anyone to
+# decide the question by comparing prompts/STEP-index.md against its init.sh seed. That comparison
+# cannot answer it: substep 1.2 is required to fill the `## Phase 1 — {{PHASE_1_NAME}}` heading
+# before the baseline lands, so a mid-adoption index legitimately differs from the seed.
 run_marker_recovery_case() {
   local name="retcon-recovery" layout="multi"
   local work="$TMP_ROOT/$name"
@@ -269,21 +294,50 @@ run_marker_recovery_case() {
   ! grep -q 'PROJECT-STATUS:' "$overview" \
     || { echo "FAIL: $name could not strip the marker for the scenario" >&2; return 1; }
 
-  # Signal (a): an in-flight stub STEP-1 PLAN still sits at the greenfield in-flight path.
-  [ -f "$plan" ] || { echo "FAIL: $name recovery signal (a) — in-flight STEP-1 PLAN missing" >&2; return 1; }
-  assert_file_contains "$plan" "Retcon baseline"
-  # Signal (b): it sits over a STILL-BARE greenfield STEP-index seed (no forward progress yet).
-  diff <(sed "s/{{PROJECT}}/$name/g" "$docs/templates/step-index-seed.md") "$index" >/dev/null \
-    || { echo "FAIL: $name recovery signal (b) — STEP-index is not the bare greenfield seed" >&2; return 1; }
+  # The answer must not depend on the index at all. Take it once with the index at its seed, then
+  # again after substep 1.2's sanctioned fill of the Phase 1 heading — the edit that used to flip
+  # this project from "retcon" to "resume" — and require the two to be identical.
+  local before after
+  before="$(run_status_for "$work" "$overview" "$index")" \
+    || { echo "FAIL: $name status.sh exited non-zero on a missing marker" >&2; return 1; }
+
+  perl -pi -e 's/^## Phase 1 — \{\{PHASE_1_NAME\}\}$/## Phase 1 — Harden the baseline/' "$index"
+  if diff <(sed "s/{{PROJECT}}/$name/g" "$docs/templates/step-index-seed.md") "$index" >/dev/null; then
+    echo "FAIL: $name scenario setup — the 1.2 fill did not change the index" >&2
+    return 1
+  fi
+  after="$(run_status_for "$work" "$overview" "$index")" \
+    || { echo "FAIL: $name status.sh exited non-zero once the index was filled" >&2; return 1; }
+
+  if [ "$before" != "$after" ]; then
+    echo "FAIL: $name status.sh answered differently once substep 1.2 filled the index" >&2
+    return 1
+  fi
+  assert_marker_ask "$name" "$after" || return 1
+
+  # The contract in the shipped prose: AGENTS.md sends the agent to the human, and carries neither
+  # half of the old two-signal inference (the bare-seed index, and the in-flight STEP-1 PLAN).
+  assert_file_contains "$docs/AGENTS.md" "ask the project's human which mode this is"
+  assert_file_contains "$docs/AGENTS.md" "Do not infer it from the files"
+  local ghost
+  for ghost in 'bare `init.sh` seed' 'still-bare' 'means a **retcon** whose marker' 'infer from disk'; do
+    if grep -Fq "$ghost" "$docs/AGENTS.md"; then
+      echo "FAIL: $name AGENTS.md still works the mode out from disk (\"$ghost\")" >&2
+      return 1
+    fi
+  done
 }
 
-# run_marker_recovery_negative_case — the other half of the AGENTS.md truth table: a fresh
-# greenfield checkout, even with its marker stripped, presents NEITHER signal, so it can never be
-# misrecovered as a retcon. (run_new_case pins the marker-present half; this pins it under loss.)
+# run_marker_recovery_negative_case — the greenfield half of the same contract. A fresh greenfield
+# checkout with its marker stripped is just as indeterminate as an adopted one: status.sh must not
+# resolve a next action for it either, and must route it to the same ask. (run_new_case pins the
+# marker-present half; this pins it under loss.)
 run_marker_recovery_negative_case() {
   local name="green-recovery"
   local work="$TMP_ROOT/$name"
-  local overview="$work/Code/$name-docs/overview.md"
+  local docs="$work/Code/$name-docs"
+  local overview="$docs/overview.md"
+  local index="$work/prompts/STEP-index.md"
 
   copy_template "$work"
   (
@@ -300,11 +354,22 @@ run_marker_recovery_negative_case() {
   ) >"$TMP_ROOT/$name.out" 2>&1
 
   perl -ni -e 'print unless /PROJECT-STATUS:/' "$overview"
-  # Signal (a) absent: no in-flight STEP-1 PLAN → the fallback cannot mistake greenfield for retcon.
+
+  # This tree is the structural opposite of the adopted one — no in-flight PLAN, no scratch folder,
+  # and an index still at its seed. Under the old rule that combination decided the answer; it must
+  # now make no difference, so the same ask comes back.
   if ls "$work/Upcoming Prompts/"*STEP-1-PLAN.md >/dev/null 2>&1; then
-    echo "FAIL: $name greenfield presents a STEP-1 PLAN — would be misrecovered as retcon" >&2
-    return 1
+    echo "FAIL: $name greenfield unexpectedly carries an in-flight STEP-1 PLAN" >&2; return 1
   fi
+  [ ! -d "$work/Upcoming Prompts/retcon" ] \
+    || { echo "FAIL: $name greenfield unexpectedly carries the retcon scratch folder" >&2; return 1; }
+  diff <(sed "s/{{PROJECT}}/$name/g" "$docs/templates/step-index-seed.md") "$index" >/dev/null \
+    || { echo "FAIL: $name greenfield index is not at its seed — scenario invalid" >&2; return 1; }
+
+  local out
+  out="$(run_status_for "$work" "$overview" "$index")" \
+    || { echo "FAIL: $name status.sh exited non-zero on a missing marker" >&2; return 1; }
+  assert_marker_ask "$name" "$out" || return 1
 }
 
 # run_missing_stub_case — a corrupt/incomplete scaffold download (the stub STEP-1 PLAN template is

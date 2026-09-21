@@ -949,8 +949,8 @@ if [ "$MODE" = "existing" ]; then
     exit 1; }
   echo "  retcon: PROJECT-STATUS set to 'retcon' (adopting an existing codebase)"
   # Scaffold the pre-answer-sheet scratch folder. RETCON-PROMPT.md's per-session harvest (Stage 3)
-  # drops one transient sheet per in-scope session here; seeding it now gives that a home and makes
-  # the AGENTS.md marker-loss fallback signal reliable from adoption start.
+  # drops one transient sheet per in-scope session here; seeding it now gives that a home from
+  # adoption start rather than having the first session create it.
   mkdir -p "$ROOT/Upcoming Prompts/retcon"
   cat > "$ROOT/Upcoming Prompts/retcon/README.md" <<'RETCON_SCRATCH_README'
 # Retcon scratch — pre-answer sheets
@@ -961,8 +961,9 @@ decision, with provenance tags — which the confirm pass consumes before the cl
 doc is written. Start each sheet from your docs hub's `templates/retcon-preanswer-sheet.md`.
 
 Scratch, not project history: these sheets are not committed, and they are discarded when STEP-1
-lands. Their presence here (alongside the in-flight STEP-1 PLAN) is also how a fresh agent detects a
-retcon in progress if the `PROJECT-STATUS` marker is ever lost.
+lands. What mode a project is in is the `PROJECT-STATUS` marker in `overview.md`, never the presence
+of this folder — and if that marker is ever lost the method asks you rather than reading it off the
+files.
 RETCON_SCRATCH_README
   echo "  retcon: scaffolded pre-answer-sheet scratch (Upcoming Prompts/retcon/)"
 fi
