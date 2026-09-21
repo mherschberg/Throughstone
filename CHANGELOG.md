@@ -1176,6 +1176,10 @@ any project built with it.
   gate the project runs — and it checks the method, not your tests.
   `UPDATING-THROUGHSTONE.md`'s 1.8 mono CI note says the same for a project that already exists. No
   new action falls out of either: unlike `method-check.yml`, there is no root copy to make.
+- **An In-progress Check-in STEP was told to wait for a command nobody will ever write.**
+  `./doctor.sh status` gave it the ordinary *"wait for an explicit substep command"* guidance, but a
+  Check-in STEP's two substeps are fixed and `runbooks/check-in.md` is their prompt, so no substep
+  prompt is ever authored for one — the helper now names the command that does exist.
 
 ## [1.7.1] - 2026-08-10
 

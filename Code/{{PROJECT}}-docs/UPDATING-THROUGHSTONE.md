@@ -283,10 +283,11 @@ or a date. New projects are seeded `STEP-20` from `templates/overview-template.m
 `CHECK-IN-CADENCE` line is inert: nothing reads it, and nothing reports it as an error.
 
 **Two things you no longer have to do.** Past Check-in STEP rows need no particular Title — nothing
-counts them, so nothing has to be renamed. (`Check-in` stays in the documents as a roadmap
-convention; it is simply not a contract any more.) And the cadence is no longer a number your
-documents have to keep in step with a setting, so the passages that named it now describe the
-scheduled line instead — all of them in the process-docs group at step 1 of the fast path.
+counts them, so nothing has to be renamed. (`Check-in` is still the title to write — nothing
+counts the rows any more, but `./doctor.sh status` reads it to recognise a check-in in flight.)
+And the cadence is no longer a number your documents have to keep in step with a setting, so the
+passages that named it now describe the scheduled line instead — all of them in the process-docs
+group at step 1 of the fast path.
 `scripts/check.sh` loses the check that validated the setting. That was **check 10 in 1.7**, and
 check 10 in the release you are pulling is the new repo-registry pass instead — so if anything of
 yours reads the doctor's output by check number, that number now means something else.
@@ -349,7 +350,9 @@ appendix covers purging history first when that matters.
   a `--check-in` flag that turns on the checks the periodic check-in owns, and a fix so that a
   check which read nothing warns instead of passing; two of its messages now say what they looked
   at. `status.sh` carries the scheduled check-in (item 6 above), and a STEP row with an inline
-  `<!-- … -->` note is visible to the resolver again where the note used to swallow the row.
+  `<!-- … -->` note is visible to the resolver again where the note used to swallow the row; an
+  In-progress **Check-in** STEP is now told to wait for *"run the check-in"* rather than for a
+  substep command nobody authors for one.
   `setup-workspace.sh` no longer stops at the first repo it cannot clone, writes the workspace
   root's pointer files *before* the clone loop rather than after, and is stricter about what counts
   as a repo already being there — the four *Multi-repo only* paragraphs below are its detail, and

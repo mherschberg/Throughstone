@@ -254,6 +254,21 @@ elif [ -n "$inprog" ]; then                                 # §10.6
   where="Building — ${inprog} (${inprog_ti}) is In progress."
   if printf '%s' "$inprog_ti" | grep -qiE '^conditional session:'; then
     next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\", identify its conditional template invocation BY NAME, and wait for that explicit by-name command. Then run its architecture-consistency review, archive it, and mark ${inprog} Done."
+  # A Check-in STEP is invoked whole (METHOD.md §10 rule 6): its two substeps are fixed and
+  # runbooks/check-in.md is their prompt, so no substep prompts are ever authored for it and the
+  # generic advice below waits on a "run substep N.M" nobody will ever write. The wait itself is
+  # right — a thin STEP stops for approval like any other (prompts/README.md) — the command is not.
+  #
+  # Anchored, and ending at the title's end or its scope colon: the documented row title and
+  # nothing wider ("Check-in", "Check-in: phase 1"). Both directions cost something, which is why
+  # the form is pinned in tests/doc-contract.sh rather than left to prose. Too loose routes a
+  # product STEP into the doc-drift runbook — a hotel or airline project really does build a
+  # "Check-in flow" — and sending feature work to the wrong prompt is the more expensive way to be
+  # wrong; a real check-in titled outside the form falls to the generic answer, which is the state
+  # this arm exists to end. Both arms anchor at ^, so no title can match both and their order is
+  # free; loosening either ends that.
+  elif printf '%s' "$inprog_ti" | grep -qiE '^check-in(:|$)'; then
+    next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\" and wait for \"run the check-in\" — its two substeps are fixed and $DOCS_REL/runbooks/check-in.md is their prompt, so that one command runs both, end to end. Then: report under $DOCS_REL/reports/, archive the thin PLAN to prompts/, mark ${inprog} Done, and schedule the next check-in in $DOCS_REL/overview.md's NEXT-CHECK-IN line."
   else
     next="open ${inprog}'s PLAN in \"Upcoming Prompts/\", identify its lowest open substep, and wait for an explicit substep command (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
   fi

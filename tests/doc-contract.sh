@@ -217,7 +217,7 @@ for f in "$METHOD" "$AGENTS" "$CHECKIN" "$DOCS/templates/planning-session.md"; d
     || fail "$rel tells an author about check-ins without naming the NEXT-CHECK-IN line that records when the next one is due"
 done
 
-# --- 6. The index-row title the resolver keys on ------------------------------
+# --- 6. The index-row titles the resolver keys on -----------------------------
 # One next-action behaviour is triggered by how a human titles a row in prompts/STEP-index.md:
 # status.sh prioritizes a follow-up whose Title begins "Conditional session:". It is an anchored
 # regex, and every document that tells an author how to title the row must give a title it
@@ -230,6 +230,51 @@ printf '%s\n' "${COND_TITLE}identity-auth" | grep -qiE "$cond_re" || fail "the c
 
 for f in "$METHOD" "$CHECKIN" "$AGENTS"; do
   contains "$f" "$COND_TITLE" || fail "${f#$ROOT/} no longer names the '$COND_TITLE<topic>' row title the next-action resolver prioritizes on"
+done
+
+# The same contract for the other title the resolver keys on. A Check-in STEP is invoked whole
+# (METHOD.md §10 rule 6), and status.sh tells an In-progress one to wait for "run the check-in"
+# rather than for a substep command no author will ever write. That arm is reached only by the
+# title, and the pattern is deliberately tight — tight enough that a document drifting to any
+# other form would silently stop reaching it.
+#
+# The extraction deliberately does NOT key on the "^" anchor. Losing that anchor is one of the
+# drifts the negative titles below exist to catch, and an extraction that required it would fail
+# first, reporting a missing pattern instead of the loosening that actually happened.
+checkin_re="$(awk -F"'" '/grep -qiE/ && /check-in/ { print $4 }' "$STATUS_SH" | head -1)"
+[ -n "$checkin_re" ] || fail "could not read status.sh's Check-in Title-matching pattern"
+
+# Both documented forms: the bare title, and the title carrying a scope (METHOD.md §5).
+for t in 'Check-in' 'Check-in: phase 1' 'Check-in: baseline'; do
+  printf '%s\n' "$t" | grep -qiE "$checkin_re" \
+    || fail "the Check-in row title the documents prescribe (\"$t\") does not match status.sh's pattern, so such a STEP would be told to wait for a substep command that is never authored for it"
+done
+
+# And the direction that keeps the arm off work that only sounds like a check-in: a product STEP
+# routed into the check-in runbook is a wrong answer replacing a right one, which is worse than
+# the generic answer such a title falls through to.
+for t in 'Check-in flow' 'Guest check-in' 'Check-in API v2'; do
+  if printf '%s\n' "$t" | grep -qiE "$checkin_re"; then
+    fail "status.sh's Check-in pattern also matches the product STEP title \"$t\", which would send ordinary feature work into runbooks/check-in.md"
+  fi
+done
+
+# The scoped example is what is pinned in the documents rather than the bare word, which is too
+# common in their prose to assert on: each of the three carries it exactly once, so the assertion
+# fails if the prescription is dropped.
+CHECKIN_TITLE='Check-in: phase 1'    # the row title METHOD.md §5 and the planning session prescribe
+for f in "$METHOD" "$ROOT/prompts/README.md" "$DOCS/templates/planning-session.md"; do
+  contains "$f" "$CHECKIN_TITLE" \
+    || fail "${f#$ROOT/} no longer prescribes the '$CHECKIN_TITLE' row title the next-action resolver keys on"
+done
+
+# And the phrase side of the same arm, for the reason section 7 below gives: status.sh tells the
+# operator to wait for a literal command, and these two documents are what define it. If the
+# wording drifts there, the helper names a command nothing teaches.
+CHECKIN_INVOCATION='run the check-in'
+for f in "$METHOD" "$CHECKIN"; do
+  contains "$f" "$CHECKIN_INVOCATION" \
+    || fail "status.sh tells the operator to wait for \"$CHECKIN_INVOCATION\" but ${f#$ROOT/} no longer carries that phrase"
 done
 
 # --- 7. Conditional sessions are invoked by name ------------------------------
