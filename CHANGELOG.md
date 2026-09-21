@@ -165,6 +165,11 @@ error/corruption and re-run paths, not normal operation.
   adoption tells you plainly that this version carries the work through the architecture sessions
   only — the cross-cutting review and the baseline land are still being built — so you see that
   boundary before you invest the sessions rather than when you reach the last one.
+- **Leaving something out of an adoption is just leaving it out.** The scope call at the recon-map
+  checkpoint now says so outright: an `excluded` row is a note in that map and nothing else — no
+  registry row, no stub or boundary doc, and no ongoing state of any kind. A neighbouring system
+  the project genuinely has to reason about is written up in an
+  `architecture/` doc like any other external dependency.
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
   built and can carry unfinished work. The "Use this template" path is flagged as unable to be

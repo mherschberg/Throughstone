@@ -176,6 +176,15 @@ edit). The per-asset **detail is not frozen** — it deepens later in the living
 mark it bounded/deferred in Coverage & Confidence rather than guessing it into fact. Once the map is
 confirmed and frozen, mark `inv-4` **Done**.
 
+**Scoping is not partial adoption.** An `excluded` row is a note in this map and nothing else. It
+gets no row in `registries/repos.yml` at all — so no field on such a row, `control:` included, ever
+describes it — no stub or boundary doc, and no ongoing state anywhere. The project adopts its
+`adopt` rows; everything else is simply outside the project, exactly as any system the project
+doesn't own is outside it. The only record owed is the found-and-dismissed line already in this
+map's Inventory, which is why excluded rows stay rather than being deleted. Don't build machinery
+to describe the boundary: a neighbouring system the project genuinely has to reason about is
+written up in an `architecture/` doc like any other external dependency.
+
 ### `inv-5` — Upgrade this PLAN by addition
 The confirmed map now fixes both the asset list and which sessions apply. Edit
 `Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md`: **append at the END of the PLAN (after Definition of
