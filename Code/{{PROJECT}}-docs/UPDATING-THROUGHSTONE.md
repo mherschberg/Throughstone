@@ -84,9 +84,10 @@ value**, which 1.7's example row did, and, **if your project is mono-repo-for-no
 workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
 whether your CI gate has ever actually run — **and one line to change** in `overview.md`, where the
 check-in cadence setting is replaced by the date or STEP your next check-in is due, **and, if your
-project is mono-repo-for-now, two lines to add** to the `.gitignore` at your workspace root. Beyond the fast path below, nothing is
-required of you unless you are about to split a repository. The release adds a runbook for that, repeals one rule, and writes down
-how a repo is brought into a project at all — in a second new runbook. Fast path:
+project is mono-repo-for-now, two lines to add** to the `.gitignore` at your workspace root. **The fast path below is the whole of
+it** — every bucket in §2 that this release touches has a step there, and anything under a step's "details" pointer expands a step
+rather than adding one. The release also adds a runbook for splitting a repository, repeals one rule, and writes down how a repo is
+brought into a project at all — in a second new runbook; none of that asks anything of you unless you are about to split. Fast path:
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
    `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10,
@@ -172,7 +173,20 @@ how a repo is brought into a project at all — in a second new runbook. Fast pa
     **check that `registries/risks.yml` has a row for it**, and add one if it does not. A core
     session deferred wholesale writes no architecture doc, so no check-in sweep could see it;
     the row is what brings the decision back. Details below.
-13. Nothing else. A project that never splits reads none of the splitting material.
+13. **Pull the six scripts, and three docs that stand on their own** — `scripts/check.sh`,
+    `scripts/status.sh`, `scripts/setup-workspace.sh`, `scripts/links.sh`, `scripts/doctor.sh` and
+    `scripts/apply-project-license.sh`, plus `ONBOARDING.md`, the docs hub's own `README.md` and
+    §2's file-bucket table above. The scripts carry behaviour changes that reach you only once
+    you pull them, and nothing else in this guide pulls them for you — details below.
+14. **Pull the session templates and the guidance text around them as one group** —
+    `templates/architecture-sessions/*.md`, `templates/planning-session.md`,
+    `templates/architecture-doc-template.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md` and
+    `runbooks/check-in.md`. Several of these travel with item 1's or item 9's group already, so
+    pull them once. They change no script behaviour and touch no project state — details below.
+15. **Carry the ADR duplicate-number scan fix into your own `adr/README.md` by hand.** It is
+    *Project state* under §2, so nothing upstream updates it for you and pulling changes nothing —
+    details at the very end of this section.
+16. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -330,6 +344,38 @@ appendix covers purging history first when that matters.
   `<!-- … -->` note visible to the resolver again, where the note used to swallow the row. Nothing
   detects registry drift *after a split* — a row that still describes a
   folder that is now its own repo — which is accepted rather than overlooked.
+- *Tools / scripts* (`scripts/check.sh`, `scripts/status.sh`, `scripts/setup-workspace.sh`,
+  `scripts/links.sh`, `scripts/doctor.sh`, `scripts/apply-project-license.sh`): all six changed.
+  `check.sh` gains a pass over `registries/repos.yml`,
+  a `--check-in` flag that turns on the checks the periodic check-in owns, and a fix so that a
+  check which read nothing warns instead of passing; two of its messages now say what they looked
+  at. `status.sh` carries the scheduled check-in (item 6 above), and a STEP row with an inline
+  `<!-- … -->` note is visible to the resolver again where the note used to swallow the row.
+  `setup-workspace.sh` no longer stops at the first repo it cannot clone, writes the workspace
+  root's pointer files *before* the clone loop rather than after, and is stricter about what counts
+  as a repo already being there — the four *Multi-repo only* paragraphs below are its detail, and
+  one of them is the only place this release tells you to delete a directory rather than a line or
+  a row.
+  `apply-project-license.sh` gains `--notice-only`, which writes the Throughstone notice and
+  nothing else — what a repo the method did not create gets. `links.sh` stops reading `inputs/`,
+  whose documents are kept as they arrived so a broken link inside one is not anyone's to fix — its
+  own paragraph below. `doctor.sh` passes `--check-in` through to `check.sh` and says so in its
+  help. All six also reject a stray argument rather than ignoring it (item 7 above). Replace them
+  as a set: `doctor.sh` dispatches `status`, `check` and `links`, so a mismatched pair there shows
+  up as a helper that cannot be reached; `apply-project-license.sh` is called by
+  `runbooks/register-repo.md` rather than through the dispatcher.
+- *Process docs that stand on their own* (`ONBOARDING.md`, the docs hub's own `README.md`, and
+  §2's file-bucket table above): *Process docs*, like the first group in this list — §2's examples
+  name `UPDATING-THROUGHSTONE.md` but not the other two, which belong there in kind. These
+  reference nothing else, so review them one at a time rather than as a coherent set. The first two were written when
+  Throughstone only ever *created* a repo; the method can now also take on one that already exists,
+  where it writes at most two files — that repo's README and the `LICENSE-THROUGHSTONE` notice,
+  never CI and never a project licence. §2's *Stamped/generated files* row above says so now.
+  `ONBOARDING.md` is the third for a different reason: it still described `setup-workspace.sh`
+  cloning before it writes the root pointer files, which is the order this release reversed, and it
+  gains a line declaring that its own paths are relative to the workspace root. `AGENTS.md`
+  described that same old order and is corrected too — it is already in the process-docs group
+  above, so pulling that group picks it up. Nothing of yours is rewritten.
 - *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
   `provenance:` is a new optional block recording that a repo was split out of another one — where
   it came from, and where the two histories part company. It is written **at** a split and only
@@ -659,22 +705,10 @@ of them rewrites anything you already produced; they affect work you do after pu
 
 Pull `templates/architecture-sessions/*.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md`,
 `templates/architecture-doc-template.md`, `templates/planning-session.md`, and
-`runbooks/check-in.md` as a group. Nothing else in this group is affected: these files
+`runbooks/check-in.md` as a group — this is item 14 of the fast path. Nothing else in this group is affected: these files
 change no script behavior and touch no project state.
 
-
-**Three generated docs need pulling, and that is the whole action.** The docs hub's own
-`README.md` and §2's file-bucket table above were each written when Throughstone only ever
-*created* a repo; the method can also take on one that already exists, where it writes at most two
-files — that repo's README and the `LICENSE-THROUGHSTONE` notice, never CI and never a project
-licence. `ONBOARDING.md` is the third, for a different reason: it still described
-`setup-workspace.sh` cloning before it writes the root pointer files, which is the order this
-release reversed, and it gains a line declaring that its own paths are relative to the workspace
-root. `AGENTS.md` described that same old order and is corrected too — it is already in the
-process-docs group above, so pulling that group picks it up. Review the three like the other
-process docs; nothing of yours is rewritten.
-
-**One thing this guide does not do for you.** `adr/README.md` is *Project state* under §2 —
+**One thing this guide does not do for you — this is item 15 of the fast path.** `adr/README.md` is *Project state* under §2 —
 never auto-updated — so the ADR duplicate-number scan fixed in this release stays broken in your
 copy until you carry the fix across by hand. Open your `adr/README.md`, find the scan command, and
 make it name the file from the workspace root the way the scaffold's copy now does.
