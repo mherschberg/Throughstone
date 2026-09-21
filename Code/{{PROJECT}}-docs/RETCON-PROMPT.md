@@ -194,19 +194,21 @@ the completion flag. If a
 resumed agent finds `inv-5` still open, the upgrade was interrupted — re-run it **idempotently**,
 reconciling each block **row by row** rather than treating a present table header as a complete block
 (an earlier run may have written a header and some rows but not all): append an `asset-N` row for
-**every** frozen recon-map Inventory asset marked `adopt` that lacks one — and none for an
-`excluded` row, in either the first run or a re-run; append any missing **session** row so the
+**every** work unit that lacks one — the frozen Inventory's `adopt` assets projected into work
+units exactly as the per-asset appends below project them, so a row that already groups several of
+them (a doc-set, a many-of-a-kind group) covers each one and gets no second row — and none for an
+`excluded` asset, in either the first run or a re-run; append any missing **session** row so the
 table holds the full fixed `1.1`–`1.14` set (a dropped tail would silently skip the Cross-Cutting
 Review); append any missing **conditional** row from the seeded set, plus the lettered session row
 each `Include` needs; and add any `risks.yml` row not already present. Then mark `inv-5` **Done**. (`inv-1`…`inv-4` are already `Done` from as-you-go
 marking.) The appends:
 
 - **Per-asset substeps** — the confirmed **Inventory** (from the recon map), its `adopt` rows
-  projected into work
-  units: one **row per adopted asset**, tracked in their own appended table (its own columns — not
-  the `inv-N` table's — but the same `Planned` · `In progress` · `Done` Status convention, so a
-  resumed agent can tell which are left). Number them `asset-1`, `asset-2`, … in discovery order — one
-  per **repo**, one per **doc-set** (related docs grouped), one per **resource**:
+  projected into work units: one **row per work unit** — a doc-set, or a many-of-a-kind group, is
+  one unit covering several Inventory rows — tracked in their own appended table (its own columns —
+  not the `inv-N` table's — but the same `Planned` · `In progress` · `Done` Status convention, so a
+  resumed agent can tell which are left). Number them `asset-1`, `asset-2`, … in discovery order —
+  one per **repo**, one per **doc-set** (related docs grouped), one per **resource**:
 
   | # | Asset | Kind | Status |
   |---|-------|------|--------|
