@@ -105,20 +105,19 @@ brought into a project at all — in a second new runbook; none of that asks any
    That rule is gone, and nothing replaces it.
 3. **Check every `location:` in `registries/repos.yml`.** One that points outside the workspace
    root — an absolute path, or one reaching out with `..` — no longer works, and 1.7 said it was
-   allowed. **Details at the end of this section**; this is the only change here that can leave your
+   allowed. **Details below**; this is the only change here that can leave your
    registry describing a workspace nobody else can reproduce. **While you are in each row, check
    that nothing follows a `- name:`, `location:` or `remote:` value** — a row copied from 1.7's
    commented-out example carries a note after its `remote:`, which has kept that repo from cloning
    on anyone else's machine all along; details in the same place.
 4. **Mono-repo-for-now only: add a row for the workspace root** to `registries/repos.yml`, or the
-   new check-in warning will be wrong about every repo you have — details at the end of this
-   section.
+   new check-in warning will be wrong about every repo you have — details below.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
 6. **Put a `<!-- NEXT-CHECK-IN: STEP-<number> -->` line in your `overview.md`** — the STEP you
    want your next check-in at — replacing the `CHECK-IN-CADENCE` line if you have one. **Do this
    even if you never set a cadence**, or the helper will tell you nothing is scheduled on every
-   run. Details just below.
+   run. Details below.
 7. **If a wrapper or CI step of yours calls `check.sh`, `status.sh`, `links.sh`,
    `setup-workspace.sh`, `apply-project-license.sh` or `./doctor.sh help` with a stray argument**,
    it will now print the argument and exit 2 instead of ignoring it. Every valid invocation is
