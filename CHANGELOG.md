@@ -1063,6 +1063,22 @@ any project built with it.
   own message beside it, instead of being described as empty. That last one used to be worse than
   silent if your workspace sat inside another repository: git answered the question from the
   enclosing checkout, so the location reported as present and its real repo was never cloned.
+- **Every developer after the first now gets the same root pointers the first one got.**
+  `scripts/setup-workspace.sh` writes the workspace root's `AGENTS.md` and `CLAUDE.md` on every
+  new machine, and what it wrote was a shortened version of what `init.sh` leaves for the person
+  who created the project. The closing handoff paragraph was missing altogether — the one saying
+  that the docs hub's `AGENTS.md` opens with a "First action — kickoff or resume?" section and to
+  go and follow it now. That paragraph is what lets the whole handoff be a single sentence;
+  without it an agent opened at the workspace root is handed a filename and left to decide for
+  itself what to do with it. Two smaller things were gone as well: the sentence naming this
+  script as what regenerates the file, so anyone who edited a pointer in place had nothing
+  telling them the next run would overwrite it, and the clause saying which tool the pointer is
+  there for — where the first developer's copy names its reader and then says the file is not
+  versioned, the script wrote a bare "This is a per-machine pointer (the workspace root is not a
+  repo)". All three are back. The two files differ in that one
+  clause and nowhere else — `CLAUDE.md` names Claude Code, `AGENTS.md` any agent — and the
+  regression suite compares what this script writes against what `init.sh` leaves at a project
+  root, in the same run, so the two copies of that text cannot drift apart unnoticed.
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
   repository you already had — the natural thing to try when you want Throughstone in a project
   that exists — and running `./init.sh` there deleted that repository's `.git` outright, every

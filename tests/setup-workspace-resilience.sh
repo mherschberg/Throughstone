@@ -8,9 +8,10 @@
 # `set -e` — leaving the contributor with no AGENTS.md, no CLAUDE.md and no doctor.sh at all,
 # over a repository they may not even need. So every one of those cases asserts the same thing:
 # the run exits 0, and the workspace it left behind is one a contributor can use — the two
-# Markdown pointers naming the docs hub the run itself reported, and a doctor.sh that reaches the
-# dispatcher inside it. Presence was what this used to assert, and presence is satisfied by three
-# zero-byte files. Part 0 is a different property riding on the same two bootstraps; it says so.
+# Markdown pointers naming the docs hub the run itself reported and carrying the text init.sh
+# leaves at a project root, and a doctor.sh that reaches the dispatcher inside it. Presence was
+# what this used to assert, and presence is satisfied by three zero-byte files. Part 0 is a
+# different property riding on the same two bootstraps; it says so.
 #
 # The second half is about where a clone is allowed to land. A registered location is always a
 # path relative to the workspace root, and one that breaks that shape used to be cloned into
@@ -41,6 +42,9 @@ trap 'rm -rf "$TMP_ROOT"' EXIT
 failures=0
 note() { printf '  %s\n' "$1"; }
 bad()  { printf 'FAIL: %s\n' "$1" >&2; failures=$((failures + 1)); }
+# Compare prose on whitespace-collapsed text: these documents hard-wrap, nothing pins where they
+# wrap, and a re-wrap is not a change of words. Same normalization doc-contract.sh uses.
+flat() { tr -s ' \t\n' ' ' < "$1"; }
 
 # copy_template DEST — build a template fixture from HEAD, then overlay current worktree
 # changes. Archiving rather than copying the live tree leaves ignored maintainer files behind,
@@ -100,11 +104,19 @@ teammate() {
   rm -rf "$tw"
   mkdir -p "$tw/Code"
   cp -R "$docs_src" "$tw/Code/$(basename "$docs_src")"
+  # Where the same project's workspace root is, as init.sh left it for the first developer. Both
+  # roots name the hub at the same relative path, so their pointers are the same text and one is
+  # the yardstick for the other. Recorded beside the fixture rather than inside it, so nothing
+  # under test can read it, and passed this way because the caller reads $tw out of a subshell.
+  ( cd "$docs_src/../.." && pwd ) > "$tw.canon"
   printf '%s\n' "$tw"
 }
 
 registry_of() { set -- "$1"/Code/*-docs/registries/repos.yml; printf '%s\n' "$1"; }
 setup_of()    { set -- "$1"/Code/*-docs/scripts/setup-workspace.sh; printf '%s\n' "$1"; }
+# hub_of ROOT — the docs hub's path relative to a workspace root, read from the directory that is
+# there rather than from anything a run printed.
+hub_of()      { set -- "$1"/Code/*-docs; printf '%s\n' "Code/$(basename "$1")"; }
 
 # add_row TW — append a registry row, read from stdin, to a teammate workspace's registry.
 add_row() { cat >> "$(registry_of "$1")"; }
@@ -125,12 +137,14 @@ run_setup() {
 # find it, doctor.sh so `./doctor.sh` reaches the dispatcher inside it — and `-e` is satisfied by
 # a zero-byte file, so the run could announce a docs hub and write pointers to nothing.
 #
-# The two halves cover different things and neither is redundant. The pointer check compares the
-# pointers against the hub the run itself announced, so it catches pointers that name no hub at
-# all but not a hub path that is wrong in the announcement too. Running doctor.sh is what covers
-# that: it is the only way to find out whether the path the wrapper was written with resolves.
+# Three checks, and no one of them covers another. A pointer is compared against the hub the run
+# itself announced, which catches a pointer naming no hub at all but not a hub path that is wrong
+# in the announcement too. Its text is compared against the pointer init.sh left at the project's
+# own root, which is the only check that can see a pointer that points correctly and says less
+# than it should. And doctor.sh is run, which is the only way to find out whether the path the
+# wrapper was written with resolves.
 assert_assembled() {
-  local label="$1" tw="$2" f docs_rel help_out help_status
+  local label="$1" tw="$2" f canon canon_hub docs_rel help_out help_status
   [ "$SETUP_STATUS" -eq 0 ] || bad "$label: expected exit 0, got $SETUP_STATUS"
   for f in AGENTS.md CLAUDE.md doctor.sh; do
     [ -e "$tw/$f" ] || bad "$label: the workspace has no $f"
@@ -141,9 +155,31 @@ assert_assembled() {
   if [ -z "$docs_rel" ]; then
     bad "$label: the run never reported which docs hub it wrote into"
   else
+    # Pointing at the hub and saying what init.sh said are different properties, and neither
+    # covers the other: the first compares the file against the hub this run announced, the
+    # second against the file the project's own creator got. A pointer written thinner than that
+    # one still points, so only the second can see a contributor after the first being handed a
+    # degraded version of the handoff every agent reads before anything else. Each file is
+    # compared against its own counterpart, which is also what makes writing one file's wording
+    # into both of them fail: their prose differs in one clause, the one naming the reader.
+    canon="$(cat "$tw.canon")"
+    canon_hub="$(hub_of "$canon")"
     for f in AGENTS.md CLAUDE.md; do
       grep -Fq "$docs_rel/AGENTS.md" "$tw/$f" \
         || bad "$label: $f does not point at $docs_rel/AGENTS.md"
+      # The yardstick has to be a pointer before it can serve as one, or a future change that
+      # emptied the generated root would leave a comparison an equally empty file satisfies.
+      # Asked of the yardstick's own hub, not of the hub this run announced: whether init.sh
+      # left a usable pointer is not a question about anything the script under test printed,
+      # and keying it there would let a wrong announcement report the fixture as the broken one.
+      if ! grep -Fq "$canon_hub/AGENTS.md" "$canon/$f"; then
+        bad "$label: the generated project's own $f does not name $canon_hub/AGENTS.md, so there is nothing to compare against"
+      elif [ "$(flat "$canon/$f")" != "$(flat "$tw/$f")" ]; then
+        bad "$label: $f is not the text init.sh leaves at a project root"
+        # Diff what was compared. The two writers wrap differently by design, so a raw diff of
+        # the files is never clean and would bury the words that changed in line-break churn.
+        diff <(flat "$canon/$f" | tr ' ' '\n') <(flat "$tw/$f" | tr ' ' '\n') >&2
+      fi
     done
   fi
 
@@ -437,6 +473,10 @@ git init -q "$enclosing"
 git -C "$enclosing" -c user.email=test@example.com -c user.name=Test commit -q --allow-empty -m enclosing
 tw="$(teammate enclosed "$MULTI_DOCS")"
 cp -R "$tw" "$enclosing/ws"
+# The only case that moves a fixture after building it, so the only one that has to carry the
+# yardstick teammate() recorded beside it. A move that forgets fails loudly rather than quietly:
+# assert_assembled reports that it has nothing to compare against.
+cp "$tw.canon" "$enclosing/ws.canon"
 tw="$enclosing/ws"
 mkdir -p "$tw/Code/multi-api/.git"
 [ "$(git -C "$tw/Code/multi-api" rev-parse --show-toplevel 2>/dev/null)" = "$(cd "$enclosing" && pwd -P)" ] \
@@ -766,6 +806,34 @@ run_setup "$tw"
 assert_assembled "re-run" "$tw"
 assert_out "re-run" "exists: Code/multi-api/"
 assert_not_out "re-run" "did not arrive"
+
+# Every other case starts from a root with no pointers at all, or one this same build wrote a
+# moment ago, so none of them asks the question a contributor upgrading an existing machine asks:
+# does a run replace a pointer that is already there? It is the only way their machine gets the
+# fuller text, since pulling the docs hub writes nothing at the root, and it is what
+# UPDATING-THROUGHSTONE.md's migration entry tells them to do. Seeded with the shorter pointer a
+# release before this one wrote, so the fixture is the state those machines are actually in.
+echo "A root already holding the shorter pointers an earlier release wrote ..."
+tw="$(teammate stalepointers "$MULTI_DOCS")"
+stale_hub="$(hub_of "$tw")"
+for f in AGENTS.md CLAUDE.md; do
+  cat > "$tw/$f" <<EOF
+# $f
+
+The canonical agent context lives in the docs repo:
+**\`$stale_hub/AGENTS.md\`** (tool-agnostic). Read it — and the methodology it points to in
+\`$stale_hub/METHOD.md\` — before working here.
+
+This is a per-machine pointer (the workspace root is not a repo). Edit the canonical file
+in the docs repo, not this one.
+EOF
+  # The fixture is worth nothing if it already holds what the run is supposed to add. grep -F,
+  # because the marker is Markdown bold and this shell's grep reads ** as a repetition operator.
+  grep -Fq '**Agents:**' "$tw/$f" \
+    && bad "stale pointers: the fixture is not the shape it claims — $f already carries the handoff"
+done
+run_setup "$tw"
+assert_assembled "stale pointers" "$tw"
 
 # A repo supplied by hand need not be a plain clone. A linked worktree and an initialized
 # submodule are both repositories and both keep `.git` as a FILE, so the skip above has to ask
