@@ -9,7 +9,9 @@
 **Depth dial:** {{how hard fat payloads are pushed this run — e.g. "enumerate fully" or
                  "enumerate entities to depth N, defer the rest" — set at intake, §Coverage below}}
 **Reviewed commit(s):** {{repo@sha list — the exact state this map describes}}
-**Runbook:** `RETCON-PROMPT.md`
+**Runbook:** `Code/{{PROJECT}}-docs/RETCON-PROMPT.md`
+
+> Paths below are relative to the workspace root (the folder containing `Code/` and `prompts/`).
 
 <!-- This is the recon map: the point-in-time "birth certificate" of an existing system as it was
      found at adoption. It is retcon's STEP-1 discovery artifact — essentially a check-in run against
