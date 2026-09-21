@@ -29,7 +29,7 @@ one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}
 reconciles the STEP index against this PLAN, in one pass. A session this PLAN ends at **`N/A`** or
 **`Deferred`** is carried across unchanged — the status only, since its one-line reason stays on
 the PLAN row — and every lettered conditional row this PLAN added (`1.6a`, `1.7b`, …) is written
-in beside the core session that owns it, which the seeded index has no row for. The rest of the
+in beside the core session that owns it, since the seed carries no lettered rows. The rest of the
 `1.1`–`1.14` rows keep the greenfield `Planned` seed they sat at while session progress lived here:
 the `Done` STEP-1 row above them is what says the architecture STEP is over, so nothing has to flip
 them, and a leftover `Planned` row is not a defect to fix. The landed project resolves like a
