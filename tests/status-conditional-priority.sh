@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for conditional-session priority in status.sh.
+# Regression coverage for conditional-session priority in status.sh, and for the per-title arms
+# that answer for whichever STEP is In progress.
 
 set -euo pipefail
 export LC_ALL=C
@@ -33,6 +34,17 @@ assert_contains() {
   local output="$1" expected="$2"
   if ! printf '%s\n' "$output" | grep -Fq "$expected"; then
     printf 'FAIL: expected status output to contain: %s\n' "$expected" >&2
+    printf '%s\n' "$output" >&2
+    return 1
+  fi
+}
+
+# assert_absent OUTPUT UNEXPECTED — an arm that answers correctly while the wrong answer is still
+# in the output is not fixed, so the displaced wording is asserted against directly.
+assert_absent() {
+  local output="$1" unexpected="$2"
+  if printf '%s\n' "$output" | grep -Fq "$unexpected"; then
+    printf 'FAIL: expected status output NOT to contain: %s\n' "$unexpected" >&2
     printf '%s\n' "$output" >&2
     return 1
   fi
@@ -92,6 +104,39 @@ output="$(run_status "$index")"
 assert_contains "$output" \
   'identify its lowest open substep'
 
+# A Check-in STEP is the one STEP invoked whole (METHOD.md §10 rule 6): its two substeps are fixed
+# and runbooks/check-in.md is their prompt, so nobody ever authors substep prompts for it. Without
+# an arm of its own it takes the generic guidance and is told to wait for a command that will never
+# be written, which is why both halves are asserted — the command it must wait for, and the one it
+# must not be sent after.
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-20 | Check-in: phase 1 | | In progress | | Fixture |'
+output="$(run_status "$index")"
+assert_contains "$output" \
+  'wait for "run the check-in"'
+assert_absent "$output" \
+  'identify its lowest open substep'
+
+# The scope after the title is optional (METHOD.md §5), so the bare row resolves the same way.
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-20 | Check-in | | In progress | | Fixture |'
+assert_contains "$(run_status "$index")" \
+  'wait for "run the check-in"'
+
+# The same rule the conditional arm keeps, for the same reason: the match is the documented row
+# title, not the word. A project whose product is checking people in has STEPs of its own, and
+# sending that feature work into the doc-drift runbook is worse than the generic answer.
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-20 | Check-in flow | | In progress | | Fixture |'
+output="$(run_status "$index")"
+assert_contains "$output" \
+  'identify its lowest open substep'
+assert_absent "$output" \
+  'run the check-in'
+
 # With no conditional follow-up in the index, the resolver should select ordinary planned work.
 write_index "$index" \
 '| STEP-1 | Architecture | | Done | | Fixture |
@@ -102,4 +147,4 @@ assert_contains "$output" \
 assert_contains "$output" \
   'then stop for approval before running any substep'
 
-echo "status.sh conditional priority: PASS"
+echo "status.sh conditional priority + In-progress arms: PASS"
