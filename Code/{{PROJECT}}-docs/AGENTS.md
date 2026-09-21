@@ -54,14 +54,18 @@ its long work — the STEP-1 architecture sessions — runs *after* `kickoff-com
 `status.sh`; retcon's `retcon` *is* that in-progress marker, because its equivalent work runs
 *before* the terminal, resolved from the STEP-1 PLAN by `RETCON-PROMPT.md`.
 
-(If the marker is missing entirely — an older project predating it, or marker loss/corruption
-— infer from disk. **First check for an adoption in progress:** an in-flight
-`Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md` (or an `Upcoming Prompts/retcon/` scratch folder)
-sitting over a still-bare `init.sh`-seed `prompts/STEP-index.md` means a **retcon** whose marker
-was lost — **restore `PROJECT-STATUS: retcon`** and follow `RETCON-PROMPT.md`. Both those signals
-are absent in a fresh greenfield checkout — `init.sh` writes no STEP-1 PLAN in new-project mode;
-the kickoff does. Otherwise treat it as **resume** unless `prompts/STEP-index.md` is still the
-bare `init.sh` seed, which means the greenfield kickoff never ran → **kickoff mode**.)
+(If the marker is missing entirely — an older project predating it, or marker loss/corruption —
+**ask the project's human which mode this is. Do not infer it from the files.** Tell them the
+`PROJECT-STATUS` marker is missing, and ask which of the three this project is — by which door it
+came through, not by how far along it feels: a **new** project whose kickoff has not run yet
+(`not-started`); a project **adopting an existing codebase**, at any stage before its baseline lands,
+including one where no session has started (`retcon`); or one **past that point**, because its
+kickoff ran or an adoption landed its baseline (`kickoff-complete`). Restore
+the `<!-- PROJECT-STATUS: … -->` line in
+`Code/{{PROJECT}}-docs/overview.md` from their answer, then proceed in that mode. Ask rather than
+read it off the files: a person answers this in one sentence and cannot be wrong about it, while
+the files a project legitimately edits as it goes cannot reliably tell the three apart. If nobody
+is available to answer, stop and report the status as indeterminate rather than choosing one.)
 
 ## What is {{PROJECT}}
 {{PROJECT_DESCRIPTION}}

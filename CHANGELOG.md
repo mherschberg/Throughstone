@@ -35,9 +35,9 @@ error/corruption and re-run paths, not normal operation.
   status and route a fresh agent to a new **`RETCON-PROMPT.md`** resolver, which reverse-engineers the
   architecture baseline from the running code instead of interviewing it from scratch — running the
   intake, inventorying every repo/doc/resource, drafting a recon map you confirm, and writing the real
-  STEP-1 plan. The per-session harvest→confirm and the land at a `Done STEP-1` baseline (equivalent to a
-  greenfield one, from which the ordinary forward flow continues) arrive in the remaining 2.0
-  increments. **Default mode is `new`**; a project stood up from scratch never enters this path and is
+  STEP-1 plan, then harvesting each architecture session from the code. The land at a `Done STEP-1`
+  baseline (equivalent to a greenfield one, from which the ordinary forward flow continues) arrives in
+  a remaining 2.0 increment. **Default mode is `new`**; a project stood up from scratch never enters this path and is
   unchanged.
 - **`control:` field on repo rows** (`registries/repos.yml`) — records whether Throughstone may write
   into a repo: `managed` (it may) or `external` (recorded and referenced, never written into). Control
@@ -148,13 +148,28 @@ error/corruption and re-run paths, not normal operation.
   to be stated. Existing projects are unaffected — their posture is already recorded in
   `.throughstone/project-license`.
 
-- **`status.sh` no longer guesses when the kickoff marker is missing.** If `overview.md` exists but
-  carries no recognized `PROJECT-STATUS` value (`not-started` / `retcon` / `kickoff-complete` — a lost
-  or corrupted marker), the helper now reports the status as **indeterminate** and points at the
-  `AGENTS.md` "First action" decision, instead of confidently resolving the index (which on a bare seed
-  could misreport "Run STEP-1.1" — wrong both for a pre-kickoff greenfield and for a retcon whose marker
-  was lost). Normal operation, with a valid marker, is unchanged; this hardens greenfield and adoption
-  alike.
+- **A lost `PROJECT-STATUS` marker is now a question, not a guess.** If `overview.md` exists but
+  carries no recognized value (`not-started` / `retcon` / `kickoff-complete` — a lost or corrupted
+  marker), `status.sh` reports the status as **indeterminate** rather than resolving a next action,
+  and the `AGENTS.md` "First action" decision now **asks you** which mode the project is in — never
+  bootstrapped, part-way through adopting an existing codebase, or past kickoff — and restores the
+  marker from your answer. It used to work this out from the files, reading a `prompts/STEP-index.md`
+  still identical to what `init.sh` wrote as proof that kickoff had never run. That test cannot
+  survive an adoption: the Phasing session is required to fill the index's `Phase 1` heading before
+  the baseline lands, so from that moment a project mid-adoption looked like one already past
+  kickoff. A marker lost in that window would have been "restored" to `kickoff-complete`, which
+  routes every later agent out of the adoption and into ordinary forward work — leaving the project
+  being told to start its architecture over, with nothing on disk looking wrong. Nothing routes off file shape now, on either path.
+  Normal operation, with a valid marker, is unchanged.
+- **Adoption now says up front where this release stops.** The intake checkpoint that opens an
+  adoption tells you plainly that this version carries the work through the architecture sessions
+  only — the cross-cutting review and the baseline land are still being built — so you see that
+  boundary before you invest the sessions rather than when you reach the last one.
+- **Leaving something out of an adoption is just leaving it out.** The scope call at the recon-map
+  checkpoint now says so outright: an `excluded` row is a note in that map and nothing else — no
+  registry row, no stub or boundary doc, and no ongoing state of any kind. A neighbouring system
+  the project genuinely has to reason about is written up in an
+  `architecture/` doc like any other external dependency.
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
   built and can carry unfinished work. The "Use this template" path is flagged as unable to be

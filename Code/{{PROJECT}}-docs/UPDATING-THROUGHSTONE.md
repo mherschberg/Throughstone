@@ -439,9 +439,12 @@ and the uniform work-list heading — is the entry above.
 **`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
 picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or
 corrupted), the helper now reports the status as *indeterminate* and points at the `AGENTS.md` "First
-action" decision, rather than falling through and possibly misreporting "Run STEP-1.1". **No action,
-and no change in normal operation** — a project with a valid marker (every healthy project) sees
-identical output. Pull the updated `scripts/status.sh` to get it.
+action" decision, rather than falling through and possibly misreporting "Run STEP-1.1". That decision
+in turn now **asks you** which mode the project is in and restores the marker from your answer,
+instead of working it out from the project's own files. **No action, and no change in normal
+operation** — a project with a valid marker (every healthy project) sees identical output. Pull the
+updated `scripts/status.sh` **and `AGENTS.md`** together to get it: the helper only points at the
+decision, so taking one without the other leaves the recovery half-updated.
 
 **`init.sh` fresh-template guard (general safety).** `init.sh` now refuses to run unless it is a fresh
 template checkout — it keys on the `THROUGHSTONE-TEMPLATE-GUARD` sentinel in the root
