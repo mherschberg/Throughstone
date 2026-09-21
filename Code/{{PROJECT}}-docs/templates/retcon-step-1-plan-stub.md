@@ -26,9 +26,14 @@ When adoption lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary
 from existing code; adopted {{DATE}}; forward work starts at STEP-2."* It archives greenfield-style
 into `prompts/001-<milestone>/step-0001/` (the folder name converges with greenfield), and a
 one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}"*). Landing also
-flips the STEP-index `1.1`–`1.14` architecture-session substeps to `Done` (they were held at the
-greenfield `Planned` seed while session progress lived here in the PLAN), so the landed project
-resolves like a greenfield baseline instead of re-running the sessions.
+reconciles the STEP index against this PLAN, in one pass. A session this PLAN ends at **`N/A`** or
+**`Deferred`** is carried across unchanged — the status only, since its one-line reason stays on
+the PLAN row — and every lettered conditional row this PLAN added (`1.6a`, `1.7b`, …) is written
+in beside the core session that owns it, which the seeded index has no row for. The rest of the
+`1.1`–`1.14` rows keep the greenfield `Planned` seed they sat at while session progress lived here:
+the `Done` STEP-1 row above them is what says the architecture STEP is over, so nothing has to flip
+them, and a leftover `Planned` row is not a defect to fix. The landed project resolves like a
+greenfield baseline instead of re-running the sessions.
 To the resolver it is an ordinary architecture baseline needing no new logic: forward
 implementation starts at **STEP-2**, and the first forward planning session inserts a **baseline
 check-in** as STEP-2 — the full test suite this docs-only STEP-1 deliberately skips.
