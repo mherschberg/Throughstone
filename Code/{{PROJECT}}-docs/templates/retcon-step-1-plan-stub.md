@@ -8,7 +8,7 @@
                                     retcon branch routes here and ignores the index during adoption. -->
 **Date:** {{DATE}}
 **Branch:** `step-0001-architecture`   <!-- same name in every repo this STEP touches -->
-**Repos (projection):** `{{PROJECT}}-docs`, `prompts`   <!-- STEP-1 is docs-only; adopted code repos are registered in place, not rebuilt -->
+**Repos (projection):** `{{PROJECT}}-docs`, `prompts`   <!-- STEP-1 is docs-only; adopted code repos are registered, not rebuilt -->
 
 > **This is a STUB that `init.sh` dropped.** It is the in-flight STEP-1 PLAN for adopting an
 > existing codebase into {{PROJECT}} (**retcon**). Its substeps are the **inventory work** only.
@@ -134,7 +134,8 @@ the way — not a pretty description a mature team already knows.
   (a Throughstone-shaped README per adopted repo, `registries/` rows, `architecture/` docs), but never
   rewrites the user's codebase. It adopts the existing one.
 - **Detect-then-confirm.** Propose an inventory; let the user correct it. Existing repos are
-  registered **in place** by their real `location` (not relocated).
+  registered at a path **inside the workspace** — moved there, or left where they are with a
+  symlink standing in for them at that path; their code is never rewritten.
 - **Confirm every decision** proportionate to confidence × consequence — a `from-code` answer gets
   a fast "right?"; a low-confidence, load-bearing one gets a real discussion.
 - **Accepted risks / deferrals stay visible.** Push unknowns and `Coverage: deferred` areas to

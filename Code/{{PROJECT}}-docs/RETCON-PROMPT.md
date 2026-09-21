@@ -297,7 +297,7 @@ session boundary. Stage 3's two-step rule governs from `1.1` onward.
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
 asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
-- **Per repo** — register it in `Code/{{PROJECT}}-docs/registries/repos.yml` (a row: real
+- **Per repo** — register it in `Code/{{PROJECT}}-docs/registries/repos.yml` (a row:
   `location`, `type`, and `control: managed`), stamp a Throughstone README from
   `Code/{{PROJECT}}-docs/templates/repo-readme-template.md`, and record a short per-repo note
   (stack, entry points, role) in that README — its living home, which the owning `architecture/`
