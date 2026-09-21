@@ -1,10 +1,9 @@
 # {{PROJECT}} — Pre-answer sheet: {{N.N — session name}}
 
-**Session:** `{{templates/architecture-sessions/NN-....md}}`   <!-- the in-scope harvest session this
-                                                                   sheet covers — any row in the PLAN's
-                                                                   session table, including a lettered
-                                                                   conditional (1.7b); 1.14 is the
-                                                                   Cross-Cutting Review, not a harvest -->
+**Session:** `Code/{{PROJECT}}-docs/templates/architecture-sessions/{{NN-....md}}`
+             <!-- the in-scope harvest session this sheet covers — any row in the PLAN's session
+                  table, including a lettered conditional (1.7b); 1.14 is the Cross-Cutting
+                  Review, not a harvest -->
 **Harvested:** {{YYYY-MM-DD}}
 **Sources read:** {{the confirmed recon map + which per-asset docs / inputs / code paths}}
 **Status:** {{Harvested → Confirmed}}   <!-- Stamp Harvested once EVERY row has a drafted answer;
@@ -36,11 +35,12 @@
      2. CONFIRM (with the user): walk each row proportionate to confidence × consequence — a
         from-code answer gets a fast "right?", a low-confidence or load-bearing one a real
         discussion — and record the outcome in Confirm. Then write the clean `architecture/` doc
-        from `templates/architecture-doc-template.md`, at its `Version` and `Status` — the template
-        carries the `Version Log` that `scripts/check.sh` check 4 also requires, which a doc written
-        freehand loses. Record each decision by its Confirm outcome — independently of
-        those two doc axes: a confirmed decision as plain fact; a decision left unconfirmed as
-        `Coverage: deferred` with a `registries/risks.yml` row.
+        from `Code/{{PROJECT}}-docs/templates/architecture-doc-template.md`, at its `Version` and
+        `Status` — the template carries the `Version Log` that
+        `Code/{{PROJECT}}-docs/scripts/check.sh` check 4 also requires, which a doc written freehand
+        loses. Record each decision by its Confirm outcome — independently of those two doc axes: a
+        confirmed decision as plain fact; a decision left unconfirmed as `Coverage: deferred` with a
+        `Code/{{PROJECT}}-docs/registries/risks.yml` row.
 
      TRANSIENT. Provenance and confidence live ONLY here — they never leak into the clean doc. The
      sheet is scratch in `Upcoming Prompts/retcon/`; it is discarded when STEP-1 lands (not archived

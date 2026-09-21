@@ -54,7 +54,8 @@ the way — not a pretty description a mature team already knows.
   or as detailed as the reality it describes) or explicitly `Coverage: deferred` with a plain
   "what's missing and why it matters" warning — never shallow-but-asserted.
 - Found source docs land in `inputs/` and ride the base inputs lifecycle (point-in-time;
-  `inputs/inputs-index.md` tracks what still holds vs. what observed reality has superseded).
+  `Code/{{PROJECT}}-docs/inputs/inputs-index.md` tracks what still holds vs. what observed reality
+  has superseded).
 
 ## Substeps — the inventory work
 > PLAN-local inventory substeps — tracked in the table below by Status, not the `1.1`–`1.14` session
@@ -67,9 +68,9 @@ the way — not a pretty description a mature team already knows.
 |---|-------|----------|--------|
 | inv-1 | Intake | Depth dial set; rough repo/doc/resource locations, the project's lifecycle stage, and any house version convention recorded (RETCON-PROMPT.md Stage 1). | Planned |
 | inv-2 | Scan & inventory | A list of every repo, doc, and resource (data stores, services, integrations, CI, deploy surfaces, environments, observability); each existing doc classified with a trust level. | Planned |
-| inv-3 | Recon-map skeleton | A draft `reports/<date>-step-0001-recon-map.md` — inventory, stack per repo, entry points/services, data stores, integrations, existing-docs classification, test/CI presence, confidence/unknowns, and a **Coverage & Confidence** section. | Planned |
+| inv-3 | Recon-map skeleton | A draft `Code/{{PROJECT}}-docs/reports/<date>-step-0001-recon-map.md` — inventory, stack per repo, entry points/services, data stores, integrations, existing-docs classification, test/CI presence, confidence/unknowns, and a **Coverage & Confidence** section. | Planned |
 | inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it; each asset also marked `adopt` or `excluded — reason`. | Planned |
-| inv-5 | Upgrade this PLAN | **Append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions (`1.N` id + Status) + the `Conditional sessions considered` table; seed `registries/risks.yml` from the confirmed map's unknowns/coverage; then mark `inv-5` `Done` last (inv-1–inv-4 already `Done` from as-you-go marking). | Planned |
+| inv-5 | Upgrade this PLAN | **Append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions (`1.N` id + Status) + the `Conditional sessions considered` table; seed `Code/{{PROJECT}}-docs/registries/risks.yml` from the confirmed map's unknowns/coverage; then mark `inv-5` `Done` last (inv-1–inv-4 already `Done` from as-you-go marking). | Planned |
 
 ### Intake results (inv-1)
 <!-- WHAT THIS IS. The record of the four framing answers RETCON-PROMPT.md's Stage 1 (Intake)
@@ -117,8 +118,9 @@ the way — not a pretty description a mature team already knows.
          greenfield seeds-then-refines it; every `Include` ALSO gets a lettered row
          (1.6a, 1.7b, …) in the session table above, since that table is what the harvest
          resolves while STEP-index is held at its seed;
-       • `registries/risks.yml` rows seeded from the confirmed map's Confidence & Unknowns /
-         Coverage & Confidence (genuinely-risky items only; STEP-index stays at its seed).
+       • `Code/{{PROJECT}}-docs/registries/risks.yml` rows seeded from the confirmed map's
+         Confidence & Unknowns / Coverage & Confidence (genuinely-risky items only;
+         STEP-index stays at its seed).
      That upgraded PLAN — at this same path, Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md —
      is the STEP-1 PLAN the Cross-Cutting Review's Check 1 and every future check-in read.
      See RETCON-PROMPT.md.
@@ -136,15 +138,17 @@ the way — not a pretty description a mature team already knows.
 - **Confirm every decision** proportionate to confidence × consequence — a `from-code` answer gets
   a fast "right?"; a low-confidence, load-bearing one gets a real discussion.
 - **Accepted risks / deferrals stay visible.** Push unknowns and `Coverage: deferred` areas to
-  `registries/risks.yml` with a revisit trigger; the check-in re-surfaces them.
+  `Code/{{PROJECT}}-docs/registries/risks.yml` with a revisit trigger; the check-in re-surfaces
+  them.
 
 ## Definition of done (inventory phase)
 - [ ] inv-1–inv-4 complete: intake recorded, everything inventoried, the recon map drafted and
       **confirmed by the user** — including each asset's scope (`adopt` / `excluded — reason`).
 - [ ] inv-5 complete: this PLAN upgraded by addition — per-asset substeps (`asset-N` id + Status) + the
       in-scope 1.1–1.14 sessions (`1.N` id + Status) + the `Conditional sessions considered` table appended; `inv-5` marked
-      `Done` last (inv-1–inv-4 already `Done` from as-you-go marking); `registries/risks.yml` seeded
-      from the confirmed map (STEP-index untouched).
+      `Done` last (inv-1–inv-4 already `Done` from as-you-go marking);
+      `Code/{{PROJECT}}-docs/registries/risks.yml` seeded from the confirmed map (STEP-index
+      untouched).
 - [ ] Next action is the lowest open **appended** substep — the first per-asset substep (`asset-1`),
       then the `1.1`–`1.13` harvest→confirm sessions. The overall STEP-1 baseline lands later, after
       the Cross-Cutting Review (see the retcon baseline note above).

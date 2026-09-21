@@ -1,7 +1,7 @@
 # {{PROJECT}} — STEP-0001 Recon Map
 
 **Date:** {{YYYY-MM-DD}}
-**Report path:** `reports/{{YYYY-MM-DD}}-step-0001-recon-map.md`
+**Report path:** `Code/{{PROJECT}}-docs/reports/{{YYYY-MM-DD}}-step-0001-recon-map.md`
 **STEP:** STEP-1 — retcon baseline (reverse-engineered architecture)
 **Status:** {{Draft → Confirmed on YYYY-MM-DD}}   <!-- Draft while the agent fills it in; on the
                                          user's sign-off, set "Confirmed on <date>" — the dated
@@ -26,9 +26,10 @@
         READMEs, architecture/, registries/), and deferred exploration rides the depth dial. Later
         reality-drift is the living docs' job, not an edit to this snapshot.
 
-     WHAT IT FEEDS (it is a seed, not a living artifact): the confirmed map seeds `registries/repos.yml`
-     (one row per repo), the thin `architecture/` docs the sessions harvest, and — from Confidence &
-     Unknowns below — `registries/risks.yml`. Session harvests read the CONFIRMED map (plus the
+     WHAT IT FEEDS (it is a seed, not a living artifact): the confirmed map seeds
+     `Code/{{PROJECT}}-docs/registries/repos.yml` (one row per repo), the thin `architecture/` docs
+     the sessions harvest, and — from Confidence & Unknowns below —
+     `Code/{{PROJECT}}-docs/registries/risks.yml`. Session harvests read the CONFIRMED map (plus the
      per-asset docs), never each other's working sheets; each reads its predecessors' CONFIRMED
      architecture docs, which is why the harvests run one session at a time and not in a batch.
 
@@ -84,7 +85,7 @@ External and third-party services this system depends on or is called by.
 
 Every found doc: what it is, how far to trust it against the code, and its disposition. Found
 source docs land in `inputs/` and ride the base inputs lifecycle (point-in-time; the code wins on
-any conflict — see `inputs/inputs-index.md`).
+any conflict — see `Code/{{PROJECT}}-docs/inputs/inputs-index.md`).
 
 | Doc | Classification | Trust | Disposition |
 |-----|----------------|-------|-------------|
@@ -103,7 +104,7 @@ Presence and shape of the safety net per repo — not a quality verdict, just wh
 What is still uncertain after the breadth pass — open questions and low-confidence reads that need a
 **next move** (harvest, or ask the user). A *deliberate* depth-dial deferral is not an unknown: it
 goes in **Coverage & Confidence** below, not here. Genuinely-risky unknowns are pushed to
-`registries/risks.yml` with a revisit trigger; the check-in re-surfaces them.
+`Code/{{PROJECT}}-docs/registries/risks.yml` with a revisit trigger; the check-in re-surfaces them.
 
 | Unknown / low-confidence area | Why it matters | Confidence | Next move |
 |-------------------------------|----------------|------------|-----------|
@@ -113,9 +114,10 @@ goes in **Coverage & Confidence** below, not here. Genuinely-risky unknowns are 
 
 The frozen, dated record of **what this run mapped and what it deliberately left for later** — the
 run-level coverage ledger of covered-vs-deferred, not a thoroughness score (some reading is deferred
-by design). The first of three altitudes; the others are `registries/risks.yml` and each doc's
-`Coverage` / `Status`. Never asserted-but-shallow: an area is either mapped here or listed as
-deferred, with a plain "what's missing and why it matters."
+by design). The first of three altitudes; the others are
+`Code/{{PROJECT}}-docs/registries/risks.yml` and each doc's `Coverage` / `Status`. Never
+asserted-but-shallow: an area is either mapped here or listed as deferred, with a plain "what's
+missing and why it matters."
 
 - **Depth-dial setting:** {{the fat-payload depth chosen at intake, and why}}
 - **Deferred fat-payload areas:** {{each area enumerated only to a stated depth — what's covered, what's
