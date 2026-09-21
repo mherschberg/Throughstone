@@ -25,7 +25,8 @@
      living working doc, not a fixed form: add rows as harvest and confirm surface decisions the
      template never enumerated (a real system raises questions no generic list foresaw), and split or
      reword rows as the picture sharpens. Unlike the recon map (frozen once confirmed), a pre-answer
-     sheet keeps changing right up until its clean `architecture/` doc is written — then it is discarded.
+     sheet keeps changing right up until its clean `architecture/` doc is written — then it stops
+     changing, and is discarded when STEP-1 lands (TRANSIENT, below).
 
      TWO MOVES:
      1. HARVEST (agent; human-free except the cost escalation): read the session file as REFERENCE

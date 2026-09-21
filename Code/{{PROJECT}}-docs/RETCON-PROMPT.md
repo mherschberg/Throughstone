@@ -369,8 +369,9 @@ this adoption has to end up equivalent to.
 
 **Track it across sittings.** A session is the largest unit in this stage — a full harvest plus a
 real conversation, easily more than one chat. So flip the row to **`In progress`** when you start it,
-and to **`Done`** when its doc is written; those are the same values the `inv-N` and `asset-N`
-tables use.
+and to **`Done`** the moment the session's work completes — usually when its doc is written, but
+later for a session whose own note below adds work after the doc; those are the same values the
+`inv-N` and `asset-N` tables use.
 
 **Resuming an `In progress` session: read its sheet, never restart it.** The sheet in
 `Upcoming Prompts/retcon/` is the state — its **`Status`** says which half you finished (`Harvested`
@@ -536,7 +537,7 @@ During adoption the risk lives in `risks.yml` only: do **not** add a backfill ST
 `prompts/STEP-index.md`, which is held at its greenfield seed until the baseline lands, at which
 point a deferred area becomes ordinary forward work like any other risk.
 
-### 5. Write the clean doc, then mark the session `Done`
+### 5. Write the clean doc, then close the session
 Write the `architecture/` doc the session's `## Output` section names, from
 `Code/{{PROJECT}}-docs/templates/architecture-doc-template.md` — so it carries **`Version`**,
 **`Status`**, and a **`Version Log`** (`check.sh` check 4 requires all three; a doc written freehand
@@ -561,8 +562,9 @@ The doc states **what the system is**. Provenance and confidence stay in the she
 into it: no "harvested from", no per-sentence sourcing, no confidence hedges. Drift and debt the
 harvest surfaced *are* content — record them as reality plus a flagged gap, with a `risks.yml` row.
 
-Then mark the session's row `Done` in the PLAN and resolve the next open row. Leave the sheet in
-place — it is transient scratch, discarded when STEP-1 lands, not archived as history.
+Then — once any extra note this session carries (the subsections below) is done too — mark the
+session's row `Done` in the PLAN and resolve the next open row. Leave the sheet in place — it is
+transient scratch, discarded when STEP-1 lands, not archived as history.
 
 ### The existing docs this session owns
 Stage 2 copied every found document into `inputs/` and gave it an `inputs-index.md` row — *landed and
