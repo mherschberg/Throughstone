@@ -126,7 +126,11 @@ note in the PLAN, so Stage 2 reads one working note instead of three files. Two 
 permanent home: write the release-stage descriptor into `overview.md` now, and the depth-dial posture
 seeds the recon map's Coverage & Confidence at `inv-3`. Mark `inv-1` **Done** in the PLAN's substep
 table, then resolve the next open substep. **Checkpoint:** play the intake back to the user before
-moving on.
+moving on. **And while Stage 4 is not present in this prompt, say so here**: this version carries
+the adoption through Stage 3 only — the Cross-Cutting Review and the baseline land are still being
+built — so the work they are about to invest in ends at a complete, resumable set of `architecture/`
+docs rather than a landed baseline. They are committing their time at this checkpoint, so they
+should know that boundary before they spend it, not when they reach `1.14`.
 
 ## Stage 2 — Map + plan  (`inv-2`…`inv-5`, then the per-asset substeps)
 

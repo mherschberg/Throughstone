@@ -161,6 +161,10 @@ error/corruption and re-run paths, not normal operation.
   routes every later agent out of the adoption and into ordinary forward work — leaving the project
   being told to start its architecture over, with nothing on disk looking wrong. Nothing routes off file shape now, on either path.
   Normal operation, with a valid marker, is unchanged.
+- **Adoption now says up front where this release stops.** The intake checkpoint that opens an
+  adoption tells you plainly that this version carries the work through the architecture sessions
+  only — the cross-cutting review and the baseline land are still being built — so you see that
+  boundary before you invest the sessions rather than when you reach the last one.
 - **The README and website now tell you to clone the latest *release*, not `main`.**
   `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
   built and can carry unfinished work. The "Use this template" path is flagged as unable to be
