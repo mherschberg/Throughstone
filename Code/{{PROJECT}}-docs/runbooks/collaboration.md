@@ -244,8 +244,8 @@ reviewing, and recording it. The ADR template already carries the needed states
   rather than assuming it's been done.
 
 ## 7. `prompts/` is shared history, appended by everyone
-`prompts/` spans all the code repos and is **never rewritten** (`METHOD.md` §5). Many
-contributors append to it:
+`prompts/` records every STEP once, wherever the code it touches lives, and is **never
+rewritten** (`METHOD.md` §5). Many contributors append to it:
 - On completion, each gathers their STEP's loose files from `Upcoming Prompts/` into a new
   `step-NNNN/` folder in the phase folder (`prompts/001-<phase-name>/step-NNNN/`, created when
   the phase's first STEP is archived) and adds a row to that phase's `README.md`.
