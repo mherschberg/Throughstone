@@ -599,7 +599,8 @@ before step 5 clones anything — and split two folders that sit beside each oth
    repositories of their own. **The docs hub and `prompts/` are the exception** — the action runs
    once per *code* repo, and `init.sh` wrote those two rows already, so write their `remote:` fields
    by hand.
-   The action also writes a `## Role in <project>` section into that repo's README and commits it
+   The action also writes that repo's README — a `## Role in <project>` section, or a refresh of
+   one it stamped, whichever `register-repo.md` step 2 decides — and commits it
    **in that repo** (`register-repo.md` step 5), so **push each code repo again once the action has
    run** — that commit lands after the push above and nothing else sends it, and left behind it
    fails step 10's local-trunk-matches-remote check.

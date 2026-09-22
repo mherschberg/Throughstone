@@ -79,8 +79,9 @@ repos:
 
   # Service / app / library repos get added here as the architecture names them, whether created
   # here or adopted. A repo with no README is stamped from templates/repo-readme-template.md; one
-  # that already has a README keeps it and gains a `## Role in <project>` section instead — what
-  # is in the repo decides, not how it arrived. See runbooks/register-repo.md. Example:
+  # that arrived with a README of its own keeps it and gains a `## Role in <project>` section
+  # instead — what is in the repo decides, not how it arrived. See runbooks/register-repo.md.
+  # Example:
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service

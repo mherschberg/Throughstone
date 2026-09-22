@@ -498,6 +498,16 @@ any project built with it.
   an enumerating sweep would catch the deferral whether or not anyone remembered.
 
 ### Fixed
+- **Registering a repo twice no longer gives a README the method wrote a second statement of its
+  role.** `runbooks/register-repo.md` step 2 had two arms, and a README an earlier run had stamped
+  from `templates/repo-readme-template.md` satisfied the *already there* one — so the re-run
+  appended a `## Role in <project>` section beside the role one-liner and Overview that already
+  said it. The step now reads three cases in order and recognises a README it stamped, by the
+  `## Licensing` section naming `LICENSE-THROUGHSTONE`, which stamping writes and nothing else puts
+  in a README; that file is updated in place, and one carrying both is raised rather than edited.
+  `runbooks/check-in.md`'s README sweep sends the reader to that definition, and its registry rule
+  now re-registers a row whose Architecture Overview entry is **absent** as well as one that
+  disagrees — every row, in a project whose Architecture Overview predates the Repos section.
 - **The runbooks index lists the three security-review checklists.** `runbooks/security-review.md`
   sends every S0, S1 and S2 review to a checklist file of its own, and all three have shipped in
   `runbooks/` since 1.6, but `runbooks/README.md` did not list them, so someone reading the index

@@ -41,6 +41,8 @@ SETUP_SH="$DOCS/scripts/setup-workspace.sh"
 DOCTOR_SH="$DOCS/scripts/doctor.sh"
 OVERVIEW_TPL="$DOCS/templates/overview-template.md"
 ARCH_TPL="$DOCS/templates/architecture-doc-template.md"
+REGISTER="$DOCS/runbooks/register-repo.md"
+README_TPL="$DOCS/templates/repo-readme-template.md"
 SESSIONS="$DOCS/templates/architecture-sessions"
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
@@ -48,7 +50,8 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 shopt -s nullglob
 
 for f in "$METHOD" "$AGENTS" "$BOOT" "$ONBOARD" "$CHECKIN" "$CHECK_SH" "$STATUS_SH" \
-         "$SETUP_SH" "$DOCTOR_SH" "$OVERVIEW_TPL" "$ARCH_TPL" "$ROOT/prompts/README.md" \
+         "$SETUP_SH" "$DOCTOR_SH" "$OVERVIEW_TPL" "$ARCH_TPL" "$REGISTER" "$README_TPL" \
+         "$ROOT/prompts/README.md" \
          "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$DOCS/templates/planning-session.md"; do
   [ -f "$f" ] || fail "expected file is missing: ${f#$ROOT/}"
 done
@@ -385,4 +388,59 @@ if grep -qE "$legacy_re" "$OVERVIEW_TPL"; then
   fail "templates/overview-template.md carries a legacy personal-preference section that check.sh check 6 warns about"
 fi
 
-echo "document contract ($(printf '%s\n' "$cites" | grep -c .) section citations, ${#conditionals[@]} conditional templates): PASS"
+# --- 13. The marker registration recognises its own README by ----------------
+# runbooks/register-repo.md step 2 decides what to do with a repo README by asking whether this
+# method stamped it, and the only answer available is a string the stamping itself leaves behind:
+# templates/repo-readme-template.md is nine bare headings and one block of literal prose, its
+# Licensing section, whose sentence names the LICENSE-THROUGHSTONE notice. No script reads a repo
+# README anywhere -- check.sh reads registries/repos.yml and stops -- so there is no enforcer to
+# derive from, and the template is the closest thing: it is the artifact stamping copies. Rename
+# or empty that section and the runbook tests for a string nothing writes any more, every README
+# the method stamped reads as one it did not write, and a re-run appends a second statement of the
+# repo role beside the one already there.
+#
+# Two limits, stated rather than implied. This pins that step 2 names the marker; it cannot pin
+# that step 2 still branches three ways, which is the defect itself. And the marker is
+# distinctive, not unique: step 3 writes the notice file into every repo, so a README somebody
+# else wrote can honestly come to name it -- which is why the runbook asks rather than assumes
+# when a README carries both markers.
+lic_head="$(grep -m1 -E '^## Licen' "$README_TPL" || true)"
+[ -n "$lic_head" ] || fail "templates/repo-readme-template.md has no top-level Licensing section; runbooks/register-repo.md step 2 recognises a README this method stamped by that section, so its test would match nothing"
+# Read the section BODY, not the file: the instruction comment above it names LICENSE-THROUGHSTONE
+# three times, and matching those would keep passing after the section a stamped README actually
+# carries was deleted. The comment is indented, so an anchored pattern skips it.
+lic_body="$(awk '/^## Licen/ { f = 1; next } /^## / { f = 0 } f' "$README_TPL" | tr -s ' \t\n' ' ' || true)"
+[ -n "$lic_body" ] || fail "the Licensing section of templates/repo-readme-template.md is empty; the sentence in it is the whole of what marks a README as stamped"
+lic_token="$(printf '%s\n' "$lic_body" | grep -oE 'LICENSE-[A-Z]+' | sort -u | head -1 || true)"
+[ -n "$lic_token" ] || fail "the Licensing section of templates/repo-readme-template.md names no LICENSE-<NAME> notice file, so stamping leaves nothing behind to recognise it by"
+# register-repo.md's steps are ordered-list items, not '## N.' headings, so section() cannot reach
+# them. The range is scoped to step 2 because step 3 applies the licence and names the notice
+# three times, which would satisfy this check without step 2 saying anything at all. The d flag
+# stops the range reopening on the worked example numbered list further down the file.
+reg_step2="$(awk '/^3\. / { if (f) { f = 0; d = 1 } } /^2\. / { if (!d) f = 1 } f' "$REGISTER" | tr -s ' \t\n' ' ' || true)"
+[ -n "$reg_step2" ] || fail "could not read step 2 out of runbooks/register-repo.md, the step that decides a repo README"
+case "$reg_step2" in
+  *"templates/repo-readme-template.md"*) : ;;
+  *) fail "runbooks/register-repo.md step 2 is not the README step any more, so this check is reading the wrong step" ;;
+esac
+for m in "$lic_head" "$lic_token"; do
+  case "$reg_step2" in
+    *"$m"*) : ;;
+    *) fail "runbooks/register-repo.md step 2 does not name \"$m\", half of the test that tells a README this method stamped from one it did not; without it a re-run appends a role section to a file that already carries one" ;;
+  esac
+done
+
+# runbooks/check-in.md sweeps repo READMEs with the same three-way split, and it has to route to
+# the runbook for the first case rather than restate the test. Two documents answering the same
+# question in their own words is how they come to answer it differently.
+sweep="$(awk '/^- \*\*Repo READMEs\*\*/ { f = 1; print; next } /^- \*\*/ { f = 0 } f' "$CHECKIN" | tr -s ' \t\n' ' ' || true)"
+[ -n "$sweep" ] || fail "runbooks/check-in.md no longer has a Repo READMEs sweep, or its first bullet has been renamed"
+case "$sweep" in
+  *"runbooks/register-repo.md"*) : ;;
+  *) fail "the Repo READMEs sweep no longer names runbooks/register-repo.md, the one place the cases it branches on are defined" ;;
+esac
+if printf '%s\n' "$sweep" | grep -qF "$lic_token"; then
+  fail "runbooks/check-in.md's Repo READMEs sweep now names $lic_token itself; the test for a stamped README belongs in runbooks/register-repo.md step 2 and nowhere else, or the two documents are free to drift apart"
+fi
+
+echo "document contract ($(printf '%s\n' "$cites" | grep -c .) section citations, ${#conditionals[@]} conditional templates, marker $lic_token): PASS"
