@@ -425,7 +425,19 @@ differently:
   **The "do the setup steps still work from a clean checkout" check now survives only on a README
   we stamped.** One smaller shift rides along: a registry row and its Architecture Overview entry
   now count as **one** thing that drifts, fixed by re-running the registration rather than by
-  editing either side.
+  editing either side — and the trigger covers an entry that is **absent** as well as one that
+  disagrees. **On a 1.7 project that is every row**: the Repos entry is new in this release, so
+  your Architecture Overview has none, no row has one, and your first 1.8 check-in sends every
+  repo you have back through `runbooks/register-repo.md`. **That is the expected shape of it, and
+  nothing of yours is overwritten.** The registration recognises a README Throughstone stamped —
+  by the `## Licensing` section naming `LICENSE-THROUGHSTONE`, which stamping writes and nothing
+  else does, and which has not changed since 1.7, so a README stamped back then is recognised
+  too — and brings its role one-liner and **Overview** up to date in place, instead of
+  adding a `## Role in <project>` section beside content that already says the same thing. So a
+  repo of yours ends this with one statement of its role, wherever that statement lives. Where a
+  README carries both — the stamped body *and* a Role section — the registration stops and asks
+  which to keep rather than deleting either; on a project coming from 1.7 that cannot have
+  happened yet, because the Role section is new in this release too.
 - **`runbooks/collaboration.md` §9 no longer stands up a remote for every repo.** Going solo to
   team, the create-a-remote-and-push-your-history step is now scoped to repos that have no
   remote yet. As it stood, following it literally would have created a second remote for a

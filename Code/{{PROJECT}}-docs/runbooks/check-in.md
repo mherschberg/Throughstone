@@ -67,9 +67,12 @@ version/status).
   In the mono-repo-for-now layout only the workspace-root row is ever named — the folder rows live
   inside that one repository, so whatever backs the root up backs them up too.
 
-**A repo missing from the registry**, or a row whose Architecture Overview entry disagrees with
-it, is fixed by **re-running the registration** (`runbooks/register-repo.md`), never by editing
-either side by hand.
+**A repo missing from the registry**, or a row whose Architecture Overview entry is **absent, or
+disagrees with it**, is fixed by **re-running the registration** (`runbooks/register-repo.md`),
+never by editing either side by hand. **Absent is the ordinary case, not the exception**: an
+Architecture Overview with no Repos section in it has an entry for no row at all, so every repo in
+the project goes back through the registration. That is the expected shape of a first check-in,
+not a fault.
 
 ### Conditional-session coverage
 
@@ -131,11 +134,12 @@ the check-in itself.
 Beyond the architecture docs, sweep four things:
 - **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
   case applies.
-  **Stamped from `templates/repo-readme-template.md`** — review the whole file: the **Overview**
-  still describes what the repo *is*, the **Setup / Running / Testing** steps still work from a
-  clean checkout, and any `ARCHITECTURE.md` still matches the code and the design — or, if there is
-  none, whether the repo has since grown the internal complexity that warrants one; if it has, file
-  a follow-up STEP to write it.
+  **Stamped from `templates/repo-readme-template.md`** (`runbooks/register-repo.md` step 2 says
+  how that is recognised) — review the whole file: the **Overview** still describes what the repo
+  *is*, the **Setup / Running / Testing** steps still work from a clean checkout, and any
+  `ARCHITECTURE.md` still matches the code and the design — or, if there is none, whether the
+  repo has since grown the internal complexity that warrants one; if it has, file a follow-up
+  STEP to write it.
   **Carrying a `## Role in <project>` section instead**, written in that file's own markup — review
   only that section, through to the next heading at its level, and leave the rest of the file alone;
   if the repo has an `ARCHITECTURE.md`, check it against the design too, but raise any drift in the

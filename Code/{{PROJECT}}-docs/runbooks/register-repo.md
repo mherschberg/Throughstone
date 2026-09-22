@@ -72,13 +72,34 @@ The goal is that the **result** is the same however a repo arrived, except for l
 2. **The README — decided by what is in the repo.** A README is a regular file at the repo root
    whose name starts with `readme` in any capitalisation — `README.md`, `readme.rst`, a bare
    `README`; a symlink or a `readme` directory is not one. **With more than one, ask which is
-   canonical** before writing to any of them.
+   canonical** before writing to any of them. Three cases, and **the order is the rule** — a
+   README this method stamped is also a README that is already there, so read them in order and
+   take the first that fits.
    - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md` as
      `README.md`.
+   - **A README this method stamped** — recognised by a `## Licensing` section of its own
+     carrying the sentence that names `LICENSE-THROUGHSTONE`. Every path that stamps that template
+     writes that sentence, including the cut-back form a repo we did not create gets, and nothing
+     else puts it in a README under that heading. **The heading is half the test**: a README that
+     names the notice in prose somewhere, as the docs hub's own README and `prompts/README.md`
+     both do, is not one we stamped. **Update that file in place**: bring the role one-liner
+     under the title, and the **Overview**, up to date. **Do not add a `## Role in <project>`
+     section** — those two places already say what it would say, and a README carrying both
+     states one repo's role twice, in two places that drift apart. A README carrying that
+     Licensing section **and** a `## Role in <project>` one is either a file an earlier run
+     appended to, or a README of somebody else's that happens to name our notice: **ask which**,
+     and leave the repo with one statement of its role rather than two.
    - **A README already there** — leave it under its own name and add a `## Role in <project>`
      section, shape in the same template, written in that file's own markup; a format you do not
      recognise is plain text. If that section is already present, **update it in place; never
-     append a second one.**
+     append a second one.** **One look before you write**: the test above has a blind spot, and
+     it is the owner's right — a stamped README is theirs from the moment it lands, and they may
+     have dropped its `## Licensing` section. If the file in front of you plainly reads as one of
+     ours, the repo's name as its title and a role one-liner under it and an Overview, **ask**
+     rather than writing the role a second time.
+
+   `runbooks/check-in.md`'s README sweep splits the same three ways and sends the reader here for
+   the first of them. The test above is the one definition; change it and that sweep changes too.
 
    A repo that already has an `ARCHITECTURE.md` keeps it, exactly as its README is kept.
 
@@ -142,7 +163,8 @@ End the run with one block per repository. **A repo you skipped is named here to
 partial run reads as a complete one.
 
 - **`✓`** — the step's expected end state was reached **by this run**: the row says what it
-  should say, the Role section is current, the artifact is on disk, the commit is in the log.
+  should say, the README says what the repo is — its Role section, or its role one-liner and
+  Overview, whichever step 2 left there — the artifact is on disk, the commit is in the log.
   Not "attempted", and not "already there but stale".
 - **`—`** — not reached. Always takes a reason line.
 - **`n/a`** — correctly did not apply. Also takes a reason. A commit with nothing to commit,
@@ -171,15 +193,17 @@ the notice alone — with the reason line naming the licence it carries.
 ## Running it again
 
 Idempotent and resumable. Re-running matches the row by `name`, refreshing it rather than
-duplicating it, and updates the `## Role in <project>` section in place.
+duplicating it, and updates in place whatever README step 2 left — the `## Role in <project>`
+section, or the stamped file itself — rather than adding a second statement of the role beside it.
 
 `added_as:` never changes on a re-run, and a `provenance:` block is left exactly as it stands;
 only a split writes it.
 
 **There is no way to tell from the repo that a whole previous run succeeded** — a partial run may
-have written the README while the row, the licence or a commit failed. Do not look for one. Just
-re-run: it is safe, and it is also the fix when a check-in finds the row and the Architecture
-Overview entry out of step.
+have written the README while the row, the licence or a commit failed. Do not look for one. Step
+2's test is a narrower question and stays answerable: it asks who wrote that README, not whether a
+run finished. Just re-run: it is safe, and it is also the fix when a check-in finds the row and the
+Architecture Overview entry out of step, or finds no entry for that row at all.
 
 ## Example — adopting an existing repo
 
