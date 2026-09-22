@@ -91,7 +91,7 @@ brought into a project at all — in a second new runbook; none of that asks any
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
    `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10,
-   `runbooks/collaboration.md` §6, §8 and §9, `prompts/README.md`, `registries/README.md`, and the
+   `runbooks/collaboration.md` §6, §7, §8 and §9, `prompts/README.md`, `registries/README.md`, and the
    header comment in `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
    template but belongs in this group: it carries the `## Role in <project>` section the new
    runbook sends you to write into a repo that already exists. **The files that route to the new
@@ -312,7 +312,7 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` §6, §8
+  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` §6, §7, §8
   and §9, `prompts/README.md`, `registries/README.md`, `registries/repos.yml`'s header,
   `AGENTS.md`, `runbooks/check-in.md`, `runbooks/dependency-supply-chain.md`,
   `runbooks/incident-postmortem.md`, and the templates `repo-readme-template.md`,
@@ -326,7 +326,9 @@ appendix covers purging history first when that matters.
   while its opening paragraph names both layouts — `prompts/` is its own repo in a multi-repo
   project and a folder inside the root repo in mono-repo-for-now — rather than calling it a repo
   of its own whichever layout you are in; the recipe's reserve and archive steps drop the same
-  assumption.
+  assumption. `METHOD.md` §5 made the same unconditional claim and now names both layouts too,
+  citing `METHOD.md` §7 for the fuller treatment; `collaboration.md` §7 said `prompts/` *spans all
+  the code repos*, which assumes several, and now matches their wording.
   `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
   registry row and name the registration action; `check-in.md`,
   `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; and the

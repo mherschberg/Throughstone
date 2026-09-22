@@ -404,13 +404,15 @@ prompts/001-<phase-name>/step-NNNN/ ← archived: STEP PLAN + all substep prompt
   scope. It's the first place to look to understand where the project is.
 - `prompts/README.md` holds the **conventions + the recipe for authoring a new STEP**.
 
-**Apart from `prompts/README.md`, `prompts/` is history; the docs repo is state.** That's
-why they're separate repos. `prompts/README.md` is process guidance; the rest of `prompts/`
-records *how* the project was built, STEP by STEP — it spans all the code repos in the
-project and is never rewritten. `Code/{{PROJECT}}-docs/` describes *what the system is now*
-— it's kept current. Don't fold one into the other.
+**Apart from `prompts/README.md`, `prompts/` is history; the docs hub is state.** That's
+why they stay separate. `prompts/README.md` is process guidance; the rest of `prompts/`
+records *how* the project was built, STEP by STEP, and is never rewritten.
+`Code/{{PROJECT}}-docs/` describes *what the system is now* — it's kept current. Don't fold
+one into the other.
 
-- **`prompts/` is its own repo** (project-wide; it cuts across the code repos).
+- **`prompts/` is project-wide** — every STEP recorded once, wherever the code it touches
+  lives. Where it sits follows the layout: its own repo at the workspace root in a multi-repo
+  project, a folder inside the root repo in mono-repo-for-now (§7).
 - **`Upcoming Prompts/` is a workspace folder, not generally a repo** — it's scratch space
   for the STEP in flight, un-versioned until the STEP completes and is moved into
   `prompts/`. (You *can* make it a repo if you want in-flight work versioned; most don't.)

@@ -1192,6 +1192,8 @@ any project built with it.
   prompt is ever authored for one — the helper now names the command that does exist.
 - **Two READMEs described `prompts/` and the docs hub as repositories a mono-repo-for-now project
   does not have** — both now hold in either layout.
+- **`METHOD.md` §5 said the same thing, one section deeper** — it now names both layouts where it
+  called `prompts/` its own repo outright, and `collaboration.md` §7, which cites it, matches.
 
 ## [1.7.1] - 2026-08-10
 
