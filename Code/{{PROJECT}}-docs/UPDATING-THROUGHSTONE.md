@@ -322,7 +322,11 @@ appendix covers purging history first when that matters.
   `METHOD.md` §7 gains the mono→multi special case (that STEP is
   branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
-  and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
+  and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone,
+  while its opening paragraph names both layouts — `prompts/` is its own repo in a multi-repo
+  project and a folder inside the root repo in mono-repo-for-now — rather than calling it a repo
+  of its own whichever layout you are in; the recipe's reserve and archive steps drop the same
+  assumption.
   `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
   registry row and name the registration action; `check-in.md`,
   `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; and the
@@ -377,7 +381,9 @@ appendix covers purging history first when that matters.
   cloning before it writes the root pointer files, which is the order this release reversed, and it
   gains a line declaring that its own paths are relative to the workspace root. `AGENTS.md`
   described that same old order and is corrected too — it is already in the process-docs group
-  above, so pulling that group picks it up. Nothing of yours is rewritten.
+  above, so pulling that group picks it up. The hub's own `README.md` also stops calling itself a
+  repo and `prompts/` a sibling repo of it — in mono-repo-for-now both are folders. Nothing of
+  yours is rewritten.
 - *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
   `provenance:` is a new optional block recording that a repo was split out of another one — where
   it came from, and where the two histories part company. It is written **at** a split and only

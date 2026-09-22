@@ -11,10 +11,13 @@ open-source `LICENSE` is an error, not a change of posture. Retained Throughston
 content and conventions remain under BSD-3-Clause; see `LICENSE-THROUGHSTONE`. The two scopes
 describe different material and neither replaces the other.
 
-**`prompts/` is its own repo** — project-wide, spanning all the code repos. It is
-**history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`) is **state** (kept
-current). `Upcoming Prompts/` is a workspace folder for the in-flight STEP, not generally a
-repo (see `METHOD.md` §5).
+**`prompts/` is project-wide** — every STEP is recorded here once, wherever the code it
+touches lives. It is **history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`)
+is **state** (kept current). Where `prompts/` sits follows the layout: in a multi-repo
+project it is its own repo at the workspace root; in mono-repo-for-now it is a folder inside
+the root repo (`Code/{{PROJECT}}-docs/METHOD.md` §7). `Upcoming Prompts/` is a workspace
+folder for the in-flight STEP, not generally a repo (see
+`Code/{{PROJECT}}-docs/METHOD.md` §5).
 
 ## Layout
 
@@ -65,7 +68,8 @@ e.g. `Check-in: phase 1`) and is a full STEP that runs
 conditional-session coverage, review accepted risks/debt in
 `Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). Its completed
 report is written under `Code/{{PROJECT}}-docs/reports/`; the archived STEP folder here keeps
-the thin PLAN. The agent proposes one when the scheduled point is reached (see `METHOD.md` §5).
+the thin PLAN. The agent proposes one when the scheduled point is reached
+(see `Code/{{PROJECT}}-docs/METHOD.md` §5).
 
 ## When not to add a STEP
 
@@ -109,7 +113,7 @@ teammate will need later.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's
    not there, add a row — and that row *is* the number reservation. **Pull first**, take the
-   next number (`max + 1`), add the row **on `prompts/`'s shared trunk** (not a `step-NNNN`
+   next number (`max + 1`), add the row **on the shared trunk** (not a `step-NNNN`
    branch), then **commit and push immediately** in a dedicated `reserve STEP-N` commit,
    **before** branching or writing. If the push is rejected, someone reserved concurrently —
    pull, renumber, push again. Before every push, even on a clean merge, scan for a duplicate
@@ -162,7 +166,7 @@ teammate will need later.
 7. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
-   in the phase folder in this repo and mark it **Done** in the index. (If this is the phase's
+   in the phase folder here and mark it **Done** in the index. (If this is the phase's
    first archived STEP the phase folder won't exist yet — create `001-<phase-name>/` and its
    `README.md` from `phase-readme-template.md` first, naming it for the chosen phase; see
    Conventions.)
