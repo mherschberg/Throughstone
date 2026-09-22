@@ -1180,6 +1180,8 @@ any project built with it.
   `./doctor.sh status` gave it the ordinary *"wait for an explicit substep command"* guidance, but a
   Check-in STEP's two substeps are fixed and `runbooks/check-in.md` is their prompt, so no substep
   prompt is ever authored for one — the helper now names the command that does exist.
+- **Two READMEs described `prompts/` and the docs hub as repositories a mono-repo-for-now project
+  does not have** — both now hold in either layout.
 
 ## [1.7.1] - 2026-08-10
 

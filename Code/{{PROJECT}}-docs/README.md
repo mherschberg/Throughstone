@@ -1,8 +1,8 @@
 # {{PROJECT}} — Documentation Hub
 
 The durable home for **what {{PROJECT}} is and why** — architecture, decisions, standards,
-and the method that governs how it's built. This repo is *state* (the system as it is now);
-the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
+and the method that governs how it's built. This hub is *state* (the system as it is now);
+`prompts/` at the workspace root is *history* (how it was built, STEP by STEP).
 
 > This is a pointer. The substance lives in the files below — don't duplicate them here.
 
@@ -38,7 +38,7 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
 > `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the
 > open-source license you chose at setup or kept proprietary. For open-source projects,
-> this repo's `LICENSE` is the canonical project-license file copied unchanged into each
+> this hub's `LICENSE` is the canonical project-license file copied unchanged into each
 > application-code repo when it is created. `.throughstone/project-license` records the durable
 > selection independently, and the repo-scaffolding helper validates the two before copying.
 > A repo Throughstone creates also gets `LICENSE-THROUGHSTONE` for the scaffold README and CI
