@@ -2,9 +2,10 @@
 #
 # Parity coverage for the two scripts that read registries/repos.yml.
 #
-# `- name:`, `location:` and `remote:` are read by the same two lines of awk, written out three
-# times across two files: scripts/check.sh keeps them in a `val()` function the check-in uses for
-# all three fields, and scripts/setup-workspace.sh has them inline twice, once for the location it
+# `- name:`, `location:` and `remote:` are read by the same two lines of awk, written out four
+# times across two files: scripts/check.sh keeps them in a `val()` function per awk program that
+# reads the registry — one for the check-in's three fields, one for the workspace-root locations
+# check 7 allows — and scripts/setup-workspace.sh has them inline twice, once for the location it
 # clones into and once for the remote it clones from. Nothing connects the copies. The failure
 # that follows is a quiet one: teach one of them a new quoting rule and leave the other alone, and
 # the check-in passes a row that the clone loop then clones into a directory whose name starts
@@ -12,13 +13,13 @@
 #
 # So this file extracts the expressions from the scripts themselves — by content, never by line
 # number, because both coordinates recorded for them went stale before it was written — runs every
-# one over the same registry lines, and asserts two things per line. That all three return the
-# same string: that is the drift this exists to catch, and it is the one that will actually
+# one over the same registry lines, and asserts two things per line. That every one of them
+# returns the same string: that is the drift this exists to catch, and it is the one that will actually
 # happen. And that the string is the value registries/repos.yml's own rules say the line carries:
-# three copies of one expression cannot disagree with each other about a case they all get wrong,
+# copies of one expression cannot disagree with each other about a case they all get wrong,
 # so agreement on its own would not be correctness.
 #
-# It binds the duplication; it does not remove it. Reading the three into one shared reader is a
+# It binds the duplication; it does not remove it. Reading the copies into one shared reader is a
 # much larger change and not one this test is a step towards.
 #
 # Deliberately absent, and not an oversight to fill in: any line whose value repos.yml does not
@@ -69,18 +70,23 @@ add_reader() {
 # is not that the line is where it was, but that it is still the shape the call assumes.
 check_hits="$(copies "$CHECK" | awk 'END { print NR }')"
 setup_hits="$(copies "$SETUP" | awk 'END { print NR }')"
-[ "$check_hits" = 1 ] \
-  || bad "check.sh has $check_hits line(s) stripping a key: prefix, not the 1 this file knows how to run — if a copy was added, extend the extraction below to cover it; if the one that was there has gone, find what now reads the three fields"
+check_vals="$(copies "$CHECK" | grep -cF 'function val(')"
+[ "$check_hits" -ge 1 ] \
+  || bad "check.sh no longer strips a key: prefix anywhere — find what now reads the three fields"
+[ "$check_vals" = "$check_hits" ] \
+  || bad "check.sh has $check_hits line(s) stripping a key: prefix and $check_vals of them sit in a val() function, which is the only shape this file knows how to run — teach the extraction below the shape the rest have, or keep every strip on one line with a val() header"
 [ "$setup_hits" -ge 2 ] \
   || bad "setup-workspace.sh has $setup_hits line(s) stripping a key: prefix, fewer than the two fields it reads — check what now reads the other one"
 
-val_line="$(copies "$CHECK" | grep -F 'function val(' | head -1)"
-if [ -n "$val_line" ]; then
-  add_reader "check.sh val()" "$val_line
+# check.sh wraps each copy in a val() function, so a program is that function plus a call. It
+# holds one per awk program that reads the registry, and every one of them is run: a copy added
+# beside them is compared with the rest instead of going unread.
+val_n=0
+while IFS= read -r val_line; do
+  val_n=$((val_n + 1))
+  add_reader "check.sh val() #$val_n" "$val_line
 { print \"<\" val(\$0) \">\" }"
-else
-  bad "check.sh no longer strips the prefix inside a val() function, so this file cannot call it — teach the extraction here the shape it has now, or keep the strip on one line with the function header. What strips it today: $(copies "$CHECK" | head -1)"
-fi
+done < <(copies "$CHECK" | grep -F 'function val(')
 
 # setup-workspace.sh writes its copies out inline, one per field, each as the action half of a
 # pattern-action rule. Dropping the pattern is the point: the action is the reader, and running it
@@ -99,9 +105,9 @@ while IFS= read -r line; do
 done < <(copies "$SETUP")
 
 # Every copy found has to have become a runnable reader, or the comparisons below quietly skip
-# one. A copy added later to setup-workspace.sh is welcome and is simply compared with the rest; a
-# second one in check.sh is not, because the extraction above runs exactly one val() and the count
-# guard says so. A copy this file cannot run is the thing to catch: it is a copy nothing binds.
+# one. A copy added later to either script is welcome and is simply compared with the rest — in
+# check.sh as long as it is a val() function, which is the shape the guard above requires and the
+# extraction runs. A copy this file cannot run is the thing to catch: it is a copy nothing binds.
 [ "$readers" -eq $((check_hits + setup_hits)) ] \
   || bad "built $readers runnable reader(s) from $((check_hits + setup_hits)) line(s) that strip a key: prefix — the copies this file could not run are bound by nothing"
 
@@ -166,8 +172,8 @@ done
 
 # --- 4. The two assertions, per line ------------------------------------------------
 # They are independent on purpose. A reader that has drifted fails both — the schema assertion
-# names which of the three is wrong, the parity assertion names what it now disagrees with — and
-# three readers that agree on a wrong value fail only the first, which is the case agreement alone
+# names which one is wrong, the parity assertion names what it now disagrees with — and readers
+# that agree on a wrong value fail only the first, which is the case agreement alone
 # would never have shown.
 i=0
 while [ "$i" -lt "$rows" ]; do

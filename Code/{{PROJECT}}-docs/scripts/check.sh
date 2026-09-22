@@ -105,7 +105,7 @@ if [ -f "$INDEX" ]; then
     pass "no duplicate STEP numbers ($step_rows STEP row(s))"
   fi
 else
-  warn "no prompts/STEP-index.md yet (project not initialized?) — skipping STEP checks"
+  warn "no prompts/STEP-index.md at the workspace root — skipping the STEP checks; in a multi-repo project the roadmap is the prompts/ repo, so a checkout holding the docs hub alone never carries it"
 fi
 
 # --- 2. Duplicate ADR numbers -------------------------------------------------
@@ -197,7 +197,7 @@ if [ -f "$INDEX" ]; then
     pass "all statuses valid ($step_read STEP row(s), $sub_read substep row(s))"
   fi
 else
-  warn "no prompts/STEP-index.md yet — skipping status check"
+  warn "no prompts/STEP-index.md at the workspace root — skipping the status check"
 fi
 
 # --- 4. Architecture-doc frontmatter ------------------------------------------
@@ -260,7 +260,7 @@ if [ -f "$OVERVIEW" ]; then
     pass "$DOCS_REL/overview.md has no legacy local user preference sections"
   fi
 else
-  pass "no $DOCS_REL/overview.md yet (project not initialized?) — skipping legacy local user profile check"
+  pass "no $DOCS_REL/overview.md in the docs hub — nothing to read, so skipping the legacy local user profile check"
 fi
 
 # --- 7. Workspace-root hygiene (multi-repo only) ------------------------------
@@ -274,16 +274,44 @@ elif [ -e "$ROOT/.git" ]; then
   pass "workspace root is itself a repo (mono-repo or the template) — hygiene rule relaxed; skipping"
 else
   # Allowed root entries are per-machine pointers, repo containers, and transient prompt intake.
-  allow=" CLAUDE.md AGENTS.md init.sh doctor.sh .git .gitignore .gitattributes .DS_Store .claude .throughstone Code prompts Upcoming Prompts "
+  # One list element per entry: `Upcoming Prompts` holds a space, and a list joined on spaces
+  # cannot tell that entry from two entries called `Upcoming` and `Prompts`.
+  allow=(CLAUDE.md AGENTS.md init.sh doctor.sh .git .gitignore .gitattributes .DS_Store .claude .throughstone Code prompts "Upcoming Prompts")
+  # A registered repo may sit at any path inside the workspace and is never made to move
+  # (METHOD.md §7), so the root entry a row's location: points into is expected here too — the
+  # project put it there deliberately and the registry is where it said so. Only the head of the
+  # path is read; whether the rows themselves are well formed is check 10's question.
+  registry_note="and $DOCS_REL/registries/repos.yml could not be read, so a repo registered at one is named here too"
+  if [ -r "$REPOS_REGISTRY" ]; then
+    registry_note="and no row in $DOCS_REL/registries/repos.yml registers a path starting at one"
+    while IFS= read -r registered; do
+      allow+=("$registered")
+    done < <(awk '
+      function val(t) { sub(/^[^:]*:[[:space:]]*"?/, "", t); sub(/"?[[:space:]]*$/, "", t); return t }
+      /^[[:space:]]*#/ { next }
+      /^[[:space:]]*location:/ {
+        loc = val($0)
+        sub(/^\.\//, "", loc)   # ./name and name are one path; the split below reads the second
+        sub(/\/.*$/, "", loc)
+        # "." is the workspace root itself rather than an entry in it, and a location beginning
+        # at "/" leaves no root entry to name.
+        if (loc != "" && loc != ".") print loc
+      }
+    ' "$REPOS_REGISTRY")
+  fi
   stray=""
   for entry in "$ROOT"/* "$ROOT"/.[!.]*; do
     [ -e "$entry" ] || continue
     name="$(basename "$entry")"
-    case "$allow" in *" $name "*) : ;; *) stray="$stray $name" ;; esac
+    known=0
+    for allowed in "${allow[@]}"; do
+      [ "$name" = "$allowed" ] && { known=1; break; }
+    done
+    [ "$known" -eq 1 ] || stray="$stray $name"
   done
   if [ -n "$stray" ]; then
     warn "unexpected entr(ies) at workspace root:$stray — should these be inside a repo (usually the docs hub)?"
-    hint "ask whether each entry is fine where it is: a repo registered in $DOCS_REL/registries/repos.yml may sit at any path inside the workspace and never has to move, and anything else durable belongs in a repo (almost always $DOCS_REL/). See $DOCS_REL/METHOD.md §7."
+    hint "none of these is a pointer this method writes, $registry_note. Register the repo if that is what it is — a repo may sit at any path inside the workspace and never has to move — and otherwise move it into a repo, almost always $DOCS_REL/. See $DOCS_REL/METHOD.md §7."
   else
     pass "only the expected pointers / repos at the workspace root"
   fi
@@ -456,10 +484,13 @@ fi
 # just edited it — see runbooks/register-repo.md, which raises anything that did not work.
 #
 # A row is covered by its own remote:, or by the root repository's remote when it lives inside it.
-# In the mono-repo-for-now layout one row has `location: "."` and every other row is a folder in
-# that one repository — whatever backs the root up backs them up too, so only the root row is
-# named. The root row is covered by nothing else: if it has no remote, it is flagged like any
-# other repo.
+# The row with `location: "."` is the workspace root, and every other row's path sits inside that
+# repository's working tree, so its remote is read as covering them all and only the root row is
+# named. How many repositories that tree actually holds is not something the rows say — usually
+# one, sometimes several checked out inside it, and nothing here can tell those apart. A repo
+# nested inside the root with a history of its own is the case this misses: the root's remote
+# does not carry that history, and only its own remote: says where it is kept. The root row is
+# covered by nothing else: if it has no remote, it is flagged like any other repo.
 if [ "$CHECK_IN" -eq 1 ]; then
   hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then

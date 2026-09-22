@@ -17,6 +17,11 @@
 # warned on those would teach people to ignore it. So the fresh project is asserted clean, with
 # the row counts its pass lines print, and the deliberate deletion is asserted to pass.
 #
+# A file that is not in the checkout at all is the third shape. A doctor run does not always see
+# the whole workspace — the STEP index lives in the prompts/ repo, and a generated project's CI
+# checks out one repo on its own — so the line about the absence is the whole of what its reader
+# gets, and it has to name what is missing instead of guessing why.
+#
 # Findings are read out of each check's own section, found by its title rather than its number,
 # with their severity marker. Every case breaks its own copy of one generated project.
 
@@ -256,6 +261,32 @@ expect '1.2 -> ""' "a substep row with a blank Status"
 refute ':----:' "a separator written with spaces and colons"
 refute "[PASS]" "dash or blank status"
 [ "$DOC_STATUS" -eq 1 ] || bad "dash or blank status — expected exit 1, got $DOC_STATUS"
+
+# --- 7. The file a check reads is not in this checkout ----------------------------
+# The STEP index is in the prompts/ repo, so a checkout of the docs hub alone never has it and
+# nothing is wrong: the generated project's own CI runs exactly that way. A message reading the
+# absence as an uninitialized project sends whoever is looking to go and fix a project that is
+# fine, so the warning names the file, says which repo it is in, and stops there.
+c="$(fixture no-prompts-repo)"
+rm -rf "${c:?}/prompts"
+doctor "$c"
+look "Duplicate STEP numbers"
+expect "[WARN] no prompts/STEP-index.md at the workspace root — skipping the STEP checks" "a checkout without the prompts repo"
+expect "in a multi-repo project the roadmap is the prompts/ repo" "a checkout without the prompts repo"
+refute "not initialized" "a checkout without the prompts repo"
+refute "[PASS]" "a checkout without the prompts repo"
+[ "$DOC_STATUS" -eq 0 ] || bad "a checkout without the prompts repo — a WARN must not change the exit code, got $DOC_STATUS"
+
+# overview.md is the docs hub's own file, and check.sh is run from inside that hub, so its
+# absence says nothing about how much of the workspace is here — only that there is nothing to
+# read the legacy sections out of.
+c="$(fixture no-overview)"
+rm -f "$c/Code/$SLUG-docs/overview.md"
+doctor "$c"
+look "Legacy local user profile fields"
+expect "[PASS] no Code/$SLUG-docs/overview.md in the docs hub — nothing to read" "a docs hub with no overview.md"
+refute "not initialized" "a docs hub with no overview.md"
+refute "[WARN]" "a docs hub with no overview.md"
 
 if [ "$failures" -ne 0 ]; then
   printf 'check.sh nothing-to-inspect checks: %d FAILURE(S)\n' "$failures" >&2

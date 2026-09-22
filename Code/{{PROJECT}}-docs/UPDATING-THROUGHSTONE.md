@@ -359,7 +359,13 @@ appendix covers purging history first when that matters.
   `check.sh` gains a pass over `registries/repos.yml`,
   a `--check-in` flag that turns on the checks the periodic check-in owns, and a fix so that a
   check which read nothing warns instead of passing; two of its messages now say what they looked
-  at. `status.sh` carries the scheduled check-in (item 6 above), and a STEP row with an inline
+  at. **Its workspace-root check now reads `registries/repos.yml` as well**, so a repo registered
+  at a root-level `location:` stops being reported as an unexpected entry — and an entry named
+  `Upcoming` or `Prompts` starts being reported, where the two words of the `Upcoming Prompts`
+  intake folder used to cover it. Two of its skip lines name the file that is absent rather than
+  suggesting the project was never initialized: in a multi-repo project a checkout of the docs hub
+  alone carries no `prompts/STEP-index.md`, and nothing is wrong with it.
+  `status.sh` carries the scheduled check-in (item 6 above), and a STEP row with an inline
   `<!-- … -->` note is visible to the resolver again where the note used to swallow the row; an
   In-progress **Check-in** STEP is now told to wait for *"run the check-in"* rather than for a
   substep command nobody authors for one.
