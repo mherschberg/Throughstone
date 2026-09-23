@@ -51,9 +51,20 @@ runs); the Glossary architecture doc vs. the terms the code now uses. Also recon
 `architecture/README.md`'s index against the docs actually present (a row per doc, with its current
 version/status).
 
-**The repo registry.** `scripts/check.sh --check-in` makes two mechanical checks on
-`registries/repos.yml`, and only those two.
+**The repo registry.** `scripts/check.sh --check-in` makes three mechanical checks on
+`registries/repos.yml`, and only those three.
 
+- **The `layout:` line** — `mono` or `multi`, at the left margin above `repos:` — says which of
+  METHOD.md §7's two layouts the project is in, and the rest of this check reads it rather than
+  guessing. **A registry that declares nothing is a warning**: add the line, which is a one-line
+  edit, and until it is there the remote check below does not run, because whether a row is a
+  folder or a repo of its own has no answer. **Anything that is not one readable line above the
+  rows fails** — two of them, an empty one, a value that is neither, or one written below the rows,
+  where anything that rewrites a row would take it for a field of the last one. **And a registry
+  whose rows disagree with what it declares fails**, three ways: `mono` with no row for the workspace root; `multi` with one; and `mono`
+  registering a row that carries a `remote:` of its own, which is a separate repository. A
+  mono-repo-for-now project is one repository, so it cannot hold a separate one — it converts
+  first, by `runbooks/splitting-repos.md` Case 2, which is also what changes this line to `multi`.
 - **A row with no `location:`** fails the run. Ask the human where that repo lives and write it
   into the row; don't guess a path. **So does a row the doctor cannot read** — one that does not
   start with its `- name:` line; show the human that row. **A registry with no rows in it at all

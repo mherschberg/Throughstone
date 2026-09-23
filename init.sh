@@ -1282,6 +1282,28 @@ if [ ! -f "prompts/STEP-index.md" ]; then
   echo "  created prompts/STEP-index.md (seeded from template)"
 fi
 
+# --- 5b2. Declare the layout in the registry --------------------------------
+# registries/repos.yml states which layout the project is in, and both layouts write it: a reader
+# cannot work the layout out from the rows. Counting them says the wrong thing — the mono seeding
+# below adds a third row, so at bootstrap mono has more rows than multi — and the row whose
+# location is "." exists only in mono, so a multi project can never be required to carry one and
+# its absence means multi, or a project made before this field. If multi did not declare itself,
+# `multi` would never be written down anywhere and an absent key would stay ambiguous forever.
+#
+# It goes at column 0 above `repos:`, which is outside every row block. That is the placement rule
+# and not a preference: repos.yml's rule 2 has anything that rewrites a row scan forward from its
+# `- name:`, and nothing bounds that scan at the end of the list, so a top-level key written below
+# the rows sits inside the last row's block. record_registry_remote below survives either
+# placement today — both of its arms look for a field the key is not — but that is this one
+# rewriter's luck, not a property of the file.
+if [ -f "$DOCS/registries/repos.yml" ]; then
+  if [ "$LAYOUT" = "2" ]; then LAYOUT_NAME=mono; else LAYOUT_NAME=multi; fi
+  LAYOUT_NAME="$LAYOUT_NAME" perl -0pi -e \
+    's{^repos:\n}{layout: $ENV{LAYOUT_NAME}\n\nrepos:\n}m;' \
+    "$DOCS/registries/repos.yml"
+  echo "  registry: declared the $LAYOUT_NAME layout"
+fi
+
 # --- 5c. Mono-repo-for-now layout files -------------------------------------
 # In this layout the workspace root is the project's one repository, so two things multi-repo
 # gets for free have to be placed here before the initial commit.

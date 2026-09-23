@@ -6,8 +6,11 @@
 # assemble the workspace shell on their machine: write the per-machine pointer/helper files
 # (CLAUDE.md / AGENTS.md / doctor.sh) that the workspace root needs, and clone the sibling repos.
 #
-# Multi-repo projects only. A mono-repo-for-now project (METHOD.md §7) is a single repo with
-# the pointers committed inside it — just clone that repo; there's nothing to assemble here.
+# Multi-repo projects only, and it stops rather than trusting the reader: a mono-repo-for-now
+# project (METHOD.md §7) is a single repo with the pointers committed inside it — just clone
+# that repo; there is nothing to assemble here, and writing per-machine pointers over the
+# committed ones is a change to that repository nobody asked for. The layout comes from the
+# `layout:` line registries/repos.yml declares, never from the shape of the workspace.
 #
 # Usage:
 #   1. Clone the docs repo first, into  <workspace>/Code/<project>-docs/
@@ -35,6 +38,55 @@ cd "$ROOT"
 
 echo "Workspace root: $ROOT"
 echo "Docs hub:       $DOCS_REL"
+
+# --- 0. Mono-repo-for-now: stop, before anything is written ------------------
+# Every step below this line writes something. In a mono-repo-for-now project the workspace root
+# is the repository, its CLAUDE.md, AGENTS.md and doctor.sh are committed files, and the pointers
+# step 1 writes would replace them with per-machine copies that say the root is not a repo; the
+# clone step then has nothing to clone, because every row is a folder inside the repository the
+# reader has already cloned. runbooks/collaboration.md §9 says not to run this script there, and
+# this is that sentence as code.
+#
+# It reads what the project declares and never inspects the workspace: which layout a workspace is
+# in is not something a script can tell by looking, and Throughstone manages only its own files.
+#
+# The run goes ahead on two answers and stops on every other: a registry that declares nothing does
+# not stop it, because an absent layout: is not a mono one and a project that never declared is
+# most likely the multi one this script is for; and `multi` is what it is for. Anything else stops
+# it, `mono` and a value no reader can make sense of alike — what is on the other side of the
+# decision is overwriting files a repository has committed, so a declaration this cannot read is
+# not a reason to go on. scripts/check.sh fails the same unreadable value.
+REG="$DOCS_DIR/registries/repos.yml"
+DECLARED_LINES=0
+DECLARED=""
+if [ -r "$REG" ]; then
+  # Two lines rather than one field-separated line: a tab in this file is invisible and one
+  # keystroke from being spaces. The value line is absent when the value is empty, which reads
+  # the same as empty, which is what it is.
+  LAYOUT_READ="$(awk '
+    /^[[:space:]]*#/ { next }
+    /^layout:/ { lay=$0; seen=1; sub(/^[^:]*:[[:space:]]*"?/,"",lay); sub(/"?[[:space:]]*$/,"",lay) }
+    END { print (seen + 0); print lay }
+  ' "$REG")"
+  DECLARED_LINES="$(printf '%s\n' "$LAYOUT_READ" | sed -n 1p)"
+  DECLARED="$(printf '%s\n' "$LAYOUT_READ" | sed -n 2p)"
+fi
+if [ "$DECLARED_LINES" != "0" ] && [ "$DECLARED" != "multi" ]; then
+  echo
+  if [ "$DECLARED" = "mono" ]; then
+    echo "$DOCS_REL/registries/repos.yml declares layout: mono, so this project is mono-repo-for-now:"
+    echo "the workspace root is its one repository and you have already cloned it. There is nothing"
+    echo "here to assemble, and nothing has been written. See METHOD.md §7 and"
+    echo "runbooks/collaboration.md §9; runbooks/splitting-repos.md Case 2 is what converts the"
+    echo "project to multi-repo, and it is what changes that line to multi."
+    exit 0
+  fi
+  echo "$DOCS_REL/registries/repos.yml declares a layout this script cannot read: \"$DECLARED\"."
+  echo "The values are mono and multi. Nothing has been written: in a mono-repo-for-now project"
+  echo "this script would replace root files that project has committed, and a declaration nobody"
+  echo "can read is not a reason to go ahead. Fix that line, then run this script again."
+  exit 1
+fi
 
 # --- 1. Write the per-machine root pointers/helpers --------------------------
 # These are written before the clone step deliberately, but the ordering is not what makes the
@@ -103,7 +155,6 @@ mkdir -p "$ROOT/.throughstone"
 # with a usable workspace, so every repo that does not arrive is reported and counted rather
 # than aborting the run. A registry with a row that cannot be read is the one exception to the
 # count: it is reported once, and nothing in it is cloned.
-REG="$DOCS_DIR/registries/repos.yml"
 missing=0
 # A row is found by its `- name:` line, so a row written any other way is not read, and its fields
 # land on the row above it: that repo never arrives, or one repo's remote is cloned into another

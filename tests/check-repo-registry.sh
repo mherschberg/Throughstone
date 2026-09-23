@@ -159,6 +159,23 @@ drop_field() {
 multi="$(bootstrap "registry-multi" multi apache-2.0)" || exit 1
 mono="$(bootstrap "registry-mono" mono bsd-3)"         || exit 1
 
+# Both layouts declare themselves, and the line is above the rows. Placement is not cosmetic:
+# anything that rewrites a row scans forward from its `- name:` to the next one and nothing bounds
+# that scan at the end of the list, so a top-level key written below the rows sits inside the last
+# row's block, where a rewriter reaches it and writes it back as one of that row's fields. Read as
+# line numbers rather than by eye, because a file that declares the right value in the wrong place
+# passes every other assertion in this file.
+declares() {
+  local reg lay rep; reg="$(registry_of "$1")"
+  lay="$(grep -n "^layout: $2\$" "$reg" | head -1 | cut -d: -f1)"
+  rep="$(grep -n '^repos:$' "$reg" | head -1 | cut -d: -f1)"
+  [ -n "$lay" ] || { bad "init.sh wrote no \`layout: $2\` line at the left margin of the $2 registry"; return 0; }
+  [ -n "$rep" ] || { bad "the $2 registry has no repos: key to place the declaration against"; return 0; }
+  [ "$lay" -lt "$rep" ] || bad "the $2 registry declares its layout on line $lay, below repos: on line $rep — inside the last row's block"
+}
+declares "$multi" multi
+declares "$mono" mono
+
 # Multi has no workspace-root row, so each repo stands alone and both are named.
 doctor "$multi" --check-in
 note "multi greenfield: $(printf '%s\n' "$SEC" | grep -E '^  \[' | head -1)"
@@ -189,7 +206,7 @@ grep -qE '^[[:space:]]*location:[[:space:]]*"\."' "$(registry_of "$mono")" \
 # a remote on any other row covers only itself, and a row with none is named.
 set_field "$mono" "registry-mono" remote "git@example.com:TEAM/registry-mono.git"
 doctor "$mono" --check-in
-expect "3 row(s): all have a location, and a recorded remote covers every one" "mono root remote"
+expect "3 row(s) in a mono project: all have a location, and a recorded remote covers every one" "mono root remote"
 clean "mono root remote"
 
 set_field "$multi" "prompts" remote "git@example.com:TEAM/registry-multi-prompts.git"
@@ -241,7 +258,7 @@ cat >> "$(registry_of "$multi")" <<'YAML'
   #   type: service
 YAML
 doctor "$multi" --check-in
-expect "2 row(s): all have a location, and a recorded remote covers every one" "commented rows are not counted"
+expect "2 row(s) in a multi project: all have a location, and a recorded remote covers every one" "commented rows are not counted"
 refute "registry-multi-parked" "a row commented out by hand is not read"
 refute "registry-multi-api" "the example row repos.yml ships is not read"
 clean "commented rows are not counted"
@@ -269,6 +286,8 @@ unread() {
 }
 
 unread "every row starts with its location" "read 0 of 2 row(s)" <<'YAML'
+layout: multi
+
 repos:
   - location: "Code/alpha/"
     name: "alpha"
@@ -277,6 +296,8 @@ repos:
 YAML
 
 unread "the second row starts on a bare dash" "read 1 of 2 row(s)" <<'YAML'
+layout: multi
+
 repos:
   - name: "alpha"
     location: "Code/alpha/"
@@ -286,6 +307,8 @@ repos:
 YAML
 
 unread "only the second row is out of order" "read 1 of 2 row(s)" <<'YAML'
+layout: multi
+
 repos:
   - name: "alpha"
     location: "Code/alpha/"
@@ -331,13 +354,15 @@ empty_registry "registry whose every row is commented out"
 # The control, and the guard against a warning that fires on any registry at all: one row is a
 # row, and the pass line comes back with its count.
 cat > "$(registry_of "$multi")" <<'YAML'
+layout: multi
+
 repos:
   - name: "alpha"
     location: "Code/alpha/"
     remote: "git@example.com:TEAM/alpha.git"
 YAML
 doctor "$multi" --check-in
-expect "1 row(s): all have a location, and a recorded remote covers every one" "one row is not none"
+expect "1 row(s) in a multi project: all have a location, and a recorded remote covers every one" "one row is not none"
 refute "found no repo rows" "one row is not none"
 clean "one row is not none"
 
@@ -358,6 +383,271 @@ refute "found no repo rows" "an unreadable registry is not an empty one"
 refute "[PASS]" "unreadable registry"
 refute "[FAIL]" "unreadable registry"
 result OK "unreadable registry"
+
+# --- 9. The layout the registry declares, and the rows agreeing with it -----------
+# The coverage rule above asks whether a row's work is backed up anywhere, and the answer depends
+# on which layout the project is in: under `multi` every row answers for itself, under `mono` the
+# workspace-root row's remote covers the folders inside it. That is read from the `layout:` line
+# the registry declares and from nothing else — the rows cannot say it, because a mono project has
+# MORE rows than a multi one and the `.` row can never be required of a multi project, so its
+# absence means multi, or a project made before the field existed, and no check can tell those
+# apart.
+#
+# So the declaration is one fact and the rows are another, and a fact kept in two places drifts.
+# Each case below is a way they can disagree, and the pass at the end is the control: a check that
+# had stopped reconciling would satisfy every refutation here and fail that one.
+#
+# Whole registries rather than edits, because what is under test includes a line that is not in a
+# row and a row that is not there at all.
+reg_is() {
+  cat > "$(registry_of "$multi")"
+  doctor "$multi" --check-in
+}
+
+# An undeclared registry is the shape every project bootstrapped before the field has. Nothing
+# guesses a layout from it, so the coverage rule does not run: the finding is the missing line,
+# and the WARN naming repos it cannot judge must not come back beside it. That WARN, on exactly
+# this shape, is what this whole field replaces.
+reg_is <<'YAML'
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+  - name: "beta"
+    location: "beta/"
+YAML
+expect "[WARN] Code/registry-multi-docs/registries/repos.yml does not declare a layout" "an undeclared registry"
+expect "layout: mono if the workspace root is the one repository" "an undeclared registry hint"
+refute "no remote" "an undeclared layout is not judged for coverage"
+refute "[PASS]" "an undeclared layout does not pass"
+refute "[FAIL]" "an undeclared layout is a question, not drift"
+result OK "an undeclared registry"
+
+# One declaration, and it has to be findable. Two lines and the layout is whatever the bottom one
+# says, which is how someone who follows the warning above — add the line at the top — ends up
+# overruled by the stale line they meant to replace. A line below the rows is inside the last row
+# block for anything that rewrites a row, which is what its placement rule exists for; nothing
+# else in the file could ever catch that, because a reader looking for `^layout:` finds it either
+# way.
+reg_is <<'YAML'
+layout: multi
+
+layout: mono
+
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+    remote: "git@example.com:TEAM/alpha.git"
+YAML
+expect "[FAIL] Code/registry-multi-docs/registries/repos.yml declares a layout 2 times" "two declarations"
+expect "keep one layout: line" "two declarations hint"
+refute "[PASS]" "two declarations"
+result FAIL "two declarations"
+
+reg_is <<'YAML'
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+    remote: "git@example.com:TEAM/alpha.git"
+
+layout: multi
+YAML
+expect "[FAIL] Code/registry-multi-docs/registries/repos.yml declares its layout below the rows" "a declaration below the rows"
+expect "move the layout: line above repos:" "a declaration below the rows hint"
+refute "[PASS]" "a declaration below the rows"
+result FAIL "a declaration below the rows"
+
+# A line with nothing after it is not the absent case, and must not be answered with the warning
+# that tells the reader to add a line: they would add one and the empty line below would win.
+reg_is <<'YAML'
+layout:
+
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+    remote: "git@example.com:TEAM/alpha.git"
+YAML
+expect "[FAIL] Code/registry-multi-docs/registries/repos.yml has a layout: line with nothing after it" "an empty declaration"
+refute "does not declare a layout" "an empty declaration is not the absent one"
+result FAIL "an empty declaration"
+
+# `.` and `./` are one path. Comparing the spelling puts a root row written the second way outside
+# every rule here: a mono project is told its root row is missing AND that the row is a separate
+# repository, and a multi project carrying one is not told at all.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "root"
+    location: "./"
+    remote: "git@example.com:TEAM/root.git"
+  - name: "alpha-docs"
+    location: "Code/alpha-docs/"
+YAML
+expect "2 row(s) in a mono project: all have a location, and a recorded remote covers every one" "a root row spelled ./"
+clean "a root row spelled ./"
+
+reg_is <<'YAML'
+layout: multi
+
+repos:
+  - name: "root"
+    location: "./"
+    remote: "git@example.com:TEAM/root.git"
+YAML
+expect 'declares layout: multi and carries a row whose location: is "."' "a multi root row spelled ./"
+
+# The rows are compared against the declaration only when the walk read all of them. A row written
+# fields-first is not read, and its remote: lands on the row above (the count failure says so), so
+# judging the rows here would report a root row that is present as missing and a folder that
+# inherited a remote as a repository of its own — and send the reader to a repository conversion
+# over a field in the wrong order. That is the one row the 1.8 migration asks a mono project to
+# type by hand.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "alpha-docs"
+    location: "Code/alpha-docs/"
+  - location: "."
+    name: "root"
+    remote: "git@example.com:TEAM/root.git"
+YAML
+expect "[FAIL] read 1 of 2 row(s)" "a row the walk could not read"
+refute "has no row for the workspace root" "a row the walk could not read is not a missing root row"
+refute "registers a separate repository" "a leaked remote: is not a second repository"
+
+# Under multi a `.` row is condemned above, and naming it again as a repo with no remote would tell
+# the reader to give a remote to the row they were just told to delete.
+reg_is <<'YAML'
+layout: multi
+
+repos:
+  - name: "root"
+    location: "."
+  - name: "alpha"
+    location: "Code/alpha/"
+    remote: "git@example.com:TEAM/alpha.git"
+YAML
+expect 'declares layout: multi and carries a row whose location: is "."' "a multi root row is condemned once"
+refute "no remote: root" "the row told to be deleted is not also told to get a remote"
+
+# A row with no location: is that row failing, not a second repository. The own-remote test asks
+# whether a row is the workspace root, and an empty location is not `.`.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "root"
+    location: "."
+    remote: "git@example.com:TEAM/root.git"
+  - name: "orphan"
+    remote: "git@example.com:TEAM/orphan.git"
+YAML
+expect "[FAIL] row(s) with no location: orphan" "a row with no location"
+refute "registers a separate repository" "a row with no location is not reported as a second repository"
+
+# A value that is neither is not a third layout either, and it fails rather than warning: the file
+# says something, and nothing can read it.
+reg_is <<'YAML'
+layout: monorepo
+
+repos:
+  - name: "alpha"
+    location: "Code/alpha/"
+YAML
+expect "[FAIL] Code/registry-multi-docs/registries/repos.yml declares layout: monorepo, which is not a layout" "an unreadable layout value"
+expect "the two values are mono and multi" "an unreadable layout value hint"
+refute "no remote" "an unreadable layout value is not judged for coverage"
+refute "[PASS]" "an unreadable layout value does not pass"
+result FAIL "an unreadable layout value"
+[ "$DOC_STATUS" -eq 1 ] || bad "an unreadable layout value — expected exit 1, got $DOC_STATUS"
+
+# Declared mono with no workspace-root row: the state a 1.7 mono project upgrades from, and the
+# one nothing could diagnose before, because the row's absence was the only signal there was. The
+# folder rows must NOT be named here — telling a mono project to go and create remotes for the
+# folders inside its one repository is the false warning this replaces.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "alpha-docs"
+    location: "Code/alpha-docs/"
+  - name: "prompts"
+    location: "prompts/"
+YAML
+expect "[FAIL] declares layout: mono and has no row for the workspace root" "mono with no root row"
+expect 'add a row whose location: is "."' "mono with no root row hint"
+refute "no remote" "the folder rows of a mono project are not named as unbacked-up repos"
+refute "[PASS]" "mono with no root row"
+result FAIL "mono with no root row"
+
+# Declared multi carrying one: the same disagreement from the other side. In multi the workspace
+# root is a per-machine shell, so a row for it describes nothing.
+reg_is <<'YAML'
+layout: multi
+
+repos:
+  - name: "alpha"
+    location: "."
+    remote: "git@example.com:TEAM/alpha.git"
+  - name: "beta"
+    location: "Code/beta/"
+    remote: "git@example.com:TEAM/beta.git"
+YAML
+expect 'declares layout: multi and carries a row whose location: is "."' "multi with a root row"
+expect "delete the workspace-root row, or correct the declaration" "multi with a root row hint"
+result FAIL "multi with a root row"
+
+# Declared mono holding a separate repository — the state the method forbids. A mono project is
+# one repository, so a row that is not the root and carries a remote of its own is a second one,
+# and the way out is the conversion, not a registry edit.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "alpha"
+    location: "."
+    remote: "git@example.com:TEAM/alpha.git"
+  - name: "sibling"
+    location: "Code/sibling/"
+    remote: "git@example.com:TEAM/sibling.git"
+YAML
+expect "[FAIL] declares layout: mono and registers a separate repository: sibling (Code/sibling/)" "mono holding a repo"
+expect "runbooks/splitting-repos.md Case 2" "mono holding a repo is sent to the conversion"
+result FAIL "mono holding a repo"
+
+# Two disagreements at once, both reported. Nothing in this check exits early, and a registry
+# missing its root row is not thereby excused the separate repository sitting beside it — they are
+# independent defects with independent fixes, and a reader who is shown one and not the other goes
+# back round the loop.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "alpha-docs"
+    location: "Code/alpha-docs/"
+  - name: "sibling"
+    location: "Code/sibling/"
+    remote: "git@example.com:TEAM/sibling.git"
+YAML
+expect "declares layout: mono and has no row for the workspace root" "two disagreements: the missing root row"
+expect "declares layout: mono and registers a separate repository: sibling (Code/sibling/)" "two disagreements: the separate repository"
+result FAIL "two disagreements at once"
+
+# The control. Same rows as the case above with the second one made a folder again: every
+# reconciliation above has to be able to come back clean, or they are assertions that cannot fail.
+reg_is <<'YAML'
+layout: mono
+
+repos:
+  - name: "alpha"
+    location: "."
+    remote: "git@example.com:TEAM/alpha.git"
+  - name: "sibling"
+    location: "Code/sibling/"
+YAML
+expect "2 row(s) in a mono project: all have a location, and a recorded remote covers every one" "a mono registry that agrees with itself"
+clean "a mono registry that agrees with itself"
 
 if [ "$failures" -ne 0 ]; then
   printf 'check.sh repo registry check: %d FAILURE(S)\n' "$failures" >&2

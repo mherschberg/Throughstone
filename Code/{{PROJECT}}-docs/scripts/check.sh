@@ -19,9 +19,10 @@
 #   8. Architecture-session template numbers match the STEP-index seed
 #   9. Conditional-session templates expose the metadata generic review gates require — none
 #      passes; a missing templates/architecture-sessions/ folder warns
-#  10. (--check-in only) Every registries/repos.yml row can be read and has a location, and
-#      any repo no recorded remote covers is flagged as a bus-factor risk — warns when the
-#      registry holds no rows at all, and when it cannot be read
+#  10. (--check-in only) registries/repos.yml declares its layout, the rows agree with what it
+#      declares, and every row can be read and has a location — any repo no recorded remote
+#      covers is flagged as a bus-factor risk; warns when the registry declares no layout, when
+#      it holds no rows at all, and when it cannot be read
 #
 # The registry changes on the rare path — a repo created, adopted or split out — so it is not
 # validated on every run. Pass --check-in; runbooks/check-in.md is what does.
@@ -60,6 +61,25 @@ ADR_DIR="$DOCS_DIR/adr"
 SESSION_TEMPLATE_DIR="$DOCS_DIR/templates/architecture-sessions"
 STEP_INDEX_SEED="$DOCS_DIR/templates/step-index-seed.md"
 REPOS_REGISTRY="$DOCS_DIR/registries/repos.yml"
+# The layout the project declares (METHOD.md §7), read once and used by every check that needs
+# it. registries/repos.yml states it rather than leaving each reader to work it out from the rows,
+# which cannot be done: at bootstrap a mono project has MORE rows than a multi one, and the row
+# whose location is "." can never be required of a multi project, so its absence means multi, or a
+# project made before the field existed — and nothing can tell those apart. Empty here is that
+# absence, and it is not a third layout: nothing here reads a layout out of the workspace, and
+# check 10 asks for the declaration instead. (Check 7 does read the workspace, for a different
+# question — whether the root is a repository at all — and answers it from the filesystem.) Only a
+# key at column 0 is the declaration; rule 2 in that file's own header makes anything indented part
+# of a row block, and check 10 fails a declaration written below the rows.
+LAYOUT=""
+if [ -r "$REPOS_REGISTRY" ]; then
+  LAYOUT="$(awk '
+    function val(t) { sub(/^[^:]*:[[:space:]]*"?/, "", t); sub(/"?[[:space:]]*$/, "", t); return t }
+    /^[[:space:]]*#/ { next }
+    /^layout:/ { layout = val($0) }
+    END { print layout }
+  ' "$REPOS_REGISTRY")"
+fi
 
 shopt -s nullglob
 
@@ -104,8 +124,15 @@ if [ -f "$INDEX" ]; then
   else
     pass "no duplicate STEP numbers ($step_rows STEP row(s))"
   fi
-else
+elif [ "$LAYOUT" = "multi" ]; then
+  # Why the file can be absent with nothing wrong, and it is true in one layout only: in multi-repo
+  # the roadmap is its own repository, so a checkout of the docs hub alone never carries it — which
+  # is how the generated project's own CI runs. In mono-repo-for-now prompts/ is a folder inside the
+  # one repository, so the explanation would be false, and a project that declares no layout is not
+  # one to guess about.
   warn "no prompts/STEP-index.md at the workspace root — skipping the STEP checks; in a multi-repo project the roadmap is the prompts/ repo, so a checkout holding the docs hub alone never carries it"
+else
+  warn "no prompts/STEP-index.md at the workspace root — skipping the STEP checks"
 fi
 
 # --- 2. Duplicate ADR numbers -------------------------------------------------
@@ -483,14 +510,19 @@ fi
 # has no remote, so the work lives on exactly one laptop. A malformed row is fixed by whoever
 # just edited it — see runbooks/register-repo.md, which raises anything that did not work.
 #
-# A row is covered by its own remote:, or by the root repository's remote when it lives inside it.
-# The row with `location: "."` is the workspace root, and every other row's path sits inside that
-# repository's working tree, so its remote is read as covering them all and only the root row is
-# named. How many repositories that tree actually holds is not something the rows say — usually
-# one, sometimes several checked out inside it, and nothing here can tell those apart. A repo
-# nested inside the root with a history of its own is the case this misses: the root's remote
-# does not carry that history, and only its own remote: says where it is kept. The root row is
-# covered by nothing else: if it has no remote, it is flagged like any other repo.
+# A row is covered by its own remote:, or — in the mono-repo-for-now layout — by the root
+# repository's remote, because there every other row's path sits inside that one repository's
+# working tree. Which of the two rules applies comes from the `layout:` the registry declares, not
+# from the rows: a reader cannot work the layout out from them, and the row with `location: "."` is
+# the root repository's entry here rather than a signal about the project. The root row is covered
+# by nothing else: if it has no remote, it is flagged like any other repo. A registry that declares
+# no layout is not judged either way — it is asked to declare one.
+#
+# The declaration and the rows can disagree, and the second half of this check is what says so,
+# because one fact recorded in two places drifts. A mono project's rows are folders inside its one
+# repository, so a row of its own with a remote of its own is a separate repository — which a
+# mono-repo-for-now project cannot hold. It converts to multi-repo first
+# (`runbooks/splitting-repos.md` Case 2), and that is what the finding says.
 if [ "$CHECK_IN" -eq 1 ]; then
   hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then
@@ -507,15 +539,24 @@ if [ "$CHECK_IN" -eq 1 ]; then
     # and its fields land on the row above it. Every list entry is therefore counted apart from
     # the walk, under the same comment rule, and a registry whose two counts disagree fails: the
     # other findings may then name the wrong repo, and nothing can say where the unread one lives.
-    reg_flat="$(awk '
+    reg_flat="$(awk -v layout="$LAYOUT" '
       function val(t) { sub(/^[^:]*:[[:space:]]*"?/, "", t); sub(/"?[[:space:]]*$/, "", t); return t }
+      # `.` and `./` are one path, the workspace root, and check 7 in this file already reads them
+      # as one. Comparing the spelling instead would put a root row spelled `./` outside every rule
+      # below: reported as a repository of its own under mono, and missed under multi.
+      function isroot(l) { sub(/\/+$/, "", l); return (l == ".") }
       function stash() {
         if (!have) return
         n++; names[n] = name; locs[n] = loc; rems[n] = rem
-        if (loc == ".") root = 1
+        if (isroot(loc)) root = 1
         have = 0
       }
       /^[[:space:]]*#/ { next }
+      # How many declarations there are, and whether one sits below the rows. Both are the shape
+      # that file states for itself, not a preference of this check: one key, at column 0, above
+      # `repos:`.
+      /^layout:/ { layouts++; if (seen_repos) below = 1 }
+      /^repos:/  { seen_repos = 1 }
       /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
       /^[[:space:]]*-[[:space:]]*name:/ { stash(); name = val($0); loc = ""; rem = ""; have = 1; next }
       /^[[:space:]]*location:/ { loc = val($0) }
@@ -523,19 +564,35 @@ if [ "$CHECK_IN" -eq 1 ]; then
       END {
         stash()
         print "count\t" (n + 0) "\t" (entries + 0)
+        print "root\t" (root + 0)
+        print "layout\t" (layouts + 0) "\t" (below + 0)
         for (i = 1; i <= n; i++) {
           if (locs[i] == "") print "location\t" names[i]
-          # Covered by its own remote, or by the remote of a row at "." that contains it.
-          # The location travels with the name: the fix acts on that repo, and a name alone
-          # does not say where it is.
-          if (rems[i] == "" && !(root && locs[i] != ".")) print "remote\t" names[i] "\t" locs[i]
+          # A row that is not the workspace root and carries a remote of its own describes a
+          # repository rather than a folder. Harmless in multi, where that is every row; read
+          # below only under a mono declaration, which forbids it. A row with no location at all
+          # is not a second repository; it is the failure of the row above, reported there.
+          if (locs[i] != "" && !isroot(locs[i]) && rems[i] != "") print "own-remote\t" names[i] "\t" locs[i]
+          # Covered by its own remote, or — under a mono declaration — by the remote of the row
+          # at "." that contains it. The location travels with the name: the fix acts on that
+          # repo, and a name alone does not say where it is. An undeclared layout answers
+          # neither way, so nothing is judged.
+          if (layout != "mono" && layout != "multi") continue
+          # Under multi the root row is condemned by the reconciliation below, which says to delete
+          # it. Naming it here as well would tell the reader to give that same row a remote.
+          if (layout == "multi" && isroot(locs[i])) continue
+          if (rems[i] == "" && !(layout == "mono" && !isroot(locs[i]))) print "remote\t" names[i] "\t" locs[i]
         }
       }
     ' "$REPOS_REGISTRY")"
 
     rows="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "count" { print $2 }')"
     entries="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "count" { print $3 }')"
+    root="$(printf '%s\n' "$reg_flat"    | awk -F'\t' '$1 == "root"  { print $2 }')"
+    layouts="$(printf '%s\n' "$reg_flat"  | awk -F'\t' '$1 == "layout" { print $2 }')"
+    below="$(printf '%s\n' "$reg_flat"    | awk -F'\t' '$1 == "layout" { print $3 }')"
     no_loc="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "location" { print $2 }')"
+    own_rem="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "own-remote" { print $2 " (" $3 ")" }')"
     no_rem="$(printf '%s\n' "$reg_flat" | awk -F'\t' '$1 == "remote"   { print $2 " (" $3 ")" }')"
 
     if [ "$rows" != "$entries" ]; then
@@ -546,6 +603,64 @@ if [ "$CHECK_IN" -eq 1 ]; then
       fail "row(s) with no location: $(printf '%s' "$no_loc" | tr '\n' ' ')"
       hint "give every row a location: — the workspace-relative path the repo lives at; without one, nothing can find the repo."
     fi
+
+    # What the registry declares, and whether its rows agree with it. The two are one fact written
+    # in two shapes, and a fact kept in two places drifts — so a disagreement is reported here
+    # rather than settled by quietly preferring one of them. Each finding speaks on its own, like
+    # every other one in this file: nothing exits early, so one run reports all the drift there is,
+    # and `recon` only says whether the pass line below may be printed.
+    #
+    # First the declaration itself, which is read from the file rather than from the rows and so is
+    # answerable whatever state they are in.
+    recon=1
+    if [ "${layouts:-0}" -eq 0 ]; then
+      recon=0
+      warn "$DOCS_REL/registries/repos.yml does not declare a layout, so its rows cannot be read as folders or as repos"
+      hint "add one line at the left margin above repos: — layout: mono if the workspace root is the one repository this project has, layout: multi if each row is a repository of its own (METHOD.md §7). A project bootstrapped before the field existed has none; see $DOCS_REL/UPDATING-THROUGHSTONE.md. Until it is there, the remote coverage below is not judged."
+    elif [ "${layouts:-0}" -gt 1 ]; then
+      # Last one wins in every reader, so two lines make the layout whatever the bottom one says —
+      # including when someone adds the line this check asked for above a stale one and it is
+      # overruled from below.
+      recon=0
+      fail "$DOCS_REL/registries/repos.yml declares a layout $layouts times, so which one the project is in depends on which line a reader stops at"
+      hint "keep one layout: line, at the left margin above repos:, and delete the others."
+    elif [ -z "$LAYOUT" ]; then
+      recon=0
+      fail "$DOCS_REL/registries/repos.yml has a layout: line with nothing after it"
+      hint "write mono or multi after the colon — an empty value says no more than no line at all, and it takes precedence over one added above it. See METHOD.md §7."
+    elif [ "$LAYOUT" != "mono" ] && [ "$LAYOUT" != "multi" ]; then
+      recon=0
+      fail "$DOCS_REL/registries/repos.yml declares layout: $LAYOUT, which is not a layout"
+      hint "the two values are mono and multi, and nothing else is read as either, so the remote coverage below is not judged. See METHOD.md §7."
+    fi
+    if [ "${below:-0}" -eq 1 ]; then
+      recon=0
+      fail "$DOCS_REL/registries/repos.yml declares its layout below the rows, where the last row owns it"
+      hint "move the layout: line above repos:. Anything that rewrites a row scans forward from its - name: to the next one and nothing stops that scan at the end of the list, so a key under the rows sits inside the last row block and is rewritten as one of its fields."
+    fi
+    # Then the rows, and only when the walk above read all of them and there were some to read.
+    # These compare the declaration against what the rows say, so on a registry the walk could not
+    # read they would report a row as absent that is there, or as a repository on the strength of a
+    # remote: that leaked onto it from the row below — and send the reader to a repository split for
+    # a field in the wrong place. The count failure above is the finding that state needs.
+    if [ "$rows" = "$entries" ] && [ "${rows:-0}" -gt 0 ]; then
+      if [ "$LAYOUT" = "mono" ] && [ "${root:-0}" -eq 0 ]; then
+        recon=0
+        fail "declares layout: mono and has no row for the workspace root — the one repository a mono project has is missing from its own inventory"
+        hint "add a row whose location: is \".\", carrying the root repository's remote: if it has one — the recipe is in $DOCS_REL/UPDATING-THROUGHSTONE.md. Nothing else here can say whether that repository is backed up, so until it is there the rows below it are not judged."
+      fi
+      if [ "$LAYOUT" = "multi" ] && [ "${root:-0}" -eq 1 ]; then
+        recon=0
+        fail "declares layout: multi and carries a row whose location: is \".\" — the workspace root is not a repository in that layout"
+        hint "delete the workspace-root row, or correct the declaration to layout: mono if the root really is this project's one repository. In multi-repo the root is a per-machine shell, not a repo (METHOD.md §7)."
+      fi
+      if [ "$LAYOUT" = "mono" ] && [ -n "$own_rem" ]; then
+        recon=0
+        fail "declares layout: mono and registers a separate repository: $(printf '%s' "$own_rem" | tr '\n' ' ')"
+        hint "a mono-repo-for-now project is one repository, so every other row is a folder inside it and carries no remote of its own. Convert to multi-repo first — $DOCS_REL/runbooks/splitting-repos.md Case 2, which is what flips this file's layout: to multi — and register the repo after that. If the conversion has already happened, the declaration is what is stale."
+      fi
+    fi
+
     if [ -n "$no_rem" ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"
       hint "a repo with no remote lives on one machine — a bus factor of one. Record the URL in remote: if it already has one; if not, create one — private, widening is a separate decision — or accept the risk deliberately."
@@ -559,8 +674,10 @@ if [ "$CHECK_IN" -eq 1 ]; then
     if [ "${rows:-0}" -eq 0 ] && [ "${entries:-0}" -eq 0 ]; then
       warn "found no repo rows in $DOCS_REL/registries/repos.yml — nothing to check"
       hint "every project has a row for the docs hub and one for prompts/, and init.sh writes both: a registry with neither has lost them. Restore the rows from git history — $DOCS_REL/runbooks/register-repo.md is what writes a row for a repo that never had one."
-    elif [ "$rows" = "$entries" ] && [ -z "$no_loc" ] && [ -z "$no_rem" ]; then
-      pass "$rows row(s): all have a location, and a recorded remote covers every one"
+    elif [ "$rows" = "$entries" ] && [ -z "$no_loc" ] && [ -z "$no_rem" ] && [ "$recon" -eq 1 ]; then
+      # The layout is named because it is what decided the coverage verdict: under mono the root
+      # row's remote covers the folder rows, under multi every row answers for itself.
+      pass "$rows row(s) in a $LAYOUT project: all have a location, and a recorded remote covers every one"
     fi
   fi
 else

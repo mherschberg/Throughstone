@@ -277,6 +277,21 @@ refute "not initialized" "a checkout without the prompts repo"
 refute "[PASS]" "a checkout without the prompts repo"
 [ "$DOC_STATUS" -eq 0 ] || bad "a checkout without the prompts repo — a WARN must not change the exit code, got $DOC_STATUS"
 
+# The second clause is an explanation, and it is true in one layout only: in mono-repo-for-now
+# prompts/ is a folder inside the workspace root, which IS the repository, so there is no checkout
+# of part of the project to explain the absence away. The fixture is the same one with its registry
+# saying mono — the layout comes from what the project declares, never from the shape of the tree —
+# and the paired case above is what keeps this from passing on a clause that had simply gone.
+c="$(fixture no-prompts-repo-mono)"
+rm -rf "${c:?}/prompts"
+edit "$c/Code/$SLUG-docs/registries/repos.yml" 's/^layout: multi$/layout: mono/' "declaring the fixture mono"
+doctor "$c"
+look "Duplicate STEP numbers"
+expect "[WARN] no prompts/STEP-index.md at the workspace root — skipping the STEP checks" "a mono project with no STEP index"
+refute "in a multi-repo project the roadmap is the prompts/ repo" "a mono project is not told the roadmap is another repo"
+refute "[PASS]" "a mono project with no STEP index"
+[ "$DOC_STATUS" -eq 0 ] || bad "a mono project with no STEP index — a WARN must not change the exit code, got $DOC_STATUS"
+
 # overview.md is the docs hub's own file, and check.sh is run from inside that hub, so its
 # absence says nothing about how much of the workspace is here — only that there is nothing to
 # read the legacy sections out of.

@@ -77,11 +77,12 @@ not fail the check.
 
 ### 1.8 migration
 
-**Upgrading from 1.7? Nothing of yours is rewritten, and there are three things to look at in
-`registries/repos.yml`** — **whether any `location:` points outside the workspace root**, which 1.7
-allowed and this release does not, **whether anything follows a `- name:`, `location:` or `remote:`
-value**, which 1.7's example row did, and, **if your project is mono-repo-for-now, whether the
-workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
+**Upgrading from 1.7? Nothing of yours is rewritten, and there are four things to look at in
+`registries/repos.yml`** — **whether it declares which layout your project is in**, which is a new
+line every project needs and `init.sh` cannot add to one that already exists, **whether any
+`location:` points outside the workspace root**, which 1.7 allowed and this release does not,
+**whether anything follows a `- name:`, `location:` or `remote:` value**, which 1.7's example row
+did, and, **if your project is mono-repo-for-now, whether the workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
 whether your CI gate has ever actually run — **and one line to change** in `overview.md`, where the
 check-in cadence setting is replaced by the date or STEP your next check-in is due, **and, if your
 project is mono-repo-for-now, two lines to add** to the `.gitignore` at your workspace root. **The fast path below is the whole of
@@ -110,8 +111,12 @@ brought into a project at all — in a second new runbook; none of that asks any
    that nothing follows a `- name:`, `location:` or `remote:` value** — a row copied from 1.7's
    commented-out example carries a note after its `remote:`, which has kept that repo from cloning
    on anyone else's machine all along; details in the same place.
-4. **Mono-repo-for-now only: add a row for the workspace root** to `registries/repos.yml`, or the
-   new check-in warning will be wrong about every repo you have — details below.
+4. **Add a `layout:` line to `registries/repos.yml`** — `layout: mono` or `layout: multi`, at the
+   left margin above `repos:` — **and, mono-repo-for-now only, a row for the workspace root** as
+   well. Without the line the check-in cannot tell a folder inside your one repository from a repo
+   of its own, so it stops judging your backup coverage and asks for the line instead; without the
+   row, a mono project's check-in fails. **Details below**; this is the only item here that asks
+   something of every project's registry.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
 6. **Put a `<!-- NEXT-CHECK-IN: STEP-<number> -->` line in your `overview.md`** — the STEP you
@@ -371,9 +376,11 @@ appendix covers purging history first when that matters.
   substep command nobody authors for one.
   `setup-workspace.sh` no longer stops at the first repo it cannot clone, writes the workspace
   root's pointer files *before* the clone loop rather than after, and is stricter about what counts
-  as a repo already being there — the four *Multi-repo only* paragraphs below are its detail, and
-  one of them is the only place this release tells you to delete a directory rather than a line or
-  a row.
+  as a repo already being there — the four *Multi-repo only* paragraphs below are the detail of
+  those three, and one of them is the only place this release tells you to delete a directory
+  rather than a line or a row. **It also gained a behaviour that is not multi-repo only**: it reads
+  the `layout:` line now, and in a project that declares `mono` it stops and writes nothing, which
+  is what `collaboration.md` §9 has always told you to do by hand. Item 4 is that line.
   `apply-project-license.sh` gains `--notice-only`, which writes the Throughstone notice and
   nothing else — what a repo the method did not create gets. `links.sh` stops reading `inputs/`,
   whose documents are kept as they arrived so a broken link inside one is not anyone's to fix — its
@@ -519,21 +526,28 @@ has is on your machine, nothing about these three changes for you.
 you pass the new **`--check-in`** flag. A plain `./doctor.sh check` prints the section as
 `skipped`, and CI never passes the flag, so nothing about the registry can fail a build on a push.
 `runbooks/check-in.md` is what passes it: the check-in's mechanical pass now runs
-`Code/<project>-docs/scripts/check.sh --check-in` from the workspace root. It checks two things
-and only two:
+`Code/<project>-docs/scripts/check.sh --check-in` from the workspace root. It checks three things
+and only those three:
 
+- **The `layout:` line** — new in this release, and item 4 above is what adds it. The other two
+  checks read it: whether a row is a folder inside your one repository or a repository of its own
+  has no answer without it. **A registry that declares nothing is a warning** and the remote check
+  below does not run until the line is there; **a declaration that is not one readable line above
+  the rows fails**, and so does **a registry whose rows disagree with what it declares.** Full
+  recipe below.
 - **A row with no `location:` fails the run.** Nothing can find that repo without one. Ask whoever
   knows where it lives and write the path in; do not guess one. **So does a row the doctor cannot
   read** — one that does not start with its `- name:` line, which leaves its fields on the row
-  above; the doctor counts the list's entries to know it read them all. These are the only registry
-  findings that can turn a check-in red, and a 1.7 registry cannot produce either unless a row was
-  hand-edited. **A registry with no rows in it at all is a warning** — every project has a row
+  above; the doctor counts the list's entries to know it read them all. A 1.7 registry produces
+  neither unless a row was hand-edited; what it can produce, once you declare the layout, is the
+  reconciliation failure above. **A registry with no rows in it at all is a warning** — every project has a row
   for the docs hub and one for `prompts/`, so one with neither has lost them; a 1.7 registry has
   both.
 - **A repo that no recorded remote covers is a warning**, named row by row: as far as the project
-  knows, that repo's work lives on exactly one laptop. **Most 1.7 projects will see this at their
-  first check-in after upgrading**, because a 1.7 registry ships two rows with no `remote:`, and
-  `init.sh` fills one in only if your bootstrap actually created remotes. Record the URL if the repo
+  knows, that repo's work lives on exactly one laptop. **Most 1.7 projects will see this at the
+  first check-in after they declare their layout** — not before, since this check does not run on
+  an undeclared registry — because a 1.7 registry ships two rows with no `remote:`, and `init.sh`
+  fills one in only if your bootstrap actually created remotes. Record the URL if the repo
   already has a remote; if it has none, create one — **private**, widening being a separate decision
   made deliberately later — then push and record the URL, because the field records that a remote
   exists and does not prove anything was pushed to it. Or decide that
@@ -541,14 +555,54 @@ and only two:
   check-in. That is the design, not a defect: a `[WARN]` is for deciding about, not for reflexively
   clearing, while a `[FAIL]` gets fixed.
 
-**Mono-repo-for-now projects: add a row for the workspace root, or that warning will be wrong.**
+**Every project: say which layout you are in.** 1.8 adds one top-level line to
+`registries/repos.yml`, at the left margin, on its own line above `repos:` with a blank line
+between them:
+
+```yaml
+layout: mono
+```
+
+`mono` or `multi`, and nothing else is read as either. **Above the rows and not below them**:
+anything that rewrites a row scans forward from its `- name:` to the next one, and a top-level key
+written under the rows falls inside the last row's block, where a rewriter reaches it — so the
+check-in fails a line written there, and fails two of them, and fails one with nothing after it.
+New projects get the line from `init.sh`; `init.sh` runs once, so nothing adds it to a project that
+already exists.
+
+It is a declaration because nothing can work the layout out from the rows. A mono project has
+*more* rows than a multi one — three against two at bootstrap — so counting them says the wrong
+thing; and the row whose `location` is `.` exists only in mono, so a multi project can never be
+required to carry one and its absence means multi, or a project made before this release, with
+nothing able to tell those apart. Two things read the line. The check-in decides from it whether a
+row is a folder inside your one repository or a repository of its own, which is what the warning
+above rests on. And `scripts/setup-workspace.sh` stops when it says `mono`, where there is nothing
+to assemble and the per-machine pointers it writes would replace files your one repository has
+committed — `runbooks/collaboration.md` §9 already told you not to run it there, and now it does not.
+
+**Until the line is there the check-in asks for it and stops judging your remote coverage**: one
+warning naming the missing line, in place of the row-by-row backup warning above. That is not a
+lost check — without the layout the answer it used to give a mono project was wrong.
+
+**Multi-repo: the line is the whole of this item.** **Mono-repo-for-now: declaring is the first of
+two edits**, and between them your check-in goes red rather than green-with-warnings — the second
+is the workspace-root row below, and doing both in one sitting is the shortest route. And **if your
+registry already carries a row with a `remote:` of its own**, that row is a separate repository and
+your project is not mono-repo-for-now in practice: decide which layout you are actually in before
+you declare one, because `mono` fails on that row and sends you to the conversion.
+
+**Mono-repo-for-now projects also need a row for the workspace root**, and with `layout: mono`
+declared the check-in now **fails** without it rather than being wrong about every repo you have.
 A 1.7 registry lists the docs hub and `prompts/` — both folders inside your one repository — and has
 no row for the repository itself. The check treats a row whose `location` is `.` as the thing that
-contains the others, so without it you are told all your repos are unbacked-up even when the one
-real repo is pushed. Add it by hand. **Put nothing after any value**: these readers treat a `#` on
-a value line as part of the value rather than as a comment. **Quote values with double quotes, as
-below, or not at all**: they read a single quote as part of the value too. Drop the `remote:` line
-if the repo has no remote yet:
+contains the others, and before this release its absence was read as "this is not a mono project",
+which is how you came to be told all your repos were unbacked-up even when the one real repo was
+pushed. Add it by hand, and three things about how you type it. **Start the row with its
+`- name:` line**, as below: a row that begins with any other field is not read at all, its fields
+land on the row above, and the check-in says so rather than judging rows it could not read.
+**Put nothing after any value**: these readers treat a `#` on a value line as part of the value
+rather than as a comment. **Quote values with double quotes, as below, or not at all**: they read a
+single quote as part of the value too. Drop the `remote:` line if the repo has no remote yet:
 
 ```yaml
   - name: "<your-project>"
@@ -560,12 +614,19 @@ if the repo has no remote yet:
 ```
 
 New projects get this row from `init.sh`; `init.sh` runs once, so nothing adds it to a project that
-already exists. Multi-repo projects have nothing to add.
+already exists. Multi-repo projects have no row to add — the `layout: multi` line above is the
+whole of this item for them, and a `.` row in a multi registry is a failure of its own, since in
+that layout the workspace root is a per-machine shell rather than a repository.
 
-**One new registry field, and nothing to do about it.** Rows may carry `added_as:`
+**Adopting or splitting later.** A mono-repo-for-now project is one repository, so it cannot take a
+separate repository in: the check-in fails a `mono` registry that registers a row with a `remote:`
+of its own, and names `runbooks/splitting-repos.md` Case 2, which converts the project to multi-repo
+and is the one procedure that changes `layout:` to `multi`.
+
+**The other new registry field, and nothing to do about this one.** Rows may carry `added_as:`
 (`created` | `adopted`), recording how the repo arrived. **No script reads it** — it is a stamp for
-a human. Existing rows do not need it and are not rewritten; it is written when a repo is
-registered from here on.
+a human, where `layout:` above is a line two scripts read. Existing rows do not need it and are
+not rewritten; it is written when a repo is registered from here on.
 
 
 **Mono-repo-for-now? Your CI gate has probably never run.** `method-check.yml` ships inside the docs

@@ -2,11 +2,12 @@
 #
 # Parity coverage for the two scripts that read registries/repos.yml.
 #
-# `- name:`, `location:` and `remote:` are read by the same two lines of awk, written out four
-# times across two files: scripts/check.sh keeps them in a `val()` function per awk program that
-# reads the registry — one for the check-in's three fields, one for the workspace-root locations
-# check 7 allows — and scripts/setup-workspace.sh has them inline twice, once for the location it
-# clones into and once for the remote it clones from. Nothing connects the copies. The failure
+# `layout:`, `- name:`, `location:` and `remote:` are read by the same two lines of awk, written
+# out several times across two files: scripts/check.sh keeps them in a `val()` function per awk
+# program that reads the registry — the declared layout, the check-in's fields, and the
+# workspace-root locations check 7 allows — and scripts/setup-workspace.sh has them inline, for
+# the location it clones into, the remote it clones from, and the layout it refuses to run under.
+# Nothing connects the copies. The failure
 # that follows is a quiet one: teach one of them a new quoting rule and leave the other alone, and
 # the check-in passes a row that the clone loop then clones into a directory whose name starts
 # with a quote.
@@ -76,7 +77,7 @@ check_vals="$(copies "$CHECK" | grep -cF 'function val(')"
 [ "$check_vals" = "$check_hits" ] \
   || bad "check.sh has $check_hits line(s) stripping a key: prefix and $check_vals of them sit in a val() function, which is the only shape this file knows how to run — teach the extraction below the shape the rest have, or keep every strip on one line with a val() header"
 [ "$setup_hits" -ge 2 ] \
-  || bad "setup-workspace.sh has $setup_hits line(s) stripping a key: prefix, fewer than the two fields it reads — check what now reads the other one"
+  || bad "setup-workspace.sh has $setup_hits line(s) stripping a key: prefix, fewer than the fields it reads — check what now reads the others"
 
 # check.sh wraps each copy in a val() function, so a program is that function plus a call. It
 # holds one per awk program that reads the registry, and every one of them is run: a copy added
@@ -90,11 +91,17 @@ done < <(copies "$CHECK" | grep -F 'function val(')
 
 # setup-workspace.sh writes its copies out inline, one per field, each as the action half of a
 # pattern-action rule. Dropping the pattern is the point: the action is the reader, and running it
-# on every line is what makes the three comparable on the same input.
+# on every line is what makes them comparable on the same input.
+#
+# The field's name is the last `<name>:` in the pattern, whatever precedes it, because the patterns
+# are not one shape: the row fields are matched at any indentation (`/^[[:space:]]*location:/`) and
+# `layout:` only at column 0 (`/^layout:/`), since that file's own rule 2 makes an indented key part
+# of a row block. Reading the name rather than the punctuation around it is what keeps a pattern
+# written some third way from landing in the message below as an unreadable line.
 while IFS= read -r line; do
   guard="${line%%\{*}"
   action="{${line#*\{}"
-  field="$(printf '%s' "$guard" | sed -n 's/.*\*\([a-z][a-z]*\):.*/\1/p')"
+  field="$(printf '%s' "$guard" | sed -n 's/.*[^a-z]\([a-z][a-z]*\):.*/\1/p')"
   var="$(printf '%s' "$action" | sed -n 's/.*{[[:space:]]*\([A-Za-z_][A-Za-z0-9_]*\)=\$0.*/\1/p')"
   if [ -z "$field" ] || [ -z "$var" ]; then
     bad "setup-workspace.sh: cannot tell which field this line reads or where it puts the value: $line"
