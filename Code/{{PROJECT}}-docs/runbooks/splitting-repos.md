@@ -123,8 +123,8 @@ If the answer is *"the workspace root stops being a repo"*, you are in **Case 2*
 folder there leaves the new repo *nested inside* the origin — the root reports it as an untracked
 directory, and step 9's `git status` check fails on it. It also strands the repo you just made:
 a mono project's contributors clone the one root repository and are told not to run
-`Code/<project>-docs/scripts/setup-workspace.sh` — run in a mono clone it overwrites the committed
-root pointers with per-machine ones asserting the root is not a repo (`collaboration.md` §9) — so
+`Code/<project>-docs/scripts/setup-workspace.sh`, which stops there anyway once the registry
+declares `layout: mono` (`collaboration.md` §9) — so
 nothing on the mono onboarding path would ever bring your new repo onto a teammate's machine.
 **Run Case 2 first**, then Case 1 as often as you like on the repos it leaves you.
 
@@ -591,6 +591,13 @@ before step 5 clones anything — and split two folders that sit beside each oth
    replaces it is the folder rows already in the file, which become real repos here. A registry
    written before the root row existed has none, in which case there is nothing to delete and
    nothing else about this step changes.
+   **And change that file's `layout: mono` line to `layout: multi`** — the line at the left margin
+   above `repos:`. This is the one procedure that changes it, and this is the step: from here the
+   rows are repositories rather than folders, and the layout is what every reader takes that from.
+   The check-in reads it to decide whether a row's work is covered by the root repository's remote
+   or only by its own, and `scripts/setup-workspace.sh` refuses to run while it says `mono` — which
+   is what step 8 is about to do, so a registry left saying `mono` stops the split here. A registry
+   written before the field existed has no `layout:` line; add one saying `multi`.
    **Run the register action** (`runbooks/register-repo.md`) **once per code repo, from the build
    directory's root** — that is the workspace root it means here; run it from the live one and the
    row and the entry land in the hub step 11 renames aside. It records that repo's `remote:` and

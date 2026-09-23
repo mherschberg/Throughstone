@@ -10,6 +10,9 @@ any project built with it.
 ## [Unreleased]
 
 ### Added
+- **`registries/repos.yml` declares its layout** — one `layout: mono` / `layout: multi` line that
+  `init.sh` writes, the check-in and `scripts/setup-workspace.sh` read, and the mono→multi split
+  flips; existing projects add it by hand (`UPDATING-THROUGHSTONE.md`).
 - **A runbook for splitting a repository** — `runbooks/splitting-repos.md`. The method used to say
   splitting was "standard git," which is not something you can act on: the recipe you find
   elsewhere makes the extracted repo *new*, with its history rewritten by `git filter-repo`, a
@@ -106,12 +109,13 @@ any project built with it.
 - **The doctor gained a `--check-in` flag, and the periodic check-in is where the repo registry gets
   checked.** `scripts/check.sh` took no options at all; it now takes `--check-in`, which turns on the
   checks that belong to the periodic check-in rather than to every run — today, one. Check 10 reads
-  `registries/repos.yml` and makes two mechanical checks and only those two. **A row with no
-  `location:` fails the run**, because nothing can find that repo and guessing a path is worse than
-  asking — **and so does a row the doctor cannot read**: it finds a row by its `- name:` line, counts
-  the list's entries apart from that, and fails when the two disagree rather than pass over a repo
-  it never saw. **A registry with no rows in it at all warns**, because zero rows is not a
-  project with no repos: this file lives in the docs hub, which has a row of its own, and `init.sh`
+  `registries/repos.yml` and makes three mechanical checks and only those three. **It reads the
+  `layout:` line the registry declares**, warns when there is none, and fails when the rows disagree
+  with it. **A row with no `location:` fails the run**, because nothing can find that repo and
+  guessing a path is worse than asking — **and so does a row the doctor cannot read**: it finds a
+  row by its `- name:` line, counts the list's entries apart from that, and fails when the two
+  disagree rather than pass over a repo it never saw. **A registry with no rows in it at all
+  warns**, because zero rows is not a project with no repos: this file lives in the docs hub, which has a row of its own, and `init.sh`
   writes that row and `prompts/` before anyone can run the doctor. A registry that is missing warns
   and rows the walk cannot read fail, so without this one an emptied file would be the quietest way
   of all to lose the inventory. `scripts/setup-workspace.sh` reads the same file the same way and
@@ -120,9 +124,10 @@ any project built with it.
   also stop on a registry they cannot open, which `-f` alone does not catch.
   **A repo that no recorded remote covers is a warning**, because as far as the project knows
   that work lives on exactly one laptop. A row is covered by its own `remote:`, or by the root
-  repository's when it lives inside it — in a mono-repo-for-now project the row whose `location` is
-  `.` is the one real repository and the folder rows below it are backed up by whatever backs it up,
-  so only the root row is ever named. The warning is designed to recur: a project may legitimately
+  repository's when it lives inside it — in a project that declares `layout: mono` the row whose
+  `location` is `.` is the one real repository and the folder rows below it are backed up by
+  whatever backs it up, so only the root row is ever named. Which rule applies comes from the
+  declaration, never from the rows. The warning is designed to recur: a project may legitimately
   start local for a while, nothing records that decision, and the reminder coming back every check-in
   is the point rather than a defect.
   **The doctor is deliberately the only place that checks the registry on a schedule, and that is

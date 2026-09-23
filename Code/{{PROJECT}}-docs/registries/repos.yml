@@ -5,6 +5,27 @@
 # README of each repo you will touch. Add a row whenever a repo is created or adopted, using
 # `runbooks/register-repo.md`. See METHOD.md §7.
 #
+# `layout:` — `mono` or `multi`: which of METHOD.md §7's two layouts this project is in, stated
+# here rather than worked out from the rows, which cannot be done. Counting rows says the wrong
+# thing — a mono project starts with three and a multi one with two — and the `.` row described
+# below exists only in mono, so its absence means multi, or a project made before this field, and
+# no reader can tell those apart. Scripts read it: `scripts/check.sh --check-in`, to know whether
+# a row is a folder inside one repository or a repository of its own, and
+# `scripts/setup-workspace.sh`, which stops in a mono project because there is nothing there to
+# assemble. `init.sh` writes the line when it creates the project; the scaffold's own copy carries
+# none, because the layout is chosen at that moment. **An absent `layout:` is not a third value**:
+# nothing guesses one, the check-in asks for it, and a project bootstrapped before the field
+# existed adds it by hand — see UPDATING-THROUGHSTONE.md. `runbooks/splitting-repos.md` Case 2 is
+# the one procedure that changes the value, from `mono` to `multi`; nothing else does, because a
+# mono-repo-for-now project is one repository and cannot take a separate one in — it converts
+# first.
+# **It is the only key outside a row, and it belongs at column 0 above `repos:`.** Rule 2 below
+# scans a row block forward from its `- name:` to the next one, and nothing bounds that scan at the
+# end of the list: a top-level key written below the rows sits inside the last row's block, where
+# a rewriter written to that rule reaches it and writes it back as one of that row's fields. The
+# check-in fails a declaration written there, so the rule is not left to the next person to
+# remember.
+#
 # Mono-repo-for-now: the row whose `location` is `.` is the workspace root — the one repository
 # the project actually has. The rows below it are folders inside that repository, not separate
 # repos yet. This is still an inventory of what was registered rather than a plan for a split — a
@@ -57,12 +78,12 @@
 # 2. **Anything that rewrites a row anchors on the row block** — from a `- name:` to the next
 #    `- name:`, respecting indentation — never on a bare line prefix.
 # 3. **A `#` on a value line is part of the value, not a comment.** These readers skip only a line
-#    whose first non-blank character is `#`, so the fields they actually read — `- name:`,
-#    `location:` and `remote:` — must carry nothing after the value, and are quoted with double
-#    quotes or not at all: a single quote is read as part of the value too. (`type:` below carries
-#    an annotation; no script reads that field.) The annotations in the example block are safe only
-#    because the whole block is commented out; move them off the value lines before uncommenting
-#    a row.
+#    whose first non-blank character is `#`, so the fields they actually read — `layout:`,
+#    `- name:`, `location:` and `remote:` — must carry nothing after the value, and are quoted
+#    with double quotes or not at all: a single quote is read as part of the value too.
+#    (`type:` below carries an annotation; no script reads that field.) The annotations in the
+#    example block are safe only because the whole block is commented out; move them off the
+#    value lines before uncommenting a row.
 
 repos:
   - name: "{{PROJECT}}-docs"

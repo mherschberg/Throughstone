@@ -288,9 +288,11 @@ flow (§6). The transition is mostly mechanical:
    may sit without a remote for a while; that warning is the reminder, not an error. But **don't
    run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`** — no row in that file is a repo to
    clone (one *is* the repository you already have; the rest are folders inside it), and the
-   script is for multi-repo workspaces: run in a mono clone it overwrites the committed root
-   `CLAUDE.md`, `AGENTS.md` and `doctor.sh` with per-machine pointers asserting the root is
-   not a repo. Everything else is the same, including number reservation, which needs a shared
+   script is for multi-repo workspaces. It reads the `layout:` line in that file and stops when it
+   says `mono`, writing nothing — but **a registry that predates that line does not stop it**, and
+   run in a mono clone it then overwrites the committed root `CLAUDE.md`, `AGENTS.md` and
+   `doctor.sh` with per-machine pointers asserting the root is not a repo. Declare the layout
+   (`UPDATING-THROUGHSTONE.md`) before a new contributor has the chance. Everything else is the same, including number reservation, which needs a shared
    remote and not a particular number of them. Whether to split is a separate question, answered
    by the architecture rather than by the size of the team — see `splitting-repos.md`.
 2. **Have each contributor create their local profile** (`.throughstone/local-user.md`) during

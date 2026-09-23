@@ -590,7 +590,8 @@ status, and anything missed is found later by looking at the repo.
 
 **The registry is checked at the check-in, not on the common path.** The set of repos changes only
 when one is created, adopted or split out, so `scripts/check.sh` checks it under `--check-in` alone,
-and only mechanically: that every row has a `location:`, and that no repo's work is left uncovered
+and only mechanically: that the file declares which layout the project is in and that its rows
+agree with that, that every row has a `location:`, and that no repo's work is left uncovered
 by any remote, because work that lives on one laptop is a bus factor of one. Everything else is the
 by-hand comparison in `runbooks/check-in.md`. **A case the registry does not cover is raised to a
 person in the chat**, never answered by inventing a field or a check.

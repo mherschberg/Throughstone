@@ -890,21 +890,62 @@ run_setup "$tw"
 assert_assembled "empty target dir" "$tw"
 assert_cloned "empty target dir" "$tw/Code/multi-api"
 
-# The mono layout's registry is a different shape — a row whose location is `.`, the workspace
-# root itself, plus rows for folders inside that one repository. The parser reads it, but nothing
-# it ships has a remote, so the loop body never runs: a smoke test that the shape neither crashes
-# the run nor invents a missing repo. The case after appends a second `.` row, this one with a
-# remote, and that is what makes a root-location row observable — through the clone it attempts.
-# collaboration.md §9 tells a mono project not to run this script; the fixture is a multi-repo
-# workspace root holding a mono project's registry.
+# --- Part 4. The layout the project declares --------------------------------------------------
+# collaboration.md §9 says not to run this script in a mono-repo-for-now project, and the script
+# now stops instead of trusting that. There the workspace root IS the repository: its CLAUDE.md,
+# AGENTS.md and doctor.sh are committed files that step 1 would replace with per-machine copies
+# saying the root is not a repo, and the clone step has nothing to clone because every row is a
+# folder inside the repository the reader already has.
+#
+# What it reads is the `layout:` line the registry declares, never the shape of the workspace — a
+# script cannot tell one workspace shape from another by looking, and this fixture proves the
+# reading is the declaration: it is a multi-repo teammate workspace, with nothing mono about it
+# but the registry a mono project generated.
 echo "The registry a mono project generates ..."
 tw="$(teammate monoshape "$MONO_DOCS")"
+grep -q '^layout: mono$' "$(registry_of "$tw")" \
+  || bad "fixture: the mono project's registry does not declare layout: mono, so this case proves nothing"
 run_setup "$tw"
-assert_assembled "mono registry" "$tw"
-assert_not_out "mono registry" "did not arrive"
+assert_out "a mono declaration" "declares layout: mono"
+assert_out "a mono declaration" "nothing has been written"
+assert_not_out "a mono declaration" "Writing per-machine pointers"
+assert_not_out "a mono declaration" "Cloning sibling repos"
+assert_not_out "a mono declaration" "Done."
+[ "$SETUP_STATUS" -eq 0 ] || bad "a mono declaration — stopping is not an error, expected exit 0, got $SETUP_STATUS"
+# Nothing written is the point of stopping there, and the three files step 1 would have replaced
+# are the ones a mono project has committed. The teammate fixture holds none of them to start
+# with, so their absence afterwards is the whole assertion.
+for f in CLAUDE.md AGENTS.md doctor.sh; do
+  [ -e "$tw/$f" ] && bad "a mono declaration — $f was written after the run said nothing had been"
+done
 
-echo "A mono root row that has been given a remote ..."
+# A declaration nobody can read stops it too, and that asymmetry is the point: what is on the far
+# side of this decision is replacing files a repository has committed, so a value the script cannot
+# make sense of is not a reason to go ahead as though it said multi. A mono project whose line was
+# hand-typed during the 1.8 migration is exactly where a misspelling comes from.
+echo "A declaration this script cannot read ..."
+tw="$(teammate badlayout "$MONO_DOCS")"
+perl -pi -e 's/^layout: mono$/layout: Mono/' "$(registry_of "$tw")"
+grep -q '^layout: Mono$' "$(registry_of "$tw")" \
+  || bad "fixture: the declaration was not changed, so this case proves nothing"
+run_setup "$tw"
+assert_out "an unreadable declaration" "cannot read"
+assert_out "an unreadable declaration" "Nothing has been written"
+assert_not_out "an unreadable declaration" "Writing per-machine pointers"
+[ "$SETUP_STATUS" -eq 1 ] || bad "an unreadable declaration — the run did not happen, expected exit 1, got $SETUP_STATUS"
+for f in CLAUDE.md AGENTS.md doctor.sh; do
+  [ -e "$tw/$f" ] && bad "an unreadable declaration — $f was written after the run said nothing had been"
+done
+
+# And the same registry with its declaration changed is the control: one line decides it, the rest
+# of the fixture is identical, and a guard that had stopped reading would fail here instead of
+# passing everything. It also keeps the coverage the mono shape used to carry — a `.` row with a
+# remote is a clone target like any other, which is what makes a root-location row observable.
+echo "The same registry declaring the other layout ..."
 tw="$(teammate monoroot "$MONO_DOCS")"
+perl -pi -e 's/^layout: mono$/layout: multi/' "$(registry_of "$tw")"
+grep -q '^layout: multi$' "$(registry_of "$tw")" \
+  || bad "fixture: the declaration was not changed, so the control is not a control"
 add_row "$tw" <<EOF
 
   - name: "extra-root"
@@ -915,8 +956,9 @@ add_row "$tw" <<EOF
     description: "The workspace root, which is never an empty clone target."
 EOF
 run_setup "$tw"
-assert_assembled "mono root with a remote" "$tw"
-assert_out "mono root with a remote" "warning: could not clone"
+assert_assembled "a multi declaration over the same rows" "$tw"
+assert_not_out "a multi declaration over the same rows" "declares layout: mono"
+assert_out "a multi declaration over the same rows" "warning: could not clone"
 
 if [ "$failures" -eq 0 ]; then
   printf 'PASS: setup-workspace.sh assembles the workspace in every measured failure shape\n'
