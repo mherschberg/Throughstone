@@ -1194,6 +1194,9 @@ any project built with it.
   does not have** — both now hold in either layout.
 - **`METHOD.md` §5 said the same thing, one section deeper** — it now names both layouts where it
   called `prompts/` its own repo outright, and `collaboration.md` §7, which cites it, matches.
+- **The STEP-number reservation protocol told a mono-repo-for-now reader to pull, branch and push
+  a repository they do not have** — `collaboration.md` §2 now says once which repository it runs
+  in, and its steps read against that.
 
 ## [1.7.1] - 2026-08-10
 

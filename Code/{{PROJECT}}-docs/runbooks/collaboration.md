@@ -41,18 +41,20 @@ step-NNNN-short-name        e.g. step-0042-payment-webhooks
   only fixes the name and the cross-repo consistency.
 
 ## 2. Reserving a STEP number (the one hard rule)
-STEP numbers are **global and never reset** (`METHOD.md` §1, §8). `prompts/` is the one repo
-every contributor shares, so the index in it is the registry of record. Reserving a number
-and proposing the STEP are the **same atomic act**, and it happens **before** you branch or
-write anything.
+STEP numbers are **global and never reset** (`METHOD.md` §1, §8). `prompts/` is project-wide —
+every STEP recorded once, wherever the code it touches lives — so the index in it is the
+registry of record. Reserving a number and proposing the STEP are the **same atomic act**, and
+it happens **before** you branch or write anything.
 
-**Protocol — identical for humans and agents:**
+**Protocol — identical for humans and agents.** Run it in the repository `prompts/` sits in —
+its own repo at the workspace root in a multi-repo project, the root repo in mono-repo-for-now
+(`METHOD.md` §7). Every pull, commit and push below is in that repository.
 
-1. **Pull `prompts/`.** Get the current `prompts/STEP-index.md`.
+1. **Pull.** Get the current `prompts/STEP-index.md`.
 2. **Allocate** the next number: `max(existing STEP numbers) + 1`.
 3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, one-line scope,
    and the repos you expect to touch).
-4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on `prompts/`'s
+4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on the
    **shared trunk** (`{{TRUNK_BRANCH}}`), separate from any other change. `prompts/STEP-index.md` is a shared
    registry: the reserve commit *and every later edit to it* (status flips, archival rows) land
    on the trunk, **never on a `step-NNNN` branch** — the push-reject that referees the race only
@@ -92,7 +94,7 @@ After that the number is yours; everyone who pulls sees it.
 **Flip the row to `In progress` when you start — and push the flip.** Reservation leaves the
 row `Planned`; the overlap warning (§4) reads in-flight STEPs *from the shared index*, so the
 moment you cut the `step-NNNN` branch and begin work, set the row's **Status** to `In progress`
-in a small commit pushed to `prompts/`'s trunk (the same your-row-only edit as reserve, §5).
+in a small commit pushed to the trunk (the same your-row-only edit as reserve, §5).
 The later `Done` / `Abandoned` transitions are pushed the same way. A STEP being worked must
 never be left at `Planned` on the shared branch — or have its flip sitting unpushed locally —
 or it's invisible to everyone else's overlap check.
@@ -316,9 +318,9 @@ the ADRs), not in any one tool's memory or conversation. In particular an agent 
 > **Worktrees isolate code, not the number reservation.** The reservation race (§2) is
 > refereed by `git push` being rejected, which only happens between **independent clones
 > sharing a remote**. Git worktrees share one clone (one `.git`, one set of refs) and can't
-> both check out `prompts/`'s shared branch (where the reserve commit lands) at once, so
+> both check out the shared trunk (where the reserve commit lands) at once, so
 > there's no push/reject between them. Worktree
 > agents get working-tree isolation for *code*, but to reserve a STEP number an agent should
-> work from its **own clone of `prompts/`** with the shared remote.
+> work from its **own clone of the repository §2 names**, with the shared remote.
 
 A fresh agent picks up wherever the files are; no shared conversation is needed.
