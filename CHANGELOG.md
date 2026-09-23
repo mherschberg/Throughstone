@@ -1197,6 +1197,13 @@ any project built with it.
 - **The STEP-number reservation protocol told a mono-repo-for-now reader to pull, branch and push
   a repository they do not have** — `collaboration.md` §2 now says once which repository it runs
   in, and its steps read against that.
+- **The workspace-root check reads the repo registry, and compares whole entry names.** A repo
+  registered at a root-level `location:` was reported as an unexpected entry on every run, against
+  the check's own advice that a registered repo may sit anywhere inside the workspace; and a stray
+  called `Upcoming` or `Prompts` was allowed through, because the allowed entries were joined on
+  spaces and the intake folder `Upcoming Prompts` is two words. Separately, the two checks that
+  stand down when their file is not in the checkout now name the file instead of suggesting the
+  project was never initialized.
 
 ## [1.7.1] - 2026-08-10
 
