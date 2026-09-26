@@ -188,7 +188,7 @@ brought into a project at all — in a second new runbook; none of that asks any
     `templates/architecture-doc-template.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md` and
     `runbooks/check-in.md`. Several of these travel with item 1's or item 9's group already, so
     pull them once. They change no script behaviour and touch no project state — details below.
-15. **Carry the ADR duplicate-number scan fix into your own `adr/README.md` by hand.** It is
+15. **Fix the ADR duplicate-number scan in your own `adr/README.md` by hand.** It is
     *Project state* under §2, so nothing upstream updates it for you and pulling changes nothing —
     details at the very end of this section.
 16. **Team projects: check the *Who accepts an ADR* line in your `adr/README.md`.** `AGENTS.md`
@@ -817,8 +817,12 @@ change no script behavior and touch no project state.
 
 **One thing this guide does not do for you — this is item 15 of the fast path.** `adr/README.md` is *Project state* under §2 —
 never auto-updated — so the ADR duplicate-number scan fixed in this release stays broken in your
-copy until you carry the fix across by hand. Open your `adr/README.md`, find the scan command, and
-make it name the file from the workspace root the way the scaffold's copy now does.
+copy until you change it by hand. Either copy the scaffold's reservation bullet and the note
+under `## Registry` over yours — the bullet now points at `runbooks/collaboration.md` §6, where the
+fixed scan lives — or keep yours and make its command name the file from the workspace root, as
+the command in `runbooks/collaboration.md` §6 does. The *Reserving a number (teams)* note in your
+`prompts/STEP-index.md` legend was shortened the same way in the scaffold; its scan already works,
+so copying the shorter note over is optional.
 
 ### 1.7 migration
 

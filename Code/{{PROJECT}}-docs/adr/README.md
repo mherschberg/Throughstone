@@ -6,13 +6,8 @@ decision: the context, the choice, the alternatives rejected, and the consequenc
 
 ## Conventions
 - Filenames: `ADR-NNNN-kebab-title.md`, sequential, zero-padded, never reused.
-- **Reserve the number like a STEP number** (teams): the registry below is shared, so two
-  authors can each append `ADR-0005` and git will merge both without a conflict — a silent
-  duplicate. Pull, take `max + 1` over the registry, add your row and create the ADR file, then
-  **commit and push immediately**. Before every push, even on a clean merge, scan for a repeated
-  number (`grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d`); if it's non-empty or the push
-  is rejected, recompute `max + 1`, renumber, and push again. Solo, it's just a local edit. See
-  `../runbooks/collaboration.md` §6.
+- **Reserve the number:** take `max + 1` over the registry below and add your row with the ADR
+  file. In a team, follow `../runbooks/collaboration.md` §6.
 - Write decisions a future contributor would ask "why did they do it this way?" about —
   not tactical choices (library versions, file layout).
 - **Never rewrite an accepted decision.** If it changes, append a dated `## Amendment`,
@@ -34,8 +29,8 @@ e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 ## Registry
 
 > First column = the full `ADR-NNNN` id (e.g. `ADR-0001`), **not** a bare number — the
-> duplicate-scan above keys on that `ADR-` prefix, so a bare number makes it silently miss
-> collisions.
+> duplicate scans (`../runbooks/collaboration.md` §6 and `./doctor.sh check`) key on that `ADR-`
+> prefix, so a bare number makes them silently miss collisions.
 
 | ADR | Title | Status | Date |
 |------|-------|--------|------|

@@ -193,7 +193,7 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
   scope — in dependency order after STEP-1. **That list is the whole deliverable.** On a
   re-run, follow the history-preserving rules above instead of adding duplicate rows.
   - *In a team:* this batch is a number reservation like any other
-    (`runbooks/collaboration.md` §2) — commit it to `prompts/`'s shared trunk and push. If the
+    (`runbooks/collaboration.md` §2) — commit it on the shared trunk and push. If the
     push is rejected, move the **whole block** above the new `max` (not just one row), re-scan
     for duplicate numbers, and push again.
 - **Then stop.** Don't create any PLAN or substep-prompt files. When the user is ready to

@@ -113,14 +113,9 @@ teammate will need later.
 > An explicit chat instruction overrides the profile for the current session only.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's
-   not there, add a row — and that row *is* the number reservation. **Pull first**, take the
-   next number (`max + 1`), add the row **on the shared trunk** (not a `step-NNNN`
-   branch), then **commit and push immediately** in a dedicated `reserve STEP-N` commit,
-   **before** branching or writing. If the push is rejected, someone reserved concurrently —
-   pull, renumber, push again. Before every push, even on a clean merge, scan for a duplicate
-   (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`); two appended rows merge
-   with no conflict into a silent duplicate. (Solo with no remote, this is just a local edit.)
-   See `Code/{{PROJECT}}-docs/runbooks/collaboration.md`.
+   not there, add a row — and that row *is* the number reservation: take `max + 1` and add the
+   row on the trunk, never a `step-NNNN` branch, **before** branching or writing. In a team,
+   follow `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §2.
 2. **Confirm scope** with the user before writing anything — a STEP is a real commitment.
    Ask clarifying questions where the planned work, dependencies, repo ownership, or order
    are uncertain. When there are real alternatives, present appropriate options with pros
