@@ -9,6 +9,12 @@ The goal is that the **result** is the same however a repo arrived, except for l
 
 - **Work from the workspace root.** Every path below is written relative to it and can be used
   as-is, including the repo locations in the registry.
+- **Under `layout: mono`** (the line in `Code/{{PROJECT}}-docs/registries/repos.yml`), every row
+  but the workspace root's (`location: "."`) is a folder inside the root repository with no
+  `remote:`, so the location test below prints the folder's path, which is expected. If it exits
+  0 and prints nothing, that path is a repository of its own, and that is not taken in — convert
+  first (`Code/{{PROJECT}}-docs/runbooks/splitting-repos.md` Case 2;
+  `Code/{{PROJECT}}-docs/METHOD.md` §7).
 - **You need, per repo:** its name, location, `type`, a one-line description, whether it was
   created or adopted, its remote if it has one, and — for step 4 — its role, which slice of the
   project it owns, and where its detail lives. The `type` vocabulary is listed beside the field
@@ -76,7 +82,15 @@ The goal is that the **result** is the same however a repo arrived, except for l
    README this method stamped is also a README that is already there, so read them in order and
    take the first that fits.
    - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md` as
-     `README.md`.
+     `README.md`. Keep its headings in order, so every repo's README reads the same way: a section
+     that does not apply can go (no *API / interface* for a library), but never the role one-liner
+     or the Overview — saying what the repo *is* is the one part that cannot be dropped. In a code
+     repo we created, also stamp the CI gate the Test Strategy architecture doc names:
+     `Code/{{PROJECT}}-docs/templates/ci/code-repo-ci.yml` as the repo's `.github/workflows/ci.yml`,
+     with its stack's test command filled in (`Code/{{PROJECT}}-docs/templates/ci/README.md`). In a
+     repo we did not create, add no CI, and **cut `## Licensing` back to its `LICENSE-THROUGHSTONE`
+     sentence**: step 3 writes no `LICENSING.md` there for its link to reach, and that sentence is
+     the only place the file says what the notice covers.
    - **A README this method stamped** — recognised by a `## Licensing` section of its own
      carrying the sentence that names `LICENSE-THROUGHSTONE`. Every path that stamps that template
      writes that sentence, including the cut-back form a repo we did not create gets, and nothing
@@ -90,13 +104,18 @@ The goal is that the **result** is the same however a repo arrived, except for l
      appended to, or a README of somebody else's that happens to name our notice: **ask which**,
      and leave the repo with one statement of its role rather than two.
    - **A README already there** — leave it under its own name and add a `## Role in <project>`
-     section, shape in the same template, written in that file's own markup; a format you do not
-     recognise is plain text. If that section is already present, **update it in place; never
-     append a second one.** **One look before you write**: the test above has a blind spot, and
-     it is the owner's right — a stamped README is theirs from the moment it lands, and they may
-     have dropped its `## Licensing` section. If the file in front of you plainly reads as one of
-     ours, the repo's name as its title and a role one-liner under it and an Overview, **ask**
-     rather than writing the role a second time.
+     section, written in that file's own markup; a format you do not recognise is plain text. It
+     carries the role one-liner, two or three sentences naming the slice this repo owns *and what
+     it explicitly does not*, and the full path of the architecture doc that defines it. Not a bare
+     pointer — the boundary is the thing a newcomer cannot get quickly from the code. Append it at
+     the end by default, and offer to place it higher: placement is content, and content is the
+     owner's to shape. That heading through to the next heading at its level is the whole of
+     Throughstone's part of the file, which is what a check-in sweeps. If that section is already
+     present, **update it in place; never append a second one.** **One look before you write**:
+     the test above has a blind spot, and it is the owner's right — a stamped README is theirs from
+     the moment it lands, and they may have dropped its `## Licensing` section. If the file in
+     front of you plainly reads as one of ours, the repo's name as its title and a role one-liner
+     under it and an Overview, **ask** rather than writing the role a second time.
 
    `runbooks/check-in.md`'s README sweep splits the same three ways and sends the reader here for
    the first of them. The test above is the one definition; change it and that sweep changes too.
@@ -137,8 +156,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
 
 5. **Commit — one commit per repository**, naming its paths explicitly, never `git add -A`.
    - **Docs hub** — the row and the Architecture Overview entry.
-   - **The repo itself** — its README and **every licensing artifact step 3 wrote there**, not
-     the notice alone.
+   - **The repo itself** — its README, the CI gate if step 2 stamped one, and **every licensing
+     artifact step 3 wrote there**, not the notice alone.
 
 ## When something does not work
 

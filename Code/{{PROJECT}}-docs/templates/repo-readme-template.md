@@ -1,68 +1,13 @@
 # {{repo-name}}
 
-> One line: this repo's role, and how it fits the system. (Link the architecture doc that
-> defines it, e.g. `{{PROJECT}}-docs/architecture/*-architecture-overview.md`.)
-
-<!--
-  **Making a repo public takes an explicit instruction from the user naming that repo** — a
-  license, a public sibling repo, a remote, or a project that calls itself open source is not
-  that instruction, and neither is silence. The rule does not change at the divider below.
-  Publishing cannot be walked back: a repo made private again does not un-publish what has
-  already been cloned, forked, and cached.
-
-  Stamp a copy of this into each code repo **as Throughstone creates it** — unless that repo
-  already has a README, which is how a repo carved out of another one usually arrives: then it is
-  kept under its own name and gains a `## Role in <project>` section instead, exactly as the
-  divider below says. Keep the section headings consistent across
-  all repos so the project reads uniformly. Sections that don't apply can be dropped (e.g. no
-  "API / interface" for a library), but keep the order — and never drop the role one-liner
-  above or the Overview below: explaining what the repo *is* is the one non-negotiable part.
-
-  Stamp the CI gate named by the Test Strategy architecture doc too: drop
-  `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml` and fill in its
-  stack's test command (see `templates/ci/README.md`).
-
-  Apply the project license established at bootstrap by running
-  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <this-repo-path>` — except a repo carved
-  out of another one, which keeps the licensing that came across with the code and takes the
-  notice alone (`Code/{{PROJECT}}-docs/runbooks/splitting-repos.md`). It copies the
-  docs hub's canonical `LICENSE` unchanged for open-source projects. Proprietary projects
-  get no project license file. It also copies `LICENSE-THROUGHSTONE` for this retained
-  Throughstone-authored README/CI scaffolding and writes `LICENSING.md` to make the boundary
-  between the two licenses explicit.
-
-  ---- A repo that already exists: augment, don't stamp ----
-
-  The stamping, CI, and licensing instructions above are for a repo Throughstone creates. For a
-  repo that already has a README, **never stamp this file over it, and never create a second
-  README.** Add one section instead:
-
-      ## Role in <project>
-
-  carrying the role one-liner, two or three sentences naming the slice this repo owns *and what
-  it explicitly does not*, and a link to the architecture doc that defines it. Not a bare pointer
-  — the boundary statement is the thing a newcomer cannot get quickly from the code. Default to
-  appending it at the end, and offer to place it higher: placement is content, and content is the
-  owner's to shape. That heading through to the next heading at its level is the whole of
-  Throughstone's part of the file, which is what a check-in sweeps. If the section is already
-  there, update it in place.
-
-  If the repo has **no** README at all, stamp this file — but **cut `## Licensing` back to its
-  `LICENSE-THROUGHSTONE` sentence**: the link points at a `LICENSING.md` that is never written
-  into a repo Throughstone did not create, while the notice itself is written into every repo,
-  and that sentence is the only place this file explains what it covers.
-  Either way, do **not** install CI and do **not** apply a project license; for the Throughstone
-  notice, run
-  `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <this-repo-path>`.
-
-  The whole procedure is `Code/{{PROJECT}}-docs/runbooks/register-repo.md`.
--->
+> One line: this repo's role, and how it fits the system. (Name the architecture doc that
+> defines it in full, e.g. `Code/{{PROJECT}}-docs/architecture/*-architecture-overview.md`.)
 
 ## Overview
 <!-- A short paragraph or two: what this repo does, the problem it owns within the system,
      how it relates to the other repos, and what a newcomer should understand before
      reading the code. Longer than the one-liner above, shorter than the architecture doc
-     (link that for the full picture). This section is required — a repo without it doesn't
+     (name that in full for the full picture). This section is required — a repo without it doesn't
      explain itself.
 
      For a repo with real internal complexity, a README paragraph isn't enough: add an
@@ -90,9 +35,9 @@ Throughstone-authored scaffold material and does not license the project's appli
 
 ## API / interface
 <!-- For a service: link the versioned spec (OpenAPI / GraphQL / protobuf) as the interface
-     contract of record named by `{{PROJECT}}-docs/architecture/*-interface-contracts.md`, with a short
-     endpoint table for orientation — don't duplicate the spec here. For a library: the
-     public surface. Skip if not applicable. -->
+     contract of record named by `Code/{{PROJECT}}-docs/architecture/*-interface-contracts.md`,
+     with a short endpoint table for orientation — don't duplicate the spec here. For a
+     library: the public surface. Skip if not applicable. -->
 
 ## Testing
 <!-- How to run the tests; the tiers (unit / integration / e2e) and what each covers. -->

@@ -365,9 +365,9 @@ special here, which is why it gets no steps of its own below.
      `Makefile`, CI config and test harness, so right now this repo has no way to build itself.
      Decide what it runs, then stamp the gate the same way a repo the method creates gets one:
      `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml`, with its test
-     command filled in — `templates/ci/README.md` says how, and `templates/repo-readme-template.md`
-     asks for it on every created repo. If the extracted code also calls into code that stayed
-     behind, decide that here too —
+     command filled in — `templates/ci/README.md` says how, and `runbooks/register-repo.md` step 2
+     asks for it whenever it stamps a README into a code repo the method created. If the extracted
+     code also calls into code that stayed behind, decide that here too —
      the options are duplicate it, put it in a third shared repo, have one side own it and expose
      it as a service, or don't split at this boundary after all. There is no threshold that picks
      for you; the one thing every source agrees on is not to share domain logic.
