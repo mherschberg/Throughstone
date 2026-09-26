@@ -96,8 +96,9 @@ brought into a project at all — in a second new runbook; none of that asks any
    licence note and §3, §5, §7 and §10, `runbooks/collaboration.md` from §2 to the end,
    `prompts/README.md`, `registries/README.md`,
    and the header comment in `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
-   template but belongs in this group: it carries the `## Role in <project>` section the new
-   runbook sends you to write into a repo that already exists. **The files that route to the new
+   template but belongs in this group: a 1.7 copy writes its instructions — give the repo the
+   project licence and a CI gate — into every README stamped from it, and the new runbook stamps it
+   into repos the method did not create, which get neither. **The files that route to the new
    runbook come with them**: `AGENTS.md`, `runbooks/check-in.md`,
    `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the three
    templates you author STEPs and substeps from — `templates/substep-prompt-template.md`,
@@ -428,13 +429,16 @@ appendix covers purging history first when that matters.
   check-in's security-review gate, which had drifted from the one in `check-in.md`, and points
   there instead.
   **Five templates travel with this group even though §2's buckets call templates future-only.**
-  `templates/repo-readme-template.md` gained the `## Role in <project>` augment form, which is what
-  `runbooks/register-repo.md` sends you to when a repo already has a README, so a 1.7 copy of it
-  leaves the new runbook pointing at nothing. A 1.7 `substep-prompt-template.md` still sends an
-  agent off to write a registry row by hand, and `step-index-seed.md` gains the `N/A` substep
-  status note. A 1.7 `reports/check-in-report-template.md`'s Summary does not ask for the STEP or
-  date the updated `check-in.md` writes into `overview.md`'s `NEXT-CHECK-IN` line, and a 1.7.1 one
-  also has an Inputs row the updated `check-in.md` no longer fills.
+  `templates/repo-readme-template.md` loses its instruction comment, which a 1.7 copy writes into
+  every README stamped from it, telling the reader to give the repo the project licence and a CI
+  gate that a repo the method did not create never gets; the stamping rules, and the shape of the
+  `## Role in <project>` section a README that already exists gains, are in
+  `runbooks/register-repo.md` step 2. It also names the architecture docs by their full paths. A
+  1.7 `substep-prompt-template.md` still sends an agent off to write a registry row by hand, and
+  `step-index-seed.md` gains the `N/A` substep status note. A 1.7
+  `reports/check-in-report-template.md`'s Summary does not ask for the STEP or date the updated
+  `check-in.md` writes into `overview.md`'s `NEXT-CHECK-IN` line, and a 1.7.1 one also has an
+  Inputs row the updated `check-in.md` no longer fills.
   `templates/planning-session.md` is the fifth, and it is the one that changes behavior — see
   below.
   Apply them as a coherent group; they reference each other. No split-specific check: the new `check.sh` registry pass looks only for a missing `location:` and for
@@ -578,11 +582,10 @@ change.** A repo goes public only on an explicit instruction from you that names
 license, a public sibling repo, a remote, or a project that calls itself open source is not that
 instruction, and neither is silence. It reads the same whether Throughstone created the repo or
 took on one that already existed. Where a repo is being stood up, create it **private** — widening is a separate decision, made deliberately later. The rule
-lives in `METHOD.md` §7 and in the two templates that touch a repo as it is brought in,
-`templates/planning-session.md` and `templates/repo-readme-template.md`; all three travel with
-item 1's group above, so pull them together — the rule is only as good as the least-updated of
-them — and there is no new step to take. **Nothing of yours changes with it**: nothing in your
-project records a visibility decision, and no check tests for one. What
+lives in `METHOD.md` §7, `runbooks/register-repo.md` step 1 and `templates/planning-session.md`;
+all three travel with item 1's group above, so pull them together — the rule is only as good as
+the least-updated of them — and there is no new step to take. **Nothing of yours changes with it**:
+nothing in your project records a visibility decision, and no check tests for one. What
 changes is that an agent working in your project finds the rule stated rather than having to
 arrive at it. **One thing to check:** if you are not sure how a repo of yours came to be public,
 this is a cheap moment to look — one glance at each repo's host page. 1.7 asked you to choose
@@ -591,9 +594,9 @@ private again governs only what happens next: it retrieves nothing already clone
 crawled.
 
 **And the rule now reaches the two pages that are open when a remote gets created.** Stating it in
-`METHOD.md` and the templates left out `runbooks/register-repo.md`, where a repository is brought
-into a project, and `runbooks/check-in.md`, where the doctor reports a repo with no remote and
-somebody acts on it. Both told you to push the repo somewhere and neither mentioned visibility.
+`METHOD.md` and the planning session left out `runbooks/register-repo.md`, where a repository is
+brought into a project, and `runbooks/check-in.md`, where the doctor reports a repo with no remote
+and somebody acts on it. Both told you to push the repo somewhere and neither mentioned visibility.
 All three now say a remote created for a repo that has none is created **private**. The doctor's
 own fix line changes with them, and it stops conflating two situations: it reads
 `registries/repos.yml` and not git, so a row with no `remote:` may mean the repo has one nobody
@@ -708,7 +711,8 @@ that layout the workspace root is a per-machine shell rather than a repository.
 **Adopting or splitting later.** A mono-repo-for-now project is one repository, so it cannot take a
 separate repository in: the check-in fails a `mono` registry that registers a row with a `remote:`
 of its own, and names `runbooks/splitting-repos.md` Case 2, which converts the project to multi-repo
-and is the one procedure that changes `layout:` to `multi`.
+and is the one procedure that changes `layout:` to `multi`. `METHOD.md` §7 and
+`runbooks/register-repo.md` now say so before anything is registered; item 1 pulls both.
 
 **The other new registry field, and nothing to do about this one.** Rows may carry `added_as:`
 (`created` | `adopted`), recording how the repo arrived. **No script reads it** — it is a stamp for

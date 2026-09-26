@@ -403,9 +403,8 @@ fi
 # when a README carries both markers.
 lic_head="$(grep -m1 -E '^## Licen' "$README_TPL" || true)"
 [ -n "$lic_head" ] || fail "templates/repo-readme-template.md has no top-level Licensing section; runbooks/register-repo.md step 2 recognises a README this method stamped by that section, so its test would match nothing"
-# Read the section BODY, not the file: the instruction comment above it names LICENSE-THROUGHSTONE
-# three times, and matching those would keep passing after the section a stamped README actually
-# carries was deleted. The comment is indented, so an anchored pattern skips it.
+# Read the section BODY, not the file: a mention anywhere else in the template would keep passing
+# after the section a stamped README actually carries was deleted.
 lic_body="$(awk '/^## Licen/ { f = 1; next } /^## / { f = 0 } f' "$README_TPL" | tr -s ' \t\n' ' ' || true)"
 [ -n "$lic_body" ] || fail "the Licensing section of templates/repo-readme-template.md is empty; the sentence in it is the whole of what marks a README as stamped"
 lic_token="$(printf '%s\n' "$lic_body" | grep -oE 'LICENSE-[A-Z]+' | sort -u | head -1 || true)"

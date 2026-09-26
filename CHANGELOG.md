@@ -163,10 +163,10 @@ any project built with it.
   already has a README keeps it under its own name and gains a short `## Role in <project>` section
   in that file's own markup, and registration never adds a second. That template used to open by
   saying every repo the method creates carries a stamped copy of it, which is the case a split
-  disproves — an extracted folder's own README comes up with it — so it now defers to the rule
-  above instead of contradicting it. A README is any regular file at
-  the repo root whose name starts with `readme`, in any capitalisation and format; where there is
-  more than one, the runbook asks which is canonical instead of picking.
+  disproves — an extracted folder's own README comes up with it — so it no longer says so. A
+  README is any regular file at the repo root whose name starts with `readme`, in any
+  capitalisation and format; where there is more than one, the runbook asks which is canonical
+  instead of picking.
   Licensing shows its two artifacts separately, because they answer different questions: a repo the
   method created follows the project's own posture, while an adopted repo gets `LICENSE-THROUGHSTONE`
   for the Throughstone-authored material in it and never a project `LICENSE` or `LICENSING.md` —
@@ -543,6 +543,16 @@ any project built with it.
   another: one split out of an adopted repo keeps that repo's licence files, not the project's
   `LICENSE`. They, and the docs hub's `AGENTS.md`, whose ten-line copy of the rule was correct but
   loads in every session, now point at that step.
+- **The README template stops carrying its stamping instructions into every README, and a mono
+  project stops before taking a separate repository in.** `templates/repo-readme-template.md`
+  opened with an instruction comment that every README stamped from it carried. What it said that
+  `runbooks/register-repo.md` did not — keep the headings in order, never drop the role line or the
+  Overview, the CI gate for a code repo the method created, the `## Licensing` cut-back for one it
+  did not create, and the shape of a `## Role in <project>` section — is now in that runbook's step
+  2, and the comment is gone. The template names the architecture docs by their full paths from
+  the workspace root; its old `{{PROJECT}}-docs/…` form resolved from neither the repo nor the
+  root. `METHOD.md` §7 now says a mono-repo-for-now project takes no separate repository in, and
+  the runbook says so before its first step.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
@@ -723,16 +733,16 @@ any project built with it.
   consults `added_as:` to pick between them. A default applies at one moment and no other — when a
   repo is being stood up: create it **private**, widening being a separate decision made
   deliberately later, the words `runbooks/splitting-repos.md` already uses at the step that gives
-  a new repo its remote. The sentence is written into `METHOD.md` §7,
-  `templates/planning-session.md` and `templates/repo-readme-template.md`, in the same words in
-  each. Nothing gained a field, a flag or a check. It is doctrine rather than
-  machinery, and the instruction it names comes from the user, ahead of the run.
+  a new repo its remote. The sentence is written into `METHOD.md` §7 and
+  `templates/planning-session.md`, in the same words in each. Nothing gained a field, a flag or a
+  check. It is doctrine rather than machinery, and the instruction it names comes from the user,
+  ahead of the run.
 - **That rule now reaches the two places that could actually make a repo public.** Stating it in
-  `METHOD.md` and the templates left out the registration runbook, which is where a repository is
-  brought into a project, and the check-in, which is where the doctor reports that a repo has no
-  remote and somebody acts on it. Both told you to push a repo somewhere, neither said anything
-  about visibility, and they are the pages open at the moment a remote gets created. All three now
-  say that **a remote created for a repo that has none is created private**, widening being a
+  `METHOD.md` and the planning session left out the registration runbook, which is where a
+  repository is brought into a project, and the check-in, which is where the doctor reports that a
+  repo has no remote and somebody acts on it. Both told you to push a repo somewhere, neither said
+  anything about visibility, and they are the pages open at the moment a remote gets created. All
+  three now say that **a remote created for a repo that has none is created private**, widening being a
   separate decision made deliberately later. The registration runbook adds what a public answer has
   to come from; the doctor's fix line and the check-in keep the short form, because the moment they
   describe is a repository being stood up rather than one being published. The doctor's line also

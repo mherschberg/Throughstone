@@ -86,12 +86,12 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    project did not put there, stop and settle that with the user rather than scaffolding into
    it.** Otherwise the first implementation STEP is almost always *"scaffold the repos and the
    skeleton"*. Where **Inherited code** below has put a baseline check-in ahead of it, that
-   check-in goes first and this STEP follows it. Scaffolding means: create each new code repo from
-   `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
-   baseline from the Environments architecture doc, plus any interface contract artifact
-   placeholders or repo-local contract files named in the Interface Contracts architecture doc —
-   including copying `templates/env-example.txt` into each new code repo as its `.env.example`,
-   and adding a **stack-appropriate `.gitignore`** to each new code repo
+   check-in goes first and this STEP follows it. Scaffolding means: create each new code repo with
+   its README stamped as `runbooks/register-repo.md` step 2 says, wire up the chosen stack, CI,
+   and the environment/secrets baseline from the Environments architecture doc, plus any
+   interface contract artifact placeholders or repo-local contract files named in the Interface
+   Contracts architecture doc — including copying `templates/env-example.txt` into each new code
+   repo as its `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
    the `.env` / `.secrets/` secret-file block so local secrets never get committed). Apply the
    project-license posture too: run

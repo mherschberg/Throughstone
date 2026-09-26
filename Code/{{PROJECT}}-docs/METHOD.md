@@ -666,11 +666,13 @@ not. Adjust a link's display text if it needs it; never its target.
 
 **Mono-repo for now:** the wizard offers a single-repo start — then the **workspace root
 itself is that one repo** (the lone exception to "the root is not a repo" above), with
-`prompts/`, `Code/{{PROJECT}}-docs/` and each code folder inside it rather than as sibling repos. In
-this mode the root pointers (`CLAUDE.md` / `AGENTS.md`) are just ordinary committed files, not
-per-machine artifacts, and the hygiene rule does not apply. It's a convenience for getting
-moving solo; the multi-repo layout is the target — but move to it when the architecture asks
-for it. **How many repos a project has follows its architecture, not its headcount.** A
+`prompts/`, `Code/{{PROJECT}}-docs/` and each code folder inside it rather than as sibling repos.
+**It does not take a separate repository in**: bringing in one with a history of its own means
+converting first (`runbooks/splitting-repos.md` Case 2). In this mode the root pointers
+(`CLAUDE.md` / `AGENTS.md`) are just ordinary committed files, not per-machine artifacts, and the
+hygiene rule does not apply. It's a convenience for getting moving solo; the multi-repo layout is
+the target — but move to it when the architecture asks for it. **How many repos a project has
+follows its architecture, not its headcount.** A
 mono-repo project that gains a second contributor needs **shared remotes** — so the push-reject
 that referees STEP-number reservation can fire (`runbooks/collaboration.md` §2, whose solo→team
 section carries the mono path) — not a split.
