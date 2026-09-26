@@ -760,28 +760,12 @@ if [ "$COLLAB" = "2" ]; then
     echo "  disk, not folklore)."
     ADR_AUTHORITY="$(ask 'Who accepts ADRs? e.g. tech lead / consensus of maintainers / ADR review on PR' 'consensus of maintainers')"
   fi
-  # Said to every team, not only to the ones that happened to type their ADR authority. This had
-  # the same defect the caveat below had, one line above it: the branch that asks for that one
-  # value is not the condition for advice about something else. The closing instructions tell a
-  # project that set up no remote how to attach one later; this is the half that says why a team
-  # needs one at all, and it belongs where the reader has just said they are a team.
+  # Said to every team, however the ADR authority arrived: the branch above asks for that one
+  # value, and it is not the condition for advice about something else. The closing instructions
+  # tell a project that set up no remote how to attach one later; this is the half that says why a
+  # team needs one at all, and it belongs where the reader has just said they are a team.
   echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
   echo "  from the same place. You can still skip that now and add remotes later."
-  # The mono + team caveat turns on the two answers it is about, and nothing else. It used to sit
-  # inside the branch above, which asks for the ADR authority — so its real condition was how that
-  # one unrelated value arrived. Measured on three identical mono + team projects: typing the
-  # authority printed it, passing --adr-authority did not, and --non-interactive did not. Same
-  # project, same limitation, one warning. It also says that stopping costs nothing, because it
-  # does: the run has created nothing at this point, and the reader had no way to know that.
-  if [ "$LAYOUT" = "2" ]; then
-    echo "  NOTE: you picked mono-repo + team. That works — what a team needs is shared"
-    echo "  remotes, not several repos. One thing to know: the overlap warning is"
-    echo "  repo-granular, so it is meaningless when every STEP touches the one repo."
-    echo "  Fall back to the PLAN's file/area notes — see"
-    echo "  Code/${SLUG}-docs/runbooks/collaboration.md §4."
-    echo "  Nothing has been created yet, so this run can still be stopped and rerun with"
-    echo "  --layout=multi if that changes your mind."
-  fi
 else
   # A solo project records the author as the authority — the register is stamped `_solo author_`
   # and the question is never asked — so a supplied authority has nothing to attach to. It was

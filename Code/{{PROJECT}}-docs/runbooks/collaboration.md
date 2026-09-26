@@ -52,8 +52,8 @@ its own repo at the workspace root in a multi-repo project, the root repo in mon
 
 1. **Pull.** Get the current `prompts/STEP-index.md`.
 2. **Allocate** the next number: `max(existing STEP numbers) + 1`.
-3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, one-line scope,
-   and the repos you expect to touch).
+3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, and a one-line
+   scope).
 4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on the
    **shared trunk** (`{{TRUNK_BRANCH}}`), separate from any other change. `prompts/STEP-index.md` is a shared
    registry: the reserve commit *and every later edit to it* (status flips, archival rows) land
@@ -122,13 +122,8 @@ to coordinate must therefore be *in that row*:
   won't be built is marked **Abandoned** — its row **stays** (never delete it) so its number is
   never reused (`METHOD.md` §8). `max + 1` always counts deferred and abandoned numbers; don't
   reissue them.
-- **Repos (projection)** — the repos you *expect* to touch. This is a **projection, not a
-  guarantee** — scope shifts as a STEP is worked, and that's fine. It exists to power the
-  overlap warning below, not to reserve anything. The PLAN carries the same field
-  (`templates/step-plan-template.md`), but **the index row is the authoritative copy for coordination** —
-  it's what teammates read. **If a STEP grows to touch a repo not in its projection, update the
-  row** (and keep the PLAN's copy in sync) — the projection only protects others if it's roughly
-  current, and a stale one makes the overlap warning miss real collisions.
+- **Scope** — one line on what the STEP changes. The overlap warning (§4) compares it, so name
+  the part of the system it touches.
 
 The full PLAN stays private in `Upcoming Prompts/` by default (the lean choice). A team that
 wants in-flight PLANs visible can opt in: make `Upcoming Prompts/` a repo (`METHOD.md` §5
@@ -142,24 +137,21 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
 - **The shared index row is the coordination surface** (§3) — it's the only thing others can
   see of your in-flight work, so it's the primary check. **When you start a STEP**, read the
   **in-flight** rows in `prompts/STEP-index.md` — `In progress`, plus any `Planned` row that already has
-  a `step-*` branch — and compare their **Repos (projection)** against your STEP's scope. If
-  they overlap, **say so** — then proceed. It's a heads-up, not a gate. (This is why the
-  `In progress` flip must be *pushed*, §2: an unpushed status makes a worked STEP invisible here.)
+  a `step-*` branch — and compare their **Scope** against your STEP's scope and what its PLAN
+  says it will touch. If they overlap, **say so** — then proceed. It's a heads-up, not a gate.
+  (This is why the `In progress` flip must be *pushed*, §2: an unpushed status makes a worked
+  STEP invisible here.)
 - **Agents must do this check and warn the user** before starting work.
 - **Optional extra signal — only if your team pushes its `step-*` branches.** A *remote* scan
   (`git ls-remote --heads origin 'step-*'`, or `git fetch` then `git branch -r --list '*step-*'`)
-  flags any repo carrying more than one live `step-*` branch, and catches a STEP whose row
-  someone forgot to flip. But many contributors don't push a branch until PR time, so it sees
-  nothing for purely-local work — treat it as a bonus, not the primary check, and never lean on
-  a local `git branch --list` (it never sees a teammate's branch). Wire the remote scan into CI
-  if you want it.
+  lists every live `step-*` branch, which shows the `Planned` rows already in flight and catches
+  a STEP whose row someone forgot to flip. But many contributors don't push a branch until PR
+  time, so it sees nothing for purely-local work — treat it as a bonus, not the primary check, and
+  never lean on a local `git branch --list` (it never sees a teammate's branch). Wire the remote
+  scan into CI if you want it.
 
-> **The warning is repo-granular — read it as a heads-up, not a verdict.** It fires whenever
-> two STEPs name the same repo, even if they touch unrelated files (expect over-warning in a
-> multi-repo project), and it is **meaningless in a mono-repo**, where every STEP touches the
-> one repo so it would fire for every pair. In mono-repo mode, fall back to the PLAN's
-> file/area notes or a one-line "I'm editing X" to teammates. If a repo is large, putting a
-> subsystem or path hint next to it in the projection makes the signal sharper.
+> **A one-line scope is a rough signal — read the warning as a heads-up, not a verdict.** When
+> two scopes look close, a one-line "I'm editing X" to the other STEP's owner settles it.
 
 ## 5. Editing shared files without merge pain
 A few files are global and edited by everyone. They fall into two kinds:
@@ -172,13 +164,12 @@ and `registries/repos.yml`. These conflict only when people reflow them:
 
 **Narrative files** — `architecture/NN-*.md`. Prose does **not** merge cleanly, and an
 architecture-doc collision is the costliest merge there is, so these are serialized by *not
-having two STEPs edit the same doc at once*. The overlap warning (§4) is the catch — and
-although a docs-hub hit over-warns in general (§4 note), **for narrative files treat it as a
-real prompt to serialize, not noise**: when two STEPs both touch the docs hub, confirm you're
-not both editing the same doc before proceeding. A doc/subsystem hint in the **Repos
-(projection)** sharpens it. For a small team, a one-line "I'm re-running session 1.5" is
-enough. Re-running a session later (`METHOD.md` §4) is fine — just not concurrently with
-someone else editing the same doc.
+having two STEPs edit the same doc at once*. The overlap warning (§4) is the catch — **for
+narrative files treat it as a real prompt to serialize, not noise**: when two in-flight STEPs
+both touch architecture docs, confirm you're not both editing the same doc before proceeding.
+Naming the doc in the row's Scope sharpens it. For a small team, a one-line "I'm re-running
+session 1.5" is enough. Re-running a session later (`METHOD.md` §4) is fine — just not
+concurrently with someone else editing the same doc.
 
 ### If your remote enforces file locks, use them on these files
 GitHub, Bitbucket, and GitLab all support **Git LFS file locks** (`git lfs lock <file>` /

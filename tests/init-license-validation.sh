@@ -1543,22 +1543,21 @@ run_licence_vocabulary_case() {
   assert_maintainer_tests_removed "$name-new" "$new_work"
 }
 
-# run_mono_team_caveat_case — a caveat turns on the answers it is about, not on how they arrived.
+# run_team_headsup_case — team advice turns on the team answer, not on how the ADR authority arrived.
 #
-# Mono-repo plus team makes the overlap warning useless, because that warning is repo-granular and
-# there is one repo. The note saying so used to sit inside the branch that asks who accepts ADRs,
-# so its real condition was how that unrelated value was supplied. Measured on three identical
-# mono + team projects: typing the authority printed the note, `--adr-authority` did not, and
-# `--non-interactive` did not.
+# init.sh asks who accepts ADRs only when that value was not supplied, and the heads-up that a team
+# needs shared remotes sits just after that question. It must print for every team whichever way
+# the authority arrived — typed, passed as `--adr-authority`, or defaulted by `--non-interactive` —
+# and for no solo project.
 #
-# Five runs: the three ways a mono + team project can be created, all of which must warn, and the
-# two neighbouring combinations, neither of which may. Without the last two this case would pass
-# for a note printed unconditionally, which is a different defect with the same symptom here.
-run_mono_team_caveat_case() {
-  local name="mono-team-caveat" n out
-  local caveat="you picked mono-repo + team"
+# Five runs: the three ways a team project can be created, all of which must print it, and the two
+# neighbouring combinations, of which only the team may. The three are mono and the last is multi,
+# so the line cannot come to depend on the layout without failing here.
+run_team_headsup_case() {
+  local name="team-headsup" n out
+  local headsup="Heads-up: team collaboration relies on shared Git remotes"
 
-  # warns: the ADR authority typed, passed as a flag, and defaulted by --non-interactive
+  # prints: the ADR authority typed, passed as a flag, and defaulted by --non-interactive
   for n in typed flag noninteractive; do
     out="$TMP_ROOT/$name-$n.out"
     copy_template "$TMP_ROOT/$name-$n"
@@ -1566,60 +1565,42 @@ run_mono_team_caveat_case() {
       cd "$TMP_ROOT/$name-$n"
       case "$n" in
         typed) printf '2\n2\ntech lead\n' | ./init.sh --slug="$name-$n" \
-                 --desc="Caveat test" --license=proprietary --remotes=no ;;
+                 --desc="Heads-up test" --license=proprietary --remotes=no ;;
         flag)  printf '2\n2\n' | ./init.sh --slug="$name-$n" \
-                 --desc="Caveat test" --license=proprietary --remotes=no \
+                 --desc="Heads-up test" --license=proprietary --remotes=no \
                  --adr-authority="tech lead" ;;
-        *)     ./init.sh --non-interactive --slug="$name-$n" --desc="Caveat test" \
+        *)     ./init.sh --non-interactive --slug="$name-$n" --desc="Heads-up test" \
                  --license=proprietary --layout=mono --collab=team --remotes=no ;;
       esac
     ) >"$out" 2>&1
-    grep -Fq "$caveat" "$out" || {
-      echo "FAIL: $name — a mono + team project built via '$n' was not warned" >&2
-      cat "$out" >&2
-      return 1
-    }
-    # The line above the caveat had the same defect and is checked on the same three paths: why a
-    # team needs shared remotes is advice about the collaboration answer, not about how the ADR
-    # authority happened to arrive.
-    grep -Fq "Heads-up: team collaboration relies on shared Git remotes" "$out" || {
+    grep -Fq "$headsup" "$out" || {
       echo "FAIL: $name — a team project built via '$n' was not told a team needs shared remotes" >&2
-      return 1
-    }
-    # Stopping is free at that point, and saying so is what gives the reader a way to act.
-    grep -Fq "Nothing has been created yet" "$out" || {
-      echo "FAIL: $name — the caveat ('$n') did not say the run can still be stopped" >&2
+      cat "$out" >&2
       return 1
     }
   done
 
-  # must not warn: neither neighbouring combination has the limitation
+  # a solo project gets no team advice, and a multi-repo team gets it too
   for n in mono-solo multi-team; do
     out="$TMP_ROOT/$name-$n.out"
     copy_template "$TMP_ROOT/$name-$n"
     (
       cd "$TMP_ROOT/$name-$n"
       case "$n" in
-        mono-solo)  ./init.sh --non-interactive --slug="$name-$n" --desc="Caveat test" \
+        mono-solo)  ./init.sh --non-interactive --slug="$name-$n" --desc="Heads-up test" \
                       --license=proprietary --layout=mono --collab=solo --remotes=no ;;
-        *)          ./init.sh --non-interactive --slug="$name-$n" --desc="Caveat test" \
+        *)          ./init.sh --non-interactive --slug="$name-$n" --desc="Heads-up test" \
                       --license=proprietary --layout=multi --collab=team --remotes=no ;;
       esac
     ) >"$out" 2>&1
-    if grep -Fq "$caveat" "$out"; then
-      echo "FAIL: $name — '$n' was warned about a limitation it does not have" >&2
-      return 1
-    fi
-    # The team advice is scoped to teams, and the mono+team caveat to mono teams — so these two
-    # runs pull in opposite directions and neither alone would catch a line that fires for all.
     case "$n" in
       mono-solo)
-        if grep -Fq "Heads-up: team collaboration" "$out"; then
+        if grep -Fq "$headsup" "$out"; then
           echo "FAIL: $name — a solo project was given team advice" >&2
           return 1
         fi ;;
       multi-team)
-        grep -Fq "Heads-up: team collaboration" "$out" || {
+        grep -Fq "$headsup" "$out" || {
           echo "FAIL: $name — a multi-repo team was not told a team needs shared remotes" >&2
           return 1
         } ;;
@@ -1852,7 +1833,7 @@ run_ignored_flag_multi_case
 run_github_choice_discarded_case
 run_slug_message_case
 run_licence_vocabulary_case
-run_mono_team_caveat_case
+run_team_headsup_case
 run_solo_adr_flag_case
 run_saved_tip_multi_case
 

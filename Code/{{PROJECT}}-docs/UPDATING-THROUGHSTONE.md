@@ -93,7 +93,7 @@ brought into a project at all — in a second new runbook; none of that asks any
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
    `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10,
-   `runbooks/collaboration.md` §2, §6, §7, §8 and §9, `prompts/README.md`, `registries/README.md`,
+   `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
    and the header comment in `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
    template but belongs in this group: it carries the `## Role in <project>` section the new
    runbook sends you to write into a repo that already exists. **The files that route to the new
@@ -196,6 +196,13 @@ brought into a project at all — in a second new runbook; none of that asks any
     gets only the solo ones. If more than one person works in the project and the line was never
     changed, record your rule there (`runbooks/collaboration.md` §9 step 3).
 17. Nothing else. A project that never splits reads none of the splitting material.
+
+**The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
+warning (`runbooks/collaboration.md` §4) now compares in-flight STEPs' Scope, so nothing reads the
+column, and `scripts/status.sh` and `scripts/check.sh` find the index's columns by header name, so
+an extra one is harmless; only its legend line, which says it powers the overlap warning, is now
+out of date. New projects start without the column, and a STEP PLAN's field is now `**Repos:**`,
+still listing the repos and the order they merge in.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -305,10 +312,10 @@ yours reads the doctor's output by check number, that number now means something
 **The rule that went away.** The method used to say a mono-repo-for-now project had to split before
 taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
 works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
-not *several* repos — and the overlap warning's mono fallback was already written, in the very
-section that clause cited. **How many repos you have follows your architecture, not your
-headcount.** If you already split for the old reason you have lost nothing and there is nothing to
-undo; if you were about to, you no longer need to.
+not *several* repos — and the overlap warning compares in-flight STEPs by their scope, not by the
+repos they touch. **How many repos you have follows your architecture, not your headcount.** If
+you already split for the old reason you have lost nothing and there is nothing to undo; if you
+were about to, you no longer need to.
 
 **Splitting, when you do want it.** `runbooks/splitting-repos.md` covers both cases behind one
 routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
@@ -322,8 +329,8 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` §2, §6, §7, §8
-  and §9, `prompts/README.md`, `registries/README.md`, `registries/repos.yml`'s header,
+  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` from §2 to
+  the end, `prompts/README.md`, `registries/README.md`, `registries/repos.yml`'s header,
   `AGENTS.md`, `runbooks/check-in.md`, `runbooks/dependency-supply-chain.md`,
   `runbooks/incident-postmortem.md`, and the templates `repo-readme-template.md`,
   `substep-prompt-template.md`, `step-index-seed.md`, `planning-session.md` and

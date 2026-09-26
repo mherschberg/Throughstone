@@ -5,7 +5,7 @@
 **Status:** Planned        <!-- Planned → In progress → Done; or Deferred / Abandoned (see METHOD.md §1) -->
 **Date:** {{DATE}}
 **Branch:** `step-{{NNNN}}-{{short-name}}`   <!-- same name in every repo this STEP touches -->
-**Repos (projection):** {{repos + merge order}}   <!-- same label as prompts/STEP-index.md; lists repos + merge order; powers the overlap warning. -->
+**Repos:** {{repos + merge order}}
 
 > One-paragraph statement of what this STEP delivers and why it comes now.
 
