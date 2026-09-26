@@ -85,7 +85,8 @@ line every project needs and `init.sh` cannot add to one that already exists, **
 did, and, **if your project is mono-repo-for-now, whether the workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
 whether your CI gate has ever actually run — **and one line to change** in `overview.md`, where the
 check-in cadence setting is replaced by the date or STEP your next check-in is due, **and, if your
-project is mono-repo-for-now, two lines to add** to the `.gitignore` at your workspace root. **The fast path below is the whole of
+project is mono-repo-for-now, two lines to add** to the `.gitignore` at your workspace root; a team project also checks one
+line in `adr/README.md`. **The fast path below is the whole of
 it** — every bucket in §2 that this release touches has a step there, and anything under a step's "details" pointer expands a step
 rather than adding one. The release also adds a runbook for splitting a repository, repeals one rule, and writes down how a repo is
 brought into a project at all — in a second new runbook; none of that asks anything of you unless you are about to split. Fast path:
@@ -190,7 +191,11 @@ brought into a project at all — in a second new runbook; none of that asks any
 15. **Carry the ADR duplicate-number scan fix into your own `adr/README.md` by hand.** It is
     *Project state* under §2, so nothing upstream updates it for you and pulling changes nothing —
     details at the very end of this section.
-16. Nothing else. A project that never splits reads none of the splitting material.
+16. **Team projects: check the *Who accepts an ADR* line in your `adr/README.md`.** `AGENTS.md`
+    now keeps its team rules behind that line, so a project whose line still reads `_solo author_`
+    gets only the solo ones. If more than one person works in the project and the line was never
+    changed, record your rule there (`runbooks/collaboration.md` §9 step 3).
+17. Nothing else. A project that never splits reads none of the splitting material.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and

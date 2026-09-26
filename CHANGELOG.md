@@ -501,6 +501,9 @@ any project built with it.
   STEP folder rather than an `architecture/NN-*.md` like the rest. The tradeoff is stated rather than
   hidden: a filed row depends on the deferring agent following the instruction in front of it, where
   an enumerating sweep would catch the deferral whether or not anyone remembered.
+- **`AGENTS.md` keeps the team rules behind one pointer** — every STEP reads the four rules solo
+  and team share; a project whose ADR authority is anyone but `_solo author_` is sent to
+  `runbooks/collaboration.md` §2–§6 instead of reading a copy of them.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its

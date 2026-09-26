@@ -231,37 +231,17 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - One decision/question cluster at a time. Recommend defaults; flag what they foreclose.
 
 ## Working alongside others (humans or other agents)
-Full conventions are in `Code/{{PROJECT}}-docs/runbooks/collaboration.md` — read it before any
-STEP when more than one contributor is active. The rules that bind you as an agent:
+The rules that bind you as an agent, solo or not:
 - **One owner per STEP.** A STEP and all its substeps have a single owner — substeps aren't
   split across people. If work needs to split, make it separate STEPs.
 - **Every STEP is worked on a branch** named `step-NNNN-short-name` — the same name in every
   repo it touches. Do this even solo.
-- **Reserve the STEP number before working.** Pull `prompts/`, take `max + 1`, add the row to
-  `prompts/STEP-index.md` **on `prompts/`'s shared trunk** (never a `step-NNNN` branch), then **commit
-  and push immediately** (a dedicated `reserve STEP-N` commit) — before you branch or write. If
-  the push is rejected, pull, renumber, push again. After any pull/merge — even a clean one,
-  which merges two appended rows into a silent duplicate that no conflict flags — scan before
-  pushing and renumber if it's non-empty:
-  `grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`.
-- **Read the index first and warn on overlap.** The shared index row is the coordination
-  surface. Before starting, compare the `Repos (projection)` of **in-flight** STEPs
-  (`In progress`, plus any `Planned` row with a live `step-*` branch) against your scope; if
-  they overlap, tell the user — then proceed (it's a heads-up, not a block). A *remote*
-  `git ls-remote --heads origin 'step-*'` scan is an optional extra **only if** the team pushes
-  its step branches — a local `git branch --list` never sees a teammate's branch.
-- **Flip your STEP's row to `In progress` when you start** (right after cutting the branch) and
-  **push the flip to the shared trunk** — reservation leaves it `Planned`, and a STEP left at
-  `Planned` (or whose flip is unpushed) while you work is invisible to everyone else's overlap
-  check.
-- **Edit only your own rows** in shared table files (`prompts/STEP-index.md`, `Code/{{PROJECT}}-docs/adr/README.md`, phase
-  `README.md`, `Code/{{PROJECT}}-docs/registries/repos.yml`); never re-sort or reflow them.
-- **Significant decisions in a team land as `Proposed` ADRs**, accepted by the designated
-  authority (see `Code/{{PROJECT}}-docs/adr/README.md`) — don't silently Accept a decision others depend on.
-- **Reserve the ADR number like a STEP number.** The `Code/{{PROJECT}}-docs/adr/README.md` registry is shared, so
-  two authors can append the same `ADR-NNNN` and git merges both into a silent duplicate. Pull,
-  take `max + 1`, add the row and create the ADR file, then **commit and push immediately**;
-  before every push (even a clean merge) scan with
-  `grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d`,
-  and if it's non-empty or the push is rejected, recompute `max + 1`, renumber, and push again.
-  See `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §6.
+- **Reserve the STEP number before working:** take `max + 1` and add the row to
+  `prompts/STEP-index.md` on the trunk, never a `step-NNNN` branch, before you branch or write.
+- **Flip your STEP's row to `In progress` on the trunk when you start** — the next-action
+  resolver reads it.
+
+**When more than one contributor is active** — `Code/{{PROJECT}}-docs/adr/README.md`'s *Who
+accepts an ADR* line names anyone but `_solo author_`, or the user has other agents working
+STEPs in parallel — read `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §2–§6 (and its
+*Multiple AI agents* section) before any STEP and follow it.

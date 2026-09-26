@@ -75,6 +75,10 @@ assert_absent() {
 grep -Fq '<!-- ADR-AUTHORITY -->_solo author_<!-- /ADR-AUTHORITY -->' \
   "$ROOT/Code/{{PROJECT}}-docs/adr/README.md"
 
+# AGENTS.md reads that same token to decide whether the team rules apply, so the reader has to
+# name exactly what the stamp writes.
+grep -Fq 'names anyone but `_solo author_`' "$ROOT/Code/{{PROJECT}}-docs/AGENTS.md"
+
 # Solo projects should materialize the default solo author authority and remove the marker.
 run_init_case "adr-solo" --collab=solo
 solo_adr="$TMP_ROOT/adr-solo/Code/adr-solo-docs/adr/README.md"
@@ -89,5 +93,13 @@ grep -Fq '**Who accepts an ADR in this project:** ADR review on PR' "$team_adr"
 assert_absent "$team_adr" '_solo author_'
 assert_absent "$team_adr" 'ADR-AUTHORITY'
 grep -Fq 'ADR authority: ADR review on PR' "$TMP_ROOT/adr-team.out"
+
+# A team that names no authority gets the documented default, never the solo stamp: AGENTS.md
+# reads this line to decide whether the team rules apply, so `_solo author_` here would quietly
+# put a team's agents on the solo rules.
+INIT_ADR_AUTHORITY= run_init_case "adr-team-default" --collab=team
+default_adr="$TMP_ROOT/adr-team-default/Code/adr-team-default-docs/adr/README.md"
+grep -Fq '**Who accepts an ADR in this project:** consensus of maintainers' "$default_adr"
+assert_absent "$default_adr" '_solo author_'
 
 echo "init.sh ADR authority marker substitution: PASS"
