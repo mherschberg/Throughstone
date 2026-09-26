@@ -113,7 +113,9 @@ an equally specific substep command).
 
 For an `In progress` implementation STEP, open its PLAN in `Upcoming Prompts/`, identify the
 lowest open substep, and wait for the user's explicit substep command unless the current
-message already names that substep. Never run multiple substeps from a whole-STEP command.
+message already names that substep. Never run multiple substeps from a whole-STEP command. A
+Check-in STEP is the one exception: wait for *"run the check-in"*, which runs both its substeps
+end to end (`Code/{{PROJECT}}-docs/METHOD.md` §10 rule 6).
 
 ## Repos & workspace layout
 This is a **multi-repo** project. The workspace root is **not** a repo — it's a per-machine

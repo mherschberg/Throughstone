@@ -711,8 +711,7 @@ any project built with it.
   that is still open means closing STEP-1 *is* the work, and this is the same rule facing the other
   way: the row says architecture is over, so no open substep is resolvable and the rules below
   answer instead. A baseline that closes STEP-1 without running every session is a legitimate
-  state, not a mistake to route back into. §10 said none of this and now says it, in the rule and
-  in the quick-resolver table above it.
+  state, not a mistake to route back into. §10 said none of this and now says it in rule 1.
 - **Two rules now say what they left to inference.** `runbooks/check-in.md` says to tell the agent
   *"run the check-in"*, while `METHOD.md` §10 says an in-progress STEP runs only the substep you
   ask for by name — and a check-in has two substeps. Nothing said whether that phrase authorised
@@ -1209,6 +1208,9 @@ any project built with it.
   spaces and the intake folder `Upcoming Prompts` is two words. Separately, the two checks that
   stand down when their file is not in the checkout now name the file instead of suggesting the
   project was never initialized.
+- **`./doctor.sh status` no longer stalls on an `Abandoned` substep or skips a zero-padded one** —
+  and a thin STEP is no longer told to author substep prompts; `METHOD.md` §10 drops the table that
+  restated its rules.
 
 ## [1.7.1] - 2026-08-10
 

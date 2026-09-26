@@ -57,7 +57,7 @@ Cross-Cutting Review passes, run the **implementation planning session**
 reads the locked architecture and **outlines all the Phase-1 implementation STEPs** into
 `STEP-index.md` — a short (2–3 sentence) scope each, in dependency order. It stops there: no
 PLANs, no substep prompts. From then on you build the STEPs one at a time, authoring each
-STEP's PLAN + substep prompts with the recipe below **when you start that STEP**. Starting a
+STEP's PLAN and any substep prompts with the recipe below **when you start that STEP**. Starting a
 STEP means planning it, then stopping for approval before any substep runs.
 
 The outline also interleaves **Check-in STEPs** — asked for, not calculated: the planning
@@ -102,7 +102,8 @@ teammate will need later.
 > Security Baseline/Review/Audit STEP), write the thin PLAN and record the runbook/session
 > substeps instead of authoring normal substep prompts; still stop for approval before running
 > the runbook or session.
-> Substep execution requires an explicit substep command such as **"run substep 6.1"**.
+> Substep execution requires an explicit substep command such as **"run substep 6.1"** — or, for
+> a Check-in STEP, *"run the check-in"* (`Code/{{PROJECT}}-docs/METHOD.md` §10 rule 6).
 > Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much
 > technical background you can assume, **Communication style** sets how much reasoning comes
 > with a decision. If the file is missing or either value isn't one of the listed answers,

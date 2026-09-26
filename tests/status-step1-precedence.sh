@@ -98,6 +98,7 @@ write_index \
 "$open_substeps"
 output="$(run_status)"
 assert_contains "$output" 'next up is STEP-2 (Ordinary implementation).'
+assert_contains "$output" 'author its PLAN and any substep prompts'
 assert_absent "$output" 'Run STEP-1.7'
 
 # Control: while the STEP-1 row is open, an open substep is still the next action. The gate must
@@ -126,5 +127,39 @@ write_index \
 | 1.7 | Data Model | Blocked | architecture/07-data-model.md |'
 output="$(run_status)"
 assert_contains "$output" 'substep(s) with an unrecognized status.'
+
+# An Abandoned substep is final, like Deferred and N/A: the seed legend and check 3 both allow it,
+# so it must not read as an unrecognized status, which would outrank the STEP in flight.
+write_index \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-5 | Build the thing | | In progress | | Fixture |' \
+'| 1.1 | System Overview | Done | architecture/01-system-overview.md |
+| 1.7 | Data Model | Abandoned | architecture/07-data-model.md |'
+output="$(run_status)"
+assert_contains "$output" 'Building — STEP-5 (Build the thing) is In progress.'
+assert_absent "$output" 'unrecognized status'
+
+# Final, not open: while STEP-1 is still open, the resolver steps over an Abandoned substep to the
+# next open one and counts it among the complete.
+write_index \
+'| STEP-1 | Architecture | | In progress | | Fixture |' \
+'| 1.1 | System Overview | Done | architecture/01-system-overview.md |
+| 1.7 | Data Model | Abandoned | architecture/07-data-model.md |
+| 1.8 | API Design | Planned | architecture/08-api-design.md |'
+output="$(run_status)"
+assert_contains "$output" 'in progress — 2/3 substeps complete.'
+assert_contains "$output" 'Run STEP-1.8: API Design.'
+assert_absent "$output" 'Run STEP-1.7'
+
+# A zero-padded substep number is still a number, on either side of the dot: 1.08 is the next
+# session and 08.1 sorts after it, rather than either being dropped by octal arithmetic.
+write_index \
+'| STEP-1 | Architecture | | In progress | | Fixture |' \
+'| 1.07 | Data Model | Done | architecture/07-data-model.md |
+| 1.08 | API Design | Planned | architecture/08-api-design.md |
+| 08.1 | Later table | Planned | architecture/08-api-design.md |'
+output="$(run_status 2>&1)"
+assert_contains "$output" 'Run STEP-1.08: API Design.'
+assert_absent "$output" 'value too great for base'
 
 echo "status.sh STEP-1 row precedence: PASS"

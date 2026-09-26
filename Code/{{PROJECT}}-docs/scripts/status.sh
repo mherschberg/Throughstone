@@ -133,24 +133,25 @@ done <<< "$parsed"
 # Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.14 -> 101400.
 # Lettered conditional substeps therefore sort after their base numeric slot and before later
 # numeric sessions, matching the STEP-1 table order.
+# 10# forces base 10: a zero-padded id such as 1.08 is octal to $(( )) and would abort.
 subkey() {
   local maj="${1%%.*}" rest="${1#*.}" num suffix lo=0
   num="${rest%%[a-z]*}"; suffix="${rest#"$num"}"
   [ -n "$suffix" ] && lo=$(printf '%d' "'$suffix")
-  echo $(( maj * 100000 + num * 100 + lo ))
+  echo $(( 10#$maj * 100000 + 10#$num * 100 + lo ))
 }
 
 # --- STEP-1 substep state -----------------------------------------------------
 # Track the first runnable architecture substep. Final statuses count as complete; unknown
 # statuses stop normal resolution and point the maintainer back to validation.
-total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
+total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=0
 i=0
 while [ "$i" -lt "$total_sub" ]; do
   s="${sub_id[$i]}"
   case "${sub_st[$i]}" in
-    Done|Deferred|N/A) done_sub=$((done_sub + 1)) ;;
+    Done|Deferred|Abandoned|N/A) done_sub=$((done_sub + 1)) ;;
     Planned|"In progress")
-      k=$(subkey "$s"); if [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
+      k=$(subkey "$s"); if [ -z "$lowsub" ] || [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
     *) unknown_sub=$((unknown_sub + 1)) ;;
   esac
   i=$((i + 1))
@@ -191,11 +192,11 @@ where=""; next=""
 if [ "$unknown_sub" -gt 0 ]; then
   where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
   next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
-# Both substep arms are gated on the STEP-1 row: the row is what says whether architecture is
+# The substep arm is gated on the STEP-1 row: the row is what says whether architecture is
 # over, and it decides in both directions. The close-out arm below reads it from the other side —
 # substeps all final while the row is still open means the close-out is the work — so a Done
-# STEP-1 falls through to that same pair (METHOD.md §10, whose closing rule makes the index
-# authoritative for which STEP is next).
+# STEP-1 falls through to the rules below, the planning session or the STEP in flight
+# (METHOD.md §10, whose closing rule makes the index authoritative for which STEP is next).
 elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
@@ -223,11 +224,6 @@ elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
   else
     next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
-# Gated for the same reason, and the gate is load-bearing: this arm is otherwise unreachable, so
-# without it a Done STEP-1 with open substeps lands here and is told to fix statuses that are valid.
-elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ] && [ "$step1_st" != "Done" ]; then
-  where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
-  next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
   # §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what says so: the
   # Cross-Cutting Review, the archive to prompts/, and the flip to Done all happen after the last
@@ -277,7 +273,7 @@ elif [ -n "$lowplanned_cond" ]; then                        # §10.4
   next="plan ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching conditional-*.md template, record the exact by-name invocation and output-doc number, then stop for approval before invoking it."
 elif [ -n "$lowplanned" ]; then                             # §10.5
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
-  next="plan ${lowplanned} — confirm scope, author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
+  next="plan ${lowplanned} — confirm scope, author its PLAN and any substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
 elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
   next="phase looks complete — it's a milestone: prompt release notes ($DOCS_REL/templates/release-notes-template.md if yes) + user-facing doc updates ($DOCS_REL/METHOD.md §5), then open the next phase and run the planning session for it."

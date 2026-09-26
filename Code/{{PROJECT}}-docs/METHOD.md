@@ -427,9 +427,9 @@ go — the prompts should reflect the current intent, not the original guess.
 
 Authoring a STEP is a planning action, not execution approval. If the user's command names a
 whole implementation STEP (`run STEP N`, `start STEP N`, `kick off STEP N`, or similar),
-write or revise the PLAN and substep prompts, present them, and wait. Actual work begins only
-after an explicit substep command (or, for a thin conditional follow-up STEP, an explicit
-by-name conditional-session invocation).
+write or revise the PLAN and any substep prompts, present them, and wait. Actual work begins
+only after an explicit substep command (or, for a thin conditional follow-up STEP, an explicit
+by-name conditional-session invocation; for a Check-in STEP, *"run the check-in"*, §10 rule 6).
 
 Treat STEP planning as an interactive discussion, not a silent document-generation task.
 Before writing the PLAN, confirm the scope with the user and ask for clarification when
@@ -764,29 +764,16 @@ lives in files (§4, §5).
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.
 
-Quick resolver:
-
-| First matching state in `prompts/STEP-index.md` | Next action |
-| --- | --- |
-| STEP-1's own row is not `Done`, and it has an open design substep | Run the lowest-numbered open session |
-| STEP-1 design is done, Cross-Cutting Review open | Run Cross-Cutting Review |
-| STEP-1 complete and no implementation STEPs exist yet | Run the planning session |
-| Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
-| Planned implementation STEPs exist and none in progress | Plan the lowest-numbered planned STEP, then wait for approval |
-| A STEP is in progress | Open its PLAN, identify the lowest open substep, and wait for an explicit substep command |
-| The scheduled check-in has been reached, or none is scheduled | Propose a Check-in STEP — *alongside* the answer above, never instead of it |
-| Phase is complete | Do milestone doc review, then plan the next phase |
-
 Resolve the next action top-down against the index — the first rule that matches wins. **Rule 7
 is the one exception**: the scheduled check-in is *advice*, reported alongside the next action and
 never in place of it. It never blocks work, and no rule below it is skipped because a check-in is
 due.
 
-
 1. **STEP-1's own row is not `Done`, and STEP-1 has a `Planned` / `In progress` substep?** →
    run the lowest-numbered open one
    in a fresh chat using `Run STEP-1.N: <Session label from the index>`; the label is
-   optional but preferred because it gives the chat/task a clearer title. Skip any substep marked `N/A` or `Deferred`.
+   optional but preferred because it gives the chat/task a clearer title. Skip any substep
+   marked `N/A`, `Deferred` or `Abandoned`.
    **The row is what says whether architecture is over.** Once STEP-1 reads `Done` an open substep
    is no longer the next action, and the rules below answer instead: a baseline that closed STEP-1
    without running every session is a legitimate state, not a mistake to route back into. The
@@ -806,8 +793,8 @@ due.
    thin one-substep PLAN as described in §4, record the conditional's by-name invocation, then
    stop for approval. Run the conditional only when the user explicitly invokes it by name.
 5. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → plan the
-   lowest-numbered `Planned` STEP: in a fresh chat, confirm scope, author its PLAN + substep
-   prompts (`prompts/README.md` → "Recipe: adding a new STEP"), update the index, then stop
+   lowest-numbered `Planned` STEP: in a fresh chat, confirm scope, author its PLAN and any
+   substep prompts (`prompts/README.md` → "Recipe: adding a new STEP"), update the index, then stop
    for user approval. A whole-STEP command such as *"run STEP 6"*, *"run STEP-6"*,
    *"start STEP 6"*, or *"kick off STEP 6"* means **plan the STEP and wait**; it is not
    approval to execute the substeps you just created.
