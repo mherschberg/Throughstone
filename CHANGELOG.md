@@ -553,6 +553,20 @@ any project built with it.
   the workspace root; its old `{{PROJECT}}-docs/…` form resolved from neither the repo nor the
   root. `METHOD.md` §7 now says a mono-repo-for-now project takes no separate repository in, and
   the runbook says so before its first step.
+- **A multi-repo workspace root no longer keeps the template's own `.gitignore`, the root
+  `doctor.sh` goes straight to the docs hub, and a mono project's method-check gate no longer runs a
+  root `scripts/check.sh` in place of the doctor.** The ignore file `init.sh` left at a multi-repo
+  root belonged to no repository, yet a search that honours ignore files, run from the root, applied
+  it to every repo below and hid files such as a `TODO.md` in the docs hub; `init.sh` now deletes
+  it, and a mono root still gets its own. The root `doctor.sh` runs the dispatcher at the docs-hub
+  path `init.sh` stamps into it — the shape `scripts/setup-workspace.sh` writes — instead of
+  searching for a `Code/*-docs` folder, and the comment the stamping turned into a contradiction
+  goes with the search. `method-check.yml` tried a `scripts/check.sh` at the top of the checkout
+  first, which in a mono project is the workspace root, so a project script of that name ran in
+  place of the doctor; it now looks under `Code/*-docs/` first. The closing report's line about Git
+  hosts no longer says *repos* to a project with one. An existing multi-repo project deletes its
+  root `.gitignore` itself, and an existing mono one copies the new workflow over its root copy, as
+  `UPDATING-THROUGHSTONE.md`'s 1.8 section describes.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its

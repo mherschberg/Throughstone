@@ -9,7 +9,7 @@
 # pipefail`, with CI set — from the root of a fresh clone of the repository the workflow sits in.
 # It looks for the doctor in two places, and both are run: scripts/check.sh at the root of a docs
 # hub that is its own repository, as in multi-repo CI, and Code/<project>-docs/scripts/check.sh
-# under a mono project's workspace root.
+# under a mono project's workspace root, which wins over a root scripts/check.sh of the project's.
 #
 # Nothing here parses YAML, so the step is lifted out of the workflow as text. A wrong lift cannot
 # pass: an empty one is reported, and every run must print the doctor's own RESULT line, so a step
@@ -95,6 +95,14 @@ drift() {
   printf '# Drift\n' > "$1/architecture/01-drift.md"
 }
 
+# own_check HUB — break the docs hub, and give the workspace root two folders above it a
+# scripts/check.sh of the project's own that always passes. The step must still reach the doctor.
+own_check() {
+  drift "$1"
+  mkdir -p "$1/../../scripts"
+  printf '#!/usr/bin/env bash\necho "project check: ok"\n' > "$1/../../scripts/check.sh"
+}
+
 # gate LABEL REPO HUB [BREAK] — clone REPO in place of the job's checkout step, run BREAK on the
 # docs hub inside the clone (HUB is its path there), then run the doctor step from the clone's
 # root. The clone sits two levels down because the doctor takes the workspace root to be two
@@ -136,9 +144,12 @@ mono="$(bootstrap mono)"   || exit 1
 gate hub-healthy "$multi/Code/$SLUG-docs" . && outcome "hub repository, healthy project" pass
 gate hub-failing "$multi/Code/$SLUG-docs" . drift && outcome "hub repository, doctor failing" fail
 
-# A mono project: CI checks out the workspace root, and the step finds the docs hub under Code/.
+# A mono project: CI checks out the workspace root, and the step finds the docs hub under Code/,
+# even when the root has a scripts/check.sh of its own.
 gate mono-healthy "$mono" "Code/$SLUG-docs" && outcome "mono workspace root, healthy project" pass
 gate mono-failing "$mono" "Code/$SLUG-docs" drift && outcome "mono workspace root, doctor failing" fail
+gate mono-own-check "$mono" "Code/$SLUG-docs" own_check \
+  && outcome "mono workspace root, own scripts/check.sh, doctor failing" fail
 
 if [ "$failures" -ne 0 ]; then
   printf 'method-check workflow: %d FAILURE(S)\n' "$failures" >&2

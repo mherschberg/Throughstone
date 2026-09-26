@@ -1155,7 +1155,11 @@ rm -rf "$ROOT/.git"
 # they are stale project content, and in multi-repo mode they would be stray files at the non-repo
 # workspace root. Drop them; generated-project context starts in the docs hub. Mono-repo projects
 # can add their own versions later.
-rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md" "$ROOT/ARTIFACT-TRAIL.md"
+# The root .gitignore is the template maintainer's own. In multi-repo mode it belongs to no
+# repository, yet a search that honours ignore files, run from the workspace root, applies it to
+# every repo below. A mono root gets its own from write_gitignore.
+rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md" "$ROOT/ARTIFACT-TRAIL.md" \
+  "$ROOT/.gitignore"
 # Community/health files describe the Throughstone template itself: contribution policy,
 # security contact, code of conduct, and trademark posture. Carrying them forward would leak the
 # template maintainer's contacts and assert Throughstone governance inside the user's project.
@@ -1711,7 +1715,7 @@ if [ "$MK_REMOTES" = "0" ]; then
   For backup, sharing, and working from another computer, put the project on a Git host when
   you're ready.
 
-  GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
+  GitHub, Bitbucket, GitLab, and other Git hosts all work.
   ${REMOTE_TIP}
 
   GitHub:

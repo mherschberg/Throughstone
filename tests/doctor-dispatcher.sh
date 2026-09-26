@@ -20,13 +20,14 @@ assert_contains() {
   fi
 }
 
-# Build a minimal generated-workspace shape with fake helper scripts. The dispatcher test
-# cares that doctor.sh finds and execs the right helper, forwarding any extra arguments and
-# handing back its exit code; status.sh and check.sh behavior is covered by their own tests
-# (tests/status-*.sh, tests/check-repo-registry.sh).
+# Build a minimal generated-workspace shape with fake helper scripts, and stamp the root wrapper's
+# docs-hub path the way init.sh does. The dispatcher test cares that doctor.sh finds and execs the
+# right helper, forwarding any extra arguments and handing back its exit code; status.sh and
+# check.sh behavior is covered by their own tests (tests/status-*.sh, tests/check-repo-registry.sh).
 fixture="$TMP_ROOT/workspace"
 mkdir -p "$fixture/Code/acme-docs/scripts"
 cp -p "$ROOT/doctor.sh" "$fixture/doctor.sh"
+perl -pi -e 's/\Q{{PROJECT}}\E/acme/g' "$fixture/doctor.sh"
 cp -p "$ROOT/Code/{{PROJECT}}-docs/scripts/doctor.sh" \
   "$fixture/Code/acme-docs/scripts/doctor.sh"
 

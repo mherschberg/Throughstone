@@ -83,10 +83,11 @@ line every project needs and `init.sh` cannot add to one that already exists, **
 `location:` points outside the workspace root**, which 1.7 allowed and this release does not,
 **whether anything follows a `- name:`, `location:` or `remote:` value**, which 1.7's example row
 did, and, **if your project is mono-repo-for-now, whether the workspace root has a row at all** — **plus, for a mono-repo-for-now project, one thing to check**:
-whether your CI gate has ever actually run — **and one line to change** in `overview.md`, where the
-check-in cadence setting is replaced by the date or STEP your next check-in is due, **and, if your
-project is mono-repo-for-now, two lines to add** to the `.gitignore` at your workspace root; a team project also checks one
-line in `adr/README.md`. **The fast path below is the whole of
+whether your CI gate has ever actually run the doctor — **and one line to change** in
+`overview.md`, where the check-in cadence setting is replaced by the date or STEP your next
+check-in is due, **and, if your project is mono-repo-for-now, two lines to add** to the
+`.gitignore` at your workspace root (a multi-repo project deletes that file instead); a team
+project also checks one line in `adr/README.md`. **The fast path below is the whole of
 it** — every bucket in §2 that this release touches has a step there, and anything under a step's "details" pointer expands a step
 rather than adding one. The release also adds a runbook for splitting a repository, repeals one rule, and writes down how a repo is
 brought into a project at all — in a second new runbook; none of that asks anything of you unless you are about to split. Fast path:
@@ -121,7 +122,9 @@ brought into a project at all — in a second new runbook; none of that asks any
    row, a mono project's check-in fails. **Details below**; this is the only item here that asks
    something of every project's `repos.yml`.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
-   not, the method-integrity gate has never run on your project — details below.
+   not, the method-integrity gate has never run on your project; if it is, copy the scaffold's over
+   it, because an older copy runs any root `scripts/check.sh` of yours in place of the doctor —
+   details below.
 6. **Put a `<!-- NEXT-CHECK-IN: STEP-<number> -->` line in your `overview.md`** — the STEP you
    want your next check-in at — replacing the `CHECK-IN-CADENCE` line if you have one. **Do this
    even if you never set a cadence**, or the helper will tell you nothing is scheduled on every
@@ -210,7 +213,9 @@ brought into a project at all — in a second new runbook; none of that asks any
     `templates/reports/test-results/test-results-summary-template.md` and `templates/ci/README.md`**,
     which no other item pulls — **and, mono-repo-for-now only, replace the text of your root
     `CLAUDE.md` and `AGENTS.md` with the scaffold's if you want the fix** — details below.
-21. Nothing else. A project that never splits reads none of the splitting material.
+21. **Multi-repo only: delete the `.gitignore` at your workspace root** — it is the template's own,
+    it belongs to no repository, and your repos keep their own.
+22. Nothing else. A project that never splits reads none of the splitting material.
 
 **The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
 warning (`runbooks/collaboration.md` §4) now compares in-flight STEPs' Scope, so nothing reads the
@@ -728,8 +733,10 @@ workflows only at a repository root**, so a workflow nested that deep never trig
 followed the manual copy step (it is documented, but only in the workflow's own header comment and
 `templates/ci/README.md`), the gate has been silently absent for the life of the project.
 
-**Copy `Code/<project>-docs/.github/workflows/method-check.yml` to `.github/workflows/` at your
-workspace root, and commit it.** No edit is needed: the workflow finds the doctor in either layout,
+**Copy the scaffold's `method-check.yml` (from its docs hub's `.github/workflows/`) to
+`.github/workflows/` at your workspace root, over any copy there, and commit it.** Your hub's own
+copy is older: placed at the root, it runs any `scripts/check.sh` of yours there in place of the
+doctor. No edit is needed: the workflow finds the doctor in either layout,
 and from the root it also sees `prompts/`, so the STEP-index checks run too. Leave the hub's copy
 where it is — that is the copy that gives the docs hub its own CI if you ever split. Expect the first
 run to report findings that have been accumulating unseen. 1.8 places the file for you in **new**
