@@ -508,6 +508,12 @@ any project built with it.
   gone** — naming a repo told a mono-repo team nothing, since every STEP names the one repo, and
   over-warned in a multi-repo one. The STEP PLAN's field is now `**Repos:**` (repos and merge order),
   and `init.sh` drops its mono-repo + team note.
+- **The number-reservation protocol is written once.** The STEP-index legend, `prompts/README.md`'s
+  authoring recipe and the ADR register state only the rule everyone follows — take `max + 1` and
+  add the row (a STEP's on the trunk, before you branch or write) — and send a team to
+  `runbooks/collaboration.md` §2 or §6 for the push, the renumber on a rejected push and the
+  duplicate scan, whose commands now appear only there. The planning session's batch reservation
+  stops naming `prompts/`'s trunk, which a mono-repo project does not have.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
@@ -987,8 +993,9 @@ any project built with it.
   so it printed nothing and exited 0 — indistinguishable from the clean result the surrounding
   prose describes. Two more copies of the same scan, in `runbooks/collaboration.md` and
   `adr/README.md`, failed the same silent way; a shell command is written from the workspace root
-  in every document, hub-local ones included. All three now find a seeded duplicate. The prose
-  paths follow: `overview.md`, `METHOD.md`, `registries/repos.yml`, `runbooks/register-repo.md`,
+  in every document, hub-local ones included. The scan now lives once, in
+  `runbooks/collaboration.md` §6, and finds a seeded duplicate. The prose paths follow:
+  `overview.md`, `METHOD.md`, `registries/repos.yml`, `runbooks/register-repo.md`,
   `BOOTSTRAP-PROMPT.md`, `inputs/inputs-index.md`, the architecture overview, the three helper
   scripts and the ADR register are written in full, and the conditional-session templates now name
   the directory that holds them. What stays bare stays bare on purpose — `architecture/`,

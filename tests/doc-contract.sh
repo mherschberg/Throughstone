@@ -51,7 +51,7 @@ shopt -s nullglob
 
 for f in "$METHOD" "$AGENTS" "$BOOT" "$ONBOARD" "$CHECKIN" "$CHECK_SH" "$STATUS_SH" \
          "$SETUP_SH" "$DOCTOR_SH" "$OVERVIEW_TPL" "$ARCH_TPL" "$REGISTER" "$README_TPL" \
-         "$ROOT/prompts/README.md" \
+         "$ROOT/prompts/README.md" "$DOCS/templates/step-index-seed.md" "$DOCS/adr/README.md" \
          "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$DOCS/templates/planning-session.md"; do
   [ -f "$f" ] || fail "expected file is missing: ${f#$ROOT/}"
 done
@@ -84,6 +84,8 @@ section() {   # section FILE N — the body of "## N. …" up to the next "## "
 CITERS=(
   "$CHECK_SH" "$STATUS_SH" "$SETUP_SH"
   "$AGENTS" "$BOOT" "$ONBOARD" "$CHECKIN" "$METHOD"
+  "$ROOT/prompts/README.md" "$DOCS/templates/step-index-seed.md" "$DOCS/adr/README.md"
+  "$DOCS/templates/planning-session.md"
 )
 cites="$(
   for f in "${CITERS[@]}"; do

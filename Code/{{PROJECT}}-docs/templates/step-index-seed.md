@@ -16,13 +16,9 @@ worked, and completed.
 > **What to do next** is always derivable from this index — see the next-action resolver in
 > `METHOD.md` §10.
 >
-> **Reserving a number (teams):** adding a STEP row *is* reserving its number, on `prompts/`'s
-> shared trunk (not a `step-NNNN` branch). Pull `prompts/`, take `max + 1`, add the row, then
-> **commit and push immediately** — before branching or working. If the push is rejected, pull,
-> renumber, push again. Before every push, even a clean merge, scan for duplicates
-> (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`)
-> — two appended rows merge with no
-> conflict into a silent duplicate. See `runbooks/collaboration.md`.
+> **Reserving a number:** adding a STEP row *is* reserving its number — take `max + 1` and add the
+> row on the trunk, never a `step-NNNN` branch, before you branch or write. In a team, follow
+> `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §2.
 > **Owner** = who's on it; solo, leave it blank.
 
 ## Phase 1 — {{PHASE_1_NAME}}
