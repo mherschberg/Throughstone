@@ -193,8 +193,9 @@ way.
 These documents are **point-in-time**: a starting point, not the living source of truth. As the
 sessions capture an input's content into `architecture/` — synthesized for a PRD, or lifted as a
 near-verbatim copy for a spec or other finished doc — that generated doc becomes the truth and the
-captured parts go stale. Once you say an input is fully captured, it moves to `inputs/archive/`,
-which sessions don't read. See `inputs/README.md`.
+captured parts go stale. Each session logs what it took, and where it went, in
+`registries/input-captures.yml`; once you say an input is fully captured, it moves to
+`inputs/archive/`, which sessions don't read. See `inputs/README.md`.
 
 ### Sessions are re-runnable
 A session isn't a one-time gate. If an assumption changes later — scaling needs grow, the

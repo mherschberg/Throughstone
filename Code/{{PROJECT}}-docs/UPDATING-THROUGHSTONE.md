@@ -117,7 +117,7 @@ brought into a project at all — in a second new runbook; none of that asks any
    well. Without the line the check-in cannot tell a folder inside your one repository from a repo
    of its own, so it stops judging your backup coverage and asks for the line instead; without the
    row, a mono project's check-in fails. **Details below**; this is the only item here that asks
-   something of every project's registry.
+   something of every project's `repos.yml`.
 5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
    not, the method-integrity gate has never run on your project — details below.
 6. **Put a `<!-- NEXT-CHECK-IN: STEP-<number> -->` line in your `overview.md`** — the STEP you
@@ -197,9 +197,10 @@ brought into a project at all — in a second new runbook; none of that asks any
     changed, record your rule there (`runbooks/collaboration.md` §9 step 3).
 17. **If 1.7's recipe had you list a STEP's substeps in `prompts/STEP-index.md`**, move the list
     of any STEP still in flight into its PLAN — details below.
-18. **If your project has `inputs/inputs-index.md`**, nothing reads it now: move it into
-    `inputs/archive/` as a record, or delete it. Move any input it shows as `Superseded` in every
-    row to `inputs/archive/` as well — details below.
+18. **Copy the scaffold's empty `registries/input-captures.yml` into your project**, replacing
+    `{{PROJECT}}` in its header. If you have `inputs/inputs-index.md`, carry its `Superseded` rows
+    into the new log, then move it into `inputs/archive/` as a record, or delete it — details
+    below.
 19. **If an architecture doc's `Coverage:` line says anything but `full`**, check that a
     `registries/risks.yml` row with a revisit trigger covers it, and add one if not; expand a bare
     value such as `deferred` into a sentence — details below.
@@ -219,16 +220,23 @@ the index, move an in-flight STEP's list into its PLAN and leave a finished STEP
 its PLAN is archived, and archived PLANs are protected (§2). While STEP-1's row is still open,
 `./doctor.sh status` reads every substep table in the index as STEP-1's.
 
-**The inputs ledger is retired — this is item 18 of the fast path.** 1.7.1's
-`inputs/inputs-index.md` recorded, part by part, which pieces of each input an architecture doc had
-superseded, and each check-in reconciled it. An input may take several sessions to capture, so the
-rule is now simpler: it stays in `inputs/` until everything the project needs from it is captured.
-A session that captures from an input asks you whether it is now fully captured, and only a yes
-moves it to `inputs/archive/`; until then, where a generated doc covers part of it, that doc wins,
-as before. Nothing reads your ledger any more. Move it into `inputs/archive/` as a record, or delete
-it — left in `inputs/`, a session may read its out-of-date instructions. An input it marks
-`Superseded` in every row is fully captured, so move that input to `inputs/archive/` too; no
-check-in will offer to now. `AGENTS.md`, `METHOD.md` §4, `inputs/README.md`, `runbooks/check-in.md`,
+**The inputs ledger becomes a capture log — this is item 18 of the fast path.** 1.7.1's
+`inputs/inputs-index.md` gave each part of each input a status, `Live` or `Superseded`, and each
+check-in reconciled it; a row had to be revisited whenever a later session took more of that
+input, and a row nobody revisited went stale. `registries/input-captures.yml` replaces it with an
+append-only log. Each time a session takes something from an input it adds one entry — what it
+took, when, and where it went, which may be an `adr/` record, a `runbooks/` file, or a decision to
+reference the input or flag it stale rather than capture it — and no entry is edited afterwards. Whatever
+no entry names is still only in the input, and where a generated doc covers part of it, that doc
+wins, as before. An input stays in `inputs/` until you tell a session it is fully captured; only
+then does it move to `inputs/archive/`, with a last entry saying so. Copy the scaffold's empty log
+in and replace `{{PROJECT}}` in its header. If you have a ledger, add one entry per `Superseded`
+row of an input still in `inputs/` — `input` is `inputs/` plus the row's file, `taken` the row's
+part, `went_to` its covering doc, `date` today's, and `step` can say `from inputs-index.md` — and
+move any input that is `Superseded` in every row to `inputs/archive/` with the closing entry the
+log's header describes, since no check-in will offer to now. Then move the ledger into `inputs/archive/`
+as a record, or delete it; left in `inputs/`, a session may read its out-of-date instructions.
+`AGENTS.md`, `METHOD.md` §4, `inputs/README.md`, `registries/README.md`, `runbooks/check-in.md`,
 the check-in report template and the substep template change with it, and items 1, 9 and 14
 already pull them.
 
@@ -1040,8 +1048,9 @@ no project files and is greenfield-inert — the new ledger simply starts empty.
    `templates/planning-session.md`, `templates/reports/check-in-report-template.md`).
 2. Add the ledger: copy the scaffold's empty `inputs/inputs-index.md` (and the updated
    `inputs/README.md` guidance with it), then list any inputs you already have as `Live`.
-   **Superseded in 1.8** — the ledger and the check-in's inputs sweep are gone. Going straight to
-   1.8? Skip this step and follow the 1.8 section.
+   **Superseded in 1.8** — the ledger is replaced by `registries/input-captures.yml` and the
+   check-in's inputs sweep is gone. Going straight to 1.8? Skip this step and follow the 1.8
+   section.
 3. Nothing else now. `inputs/archive/` is created only when you first retire an input, and the next
    check-in's inputs sweep is what surfaces a superseded input for a retire/keep decision.
 
@@ -1051,8 +1060,9 @@ wins, and architecture-grade inputs are lifted into `architecture/` (a spec ofte
 or a light reformat). This is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
 rules apply unchanged.
 
-**Inputs lifecycle.** *(Superseded in 1.8, which retires the ledger and the check-in's inputs
-sweep — read the 1.8 section instead if you are upgrading past 1.7.1.)*
+**Inputs lifecycle.** *(Superseded in 1.8, which replaces the ledger with a capture log and
+retires the check-in's inputs sweep — read the 1.8 section instead if you are upgrading past
+1.7.1.)*
 
 - *New project-state file* (`inputs/inputs-index.md`): copy the scaffold's empty ledger in; from
   then on it is yours to maintain, like a registry (`registries/*.yml`). Record each existing input

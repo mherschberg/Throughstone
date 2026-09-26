@@ -48,6 +48,10 @@ inputs is only *how* it gets there:
     clearest example — write a compliance/interface doc that references it and keep the artifact
     pinned by version — but it's *an* example, not the only case.
 
+**The capture log — `../registries/input-captures.yml`.** Each time a session takes something from
+an input, it adds an entry saying what it took and where it went, so a later session can see what
+is already captured and what is still only here.
+
 **The archive — `inputs/archive/`.** An input stays here until everything the project needs from
 it is captured, which may take several sessions. A session that captures from an input asks you
 whether it is now fully captured; only a yes moves it into `inputs/archive/`, and a *not yet* leaves

@@ -519,11 +519,14 @@ any project built with it.
   status there, and the recipe no longer asks you to list a STEP's substeps in
   `prompts/STEP-index.md`. STEP-1's substeps stay in the index, where the next-action resolver
   reads them.
-- **The check-in drops its inputs and deferred-coverage sweeps.** `inputs/inputs-index.md` and the
-  report's Inputs row are gone: an input stays in `inputs/` until you tell the session capturing
-  from it that it is fully captured, and only then moves to `inputs/archive/`. A doc's `Coverage:`
-  field stays, and a `registries/risks.yml` row, which the check-in already reviews, is what brings
-  the deferred area back. `runbooks/security-review.md` stops keeping its own copy of the check-in's
+- **The check-in drops its inputs and deferred-coverage sweeps, and a capture log replaces the
+  inputs ledger.** `inputs/inputs-index.md` and the report's Inputs row are gone.
+  `registries/input-captures.yml` replaces the ledger: an append-only log to which a session adds
+  an entry each time it takes something from an input, saying what it took, when, and where it
+  went, so a later session can see what is captured and what is still only in the input. An input
+  stays in `inputs/` until you tell a session it is fully captured, and only then moves to
+  `inputs/archive/`. A doc's `Coverage:` field stays, and a `registries/risks.yml` row, which the
+  check-in already reviews, is what brings the deferred area back. `runbooks/security-review.md` stops keeping its own copy of the check-in's
   security-review gate and points at the one in `runbooks/check-in.md`.
 
 ### Fixed

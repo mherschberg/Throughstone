@@ -11,6 +11,7 @@ itself, because tooling parses it. Keep each file the **source of truth**; descr
 |------|------|-------------|
 | [`repos.yml`](repos.yml) | The repo inventory — which repos exist, what each is, and where its docs live. See its header and `METHOD.md` §7. | `scripts/setup-workspace.sh` (reads `layout:`, and in a multi-repo project clones from `remote:` into locations the workspace owns); `runbooks/collaboration.md` (STEP-number reservation); `scripts/check.sh --check-in` (the periodic check-in's registry check). |
 | [`risks.yml`](risks.yml) | The accepted risk / tech-debt index — known risks, conscious deferrals, and debt with owners, revisit triggers, and references to the artifact that explains the detail. | Security session deferrals; dependency audits; incident follow-ups; `runbooks/check-in.md`. |
+| [`input-captures.yml`](input-captures.yml) | The input capture log — what sessions have taken from each document in `inputs/`, and where it went. | Any session that builds on or captures from an input (`AGENTS.md`). |
 | [`security-reviews.yml`](security-reviews.yml) | The security review ledger — latest S0/S1/S2 review dates, cadence, report paths, reviewed commit, rough SLOC snapshot, and deltas since the previous run. | `runbooks/security-review.md`; `runbooks/check-in.md` security gate. |
 
 New registries (e.g. an owners or services map) get a row here and their own self-documenting

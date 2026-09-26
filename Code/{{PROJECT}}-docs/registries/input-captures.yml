@@ -1,0 +1,38 @@
+# Input capture log for {{PROJECT}}.
+# One entry each time a session takes something from a document in inputs/: what it took, when,
+# and where it went. An input may be captured over several sessions, so its entries, read
+# together, are its history — whatever no entry names is still only in the input. See
+# inputs/README.md.
+#
+# Recording rule:
+# - Append only. A session adds its own entry in the step where it tells the user what it took
+#   from an input (AGENTS.md), and never edits or deletes an earlier one. The first entry
+#   replaces the [] below.
+# - When the user says an input is fully captured, the session moves it to inputs/archive/ and
+#   adds one last entry saying so.
+#
+# Fields:
+# - date: YYYY-MM-DD.
+# - step: the STEP that did it, e.g. STEP-1.4.
+# - input: the file, from the docs hub, e.g. inputs/acme-prd.md.
+# - taken: the parts, named the way the input names them ("§3 all; §5 offline sync only"), or
+#   "whole file". Name only what went_to now states: check it first, and write "all" only when
+#   every fact of that part is there. The closing archive entry takes "none".
+# - went_to: one place per entry — an architecture/ doc, an adr/ record or a runbooks/ file — or
+#   what was decided instead: "referenced, kept in inputs/", "flagged stale", or "fully captured,
+#   moved to inputs/archive/ (user said yes)".
+
+captures: []
+
+# Example:
+# captures:
+#   - date: "YYYY-MM-DD"
+#     step: STEP-1.4
+#     input: inputs/acme-prd.md
+#     taken: "§3 all; §5 offline sync only"
+#     went_to: architecture/04-data-model.md
+#   - date: "YYYY-MM-DD"
+#     step: STEP-1.6
+#     input: inputs/auth-decision-2024.md
+#     taken: whole file
+#     went_to: adr/ADR-0003-session-tokens.md
