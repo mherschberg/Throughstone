@@ -10,7 +10,7 @@
 > - **substep N.1 — doc-drift reconciliation + conditional coverage** (Part 1 below), and
 > - **substep N.2 — full test run** (Part 2 below).
 >
-> Record their status in the index/PLAN like any other substep.
+> Record their status in the PLAN like any other substep.
 
 ## Why this runbook exists
 It's easy to get so in the weeds that things get missed, like doc drift, security issues,

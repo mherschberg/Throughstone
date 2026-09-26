@@ -150,10 +150,10 @@ Representative STEP-plan excerpt:
 
 ## Substeps
 
-| # | Title | Produces | Depends on | Open questions |
-|---|-------|----------|------------|----------------|
-| 3.1 | OAuth callback endpoint | API route + tests | ADR-0002 | None |
-| 3.2 | Connect-calendar UI | Settings flow + tests | 3.1 | Button copy |
+| # | Title | Status | Produces | Depends on | Open questions |
+|---|-------|--------|----------|------------|----------------|
+| 3.1 | OAuth callback endpoint | Done | API route + tests | ADR-0002 | None |
+| 3.2 | Connect-calendar UI | In progress | Settings flow + tests | 3.1 | Button copy |
 ```
 
 Representative substep excerpt:

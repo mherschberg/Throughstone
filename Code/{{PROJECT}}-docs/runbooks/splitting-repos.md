@@ -98,8 +98,9 @@ The usual breakpoints:
   which is also why they are the pair a project skips together.
 
 A split that extracts several repos at once, or that stops at a boundary these don't anticipate,
-names its own. The point of naming them is that the index should show where a half-finished split
-stopped, not that every split has the same joints.
+names its own. The point of naming them is that the PLAN should show where a half-finished split
+stopped, not that every split has the same joints. (Case 2 writes its PLAN only at step 13, so it
+records them then.)
 
 ## Before you start — three questions
 

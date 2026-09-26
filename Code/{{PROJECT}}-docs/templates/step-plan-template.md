@@ -33,13 +33,15 @@
 
 ## Substeps
 
-| # | Title | Produces | Depends on | Open questions |
-|---|-------|----------|------------|----------------|
-| {{N}}.1 |  |  |  |  |
-| {{N}}.2 |  |  |  |  |
+| # | Title | Status | Produces | Depends on | Open questions |
+|---|-------|--------|----------|------------|----------------|
+| {{N}}.1 |  | Planned |  |  |  |
+| {{N}}.2 |  | Planned |  |  |  |
 
 <!-- For the architecture STEP, substeps are the sessions in
-     templates/architecture-sessions/ (1.1 → session 01, etc.). For later STEPs, each
+     templates/architecture-sessions/ (1.1 → session 01, etc.), and their status lives in
+     prompts/STEP-index.md, which the next-action resolver reads — drop the Status column here.
+     For later STEPs, the Status column above is where each substep's status lives, and each
      substep gets a prompt authored from templates/substep-prompt-template.md. A Check-in STEP is
      thin: no prompts are authored — its two substeps are doc-drift/conditional-coverage
      reconciliation (N.1) and the full test run (N.2) defined in runbooks/check-in.md; this

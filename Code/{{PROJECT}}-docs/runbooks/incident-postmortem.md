@@ -15,7 +15,7 @@
 >   **Incident STEP** whose three substeps — RCA, find-similar, fix — *are* **Parts 2–4 below**.
 >   Its PLAN is thin and points here; you don't author substep prompts for it (the same special
 >   case as the check-in STEP — see `prompts/README.md`). Record the substeps' status in the
->   index/PLAN like any other STEP.
+>   PLAN like any other STEP.
 >
 > An "incident" is any unplanned production failure or near-miss worth not repeating — an
 > outage, data loss/corruption, a security event, a bad deploy. Small ones get a light touch;
