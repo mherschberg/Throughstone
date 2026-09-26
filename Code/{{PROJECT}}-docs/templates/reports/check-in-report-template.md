@@ -15,19 +15,12 @@
 | Repo READMEs | {{repos}} | {{none / summary}} | {{updated / follow-up}} |
 | Interface contracts | {{artifacts}} | {{none / summary}} | {{updated / follow-up}} |
 | Docstrings | {{areas}} | {{none / summary}} | {{updated / follow-up}} |
-| Inputs vs. architecture | {{inputs/inputs-index.md}} | {{none / rows superseded / retired to archive}} | {{index updated / archived / follow-up}} |
 
 ## Conditional Coverage
 
 | Conditional session | Current disposition | Evidence | Follow-up |
 |---------------------|---------------------|----------|-----------|
 | {{templates/architecture-sessions/conditional-*.md}} | {{Included / Deferred / N/A / Needs follow-up}} | {{doc/STEP/report}} | {{STEP-N / None}} |
-
-## Deferred Coverage
-
-| Architecture doc | `Coverage:` says | Disposition | Follow-up |
-|------------------|------------------|-------------|-----------|
-| {{architecture/NN-*.md}} | {{the postponed area, from the doc's Coverage field}} | {{Backfill now / Still defer — why it still holds / Risk-seeded / Retired (Deprecated)}} | {{STEP-N filed / STEP-N retained / RISK-NNNN / None}} |
 
 ## Risks And Debt
 

@@ -482,10 +482,10 @@ any project built with it.
 - **A core architecture session deferred wholesale now files a risk row, so something brings it
   back.** The Security session has always been deferrable as a conscious, dated decision, and the UI
   session can be deferred when a UI may arrive later — but a session deferred that way writes no
-  architecture doc, and nothing in the method could see it afterwards. `runbooks/check-in.md` has two
-  sweeps and neither reaches it: the conditional sweep enumerates
-  `templates/architecture-sessions/conditional-*.md` files, and the deferred-coverage sweep reads the
-  `Coverage:` field of architecture docs that exist. A deferral that produces no document is invisible
+  architecture doc, and nothing in the method could see it afterwards. `runbooks/check-in.md`'s
+  sweeps cannot reach it: the conditional sweep enumerates
+  `templates/architecture-sessions/conditional-*.md` files, and the doc-drift sweep reads the
+  architecture docs that exist. A deferral that produces no document is invisible
   to both, so a decision to skip the threat model could sit in a `Deferred` index row for the life of
   the project with nothing scheduled to revisit it.
 
@@ -519,6 +519,15 @@ any project built with it.
   status there, and the recipe no longer asks you to list a STEP's substeps in
   `prompts/STEP-index.md`. STEP-1's substeps stay in the index, where the next-action resolver
   reads them.
+- **The check-in drops its inputs and deferred-coverage sweeps, and a capture log replaces the
+  inputs ledger.** `inputs/inputs-index.md` and the report's Inputs row are gone.
+  `registries/input-captures.yml` replaces the ledger: an append-only log to which a session adds
+  an entry each time it takes something from an input, saying what it took, when, and where it
+  went, so a later session can see what is captured and what is still only in the input. An input
+  stays in `inputs/` until you tell a session it is fully captured, and only then moves to
+  `inputs/archive/`. A doc's `Coverage:` field stays, and a `registries/risks.yml` row, which the
+  check-in already reviews, is what brings the deferred area back. `runbooks/security-review.md` stops keeping its own copy of the check-in's
+  security-review gate and points at the one in `runbooks/check-in.md`.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
@@ -926,16 +935,6 @@ any project built with it.
   was: a mono project is told everything in the folder is in its repository, and a multi project is
   told which two repositories hold the committed work and that files at the root are in neither.
   Both now also say the work was **committed**, which neither of them used to mention at all.
-- **The check-in report template has somewhere to record deferred coverage.** An architecture doc
-  may deliberately leave part of its area unwritten, marked in its `Coverage:` field.
-  `runbooks/check-in.md` treats that as a standing obligation: every check-in re-reads it, weighs
-  it against what the system now does, and records one explicit disposition in the check-in
-  report. The report template had no section for it. The one place it said "Deferred" was a
-  conditional-session disposition, which means something else. So the sweep the runbook mandates
-  had nowhere to land, and the gap it exists to keep visible would rest on that one `Coverage:`
-  line in the doc. The template now carries a **Deferred Coverage** table beside **Conditional
-  Coverage**, in the runbook's own order, with four columns: the doc, what its `Coverage:` field
-  says, the disposition, and the follow-up STEP filed or retained.
 - **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh`,
   `scripts/status.sh`, `scripts/links.sh` and `scripts/setup-workspace.sh` read no arguments at all,
   so anything passed to them was discarded without a word — `./doctor.sh status --check-in` ran an
@@ -1001,7 +1000,7 @@ any project built with it.
   in every document, hub-local ones included. The scan now lives once, in
   `runbooks/collaboration.md` §6, and finds a seeded duplicate. The prose paths follow:
   `overview.md`, `METHOD.md`, `registries/repos.yml`, `runbooks/register-repo.md`,
-  `BOOTSTRAP-PROMPT.md`, `inputs/inputs-index.md`, the architecture overview, the three helper
+  `BOOTSTRAP-PROMPT.md`, the architecture overview, the three helper
   scripts and the ADR register are written in full, and the conditional-session templates now name
   the directory that holds them. What stays bare stays bare on purpose — `architecture/`,
   `inputs/` and `adr/` name areas rather than things to reach, which is what §7 says a bare name
@@ -1149,17 +1148,11 @@ any project built with it.
   by the next-action resolver — but the legend listed only the five STEP states, so the one place a
   reader checks before writing a status didn't describe a value the file legitimately contains.
 - **A `Coverage:` line could be a bare word that told a later reader nothing.** The field records
-  that a doc deliberately describes only part of its area, and every check-in resurfaces it for a
-  decision — but `METHOD.md` §6 and the architecture doc template both showed it as a lone token
-  (`deferred`), so the reader who meets it months later can't tell whether the gap blocks them, and
-  the check-in has nothing to weigh. Both now require one sentence: what is missing, how big it is,
-  and what it means for someone building on the doc, written as an ordinary bold header field
-  (`**Coverage:** deferred — …`).
-- **The deferred-coverage sweep looked for a string the docs don't contain.** `runbooks/check-in.md`
-  told the check-in to enumerate architecture docs "carrying `Coverage: deferred`" — but the field is
-  written like every other header field, so the literal phrase never appears, and now that its value
-  is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
-  takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
+  that a doc deliberately describes only part of its area — but `METHOD.md` §6 and the
+  architecture doc template both showed it as a lone token (`deferred`), so the reader who meets it
+  months later can't tell whether the gap blocks them. Both now require one sentence: what is
+  missing, how big it is, and what it means for someone building on the doc, written as an ordinary
+  bold header field (`**Coverage:** deferred — …`).
 - **A mono-repo project's method-integrity gate had never run.** `method-check.yml` ships inside the
   docs hub, at `Code/<project>-docs/.github/workflows/`. In a multi-repo project the hub is its own
   repository, so that path is a repository root and the workflow is live the moment you push it. In

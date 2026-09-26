@@ -133,7 +133,7 @@ set lives in `templates/architecture-sessions/`.
 **A core session deferred wholesale files a risk row.** Leaving a core session unrun is a
 conscious, dated decision — the Security session says so outright, and the UI session when a UI
 may arrive later. If it writes no `architecture/NN-*.md`, no sweep can see it: the check-in
-enumerates the `conditional-*.md` templates and the `Coverage:` fields of docs that exist (§6).
+enumerates the `conditional-*.md` templates and the architecture docs that exist.
 So mark the substep `Deferred` rather than `Done` in `prompts/STEP-index.md` **and record the
 deferral in `registries/risks.yml`** with owner, severity and the trigger that revisits it, like
 any other consciously deferred item (§7) — the check-in reviews every open row, and that is what
@@ -193,10 +193,9 @@ way.
 These documents are **point-in-time**: a starting point, not the living source of truth. As the
 sessions capture an input's content into `architecture/` — synthesized for a PRD, or lifted as a
 near-verbatim copy for a spec or other finished doc — that generated doc becomes the truth and the
-captured parts go stale, so `inputs/` carries a small ledger (`inputs/inputs-index.md`) of what each
-input still holds vs. what's been superseded, and a fully-superseded input is retired to
-`inputs/archive/`, which sessions don't read. The periodic check-in reconciles this (§5). See
-`inputs/README.md`.
+captured parts go stale. Each session logs what it took, and where it went, in
+`registries/input-captures.yml`; once you say an input is fully captured, it moves to
+`inputs/archive/`, which sessions don't read. See `inputs/README.md`.
 
 ### Sessions are re-runnable
 A session isn't a one-time gate. If an assumption changes later — scaling needs grow, the
@@ -501,9 +500,9 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
   kept for history, not deleted, with a short note on why — and a pointer to its replacement when there
   is one. A project may rename the rungs, but only to *settledness synonyms* (e.g.
   WIP / Reviewed / Locked) — never a scope word (MVP) or a release-stage word (Beta / GA), which
-  are different axes. A **`Deprecated` doc is excluded from the check-in's doc-drift and
-  deferred-coverage sweeps** (`runbooks/check-in.md`): it is listed as retired for the record,
-  not reconciled against current code or backfilled.
+  are different axes. A **`Deprecated` doc is excluded from the check-in's doc-drift sweep**
+  (`runbooks/check-in.md`): it is listed as retired for the record, not reconciled against
+  current code.
 - **`Coverage:`** *(optional)* — how completely the doc describes its area. Omit it (or `full`)
   when the doc fully covers the area; mark a deliberately fat or partial area `deferred` (or
   `enumerated to depth N`) so the gap is recorded rather than mistaken for drift. **Never leave it
@@ -514,9 +513,9 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
   relations are unread, so anything designed against them needs checking first.`
 
   A reader meeting that line months later can tell whether it blocks them; a bare token tells them
-  nothing and gets ignored. Because the value is a sentence, anything looking for deferred coverage
-  **reads the field and compares it to `full`** rather than searching for a fixed phrase — that is
-  how the check-in's deferred-coverage sweep resurfaces these docs (`runbooks/check-in.md`).
+  nothing and gets ignored. In the same edit, file a `registries/risks.yml` row whose revisit
+  trigger says what would end the deferral — the check-in reviews every open row, and that is what
+  brings the area back (§7).
 - A **Version Log** table at the bottom: one row per change (version, date, STEP, what).
 
 ADRs are *not* versioned this way — they're dated, carry a Status (Accepted / Superseded /

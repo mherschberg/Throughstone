@@ -355,18 +355,13 @@ while IFS= read -r fld; do
   esac
 done <<< "$fields"
 
-# runbooks/check-in.md branches its sweeps on two of §6's Status rungs and on the Coverage
-# field — it skips a Deprecated doc and only treats a Current one as covering an input. Rename
-# a rung in METHOD.md and those branches match nothing, silently sweeping the wrong set.
-for rung in Current Deprecated; do
-  case "$m6" in
-    *"**$rung**"*) : ;;
-    *) fail "METHOD.md §6 no longer teaches the '$rung' Status rung, which runbooks/check-in.md branches its sweeps on" ;;
-  esac
-  contains "$CHECKIN" "$rung" || fail "runbooks/check-in.md no longer names the '$rung' Status rung it excludes or requires"
-done
-case "$m6" in *"Coverage:"*) : ;; *) fail "METHOD.md §6 no longer teaches the 'Coverage:' field the check-in's deferred-coverage sweep reads" ;; esac
-contains "$CHECKIN" "Coverage:" || fail "runbooks/check-in.md no longer reads the 'Coverage:' field its deferred-coverage sweep is built on"
+# runbooks/check-in.md's drift sweep skips a Deprecated doc, one of §6's Status rungs. Rename the
+# rung in METHOD.md and that branch matches nothing, silently sweeping the wrong set.
+case "$m6" in
+  *"**Deprecated**"*) : ;;
+  *) fail "METHOD.md §6 no longer teaches the 'Deprecated' Status rung, which runbooks/check-in.md's drift sweep skips" ;;
+esac
+contains "$CHECKIN" "Deprecated" || fail "runbooks/check-in.md no longer names the 'Deprecated' Status rung its drift sweep skips"
 
 # --- 11. The section the root pointers send every agent to --------------------
 # The root AGENTS.md/CLAUDE.md — and setup-workspace.sh, which regenerates them on every new

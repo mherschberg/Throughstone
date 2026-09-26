@@ -340,20 +340,20 @@ run_registry_mono_case() {
     echo "FAIL: $name did not warn that --registries=no is ignored" >&2
     return 1
   }
-  for field in repos.yml risks.yml security-reviews.yml; do
+  for field in repos.yml risks.yml security-reviews.yml input-captures.yml; do
     [ -f "$work/Code/$name-docs/registries/$field" ] || {
       echo "FAIL: $name pruned registries/$field" >&2
       return 1
     }
   done
 
-  # A register that exists is not a register. Both of these ship a {{PROJECT}} token in their
+  # A register that exists is not a register. Each of these ships a {{PROJECT}} token in its
   # header comment and a top-level key the docs tell agents to append rows under, and the `-f`
-  # above is satisfied by a zero-byte file — so a prune that emptied either one, or a rename that
+  # above is satisfied by a zero-byte file — so a prune that emptied one, or a rename that
   # took the substitution pass past them, would land in silence. Nothing else looks: check.sh
-  # reads repos.yml and no other registry, in either layout. `^risks:` is anchored because
-  # risks.yml also carries a commented-out example row repeating the key verbatim; the security
-  # ledger's keys are anchored to match, not because anything there needs it.
+  # reads repos.yml and no other registry, in either layout. `^risks:` and `^captures:` are
+  # anchored because each file also carries a commented-out example repeating its key verbatim;
+  # the security ledger's keys are anchored to match, not because anything there needs it.
   for field in "register for $name." "^risks:"; do
     grep -q "$field" "$work/Code/$name-docs/registries/risks.yml" || {
       echo "FAIL: $name registries/risks.yml does not match: $field" >&2
@@ -363,6 +363,12 @@ run_registry_mono_case() {
   for field in "ledger for $name." "^security_reviews:" "^  S0:" "^  S1:" "^  S2:"; do
     grep -q "$field" "$work/Code/$name-docs/registries/security-reviews.yml" || {
       echo "FAIL: $name registries/security-reviews.yml does not match: $field" >&2
+      return 1
+    }
+  done
+  for field in "log for $name." "^captures:"; do
+    grep -q "$field" "$work/Code/$name-docs/registries/input-captures.yml" || {
+      echo "FAIL: $name registries/input-captures.yml does not match: $field" >&2
       return 1
     }
   done
@@ -436,8 +442,7 @@ run_registry_multi_case() {
     echo "FAIL: $name pruned registries/ in multi-repo layout" >&2
     return 1
   }
-  # The other two registers ship in this layout too, and nothing looked at them here at all —
-  # not their content, not even their existence. Same assertions as the mono case above: the
+  # The other registers ship in this layout too. Same assertions as the mono case above: the
   # substituted half of each header comment, and the top-level key rows are appended under.
   for field in "register for $name." "^risks:"; do
     grep -q "$field" "$work/Code/$name-docs/registries/risks.yml" || {
@@ -448,6 +453,12 @@ run_registry_multi_case() {
   for field in "ledger for $name." "^security_reviews:" "^  S0:" "^  S1:" "^  S2:"; do
     grep -q "$field" "$work/Code/$name-docs/registries/security-reviews.yml" || {
       echo "FAIL: $name registries/security-reviews.yml does not match: $field" >&2
+      return 1
+    }
+  done
+  for field in "log for $name." "^captures:"; do
+    grep -q "$field" "$work/Code/$name-docs/registries/input-captures.yml" || {
+      echo "FAIL: $name registries/input-captures.yml does not match: $field" >&2
       return 1
     }
   done
@@ -1793,8 +1804,8 @@ run_mono_case
 run_private_mono_case
 
 # --- registries/ always ships ------------------------------------------------
-# The directory carries the repo inventory and the risk / security-review registers, all of which
-# the generated docs cite unconditionally. --registries survives as a deprecated no-op.
+# The directory carries the registers the generated docs cite unconditionally. --registries
+# survives as a deprecated no-op.
 run_registry_mono_case
 run_registry_multi_case
 

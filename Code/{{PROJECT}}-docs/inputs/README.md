@@ -43,21 +43,21 @@ inputs is only *how* it gets there:
   never arrives with them. From then on the architecture copy is the living version you keep true,
   and the original stays here as provenance.
   - *Use judgment, though:* lifting isn't always the right move — sometimes you **reference** the
-    input from `../architecture/` and keep it here, long-lived and `Live`, instead of copying it in.
+    input from `../architecture/` and keep it here, long-lived, instead of copying it in.
     A large external standard you don't own and only partially implement (a long RFC/ISO) is the
     clearest example — write a compliance/interface doc that references it and keep the artifact
     pinned by version — but it's *an* example, not the only case.
 
-Two things keep this from rotting:
-- **The index — `inputs-index.md`.** It records, per input, which parts `../architecture/` has
-  already superseded and which still hold, so a later session builds only on what's current instead
-  of re-reading a stale seed. Add a row when you drop in an input; flip it when a session captures
-  one (see that file).
-- **The archive — `inputs/archive/`.** When an input has been **fully** superseded, retire it by
-  moving it into `inputs/archive/`. **Sessions read `inputs/` but not `inputs/archive/`,** so a
-  captured seed stops reading as current intent while its file is kept for history. This is a
-  **move, never an in-place edit or a delete** — the periodic check-in (`../runbooks/check-in.md`)
-  surfaces candidates and you decide; nothing is auto-moved.
+**The capture log — `../registries/input-captures.yml`.** Each time a session takes something from
+an input, it adds an entry saying what it took and where it went, so a later session can see what
+is already captured and what is still only here.
+
+**The archive — `inputs/archive/`.** An input stays here until everything the project needs from
+it is captured, which may take several sessions. A session that captures from an input asks you
+whether it is now fully captured; only a yes moves it into `inputs/archive/`, and a *not yet* leaves
+it here. **Sessions read `inputs/` but not `inputs/archive/`,** so a captured seed stops reading as
+current intent while its file is kept for history. This is a **move, never an in-place edit or a
+delete**.
 
 ## Conventions
 - Give each file a clear, descriptive name (e.g. `payments-protocol-v2.pdf`,
@@ -65,11 +65,9 @@ Two things keep this from rotting:
 - Subfolders are fine if you have a lot (e.g. `specs/`, `ui/`).
 - These are **your source materials, not method output** — unlike `../architecture/` (*what*
   the system is) and `../adr/` (*why*), nothing here is versioned or rewritten by the sessions (a
-  superseded input is *moved* to `inputs/archive/`, never edited in place — see Lifecycle above).
+  fully captured input is *moved* to `inputs/archive/`, never edited in place — see Lifecycle above).
   For the same reason `./doctor.sh links` does not check this folder: a broken link in an input
   stays as it arrived.
-- `inputs-index.md` (the live-vs-superseded ledger) and this `README.md` are **guidance, not
-  inputs** — a session never treats them as source documents.
 - The folder is **durable and not STEP-1-only**: a later phase, a V2, or a check-in can add
   new inputs the same way.
 - Committed by default, so the whole team shares them. If a document is sensitive or very

@@ -707,9 +707,9 @@ if [ "$LAYOUT" = "2" ]; then
 fi
 
 # registries/ always ships, in both layouts. It carries the repo inventory that
-# setup-workspace.sh and remote recording read, plus the accepted-risk and security-review
-# registers — and the docs hub, METHOD.md and several runbooks reference all three
-# unconditionally, so a project without the directory cites files it does not have. The flag is
+# setup-workspace.sh and remote recording read, plus the other registers — and the generated docs
+# reference every one unconditionally, so a project without the directory cites files it does
+# not have. The flag is
 # still parsed so existing automation keeps working, and its value is still validated: an
 # unrecognized one is an error in either layout, and `no` is ignored with a deprecation notice.
 if [ -n "$REGISTRIES_IN" ]; then
@@ -1230,8 +1230,8 @@ fi
 
 # --- 4. Stamp per-project options -------------------------------------------
 # Nothing is pruned here. runbooks/ ships method-level runbooks (check-in, collaboration) that
-# AGENTS.md and METHOD.md reference, and registries/ ships the repo inventory and the risk and
-# security-review registers that the docs hub and those same runbooks cite unconditionally.
+# AGENTS.md and METHOD.md reference, and registries/ ships the registers that the docs hub and
+# those same runbooks cite unconditionally.
 
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.
