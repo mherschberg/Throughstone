@@ -13,7 +13,7 @@ shape is stable.
 |----------|----------------|-------------------|
 | Project brief | `Code/<project>-docs/overview.md` | The seed: users, scope, constraints, and risks. |
 | Local user profile | `.throughstone/local-user.md` | Per-machine settings for the active contributor: experience level sets the background assumed, communication style sets how much reasoning comes with a decision. |
-| STEP roadmap | `prompts/STEP-index.md` | The project plan: every STEP, status, owner, touched repos, and one-line scope. |
+| STEP roadmap | `prompts/STEP-index.md` | The project plan: every STEP, status, owner, and one-line scope. |
 | Architecture docs | `Code/<project>-docs/architecture/NN-*.md` | Current design: the system as it is supposed to work now. |
 | ADRs | `Code/<project>-docs/adr/ADR-NNNN-*.md` | Decision history: why important choices were made. |
 | STEP plans | `Upcoming Prompts/` while active, then `prompts/<phase>/step-NNNN/` | The work contract for a STEP: scope, substeps, ground rules, and done criteria. |
@@ -65,12 +65,12 @@ agent what exists, what is active, and what comes next.
 Representative excerpt:
 
 ```md
-| STEP | Title | Owner | Status | Repos (projection) | Scope |
-|------|-------|-------|--------|--------------------|-------|
-| STEP-1 | Architecture | Sam | Done | `acme-docs`, `prompts` | Architecture docs + ADRs, no app code. |
-| STEP-2 | Scaffold API service | Sam | Done | `acme-api` | Create service skeleton, CI, health endpoint. |
-| STEP-3 | Calendar OAuth | Priya | In progress | `acme-api`, `acme-web` | Connect Google Calendar account flow. |
-| STEP-4 | Check-in |  | Planned | all | Reconcile docs/code drift and run full tests. |
+| STEP | Title | Owner | Status | Scope |
+|------|-------|-------|--------|-------|
+| STEP-1 | Architecture | Sam | Done | Architecture docs + ADRs, no app code. |
+| STEP-2 | Scaffold API service | Sam | Done | Create service skeleton, CI, health endpoint. |
+| STEP-3 | Calendar OAuth | Priya | In progress | Connect Google Calendar account flow. |
+| STEP-4 | Check-in |  | Planned | Reconcile docs/code drift and run full tests. |
 ```
 
 The seed file is

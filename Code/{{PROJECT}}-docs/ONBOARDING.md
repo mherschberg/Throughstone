@@ -83,7 +83,7 @@ Start with these files, in this order:
 1. `AGENTS.md` - agent and contributor operating context, including kickoff versus resume.
 2. `Code/<project>-docs/METHOD.md` - the method, read once before working.
 3. `Code/<project>-docs/overview.md` - project brief and bootstrap status marker.
-4. `prompts/STEP-index.md` - roadmap, STEP status, owners, and repo projections.
+4. `prompts/STEP-index.md` - roadmap, STEP status, owners, and scope.
 5. `Code/<project>-docs/registries/repos.yml` - canonical repo inventory.
 
 Then run the local checks from the workspace root:
@@ -110,8 +110,8 @@ Before editing code or durable docs:
    "about" document for that repo.
 2. Read `prompts/STEP-index.md` and select the next appropriate STEP. If you are adding an
    ad-hoc STEP, reserve a number according to `Code/<project>-docs/runbooks/collaboration.md`.
-3. Check the selected STEP's `Repos (projection)` against other in-flight rows. If there is
-   overlap, call it out before proceeding.
+3. Compare the selected STEP's scope with the Scope of other in-flight rows. If they overlap,
+   call it out before proceeding.
 4. Create a branch named `step-NNNN-short-name`. Use the same branch name in every repo the
    STEP touches.
 5. Update only your STEP row in `prompts/STEP-index.md` to `In progress` when you start, and

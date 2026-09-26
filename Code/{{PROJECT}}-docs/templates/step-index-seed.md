@@ -11,7 +11,7 @@ worked, and completed.
 > structurally doesn't apply — an API-only system's UI session, say); keep the row either way, since
 > the next-action resolver skips `Deferred`, `Abandoned` and `N/A` rather than reading an absence
 > (`METHOD.md` §10).
-> Flip a STEP to **In progress** when you start it, so the overlap warning can see it.
+> Flip a STEP to **In progress** when you start it — the next-action resolver reads it.
 > STEP numbers are global and never reset (see `METHOD.md` §1, §8).
 > **What to do next** is always derivable from this index — see the next-action resolver in
 > `METHOD.md` §10.
@@ -23,8 +23,7 @@ worked, and completed.
 > (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`)
 > — two appended rows merge with no
 > conflict into a silent duplicate. See `runbooks/collaboration.md`.
-> **Owner** = who's on it; **Repos** = the repos it expects to touch (a *projection* that may
-> change — it powers the overlap warning, it doesn't reserve anything). Solo, leave them blank.
+> **Owner** = who's on it; solo, leave it blank.
 
 ## Phase 1 — {{PHASE_1_NAME}}
 <!-- {{PHASE_1_NAME}}: kickoff (BOOTSTRAP-PROMPT.md Stage 1) fills this with the chosen phase
@@ -32,9 +31,9 @@ worked, and completed.
      001-<phase-name>/ archive folder, created when STEP-1 is archived. init.sh leaves the
      placeholder as-is; Check 8 parses the table rows below, not this heading. -->
 
-| STEP | Title | Owner | Status | Repos (projection) | Scope (one line) |
-|------|-------|-------|--------|--------------------|------------------|
-| STEP-1 | Architecture | | Planned | `{{PROJECT}}-docs`, `prompts` | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
+| STEP | Title | Owner | Status | Scope (one line) |
+|------|-------|-------|--------|------------------|
+| STEP-1 | Architecture | | Planned | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
 
 <!-- STEP-1 is the ONLY row at bootstrap. STEP-2 onward are the implementation STEPs — don't
      add them by hand: after STEP-1's review passes, run the planning session
@@ -42,7 +41,7 @@ worked, and completed.
      here (a couple of sentences each), in dependency order after STEP-1. Each STEP's detailed
      PLAN and substeps are written later, when you start that STEP. Starting a STEP means
      planning it and stopping for approval before any substep runs. Example row shape:
-     | STEP-2 | Scaffold repos & skeleton | | Planned | `{{PROJECT}}-api` | … | -->
+     | STEP-2 | Scaffold repos & skeleton | | Planned | … | -->
 
 
 ### STEP-1 substeps (architecture sessions)

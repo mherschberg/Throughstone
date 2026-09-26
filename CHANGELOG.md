@@ -58,7 +58,7 @@ any project built with it.
   Shipping with it: **the rule telling you to split before adding a second contributor is gone.**
   It gave two reasons and neither survived. The STEP-number push-race works exactly the same in a
   mono repo with a shared remote — what a team needs is shared remotes, not several of them — and
-  the overlap warning's mono fallback was already written, in the very section that clause cited.
+  the overlap warning compares in-flight STEPs by their scope, not by the repos they touch.
   How many repos you have follows your architecture, not your headcount. The solo-to-team section
   of `runbooks/collaboration.md` now has a mono path of its own, including the warning not to run
   `scripts/setup-workspace.sh` in a mono clone; `METHOD.md` §7 and `prompts/README.md` moved with
@@ -504,6 +504,10 @@ any project built with it.
 - **`AGENTS.md` keeps the team rules behind one pointer** — every STEP reads the four rules solo
   and team share; a project whose ADR authority is anyone but `_solo author_` is sent to
   `runbooks/collaboration.md` §2–§6 instead of reading a copy of them.
+- **The overlap warning compares in-flight STEPs' Scope, and the `Repos (projection)` column is
+  gone** — naming a repo told a mono-repo team nothing, since every STEP names the one repo, and
+  over-warned in a multi-repo one. The STEP PLAN's field is now `**Repos:**` (repos and merge order),
+  and `init.sh` drops its mono-repo + team note.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
@@ -884,18 +888,9 @@ any project built with it.
   will be removed in a future release. Deprecating rather than refusing, for the same reason an
   unusable flag is named rather than refused. `--visibility=private` is untouched.
 
-  **The mono-repo + team caveat now turns on the two answers it is about.** Choosing that
-  combination makes the overlap warning useless — it is repo-granular, and there is one repo — and
-  the note saying so sat inside the branch that *asks* who accepts ADRs. Its real condition was how
-  that one unrelated value arrived: measured on three identical mono + team projects, typing the
-  ADR authority printed the note, passing `--adr-authority` did not, and `--non-interactive` did
-  not. Same project, same limitation, one warning. It now prints for all three, and for neither
-  neighbouring combination. It also says that nothing has been created yet and the run can still be
-  stopped — which was already true and which nothing on screen admitted.
-
-  The line above it had the same defect and is fixed with it: **every team is now told that team
-  collaboration relies on shared remotes**, not only the teams that happened to type their ADR
-  authority rather than pass it.
+  **Every team is now told that team collaboration relies on shared remotes**, not only the teams
+  that happened to type their ADR authority rather than pass it. The line sat inside the branch
+  that *asks* who accepts ADRs, so its real condition was how that one unrelated value arrived.
 
   **And `--adr-authority` on a solo project is named rather than dropped.** A solo project records
   the author as the authority — the register is stamped `_solo author_` and the question is never
@@ -1126,10 +1121,7 @@ any project built with it.
   layout-conditional: mono is told to check what origin it already has, push the root repo's trunk
   to it or create one empty repo for it, and record that URL on the single `location: "."` row. The
   multi tip is rewritten too — it names the two repositories, adds the `git remote add origin <url>`
-  step it had been missing, and writes the registry path in full. The mono + team kickoff note stopped citing the repealed
-  split-before-a-teammate rule in the same change — the observation under it still holds
-  and is still printed, but it now points at the fallback `collaboration.md` §4 prescribes rather
-  than telling you to split.
+  step it had been missing, and writes the registry path in full.
 - **The STEP-authoring recipe numbered two different steps `5`.** `prompts/README.md` walks you
   through authoring a STEP in numbered steps, and both *Write the substep prompts* and *Update
   `prompts/STEP-index.md`* were `5.`, so the list ran 1-2-3-4-5-5-6 and "step 6" named two things.
