@@ -721,10 +721,10 @@ if [ -n "$REGISTRIES_IN" ]; then
   fi
 fi
 
-# Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
-# reservation, and overlap checks are practiced solo too (see runbooks/collaboration.md). The
-# answer only affects prompt wording, remote guidance, and the ADR acceptance authority stamped
-# into adr/README.md.
+# Solo vs. team. Branch-per-STEP and STEP-number reservation are practiced solo too (see
+# runbooks/collaboration.md). The answer sets prompt wording, remote guidance, and the ADR
+# acceptance authority stamped into adr/README.md — and that stamp is what AGENTS.md reads to
+# turn the team rules on, so a team must never be stamped _solo author_.
 if [ -n "$COLLAB_IN" ]; then
   normalize_collab "$COLLAB_IN" \
     || { echo "init.sh: invalid collab '$COLLAB_IN' (solo | team) — from --collab or INIT_COLLAB." >&2; exit 2; }
@@ -1253,8 +1253,8 @@ fi
 # single-author posture; team records the selected acceptance authority for future handoffs.
 if [ -f "$DOCS/adr/README.md" ]; then
   ADR_AUTHORITY_TEXT="_solo author_"
-  if [ "$COLLAB" = "2" ] && [ -n "$ADR_AUTHORITY" ]; then
-    ADR_AUTHORITY_TEXT="$ADR_AUTHORITY"
+  if [ "$COLLAB" = "2" ]; then
+    ADR_AUTHORITY_TEXT="${ADR_AUTHORITY:-consensus of maintainers}"
   fi
   ADR_AUTHORITY="$ADR_AUTHORITY_TEXT" perl -0pi -e \
     's/<!-- ADR-AUTHORITY -->.*?<!-- \/ADR-AUTHORITY -->/$ENV{ADR_AUTHORITY}/s' \

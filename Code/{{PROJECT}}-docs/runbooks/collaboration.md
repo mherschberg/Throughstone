@@ -145,7 +145,7 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
   a `step-*` branch — and compare their **Repos (projection)** against your STEP's scope. If
   they overlap, **say so** — then proceed. It's a heads-up, not a gate. (This is why the
   `In progress` flip must be *pushed*, §2: an unpushed status makes a worked STEP invisible here.)
-- **Agents must do this check and warn the user** before starting work (see `AGENTS.md`).
+- **Agents must do this check and warn the user** before starting work.
 - **Optional extra signal — only if your team pushes its `step-*` branches.** A *remote* scan
   (`git ls-remote --heads origin 'step-*'`, or `git fetch` then `git branch -r --list '*step-*'`)
   flags any repo carrying more than one live `step-*` branch, and catches a STEP whose row
@@ -299,7 +299,8 @@ flow (§6). The transition is mostly mechanical:
    onboarding. This records their own Experience level and Communication style; do not copy
    the original solo maintainer's preferences into project docs.
 3. **Record the ADR authority rule** in `adr/README.md` (§6) — decide once who can Accept a
-   decision.
+   decision. Agents read that line to know the coordination layer is on (`AGENTS.md`), so
+   replace `_solo author_` before the second contributor's first STEP.
 4. **Point everyone here.** New contributors read this runbook (and `AGENTS.md`) before their
    first STEP.
 
