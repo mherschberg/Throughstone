@@ -197,7 +197,7 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
     push is rejected, move the **whole block** above the new `max` (not just one row), re-scan
     for duplicate numbers, and push again.
 - **Then stop.** Don't create any PLAN or substep-prompt files. When the user is ready to
-  build, they start the first STEP — and *that* is when its PLAN and substep prompts get
+  build, they start the first STEP — and *that* is when its PLAN and any substep prompts get
   authored, per `prompts/README.md`. Starting that STEP still stops after planning; substeps
   run only after explicit approval. Re-run this session if the outline needs revising as the
   project learns.
@@ -205,7 +205,7 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
 ## Next
 The outline **is** the deliverable — author no PLANs here. Once the rows are in
 `prompts/STEP-index.md`, tell the user the next action: **start a fresh chat** and start the
-lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prompts via
+lowest-numbered `Planned` implementation STEP, authoring its PLAN and any substep prompts via
 `prompts/README.md` ("Recipe: adding a new STEP"), then stopping for approval before any
 substep runs. See the next-action resolver
 (`METHOD.md` §10).

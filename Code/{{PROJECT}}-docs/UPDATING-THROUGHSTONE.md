@@ -373,7 +373,8 @@ appendix covers purging history first when that matters.
   `status.sh` carries the scheduled check-in (item 6 above), and a STEP row with an inline
   `<!-- … -->` note is visible to the resolver again where the note used to swallow the row; an
   In-progress **Check-in** STEP is now told to wait for *"run the check-in"* rather than for a
-  substep command nobody authors for one.
+  substep command nobody authors for one. `status.sh` also counts an `Abandoned` substep as final,
+  as it does `Deferred` and `N/A`, and reads a zero-padded substep number such as `1.08` as a number.
   `setup-workspace.sh` no longer stops at the first repo it cannot clone, writes the workspace
   root's pointer files *before* the clone loop rather than after, and is stricter about what counts
   as a repo already being there — the four *Multi-repo only* paragraphs below are the detail of
@@ -781,6 +782,7 @@ of them rewrites anything you already produced; they affect work you do after pu
   apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
   legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
   added line into your project's index if you want the legend to describe what the file may contain.
+  The same line now lists every status the resolver skips — `Deferred`, `Abandoned` and `N/A`.
 - **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
   `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
   token (`deferred`), which tells a reader arriving months later nothing about whether the gap

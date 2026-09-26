@@ -9,7 +9,8 @@ worked, and completed.
 > **Abandoned** (reserved but won't be built — keep the row so the number is never reused).
 > Those five are the STEP states. A **substep** row uses the same values plus **N/A** (this area
 > structurally doesn't apply — an API-only system's UI session, say); keep the row either way, since
-> the next-action resolver skips `Deferred` and `N/A` rather than reading an absence (`METHOD.md` §10).
+> the next-action resolver skips `Deferred`, `Abandoned` and `N/A` rather than reading an absence
+> (`METHOD.md` §10).
 > Flip a STEP to **In progress** when you start it, so the overlap warning can see it.
 > STEP numbers are global and never reset (see `METHOD.md` §1, §8).
 > **What to do next** is always derivable from this index — see the next-action resolver in
