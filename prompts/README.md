@@ -141,7 +141,7 @@ teammate will need later.
    closes.
    **Thin STEPs are the exception — you author no substep prompts for them.** A STEP is thin
    when its substeps are already defined by a file the method ships: the PLAN points at that
-   file and names them, and their status is recorded in the index like any other substep. Two
+   file and names them, and their status is recorded in the PLAN like any other substep. Two
    families, rather than a list to keep up to date:
    - **Runbook-driven.** `Code/{{PROJECT}}-docs/runbooks/README.md` marks which runbooks are
      STEP-shaped — that list is the one to check. The runbook defines the substeps, including
@@ -149,16 +149,17 @@ teammate will need later.
      shape needs.
    - **Session-driven**, where the substeps are architecture sessions in
      `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. The architecture STEP-1 is the
-     large case — its substeps are the interview sessions chosen at kickoff. A **late
+     large case — its substeps are the interview sessions chosen at kickoff, and their status
+     stays in `prompts/STEP-index.md`, where the resolver reads it. A **late
      conditional-session follow-up** is the small one: a single substep pointing at the
      applicable `conditional-*.md` file, recording its exact by-name invocation and the assigned
      output-doc number. Don't copy a session into a new prompt. Give that STEP's index row the
      title `Conditional session: <topic>` so the resolver runs it before ordinary planned
      implementation work.
-6. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps. Then
-   present the PLAN and substep list to the user and **stop for approval** before running any
-   substep. Do not continue from planning into execution unless the user explicitly asks for a
-   specific substep, e.g. `run substep N.1`.
+6. **Update `prompts/STEP-index.md`**: set the STEP's status. Then present the PLAN and
+   substep list to the user and **stop for approval** before running any substep. Do not
+   continue from planning into execution unless the user explicitly asks for a specific
+   substep, e.g. `run substep N.1`.
 7. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**

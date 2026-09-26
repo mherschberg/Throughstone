@@ -71,9 +71,9 @@ Fill the **Decision Summary** (the distribution/forced-upgrade and offline choic
 belong here), record **Open Questions**, and capture significant platform/distribution
 decisions as ADRs. Reconcile any affected architecture docs. If this is a later follow-up
 STEP, add or update this doc's row in `architecture/README.md`. Update
-the active PLAN to mark this substep done. In STEP-1 mode, also mark the lettered substep
-done in `prompts/STEP-index.md`. In follow-up mode, keep the parent STEP `In progress` there
-until its review and normal completion bookkeeping are finished.
+the active PLAN to mark this substep done in follow-up mode; in STEP-1 mode, mark the lettered
+substep done in `prompts/STEP-index.md` instead. In follow-up mode, keep the parent STEP
+`In progress` there until its review and normal completion bookkeeping are finished.
 
 ## Next
 If this session was slotted into STEP-1, mark its lettered substep done; the next action is

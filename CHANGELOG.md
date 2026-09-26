@@ -514,6 +514,11 @@ any project built with it.
   `runbooks/collaboration.md` §2 or §6 for the push, the renumber on a rejected push and the
   duplicate scan, whose commands now appear only there. The planning session's batch reservation
   stops naming `prompts/`'s trunk, which a mono-repo project does not have.
+- **A later STEP's substep status lives in its PLAN** — the STEP PLAN template's Substeps table
+  gains a `Status` column, the recipe, the STEP-shaped runbooks and the runbook index say to record
+  status there, and the recipe no longer asks you to list a STEP's substeps in
+  `prompts/STEP-index.md`. STEP-1's substeps stay in the index, where the next-action resolver
+  reads them.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its

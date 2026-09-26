@@ -195,7 +195,9 @@ brought into a project at all — in a second new runbook; none of that asks any
     now keeps its team rules behind that line, so a project whose line still reads `_solo author_`
     gets only the solo ones. If more than one person works in the project and the line was never
     changed, record your rule there (`runbooks/collaboration.md` §9 step 3).
-17. Nothing else. A project that never splits reads none of the splitting material.
+17. **If 1.7's recipe had you list a STEP's substeps in `prompts/STEP-index.md`**, move the list
+    of any STEP still in flight into its PLAN — details below.
+18. Nothing else. A project that never splits reads none of the splitting material.
 
 **The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
 warning (`runbooks/collaboration.md` §4) now compares in-flight STEPs' Scope, so nothing reads the
@@ -203,6 +205,13 @@ column, and `scripts/status.sh` and `scripts/check.sh` find the index's columns 
 an extra one is harmless; only its legend line, which says it powers the overlap warning, is now
 out of date. New projects start without the column, and a STEP PLAN's field is now `**Repos:**`,
 still listing the repos and the order they merge in.
+
+**A later STEP's substep status lives in its PLAN — this is item 17 of the fast path.** The PLAN
+template's Substeps table gains a `Status` column; a PLAN already in flight can add one. STEP-1's
+substeps stay in `prompts/STEP-index.md`. If 1.7's recipe had you list a later STEP's substeps in
+the index, move an in-flight STEP's list into its PLAN and leave a finished STEP's where it is —
+its PLAN is archived, and archived PLANs are protected (§2). While STEP-1's row is still open,
+`./doctor.sh status` reads every substep table in the index as STEP-1's.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
