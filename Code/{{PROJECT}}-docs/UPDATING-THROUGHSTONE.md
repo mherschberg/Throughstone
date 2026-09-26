@@ -92,8 +92,9 @@ rather than adding one. The release also adds a runbook for splitting a reposito
 brought into a project at all — in a second new runbook; none of that asks anything of you unless you are about to split. Fast path:
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
-   `runbooks/register-repo.md`, `runbooks/README.md`, `runbooks/security-review.md`,
-   `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
+   `runbooks/register-repo.md`, `runbooks/README.md`, `runbooks/security-review.md`, `METHOD.md`'s
+   licence note and §3, §5, §7 and §10, `runbooks/collaboration.md` from §2 to the end,
+   `prompts/README.md`, `registries/README.md`,
    and the header comment in `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
    template but belongs in this group: it carries the `## Role in <project>` section the new
    runbook sends you to write into a repo that already exists. **The files that route to the new
@@ -394,8 +395,8 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `runbooks/security-review.md`, `METHOD.md` §3, §5, §7 and §10,
-  `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
+  `runbooks/README.md`, `runbooks/security-review.md`, `METHOD.md`'s licence note and §3, §5, §7
+  and §10, `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
   `registries/repos.yml`'s header, `AGENTS.md`, `runbooks/check-in.md`,
   `runbooks/dependency-supply-chain.md`,
   `runbooks/incident-postmortem.md`, and the templates `repo-readme-template.md`,
@@ -417,7 +418,8 @@ appendix covers purging history first when that matters.
   root repo in mono-repo-for-now — so its steps say *pull*, *the shared trunk* and *the trunk*
   rather than naming a repository a mono reader has not got. The protocol itself is unchanged.
   `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
-  registry row and name the registration action; `check-in.md`,
+  registry row and name the registration action; `METHOD.md`'s licence note and `AGENTS.md` stop
+  restating which licence files a new repo gets and point at `register-repo.md` step 3; `check-in.md`,
   `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; and the
   planning session decides whether a repo the architecture names already exists by looking for a
   repository rather than by reading a README.
@@ -484,7 +486,9 @@ appendix covers purging history first when that matters.
   gains a line declaring that its own paths are relative to the workspace root. `AGENTS.md`
   described that same old order and is corrected too — it is already in the process-docs group
   above, so pulling that group picks it up. The hub's own `README.md` also stops calling itself a
-  repo and `prompts/` a sibling repo of it — in mono-repo-for-now both are folders. Nothing of
+  repo and `prompts/` a sibling repo of it — in mono-repo-for-now both are folders — and its
+  licence note stops saying an open-source project's `LICENSE` is copied into every new code repo,
+  pointing at `runbooks/register-repo.md` step 3 instead, which item 1's group brings. Nothing of
   yours is rewritten.
 - *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
   `provenance:` is a new optional block recording that a repo was split out of another one — where

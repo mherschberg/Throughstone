@@ -536,6 +536,13 @@ any project built with it.
   `METHOD.md` §7, `ONBOARDING.md`, the check-in, the dependency audit, the Go standard and four
   templates stop assuming one codebase per repo, and `templates/ci/README.md` says how a mono
   project can gate its tests before a split.
+- **Four copies of the rule for which licence files a new repo gets now point at
+  `runbooks/register-repo.md` step 3.** The docs hub's `README.md`, `METHOD.md`'s licence note and
+  `templates/licenses/README.md` each said an open-source project's `LICENSE` is copied into each
+  application-code repo when it is created, which does not hold for every repo split out of
+  another: one split out of an adopted repo keeps that repo's licence files, not the project's
+  `LICENSE`. They, and the docs hub's `AGENTS.md`, whose ten-line copy of the rule was correct but
+  loads in every session, now point at that step.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
