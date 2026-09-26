@@ -41,11 +41,11 @@ echo "Docs hub:       $DOCS_REL"
 
 # --- 0. Mono-repo-for-now: stop, before anything is written ------------------
 # Every step below this line writes something. In a mono-repo-for-now project the workspace root
-# is the repository, its CLAUDE.md, AGENTS.md and doctor.sh are committed files, and the pointers
-# step 1 writes would replace them with per-machine copies that say the root is not a repo; the
-# clone step then has nothing to clone, because every row is a folder inside the repository the
-# reader has already cloned. runbooks/collaboration.md §9 says not to run this script there, and
-# this is that sentence as code.
+# is the repository, its CLAUDE.md, AGENTS.md and doctor.sh are committed files, and step 1
+# would replace them with per-machine copies; the clone step then has nothing to clone, because
+# every row is a folder inside the repository the reader has already cloned.
+# runbooks/collaboration.md §9 says not to run this script there, and this is that sentence as
+# code.
 #
 # It reads what the project declares and never inspects the workspace: which layout a workspace is
 # in is not something a script can tell by looking, and Throughstone manages only its own files.
@@ -112,13 +112,14 @@ for name in CLAUDE.md AGENTS.md; do
   cat > "$ROOT/$name" <<EOF
 # $name
 
-The canonical agent context lives in the docs repo:
+The canonical agent context lives in the docs hub:
 **\`$DOCS_REL/AGENTS.md\`** (tool-agnostic). Read it — and the methodology it points to in
 \`$DOCS_REL/METHOD.md\` — before working here.
 
-This is a per-machine pointer so $reader auto-discovers the project context. It is not
-versioned (the workspace root is not a repo). Edit the canonical file in the docs repo, not
-this one. \`$DOCS_REL/scripts/setup-workspace.sh\` regenerates this pointer on a new machine.
+This is a pointer so $reader auto-discovers the project context. Edit the canonical file in
+the docs hub, not this one. In a multi-repo project the workspace root is not a repo, so this
+pointer is not versioned and \`$DOCS_REL/scripts/setup-workspace.sh\` regenerates it on a new
+machine; in mono-repo-for-now it is committed in the root repo.
 
 **Agents:** the canonical \`AGENTS.md\` (linked above) opens with a "First action — kickoff or
 resume?" section. Read it and follow it now — it decides, from disk, whether to start the

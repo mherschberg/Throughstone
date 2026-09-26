@@ -106,8 +106,8 @@ disk and applies the next-action resolver from `METHOD.md`. Confirm its result a
 
 Before editing code or durable docs:
 
-1. Read the README for every repo you expect to touch. The repo README is the local setup and
-   "about" document for that repo.
+1. Read the README of every repo or code folder you expect to touch. It is the local setup and
+   "about" document for that code.
 2. Read `prompts/STEP-index.md` and select the next appropriate STEP. If you are adding an
    ad-hoc STEP, reserve a number according to `Code/<project>-docs/runbooks/collaboration.md`.
 3. Compare the selected STEP's scope with the Scope of other in-flight rows. If they overlap,

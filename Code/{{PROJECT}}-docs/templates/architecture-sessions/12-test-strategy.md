@@ -30,8 +30,8 @@ reports, and the coding standards files reconciled during this session.
 Tests are what let you (and your AI agent) change code later without fear. The common
 failure modes: no tests, only happy-path tests, or a slow flaky suite no one trusts.
 Deciding the **test tiers, what each covers, and what gates a merge** now means quality is
-built in rather than bolted on — and it's especially important in a multi-repo project
-where the pieces have to work *together*.
+built in rather than bolted on — especially where separately built pieces have to work
+*together*.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
@@ -50,8 +50,8 @@ where the pieces have to work *together*.
    (e.g. a fresh DB/schema per test run) so they don't interfere.
 4. **Mocking strategy.** What to mock (external/third-party dependencies) vs. exercise for
    real (your own components, a real local DB).
-5. **System / end-to-end tests.** How the whole system is tested together — important for
-   multi-repo. Where do cross-repo e2e tests live (often a dedicated tests repo)?
+5. **System / end-to-end tests.** How the whole system is tested together, and where tests
+   that span more than one codebase live (often a dedicated tests repo or folder).
 6. **CI gates.** What must pass before code merges and before it deploys (tests, linters,
    type checks, build). Keep the gate fast enough that people don't route around it. A starter
    wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
@@ -102,7 +102,7 @@ Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc 
 - **Coverage tooling and reporting** — language/surface | tool | durable summary location
   (default: `reports/test-results/`) | generated artifact location | threshold/gate
 - **Test data & isolation**, **mocking strategy**
-- **System/e2e testing** (and its home in a multi-repo setup)
+- **System/e2e testing** (and where those tests live)
 - **CI gates** — what blocks merge / deploy
 - **Coding standards** — link the per-language file(s) in `coding-standards/` that apply
 

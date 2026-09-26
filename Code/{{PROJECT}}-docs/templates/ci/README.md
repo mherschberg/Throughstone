@@ -37,8 +37,11 @@ none. Replace the `Configure me` step (which `exit 1`s) with your real setup + t
   workflows only at a repository root — so a `ci.yml` stamped there never triggers, and the
   `exit 1` above goes unseen. Stamp it anyway and configure it: it starts gating the moment a
   split makes that folder a repository root (`runbooks/splitting-repos.md`). Until then the root's
-  `method-check.yml` (§1) is the only gate the project actually runs, and it checks the method,
-  not your tests.
+  `method-check.yml` (§1) is the only gate that runs by default, and it checks the method, not
+  your tests. To gate tests before a split, also put a copy in the root's `.github/workflows/`
+  with one job per code folder, each setting `defaults.run.working-directory` to that folder.
+  That reaches only `run:` steps: leave `actions/checkout` as it is, and point a setup action at
+  the folder's files itself, such as with `cache-dependency-path`.
 
 ## Keeping it honest
 

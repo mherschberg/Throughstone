@@ -1,7 +1,7 @@
 # {{PROJECT}} — Agent Context
 
-> **Canonical** context for any AI agent working in this project. The per-machine
-> `CLAUDE.md` and `AGENTS.md` at the workspace root point here. Tool-agnostic: Claude Code,
+> **Canonical** context for any AI agent working in this project. The `CLAUDE.md` and
+> `AGENTS.md` pointers at the workspace root point here. Tool-agnostic: Claude Code,
 > Codex, and others read this convention. **New session? Start with "First action — kickoff
 > or resume?" just below.**
 >
@@ -119,18 +119,19 @@ Check-in STEP is the one exception: wait for *"run the check-in"*, which runs bo
 end to end (`Code/{{PROJECT}}-docs/METHOD.md` §10 rule 6).
 
 ## Repos & workspace layout
-This is a **multi-repo** project. The workspace root is **not** a repo — it's a per-machine
-shell. (Mono-repo-for-now is the exception — then the root *is* the single repo and the
-pointers are committed files; see `Code/{{PROJECT}}-docs/METHOD.md` §7.) The repos are siblings:
-- `Code/{{PROJECT}}-docs/` — the docs hub (this repo). All durable content lives here.
+The `layout:` line in `Code/{{PROJECT}}-docs/registries/repos.yml` says which layout this
+project is in (`Code/{{PROJECT}}-docs/METHOD.md` §7). In **multi-repo** the workspace root is a
+per-machine shell and each entry below is its own repo; in **mono-repo-for-now** the root is
+itself a repo, the pointers are committed files, and these are folders inside it:
+- `Code/{{PROJECT}}-docs/` — the docs hub. All durable content lives here.
 - `prompts/` — `prompts/STEP-index.md` roadmap + archived STEP plans/substep prompts.
-- `Code/{{PROJECT}}-*` — code repos, created as the architecture names them.
+- `Code/{{PROJECT}}-*` — the codebases, created as the architecture names them.
 
 `Code/{{PROJECT}}-docs/registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has deep internals). A repo joins it by being **registered**
-(`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). **Before working in a repo, read its README
-first** — the same way you read the architecture docs before a design change.
+(`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). **Before working in a repo or code folder,
+read its README first** — the same way you read the architecture docs before a design change.
 When creating an application-code repo, also apply the project-license posture recorded at
 bootstrap by running
 `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` — except a repo carved
@@ -141,8 +142,9 @@ that selection against the docs hub's canonical `LICENSE`, copies the project li
 for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
 copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
 README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
-`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` sets up a new developer's machine (writes the root pointers,
-then clones the siblings). From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
+In a multi-repo project, `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` sets up a new
+developer's machine (writes the root pointers, then clones the siblings); a mono-repo-for-now
+project is just cloned. From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and
 `./doctor.sh links` are thin shortcuts to `Code/{{PROJECT}}-docs/scripts/status.sh`,
 `Code/{{PROJECT}}-docs/scripts/check.sh`, and `Code/{{PROJECT}}-docs/scripts/links.sh`.
 `./doctor.sh links` does not check `Code/{{PROJECT}}-docs/inputs/`: imported documents are kept
@@ -151,12 +153,13 @@ New human or agent contributor joining an existing project? Read
 `Code/{{PROJECT}}-docs/ONBOARDING.md` for the ordered setup and first-contribution STEP path.
 It covers later contributor onboarding; initial project bootstrap still starts from `./init.sh`.
 
-**Workspace-root hygiene:** the workspace root should contain only per-machine pointers
-and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.throughstone/`), the root helper
+**Workspace-root hygiene (multi-repo):** the workspace root should contain only per-machine
+pointers and config (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.throughstone/`), the root helper
 (`doctor.sh`), the repo folders (`Code/*`, `prompts/`), and the `Upcoming Prompts/` working
 folder (scratch for the in-flight STEP). If you create
 or find any *other* file at the workspace root, **ask whether it belongs in a repo** —
-durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
+durable content almost always belongs in `Code/{{PROJECT}}-docs/`. In mono-repo-for-now the root
+is itself a repo, so this rule does not apply there.
 
 ## Ground rules
 - **Calibrate to the local user profile.** Before asking user-facing questions or

@@ -13,8 +13,7 @@
 > `architecture/*-interface-contracts.md`), `adr/*`, anything still live in `inputs/` (point-in-time
 > specs or prior docs you provided — e.g. a protocol spec the build must satisfy; skip
 > `inputs/archive/`, and where an `architecture/` doc already covers an input, that doc wins),
-> `prompts/STEP-index.md`, and — for multi-repo
-> projects — `registries/repos.yml`.
+> `prompts/STEP-index.md`, and `registries/repos.yml`.
 > **Calibrate to the local user profile.** Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much technical background you can assume, **Communication style** sets how much reasoning comes with a decision. They are independent — Level 3 + Explanatory is ordinary. Lead with a recommended default at every level. If the file is missing or either value isn't one of the listed answers, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write it, then continue; an explicit chat instruction overrides the profile for this session only. Treat any confusion or request to clarify — in any words, not just those — as a cue, answer in kind, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}

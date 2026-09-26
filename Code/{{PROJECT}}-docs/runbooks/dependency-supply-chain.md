@@ -45,9 +45,9 @@ liability you're taking on — and the cheapest one is the one you don't add.
       reproducible and an upstream change can't silently alter what you ship.
 
 ## Part 2 — Periodic audit (rides the check-in)
-- [ ] **Scan for known vulnerabilities.** Run your ecosystem's audit across **every repo you
-      can reach** — and name any you can't, so a partial sweep reads as partial rather than
-      as clean.
+- [ ] **Scan for known vulnerabilities.** Run the matching audit on **every package manifest in
+      every repo you can reach** — and name any you can't, so a partial sweep reads as partial
+      rather than as clean.
       Triage the findings: patch the exploitable ones now; for any you consciously defer, record
       an **accepted-risk** row in `registries/risks.yml` with the trigger to revisit — the same
       discipline as a deferred threat in `architecture/*-security-threat-model.md` (a standing

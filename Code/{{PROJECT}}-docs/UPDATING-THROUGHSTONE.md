@@ -204,7 +204,11 @@ brought into a project at all — in a second new runbook; none of that asks any
 19. **If an architecture doc's `Coverage:` line says anything but `full`**, check that a
     `registries/risks.yml` row with a revisit trigger covers it, and add one if not; expand a bare
     value such as `deferred` into a sentence — details below.
-20. Nothing else. A project that never splits reads none of the splitting material.
+20. **Pull `coding-standards/go.md`,
+    `templates/reports/test-results/test-results-summary-template.md` and `templates/ci/README.md`**,
+    which no other item pulls — **and, mono-repo-for-now only, replace the text of your root
+    `CLAUDE.md` and `AGENTS.md` with the scaffold's if you want the fix** — details below.
+21. Nothing else. A project that never splits reads none of the splitting material.
 
 **The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
 warning (`runbooks/collaboration.md` §4) now compares in-flight STEPs' Scope, so nothing reads the
@@ -251,6 +255,19 @@ expand it into one sentence as well, whether or not a row covers it — ask whoe
 what is missing if you do not know.
 `METHOD.md` §6, `templates/architecture-doc-template.md` and `runbooks/check-in.md` change with it,
 and item 14 already pulls them.
+
+**The docs stop assuming a mono-repo-for-now root is not a repo, or holds one codebase — this is
+item 20 of the fast path.** The docs hub's `AGENTS.md` now reads the `layout:` line rather than
+calling every project multi-repo, and it, `METHOD.md` §7, `ONBOARDING.md`, `runbooks/check-in.md`,
+`runbooks/dependency-supply-chain.md` and the session templates stop assuming one codebase per
+repo; items 1, 13 and 14 already pull them, and item 20 pulls the three files no other item does.
+In mono the root `CLAUDE.md` and `AGENTS.md` are committed files, and 1.7's call the docs hub a
+repo and say they are per-machine and not versioned. The scaffold's now say that only of a
+multi-repo project, but yours are generated files your project owns (§2), so nothing updates them:
+to take the fix, replace each file's text from *The canonical agent context* to the end with the
+scaffold's, keeping the tool your copy names and your project slug. A multi-repo project leaves its
+pointers alone — the old text is true there, and `scripts/setup-workspace.sh` (item 13) writes the
+new one on each new machine.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -710,12 +727,13 @@ where it is — that is the copy that gives the docs hub its own CI if you ever 
 run to report findings that have been accumulating unseen. 1.8 places the file for you in **new**
 mono projects; `init.sh` runs once, so nothing places it in a project that already exists.
 
-**Your code repos' own test gates are in the same position, and copying does not fix those.**
+**Your code repos' own test gates are in the same position.**
 `templates/ci/code-repo-ci.yml` is stamped into each code repo, which in a mono-repo-for-now
-project is a folder — so those workflows never trigger either. Unlike `method-check.yml` there is
-no root copy to make: the root gate runs the method checks, not your tests. They start gating when
-a split makes each folder a repository root (`runbooks/splitting-repos.md`); leave them stamped and
-configured until then. `templates/ci/README.md` §2 now says so at the point of the stamp.
+project is a folder — so those workflows never trigger either, and the root's `method-check.yml`
+runs the method checks, not your tests. They start gating when a split makes each folder a
+repository root (`runbooks/splitting-repos.md`); leave them stamped and configured until then.
+`templates/ci/README.md` §2 now says so at the point of the stamp, and says how to gate tests
+before a split: a root copy with one job per code folder.
 
 Multi-repo projects have nothing to do here.
 
