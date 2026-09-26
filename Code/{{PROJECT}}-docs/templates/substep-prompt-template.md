@@ -26,8 +26,7 @@
        - inputs/                    — point-in-time specs & prior docs you provided (e.g. a
                                       protocol spec to build against); read the live ones, not
                                       inputs/archive/, and prefer an architecture/ doc where it
-                                      already covers the same ground (inputs/inputs-index.md tracks
-                                      what still holds vs. what's superseded)
+                                      already covers the same ground
        - architecture/README.md     — the architecture docs (what the system is)
        - adr/README.md              — the decision records (why it's that way)
        - coding-standards/README.md — the per-language standards

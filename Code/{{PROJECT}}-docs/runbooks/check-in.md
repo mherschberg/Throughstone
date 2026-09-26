@@ -110,39 +110,9 @@ list. For each template:
 
 For the shape of a conditional follow-up STEP, see `METHOD.md` §4, "Adding a session".
 
-### Deferred-coverage sweep
+### Beyond the architecture docs
 
-Some architecture docs deliberately leave part of their area unwritten, marked in their
-`Coverage:` field (`METHOD.md` §6).
-
-Enumerate every **non-`Deprecated`** `architecture/NN-*.md` whose **`Coverage:` field** says
-anything other than `full` — **read the field, don't grep for a phrase**. A doc with no `Coverage:`
-line at all is fully covered and not swept. For each deferred doc, weigh the postponed area against
-what the system now does and what the near-term roadmap will build, and record one explicit
-**disposition** in this check-in report:
-
-- **Backfill now — file a STEP.** The area is needed, or now cheap to finish. File a thin
-  architecture-only follow-up STEP that *finishes the existing doc* (below).
-- **Still defer.** Nothing built or planned yet leans on the postponed area. Record *why* the
-  deferral still holds (and, if useful, what would end it); no STEP.
-- **Genuinely risky — seed it now.** Forward work is likely to lean on the un-enumerated part
-  before the next check-in. File the backfill as a `Planned` STEP **now** *and* add a
-  `registries/risks.yml` row with a revisit trigger.
-
-Before filing a backfill STEP, check for an existing `Planned` or `In progress` follow-up for the
-same doc; report and retain it if one exists — do not create a duplicate.
-
-A deferred-coverage backfill is a thin, architecture-only STEP, the same shape as a conditional
-follow-up: its PLAN has one substep that points directly at the deferred `architecture/NN-*.md`
-doc and names the section to finish, and it **reuses that doc's existing number**. Unlike a
-conditional follow-up it does **not** take the `Conditional session:` title prefix. Give the row a
-descriptive title (e.g. `Deferred-coverage backfill: <doc topic>`).
-The session that runs it enumerates the postponed area, clears or narrows the doc's `Coverage:`
-line (to `full` once the area is complete), updates related architecture docs and
-`architecture/README.md`, and records significant decisions as ADRs. Do not run the write-up inside
-the check-in itself.
-
-Beyond the architecture docs, sweep four things:
+Sweep four things:
 - **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
   case applies.
   **Stamped from `templates/repo-readme-template.md`** (`runbooks/register-repo.md` step 2 says
@@ -171,33 +141,6 @@ Beyond the architecture docs, sweep four things:
   and the documents its `refs:` entries point to still exist and still explain the risk. Close
   items that are mitigated, update stale rows, create missing source artifacts, and file
   follow-up STEPs for anything whose trigger has fired or whose severity is no longer acceptable.
-
-### Inputs sweep
-
-The `inputs/` folder holds **point-in-time** source documents (a PRD, a prior design doc, a
-protocol/API spec, UI designs); `architecture/` holds the living truth (`inputs/README.md`,
-`METHOD.md` §4). As the build captures that material into `architecture/`, an input's captured
-parts go stale — but nothing revisits `inputs/` between check-ins, so a superseded seed keeps
-reading as current intent until it's reconciled here.
-
-Read the ledger, `inputs/inputs-index.md` (`README.md` and `inputs-index.md` are guidance, not
-inputs). Reconcile it against the architecture docs, **treating only live inputs as current:
-`inputs/archive/` is history and is not swept**:
-
-- **Drift into the index.** For each input file under `inputs/` (excluding `inputs/archive/`),
-  confirm it has row(s) in the ledger; add `Live` rows for anything imported but never recorded, and
-  flag ledger rows whose input file is gone.
-- **Newly superseded.** For each `Live` row, check whether a **`Current`** `architecture/` doc (or
-  an ADR) now covers that part. If it does, surface it and let the user disposition it: **mark
-  `Superseded`** (update the row, name the covering doc) or **keep `Live`**. If an
-  input is itself architecture-grade — a protocol/API spec, a formal contract, a finished design
-  doc — and still lives only in `inputs/`, flag it to be **lifted** into `architecture/` (often a
-  whole-file copy or a light reformat to match doc conventions), then marked `Superseded` here;
-  inputs are never the living home. (Use judgment, though — some inputs are better **referenced**
-  from `architecture/` and kept here, e.g. a large external standard you only partially implement.)
-- **Retire the fully superseded.** When **every** row for an input is `Superseded`, offer to retire
-  it: **move the file to `inputs/archive/`** and leave its rows in the ledger as the record.
-  **Surface-and-decide — never auto-move or auto-delete a file.**
 
 ### Security-review gate
 

@@ -92,8 +92,8 @@ rather than adding one. The release also adds a runbook for splitting a reposito
 brought into a project at all — in a second new runbook; none of that asks anything of you unless you are about to split. Fast path:
 
 1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
-   `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10,
-   `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
+   `runbooks/register-repo.md`, `runbooks/README.md`, `runbooks/security-review.md`,
+   `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
    and the header comment in `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
    template but belongs in this group: it carries the `## Role in <project>` section the new
    runbook sends you to write into a repo that already exists. **The files that route to the new
@@ -101,8 +101,8 @@ brought into a project at all — in a second new runbook; none of that asks any
    `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the three
    templates you author STEPs and substeps from — `templates/substep-prompt-template.md`,
    `templates/step-index-seed.md` — **and `templates/planning-session.md`**, whose repo-scaffolding step routes there too, **and
-   `templates/reports/check-in-report-template.md`**, which gains the Deferred Coverage table the
-   updated `check-in.md` now tells you to fill in.
+   `templates/reports/check-in-report-template.md`**, the report the updated `check-in.md` fills
+   in.
 2. If you were planning to split a repo **only** in order to add a second contributor — stop.
    That rule is gone, and nothing replaces it.
 3. **Check every `location:` in `registries/repos.yml`.** One that points outside the workspace
@@ -197,7 +197,13 @@ brought into a project at all — in a second new runbook; none of that asks any
     changed, record your rule there (`runbooks/collaboration.md` §9 step 3).
 17. **If 1.7's recipe had you list a STEP's substeps in `prompts/STEP-index.md`**, move the list
     of any STEP still in flight into its PLAN — details below.
-18. Nothing else. A project that never splits reads none of the splitting material.
+18. **If your project has `inputs/inputs-index.md`**, nothing reads it now: move it into
+    `inputs/archive/` as a record, or delete it. Move any input it shows as `Superseded` in every
+    row to `inputs/archive/` as well — details below.
+19. **If an architecture doc's `Coverage:` line says anything but `full`**, check that a
+    `registries/risks.yml` row with a revisit trigger covers it, and add one if not; expand a bare
+    value such as `deferred` into a sentence — details below.
+20. Nothing else. A project that never splits reads none of the splitting material.
 
 **The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
 warning (`runbooks/collaboration.md` §4) now compares in-flight STEPs' Scope, so nothing reads the
@@ -212,6 +218,31 @@ substeps stay in `prompts/STEP-index.md`. If 1.7's recipe had you list a later S
 the index, move an in-flight STEP's list into its PLAN and leave a finished STEP's where it is —
 its PLAN is archived, and archived PLANs are protected (§2). While STEP-1's row is still open,
 `./doctor.sh status` reads every substep table in the index as STEP-1's.
+
+**The inputs ledger is retired — this is item 18 of the fast path.** 1.7.1's
+`inputs/inputs-index.md` recorded, part by part, which pieces of each input an architecture doc had
+superseded, and each check-in reconciled it. An input may take several sessions to capture, so the
+rule is now simpler: it stays in `inputs/` until everything the project needs from it is captured.
+A session that captures from an input asks you whether it is now fully captured, and only a yes
+moves it to `inputs/archive/`; until then, where a generated doc covers part of it, that doc wins,
+as before. Nothing reads your ledger any more. Move it into `inputs/archive/` as a record, or delete
+it — left in `inputs/`, a session may read its out-of-date instructions. An input it marks
+`Superseded` in every row is fully captured, so move that input to `inputs/archive/` too; no
+check-in will offer to now. `AGENTS.md`, `METHOD.md` §4, `inputs/README.md`, `runbooks/check-in.md`,
+the check-in report template and the substep template change with it, and items 1, 9 and 14
+already pull them.
+
+**Deferred coverage now comes back through a risk row — this is item 19 of the fast path.** The
+check-in no longer sweeps architecture docs for a `Coverage:` line. The field stays — a doc that
+deliberately describes only part of its area still says so in one sentence (`METHOD.md` §6) — but
+what brings the area back is now a `registries/risks.yml` row whose revisit trigger says what would
+end the deferral, which the check-in reviews with every other open row. So for each
+non-`Deprecated` architecture doc whose `Coverage:` line says anything other than `full`, check
+that a risk row covers it, and add one if not. If the value is a bare word such as `deferred`,
+expand it into one sentence as well, whether or not a row covers it — ask whoever deferred the area
+what is missing if you do not know.
+`METHOD.md` §6, `templates/architecture-doc-template.md` and `runbooks/check-in.md` change with it,
+and item 14 already pulls them.
 
 **A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
 anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
@@ -243,9 +274,9 @@ consulting the STEP-1 row.
 core architecture session wholesale is still a decision you are allowed to take, but it now files a
 `registries/risks.yml` row alongside the `Deferred` substep row in `prompts/STEP-index.md`, with
 owner, severity and the trigger that revisits it. A session deferred that way writes no architecture
-doc, so neither of the check-in's sweeps can reach it — the conditional sweep enumerates
-`conditional-*.md` templates and the deferred-coverage sweep reads the `Coverage:` field of documents
-that exist — and until now nothing brought the decision back. **This is item 12 of the fast path**:
+doc, so no check-in sweep can reach it — the conditional sweep enumerates `conditional-*.md`
+templates and the doc-drift sweep reads the architecture docs that exist — and until now nothing
+brought the decision back. **This is item 12 of the fast path**:
 if your STEP-1 left a core session `Deferred` — most often 1.6 Security, sometimes 1.7 UI when a UI
 may arrive later — open `registries/risks.yml` and look for a row covering it. If there is none, add
 one: the revisit trigger is whatever you said at the time (*"before we accept real user data"*, *"before the first
@@ -338,9 +369,10 @@ fetches the other. The cost is stated plainly in the file
 appendix covers purging history first when that matters.
 
 - *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §3, §5, §7 and §10, `runbooks/collaboration.md` from §2 to
-  the end, `prompts/README.md`, `registries/README.md`, `registries/repos.yml`'s header,
-  `AGENTS.md`, `runbooks/check-in.md`, `runbooks/dependency-supply-chain.md`,
+  `runbooks/README.md`, `runbooks/security-review.md`, `METHOD.md` §3, §5, §7 and §10,
+  `runbooks/collaboration.md` from §2 to the end, `prompts/README.md`, `registries/README.md`,
+  `registries/repos.yml`'s header, `AGENTS.md`, `runbooks/check-in.md`,
+  `runbooks/dependency-supply-chain.md`,
   `runbooks/incident-postmortem.md`, and the templates `repo-readme-template.md`,
   `substep-prompt-template.md`, `step-index-seed.md`, `planning-session.md` and
   `reports/check-in-report-template.md`): two new runbooks plus the edits that route to
@@ -365,15 +397,19 @@ appendix covers purging history first when that matters.
   planning session decides whether a repo the architecture names already exists by looking for a
   repository rather than by reading a README.
   Separately, `runbooks/README.md`'s index now lists the three security-review checklists, which
-  have shipped unlisted since 1.6.
+  have shipped unlisted since 1.6, and `runbooks/security-review.md` drops its copy of the
+  check-in's security-review gate, which had drifted from the one in `check-in.md`, and points
+  there instead.
   **Five templates travel with this group even though §2's buckets call templates future-only.**
   `templates/repo-readme-template.md` gained the `## Role in <project>` augment form, which is what
   `runbooks/register-repo.md` sends you to when a repo already has a README, so a 1.7 copy of it
   leaves the new runbook pointing at nothing. A 1.7 `substep-prompt-template.md` still sends an
   agent off to write a registry row by hand, and `step-index-seed.md` gains the `N/A` substep
-  status note. `reports/check-in-report-template.md` gains the Deferred Coverage table the updated
-  `check-in.md` tells you to fill in. `templates/planning-session.md` is the fifth, and it is the
-  one that changes behavior — see below.
+  status note. A 1.7 `reports/check-in-report-template.md`'s Summary does not ask for the STEP or
+  date the updated `check-in.md` writes into `overview.md`'s `NEXT-CHECK-IN` line, and a 1.7.1 one
+  also has an Inputs row the updated `check-in.md` no longer fills.
+  `templates/planning-session.md` is the fifth, and it is the one that changes behavior — see
+  below.
   Apply them as a coherent group; they reference each other. No split-specific check: the new `check.sh` registry pass looks only for a missing `location:` and for
   repos no recorded remote covers. The script change these docs pair with is the scheduled check-in
   in `status.sh` (item 6 above) — pulling it also makes a STEP row carrying an inline
@@ -754,7 +790,7 @@ remote. Move the note to a line of its own, or delete it.
 
 **Templates and guidance text, with nothing to undo.** Three edits to
 `templates/architecture-sessions/*.md`, one to `METHOD.md` §3, one to
-`templates/planning-session.md`, and four documentation fixes. None
+`templates/planning-session.md`, and three documentation fixes. None
 of them rewrites anything you already produced; they affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
@@ -807,17 +843,10 @@ of them rewrites anything you already produced; they affect work you do after pu
 - **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
   `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
   token (`deferred`), which tells a reader arriving months later nothing about whether the gap
-  blocks them — and gives the check-in that resurfaces it nothing to weigh. Both now ask for what is
-  missing, how big it is, and what it means for someone building on the doc, written as an ordinary
-  bold header field (`**Coverage:** deferred — …`). **One thing to check:**
-  if any of your architecture docs already carries a bare `Coverage:` value, expand it the next time
-  that doc is touched; nothing rewrites it for you.
-- **The deferred-coverage sweep now reads the field instead of matching a phrase.**
-  `runbooks/check-in.md` told the sweep to enumerate docs "carrying `Coverage: deferred`", a literal
-  string that a doc written from the template never contains — the field is bold, like every other
-  header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
-  `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
-  it is worth re-running the sweep once by hand.
+  blocks them. Both now ask for what is missing, how big it is, and what it means for someone
+  building on the doc, written as an ordinary bold header field (`**Coverage:** deferred — …`). A
+  bare value you already have is expanded under item 19 of the fast path; nothing rewrites it for
+  you.
 
 Pull `templates/architecture-sessions/*.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md`,
 `templates/architecture-doc-template.md`, `templates/planning-session.md`, and
@@ -871,7 +900,9 @@ apply each area as a coherent review-required group, as with the legacy migratio
   `Status: MVP → Current`, `Status: Stable → Current`. Adopt `Deprecated` / `Coverage` where useful.
   No forced change.
 
-**Deferred-coverage check-in sweep.**
+**Deferred-coverage check-in sweep.** *(Superseded in 1.8, which retires the sweep and brings a
+deferred area back through a `registries/risks.yml` row — read the 1.8 section instead if you are
+upgrading past 1.7.)*
 
 - *Process docs* (`runbooks/check-in.md`): the periodic check-in gains a deferred-coverage sweep. It
   reads the `Coverage:` field above, so it only acts on docs marked `Coverage: deferred`; a project
@@ -1009,6 +1040,8 @@ no project files and is greenfield-inert — the new ledger simply starts empty.
    `templates/planning-session.md`, `templates/reports/check-in-report-template.md`).
 2. Add the ledger: copy the scaffold's empty `inputs/inputs-index.md` (and the updated
    `inputs/README.md` guidance with it), then list any inputs you already have as `Live`.
+   **Superseded in 1.8** — the ledger and the check-in's inputs sweep are gone. Going straight to
+   1.8? Skip this step and follow the 1.8 section.
 3. Nothing else now. `inputs/archive/` is created only when you first retire an input, and the next
    check-in's inputs sweep is what surfaces a superseded input for a retire/keep decision.
 
@@ -1018,7 +1051,8 @@ wins, and architecture-grade inputs are lifted into `architecture/` (a spec ofte
 or a light reformat). This is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
 rules apply unchanged.
 
-**Inputs lifecycle.**
+**Inputs lifecycle.** *(Superseded in 1.8, which retires the ledger and the check-in's inputs
+sweep — read the 1.8 section instead if you are upgrading past 1.7.1.)*
 
 - *New project-state file* (`inputs/inputs-index.md`): copy the scaffold's empty ledger in; from
   then on it is yours to maintain, like a registry (`registries/*.yml`). Record each existing input

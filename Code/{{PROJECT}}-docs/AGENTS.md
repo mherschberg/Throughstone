@@ -183,17 +183,18 @@ durable content almost always belongs in `Code/{{PROJECT}}-docs/`.
 - **Inputs are point-in-time; `architecture/` is the living truth.** Treat anything in
   `Code/{{PROJECT}}-docs/inputs/` as a *starting point*, not a current source of truth: where a
   generated `architecture/` or `adr/` doc covers the same ground, the generated doc wins, and an
-  input's superseded parts must not be built on. `Code/{{PROJECT}}-docs/inputs/inputs-index.md` records what each input
-  still holds vs. what's been superseded; **read `inputs/` but not `inputs/archive/`** (retired
-  inputs, kept for history). When a session captures an input's content into `architecture/`, mark
-  it in that index. **Lift architecture-grade inputs — a protocol/API spec, a formal contract, a
-  finished design doc — into `architecture/` promptly** (often a whole-file copy or a light reformat
-  to match doc conventions), rather than leaving them live here with `architecture/` merely pointing
-  at them; the original stays as provenance. (Use judgment, though: some inputs are better
+  input's superseded parts must not be built on. **Read `inputs/` but not `inputs/archive/`**
+  (retired inputs, kept for history). An input may be captured over several sessions: when a
+  session captures from one into `architecture/`, say what it took and what later sessions may
+  still need from it, then ask the user whether it is now fully captured; move it to
+  `Code/{{PROJECT}}-docs/inputs/archive/` only on a yes — a *not yet* leaves it where it is. **Lift
+  architecture-grade inputs — a protocol/API spec, a formal contract, a finished design doc — into
+  `architecture/` promptly** (often a whole-file copy or a light reformat to match doc conventions),
+  rather than leaving them live here with `architecture/` merely pointing at them; the original
+  stays as provenance. (Use judgment, though: some inputs are better
   **referenced** from `architecture/` and kept here long-lived — a large external standard you only
-  partially implement is one example, not the only one.) The
-  periodic check-in reconciles the ledger and retires fully-superseded inputs
-  (`Code/{{PROJECT}}-docs/inputs/README.md`).
+  partially implement is one example, not the only one.) See
+  `Code/{{PROJECT}}-docs/inputs/README.md`.
 - **Keep accepted risks visible.** Known, accepted risks and deferred technical debt live in
   `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
   dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is

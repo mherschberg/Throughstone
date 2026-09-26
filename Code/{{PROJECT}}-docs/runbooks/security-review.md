@@ -93,20 +93,7 @@ and the structured report template in
 [`../templates/reports/security/s2-security-audit-report-template.md`](../templates/reports/security/s2-security-audit-report-template.md).
 
 ## Security review gate
-The periodic check-in (`check-in.md`) should include a short security gate rather than running a
-full review automatically.
-
-At each check-in, decide:
-- Has the S1 cadence elapsed?
-- Has a trigger fired since the last S1 or S2?
-- Is S0 due because the first release is approaching, it is stale, or it was invalidated by
-  repo/tooling changes?
-- Is S2 due by schedule, launch milestone, production milestone, incident follow-up, or
-  security-sensitive architecture change?
-
-If a review is due, create a separate STEP for it. Do not run S1 or S2 inside a normal
-check-in. Use a **Security Baseline STEP** for S0, a **Security Review STEP** for S1, and a
-**Security Audit STEP** for S2.
+Whether a review is due is decided at each check-in, by the gate in `runbooks/check-in.md`.
 
 ## Durable review ledger
 Each project needs one durable, machine-readable place to answer "when did we last check this?"

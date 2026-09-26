@@ -4,9 +4,9 @@
 **Status:** Draft        <!-- Draft → Current → Deprecated; see METHOD.md §6 -->
 <!-- Optional — add a **Coverage:** line only for a deliberately fat or partial area:
      omit (or `full`) = fully described; `deferred` / `enumerated to depth N` records a chunk
-     intentionally not yet enumerated (resurfaced at each check-in). Never a bare word: write it
-     as one sentence — what is missing, how big it is, and what it means for someone building on
-     this doc. For example:
+     intentionally not yet enumerated (file a registries/risks.yml row so it comes back). Never a
+     bare word: write it as one sentence — what is missing, how big it is, and what it means for
+     someone building on this doc. For example:
        **Coverage:** deferred — 40 of ~600 tables enumerated; the rest are named but their
        columns and relations are unread, so anything designed against them needs checking first.
      See METHOD.md §6. -->
