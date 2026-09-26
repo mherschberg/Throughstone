@@ -130,18 +130,10 @@ itself a repo, the pointers are committed files, and these are folders inside it
 `Code/{{PROJECT}}-docs/registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has deep internals). A repo joins it by being **registered**
-(`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). **Before working in a repo or code folder,
-read its README first** — the same way you read the architecture docs before a design change.
-When creating an application-code repo, also apply the project-license posture recorded at
-bootstrap by running
-`Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` — except a repo carved
-out of another one, which keeps the licensing that came across with the code and takes the notice
-alone (`Code/{{PROJECT}}-docs/runbooks/splitting-repos.md`). The authoritative
-selection is in `Code/{{PROJECT}}-docs/.throughstone/project-license`; the helper validates
-that selection against the docs hub's canonical `LICENSE`, copies the project license unchanged
-for open-source projects, and creates no project `LICENSE` for proprietary projects. It also
-copies `LICENSE-THROUGHSTONE` because the standard generated repo retains Throughstone-authored
-README and CI scaffolding, and writes `LICENSING.md` to make those scopes explicit.
+(`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). When an application-code repo is added, its
+licence files follow `Code/{{PROJECT}}-docs/runbooks/register-repo.md` step 3. **Before working in
+a repo or code folder, read its README first** — the same way you read the architecture docs
+before a design change.
 In a multi-repo project, `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` sets up a new
 developer's machine (writes the root pointers, then clones the siblings); a mono-repo-for-now
 project is just cloned. From the workspace root, `./doctor.sh status`, `./doctor.sh check`, and

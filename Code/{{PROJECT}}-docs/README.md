@@ -37,9 +37,5 @@ and the method that governs how it's built. This hub is *state* (the system as i
 > Built with **Throughstone**. The scaffold files (`METHOD.md`, `templates/`, `runbooks/`,
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
 > `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the
-> open-source license you chose at setup or kept proprietary. For open-source projects,
-> this hub's `LICENSE` is the canonical project-license file copied unchanged into each
-> application-code repo when it is created. `.throughstone/project-license` records the durable
-> selection independently, and the repo-scaffolding helper validates the two before copying.
-> A repo Throughstone creates also gets `LICENSE-THROUGHSTONE` for the scaffold README and CI
-> templates it keeps, plus a `LICENSING.md` making that notice's limited scope visible.
+> open-source license you chose at setup or kept proprietary. When an application-code repo is
+> added, its licence files follow `runbooks/register-repo.md` step 3.
