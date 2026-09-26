@@ -16,14 +16,15 @@ If the docs path below is a concrete project path such as `Code/<name>-docs/AGEN
 ignore this guard and follow the normal handoff below.
 <!-- THROUGHSTONE-TEMPLATE-GUARD:END -->
 
-The canonical agent context lives in the docs repo:
+The canonical agent context lives in the docs hub:
 **`Code/{{PROJECT}}-docs/AGENTS.md`** (tool-agnostic). Read it — and the methodology it
 points to in `Code/{{PROJECT}}-docs/METHOD.md` — before working here.
 
-This is a per-machine pointer so any agent (Codex, etc.) auto-discovers the project
-context. It is not versioned (the workspace root is not a repo). Edit the canonical file in
-the docs repo, not this one. `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` regenerates
-this pointer on a new machine.
+This is a pointer so any agent (Codex, etc.) auto-discovers the project context. Edit the
+canonical file in the docs hub, not this one. In a multi-repo project the workspace root is
+not a repo, so this pointer is not versioned and
+`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` regenerates it on a new machine; in
+mono-repo-for-now it is committed in the root repo.
 
 **Agents:** the canonical `AGENTS.md` (linked above) opens with a "First action — kickoff or
 resume?" section. Read it and follow it now — it decides, from disk, whether to start the

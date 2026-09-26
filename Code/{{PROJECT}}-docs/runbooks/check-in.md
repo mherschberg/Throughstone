@@ -113,8 +113,8 @@ For the shape of a conditional follow-up STEP, see `METHOD.md` §4, "Adding a se
 ### Beyond the architecture docs
 
 Sweep four things:
-- **Repo READMEs** — sweep each repo present on this machine, and let its README decide which
-  case applies.
+- **Repo READMEs** — sweep each `registries/repos.yml` row present on this machine, and let its
+  README decide which case applies.
   **Stamped from `templates/repo-readme-template.md`** (`runbooks/register-repo.md` step 2 says
   how that is recognised) — review the whole file: the **Overview** still describes what the repo
   *is*, the **Setup / Running / Testing** steps still work from a clean checkout, and any
@@ -162,7 +162,7 @@ STEP** for S2.
 Update `registries/security-reviews.yml` only when a review actually runs.
 
 ## Part 2 — Run all tests  *(substep N.2)*
-- Run the **full** test suite — across every repo you can reach — and name any you can't, so a
+- Run **every** test suite — in every repo you can reach — and name any you can't, so a
   partial sweep reads as partial rather than as clean.
 - Record the result: pass/fail counts, anything skipped, and coverage if you track it. Put
   durable test-result or coverage-report details under `reports/test-results/` and summarize the

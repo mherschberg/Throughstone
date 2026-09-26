@@ -69,9 +69,9 @@ UI / Design System session and the conditional Native-app session apply.
 Write `architecture/03-architecture-overview.md` (use `templates/architecture-doc-template.md`). Body:
 - **Client surfaces** (the recorded answer + what it gates)
 - **Component diagram** (ASCII) + a **component table**: name | responsibility | tech
-- **Repos** — one entry per repository the project has: its role, the slice it owns, and where its
-  detail lives (its own README). Each entry pairs with that repo's `registries/repos.yml` row, and
-  `runbooks/register-repo.md` maintains both rather than either being written by hand.
+- **Repos** — one entry per `registries/repos.yml` row: its role, the slice it owns, and where its
+  detail lives (its own README). `runbooks/register-repo.md` maintains the entry and the row
+  together rather than either being written by hand.
 - **Boundaries & contract candidates** table — boundary | what crosses it | sync/async |
   data owner | likely contract style | notes for the Interface Contracts session
 - **Key flows** (numbered walk-throughs)

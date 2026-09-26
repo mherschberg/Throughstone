@@ -528,6 +528,14 @@ any project built with it.
   `inputs/archive/`. A doc's `Coverage:` field stays, and a `registries/risks.yml` row, which the
   check-in already reviews, is what brings the deferred area back. `runbooks/security-review.md` stops keeping its own copy of the check-in's
   security-review gate and points at the one in `runbooks/check-in.md`.
+- **The docs stop telling a mono-repo-for-now project its root is not a repo, or assuming it holds
+  one codebase.** The root `CLAUDE.md` and `AGENTS.md` pointers, and the copies
+  `scripts/setup-workspace.sh` writes, call themselves unversioned only in a multi-repo project. The
+  docs hub's `AGENTS.md` points at the `layout:` line instead of calling every project multi-repo,
+  and scopes `setup-workspace.sh` and the workspace-root hygiene rule to multi-repo. `AGENTS.md`,
+  `METHOD.md` §7, `ONBOARDING.md`, the check-in, the dependency audit, the Go standard and four
+  templates stop assuming one codebase per repo, and `templates/ci/README.md` says how a mono
+  project can gate its tests before a split.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
@@ -1187,9 +1195,8 @@ any project built with it.
   `runbooks/check-in.md`, which a project reaches long after the stamp. Section 2 now carries it at
   the point of the stamp: stamp and configure the gate anyway, because it starts gating the moment a
   split makes that folder a repository root, and until then the root's `method-check.yml` is the only
-  gate the project runs — and it checks the method, not your tests.
-  `UPDATING-THROUGHSTONE.md`'s 1.8 mono CI note says the same for a project that already exists. No
-  new action falls out of either: unlike `method-check.yml`, there is no root copy to make.
+  gate the project runs by default — and it checks the method, not your tests.
+  `UPDATING-THROUGHSTONE.md`'s 1.8 mono CI note says the same for a project that already exists.
 - **An In-progress Check-in STEP was told to wait for a command nobody will ever write.**
   `./doctor.sh status` gave it the ordinary *"wait for an explicit substep command"* guidance, but a
   Check-in STEP's two substeps are fixed and `runbooks/check-in.md` is their prompt, so no substep

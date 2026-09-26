@@ -893,9 +893,9 @@ assert_cloned "empty target dir" "$tw/Code/multi-api"
 # --- Part 4. The layout the project declares --------------------------------------------------
 # collaboration.md §9 says not to run this script in a mono-repo-for-now project, and the script
 # now stops instead of trusting that. There the workspace root IS the repository: its CLAUDE.md,
-# AGENTS.md and doctor.sh are committed files that step 1 would replace with per-machine copies
-# saying the root is not a repo, and the clone step has nothing to clone because every row is a
-# folder inside the repository the reader already has.
+# AGENTS.md and doctor.sh are committed files that step 1 would replace with per-machine copies,
+# and the clone step has nothing to clone because every row is a folder inside the repository the
+# reader already has.
 #
 # What it reads is the `layout:` line the registry declares, never the shape of the workspace — a
 # script cannot tell one workspace shape from another by looking, and this fixture proves the

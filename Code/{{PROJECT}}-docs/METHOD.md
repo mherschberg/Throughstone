@@ -539,11 +539,11 @@ decision/section, ADR, issue/follow-up STEP, incident report under `reports/inci
 check-in report under `reports/` — then add the register row. **Every repo carries a README explaining
 what it is** — its role and the slice of the system it owns, with a matching one-line
 `description` in `registries/repos.yml`; **which README it gets is decided by what is in the repo,
-not by how the repo arrived** (`runbooks/register-repo.md`). A repo with real internal complexity
-adds an `ARCHITECTURE.md` at its root for its internal design. **Licensing follows the posture
-`init.sh` established** — one selection for the whole project, recorded in the docs hub's
-`.throughstone/project-license` and applied per repo by `scripts/apply-project-license.sh` when the
-repo is brought in.
+not by how the repo arrived** (`runbooks/register-repo.md`). A repo or code folder with real
+internal complexity adds an `ARCHITECTURE.md` beside its README for its internal design.
+**Licensing follows the posture `init.sh` established** — one selection for the whole project,
+recorded in the docs hub's `.throughstone/project-license` and applied per repo by
+`scripts/apply-project-license.sh` when the repo is brought in.
 
 **Making a repo public takes an explicit instruction from the user naming that repo** — a license,
 a public sibling repo, a remote, or a project that calls itself open source is not that
@@ -668,9 +668,9 @@ not. Adjust a link's display text if it needs it; never its target.
 
 **Mono-repo for now:** the wizard offers a single-repo start — then the **workspace root
 itself is that one repo** (the lone exception to "the root is not a repo" above), with
-`prompts/` and `Code/{{PROJECT}}-docs/` as folders inside it rather than sibling repos. In
+`prompts/`, `Code/{{PROJECT}}-docs/` and each code folder inside it rather than as sibling repos. In
 this mode the root pointers (`CLAUDE.md` / `AGENTS.md`) are just ordinary committed files, not
-per-machine artifacts, and the hygiene rule relaxes to match. It's a convenience for getting
+per-machine artifacts, and the hygiene rule does not apply. It's a convenience for getting
 moving solo; the multi-repo layout is the target — but move to it when the architecture asks
 for it. **How many repos a project has follows its architecture, not its headcount.** A
 mono-repo project that gains a second contributor needs **shared remotes** — so the push-reject
