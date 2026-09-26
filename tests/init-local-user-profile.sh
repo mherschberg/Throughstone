@@ -50,8 +50,6 @@ assert_profile_output() {
     exit 1
   }
 
-  assert_contains "$work/.gitignore" "/.throughstone/local-user.md"
-
   if grep -Eq '^## (Your experience level|Planning communication style)[[:space:]]*$' \
     "$work/$docs/overview.md"; then
     printf 'FAIL: generated overview.md contains legacy local profile section(s)\n' >&2
@@ -77,6 +75,12 @@ copy_template "$multi_work"
 assert_profile_output "$multi_work" "Code/$multi-docs"
 assert_contains "$multi_work/Code/$multi-docs/.gitignore" "/.throughstone/local-user.md"
 assert_contains "$multi_work/prompts/.gitignore" "/.throughstone/local-user.md"
+# A multi workspace root is not a repository, so an ignore file there would be the template's own,
+# applied by ignore-honouring search to every repo below.
+[ ! -e "$multi_work/.gitignore" ] || {
+  printf 'FAIL: init.sh left a .gitignore at the multi-repo workspace root\n' >&2
+  exit 1
+}
 
 # `env -u CI`: check.sh skips its workspace-root hygiene section outright on any non-empty CI,
 # so the stray-entry assertion below is unfalsifiable whenever the caller happens to have CI set
@@ -128,6 +132,7 @@ copy_template "$mono_work"
 ) >"$TMP_ROOT/$mono.out" 2>&1
 
 assert_profile_output "$mono_work" "Code/$mono-docs"
+assert_contains "$mono_work/.gitignore" "/.throughstone/local-user.md"
 
 # In the mono layout the workspace root is the repository, so its ignore file is all that keeps an
 # ordinary `git add -A` from committing the in-flight STEP's sheets, which METHOD.md §5 calls

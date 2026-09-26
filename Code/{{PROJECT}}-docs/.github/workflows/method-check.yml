@@ -35,14 +35,15 @@ jobs:
       - name: Run method doctor (project integrity)
         shell: bash
         run: |
-          if [ -f scripts/check.sh ]; then
+          # A mono checkout is the workspace root, where a scripts/check.sh may be the project's
+          # own, so the docs hub under Code/ comes first. A hub that is its own repo has no Code/.
+          shopt -s nullglob
+          candidates=(Code/*-docs/scripts/check.sh)
+          doctor="${candidates[0]:-}"
+          if [ -z "$doctor" ] && [ -f scripts/check.sh ]; then
             doctor=scripts/check.sh
-          else
-            shopt -s nullglob
-            candidates=(Code/*-docs/scripts/check.sh)
-            doctor="${candidates[0]:-}"
           fi
-          if [ -z "${doctor:-}" ]; then
+          if [ -z "$doctor" ]; then
             echo "No Throughstone check.sh found." >&2
             exit 1
           fi
