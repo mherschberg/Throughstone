@@ -567,6 +567,12 @@ any project built with it.
   hosts no longer says *repos* to a project with one. An existing multi-repo project deletes its
   root `.gitignore` itself, and an existing mono one copies the new workflow over its root copy, as
   `UPDATING-THROUGHSTONE.md`'s 1.8 section describes.
+- **The architecture index lists the docs, not their versions, and a doc drops its `Last updated`
+  line.** `architecture/README.md`'s index loses its `Version` and `Status` columns, and
+  `templates/architecture-doc-template.md` loses its `**Last updated:**` header. Each copied what
+  the doc's own header and Version Log already say, and nothing read the copies. The index's
+  copies went stale: in one project, 10 of 14 rows lagged their docs, one by 14 versions. The
+  Cross-Cutting Review and the check-in now ask for one row per doc, by number and title.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its

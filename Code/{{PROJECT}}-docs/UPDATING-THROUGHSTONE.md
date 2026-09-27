@@ -192,7 +192,8 @@ brought into a project at all — in a second new runbook; none of that asks any
     `templates/architecture-sessions/*.md`, `templates/planning-session.md`,
     `templates/architecture-doc-template.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md` and
     `runbooks/check-in.md`. Several of these travel with item 1's or item 9's group already, so
-    pull them once. They change no script behaviour and touch no project state — details below.
+    pull them once. They change no script behaviour and touch no project state, but once they are
+    in, delete your architecture index's `Version` and `Status` columns — details below.
 15. **Fix the ADR duplicate-number scan in your own `adr/README.md` by hand.** It is
     *Project state* under §2, so nothing upstream updates it for you and pulling changes nothing —
     details at the very end of this section.
@@ -223,6 +224,16 @@ column, and `scripts/status.sh` and `scripts/check.sh` find the index's columns 
 an extra one is harmless; only its legend line, which says it powers the overlap warning, is now
 out of date. New projects start without the column, and a STEP PLAN's field is now `**Repos:**`,
 still listing the repos and the order they merge in.
+
+**The architecture index's `Version` and `Status` columns are retired, and so is a doc's
+`**Last updated:**` line — this is item 14 of the fast path.** Each copied what the doc's own
+header and Version Log already say, and nothing reads the copies. New projects' index lists each
+doc by number and title, and the architecture-doc template has no `Last updated` line. The
+check-in and the Cross-Cutting Review that item 14 brings in no longer ask the index for a
+version or status, so from then on nobody keeps your index's two columns current and they go
+stale: delete them when convenient, and take `Last updated` out of the index's Conventions list
+in the same edit. Your `architecture/README.md` and your docs are project state (§2), so nothing
+here changes them for you. A doc's existing `Last updated` line is harmless; keep it or delete it.
 
 **A later STEP's substep status lives in its PLAN — this is item 17 of the fast path.** The PLAN
 template's Substeps table gains a `Status` column; a PLAN already in flight can add one. STEP-1's
