@@ -48,8 +48,7 @@ mono-repo-for-now project, `method-check.yml` runs only from the workspace root'
 `.github/workflows/`; confirm it is there, or at the docs hub's root in a multi-repo project,
 whether or not the doc names it; in a mono-repo-for-now project, a code folder's own `ci.yml` never
 runs); the Glossary architecture doc vs. the terms the code now uses. Also reconcile
-`architecture/README.md`'s index against the docs actually present (a row per doc, with its current
-version/status).
+`architecture/README.md`'s index against the docs actually present (a row per doc).
 
 **The repo registry.** `scripts/check.sh --check-in` makes three mechanical checks on
 `registries/repos.yml`, and only those three.

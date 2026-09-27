@@ -111,7 +111,7 @@ between "we have a pile of docs" and "we have a coherent architecture."
    ADR is a dated record of *why*, and a guessed rationale is worse than no ADR at all.
 6. **Index accuracy.** Does `prompts/STEP-index.md` match what actually got produced
    (statuses, output docs)? And does `architecture/README.md`'s index list every
-   architecture doc that exists (number, title, version, status)?
+   architecture doc that exists (number and title)?
 
 ## Output
 - A **review summary** — write it to the STEP-1 folder
@@ -121,8 +121,8 @@ between "we have a pile of docs" and "we have a coherent architecture."
 - **Apply the fixes** to the affected architecture docs (bump their Version Logs); write any
   missing ADRs and add them to the `adr/README.md` registry.
 - **Populate `architecture/README.md`'s index** — one row per architecture doc produced
-  (number, title, current version, status). This is the first time every doc exists in one
-  place, so it's where the index gets filled in.
+  (number and title). This is the first time every doc exists in one place, so it's where the
+  index gets filled in.
 - A consolidated **Open Questions** list carried forward into the first implementation STEP.
 - Update `prompts/STEP-index.md`: mark substep 1.14 `Done` and mark the STEP-1 row `Done`
   once the review is clean. STEP-1 is now ready to be archived: take the phase-folder name from

@@ -88,7 +88,6 @@ Representative excerpt:
 
 **Version:** v0.2.0
 **Status:** Draft
-**Last updated:** 2026-06-23 (STEP-3)
 **Audience:** Builders, reviewers, future agents
 
 ## Decision Summary
