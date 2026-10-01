@@ -65,12 +65,12 @@ REPOS_REGISTRY="$DOCS_DIR/registries/repos.yml"
 # it. registries/repos.yml states it rather than leaving each reader to work it out from the rows,
 # which cannot be done: at bootstrap a mono project has MORE rows than a multi one, and the row
 # whose location is "." can never be required of a multi project, so its absence means multi, or a
-# project made before the field existed — and nothing can tell those apart. Empty here is that
-# absence, and it is not a third layout: nothing here reads a layout out of the workspace, and
-# check 10 asks for the declaration instead. (Check 7 does read the workspace, for a different
-# question — whether the root is a repository at all — and answers it from the filesystem.) Only a
-# key at column 0 is the declaration; rule 2 in that file's own header makes anything indented part
-# of a row block, and check 10 fails a declaration written below the rows.
+# mono project without one — and nothing can tell those apart. Empty here means undeclared, not a
+# third layout: nothing here reads a layout out of the workspace, and check 10 asks for the
+# declaration instead. (Check 7 does read the workspace, for a different question — whether the
+# root is a repository at all — and answers it from the filesystem.) Only a key at column 0 is the
+# declaration; rule 2 in that file's own header makes anything indented part of a row block, and
+# check 10 fails a declaration written below the rows.
 LAYOUT=""
 if [ -r "$REPOS_REGISTRY" ]; then
   LAYOUT="$(awk '
@@ -274,9 +274,9 @@ fi
 
 # --- 6. Legacy local user profile fields --------------------------------------
 hdr "6. Legacy local user profile fields"
-# In older projects, the first user's communication preferences were stored in overview.md.
-# They now belong in root .throughstone/local-user.md, because each contributor has their own
-# local profile. This is warning-only: doctor cannot know which human the old values represent.
+# Communication preferences belong in root .throughstone/local-user.md, not overview.md (as some
+# projects may have), because each contributor has their own local profile. This is warning-only:
+# doctor cannot know which human the values represent.
 if [ -f "$OVERVIEW" ]; then
   legacy_profile_fields="$(grep -nE '^## (Your experience level|Planning communication style)[[:space:]]*$' "$OVERVIEW" || true)"
   if [ -n "$legacy_profile_fields" ]; then
@@ -503,10 +503,9 @@ fi
 
 # --- 10. Repo registry (registries/repos.yml) — check-in only ------------------
 # Deliberately minimal, and deliberately not run on every invocation. The registry changes when
-# a repo is created, adopted or split out; the doctor runs constantly during STEPS. Validating
-# the rare path on the common one is what this check used to do, at 285 lines.
+# a repo is created, adopted or split out; the doctor runs constantly during STEPS.
 #
-# What is left is the part a machine is genuinely better at than a person: noticing that a repo
+# Its main job is the part a machine is genuinely better at than a person: noticing that a repo
 # has no remote, so the work lives on exactly one laptop. A malformed row is fixed by whoever
 # just edited it — see runbooks/register-repo.md, which raises anything that did not work.
 #
@@ -541,8 +540,8 @@ if [ "$CHECK_IN" -eq 1 ]; then
     # other findings may then name the wrong repo, and nothing can say where the unread one lives.
     reg_flat="$(awk -v layout="$LAYOUT" '
       function val(t) { sub(/^[^:]*:[[:space:]]*"?/, "", t); sub(/"?[[:space:]]*$/, "", t); return t }
-      # `.` and `./` are one path, the workspace root, and check 7 in this file already reads them
-      # as one. Comparing the spelling instead would put a root row spelled `./` outside every rule
+      # `.` and `./` are one path, the workspace root, and check 7 in this file reads them as one.
+      # Comparing the spelling instead would put a root row spelled `./` outside every rule
       # below: reported as a repository of its own under mono, and missed under multi.
       function isroot(l) { sub(/\/+$/, "", l); return (l == ".") }
       function stash() {
@@ -616,7 +615,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
     if [ "${layouts:-0}" -eq 0 ]; then
       recon=0
       warn "$DOCS_REL/registries/repos.yml does not declare a layout, so its rows cannot be read as folders or as repos"
-      hint "add one line at the left margin above repos: — layout: mono if the workspace root is the one repository this project has, layout: multi if each row is a repository of its own (METHOD.md §7). A project bootstrapped before the field existed has none; see $DOCS_REL/UPDATING-THROUGHSTONE.md. Until it is there, the remote coverage below is not judged."
+      hint "add one line at the left margin above repos: — layout: mono if the workspace root is the one repository this project has, layout: multi if each row is a repository of its own (METHOD.md §7; see $DOCS_REL/UPDATING-THROUGHSTONE.md). Until it is there, the remote coverage below is not judged."
     elif [ "${layouts:-0}" -gt 1 ]; then
       # Last one wins in every reader, so two lines make the layout whatever the bottom one says —
       # including when someone adds the line this check asked for above a stale one and it is
