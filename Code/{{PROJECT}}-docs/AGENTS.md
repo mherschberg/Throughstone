@@ -34,11 +34,10 @@ AGENTS.md and follow it."*
   prints where you are, the next action, and when the next check-in is due. Read
   `prompts/STEP-index.md` to confirm (and for the sub-STEP detail the script doesn't carry —
   the in-flight PLAN in `Upcoming Prompts/`), then tell the user what's next. If the script
-  isn't available (older project, no shell), fall back to reading the index and applying §10
-  yourself.
+  isn't available (no shell), fall back to reading the index and applying §10 yourself.
 
-(If the marker is missing entirely — an older project predating it — fall back to inferring:
-treat it as resume unless `prompts/STEP-index.md` is still the bare `init.sh` seed.)
+(If the marker is missing entirely, fall back to inferring: treat it as resume unless
+`prompts/STEP-index.md` is still the bare `init.sh` seed.)
 
 ## What is {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
