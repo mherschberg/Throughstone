@@ -120,20 +120,14 @@ At small sizes (nav, favicon) use the **mark alone** rather than shrinking Cinze
 **Body / UI — Source Sans 3** (SIL OFL). Calm, legible, neutral. All running UI, buttons,
 labels, and short copy. This carries 90% of the words.
 
-**Prose / long-form — Spectral** (SIL OFL). Sturdy book serif for documentation prose and
-longer paragraphs where a "considered document" feel suits the disciplined-development story.
-
 **Code / mono — IBM Plex Mono** (SIL OFL). For CLI snippets, file paths, and quickstart blocks.
 
-### Type system — **A (locked)**
+### Type system (locked)
 
-**System A — Inscription + Clean Sans:** **Cinzel** (wordmark + short all-caps eyebrows) ·
+**Inscription + Clean Sans:** **Cinzel** (wordmark + short all-caps eyebrows) ·
 **Source Sans 3** (headings, body, UI, buttons — set headings in 600/semibold) · **IBM Plex
 Mono** (code, paths, CLI). Clean, neutral, and versatile; the inscriptional wordmark carries the
 "crafted" note while the page stays legible and unfussy.
-
-*Alternates (not used):* **B** — Spectral serif headings/prose (warmer/editorial); **C** — Sora
-geometric headings (more contemporary).
 
 **Type scale (suggested, rem):** 3.0 / 2.25 / 1.75 / 1.375 / 1.125 / 1.0 / 0.875.
 Line-height: 1.2 for display, 1.6 for body/prose.
@@ -148,7 +142,7 @@ needed, no font downloads.
 
 ## 6. Logo — summary
 
-(Full construction, variants, and SVG files are Deliverable 2.)
+(Full construction, variants, and SVG files: `brand/logo/`.)
 
 - **Mark:** a coursed sand-stone wall on a dark (Ink) rounded tile, with a single **ochre
   through-stone** running edge-to-edge through the middle course and protruding past both faces.
@@ -156,7 +150,7 @@ needed, no font downloads.
 - **Wordmark:** "THROUGHSTONE" in Cinzel caps.
 - **Lockup:** mark + wordmark, horizontally, with clear space = the tile's corner radius on all
   sides.
-- **Variants to ship:** primary (full color on light), monochrome (Ink), and a simplified
+- **Variants:** primary (full color on light), on-dark, monochrome (Ink), and a simplified
   favicon (3-bar reduction of the wall).
 
 **Do:** keep the ochre stone as the only accent; preserve clear space; use the mark alone when
@@ -177,6 +171,6 @@ On first prominent use, write **Throughstone™**; thereafter, "Throughstone."
 ### Status of brand decisions (locked)
 - Palette: **Warm Sandstone** (above).
 - Mark motif: **through-stone in a bonded wall**, horizontal middle course, dark tile.
-- Wordmark: **Cinzel** caps. Body type system: **A** (Source Sans 3 + IBM Plex Mono).
-- Primary tagline: **"From idea to blueprint to built."** *(you chose this)*
-- Landing page default: **light "paper & stone"** (Deliverable 4) — confirm when we get there.
+- Wordmark: **Cinzel** caps. Body and code type: **Source Sans 3** and **IBM Plex Mono**.
+- Primary tagline: **"From idea to blueprint to built."**
+- Landing page default: **light "paper & stone"**.
