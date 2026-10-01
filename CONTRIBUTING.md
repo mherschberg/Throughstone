@@ -1,6 +1,6 @@
 # Contributing to Throughstone
 
-Throughstone launched as a single-maintainer project, and the hope is that it grows into
+Throughstone is a single-maintainer project, and the hope is that it grows into
 something many people use and shape. Contributions are genuinely welcome — this guide keeps
 things light so it's easy to get involved. Expect it to expand as the community grows.
 
