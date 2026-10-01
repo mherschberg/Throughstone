@@ -573,6 +573,9 @@ any project built with it.
   the doc's own header and Version Log already say, and nothing read the copies. The index's
   copies went stale: in one project, 10 of 14 rows lagged their docs, one by 14 versions. The
   Cross-Cutting Review and the check-in now ask for one row per doc, by number and title.
+- **`AGENTS.md`, `METHOD.md` and `templates/ci/README.md` describe how things work now.** Asides
+  about older projects and the method's earlier wording are gone; the upgrade guide keeps every
+  migration step they mentioned.
 
 ### Fixed
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
