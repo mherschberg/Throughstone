@@ -24,13 +24,11 @@ say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 # it. Without one, a blank answer is returned as the blank it is: every such call site loops until
 # the answer is one of its valid options, and blank is never one of them.
 #
-# End of input is not an answer. `read` returns non-zero once the stream is exhausted, and this
-# used to be ignored — so an unattended run (an agent, a script, `< /dev/null`) got an endless
-# supply of empty answers. At a question with a default that quietly built a whole project; at the
-# slug question, whose loop re-asks until the answer is valid and where blank never is, it spun
-# forever: measured `./init.sh < /dev/null`, 94KB of the same re-ask notice in twelve seconds
-# before it was killed. A question with a default now takes that default at end of input, the way
-# yesno and want already do, and a question without one stops the run and names itself.
+# End of input is not an answer. When input runs out, a question with a default takes its default,
+# and a question without one stops the run with an error naming the question. Otherwise an
+# unattended run (an agent, a script, `< /dev/null`) would get blank answers forever, so a question
+# that re-asks until the answer is valid, like the slug question, would never end. The yesno and
+# want helpers follow the same rule.
 #
 # Callers must take the answer through an assignment — `answer="$(ask …)"` — because that is the
 # one position where errexit sees the exit status of a command substitution. Used as a bare
@@ -55,9 +53,8 @@ ask() {
 }
 
 # yesno PROMPT — ask a yes/no question that defaults to no. It re-asks on an answer it does not
-# recognise, the way every other question in the wizard does; before this, anything outside
-# y/Y/yes was silently taken as "no", so YES, Yes, 1 and true each quietly declined at
-# "Set up online Git remotes now?" — the one question here whose wrong answer is unrecoverable
+# recognise, the way every other question in the wizard does; a misread answer matters most at
+# "Set up online Git remotes now?", the one question here whose wrong answer is unrecoverable
 # later. The accepted words are normalize_yesno's, so a typed answer and a --remotes= or
 # --registries= value cannot drift apart. A bare Enter takes the advertised default, and so does
 # end of input, which is what stops a short answer stream spinning here forever.
@@ -105,13 +102,12 @@ want() {
     [ -n "$def" ] && { printf '%s' "$def"; return; }
     echo "init.sh: missing required value (--non-interactive): $prompt" >&2; exit 2
   fi
-  # A blank answer is re-asked rather than accepted. --non-interactive already refuses the same
-  # omission, so accepting it interactively meant the friendlier path was the one that let an
-  # empty description or copyright holder through — into AGENTS.md, the session templates, and a
-  # LICENSE reading "Copyright (c) YYYY " with nothing after it. read is inlined instead of
-  # reusing ask so that end of input can be told apart from a bare Enter; without that the loop
-  # would spin on a short answer stream. Both notices go to stderr because want is always called
-  # inside a command substitution.
+  # A blank answer is re-asked rather than accepted, as --non-interactive refuses the same
+  # omission; an empty description or copyright holder would otherwise reach AGENTS.md, the session
+  # templates, and a LICENSE reading "Copyright (c) YYYY " with nothing after it. read is inlined
+  # instead of reusing ask so that end of input can be told apart from a bare Enter; without that
+  # the loop would spin on a short answer stream. Both notices go to stderr because want is always
+  # called inside a command substitution.
   while :; do
     val=""; rc=0
     if [ -n "$def" ]; then
@@ -179,11 +175,7 @@ normalize_license_choice() {
 
 # normalize_layout INPUT — set NORMALIZED_LAYOUT to 1 (multi) or 2 (mono).
 # Same shape and the same reason as normalize_license_choice above: one vocabulary, whichever way
-# the answer arrives. The prompt used to assign its answer raw, and downstream is not one test but
-# many: most compare against "2", one compares against "1" and takes its else. So an unrecognised
-# value did not pick the other layout, it picked a hybrid — measured, typing "mono" left prompts/
-# a repository of its own with the scaffold licence notice absent, placed instead at the workspace
-# root, which that layout never clones.
+# the answer arrives. LAYOUT can only be 1 or 2.
 normalize_layout() {
   case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
     multi|multi-repo|1) NORMALIZED_LAYOUT=1 ;;
@@ -192,9 +184,7 @@ normalize_layout() {
   esac
 }
 
-# normalize_collab INPUT — set NORMALIZED_COLLAB to 1 (solo) or 2 (team). See normalize_layout:
-# the same defect was here, and "team" typed at the prompt produced a solo project whose ADR
-# register tells the reader they are the sole authority.
+# normalize_collab INPUT — set NORMALIZED_COLLAB to 1 (solo) or 2 (team). See normalize_layout.
 normalize_collab() {
   case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
     solo|1) NORMALIZED_COLLAB=1 ;;
@@ -232,21 +222,18 @@ validate_trunk_branch() {
 # skip project LICENSE creation later.
 #
 # One word, one meaning, throughout: `proprietary` is the licence posture and `private` is who can
-# see the repository. This question used to call its own answer "Private / proprietary", and a
-# question twenty lines further on offers "1) Private" for something unrelated — so a reader who
-# took the first one to be about visibility answered it, and got a project licensed to nobody.
-# Both are legitimate settings and they are independent: a private repo can carry MIT, and a
-# public repo can be proprietary. The internal token, the flag value and the label all say
-# `proprietary` now; `--license=private` is still accepted with a deprecation notice so a wrapper
-# that has always passed it keeps working.
+# see the repository, the visibility a later question offers as "1) Private". Both are legitimate
+# settings and they are independent: a private repo can carry MIT, and a public repo can be
+# proprietary. The internal token, the flag value and the label all say `proprietary`;
+# `--license=private` is accepted with a deprecation notice so a wrapper that passes it keeps
+# working.
 #
-# The project-type question defaults to proprietary because that is the recoverable
-# answer, and that default was weighed again in the sweep that took the defaults off the other
-# menus here — it survived it deliberately. Accepting it writes no project LICENSE at all, which
-# anyone can change later by choosing a license deliberately; accepting an open-source default
-# would grant everyone an irrevocable license to the project's code without the user ever having
-# named one. A default is affordable exactly when accepting it by accident is cheap to reverse,
-# and this one is the cheapest answer on the page.
+# The project-type question defaults to proprietary because that is the recoverable answer.
+# Accepting it writes no project LICENSE at all, which anyone can change later by choosing a
+# license deliberately; accepting an open-source default would grant everyone an irrevocable
+# license to the project's code without the user ever having named one. A default is affordable
+# exactly when accepting it by accident is cheap to reverse, and this one is the cheapest answer
+# on the page.
 #
 # The open-source sub-question has no default, and that is the same test read the other way. It is
 # only reached once open source is chosen, so the question is which licence — and MIT arriving
@@ -545,12 +532,10 @@ say "Throughstone — setup"
 SLUG_MAX=64
 slug_problem() {
   local s="$1"
-  # The message has to name the whole pattern, including the first character. It used to read
-  # "lowercase letters, digits, hyphens only", which a slug like 3d-printer satisfies and the
-  # pattern still rejects — so the refusal described a rule the run does not enforce. On the flag
-  # path that costs a minute; at the prompt it is worse, because the loop re-asks and the reader
-  # is told to fix something already correct, with nothing in the message leading to an answer
-  # that works. One string, both call sites.
+  # The message has to name the whole pattern, including the first character: a slug like
+  # 3d-printer is only lowercase letters, digits and hyphens, and the pattern still rejects it. A
+  # message naming less costs a minute on the flag path; at the prompt the loop re-asks with
+  # nothing in the message leading to an answer that works. One string, both call sites.
   printf '%s' "$s" | grep -Eq '^[a-z][a-z0-9-]*$' \
     || { echo "must start with a lowercase letter, then lowercase letters, digits and hyphens"; return; }
   [ "${#s}" -le "$SLUG_MAX" ] \
@@ -584,15 +569,14 @@ if [ -n "$LICENSE_IN" ]; then
   normalize_license_choice "$LICENSE_IN" \
     || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2; }
   LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
-  # `private` now means one thing in this wizard and one only: who can see the repository on a
-  # host. As a licence value it meant something unrelated — no LICENSE file at all — and the two
-  # questions sat twenty lines apart using the same word for both. Still accepted, so a wrapper
-  # that has always passed it does not break; said once, so the wrapper can be corrected. Deprecate
+  # `private` means one thing in this wizard and one only: who can see the repository on a host.
+  # As a licence value it is accepted and read as proprietary (no LICENSE file at all), so a
+  # wrapper that passes it does not break; said once, so the wrapper can be corrected. Deprecate
   # rather than refuse for the same reason the ignored flags are named rather than refused.
   case "$(printf '%s' "$LICENSE_IN" | tr '[:upper:]' '[:lower:]')" in
     private)
       echo "init.sh: --license=private is deprecated; write --license=proprietary instead." >&2
-      echo "         'private' now refers only to repository visibility (--visibility=private)." >&2
+      echo "         'private' refers only to repository visibility (--visibility=private)." >&2
       echo "         The spelling still works and will be removed in a future release." >&2
       ;;
   esac
@@ -640,7 +624,7 @@ fi
 # shell with separate durable repos under prompts/ and Code/<project>-docs/. Mono keeps a single
 # repo at the root for projects that are not ready to split yet.
 # An unrecognised flag is fatal; an unrecognised typed answer is re-asked, the way the slug
-# question above already works. Both go through normalize_layout, so the two paths cannot drift.
+# question above works. Both go through normalize_layout, so the two paths cannot drift.
 if [ -n "$LAYOUT_IN" ]; then
   normalize_layout "$LAYOUT_IN" \
     || { echo "init.sh: invalid layout '$LAYOUT_IN' (multi | mono) — from --layout or INIT_LAYOUT." >&2; exit 2; }
@@ -649,11 +633,10 @@ elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
 else
   # The menu names what each layout does to this folder, because that is the half a first-time
-  # reader cannot infer and the half that costs them something later. "become separate repos" was
-  # ambiguous in the direction that hurts: separate from each other, or separate from a root repo
-  # that still exists? Multi leaves the root a workspace shell with no repository at all, so a
-  # file left there afterwards is tracked by nothing and backed up by nowhere. The README says
-  # this twice; the wizard said it nowhere, and the wizard is where the choice is made.
+  # reader cannot infer and the half that costs them something later. Multi leaves the root a
+  # workspace shell with no repository at all, so a file left there afterwards is tracked by
+  # nothing and backed up by nowhere. The README says this twice, but the wizard is where the
+  # choice is made.
   echo "Repo layout:"
   echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ each become their own repo;"
   echo "                      this folder is not itself a repo, so anything left here is"
@@ -706,11 +689,10 @@ if [ "$LAYOUT" = "2" ]; then
   fi
 fi
 
-# registries/ always ships, in both layouts. It carries the repo inventory that
-# setup-workspace.sh and remote recording read, plus the other registers — and the generated docs
-# reference every one unconditionally, so a project without the directory cites files it does
-# not have. The flag is
-# still parsed so existing automation keeps working, and its value is still validated: an
+# registries/ always ships, in both layouts. It carries the repo inventory that setup-workspace.sh
+# and remote recording read, plus the other registers — and the generated docs reference every one
+# unconditionally, so a project without the directory cites files it does not have. --registries
+# is parsed so automation that passes it keeps working, and its value is validated: an
 # unrecognized one is an error in either layout, and `no` is ignored with a deprecation notice.
 if [ -n "$REGISTRIES_IN" ]; then
   normalize_yesno "$REGISTRIES_IN" \
@@ -768,11 +750,10 @@ if [ "$COLLAB" = "2" ]; then
   echo "  from the same place. You can still skip that now and add remotes later."
 else
   # A solo project records the author as the authority — the register is stamped `_solo author_`
-  # and the question is never asked — so a supplied authority has nothing to attach to. It was
-  # dropped without a word: measured, `--collab=solo --adr-authority="the CTO"` exits 0 with the
-  # register saying `_solo author_` and not one mention of the flag. Named rather than refused,
-  # for the reason the unusable remote-URL flags are named: a wrapper that passes one uniform flag
-  # set to every project it creates should not fail over a value that costs nothing to drop.
+  # and the question is never asked — so a supplied authority has nothing to attach to. Named
+  # rather than refused, for the reason the unusable remote-URL flags are named: a wrapper that
+  # passes one uniform flag set to every project it creates should not fail over a value that
+  # costs nothing to drop.
   if [ -n "$ADR_AUTHORITY_IN" ]; then
     echo "  note: ignoring --adr-authority — a solo project records you as the authority"
   fi
@@ -897,21 +878,18 @@ elif [ "$NONINTERACTIVE" != "1" ]; then
     MK_REMOTES=0
   elif command -v gh >/dev/null 2>&1; then
     # Option 2's requirements are stated with the option, not discovered by refusal after both URLs
-    # have been typed. They were already written down — but only on the branch below, the one taken
-    # when gh is missing, so the wizard explained itself only where it could not offer the easier
-    # path. Nothing is lost by finding out late, since the check runs before the boundary; what is
-    # lost is the whole interview, because there is no resume and one pasted string sends you back
-    # to the project name.
+    # have been typed. Nothing is lost by finding out late, since the check runs before the
+    # boundary; what is lost is the whole interview, because there is no resume and one pasted
+    # string sends you back to the project name.
     echo "Remote setup:"
     echo "  1) Create GitHub remotes now (via gh)"
     echo "  2) Use existing remote URLs (Bitbucket, GitLab, or another Git host)"
     echo "     Each repo must already exist, be empty, and be reachable with your"
     echo "     credentials. All three are checked before anything here changes."
-    # No default. Enter here used to mean "create real GitHub repositories under your account" —
-    # the one answer on the page that reaches outside this machine, and the only one whose
-    # accidental acceptance leaves something to clean up on a host. An unrecognised answer is now
-    # re-asked rather than fatal, the way every other menu in the wizard behaves; the question is
-    # cheap to repeat and there is nothing here worth ending a run over.
+    # No default, because answer 1 can create repositories on GitHub, which you would have to
+    # delete if you chose it by accident. An unrecognised answer is re-asked rather than fatal, the
+    # way every other menu in the wizard behaves; the question is cheap to repeat and there is
+    # nothing here worth ending a run over.
     REMOTE_SETUP_CHOICE=""
     while [ -z "$REMOTE_SETUP_CHOICE" ]; do
       REMOTE_SETUP_CHOICE="$(ask 'Choose 1 or 2')"
@@ -958,7 +936,7 @@ if [ "$MK_REMOTES" = "1" ]; then
   elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ] \
     && [ "$REUSE_ROOT_ORIGIN" = "0" ]; then
     # Not asked when the folder's own origin is reused, since no repository is created to set it on.
-    # This default is kept, and was kept deliberately: accepting Private by accident creates a
+    # This default is deliberate: accepting Private by accident creates a
     # repository nobody else can read, which is one setting away from fixing, while the other
     # answer publishes source. The answer is still taken through an assignment so that every
     # ask call site obeys the same contract — see ask above — and removing this default later
@@ -1275,7 +1253,7 @@ fi
 # cannot work the layout out from the rows. Counting them says the wrong thing — the mono seeding
 # below adds a third row, so at bootstrap mono has more rows than multi — and the row whose
 # location is "." exists only in mono, so a multi project can never be required to carry one and
-# its absence means multi, or a project made before this field. If multi did not declare itself,
+# its absence means multi, or a mono project without one. If multi did not declare itself,
 # `multi` would never be written down anywhere and an absent key would stay ambiguous forever.
 #
 # It goes at column 0 above `repos:`, which is outside every row block. That is the placement rule
@@ -1311,9 +1289,9 @@ if [ "$LAYOUT" = "2" ]; then
     echo "  registry: recorded the workspace root repo"
   fi
   # GitHub reads workflows only at a repository root, and step 2 removed .github along with the
-  # template's own health files — so the method-check gate has never actually run in a mono
-  # project. The docs hub keeps its own copy, which is what gives it CI after a split; the
-  # workflow's run step finds the doctor in either layout.
+  # template's own health files — so in a mono project the method-check gate runs from this copy.
+  # The docs hub keeps its own copy, which is what gives it CI after a split; the workflow's run
+  # step finds the doctor in either layout.
   if [ -f "$DOCS/.github/workflows/method-check.yml" ]; then
     mkdir -p "$ROOT/.github/workflows"
     cp "$DOCS/.github/workflows/method-check.yml" "$ROOT/.github/workflows/method-check.yml"
@@ -1417,7 +1395,7 @@ EOF
 # Callers decide which directories are durable repos; this helper keeps their initial commit
 # shape consistent.
 # In the mono layout DIR is the workspace root, so `git add -A` takes in init.sh itself. That is
-# deliberate, and it was weighed: excluding it would leave every newly generated project with a
+# deliberate: excluding it would leave every newly generated project with a
 # dirty working tree, and the next ordinary `git add -A` would commit it anyway. The script does
 # not delete itself either — not because it cannot, since an unlinked script keeps running, but
 # because reading a script while removing it is fragile, a run that failed partway would leave the
@@ -1428,9 +1406,9 @@ EOF
 # generator's own source with this run's answers substituted into it, so it is a snapshot you can
 # diff against another project's copy. It is not a version stamp — nothing in it names a release —
 # and it is not a complete answer log: the licence posture is in .throughstone/project-license, the
-# ADR authority in adr/README.md, the trunk branch in git, the layout in the shape of the tree.
-# Nothing in a generated project records the scaffold version, which is a real gap and a separate
-# question from this one.
+# ADR authority in adr/README.md, the trunk branch in git, the layout in the `layout:` line of
+# registries/repos.yml. Nothing in a generated project records the scaffold version, which is a
+# real gap and a separate question from this one.
 #
 # It is inert: the guard in section 0c looks for a marker that section 3 strips, so running this
 # copy inside a finished project refuses and exits.
@@ -1506,9 +1484,8 @@ commit_registry_remotes() {
 # completed; it does not mean the wizard created every remote, since reuse_root_origin pushes to
 # one that was already there.
 #
-# It exists because the two layouts disagreed about the same failure — one ended the run, the
-# other carried on — purely because of where each call sits relative to errexit, and because the
-# exit status told a caller the backup exists when it did not.
+# When a backup fails, both layouts add the repo to this list instead of ending the run, and the
+# script exits 1 after its closing report.
 REMOTE_FAILED_REPOS=""
 
 # note_remote_failure NAME — record a repo whose requested backup did not complete. Adding a name
@@ -1558,8 +1535,8 @@ setup_remote() {
       echo "  pushed: ${MADE_REMOTE_URL:-$OWNER/$2}"
       return 0
     fi
-    # gh creates and pushes in one command, so a failure here says nothing about which half ran.
-    # "skipped" was the old wording and was wrong: the repository may well exist on the host.
+    # gh creates and pushes in one command, so a failure here says nothing about which half ran:
+    # the repository may well exist on the host.
     echo "  (could not create and push $OWNER/$2 — it may have been created; check your host)"
     note_remote_failure "$2"
     return 1
@@ -1587,7 +1564,7 @@ reuse_root_origin() {
     return 1
   }
   # Checked, not trusted to errexit: this function is called on the left of an ||, which turns
-  # errexit off for its whole body. Without the check a failed attach fell straight through to the
+  # errexit off for its whole body. Without the check a failed attach would fall through to the
   # success message below. Returning 1 hands the caller its fallback, which records the failure if
   # it cannot set up a remote either — so the outcome is reported once, not twice.
   ( cd "$1" && git remote add origin "$ROOT_ORIGIN" ) || {
@@ -1693,11 +1670,10 @@ else
 repo here, so deleting the file is the whole of it."
 fi
 # "your project is saved locally with Git" is true of a mono project and only partly true of a
-# multi one, where the workspace root is not a repository — and the layout menu now says so
-# explicitly, in the same run, a few screens earlier. One sentence saying everything is saved and
-# another saying files here are not tracked is a contradiction the reader has to resolve alone, and
-# the reassuring half is the one they will believe. Same treatment as the init.sh tip above: say
-# whichever is true. It also names the commit, which neither layout used to mention at all.
+# multi one, where the workspace root is not a repository, as the layout menu says earlier in the
+# same run. One sentence saying everything is saved and another saying files here are not tracked
+# is a contradiction the reader has to resolve alone, and the reassuring half is the one they will
+# believe. Same treatment as the init.sh tip above: say whichever is true, and name the commit.
 if [ "$LAYOUT" = "2" ]; then
   SAVED_TIP="You can start now; your project is committed locally with Git — everything in this
   folder is in that repository except the STEP in flight in Upcoming Prompts/, which stays on this
