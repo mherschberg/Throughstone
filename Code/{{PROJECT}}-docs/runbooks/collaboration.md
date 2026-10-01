@@ -280,7 +280,7 @@ flow (§6). The transition is mostly mechanical:
    run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`** — no row in that file is a repo to
    clone (one *is* the repository you already have; the rest are folders inside it), and the
    script is for multi-repo workspaces. It reads the `layout:` line in that file and stops when it
-   says `mono`, writing nothing — but **a registry that predates that line does not stop it**, and
+   says `mono`, writing nothing — but **a registry with no `layout:` line does not stop it**, and
    run in a mono clone it then overwrites the committed root `CLAUDE.md`, `AGENTS.md` and
    `doctor.sh` with per-machine copies. Declare the layout (`UPDATING-THROUGHSTONE.md`) before a
    new contributor has the chance. Everything else is the same, including number reservation,
