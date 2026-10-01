@@ -15,7 +15,7 @@ set -uo pipefail
 
 # This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
 # flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
-# same contract check.sh already keeps. The message stays bare rather than naming a help command,
+# same contract check.sh keeps. The message stays bare rather than naming a help command,
 # because the helper can be reached both through ./doctor.sh and directly.
 if [ "$#" -gt 0 ]; then
   echo "status.sh: unknown option: $1" >&2
@@ -68,13 +68,12 @@ fi
 # The parser depends on Markdown table headers, not fixed column positions, and ignores commented
 # content so dormant scaffold examples do not affect generated-project status.
 #
-# Comments are STRIPPED, not skipped by line. Dropping the whole line deleted any row carrying an
-# inline note — `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` vanished, so the
-# STEP in flight became invisible, and a note on the highest-numbered row also lost the project's
-# high-water mark and made a live phase report as complete. The seeded index is full of
-# instructional comments and invites annotation, so that was reachable without anyone intending a
-# marker. Removing only the commented spans keeps the row and still discards example rows that sit
-# wholly inside a comment block, which is what this ever needed to do.
+# Comments are STRIPPED, not skipped by line. Dropping the whole line would delete any row carrying
+# an inline note — `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` — hiding the
+# STEP in flight, and a note on the highest-numbered row would lose the project's high-water mark
+# and make a live phase report as complete. The seeded index is full of instructional comments and
+# invites annotation, so that is reachable without anyone intending a marker. Removing only the
+# commented spans keeps the row and still discards example rows wholly inside a comment block.
 parsed="$(awk -F'|' '
   function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
   {
@@ -203,12 +202,11 @@ elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
   # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
   #
-  # These match the START of the Session label, and match the session's own name rather than a
-  # loose keyword. Searching anywhere in the cell read a substep's topic as a conditional it has
-  # nothing to do with: "Authoring conventions & style guide" contains auth, so it was advised as
-  # "run the identity-auth session", and "Desktop publishing pipeline" as the native-app one —
-  # which anchoring alone would not have fixed, since that label really does begin with desktop.
-  # A label that matches nothing falls to the generic wording, which is still correct advice.
+  # Each pattern is anchored to the START of the Session label and matches the session's own
+  # name as whole words, not a loose keyword. Looser matching reads a substep's topic as a
+  # conditional it has nothing to do with: "Authoring conventions & style guide" contains auth,
+  # and "Desktop publishing pipeline" begins with desktop. A label that matches nothing gets the
+  # generic wording, which is still correct advice.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
     cond_example="run the conditional session by name"
     if printf '%s' "$lowsub_se" | grep -qiE '^(identity|auth)\b'; then
@@ -230,8 +228,7 @@ elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 
   # substep goes Done (templates/architecture-sessions/14-cross-cutting-review.md — the row flips
   # "once the review is clean"). While the row is still open that close-out is the work, so
   # answering "run the planning session" skips it — and §10's closing rule makes the index
-  # authoritative for which STEP is next, which this arm used to contradict by reporting STEP-1
-  # complete while the index said otherwise. A missing STEP-1 row leaves the old answer alone.
+  # authoritative for which STEP is next. A missing STEP-1 row leaves the answer to the substeps.
   if [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&
      [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
     where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
@@ -335,8 +332,8 @@ elif [ -n "$nci_date" ]; then
     ci="due — scheduled for ${nci_date}."; ci_propose=1
   fi
 elif [ -n "$nci" ]; then
-  # A value that is present but unreadable is reported as itself. Nothing validates the line any
-  # more, so this message is the only place a typo surfaces.
+  # A value that is present but unreadable is reported as itself. Nothing validates the line, so
+  # this message is the only place a typo surfaces.
   ci="none scheduled — $DOCS_REL/overview.md's NEXT-CHECK-IN reads \"$nci\", which is neither a STEP number (STEP-45) nor a date (2026-11-15)."; ci_propose=1
 else
   ci="none scheduled — add a NEXT-CHECK-IN line to $DOCS_REL/overview.md: a STEP number (STEP-45) or a date (2026-11-15)."; ci_propose=1
