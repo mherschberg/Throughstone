@@ -20,7 +20,7 @@ set -euo pipefail
 
 # This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
 # flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
-# same contract check.sh already keeps. The message stays bare rather than naming a help command,
+# same contract check.sh keeps. The message stays bare rather than naming a help command,
 # because the helper can be reached both through ./doctor.sh and directly.
 if [ "$#" -gt 0 ]; then
   echo "setup-workspace.sh: unknown option: $1" >&2
@@ -90,7 +90,7 @@ fi
 
 # --- 1. Write the per-machine root pointers/helpers --------------------------
 # These are written before the clone step deliberately, but the ordering is not what makes the
-# clone step safe — step 2 warns and continues instead of aborting, so it can no longer take the
+# clone step safe — step 2 warns and continues instead of aborting, so it cannot take the
 # workspace down with it. The ordering is insurance against the *next* fatal path someone adds:
 # whatever fails below, the contributor still ends up with AGENTS.md, CLAUDE.md and doctor.sh.
 echo "Writing per-machine pointers and helpers (CLAUDE.md, AGENTS.md, doctor.sh) ..."
