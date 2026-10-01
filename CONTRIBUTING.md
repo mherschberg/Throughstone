@@ -29,6 +29,15 @@ to discuss the direction. This saves you effort and helps keep the method consis
 changes may be declined if they conflict with the method's direction, and an early
 conversation makes that clear up front.
 
+## Comments and docs describe the present
+
+Code comments and the directions in the method's files say how things work **now**. Context is
+welcome, including warnings about what goes wrong if a rule is not followed. How it used to work,
+and why it changed — the bug a fix answers, what it replaced — goes in the **commit message**,
+where `git log` and `git blame` find it. In the file it costs every later reader, human or AI,
+tokens and confusion. `CHANGELOG.md` and `UPDATING-THROUGHSTONE.md` record change by design, so
+the rule does not apply to them.
+
 ## Adding or improving coding standards
 
 The `coding-standards/` files are starting points meant to be useful defaults. New language

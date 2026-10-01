@@ -182,6 +182,9 @@ any project built with it.
   `METHOD.md` §7 states the standard the runbook works to: **registering a repo makes it known and
   connected — never good.** A repo whose README is thin is registered as it stands; improving it is
   ordinary forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
+- **`CONTRIBUTING.md` says how comments and docs are written.** They describe how things work now,
+  warnings and risks included; the history of a change — the bug it fixed, what it replaced — goes
+  in its commit message.
 
 ### Changed
 - **The two local-profile settings each do one job.** The kickoff records an experience level and
