@@ -184,7 +184,8 @@ any project built with it.
   ordinary forward work, and only a genuinely risky shortfall becomes a `registries/risks.yml` row.
 - **`CONTRIBUTING.md` says how comments and docs are written.** They describe how things work now,
   warnings and risks included; the history of a change — the bug it fixed, what it replaced — goes
-  in its commit message.
+  in its commit message. The template-checkout guard in the root `CLAUDE.md` and `AGENTS.md` points
+  agents working on the scaffold at it.
 
 ### Changed
 - **The two local-profile settings each do one job.** The kickoff records an experience level and
