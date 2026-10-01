@@ -100,8 +100,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
      under the title, and the **Overview**, up to date. **Do not add a `## Role in <project>`
      section** — those two places already say what it would say, and a README carrying both
      states one repo's role twice, in two places that drift apart. A README carrying that
-     Licensing section **and** a `## Role in <project>` one is either a file an earlier run
-     appended to, or a README of somebody else's that happens to name our notice: **ask which**,
+     Licensing section **and** a `## Role in <project>` one is either a stamped README that has
+     gained one, or a README of somebody else's that happens to name our notice: **ask which**,
      and leave the repo with one statement of its role rather than two.
    - **A README already there** — leave it under its own name and add a `## Role in <project>`
      section, written in that file's own markup; a format you do not recognise is plain text. It
