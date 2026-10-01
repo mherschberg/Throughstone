@@ -138,11 +138,11 @@ parts.append(f'<rect x="96" y="300" width="430" height="40" rx="6" fill="{OCHRE}
 
 # Every text run below is converted to vector paths so the social card renders consistently in
 # previews, crawlers, and static hosts that may not have the brand fonts.
-# Wordmark THROUGHSTONE (Cinzel caps, tracking .05), cap height 40, baseline 210.
+# Wordmark THROUGHSTONE (Cinzel caps, tracking .05).
 parts.append(text_path("THROUGHSTONE", CINZEL, 53, X, 212, INK, tracking=0.05))
 # eyebrow
 parts.append(text_path("DISCIPLINED SOFTWARE DEVELOPMENT", CINZEL, 17, X, 262, OCHRED, tracking=0.13))
-# tagline (two lines), Source Sans 3 semibold (System A)
+# tagline (two lines), Source Sans 3 semibold
 parts.append(text_path("From idea to blueprint", SANS600, 56, X, 330, INK))
 parts.append(text_path("to built.", SANS600, 56, X, 392, INK))
 # descriptor, Source Sans 22, wrapped
