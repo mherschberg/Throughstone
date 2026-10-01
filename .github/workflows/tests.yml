@@ -1,10 +1,8 @@
 name: Tests
 
 # Every test, on every branch. The suite is the scaffold's own safety net and it is not wired to
-# anything else: with only the site-publish job here, deleting the STEP-index seeding from init.sh
-# was caught by exactly one of the fourteen tests, because the other thirteen only run when a
-# person remembers. No `paths:` filter and no branch filter — a branch that skips the suite is
-# the case this job exists for.
+# anything else. No `paths:` filter and no branch filter — a branch that skips the suite is the
+# case this job exists for.
 on:
   push:
   pull_request:
