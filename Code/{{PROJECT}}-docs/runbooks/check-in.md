@@ -79,10 +79,8 @@ runs); the Glossary architecture doc vs. the terms the code now uses. Also recon
 
 **A repo missing from the registry**, or a row whose Architecture Overview entry is **absent, or
 disagrees with it**, is fixed by **re-running the registration** (`runbooks/register-repo.md`),
-never by editing either side by hand. **Absent is the ordinary case, not the exception**: an
-Architecture Overview with no Repos section in it has an entry for no row at all, so every repo in
-the project goes back through the registration. That is the expected shape of a first check-in,
-not a fault.
+never by editing either side by hand. An Architecture Overview with no Repos section in it has an
+entry for no row at all, so every repo in the project goes back through the registration.
 
 ### Conditional-session coverage
 
