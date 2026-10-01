@@ -12,6 +12,9 @@ work on the scaffold repo like a normal repository unless the user explicitly as
 this checkout: `init.sh` turns whatever checkout it runs in into a generated project, which would
 pollute the framework's own file structure.
 
+Changes to the scaffold follow `CONTRIBUTING.md`, including its rule that comments and docs
+describe the present.
+
 If the docs path below is a concrete project path such as `Code/<name>-docs/AGENTS.md`,
 ignore this guard and follow the normal handoff below.
 <!-- THROUGHSTONE-TEMPLATE-GUARD:END -->
