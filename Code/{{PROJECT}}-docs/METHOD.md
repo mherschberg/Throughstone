@@ -487,9 +487,8 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
 - **`Version:`** — identity / number, `major.minor.patch`. Bump *patch* for
   fixes/clarifications, *minor* for added sections/decisions, *major* for a **breaking
   architectural change** (a decision that supersedes a prior one). The number is **decoupled
-  from maturity**: `major` no longer marks a maturity "era," so a project already on its own
-  house convention (a calendar date, a `v16`-style line) may keep it — the lifecycle lives in
-  `Status`, not in the digits.
+  from maturity**: a project already on its own house convention (a calendar date, a
+  `v16`-style line) may keep it — the lifecycle lives in `Status`, not in the digits.
 - **`Status:`** — the doc's **maturity lifecycle**, the authoritative *"is this doc the current
   agreed truth?"* signal, independent of the number: **Draft** (not yet — `v0.x`, pre-release,
   shape still unstable) → **Current** (yes — the live, agreed description you can depend on) →
@@ -678,8 +677,8 @@ that referees STEP-number reservation can fire (`runbooks/collaboration.md` §2,
 section carries the mono path) — not a split.
 
 **Splitting is its own procedure:** `runbooks/splitting-repos.md`, covering both leaving mono
-and dividing a code repo in two later on — deliberately not "standard git", because the published
-recipe rewrites history with a tool the method can't require.
+and dividing a code repo in two later on — deliberately not the commonly published recipe,
+which rewrites history with a tool the method can't require.
 
 **Working with others:** every STEP is worked on its own branch (`step-NNNN-short-name`, same
 name in every repo it touches) — **solo too**, so the workflow doesn't change the day a second
