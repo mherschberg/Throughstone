@@ -19,11 +19,9 @@ at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-r
   when the whole workspace is checked out (locally and at each check-in).
 - **Mono-repo-for-now:** the workspace root is the single repo, and a workflow nested under
   `Code/<project>-docs/` does **not** trigger there — so `method-check.yml` also belongs at the
-  **root** `.github/workflows/`. `init.sh` puts it there when it creates the project; if yours
-  predates that, **copy** the scaffold's current one across by hand, not your hub's older copy —
-  until you do, the gate has never run. The workflow auto-detects
-  `Code/<project>-docs/scripts/check.sh`; from the root, that script sees `prompts/` too, so the
-  STEP-index checks run as well.
+  **root** `.github/workflows/`. `init.sh` puts it there when it creates the project. The
+  workflow auto-detects `Code/<project>-docs/scripts/check.sh`; from the root, that script sees
+  `prompts/` too, so the STEP-index checks run as well.
 
 ## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
 
