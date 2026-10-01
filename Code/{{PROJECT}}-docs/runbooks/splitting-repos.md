@@ -40,11 +40,10 @@
 > untouched there, so the ordinary recipe in `prompts/README.md` applies unchanged.
 
 ## Why this runbook exists
-"Splitting later is standard git" is not an answer you can act on. The published standard
-procedure — GitHub's, Atlassian's — makes the extracted repo **new**, with its history rewritten
-by `git filter-repo`: a tool that never ships with git, needs Python on every install route, and
-behaves differently version to version, so the method cannot require you to have it. A rewrite
-also truncates history at every historical path you forget to name, silently.
+The published standard procedure — GitHub's, Atlassian's — makes the extracted repo **new**,
+with its history rewritten by `git filter-repo`: a tool that never ships with git, needs Python on
+every install route, and behaves differently version to version, so the method cannot require you
+to have it. A rewrite also truncates history at every historical path you forget to name, silently.
 
 So this runbook does something else, and it is deliberately **not** the recipe you will find
 elsewhere: it clones the whole repo and **deletes forward**. Nothing is rewritten. Both sides keep
@@ -209,7 +208,7 @@ into brace expansion, is a summary. Then start the next repo.
 **`.gitignore` is exempt from the delete, and that exemption is load-bearing.** Without
 `':!.gitignore'` the new repo inherits no ignore file, and nothing left inside it can regenerate
 one — the only thing that writes a `.gitignore` is `init.sh`, which the new repo doesn't have
-either way. The measured result is a repo that tracks `.env`. After the un-nest, confirm the
+either way. The result is a repo that tracks `.env`. After the un-nest, confirm the
 exemption worked: `git check-ignore -v .env` should exit 0.
 
 **`.gitmodules` is not exempt, and a submodule inside the keep-set needs it.** That file lives at
@@ -589,16 +588,14 @@ before step 5 clones anything — and split two folders that sit beside each oth
    side effect of the split. Push trunk, then record each repo in `registries/repos.yml`.
    **If that file carries a row for the workspace root** — `location: "."` — **delete it first.**
    The root stops being a repository at this step, so the row describes nothing afterwards; what
-   replaces it is the folder rows already in the file, which become real repos here. A registry
-   written before the root row existed has none, in which case there is nothing to delete and
-   nothing else about this step changes.
+   replaces it is the folder rows already in the file, which become real repos here.
    **And change that file's `layout: mono` line to `layout: multi`** — the line at the left margin
    above `repos:`. This is the one procedure that changes it, and this is the step: from here the
    rows are repositories rather than folders, and the layout is what every reader takes that from.
    The check-in reads it to decide whether a row's work is covered by the root repository's remote
    or only by its own, and `scripts/setup-workspace.sh` refuses to run while it says `mono` — which
-   is what step 8 is about to do, so a registry left saying `mono` stops the split here. A registry
-   written before the field existed has no `layout:` line; add one saying `multi`.
+   is what step 8 is about to do, so a registry left saying `mono` stops the split here. If the
+   file has no `layout:` line, add one saying `multi`.
    **Run the register action** (`runbooks/register-repo.md`) **once per code repo, from the build
    directory's root** — that is the workspace root it means here; run it from the live one and the
    row and the entry land in the hub step 11 renames aside. It records that repo's `remote:` and
