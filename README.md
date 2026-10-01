@@ -390,7 +390,8 @@ snippets. In short, Throughstone creates a project documentation hub under
 - `adr/` — architecture decision records.
 - `coding-standards/` — stack and style guidance.
 - `runbooks/` — repeatable operating procedures.
-- `registries/` — repo inventory, accepted risks, and technical debt.
+- `registries/` — repo inventory, accepted risks and technical debt, the input capture log, and
+  the security review ledger.
 - `templates/` — reusable templates for future docs, ADRs, plans, and prompts.
 
 The default STEP-1 architecture set covers: system overview, roadmap, component boundaries,
@@ -511,9 +512,8 @@ to compare carefully and apply only the updates that make sense for your project
 ### Can multiple people or agents work on the same project?
 
 Yes. Throughstone includes collaboration conventions for branch-per-STEP work, STEP-number
-reservation, overlap warnings, and ADR-based decisions. That layer is newer than the solo
-workflow, so treat it as useful but still evolving, and expect the team to refine it as real
-projects exercise it.
+reservation, overlap warnings, and ADR-based decisions. Treat that layer as useful but still
+evolving, and expect the team to refine it as real projects exercise it.
 
 ### Do I need Claude Code or Codex specifically?
 
