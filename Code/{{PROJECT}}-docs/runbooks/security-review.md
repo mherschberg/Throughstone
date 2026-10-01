@@ -172,9 +172,9 @@ review.
 
 ## Relationship to other security docs
 - The Security & Threat Model architecture doc defines the intended security posture.
-- `dependency-supply-chain.md` remains the focused procedure for dependency vetting and
+- `dependency-supply-chain.md` is the focused procedure for dependency vetting and
   dependency vulnerability audits; S1 and S2 call it rather than duplicating it.
-- `secrets-rotation.md` remains the focused procedure for planned secret rotation and suspected
+- `secrets-rotation.md` is the focused procedure for planned secret rotation and suspected
   secret exposure.
 - `registries/risks.yml` is the durable index for accepted security risks and deferrals.
 - `registries/security-reviews.yml` is the durable index for review dates, cadence, and change
@@ -182,7 +182,6 @@ review.
 
 ## Detailed checklists and templates
 
-The detailed S0, S1, and S2 checklists and report templates now exist:
 - [`security-review-s0-checklist.md`](security-review-s0-checklist.md)
 - [`../templates/reports/security/s0-security-baseline-report-template.md`](../templates/reports/security/s0-security-baseline-report-template.md)
 - [`security-review-s1-checklist.md`](security-review-s1-checklist.md)
