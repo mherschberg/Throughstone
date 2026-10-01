@@ -3,7 +3,7 @@
 # doctor.sh — Throughstone helper dispatcher.
 #
 # Central command implementation for the root-level doctor.sh wrapper. Keeps common read-only
-# project checks behind one entry point while delegating to the existing Bash helpers.
+# project checks behind one entry point while delegating to the Bash helpers.
 
 set -euo pipefail
 
@@ -48,15 +48,15 @@ run_helper() {
   exec "$script" "$@"
 }
 
-# Command surface: keep this intentionally small until the underlying Bash helpers exist.
-# Unknown commands are CLI usage errors; implemented commands delegate without interpretation.
+# Command surface: only commands whose Bash helper exists. Unknown commands are CLI usage
+# errors; implemented commands delegate without interpretation.
 cmd="${1:-help}"
 case "$cmd" in
   -h|--help|help)
     # A bare ./doctor.sh arrives here through the default above, with nothing to shift.
     [ "$#" -eq 0 ] || shift
-    # Trailing arguments after help are the same usage error as an unknown command; printing the
-    # help text and exiting 0 told the caller their argument was understood.
+    # Trailing arguments after help are the same usage error as an unknown command; exiting 0
+    # would tell the caller their argument was understood.
     if [ "$#" -gt 0 ]; then
       echo "doctor.sh: unknown command: $1" >&2
       echo "Try './doctor.sh --help'." >&2
