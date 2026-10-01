@@ -17,9 +17,8 @@
 #
 # Mono-repo-for-now project? The workspace root is the single repo, and a workflow nested under
 # Code/<project>-docs/ won't trigger there — so this file also belongs at the ROOT
-# `.github/workflows/`. init.sh puts it there when it creates the project; a project created
-# before it did needs that copy made by hand. The run step below auto-detects the doctor path in
-# either layout. See templates/ci/README.md.
+# `.github/workflows/`. init.sh puts it there when it creates the project. The run step below
+# auto-detects the doctor path in either layout. See templates/ci/README.md.
 
 name: method-check
 
