@@ -8,14 +8,13 @@
 # `layout:` — `mono` or `multi`: which of METHOD.md §7's two layouts this project is in, stated
 # here rather than worked out from the rows, which cannot be done. Counting rows says the wrong
 # thing — a mono project starts with three and a multi one with two — and the `.` row described
-# below exists only in mono, so its absence means multi, or a project made before this field, and
-# no reader can tell those apart. Scripts read it: `scripts/check.sh --check-in`, to know whether
+# below exists only in mono, so its absence means multi, or a mono project without one, and no
+# reader can tell those apart. Scripts read it: `scripts/check.sh --check-in`, to know whether
 # a row is a folder inside one repository or a repository of its own, and
 # `scripts/setup-workspace.sh`, which stops in a mono project because there is nothing there to
 # assemble. `init.sh` writes the line when it creates the project; the scaffold's own copy carries
 # none, because the layout is chosen at that moment. **An absent `layout:` is not a third value**:
-# nothing guesses one, the check-in asks for it, and a project bootstrapped before the field
-# existed adds it by hand — see UPDATING-THROUGHSTONE.md. `runbooks/splitting-repos.md` Case 2 is
+# nothing guesses one, and the check-in asks for it. `runbooks/splitting-repos.md` Case 2 is
 # the one procedure that changes the value, from `mono` to `multi`; nothing else does, because a
 # mono-repo-for-now project is one repository and cannot take a separate one in — it converts
 # first.
