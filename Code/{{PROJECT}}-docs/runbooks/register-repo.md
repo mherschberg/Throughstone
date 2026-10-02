@@ -1,7 +1,7 @@
 # Runbook — Register a repository
 
-Bring a repository into the project: record it, give it a README, and put our licence notice in
-it. Run this when a repo is created, adopted, or split out of another.
+Bring a repository into the project: record it, give it a README, and put the Throughstone notice
+(`LICENSE-THROUGHSTONE`) in it. Run this when a repo is created, adopted, or split out of another.
 
 The goal is that the **result** is the same however a repo arrived, except for licensing (step 3).
 
@@ -104,8 +104,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
      section** — those two places already say what it would say, and a README carrying both
      states one repo's role twice, in two places that drift apart. A README carrying that
      Licensing section **and** a `## Role in <project>` one is either a stamped README that has
-     gained one, or a README of somebody else's that happens to name our notice: **ask which**,
-     and leave the repo with one statement of its role rather than two.
+     gained one, or a README of somebody else's that happens to name the Throughstone notice:
+     **ask which**, and leave the repo with one statement of its role rather than two.
    - **A README already there** — leave it under its own name and add a `## Role in <project>`
      section, written in that file's own markup; a format you do not recognise is plain text. It
      carries the role one-liner, two or three sentences naming the slice this repo owns *and what
@@ -131,7 +131,7 @@ The goal is that the **result** is the same however a repo arrived, except for l
    | | created by us | adopted |
    |---|---|---|
    | project `LICENSE` + `LICENSING.md` | written from the posture | **never** — their licensing is not ours to state |
-   | `LICENSE-THROUGHSTONE` | written | written — our material there needs a notice |
+   | `LICENSE-THROUGHSTONE` | written | written — Throughstone's material there needs its notice |
 
    - **Created by us** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <location>`
    - **Adopted** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <location>`
