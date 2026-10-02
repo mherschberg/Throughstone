@@ -23,7 +23,7 @@
 # --- Examples (replace with this project's real keys) ---------------------------
 
 # Database connection string
-DATABASE_URL=postgres://user:password@localhost:5432/{{PROJECT}}_dev
+DATABASE_URL=postgres://user:password@localhost:5432/app_dev
 
 # Third-party API key (get yours from the provider dashboard)
 EXAMPLE_API_KEY=replace-me
