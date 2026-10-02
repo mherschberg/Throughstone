@@ -188,6 +188,11 @@ any project built with it.
   agents working on the scaffold at it.
 
 ### Changed
+- **An agent opened in a fresh download treats it as yours to set up.** The root `AGENTS.md` and
+  `CLAUDE.md` used to tell any agent there to run `init.sh` only in a throwaway copy, which is
+  advice for people working on Throughstone itself. Now an agent follows the normal handoff and
+  points you at `./init.sh`, unless the clone is marked as an author's with
+  `git config throughstone.author true` (see `CONTRIBUTING.md`).
 - **The two local-profile settings each do one job.** The kickoff records an experience level and
   a communication style, and the docs had quietly welded them together: `METHOD.md` told an agent
   that Level 3 means "keep it terse and decision-focused", and its Level 1-2 twin bundled
@@ -583,6 +588,15 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **A project's docs no longer carry the rules for editing Throughstone.** `ONBOARDING.md` §6
+  told a project's contributors to keep a placeholder that setup had already replaced with the
+  project's name. The guide's opening note now says what `<project>` stands for, and the rule for
+  editing Throughstone's own files is in `CONTRIBUTING.md`, which no project receives.
+  `BOOTSTRAP-PROMPT.md` opens with the one handoff the README gives, *"Read AGENTS.md and follow
+  it."* `METHOD.md` lists `doctor.sh` and `.throughstone/` among the per-machine files at the
+  workspace root, so its hygiene rule no longer reads them as strays, and its naming example uses
+  the project's own name. `AGENTS.md` says where its one-line description comes from, and the
+  docs hub's `README.md` says where to report a problem in Throughstone's own files.
 - **Registering a repo twice no longer gives a README the method wrote a second statement of its
   role.** `runbooks/register-repo.md` step 2 had two arms, and a README an earlier run had stamped
   from `templates/repo-readme-template.md` satisfied the *already there* one — so the re-run
