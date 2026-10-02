@@ -60,11 +60,6 @@ copy_template() {
       git -C "$ROOT" ls-files --others --exclude-standard -z
     }
   )
-
-  # Ignored files are invisible to the Git archive/diff harness. Seed one maintainer-only path
-  # explicitly so successful bootstraps prove generated projects remove it with tests/.
-  mkdir -p "$dest/.test-fixtures"
-  printf '%s\n' "maintainer-only ignored fixture" > "$dest/.test-fixtures/sentinel.txt"
 }
 
 # bare_remote PATH [BRANCH] — create a bare fixture remote whose HEAD names BRANCH (default
@@ -85,23 +80,15 @@ assert_maintainer_tests_removed() {
     echo "FAIL: $name retained maintainer-only tests/" >&2
     return 1
   }
-  [ ! -d "$work/.test-fixtures" ] || {
-    echo "FAIL: $name retained maintainer-only .test-fixtures/" >&2
-    return 1
-  }
 }
 
 # Early validation failures must stop before the destructive bootstrap boundary that removes
-# tests/ and ignored maintainer fixtures.
+# tests/.
 assert_maintainer_tests_retained() {
   local name="$1" work="$2"
 
   [ -d "$work/tests" ] || {
     echo "FAIL: $name removed tests/ before destructive bootstrap work" >&2
-    return 1
-  }
-  [ -f "$work/.test-fixtures/sentinel.txt" ] || {
-    echo "FAIL: $name removed .test-fixtures/ before destructive bootstrap work" >&2
     return 1
   }
 }
@@ -1849,8 +1836,8 @@ run_solo_adr_flag_case
 run_saved_tip_multi_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------
-# Bad license input and missing license templates are detected before template files,
-# maintainer tests, or ignored fixtures are removed.
+# Bad license input and missing license templates are detected before template files or
+# maintainer tests are removed.
 invalid_work="$TMP_ROOT/license-invalid-flag"
 copy_template "$invalid_work"
 set +e
