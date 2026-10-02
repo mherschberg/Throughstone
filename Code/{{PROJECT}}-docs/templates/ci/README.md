@@ -1,6 +1,6 @@
 # CI starter (GitHub Actions)
 
-Two workflows so a {{PROJECT}} project has continuous integration **from day one** — the method
+Two workflows so the project has continuous integration **from day one** — the method
 checks and the test gate the Test Strategy architecture doc calls for
 (`architecture/*-test-strategy.md`, "CI gates"). They're GitHub Actions, but the *shape*
 (check on push/PR, fail on red) ports to any CI.
