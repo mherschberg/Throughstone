@@ -8,8 +8,8 @@ full method; this README covers the conventions here and the recipe for adding a
 docs hub's `.throughstone/project-license`. Open-source projects carry that selected project
 license in the root `LICENSE`; proprietary projects intentionally do not. A missing
 open-source `LICENSE` is an error, not a change of posture. Retained Throughstone-authored seed
-content and conventions remain under BSD-3-Clause; see `LICENSE-THROUGHSTONE`. The two scopes
-describe different material and neither replaces the other.
+content and conventions remain under BSD-3-Clause; see the root `LICENSE-THROUGHSTONE`. The two
+scopes describe different material and neither replaces the other.
 
 **`prompts/` is project-wide** — every STEP is recorded here once, wherever the code it
 touches lives. It is **history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`)
