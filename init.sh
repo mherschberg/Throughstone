@@ -427,7 +427,7 @@ if [ -n "$missing" ]; then
 fi
 preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
-command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
+command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — './doctor.sh links' needs it; setup-workspace.sh will use its plain-shell fallback."
 
 # --- 0c. Fresh-template guard -----------------------------------------------
 # init.sh is one-time and destructive: section 2 removes .git and every template-only file. That
@@ -435,10 +435,11 @@ command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the la
 # template into a repository that already exists and running it here deletes that repository's
 # history outright, with no warning and no way back.
 #
-# Four checks, because no one of them covers the rest. The sentinel below travels with the files,
+# Five checks, because no one of them covers the rest. The sentinel below travels with the files,
 # so it cannot answer "whose repository is this?" — an extracted template brings AGENTS.md and
 # CLAUDE.md along with it. Git is asked separately, and only when there is a .git here to lose: a
 # checkout nested inside someone else's repository has nothing at $ROOT for section 2 to remove.
+# The fifth looks one directory down, at prompts/, which the multi layout makes a repository.
 #
 # Each check is paired with a case that must still proceed: a fresh unpacked template (no .git at
 # all), a clone of Throughstone or of a "Use this template" repo (history that is the template's
@@ -662,14 +663,13 @@ fi
 # A mono project's first commit takes in everything in this folder that its .gitignore does not
 # exclude, so any top-level entry that is not the template's is named as soon as the layout is
 # known, while later questions may still give the reader a chance to stop. Not named: git's own
-# files (.git, .gitattributes), .DS_Store, agent folders (.claude), what the run creates or deletes
-# (.throughstone, .test-fixtures, .dev, TODO.md), and what write_gitignore excludes. The run
-# carries on either way.
+# files (.git, .gitattributes), .DS_Store, agent folders (.claude), what the run creates
+# (.throughstone), and what write_gitignore excludes. The run carries on either way.
 if [ "$LAYOUT" = "2" ]; then
   STRAY_FOUND=0
   for entry in .[!.]* ..?* *; do
     [ -e "$entry" ] || [ -L "$entry" ] || continue
-    case "|.git|.gitattributes|.DS_Store|.claude|.throughstone|.test-fixtures|.dev|TODO.md$TEMPLATE_ROOT_ENTRIES" in
+    case "|.git|.gitattributes|.DS_Store|.claude|.throughstone$TEMPLATE_ROOT_ENTRIES" in
       *"|$entry|"*) continue ;;
     esac
     case "$entry" in
@@ -1128,16 +1128,15 @@ rm -rf "$ROOT/.git"
 # notice. Relocate it as LICENSE-THROUGHSTONE below; open-source projects get their selected
 # project LICENSE separately, while proprietary projects intentionally do not.
 #
-# README/CHANGELOG/TODO/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
-# history, maintainer backlog, and public explanation of the scaffold's output. After bootstrap
-# they are stale project content, and in multi-repo mode they would be stray files at the non-repo
-# workspace root. Drop them; generated-project context starts in the docs hub. Mono-repo projects
-# can add their own versions later.
+# README/CHANGELOG/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
+# history, and public explanation of the scaffold's output. After bootstrap they are stale
+# project content, and in multi-repo mode they would be stray files at the non-repo workspace
+# root. Drop them; generated-project context starts in the docs hub. Mono-repo projects can add
+# their own versions later.
 # The root .gitignore is the template maintainer's own. In multi-repo mode it belongs to no
 # repository, yet a search that honours ignore files, run from the workspace root, applies it to
 # every repo below. A mono root gets its own from write_gitignore.
-rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md" "$ROOT/ARTIFACT-TRAIL.md" \
-  "$ROOT/.gitignore"
+rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/ARTIFACT-TRAIL.md" "$ROOT/.gitignore"
 # Community/health files describe the Throughstone template itself: contribution policy,
 # security contact, code of conduct, and trademark posture. Carrying them forward would leak the
 # template maintainer's contacts and assert Throughstone governance inside the user's project.
@@ -1146,13 +1145,9 @@ rm -f "$ROOT/CONTRIBUTING.md" "$ROOT/CODE_OF_CONDUCT.md" "$ROOT/SECURITY.md" "$R
 # They point at the template repo's issues/discussions/security pages, not the generated
 # project. Drop them so projects can add their own repository health files deliberately.
 rm -rf "$ROOT/.github"
-# .dev/ holds template-maintainer-only notes such as handoffs and design memos. It is not part
-# of the generated project and should not leak into bootstrapped repos.
-rm -rf "$ROOT/.dev"
-# tests/ and .test-fixtures/ validate the scaffold and carry scaffold-maintainer test data.
-# They are useful here, but not part of a user's project and would trip root-hygiene warnings in
-# multi-repo workspaces.
-rm -rf "$ROOT/tests" "$ROOT/.test-fixtures"
+# tests/ validates the scaffold. It is useful here, but not part of a user's project and would
+# trip root-hygiene warnings in multi-repo workspaces.
+rm -rf "$ROOT/tests"
 # brand/ (brief, logo, social card, landing-page source) and docs/ (the built GitHub Pages
 # site) are Throughstone marketing assets. Drop them so generated repos do not inherit the
 # template's trademark, public site, or branding.
@@ -1160,9 +1155,11 @@ rm -rf "$ROOT/brand" "$ROOT/docs"
 
 # --- 3. Replace the {{PROJECT}} token + description -------------------------
 say "Renaming {{PROJECT}} -> ${SLUG} ..."
-# Replace placeholder contents before repo initialization so generated commits never contain
-# unresolved scaffold tokens.
+# Replace placeholder contents before repo initialization, so no generated file holds an
+# unresolved scaffold token. Skip init.sh, here and in the two passes below: it is the generator,
+# not a generated file, and the copy a project keeps is the one the template shipped.
 grep -rlF '{{PROJECT}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  [ "$f" = ./init.sh ] && continue
   SLUG="$SLUG" perl -pi -e 's/\Q{{PROJECT}}\E/$ENV{SLUG}/g' "$f"
 done
 # Rename the docs hub before filling descriptions so later scans walk the generated path.
@@ -1182,15 +1179,17 @@ mkdir -p "$ROOT/.throughstone"
 # even when proprietary projects intentionally have no project LICENSE.
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 
-# description: fill {{PROJECT_DESCRIPTION}} EVERYWHERE it appears (AGENTS.md + every
+# description: fill {{PROJECT_DESCRIPTION}} everywhere but init.sh (AGENTS.md + every
 # architecture/planning-session "About" blurb) so no literal placeholder is left dangling.
 # The one-liner is just a seed — the kickoff can later expand any of these from overview.md.
 grep -rlF '{{PROJECT_DESCRIPTION}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  [ "$f" = ./init.sh ] && continue
   DESC="$DESC" perl -pi -e 's/\Q{{PROJECT_DESCRIPTION}}\E/$ENV{DESC}/g' "$f"
 done
 # Fill generated collaboration docs with the actual initialized trunk branch. The scaffold
 # keeps the placeholder only where generated-project text should name the branch.
 grep -rlF '{{TRUNK_BRANCH}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  [ "$f" = ./init.sh ] && continue
   TRUNK_BRANCH="$TRUNK_BRANCH" perl -pi -e 's/\Q{{TRUNK_BRANCH}}\E/$ENV{TRUNK_BRANCH}/g' "$f"
 done
 
@@ -1235,7 +1234,7 @@ fi
 # the kickoff interview before ordinary STEP resolution.
 if [ ! -f "$DOCS/overview.md" ]; then
   cp "$DOCS/templates/overview-template.md" "$DOCS/overview.md"
-  echo "  created $DOCS/overview.md (fill it in)"
+  echo "  created $DOCS/overview.md (the kickoff drafts it with you)"
 fi
 
 # --- 5b. Seed the STEP index ------------------------------------------------
@@ -1403,12 +1402,13 @@ EOF
 # the point.
 #
 # The committed copy has a second, smaller use, and it is worth stating narrowly. It is the
-# generator's own source with this run's answers substituted into it, so it is a snapshot you can
-# diff against another project's copy. It is not a version stamp — nothing in it names a release —
-# and it is not a complete answer log: the licence posture is in .throughstone/project-license, the
-# ADR authority in adr/README.md, the trunk branch in git, the layout in the `layout:` line of
-# registries/repos.yml. Nothing in a generated project records the scaffold version, which is a
-# real gap and a separate question from this one.
+# generator's own source exactly as the template shipped it, so diffing it against another
+# project's copy shows whether the same generator built both. It is not a version stamp — nothing
+# in it names a release — and it holds none of this run's answers: the name is the docs hub's
+# folder name, the description is in AGENTS.md, the licence posture in
+# .throughstone/project-license, the ADR authority in adr/README.md, the trunk branch in git, the
+# layout in the `layout:` line of registries/repos.yml. Nothing in a generated project records the
+# scaffold version, which is a real gap and a separate question from this one.
 #
 # It is inert: the guard in section 0c looks for a marker that section 3 strips, so running this
 # copy inside a finished project refuses and exits.
@@ -1423,10 +1423,9 @@ init_repo() {
 
 # record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
 # attached and pushed. Both layouts use it: multi for the docs and prompts repos, mono for the
-# workspace-root row. It matches the row by name, so a pruned registry safely no-ops. Where the
-# row carries no `remote:` yet, the line goes in after `location:` — the one field a row cannot
-# lack, since the check-in fails a row without one — never after an optional field a reader is
-# told is safe to drop.
+# workspace-root row. It matches the row by name. Where the row carries no `remote:` yet, the
+# line goes in after `location:` — the one field a row cannot lack, since the check-in fails a
+# row without one — never after an optional field a reader is told is safe to drop.
 record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
   [ -f "$reg" ] || return 0
@@ -1611,9 +1610,11 @@ if [ "$LAYOUT" = "2" ]; then
 else
   # Multi-repo: initialize docs and prompts as siblings. The root is only a local workspace
   # shell, so any origin attached to the downloaded template cannot represent the generated
-  # repos and is reported but not reused.
-  if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
-    echo "  note: existing root origin is not reused in multi-repo mode; use --remotes=yes or add remotes to the docs/prompts repos later."
+  # repos and is not reused. Say so only when the run asked for no remotes: one that asked sets
+  # up docs and prompts below, and the report at the end names any that failed.
+  if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] \
+    && [ "$MK_REMOTES" = "0" ]; then
+    echo "  note: existing root origin is not reused in multi-repo mode; add remotes to the docs/prompts repos later."
   fi
   init_repo "$DOCS"
   setup_remote "$DOCS" "${SLUG}-docs" "$DOCS_REMOTE" \
