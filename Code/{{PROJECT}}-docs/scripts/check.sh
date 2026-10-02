@@ -42,9 +42,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
-# Code/<project>-docs/scripts/ after initialization. Derive all paths from BASH_SOURCE so the
-# doctor can be run from any working directory without resolving the template placeholder.
+# Paths start from this script's own location, never from the docs hub's name, which differs per
+# project. The hub is the folder above scripts/, and the workspace root is two folders above the
+# hub, so the doctor runs from any working directory.
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 # Printed paths are rendered from the workspace root, because that is where the caller is
@@ -292,13 +292,13 @@ fi
 
 # --- 7. Workspace-root hygiene (multi-repo only) ------------------------------
 hdr "7. Workspace-root hygiene (multi-repo only)"
-# Invariant: in generated multi-repo workspaces, the root is a per-machine shell and durable
-# content should live inside repos. CI usually checks out only one repo, and this scaffold can
-# be a mono-repo/template checkout, so those contexts intentionally relax the local hygiene rule.
+# Invariant: in multi-repo workspaces, the root is a per-machine shell and durable content should
+# live inside repos. The check is skipped in CI, which usually checks out only one repo, and when
+# the workspace root is itself a repository, as in a mono-repo project.
 if [ -n "${CI:-}" ]; then
   pass "CI environment — root hygiene is a local-workspace check (a single repo is checked out here); skipping"
 elif [ -e "$ROOT/.git" ]; then
-  pass "workspace root is itself a repo (mono-repo or the template) — hygiene rule relaxed; skipping"
+  pass "workspace root is itself a repo — hygiene rule relaxed; skipping"
 else
   # Allowed root entries are per-machine pointers, repo containers, and transient prompt intake.
   # One list element per entry: `Upcoming Prompts` holds a space, and a list joined on spaces
@@ -502,12 +502,13 @@ else
 fi
 
 # --- 10. Repo registry (registries/repos.yml) — check-in only ------------------
-# Deliberately minimal, and deliberately not run on every invocation. The registry changes when
-# a repo is created, adopted or split out; the doctor runs constantly during STEPS.
+# Deliberately not run on every invocation: the registry changes when a repo is created, adopted
+# or split out, and the doctor runs constantly during STEPS.
 #
-# Its main job is the part a machine is genuinely better at than a person: noticing that a repo
-# has no remote, so the work lives on exactly one laptop. A malformed row is fixed by whoever
-# just edited it — see runbooks/register-repo.md, which raises anything that did not work.
+# It warns when a repo has no remote, which leaves its work on one machine. It fails a row it
+# cannot read, a row with no location, and a `layout:` line that is repeated, empty, unknown,
+# below the rows, or contradicted by them. Other mistakes in a row are left to whoever edits it —
+# see runbooks/register-repo.md, which raises anything that did not work.
 #
 # A row is covered by its own remote:, or — in the mono-repo-for-now layout — by the root
 # repository's remote, because there every other row's path sits inside that one repository's
