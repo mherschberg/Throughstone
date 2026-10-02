@@ -25,7 +25,7 @@ worked, and completed.
 <!-- {{PHASE_1_NAME}}: kickoff (BOOTSTRAP-PROMPT.md Stage 1) fills this with the chosen phase
      name — MVP (the default) / POC / prototype / v1. Its kebab-case form later names the
      001-<phase-name>/ archive folder, created when STEP-1 is archived. init.sh leaves the
-     placeholder as-is; Check 8 parses the table rows below, not this heading. -->
+     placeholder as-is. -->
 
 | STEP | Title | Owner | Status | Scope (one line) |
 |------|-------|-------|--------|------------------|
@@ -33,19 +33,20 @@ worked, and completed.
 
 <!-- STEP-1 is the ONLY row at bootstrap. STEP-2 onward are the implementation STEPs — don't
      add them by hand: after STEP-1's review passes, run the planning session
-     (templates/planning-session.md) and it outlines all the Phase-1 implementation STEPs
-     here (a couple of sentences each), in dependency order after STEP-1. Each STEP's detailed
-     PLAN and substeps are written later, when you start that STEP. Starting a STEP means
-     planning it and stopping for approval before any substep runs. Example row shape:
+     (Code/{{PROJECT}}-docs/templates/planning-session.md) and it outlines all the Phase-1
+     implementation STEPs here (a couple of sentences each), in dependency order after STEP-1.
+     Each STEP's detailed PLAN and substeps are written later, when you start that STEP.
+     Starting a STEP means planning it and stopping for approval before any substep runs.
+     Example row shape:
      | STEP-2 | Scaffold repos & skeleton | | Planned | … | -->
 
 
 ### STEP-1 substeps (architecture sessions)
 
-> Like every STEP, STEP-1 has **one owner**, run on one machine — substeps aren't split
-> across people (see `runbooks/collaboration.md` §3). But architecture is a shared
-> foundation, so **decide it as a group**: the best setup is the whole team in a room walking
-> the sessions together while one person drives the keyboard and commits the docs.
+> Like every STEP, STEP-1 has **one owner**, run on one machine — substeps aren't split across
+> people (see `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §3). But architecture is a
+> shared foundation, so **decide it as a group**: the best setup is the whole team in a room
+> walking the sessions together while one person drives the keyboard and commits the docs.
 
 | Substep | Session | Status | Output doc |
 |---------|---------|--------|------------|
