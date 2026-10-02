@@ -12,7 +12,8 @@
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
-<!-- The kickoff fills this from overview.md. Running standalone? Read overview.md first. -->
+<!-- init.sh fills this from the one-line description given at setup. Running standalone? Read
+     overview.md first. -->
 
 ## What this session does
 We'll nail down *what* you're building and — just as important — what you're deliberately
