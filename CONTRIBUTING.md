@@ -52,6 +52,13 @@ project's slug, so the path names the real folder. Where a file instructs a proj
 contributors, write `Code/<project>-docs/` instead, as `ONBOARDING.md` does; its opening note
 says what `<project>` stands for.
 
+## Paths in templates
+
+Paths follow the conventions in `Code/{{PROJECT}}-docs/METHOD.md` §7. In a template, judge each
+path from where its copy lands, not from `templates/`. `step-index-seed.md` becomes
+`prompts/STEP-index.md`, outside the docs hub, so it writes hub paths in full. A report
+template is saved under `reports/`, so a relative link written from `templates/` breaks there.
+
 ## Adding or improving coding standards
 
 The `coding-standards/` files are starting points meant to be useful defaults. New language
