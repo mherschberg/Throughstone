@@ -53,9 +53,10 @@ built in rather than bolted on — especially where separately built pieces have
 5. **System / end-to-end tests.** How the whole system is tested together, and where tests
    that span more than one codebase live (often a dedicated tests repo or folder).
 6. **CI gates.** What must pass before code merges and before it deploys (tests, linters,
-   type checks, build). Keep the gate fast enough that people don't route around it. A starter
-   wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
-   `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
+   type checks, build). Keep the gate fast enough that people don't route around it. Two
+   workflows ship: the method-integrity check (`.github/workflows/method-check.yml`, which runs
+   `scripts/check.sh`), already live, and a per-repo test workflow to fill in
+   (`templates/ci/code-repo-ci.yml`). See `templates/ci/README.md`.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
 7. **Coverage tooling and reporting.** For each real implementation language, choose the
    coverage tool and where its report appears. Default durable coverage/test summaries to
