@@ -593,6 +593,11 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **`./doctor.sh status` no longer tells a project without its STEP index to run `init.sh`.** It
+  said the project was not initialized, and `init.sh` refuses to run in an initialized project. It
+  now says to restore `prompts/STEP-index.md` from git, and in a multi-repo project names
+  `setup-workspace.sh`, which clones the prompts repo. Before setup, with no `overview.md` either,
+  it still says to run `init.sh`.
 - **The README says to delete the repo "Use this template" creates, and `SECURITY.md` names the
   latest release as supported.** That repo still holds Throughstone's CI workflow and issue
   templates, so delete it once setup is done, unless you replace its history with your project's.
@@ -615,13 +620,16 @@ any project built with it.
   "a acme project", the licence templates no longer suggest editing `init.sh`, the test-strategy
   session says where each CI workflow lives, and `prompts/README.md` points at the root
   `LICENSE-THROUGHSTONE`.
-- **Runbooks, registries and report READMEs say what is true in your project.** They say "the
-  docs hub" where they said "the scaffolded docs folder" or "the docs repo", which is wrong in a
-  mono-repo-for-now project, and `METHOD.md` §3 now says what the docs hub is in each layout.
-  Where "our notice" meant Throughstone's, they name the Throughstone notice
+- **Runbooks, registries, report READMEs and the hub scripts say what is true in your project.**
+  They say "the docs hub" where they said "the scaffolded docs folder" or "the docs repo", which is
+  wrong in a mono-repo-for-now project, and `METHOD.md` §3 now says what the docs hub is in each
+  layout. Where "our notice" meant Throughstone's, they name the Throughstone notice
   (`LICENSE-THROUGHSTONE`). Two security checklists, `runbooks/splitting-repos.md` and
   `registries/repos.yml` no longer talk about the scaffold, and a stray line in
-  `runbooks/release-deploy.md` is gone. A comment in `scripts/status.sh` says "the docs hub" too.
+  `runbooks/release-deploy.md` is gone. The comments in `scripts/` say "the docs hub" and
+  "Throughstone's material", and no longer describe Throughstone's own checkout or cite its tests.
+  Check 10's header in `check.sh` lists what it fails, and check 7's skip line no longer mentions
+  "the template".
 - **Three upgrade steps no longer tell you to replace your own project name.** The steps in
   `UPDATING-THROUGHSTONE.md` for restoring `registries/` and copying in `input-captures.yml` wrote
   the placeholder out, so setup turned them into "replace `acme` with your project slug". They now
