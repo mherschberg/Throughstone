@@ -35,8 +35,8 @@ DOCS_REL="Code/$(basename "$DOCS_DIR")"
 # File assumptions: the docs hub sits at Code/<project>-docs/, while the runtime
 # STEP index lives at the project root in prompts/STEP-index.md.
 #
-# THROUGHSTONE_STEP_INDEX and THROUGHSTONE_OVERVIEW are maintainer-test seams for fixtures.
-# Generated projects should leave them unset and read the canonical prompts index and overview.
+# THROUGHSTONE_STEP_INDEX and THROUGHSTONE_OVERVIEW, when set, name the files read in place of
+# the STEP index and overview.md. Leave them unset to read the project's own.
 INDEX="${THROUGHSTONE_STEP_INDEX:-$ROOT/prompts/STEP-index.md}"
 OVERVIEW="${THROUGHSTONE_OVERVIEW:-$DOCS_DIR/overview.md}"
 
@@ -53,11 +53,20 @@ if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: not-started' "$OVERVIEW"; then
   exit 0
 fi
 
+# No STEP index. Before setup there is no overview.md either, and init.sh is the answer. A project
+# keeps overview.md, and init.sh refuses to run there, so it is told to get the index back.
 if [ ! -f "$INDEX" ]; then
-  echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
+  if [ ! -f "$OVERVIEW" ]; then
+    echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
+    echo
+    echo "Next action:"
+    echo "  → run ./init.sh, then \"Read AGENTS.md and follow it\" to begin the kickoff."
+    exit 0
+  fi
+  echo "Where you are:  no roadmap (no prompts/STEP-index.md in this workspace)."
   echo
   echo "Next action:"
-  echo "  → run ./init.sh, then \"Read AGENTS.md and follow it\" to begin the kickoff."
+  echo "  → restore prompts/STEP-index.md from git history: it holds every STEP number the project has issued. In a multi-repo project prompts/ is its own repository: restore the file inside it, or, if prompts/ is not here at all, run $DOCS_REL/scripts/setup-workspace.sh to clone it."
   exit 0
 fi
 
@@ -253,13 +262,12 @@ elif [ -n "$inprog" ]; then                                 # §10.6
   # right — a thin STEP stops for approval like any other (prompts/README.md) — the command is not.
   #
   # Anchored, and ending at the title's end or its scope colon: the documented row title and
-  # nothing wider ("Check-in", "Check-in: phase 1"). Both directions cost something, which is why
-  # the form is pinned in tests/doc-contract.sh rather than left to prose. Too loose routes a
-  # product STEP into the doc-drift runbook — a hotel or airline project really does build a
-  # "Check-in flow" — and sending feature work to the wrong prompt is the more expensive way to be
-  # wrong; a real check-in titled outside the form falls to the generic answer, which is the state
-  # this arm exists to end. Both arms anchor at ^, so no title can match both and their order is
-  # free; loosening either ends that.
+  # nothing wider ("Check-in", "Check-in: phase 1"). Both directions cost something. Too loose
+  # routes a product STEP into the doc-drift runbook — a hotel or airline project really does
+  # build a "Check-in flow" — and sending feature work to the wrong prompt is the more expensive
+  # way to be wrong; a real check-in titled outside the form falls to the generic answer, which is
+  # the state this arm exists to end. Both arms anchor at ^, so no title can match both and their
+  # order is free; loosening either ends that.
   elif printf '%s' "$inprog_ti" | grep -qiE '^check-in(:|$)'; then
     next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\" and wait for \"run the check-in\" — its two substeps are fixed and $DOCS_REL/runbooks/check-in.md is their prompt, so that one command runs both, end to end. Then: report under $DOCS_REL/reports/, archive the thin PLAN to prompts/, mark ${inprog} Done, and schedule the next check-in in $DOCS_REL/overview.md's NEXT-CHECK-IN line."
   else
