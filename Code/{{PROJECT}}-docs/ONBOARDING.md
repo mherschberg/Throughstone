@@ -10,7 +10,8 @@ Throughstone scaffold to create the project. Later contributors use the generate
 workspace and, for multi-repo projects, `Code/<project>-docs/scripts/setup-workspace.sh`.
 
 > Paths below are relative to the workspace root (the folder containing `Code/` and
-> `prompts/`).
+> `prompts/`). `<project>` stands for the project's slug, so the docs hub is
+> `Code/{{PROJECT}}-docs/`.
 
 ## 1. Identify the project shape
 
@@ -127,10 +128,3 @@ For team and concurrency details, read
 [`Code/<project>-docs/runbooks/collaboration.md`](runbooks/collaboration.md). That runbook owns
 the full rules for reserving STEP numbers, branch naming, shared-file edits, ADR numbering,
 overlap warnings, and push races.
-
-## 6. Keep paths straight
-
-This scaffold stores the template at `Code/{{PROJECT}}-docs/ONBOARDING.md`. In an
-initialized project, the generated docs hub path is `Code/<project>-docs/ONBOARDING.md`.
-When editing template files, keep the literal `{{PROJECT}}` placeholder. When instructing
-contributors in generated projects, use `Code/<project>-docs`.
