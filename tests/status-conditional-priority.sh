@@ -12,6 +12,7 @@ TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-status-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
 # write_index PATH ROWS — write the minimum STEP table the resolver needs.
+# Its header keeps the retired Repos (projection) column, as an existing project's index may.
 write_index() {
   local path="$1" rows="$2"
   {
