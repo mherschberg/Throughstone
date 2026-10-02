@@ -70,10 +70,13 @@ The goal is that the **result** is the same however a repo arrived, except for l
 
    A repo with no remote yet is fine; the check-in flags it as a bus-factor risk. **`name` is the
    row's identity** — re-running matches on it, and a field that already says what you were going
-   to write needs nothing. A `location:` or `remote:` that is **absent or empty** gets filled in:
-   that is a refresh, and the periodic check-in does exactly that when it finds a row with no
-   location, or a repo pushed to a host for the first time. One that holds a **different** value
-   is **raised and changed by nobody** — a repo that moved or was repointed is a decision.
+   to write needs nothing. A name or location already held by a different repo's row — for an
+   adopted repo, most likely the docs hub's own `{{PROJECT}}-docs` row — is not reused: ask the user
+   what to call this repo and where it goes. A `location:` or `remote:` that is **absent or empty**
+   gets filled in: that is a refresh, and the periodic check-in does exactly that when it finds a
+   row with no location, or a repo pushed to a host for the first time. One that holds a
+   **different** value is **raised and changed by nobody** — a repo that moved or was repointed is
+   a decision.
 
 2. **The README — decided by what is in the repo.** A README is a regular file at the repo root
    whose name starts with `readme` in any capitalisation — `README.md`, `readme.rst`, a bare
