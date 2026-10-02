@@ -172,6 +172,29 @@ expect_not_in "No remote is attached" "$END"
 expect_not_in "Saved:" "$END"
 expect_not_in "also pushed" "$END"
 
+# --- A multi-repo folder that already has an origin ---------------------------------------------
+
+# The multi layout does not use the folder's origin. Only a run that asked for no remotes is told
+# so, and the note names no flag, since it comes after the point where one could change anything.
+CASE=multi-root-origin
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+REMOTE="$TMP_ROOT/$CASE-origin.git"; bare_remote "$REMOTE"
+( cd "$W" && git init -q && git remote add origin "$REMOTE" )
+run_init "$W" "${BASE[@]}" --slug="$CASE" --license=proprietary --layout=multi --remotes=no
+expect_status 0
+expect_line "  note: existing root origin is not reused in multi-repo mode; add remotes to the docs/prompts repos later." "$OUT"
+
+CASE=multi-root-origin-remotes
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+REMOTE="$TMP_ROOT/$CASE-origin.git"; bare_remote "$REMOTE"
+bare_remote "$TMP_ROOT/$CASE-docs.git"; bare_remote "$TMP_ROOT/$CASE-prompts.git"
+( cd "$W" && git init -q && git remote add origin "$REMOTE" )
+run_init "$W" "${BASE[@]}" --slug="$CASE" --license=proprietary --layout=multi \
+  --remotes=yes --remote-provider=manual \
+  --docs-remote="$TMP_ROOT/$CASE-docs.git" --prompts-remote="$TMP_ROOT/$CASE-prompts.git"
+expect_status 0
+expect_not_in "existing root origin" "$OUT"
+
 # --- Backup asked for and completed -------------------------------------------------------------
 
 CASE=mono-pushed
