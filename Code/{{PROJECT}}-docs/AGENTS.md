@@ -41,8 +41,8 @@ AGENTS.md and follow it."*
 
 ## What is {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
-<!-- Filled during kickoff from overview.md. Keep to a tight paragraph; details live in
-     the architecture docs. -->
+<!-- init.sh fills this from the one-line description given at setup. Keep it to a tight
+     paragraph; details live in the architecture docs. -->
 
 ## How this project is built
 This project follows the method in **`Code/{{PROJECT}}-docs/METHOD.md`** — read it. In short:
