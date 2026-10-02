@@ -25,6 +25,8 @@ INDEX="$TMP_ROOT/STEP-index.md"
 
 # run MARKER MAXSTEP — seed an overview carrying MARKER (empty to omit the line) and an index
 # whose highest row is STEP-MAXSTEP, then return status.sh's output.
+# Both tables in this file keep the retired Repos (projection) column, as an existing project's
+# index may.
 run() {
   {
     printf '# Fixture — Project Overview\n\n'
