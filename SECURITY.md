@@ -25,6 +25,6 @@ the report if you'd like it.
 
 ## Supported versions
 
-The latest version on the default branch is the supported one. Throughstone is a template you
-copy at a point in time; once you've generated a project from it, keeping that project's copy
-up to date is part of your own maintenance.
+The latest release is the supported one. Throughstone is a template you copy at a point in
+time; once you've generated a project from it, keeping that project's copy up to date is part
+of your own maintenance.
