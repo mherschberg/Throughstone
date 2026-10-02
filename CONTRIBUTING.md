@@ -65,6 +65,24 @@ The `coding-standards/` files are starting points meant to be useful defaults. N
 standards or improvements to existing ones are welcome via pull request. Keep them in the
 same style as the existing files and the `{{PROJECT}}` placeholder convention intact.
 
+## Publishing the website
+
+The canonical source for the static marketing site is `brand/site/`. GitHub Pages publishes
+from `docs/`, so after editing the site source run:
+
+```bash
+brand/publish-site.sh
+```
+
+That copies the site into `docs/` while preserving `docs/CNAME` and `docs/.nojekyll`, which
+keep `https://throughstone.org` working. To check for drift without writing, run:
+
+```bash
+brand/publish-site.sh --check
+```
+
+CI runs the same check, so a pull request fails if `brand/site/` and `docs/` drift.
+
 ## A note on conduct
 
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold
