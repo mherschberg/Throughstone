@@ -1,22 +1,15 @@
 # AGENTS.md
 
 <!-- THROUGHSTONE-TEMPLATE-GUARD:BEGIN -->
-## Template-checkout guard
+## For Throughstone's authors
 
-If the docs path below still contains an unresolved `PROJECT` placeholder in braces, this
-checkout is the **Throughstone scaffold before project initialization**, not an initialized
-app/project workspace. In that mode, do **not** start the generated-project kickoff/resume
-flow. Treat the files under the template docs path as templates for future projects, and
-work on the scaffold repo like a normal repository unless the user explicitly asks to run
-`./init.sh` or to simulate/test a generated project — and then do it in a throwaway copy, never in
-this checkout: `init.sh` turns whatever checkout it runs in into a generated project, which would
-pollute the framework's own file structure.
+First run `git config --get throughstone.author`. If it prints `true`, this checkout is for
+working on Throughstone itself. Work on it like a normal repository and do not start the
+kickoff. Run `./init.sh` only in a throwaway copy, never here: it turns whatever checkout it
+runs in into a generated project. Changes follow `CONTRIBUTING.md`, including its rule that
+comments and docs describe the present.
 
-Changes to the scaffold follow `CONTRIBUTING.md`, including its rule that comments and docs
-describe the present.
-
-If the docs path below is a concrete project path such as `Code/<name>-docs/AGENTS.md`,
-ignore this guard and follow the normal handoff below.
+Otherwise skip this section and follow the handoff below.
 <!-- THROUGHSTONE-TEMPLATE-GUARD:END -->
 
 The canonical agent context lives in the docs hub:
