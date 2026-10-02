@@ -1263,6 +1263,10 @@ any project built with it.
 - **`./doctor.sh status` no longer stalls on an `Abandoned` substep or skips a zero-padded one** —
   and a thin STEP is no longer told to author substep prompts; `METHOD.md` §10 drops the table that
   restated its rules.
+- **Registering a repo no longer reuses a name or location another row already holds.**
+  `runbooks/register-repo.md` matches rows by name, and nothing stopped two rows sharing one, so a
+  new repo could be taken for an existing row. Step 1 now has you ask the user what to call the repo
+  and where it goes; for an adopted repo, the docs hub's own row is the likely clash.
 
 ## [1.7.1] - 2026-08-10
 
