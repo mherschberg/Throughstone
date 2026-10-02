@@ -12,9 +12,8 @@
 > deploy, reversible migrations, a watch window — is the part worth keeping whatever your
 > pipeline. The mechanism it executes was designed in the Infrastructure & Deployment
 > architecture doc (`architecture/*-infrastructure-deployment.md`, deploy pipeline + rollback)
-> and
-> the Environments architecture doc (`architecture/*-environments.md`); point at those for the
-> specifics.
+> and the Environments architecture doc (`architecture/*-environments.md`); point at those for
+> the specifics.
 
 ## Why this runbook exists
 A deploy is the riskiest routine thing a project does — it's where a green test suite still
