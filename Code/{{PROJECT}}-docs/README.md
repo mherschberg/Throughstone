@@ -38,4 +38,7 @@ and the method that governs how it's built. This hub is *state* (the system as i
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
 > `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the
 > open-source license you chose at setup or kept proprietary. When an application-code repo is
-> added, its licence files follow `runbooks/register-repo.md` step 3.
+> added, its licence files follow `runbooks/register-repo.md` step 3. Report a problem in
+> Throughstone's own files at <https://github.com/mherschberg/Throughstone/issues>, and a
+> security problem privately at
+> <https://github.com/mherschberg/Throughstone/security/advisories/new>.
