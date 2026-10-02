@@ -14,7 +14,8 @@ What you'd like to see.
 **Scope**
 - Affects: `init.sh` / templates / a session / `METHOD.md` / runbooks / coding-standards / other
 - Is this a change to the **methodology itself**? If so, please open this issue to discuss the
-  direction before sending a PR (see [CONTRIBUTING.md](../../CONTRIBUTING.md)).
+  direction before sending a PR (see
+  [CONTRIBUTING.md](https://github.com/mherschberg/Throughstone/blob/main/CONTRIBUTING.md)).
 
 **Alternatives considered**
 Anything else you weighed, and why this approach.
