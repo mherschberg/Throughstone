@@ -288,11 +288,11 @@ note "mono:  $MONO_DOCS"
 # those documents tell an agent to open was wrong.
 #
 # The list below is what a generated project is allowed to keep: the fill-in-the-blank templates
-# a human completes later, the seeded STEP index, and init.sh itself, which keeps the
-# {{YEAR}}/{{HOLDER}} pair it stamps a license with. Holding it as a literal means a newly
-# leaked file arrives as an added line rather than as silence, and comparing the whole set
-# rather than hunting for stragglers doubles as the positive control: a grep that had quietly
-# stopped seeing files comes up short here instead of passing on an empty result.
+# a human completes later, the seeded STEP index, and init.sh itself, which setup leaves as the
+# template shipped it. Holding it as a literal means a newly leaked file arrives as an added line
+# rather than as silence, and comparing the whole set rather than hunting for stragglers doubles
+# as the positive control: a grep that had quietly stopped seeing files comes up short here
+# instead of passing on an empty result.
 RETAINED_PLACEHOLDERS="$TMP_ROOT/placeholders-retained"
 cat > "$RETAINED_PLACEHOLDERS" <<'EOF'
 Code/DOCS/BOOTSTRAP-PROMPT.md
@@ -325,13 +325,16 @@ assert_no_placeholders() {
   # The three tokens init.sh has a value for. They have to be named rather than inferred from the
   # file list, because many of the files pinned above legitimately hold other {{ tokens: a
   # {{PROJECT}} that survived inside one of those would leave the list below entirely unchanged.
+  # init.sh holds all three: setup skips it, so it is compared with the template's copy instead.
   leaked="$( cd "$work" && grep -rlF --exclude-dir=.git \
     -e '{{PROJECT}}' -e '{{PROJECT_DESCRIPTION}}' -e '{{TRUNK_BRANCH}}' . 2>/dev/null \
-    | sed 's|^\./||' | sort )"
+    | sed -e 's|^\./||' -e '/^init\.sh$/d' | sort )"
   if [ -n "$leaked" ]; then
     bad "$slug: init.sh left a token it owns unresolved in $(printf '%s\n' "$leaked" | wc -l | tr -d ' ') file(s)"
     printf '%s\n' "$leaked" >&2
   fi
+  cmp -s "$ROOT/init.sh" "$work/init.sh" \
+    || bad "$slug: setup changed or removed init.sh; a project keeps the copy the template shipped"
 
   # Absence is only half of it: a substitution that resolved to NOTHING satisfies every check in
   # this function. One character in init.sh's perl expression — a mistyped %ENV key — empties
