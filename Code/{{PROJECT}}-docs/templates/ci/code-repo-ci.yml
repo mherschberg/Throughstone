@@ -1,4 +1,4 @@
-# Tests CI for a {{PROJECT}} code repo — runs the test suite on every push and pull request.
+# Tests CI for a code repo — runs the test suite on every push and pull request.
 # This is the merge gate from the Test Strategy architecture doc
 # (architecture/*-test-strategy.md, "CI gates"): keep it fast enough that people don't route
 # around it.
