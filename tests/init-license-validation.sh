@@ -1476,7 +1476,7 @@ run_slug_message_case() {
 # Three parts, because the rule is only true if all three hold: the question stops using the word,
 # the new spelling works, and the old spelling keeps working while saying what to write instead.
 # That last part is the must-proceed half — a vocabulary change that breaks every existing wrapper
-# is not an improvement, and four other test files in this suite still pass --license=private.
+# is not an improvement, and other test files in this suite still pass --license=private.
 run_licence_vocabulary_case() {
   local name="licence-vocabulary" status
   local ask_work="$TMP_ROOT/$name-ask"
