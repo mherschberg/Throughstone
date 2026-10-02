@@ -316,8 +316,7 @@ If you want to compare a bootstrapped project against a newer Throughstone relea
 scaffold update guide in the docs hub:
 [`Code/{{PROJECT}}-docs/UPDATING-THROUGHSTONE.md`](Code/{{PROJECT}}-docs/UPDATING-THROUGHSTONE.md).
 It defines a conservative process: report first, protect project-owned files, review even
-script updates, and apply only verified scaffold/process changes. If updater tooling is added
-later, its project state belongs in `Code/{{PROJECT}}-docs/.throughstone/manifest.yml`.
+script updates, and apply only verified scaffold/process changes.
 
 ## Works with any agent
 
