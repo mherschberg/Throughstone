@@ -593,6 +593,15 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **`init.sh` no longer deletes your `TODO.md`, `.dev/` or `.test-fixtures/`, and leaves its own
+  source as shipped.** Those are names from Throughstone's own checkout, so a file of yours with
+  one of them was lost. Now they stay, and in a mono-repo-for-now project the stray-file warning
+  names them, as it does any other file of yours the first commit takes in. Setup no longer writes
+  your project's name, description and trunk branch into the `init.sh` it leaves behind, so that
+  copy is the one the template shipped. In a multi-repo project, the note about an existing root
+  origin no longer suggests `--remotes=yes`, which is too late by then, and does not appear when
+  you ask for remotes. Setup's messages and the README say the kickoff drafts `overview.md` with
+  you, and that `./doctor.sh links` needs `python3`.
 - **`./doctor.sh status` no longer tells a project without its STEP index to run `init.sh`.** It
   said the project was not initialized, and `init.sh` refuses to run in an initialized project. It
   now says to restore `prompts/STEP-index.md` from git, and in a multi-repo project names
@@ -909,9 +918,9 @@ any project built with it.
   good. The behaviour is deliberate and unchanged — excluding the file from that commit would leave
   every generated project with a dirty working tree, and the next ordinary `git add -A` would commit
   it anyway — so the note now says whichever is true, and `init.sh` records why it is left in place
-  and why the script does not delete itself. The retained copy is a snapshot of the generator, with this
-  run's slug substituted into it. It is not a version stamp: it names no version, and the licence posture, ADR authority, trunk
-  branch and layout are each recorded elsewhere.
+  and why the script does not delete itself. The retained copy is a snapshot of the generator,
+  exactly as the template shipped it. It is not a version stamp: it names no version, and the
+  licence posture, ADR authority, trunk branch and layout are each recorded elsewhere.
 - **The wizard's layout and collaboration menus accept the words they offer.** Each question had two
   answer paths that did not agree. A flag went through a normalising `case` that took the friendly
   word or the number and rejected anything else; a typed answer was assigned raw, and every check
