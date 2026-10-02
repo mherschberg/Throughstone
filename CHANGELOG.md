@@ -593,6 +593,13 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **Runbooks, registries and report READMEs say what is true in your project.** They say "the
+  docs hub" where they said "the scaffolded docs folder" or "the docs repo", which is wrong in a
+  mono-repo-for-now project, and `METHOD.md` §3 now says what the docs hub is in each layout.
+  Where "our notice" meant Throughstone's, they name the Throughstone notice
+  (`LICENSE-THROUGHSTONE`). Two security checklists, `runbooks/splitting-repos.md` and
+  `registries/repos.yml` no longer talk about the scaffold, and a stray line in
+  `runbooks/release-deploy.md` is gone.
 - **Three upgrade steps no longer tell you to replace your own project name.** The steps in
   `UPDATING-THROUGHSTONE.md` for restoring `registries/` and copying in `input-captures.yml` wrote
   the placeholder out, so setup turned them into "replace `acme` with your project slug". They now
