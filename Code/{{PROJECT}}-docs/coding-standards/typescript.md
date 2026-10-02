@@ -47,7 +47,7 @@ not just documented.
 
 ## Error handling
 - `throw` `Error` (or a subclass), never strings or plain objects. Define a small domain
-  hierarchy (`class {{PROJECT}}Error extends Error`) so callers can discriminate.
+  hierarchy (`class AppError extends Error`) so callers can discriminate.
 - Preserve causes: `throw new WrappedError("…", { cause: err })`. Don't swallow — handle or
   rethrow.
 - `throw` / `try`-`catch` is the idiomatic default. A typed result (`Result<T, E>` /
