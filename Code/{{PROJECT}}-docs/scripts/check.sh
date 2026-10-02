@@ -338,7 +338,7 @@ else
   done
   if [ -n "$stray" ]; then
     warn "unexpected entr(ies) at workspace root:$stray — should these be inside a repo (usually the docs hub)?"
-    hint "none of these is a pointer this method writes, $registry_note. Register the repo if that is what it is — a repo may sit at any path inside the workspace and never has to move — and otherwise move it into a repo, almost always $DOCS_REL/. See $DOCS_REL/METHOD.md §7."
+    hint "none of these is a pointer this method writes, $registry_note. Register the repo if that is what it is — a repo may sit at any path inside the workspace and never has to move — and otherwise move it into a repo, almost always $DOCS_REL/, or, if it is yours alone, out of the workspace. See $DOCS_REL/METHOD.md §7."
   else
     pass "only the expected pointers / repos at the workspace root"
   fi
