@@ -1,4 +1,4 @@
-# S1 Security Sweep Report Template — {{PROJECT}}
+# S1 Security Sweep Report — {{PROJECT}}
 
 **Review level:** S1 — Security Sweep
 **Review date:** YYYY-MM-DD
@@ -142,7 +142,7 @@ integrations, public surfaces, dependencies, and incident follow-up: TBD
 ## Advisory Sources Checked
 
 Use the starter sources from
-[`runbooks/security-review-s1-checklist.md`](../../../runbooks/security-review-s1-checklist.md),
+`runbooks/security-review-s1-checklist.md`,
 then add or remove rows based on the project stack. Keep rows for skipped-but-relevant sources so
 the reason is explicit.
 
@@ -164,7 +164,7 @@ the reason is explicit.
 ## Checklist Outcomes
 
 Use outcomes exactly as defined by
-[`runbooks/security-review-s1-checklist.md`](../../../runbooks/security-review-s1-checklist.md):
+`runbooks/security-review-s1-checklist.md`:
 `No issue`, `Fixed during review`, `Follow-up STEP`, `Accepted Risk`, `Escalate S0`,
 `Escalate S2`, `Incident`, or `N/A`.
 
