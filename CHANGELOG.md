@@ -593,6 +593,13 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **The coding standards' examples work for any project name.** `python.md` and `typescript.md`
+  built a package folder and a base error class from the project's name, so a name like
+  `acme-scheduler` gave `src/acme-scheduler/`, which Python cannot import, and
+  `class acme-schedulerError`, which is not a valid class name. They now say `src/<package>/`
+  and `AppError`. `python.md` no longer cites a strict type-checker config it never gives,
+  `csharp.md`'s rule on catching everything reads correctly, and the `.env.example` template
+  closes a parenthesis.
 - **Templates say what is true in the project they create.** A project's `overview.md` no longer
   calls itself the template; it says the kickoff drafts it with you. Saved S0, S1 and S2 security
   reports no longer link to their checklist by a path that breaks `./doctor.sh links`, and their
