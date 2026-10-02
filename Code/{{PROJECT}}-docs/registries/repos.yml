@@ -12,12 +12,11 @@
 # reader can tell those apart. Scripts read it: `scripts/check.sh --check-in`, to know whether
 # a row is a folder inside one repository or a repository of its own, and
 # `scripts/setup-workspace.sh`, which stops in a mono project because there is nothing there to
-# assemble. `init.sh` writes the line when it creates the project; the scaffold's own copy carries
-# none, because the layout is chosen at that moment. **An absent `layout:` is not a third value**:
-# nothing guesses one, and the check-in asks for it. `runbooks/splitting-repos.md` Case 2 is
-# the one procedure that changes the value, from `mono` to `multi`; nothing else does, because a
-# mono-repo-for-now project is one repository and cannot take a separate one in — it converts
-# first.
+# assemble. `init.sh` writes the line when it creates the project. **An absent `layout:` is not a
+# third value**: nothing guesses one, and the check-in asks for it. `runbooks/splitting-repos.md`
+# Case 2 is the one procedure that changes the value, from `mono` to `multi`; nothing else does,
+# because a mono-repo-for-now project is one repository and cannot take a separate one in — it
+# converts first.
 # **It is the only key outside a row, and it belongs at column 0 above `repos:`.** Rule 2 below
 # scans a row block forward from its `- name:` to the next one, and nothing bounds that scan at the
 # end of the list: a top-level key written below the rows sits inside the last row's block, where
