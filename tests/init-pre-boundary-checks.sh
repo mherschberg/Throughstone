@@ -334,18 +334,18 @@ OUT="$TMP_ROOT/$CASE.out"; PRE="$TMP_ROOT/$CASE.pre"
 sed -n '1,/Detaching from the template/p' "$OUT" > "$PRE"
 expect_finished
 expect_pre "which are not part of the template"
-expect_pre "    notes.txt"
-expect_pre "    .env.example"
-for f in .DS_Store .gitattributes TODO.md .env .env.local x.swp .claude .dev .throughstone \
-  .test-fixtures .secrets; do
+for f in notes.txt .env.example TODO.md .dev .test-fixtures; do expect_pre "    $f"; done
+for f in .DS_Store .gitattributes .env .env.local x.swp .claude .throughstone .secrets; do
   if grep -Fxq "    $f" "$PRE"; then fail "named $f, which the warning skips"; fi
 done
 warn_line="$(grep -n -F "not part of the" "$OUT" | head -n 1 | cut -d: -f1)"
 ask_line="$(grep -n -F "Online backup / sharing" "$OUT" | head -n 1 | cut -d: -f1)"
 [ -n "$warn_line" ] && [ -n "$ask_line" ] && [ "$warn_line" -lt "$ask_line" ] \
   || fail "the warning did not come before the remotes question"
-# A warning, not a refusal: the file is still committed.
-git -C "$W" cat-file -e HEAD:notes.txt 2>/dev/null || fail "the run did not carry on"
+# A warning, not a refusal: every named file is still committed.
+for f in notes.txt .env.example TODO.md .dev/f .test-fixtures/f; do
+  git -C "$W" cat-file -e "HEAD:$f" 2>/dev/null || fail "$f is not in the first commit"
+done
 
 # The multi root is not a repository, so nothing there is committed.
 CASE=stray-multi
