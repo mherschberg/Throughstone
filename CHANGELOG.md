@@ -593,6 +593,13 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **The README says to delete the repo "Use this template" creates, and `SECURITY.md` names the
+  latest release as supported.** That repo still holds Throughstone's CI workflow and issue
+  templates, so delete it once setup is done, unless you replace its history with your project's.
+  `SECURITY.md` named the default branch, which can carry unfinished work. The README's notes for
+  Throughstone's maintainers are gone: publishing the website is in `CONTRIBUTING.md`, and the
+  template-repository note is deleted. The feature-request template's link to `CONTRIBUTING.md`
+  works from an issue.
 - **The coding standards' examples work for any project name.** `python.md` and `typescript.md`
   built a package folder and a base error class from the project's name, so a name like
   `acme-scheduler` gave `src/acme-scheduler/`, which Python cannot import, and
