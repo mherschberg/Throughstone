@@ -26,6 +26,7 @@ index="$TMP_ROOT/STEP-index.md"
 # write_index STEP_ROWS SUB_ROWS — write the two tables the resolver reads. The substep table
 # needs its own header: the parser locates each table's columns from the header it finds, so a
 # substep row is only a substep row while a `Substep` header is in scope.
+# Its STEP table keeps the retired Repos (projection) column, as an existing project's index may.
 write_index() {
   {
     printf '# Resolver fixture\n\n'
