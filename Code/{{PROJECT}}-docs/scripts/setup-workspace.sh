@@ -27,10 +27,10 @@ if [ "$#" -gt 0 ]; then
   exit 2
 fi
 
-# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
-# Code/<project>-docs/scripts/ after initialization; derive paths instead of hard-coding the
-# generated project name. DOCS_REL is written into root pointers and falls back when python3
-# is unavailable.
+# Paths start from this script's own location, never from the docs hub's name, which differs per
+# project. The hub is the folder above scripts/, and the workspace root is two folders above the
+# hub. DOCS_REL is the hub's path from the workspace root, written into the root pointers;
+# without python3 it is Code/ plus the hub's folder name.
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 DOCS_REL="$(python3 -c "import os;print(os.path.relpath('$DOCS_DIR','$ROOT'))" 2>/dev/null || echo "Code/$(basename "$DOCS_DIR")")"
