@@ -18,5 +18,4 @@ fails if an open-source selection's canonical `LICENSE` is missing. A proprietar
 | `BSD-3-Clause.txt` | BSD 3-Clause | Open source → BSD-3. Permissive, plus a name-endorsement protection clause. |
 | `Apache-2.0.txt` | Apache License 2.0 | Open source → Apache. Permissive, with an explicit patent grant; common for larger/commercial OSS. |
 
-To use a different license, drop its text here as `<name>.txt` (with the same placeholders)
-and add a branch in `init.sh`, or just add the `LICENSE` to your repo by hand.
+To use a different license, add the `LICENSE` to your repo by hand.
