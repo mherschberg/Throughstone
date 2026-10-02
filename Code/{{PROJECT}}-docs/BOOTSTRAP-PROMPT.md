@@ -1,8 +1,8 @@
 # Bootstrap Prompt
 
-**Hand this to your AI agent to start the project.** Open the workspace folder in your
-agent and say: *"Read `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` and
-`Code/{{PROJECT}}-docs/overview.md`, and let's begin."*
+**This is the kickoff your agent follows.** You don't send it yourself: start your agent in
+the workspace folder and tell it *"Read AGENTS.md and follow it."* While the project has not
+started, `AGENTS.md` sends the agent here.
 
 > Paths below are relative to the workspace root (the folder containing `Code/` and
 > `prompts/`).
