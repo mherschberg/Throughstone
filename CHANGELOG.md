@@ -193,6 +193,11 @@ any project built with it.
   advice for people working on Throughstone itself. Now an agent follows the normal handoff and
   points you at `./init.sh`, unless the clone is marked as an author's with
   `git config throughstone.author true` (see `CONTRIBUTING.md`).
+- **`UPDATING-THROUGHSTONE.md` describes the update you do by hand, and nothing else.** It no
+  longer specifies an updater tool Throughstone has never shipped: the project manifest, the
+  release update catalog, the tool's check flow and command names, and the root updater are gone,
+  and so is the README's pointer to the manifest. The compare model, risk signals, apply rules
+  and STEP threshold now describe a manual update, and the sections are renumbered §1–§7.
 - **The two local-profile settings each do one job.** The kickoff records an experience level and
   a communication style, and the docs had quietly welded them together: `METHOD.md` told an agent
   that Level 3 means "keep it terse and decision-focused", and its Level 1-2 twin bundled
@@ -588,6 +593,10 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **Three upgrade steps no longer tell you to replace your own project name.** The steps in
+  `UPDATING-THROUGHSTONE.md` for restoring `registries/` and copying in `input-captures.yml` wrote
+  the placeholder out, so setup turned them into "replace `acme` with your project slug". They now
+  describe the placeholder without spelling it.
 - **A project's docs no longer carry the rules for editing Throughstone.** `ONBOARDING.md` §6
   told a project's contributors to keep a placeholder that setup had already replaced with the
   project's name. The guide's opening note now says what `<project>` stands for, and the rule for
@@ -1190,7 +1199,8 @@ any project built with it.
   them — was left untracked and swept in by a `git add -A`. Throughstone's own repository moved off
   the by-name rule for this reason and the generated one did not follow. Now matched by pattern.
   Shared project config (`.claude/settings.json`) is still committed, so this narrows what leaks
-  without narrowing what a team can share.
+  without narrowing what a team can share. An existing project can make the same change by hand;
+  `UPDATING-THROUGHSTONE.md` has the step.
 - **`init.sh`'s closing backup tip was wrong for a mono-repo project.** It told every project to
   "create empty repos on your host, add their URLs to `registries/repos.yml`, and push each local
   repo's `main` branch" — which the rewritten `runbooks/collaboration.md` §9 expressly tells a mono
