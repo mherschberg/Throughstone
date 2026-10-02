@@ -10,7 +10,7 @@ able to read.
 
 Do not commit a generated multi-file coverage site by default. Tools such as JaCoCo,
 pytest-cov/htmlcov, Istanbul, and LCOV viewers often produce an HTML tree that mirrors the source
-tree. That is useful for inspection, but it is usually too noisy for the docs repo. Prefer a
+tree. That is useful for inspection, but it is usually too noisy for the docs hub. Prefer a
 Markdown summary here that points to the CI artifact, coverage service, or local command that
 produced the full tree.
 
@@ -39,7 +39,7 @@ YYYY-MM-DD-release-candidate-1-test-results.md
 
 If a project has a real release, audit, or compliance reason to retain generated artifact trees in
 git, define that project-specific convention in the Test Strategy architecture doc. Otherwise,
-keep generated trees out of the docs repo.
+keep generated trees out of the docs hub.
 
 ## What To Record
 
