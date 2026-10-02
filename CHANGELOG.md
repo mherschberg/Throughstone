@@ -601,12 +601,13 @@ any project built with it.
   copy is the one the template shipped. In a multi-repo project, the note about an existing root
   origin no longer suggests `--remotes=yes`, which is too late by then, and does not appear when
   you ask for remotes. Setup's messages and the README say the kickoff drafts `overview.md` with
-  you, and that `./doctor.sh links` needs `python3`.
+  you, and that `./doctor.sh links` needs `python3`. The multi-repo closing note no longer cites a
+  layout question that a run given `--layout` never showed.
 - **`./doctor.sh status` no longer tells a project without its STEP index to run `init.sh`.** It
   said the project was not initialized, and `init.sh` refuses to run in an initialized project. It
   now says to restore `prompts/STEP-index.md` from git, and in a multi-repo project names
-  `setup-workspace.sh`, which clones the prompts repo. Before setup, with no `overview.md` either,
-  it still says to run `init.sh`.
+  `setup-workspace.sh`, which clones the prompts repo from the remote recorded on its row. Before
+  setup, with no `overview.md` either, it still says to run `init.sh`.
 - **The README says to delete the repo "Use this template" creates, and `SECURITY.md` names the
   latest release as supported.** That repo still holds Throughstone's CI workflow and issue
   templates, so delete it once setup is done, unless you replace its history with your project's.
@@ -620,6 +621,7 @@ any project built with it.
   `class acme-schedulerError`, which is not a valid class name. They now say `src/<package>/`
   and `AppError`. `python.md` no longer cites a strict type-checker config it never gives,
   `csharp.md`'s rule on catching everything reads correctly, and the `.env.example` template
+  names its example database `app_dev` instead of building it from the project's name, and
   closes a parenthesis.
 - **Templates say what is true in the project they create.** A project's `overview.md` no longer
   calls itself the template; it says the kickoff drafts it with you. Saved S0, S1 and S2 security
@@ -627,8 +629,8 @@ any project built with it.
   titles drop "Template". The planning and system-overview sessions say `init.sh` fills their
   description, the STEP index names hub files by their full path, the CI starter no longer reads
   "a acme project", the licence templates no longer suggest editing `init.sh`, the test-strategy
-  session says where each CI workflow lives, and `prompts/README.md` points at the root
-  `LICENSE-THROUGHSTONE`.
+  session says where each CI workflow lives, and `prompts/README.md` points at the
+  `LICENSE-THROUGHSTONE` at its repository's root.
 - **Runbooks, registries, report READMEs and the hub scripts say what is true in your project.**
   They say "the docs hub" where they said "the scaffolded docs folder" or "the docs repo", which is
   wrong in a mono-repo-for-now project, and `METHOD.md` §3 now says what the docs hub is in each
@@ -637,8 +639,9 @@ any project built with it.
   `registries/repos.yml` no longer talk about the scaffold, and a stray line in
   `runbooks/release-deploy.md` is gone. The comments in `scripts/` say "the docs hub" and
   "Throughstone's material", and no longer describe Throughstone's own checkout or cite its tests.
-  Check 10's header in `check.sh` lists what it fails, and check 7's skip line no longer mentions
-  "the template".
+  Check 10's header in `check.sh` lists what it fails. Check 7's skip line no longer mentions
+  "the template", and its fix line now offers moving a file that is yours alone out of the
+  workspace.
 - **Three upgrade steps no longer tell you to replace your own project name.** The steps in
   `UPDATING-THROUGHSTONE.md` for restoring `registries/` and copying in `input-captures.yml` wrote
   the placeholder out, so setup turned them into "replace `acme` with your project slug". They now
