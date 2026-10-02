@@ -103,8 +103,8 @@ production software, get review from an experienced engineer.
 > placeholder substitution; all three ship on macOS and nearly every Linux. `gh` is optional
 > (only for auto-creating GitHub remotes). Bitbucket, GitLab, and other Git hosts work through
 > pre-created remote URLs. The later `setup-workspace.sh` uses `python3` if present (with a
-> plain-shell fallback). The methodology, prompts, and templates themselves are plain Markdown —
-> these are just the two setup wizards.
+> plain-shell fallback), and `./doctor.sh links` needs it. The methodology, prompts, and
+> templates themselves are plain Markdown — these are just for the scripts.
 
 > You can also see the **[videos](#videos)** on how to get started.
 
@@ -269,7 +269,7 @@ your-project/                    ← workspace shell (per-machine, not a repo)
         ├── AGENTS.md            ← canonical agent context
         ├── METHOD.md            ← the methodology — read this
         ├── BOOTSTRAP-PROMPT.md  ← the kickoff prompt
-        ├── overview.md          ← your project brief (you create this)
+        ├── overview.md          ← your project brief (the kickoff drafts it with you)
         ├── inputs/              ← documents you provide (specs, designs, research) — sessions read these
         ├── templates/           ← architecture docs, sessions, ADRs, STEP plans, READMEs
         ├── architecture/  adr/  coding-standards/  registries/  runbooks/
