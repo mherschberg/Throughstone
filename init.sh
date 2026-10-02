@@ -1670,11 +1670,11 @@ else
   INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is not part of any
 repo here, so deleting the file is the whole of it."
 fi
-# "your project is saved locally with Git" is true of a mono project and only partly true of a
-# multi one, where the workspace root is not a repository, as the layout menu says earlier in the
-# same run. One sentence saying everything is saved and another saying files here are not tracked
-# is a contradiction the reader has to resolve alone, and the reassuring half is the one they will
-# believe. Same treatment as the init.sh tip above: say whichever is true, and name the commit.
+# "your project is saved locally with Git" is true of a mono project and only partly true of a multi
+# one, where the workspace root is not a repository. One sentence saying everything is saved and
+# another saying files here are not tracked is a contradiction the reader has to resolve alone, and
+# the reassuring half is the one they will believe. Same treatment as the init.sh tip above: say
+# whichever is true, and name the commit.
 if [ "$LAYOUT" = "2" ]; then
   SAVED_TIP="You can start now; your project is committed locally with Git — everything in this
   folder is in that repository except the STEP in flight in Upcoming Prompts/, which stays on this
@@ -1682,8 +1682,8 @@ if [ "$LAYOUT" = "2" ]; then
   PUSHED_TIP="It is also pushed to the remote named above."
 else
   SAVED_TIP="You can start now; both repositories here are committed locally with Git —
-  Code/${SLUG}-docs/ and prompts/. Files at the workspace root are not in any repository, as the
-  layout question said, so keep anything durable inside one of those two."
+  Code/${SLUG}-docs/ and prompts/. Files at the workspace root are not in any repository, so
+  keep anything durable inside one of those two."
   PUSHED_TIP="Both are also pushed to the remotes named above."
 fi
 if [ "$MK_REMOTES" = "0" ]; then
