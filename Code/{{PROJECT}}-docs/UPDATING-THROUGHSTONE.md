@@ -20,11 +20,6 @@ multiple repos, turn it into a tracked STEP before applying it.
   text merge; the behavioral risk may still be high.
 - **Project state is protected.** Never automatically update architecture docs, ADRs,
   project overview, STEP history, application code, or stamped/generated repo files.
-- **The updater is stateless.** If updater tooling exists, project state lives in a manifest
-  in the docs hub; update logic may change upstream, but it must read state from disk.
-- **Do not run surprise remote code.** Manual comparison does not require signatures or
-  checksums. If future tooling executes downloaded updater code, pin the release/ref and verify
-  it using the provenance mechanism that release publishes.
 - **Make rollback boring.** Apply updates only when every affected repo has a clean working
   tree and index, use the branch required by this guide, and keep the report with the change.
 
@@ -69,7 +64,7 @@ During an update, treat those old `overview.md` sections as legacy project-state
    the old `overview.md` values as a starting point if they actually describe that user.
 2. Remove the old personal-preference sections from `overview.md` only after confirming they
    are not project facts.
-3. Do **not** migrate them automatically in updater tooling or `doctor`: in a team, the old
+3. Do **not** migrate them automatically, by a script or by `doctor`: in a team, the old
    values may describe the original maintainer, not the active contributor.
 
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
@@ -136,11 +131,12 @@ brought into a project at all — in a second new runbook; none of that asks any
 8. **Mono-repo-for-now with no `registries/` directory?** 1.7 let you opt out, by `--registries=no`
    or by answering no to the interactive question, and only in that layout. Nothing in this section
    about the registry applies until you restore one: copy `registries/` from the scaffold, then
-   replace `{{PROJECT}}` with your project slug throughout. **Keep both seeded rows** — the docs hub
-   and `prompts/` are folders inside your one repository rather than repos of their own, and the
-   registry lists them either way; delete a row only if it names something your project does not
-   have. Then do item 4, and you will have the three rows a mono project bootstrapped on 1.8 starts
-   with. The flag is deprecated in this release and the directory now always ships.
+   replace its `PROJECT` placeholder (in double braces) with your project slug throughout. **Keep
+   both seeded rows** — the docs hub and `prompts/` are folders inside your one repository rather
+   than repos of their own, and the registry lists them either way; delete a row only if it names
+   something your project does not have. Then do item 4, and you will have the three rows a mono
+   project bootstrapped on 1.8 starts with. The flag is deprecated in this release and the
+   directory now always ships.
 9. **Pull the local-profile group as one review-required set** — four of these travel with item
    1's group already, so pull them once. `BOOTSTRAP-PROMPT.md` Stage 0,
    `METHOD.md` §4, `ONBOARDING.md` §3, `AGENTS.md`, `prompts/README.md`,
@@ -203,10 +199,10 @@ brought into a project at all — in a second new runbook; none of that asks any
     changed, record your rule there (`runbooks/collaboration.md` §9 step 3).
 17. **If 1.7's recipe had you list a STEP's substeps in `prompts/STEP-index.md`**, move the list
     of any STEP still in flight into its PLAN — details below.
-18. **Copy the scaffold's empty `registries/input-captures.yml` into your project**, replacing
-    `{{PROJECT}}` in its header. If you have `inputs/inputs-index.md`, carry its `Superseded` rows
-    into the new log, then move it into `inputs/archive/` as a record, or delete it — details
-    below.
+18. **Copy the scaffold's empty `registries/input-captures.yml` into your project**, replacing the
+    `PROJECT` placeholder (in double braces) in its header. If you have `inputs/inputs-index.md`,
+    carry its `Superseded` rows into the new log, then move it into `inputs/archive/` as a record,
+    or delete it — details below.
 19. **If an architecture doc's `Coverage:` line says anything but `full`**, check that a
     `registries/risks.yml` row with a revisit trigger covers it, and add one if not; expand a bare
     value such as `deferred` into a sentence — details below.
@@ -216,7 +212,11 @@ brought into a project at all — in a second new runbook; none of that asks any
     `CLAUDE.md` and `AGENTS.md` with the scaffold's if you want the fix** — details below.
 21. **Multi-repo only: delete the `.gitignore` at your workspace root** — it is the template's own,
     it belongs to no repository, and your repos keep their own.
-22. Nothing else. A project that never splits reads none of the splitting material.
+22. **Optional: widen one line in each repo's `.gitignore`.** Replace `.claude/settings.local.json`
+    with `.claude/*.local.json`, `.claude/#*#` and `.claude/*~`, the lines a new project gets, so an
+    editor's lock or autosave copy of that file is not committed. Shared `.claude/settings.json`
+    still commits.
+23. Nothing else. A project that never splits reads none of the splitting material.
 
 **The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
 warning (`runbooks/collaboration.md` §4) now compares in-flight STEPs' Scope, so nothing reads the
@@ -252,12 +252,13 @@ reference the input or flag it stale rather than capture it — and no entry is 
 no entry names is still only in the input, and where a generated doc covers part of it, that doc
 wins, as before. An input stays in `inputs/` until you tell a session it is fully captured; only
 then does it move to `inputs/archive/`, with a last entry saying so. Copy the scaffold's empty log
-in and replace `{{PROJECT}}` in its header. If you have a ledger, add one entry per `Superseded`
-row of an input still in `inputs/` — `input` is `inputs/` plus the row's file, `taken` the row's
-part, `went_to` its covering doc, `date` today's, and `step` can say `from inputs-index.md` — and
-move any input that is `Superseded` in every row to `inputs/archive/` with the closing entry the
-log's header describes, since no check-in will offer to now. Then move the ledger into `inputs/archive/`
-as a record, or delete it; left in `inputs/`, a session may read its out-of-date instructions.
+in and replace the `PROJECT` placeholder (in double braces) in its header. If you have a ledger,
+add one entry per `Superseded` row of an input still in `inputs/` — `input` is `inputs/` plus the
+row's file, `taken` the row's part, `went_to` its covering doc, `date` today's, and `step` can say
+`from inputs-index.md` — and move any input that is `Superseded` in every row to `inputs/archive/`
+with the closing entry the log's header describes, since no check-in will offer to now. Then move
+the ledger into `inputs/archive/` as a record, or delete it; left in `inputs/`, a session may read
+its out-of-date instructions.
 `AGENTS.md`, `METHOD.md` §4, `inputs/README.md`, `registries/README.md`, `runbooks/check-in.md`,
 the check-in report template and the substep template change with it, and items 1, 9 and 14
 already pull them.
@@ -555,9 +556,10 @@ differently:
   root: a README of yours there gains the same section, and if there is none, one is stamped from
   the template.
   **The "do the setup steps still work from a clean checkout" check now survives only on a README
-  we stamped.** One smaller shift rides along: a registry row and its Architecture Overview entry
-  now count as **one** thing that drifts, fixed by re-running the registration rather than by
-  editing either side — and the trigger covers an entry that is **absent** as well as one that
+  Throughstone stamped.** One smaller shift rides along: a registry row and its Architecture
+  Overview entry now count as **one** thing that drifts, fixed by re-running the registration
+  rather than by editing either side — and the trigger covers an entry that is **absent** as well
+  as one that
   disagrees. **On a 1.7 project that is every row**: the Repos entry is new in this release, so
   your Architecture Overview has none, no row has one, and your first 1.8 check-in sends every
   repo you have back through `runbooks/register-repo.md`. **That is the expected shape of it, and
@@ -1123,8 +1125,7 @@ retires the check-in's inputs sweep — read the 1.8 section instead if you are 
 
 ## 3. Manual Mode
 
-This guide works today even without updater tooling, a project manifest, or an upstream update
-catalog.
+Throughstone ships no updater tool, so an update is done by hand:
 
 1. Pick the target Throughstone release or commit from
    `https://github.com/mherschberg/Throughstone`.
@@ -1138,115 +1139,15 @@ catalog.
 5. For each candidate change, write a short report: target release/ref, files reviewed,
    implication/risk, recommendation, and whether it needs a tracked STEP.
 6. Apply only the reviewed changes the user explicitly approves, following the apply and STEP
-   rules in §8 and §10, then run `./doctor.sh check`.
+   rules in §6 and §7, then run `./doctor.sh check`.
 
-Manual mode is slower than tooling, but it is the default path until the manifest and catalog
-described below exist.
-
-## 4. Future Tooling Artifacts
-
-A future updater should read two kinds of metadata.
-
-### Project Manifest
-
-The manifest lives in the docs hub at `Code/{{PROJECT}}-docs/.throughstone/manifest.yml`
-when viewed from the workspace root. Within the docs hub, that same path is
-`.throughstone/manifest.yml`.
-
-The default upstream source is `https://github.com/mherschberg/Throughstone`. If a project
-intentionally tracks a fork or private mirror instead, record that source in the manifest so
-future checks compare against the right upstream.
-
-```yaml
-# .throughstone/manifest.yml
-throughstone:
-  installed_version: "0.1.0"
-  installed_ref: "abc1234"
-  source: "https://github.com/mherschberg/Throughstone"
-
-files:
-  - local_path: "METHOD.md"
-    upstream_area: "docs-hub"
-    upstream_path: "METHOD.md"
-    kind: "process"
-    policy: "review"
-    installed_sha256: "..."
-
-  - local_path: "scripts/status.sh"
-    upstream_area: "docs-hub"
-    upstream_path: "scripts/status.sh"
-    kind: "script"
-    policy: "review"
-    installed_sha256: "..."
-
-  - local_path: "templates/substep-prompt-template.md"
-    upstream_area: "docs-hub"
-    upstream_path: "templates/substep-prompt-template.md"
-    kind: "template"
-    policy: "future-only"
-    installed_sha256: "..."
-```
-
-Manifest field meanings:
-
-- `local_path` is relative to the initialized docs hub. For example,
-  `Code/acme-docs/scripts/status.sh` on disk is recorded as `scripts/status.sh`.
-- `upstream_area` names the logical scaffold area in the Throughstone source. For now, this
-  guide only defines `docs-hub`, which maps to upstream `Code/{{PROJECT}}-docs/`.
-- `upstream_path` is relative to `upstream_area`. For example, `upstream_area: "docs-hub"` plus
-  `upstream_path: "scripts/status.sh"` maps to upstream
-  `Code/{{PROJECT}}-docs/scripts/status.sh`.
-- Future tooling combines `source`, `installed_ref`, `upstream_area`, and `upstream_path` to
-  find the upstream file, and combines the initialized docs hub path with `local_path` to find
-  the local file.
-
-Keep upstream identifiers placeholder-free. Do not store the initialized project slug in an
-upstream path, and do not depend on the Throughstone project-placeholder token surviving
-bootstrap; `init.sh` intentionally replaces it in file contents.
-
-The manifest is advisory state, not magic truth. If it is missing, stale, or inconsistent,
-the updater must say so and fall back to a manual comparison.
-
-### Upstream Update Catalog
-
-Once updater tooling exists, each Throughstone release should ship an update catalog:
-
-```yaml
-version: "0.2.0"
-changes:
-  - area: "docs-hub"
-    path: "scripts/setup-workspace.sh"
-    group: "workspace-setup"
-    kind: "script"
-    risk: "medium"
-    summary: "Improves repo registry parsing when only some repos have remotes."
-    implications:
-      - "Changes clone behavior for multi-repo workspaces."
-      - "Does not modify project docs or application code."
-    recommendation: "Review, then apply if setup-workspace.sh was not customized."
-
-  - area: "docs-hub"
-    path: "templates/planning-session.md"
-    group: "planning-flow"
-    kind: "template"
-    risk: "low"
-    summary: "Adds stronger CI scaffolding guidance."
-    implications:
-      - "Affects future planning sessions only."
-      - "Does not update existing STEP plans."
-    recommendation: "Update for future use."
-```
-
-Catalog entries must name implications plainly. The updater should also compute mechanical
-risk signals instead of relying only on maintainer-written summaries.
-
-## 5. Compare Model
+## 4. Compare Model
 
 For every scaffold-managed file, compare three versions:
 
 | Version | Meaning |
 |---------|---------|
-| **base** | the file content recorded at install time, identified by `installed_sha256` |
+| **base** | the file as your project received it, in the Throughstone release it was built from |
 | **local** | the file currently in this project |
 | **upstream** | the file in the target Throughstone release |
 
@@ -1258,21 +1159,17 @@ Classify the result:
 | **upstream-only** | `local == base`, upstream changed | Candidate for apply, still review risk. |
 | **local-only** | local changed, upstream unchanged | Keep local; no update needed. |
 | **diverged** | local changed and upstream changed | Manual review or merge; do not auto-apply. |
-| **baseline-unknown** | install-time baseline is missing or cannot be verified | Report only; require manual review before any baseline is adopted or update is applied. |
-| **untracked** | file is not in the manifest | Report only unless explicitly added to manifest. |
+| **baseline-unknown** | the base cannot be found or verified | Report only; require manual review before any baseline is adopted or update is applied. |
 | **protected** | file is project-owned or generated | Never auto-apply. |
-| **manifest-invalid** | checksum/path/ref is missing or inconsistent | Stop automatic actions; require manual comparison. |
 
 Use precise wording: **"unchanged locally"** is acceptable; **"safe to apply"** is not.
-For projects without a trustworthy install-time manifest, do not backfill the manifest by
-treating today's local files as the original base. Mark those files `baseline-unknown` unless
-their local content can be verified against a known installed upstream ref after bootstrap
-normalization, or unless the user explicitly adopts a reviewed file as the new managed
-baseline.
+Do not treat today's local file as the base. Mark a file `baseline-unknown` unless it can be
+checked against the release your project was built from, with your project's name in place of
+the placeholder, or the user explicitly adopts a reviewed file as the new baseline.
 
-## 6. Mechanical Risk Signals
+## 5. Mechanical Risk Signals
 
-The updater should flag at least these signals:
+Flag at least these in the report:
 
 - executable bit changed
 - shell script changed
@@ -1287,37 +1184,16 @@ The updater should flag at least these signals:
 - update group is incomplete
 - affected repo has uncommitted changes
 
-Mechanical signals do not replace the catalog; they catch omissions and force review.
+Any one of them makes the change review-required, whatever the release notes say.
 
-## 7. Future Tooling Check Flow
-
-1. Confirm the docs hub and workspace layout.
-2. Read `Code/{{PROJECT}}-docs/.throughstone/manifest.yml` (or
-   `.throughstone/manifest.yml` from inside the docs hub). If absent, use manual mode (§3)
-   instead.
-3. Fetch or locate the target Throughstone release metadata. If the process executes
-   downloaded updater code, pin the release/ref and verify it using the release's published
-   provenance mechanism before execution.
-4. Read the upstream update catalog.
-5. Build the three-way comparison for every manifest file.
-6. Group related changes. If a group is incomplete, mark the whole group review-required.
-7. Print a report with:
-   - classification
-   - bucket/policy
-   - risk level and mechanical risk signals
-   - human implications from the catalog
-   - whether the update is future-only, review-required, manual-merge, or protected
-8. Stop. The default tooling command must not write files.
-
-## 8. Apply Rules
+## 6. Apply Rules
 
 Only apply when all of these are true:
 
 - user explicitly requested apply
-- every affected repo has a clean working tree and index before the updater creates or switches
-  branches and before it writes files
-- upstream release/ref was selected; any downloaded executable updater code was verified using
-  the release's published provenance mechanism
+- every affected repo has a clean working tree and index before any branch is created or switched
+  and before any file is written
+- the upstream release or ref was chosen
 - file is not protected
 - file is either `upstream-only` with a verified baseline or the user selected a manual merge
   result
@@ -1325,46 +1201,18 @@ Only apply when all of these are true:
 
 Branch rule:
 
-- If the update meets the STEP threshold in §10, reserve a STEP and use the normal
+- If the update meets the STEP threshold in §7, reserve a STEP and use the normal
   `step-NNNN-short-name` branch.
 - If the update does not meet that threshold, use a dedicated scaffold-update branch so the
   change is still reviewable and easy to roll back.
 
-This guide describes the process whether it is done manually or by future updater tooling.
-Throughstone does **not** currently ship a `throughstone-update.sh` script. If/when one is
-added, use command names that make the risk model clear, for example:
-
-```bash
-./throughstone-update.sh check
-./throughstone-update.sh diff
-./throughstone-update.sh apply --unchanged-local-only
-./throughstone-update.sh apply METHOD.md scripts/status.sh
-```
-
-Avoid names like `--safe` or `--clean-only`; they imply more certainty than the updater has.
-
 After apply:
 
-1. Recompute and write manifest checksums for updated scaffold files.
-2. Run the docs hub checks (`./doctor.sh check`).
-3. Preserve the update report in the branch or commit message.
-4. Tell the user what changed, what was skipped, and which manual review items remain.
+1. Run the docs hub checks (`./doctor.sh check`).
+2. Preserve the update report in the branch or commit message.
+3. Tell the user what changed, what was skipped, and which manual review items remain.
 
-## 9. Future Root Updater Shape
-
-A future root updater may be tiny and replaceable:
-
-1. locate the docs hub
-2. read the manifest path
-3. pin the requested upstream release/ref and verify executable updater code using the
-   release's published provenance mechanism
-4. run the verified updater from a temporary location
-5. pass only project root, docs hub path, manifest path, and requested command
-
-It must not store project state outside the manifest. If the root updater itself changes,
-that update is reported and applied like any other script update.
-
-## 10. When To Make It A STEP
+## 7. When To Make It A STEP
 
 Make a tracked STEP when the update:
 
@@ -1376,5 +1224,5 @@ Make a tracked STEP when the update:
 - would affect an active team
 
 The STEP's PLAN can be thin: point to this guide, list the update groups under review, and
-define done as "report reviewed, selected updates applied, checks passed, manifest refreshed,
-and skipped/protected files recorded."
+define done as "report reviewed, selected updates applied, checks passed, and skipped/protected
+files recorded."
