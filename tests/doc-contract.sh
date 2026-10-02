@@ -77,10 +77,10 @@ section() {   # section FILE N — the body of "## N. …" up to the next "## "
 
 # --- 1. Section citations resolve --------------------------------------------
 # Both the helpers and the documents send a reader to a numbered section by number —
-# check.sh prints "See Code/<project>-docs/METHOD.md §1." under a finding, AGENTS.md points at
-# METHOD.md §10 for the resolver, METHOD.md §7 points at ONBOARDING.md §6. Nothing resolves
-# those: links.sh checks Markdown link targets, and a "§7" in running prose is not a link. So
-# renumbering a section leaves every citation of it pointing somewhere else, silently.
+# check.sh prints "See Code/<project>-docs/METHOD.md §1." under a finding, and AGENTS.md points
+# at METHOD.md §10 for the resolver. Nothing resolves those: links.sh checks Markdown link
+# targets, and a "§7" in running prose is not a link. So renumbering a section leaves every
+# citation of it pointing somewhere else, silently.
 CITERS=(
   "$CHECK_SH" "$STATUS_SH" "$SETUP_SH"
   "$AGENTS" "$BOOT" "$ONBOARD" "$CHECKIN" "$METHOD"
