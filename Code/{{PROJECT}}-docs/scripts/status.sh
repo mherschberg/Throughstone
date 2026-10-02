@@ -32,7 +32,7 @@ ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 # are written bare; anything inside the docs hub carries this prefix.
 DOCS_REL="Code/$(basename "$DOCS_DIR")"
 
-# File assumptions: the generated docs repo sits at Code/<project>-docs/, while the runtime
+# File assumptions: the docs hub sits at Code/<project>-docs/, while the runtime
 # STEP index lives at the project root in prompts/STEP-index.md.
 #
 # THROUGHSTONE_STEP_INDEX and THROUGHSTONE_OVERVIEW are maintainer-test seams for fixtures.
