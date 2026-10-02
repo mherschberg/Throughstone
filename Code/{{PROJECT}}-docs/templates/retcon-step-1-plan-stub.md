@@ -22,8 +22,9 @@ running code), not *prescriptive* (decided, then built). The running code is the
 existing docs, memory, and original intent are secondary evidence that may be stale or wrong.
 
 When adoption lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary **`Done`** row in
-`prompts/STEP-index.md` marked **RETCON**, with the scope *"Retcon baseline — reverse-engineered
-from existing code; adopted {{DATE}}; forward work starts at STEP-2."* It archives greenfield-style
+`prompts/STEP-index.md` with the scope *"Retcon baseline — reverse-engineered from existing code;
+adopted {{DATE}}; forward work starts at STEP-2."* That Scope cell, which opens
+*"Retcon baseline —"*, is the row's RETCON mark; there is no separate one. STEP-1 archives greenfield-style
 into `prompts/001-<milestone>/step-0001/` (the folder name converges with greenfield), and a
 one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}"*). Landing also
 reconciles the STEP index against this PLAN, in one pass. A session this PLAN ends at **`N/A`** or

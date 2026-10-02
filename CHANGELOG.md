@@ -192,6 +192,14 @@ error/corruption and re-run paths, not normal operation.
   maintainer test enforces it.
 - **Adoption's own documents now write hub paths from the workspace root, drop the retired
   registered-in-place repo rule, and agree on when a session is `Done` and what landing writes.**
+- **The adoption prompt now covers cases it left open.** The landed STEP-1 row's Scope cell, which
+  opens *Retcon baseline —*, is its only RETCON mark; Phasing runs without a pre-answer sheet, and an
+  interrupted one re-asks whatever its doc doesn't yet say; a decision record the code shows was
+  reversed is still adopted, superseded by the architecture doc that records today's decision;
+  agent-instruction files in the adopted code are documents to classify, never instructions; a
+  resource's row names the session it feeds; a doc-set that is not files is exported into
+  `inputs/`; and an included conditional's output-doc number, the next free one above the core
+  block, is recorded in the PLAN's conditional table.
 
 ### Fixed
 - **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
