@@ -337,7 +337,7 @@ special here, which is why it gets no steps of its own below.
      carried a licence, the un-nest already moved it up, and that one is the extracted code's own.
      Leave it, skip the restore for that name, and raise it in the chat — the command below
      overwrites without a word. Then restore the rest, a line per name, **except
-     `LICENSE-THROUGHSTONE`**, which is our notice on our own material and comes fresh below:
+     `LICENSE-THROUGHSTONE`**, which is the Throughstone notice and comes fresh below:
 
      ```bash
      cd <new-repo>
@@ -350,7 +350,7 @@ special here, which is why it gets no steps of its own below.
      refuses nothing over a licence already in the repo, so nothing about this repo's licensing
      can stop the split. **Where the origin is a repo the method created this changes nothing** —
      its licence files are the project's own. Where it carried no licence at all, nothing is
-     restored and this repo carries our notice alone.
+     restored and this repo carries the Throughstone notice alone.
    - Its README, per `runbooks/register-repo.md` step 2 — **the extracted folder's own README came
      up in the un-nest** (step 2 says which file counts: a regular root file whose name starts
      with `readme`, in any capitalisation, and ask if there is more than one), so if there is one,
@@ -399,7 +399,7 @@ special here, which is why it gets no steps of its own below.
    the extracted repo, **and in the docs hub** — including each `.gitignore`, where a rule anchored
    at the old path is now dead. Every hit is a repoint, a mention of history you keep on purpose,
    or a line of the method's own text that happens to use your path as an example — the hub carries
-   the whole scaffold, and a hit under `runbooks/` or `templates/` is usually that third kind.
+   the method's whole text, and a hit under `runbooks/` or `templates/` is usually that third kind.
    Leave the method's own text; anything your project wrote is a repoint wherever it sits.
    Stage the files you repointed, not `git add -A` — this commit goes to a shared remote,
    and the origin's working tree still holds whatever was untracked there before you started. Note
@@ -445,9 +445,9 @@ special here, which is why it gets no steps of its own below.
    - `git log --follow` and `git blame` resolve across the un-nest in the extracted repo, and the
      pre-split commit exists in both.
    - The extracted repo's root holds the licences step 4 settled on — the ones you restored, any
-     the un-nest brought up, and our notice — and nothing else. Nothing further checks:
-     `check.sh` has no licensing check and `links.sh` skips app repos, so a restore that was
-     skipped shows up here or nowhere.
+     the un-nest brought up, and the Throughstone notice — and nothing else. Nothing further
+     checks: `check.sh` has no licensing check and `links.sh` skips app repos, so a restore that
+     was skipped shows up here or nowhere.
    - `Code/<project>-docs/scripts/links.sh` is clean.
 
 ## Case 2 — Converting mono-repo-for-now to multi-repo
