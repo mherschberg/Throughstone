@@ -9,15 +9,13 @@
 # Throughstone-authored README / CI material.
 #
 # --notice-only writes only LICENSE-THROUGHSTONE and reads no posture. It is for a repository
-# Throughstone did not create: our material there needs a notice, but the project's own
-# licensing is not ours to state, so no LICENSE and no LICENSING.md are written and an existing
-# notice is left alone. It warns rather than failing, so a caller is never stopped by it.
+# Throughstone did not create: Throughstone's material there needs a notice, but the repository's
+# licensing is not the project's to state, so no LICENSE and no LICENSING.md are written and an
+# existing notice is left alone. It warns rather than failing, so a caller is never stopped by it.
 
 set -euo pipefail
 
-# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
-# Code/<project>-docs/scripts/ after initialization; derive the docs hub without resolving
-# the placeholder in this template checkout.
+# The docs hub is found from this script's own location, never from its name.
 DOCS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NOTICE_ONLY=0
 TARGET=""
