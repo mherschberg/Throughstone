@@ -18,7 +18,8 @@
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
-<!-- The kickoff fills this from overview.md. Running standalone? Read overview.md first. -->
+<!-- init.sh fills this from the one-line description given at setup. Running standalone? Read
+     overview.md first. -->
 
 ## Why this session matters
 STEP-1 leaves you with a coherent architecture but no path into code. The instinct is to
