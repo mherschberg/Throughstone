@@ -593,6 +593,14 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **Templates say what is true in the project they create.** A project's `overview.md` no longer
+  calls itself the template; it says the kickoff drafts it with you. Saved S0, S1 and S2 security
+  reports no longer link to their checklist by a path that breaks `./doctor.sh links`, and their
+  titles drop "Template". The planning and system-overview sessions say `init.sh` fills their
+  description, the STEP index names hub files by their full path, the CI starter no longer reads
+  "a acme project", the licence templates no longer suggest editing `init.sh`, the test-strategy
+  session says where each CI workflow lives, and `prompts/README.md` points at the root
+  `LICENSE-THROUGHSTONE`.
 - **Runbooks, registries and report READMEs say what is true in your project.** They say "the
   docs hub" where they said "the scaffolded docs folder" or "the docs repo", which is wrong in a
   mono-repo-for-now project, and `METHOD.md` §3 now says what the docs hub is in each layout.
