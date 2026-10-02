@@ -604,11 +604,13 @@ its own steps.
 
 **All durable content lives in a repo** — almost always `Code/{{PROJECT}}-docs/`. The
 workspace root holds only **per-machine** files: the pointer `CLAUDE.md` / `AGENTS.md`
-(which redirect to the canonical `Code/{{PROJECT}}-docs/AGENTS.md`) and `.claude/` config.
-These are not versioned (the root is not a repo) and are regenerated on each developer's
-machine by `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`.
+(which redirect to the canonical `Code/{{PROJECT}}-docs/AGENTS.md`), the `doctor.sh` shortcut,
+`.claude/` config, and `.throughstone/`, which holds the local user profile. These are not
+versioned (the root is not a repo). `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` writes the
+pointers and `doctor.sh` on each developer's machine, and each developer sets up their own
+profile (`ONBOARDING.md` §3).
 
-**Workspace-root hygiene:** besides the per-machine pointers/config, the repo folders, and
+**Workspace-root hygiene:** besides the per-machine files above, the repo folders, and
 the `Upcoming Prompts/` working folder, no other file should sit at the workspace root (the
 one-time `init.sh` may linger there until you delete it post-bootstrap — that's expected). If
 any *other* file appears, ask whether it belongs in a repo (usually the docs hub) and move it.
@@ -646,8 +648,6 @@ bare.
 it does; `architecture/` and `inputs/` name areas of the hub where the sentence is about the area.
 Write the path out when the reader has to reach the thing. (`init.sh` and `doctor.sh` sit at the
 workspace root, so a bare mention of them is already root-relative.)
-**Which placeholder a path carries — `{{PROJECT}}` or `<project>` — is a separate rule**, stated
-in `ONBOARDING.md` §6.
 
 **A path a tool prints follows the reader, not the tool.** None of the helpers changes the
 caller's directory, so whatever any of them prints is read from the workspace root and is written
@@ -713,8 +713,8 @@ branch-per-STEP work like anything else.
 |-------|---------|---------|
 | Phase folder | `NNN-kebab-name/` | `001-mvp/` |
 | STEP folder (archived) | `step-NNNN/` | `step-0001/`, `step-0087/` |
-| STEP plan | `{{PROJECT}}-STEP-N-PLAN.md` | `acme-STEP-1-PLAN.md` |
-| Substep prompt | `{{PROJECT}}-STEP-N.M-PROMPT.md` | `acme-STEP-1.5a-PROMPT.md` |
+| STEP plan | `{{PROJECT}}-STEP-N-PLAN.md` | `{{PROJECT}}-STEP-1-PLAN.md` |
+| Substep prompt | `{{PROJECT}}-STEP-N.M-PROMPT.md` | `{{PROJECT}}-STEP-1.5a-PROMPT.md` |
 | Architecture doc | `NN-kebab-title.md` | `06-security-model.md` |
 | ADR | `ADR-NNNN-kebab-title.md` | `ADR-0004-pick-postgres.md` |
 | STEP branch | `step-NNNN-short-name` | `step-0042-payment-webhooks` |
