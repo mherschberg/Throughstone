@@ -69,7 +69,9 @@ written later, when you start it.
 
 ## 3. The two durable doc genres
 
-Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
+**The docs hub** is `Code/{{PROJECT}}-docs/`. Both genres live in it, with the registries,
+reports, and the method's own text and scripts. In a multi-repo project it is its own repo; in
+mono-repo-for-now it is a folder inside the root repo (§7).
 
 | Genre | Location | Answers | Lifecycle |
 |-------|----------|---------|-----------|
