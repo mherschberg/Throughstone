@@ -138,7 +138,10 @@ production software, get review from an experienced engineer.
      template-created remote yourself after reviewing the history. In the default
      **multi-repo** setup, the root is only a workspace shell, so the template repo is just a
      download vehicle — use `--remotes=yes` or add remotes later for the docs and prompts
-     repos.
+     repos. Once setup is done, delete the template repo unless you replace its history with
+     your project's: it still holds Throughstone's files, including a CI workflow that runs
+     Throughstone's tests, and issue templates that point to Throughstone.
+
    Everything from here runs *inside* this folder. After setup it holds your repo(s); the
    root folder itself is just the shell around them (see [Layout](#layout)), so its name is
    cosmetic — but matching it to your project keeps things clear.
@@ -238,7 +241,7 @@ STEPs.
 7. [Throughstone: Observability Session Example](https://youtu.be/88a0TXvQAKs) —
    Deep dive into an example session (observability).
 8. [Throughstone: Glossary Session Example](https://youtu.be/RbsYeFkOgtQ) —
-   The system glossary, what is it and how it helps your project.
+   The system glossary, what it is and how it helps your project.
 9. [Throughstone: Post Architecture Session File Example](https://youtu.be/hcX2-mw7Oj4) —
    Shows what files get created by the architecture sessions.
 10. [Throughstone: Creating Steps](https://youtu.be/bDjWrMow_Qk) —
@@ -286,25 +289,6 @@ For day-to-day project health checks, `./doctor.sh status` reports the next acti
 `./doctor.sh check` runs the read-only structural checks, and `./doctor.sh links` checks
 durable docs for stale local Markdown links. It is only a root shortcut for the plain Bash
 helpers in `Code/{{PROJECT}}-docs/scripts/`.
-
-## Website
-
-The canonical source for the static marketing site is `brand/site/`. GitHub Pages publishes
-from `docs/`, so after editing the site source run:
-
-```bash
-brand/publish-site.sh
-```
-
-That copies the site into `docs/` while preserving `docs/CNAME` and `docs/.nojekyll`, which
-keep `https://throughstone.org` working. To check for drift without writing, run:
-
-```bash
-brand/publish-site.sh --check
-```
-
-CI runs the same check for website changes, so a pull request fails if `brand/site/` and
-`docs/` drift.
 
 ## Updating after setup
 
@@ -589,6 +573,3 @@ Throughstone material keeps its original license.
 > "Throughstone" is a trademark of Mark A. Herschberg — you're welcome to say you *use*
 > Throughstone, but please don't name your own fork or product after it. See
 > [TRADEMARK.md](TRADEMARK.md).
-
-> **Maintainers:** on GitHub, mark this repo as a *template repository* (Settings ▸ General
-> ▸ "Template repository") so others get the "Use this template" button.
