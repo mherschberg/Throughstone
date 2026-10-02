@@ -66,7 +66,7 @@ if [ ! -f "$INDEX" ]; then
   echo "Where you are:  no roadmap (no prompts/STEP-index.md in this workspace)."
   echo
   echo "Next action:"
-  echo "  → restore prompts/STEP-index.md from git history: it holds every STEP number the project has issued. In a multi-repo project prompts/ is its own repository: restore the file inside it, or, if prompts/ is not here at all, run $DOCS_REL/scripts/setup-workspace.sh to clone it."
+  echo "  → restore prompts/STEP-index.md from git history: it holds every STEP number the project has issued. In a multi-repo project prompts/ is its own repository: restore the file inside it, or, if prompts/ is not here at all, run $DOCS_REL/scripts/setup-workspace.sh to clone it from the remote recorded on its row in $DOCS_REL/registries/repos.yml."
   exit 0
 fi
 
