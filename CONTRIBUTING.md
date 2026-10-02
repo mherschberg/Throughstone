@@ -29,6 +29,13 @@ to discuss the direction. This saves you effort and helps keep the method consis
 changes may be declined if they conflict with the method's direction, and an early
 conversation makes that clear up front.
 
+## Working on Throughstone with an AI agent
+
+Run `git config throughstone.author true` once in your clone. The root `AGENTS.md` and
+`CLAUDE.md` tell an agent to check it. Without it, the agent treats the folder as a user's new
+download and tells you to run `./init.sh`. The setting lives in your clone's `.git/config`, so
+every worktree of the clone shares it and no download or push carries it.
+
 ## Comments and docs describe the present
 
 Code comments and the directions in the method's files say how things work **now**. Context is
@@ -37,6 +44,13 @@ and why it changed — the bug a fix answers, what it replaced — goes in the *
 where `git log` and `git blame` find it. In the file it costs every later reader, human or AI,
 tokens and confusion. `CHANGELOG.md` and `UPDATING-THROUGHSTONE.md` record change by design, so
 the rule does not apply to them.
+
+## Placeholders in the scaffold's files
+
+Write the docs hub as `Code/{{PROJECT}}-docs/`. `init.sh` replaces the placeholder with each
+project's slug, so the path names the real folder. Where a file instructs a project's
+contributors, write `Code/<project>-docs/` instead, as `ONBOARDING.md` does; its opening note
+says what `<project>` stands for.
 
 ## Adding or improving coding standards
 
