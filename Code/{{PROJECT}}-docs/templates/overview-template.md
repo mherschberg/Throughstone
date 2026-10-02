@@ -12,11 +12,10 @@
      closes. `status.sh` reports it as due once it is reached, and keeps saying so until you move
      it. Move it whenever you like — it is a plan, not a rule. See METHOD.md §5. -->
 
-> This is the template for your project brief. `init.sh` creates
-> `Code/{{PROJECT}}-docs/overview.md` from it — **open that copy and fill it in** (1–2
-> pages). It's the seed your agent uses to kick off the project. You don't need every
-> answer — the architecture sessions draw the rest out of you. Write what you know; leave a
-> `?` where you're unsure.
+> This is your project brief (1–2 pages), the seed your agent uses to kick off the project.
+> The kickoff drafts it with you in chat, or you can write it yourself first. You don't need
+> every answer — the architecture sessions draw the rest out of you. Write what you know;
+> leave a `?` where you're unsure.
 >
 > **Already have design material** — a product spec, prior architecture or protocol docs, UI
 > designs? Put the actual documents in `inputs/` (see `inputs/README.md`); the sessions read
