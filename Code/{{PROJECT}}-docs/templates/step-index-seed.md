@@ -29,7 +29,7 @@ worked, and completed.
 
 | STEP | Title | Owner | Status | Scope (one line) |
 |------|-------|-------|--------|------------------|
-| STEP-1 | Architecture | | Planned | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
+| STEP-1 | Architecture | | Planned | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
 
 <!-- STEP-1 is the ONLY row at bootstrap. STEP-2 onward are the implementation STEPs — don't
      add them by hand: after STEP-1's review passes, run the planning session
