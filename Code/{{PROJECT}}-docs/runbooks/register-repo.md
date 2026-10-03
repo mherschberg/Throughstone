@@ -61,8 +61,9 @@ The goal is that the **result** is the same however a repo arrived, except for l
 
    **A remote created for a repo that has none is created private** — widening is a separate
    decision, made deliberately later. Making a repo public takes an explicit instruction from the
-   user naming that repo (`METHOD.md` §7): a licence, a public sibling repo, a remote, or a
-   project that calls itself open source is not that instruction, and neither is silence.
+   user naming that repo (`Code/{{PROJECT}}-docs/METHOD.md` §7): a licence, a public sibling repo,
+   a remote, or a project that calls itself open source is not that instruction, and neither is
+   silence.
 
    **A repo split out of another is `added_as: created`** — the method made it — with the split
    history in its `provenance:` block, written by
@@ -96,16 +97,16 @@ The goal is that the **result** is the same however a repo arrived, except for l
      the only place the file says what the notice covers.
    - **A README this method stamped** — recognised by a `## Licensing` section of its own
      carrying the sentence that names `LICENSE-THROUGHSTONE`. Every path that stamps that template
-     writes that sentence, including the cut-back form a repo we did not create gets, and nothing
-     else puts it in a README under that heading. **The heading is half the test**: a README that
-     names the notice in prose somewhere, as the docs hub's own README and `prompts/README.md`
-     both do, is not one we stamped. **Update that file in place**: bring the role one-liner
-     under the title, and the **Overview**, up to date. **Do not add a `## Role in <project>`
-     section** — those two places already say what it would say, and a README carrying both
-     states one repo's role twice, in two places that drift apart. A README carrying that
+     writes that sentence, including the cut-back form a repo with no `LICENSING.md` gets, and
+     nothing else puts it in a README under that heading. **The heading is half the test**: a
+     README that names the notice in prose somewhere, as the docs hub's own README and
+     `prompts/README.md` both do, is not one we stamped. **Update that file in place**: bring the
+     role one-liner under the title, and the **Overview**, up to date. **Do not add a `## Role in
+     <project>` section** — those two places already say what it would say, and a README carrying
+     both states one repo's role twice, in two places that drift apart. A README carrying that
      Licensing section **and** a `## Role in <project>` one is either a stamped README that has
-     gained one, or a README of somebody else's that happens to name the Throughstone notice:
-     **ask which**, and leave the repo with one statement of its role rather than two.
+     gained one, or a README of somebody else's that happens to name the Throughstone notice: **ask
+     which**, and leave the repo with one statement of its role rather than two.
    - **A README already there** — leave it under its own name and add a `## Role in <project>`
      section, written in that file's own markup; a format you do not recognise is plain text. It
      carries the role one-liner, two or three sentences naming the slice this repo owns *and what
@@ -120,8 +121,9 @@ The goal is that the **result** is the same however a repo arrived, except for l
      front of you plainly reads as one of ours, the repo's name as its title and a role one-liner
      under it and an Overview, **ask** rather than writing the role a second time.
 
-   `runbooks/check-in.md`'s README sweep splits the same three ways and sends the reader here for
-   the first of them. The test above is the one definition; change it and that sweep changes too.
+   `Code/{{PROJECT}}-docs/runbooks/check-in.md`'s README sweep uses these same cases and sends
+   the reader here to recognise a stamped README. The test above is the one definition; change it
+   and that sweep changes too.
 
    A repo that already has an `ARCHITECTURE.md` keeps it, exactly as its README is kept.
 
@@ -140,6 +142,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
    created, an existing licence is never overridden without an explicit instruction from the user
    naming that repo: if the script stops because a licence is already there, run the
    `--notice-only` command instead, so the notice still lands, and raise the licence in the chat.
+   If the repo then has no `LICENSING.md`, cut a stamped README's `## Licensing` back to its
+   `LICENSE-THROUGHSTONE` sentence, as step 2 does for a repo we did not create.
    **A root with no project `LICENSE` in it is not always a repo that needs one** — a repo carved
    out of another carries its origin's licensing, and an origin that had none leaves its child
    with none. Where the row has a `provenance:` block and neither a project `LICENSE` nor a
