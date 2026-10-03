@@ -413,7 +413,7 @@ is missing from the baseline itself. So:
   (an abandoned service in the same account may not be).
 - **If they adopt it, append an `asset-N` row** to the per-asset table — continuing the numbering,
   never renumbering — and do that asset's ordinary per-asset work: the `repos.yml` row and README
-  note for a repo, the `inputs/` copy and ledger row for a doc, the routing note for a resource. **If
+  note for a repo, the `inputs/` copy and ledger row for a doc, the Kind cell's session for a resource. **If
   they exclude it**, it gets no row and no work; record it as a one-line note beside the per-asset
   table (*"found at `1.8`: staging-2 deploy target, excluded — decommissioned"*), the same
   found-and-dismissed record an `excluded` Inventory row carries, since the frozen map can't take it.
@@ -620,6 +620,7 @@ say what it means in practice.
   two), and say in the doc that it predates adoption. It carries **`Accepted`** — the status means
   the system is living with this decision, which is exactly what you verified against the code;
   where the code shows the decision was later reversed, it is `Superseded by …` and names the
+  team's own ADR for the reversal if it wrote one (adopted the same way), otherwise the
   `architecture/` doc you are writing, whose **Decision Summary** records today's decision (a
   harvested decision gets no ADR to name). Reshape it into
   `Code/{{PROJECT}}-docs/templates/adr-template.md`'s sections only where that is lossless: a record

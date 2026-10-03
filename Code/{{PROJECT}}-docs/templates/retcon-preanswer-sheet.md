@@ -2,8 +2,8 @@
 
 **Session:** `Code/{{PROJECT}}-docs/templates/architecture-sessions/{{NN-....md}}`
              <!-- the in-scope harvest session this sheet covers — any row in the PLAN's session
-                  table, including a lettered conditional (1.7b); 1.14 is the Cross-Cutting
-                  Review, not a harvest -->
+                  table, including a lettered conditional (1.7b), except 1.2, which is interviewed,
+                  and 1.14, the Cross-Cutting Review; neither is a harvest -->
 **Harvested:** {{YYYY-MM-DD}}
 **Sources read:** {{the confirmed recon map + which per-asset docs / inputs / code paths}}
 **Status:** {{Harvested → Confirmed}}   <!-- Stamp Harvested once EVERY row has a drafted answer;
@@ -14,9 +14,9 @@
 <!-- WHAT THIS IS. A pre-answer sheet is retcon's per-session hand-off: instead of interviewing a
      session cold, the harvest DRAFTS an answer to each of that session's decisions FROM REALITY
      (the confirmed recon map, the per-asset docs, and the running code), and the confirm pass then
-     walks every decision with the user. One sheet per in-scope harvest session — `1.1`–`1.13` plus
-     any lettered conditional the PLAN included (`1.14` is the Cross-Cutting Review + land, not a
-     harvest) — keyed to that
+     walks every decision with the user. One sheet per in-scope harvest session — `1.1` and
+     `1.3`–`1.13` plus any lettered conditional the PLAN included (`1.2` Phasing is a plain
+     interview, and `1.14` is the Cross-Cutting Review + land; neither is a harvest) — keyed to that
      session's decision list — NOT a pre-written draft of the doc (a draft doc anchors the user and
      forces provenance into the final doc). Name the file from the substep id, letter and all:
      `Upcoming Prompts/retcon/1.7b-native-app.md`.
