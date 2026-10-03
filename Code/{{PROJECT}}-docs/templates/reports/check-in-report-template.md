@@ -12,7 +12,7 @@
 |------|----------|---------|--------|
 | Architecture docs vs. code | {{docs/repos}} | {{none / summary}} | {{doc fixed / ADR written / bug STEP filed}} |
 | Code vs. still-correct docs | {{docs/repos}} | {{none / summary}} | {{bug STEP filed / fixed here}} |
-| Repo READMEs | {{repos}} | {{none / summary}} | {{updated / follow-up}} |
+| Repo READMEs | {{repos}} | {{none / summary}} | {{updated / re-registered / raised / follow-up}} |
 | Interface contracts | {{artifacts}} | {{none / summary}} | {{updated / follow-up}} |
 | Docstrings | {{areas}} | {{none / summary}} | {{updated / follow-up}} |
 
@@ -51,4 +51,4 @@
 ## Summary
 
 {{Brief statement of project health, material changes made during the check-in, and the STEP or
-date written into overview.md's NEXT-CHECK-IN line for the next one.}}
+date written into overview.md's NEXT-CHECK-IN line for the next one, or "not scheduled yet".}}
