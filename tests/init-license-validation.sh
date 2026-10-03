@@ -509,10 +509,11 @@ run_typed_layout_collab_case() {
 
   # Two re-asks each, not one. The first is the unrecognised word; the second is the answer that
   # is not there — Enter at the layout question, a space at the collaboration one. Neither menu
-  # offers a default, and counting the re-asks is how this output shows that: `read -p` prints its
-  # prompt to a terminal only, so under a pipe there is no prompt text in the output to read a
-  # default off. A default would turn a blank answer into a choice nobody made: a layout, which is
-  # fixed at creation, or solo, which names the reader as the ADR register's acceptance authority.
+  # offers a default, and counting the re-asks is how this output shows that: `read -p` shows its
+  # prompt only when its input is a terminal, so under a pipe there is no prompt text in the output
+  # to read a default off. A default would turn a blank answer into a choice nobody made: a layout,
+  # which is fixed at creation, or solo, which names the reader as the ADR register's acceptance
+  # authority.
   [ "$(grep -c -F "answer 1 or 2 (the words multi and mono work too)" "$TMP_ROOT/$name.out")" = "2" ] || {
     echo "FAIL: $name — the layout question did not re-ask both an unrecognised answer and a blank one" >&2
     return 1
@@ -1722,26 +1723,27 @@ run_saved_tip_multi_case() {
 }
 
 # --- Interactive license selection -------------------------------------------
-# Prompted open-source choices cover explicit input, defaults, and reprompting. The reprompt
-# case protects early validation: invalid answers should not cross into bootstrap work.
+# Prompted open-source choices cover explicit input, blank and whitespace answers, and invalid
+# ones. license-reprompt answers the project-type and license questions wrongly once each, and
+# checks that each is asked again and that the valid answers decide the license.
 run_interactive_case \
   "license-mit" \
   $'1\nMIT\n' \
   "MIT License"
 
 # Open source chosen explicitly, then the licence sub-prompt answered blank, then answered with a
-# space, then answered. The sub-prompt used to default to MIT, so both of those middle answers
-# were an MIT grant nobody typed. The project this still builds is half the assertion: taking the
-# default away has to leave the question answerable, not merely refusable.
+# space, then answered. The sub-prompt has no default, so neither middle answer may grant a
+# licence. The project this builds is half the assertion: the question has to accept a real
+# answer after refusing those, not merely refuse.
 run_interactive_case \
   "license-blank-reasked" \
   $'1\n\n \n1\n' \
   "MIT License"
 
-# Two re-asks, not one: the blank answer and the whitespace one each have to come back. Counting
-# is the whole assertion, because `read -p` prints its prompt only to a terminal — under a pipe
-# there is no prompt text in the output to read a default off, so what the question offers can
-# only be measured by what it does with an answer nobody gave.
+# Two re-asks, not one: the blank answer and the whitespace one each have to come back. This count
+# is the other half, the one that catches a default: an MIT default would build the same project.
+# It has to be a count because `read -p` shows its prompt only when its input is a terminal, so
+# under a pipe the output has no prompt text to read a default off.
 [ "$(grep -c -F "choose 1/mit, 2/bsd-3, or 3/apache-2.0" "$TMP_ROOT/license-blank-reasked.out")" = "2" ] || {
   echo "FAIL: license-blank-reasked — Enter or a space at the licence question was taken as an answer" >&2
   cat "$TMP_ROOT/license-blank-reasked.out" >&2
@@ -1760,16 +1762,17 @@ grep -Fq \
   "choose 1/mit, 2/bsd-3, or 3/apache-2.0" \
   "$TMP_ROOT/license-reprompt.out"
 
-# --- Private / proprietary behavior ------------------------------------------
-# Interactive and flag paths both mean "proprietary project posture", not merely private
-# GitHub visibility; project LICENSE files must be absent.
+# --- Proprietary behavior ----------------------------------------------------
+# Interactive and flag paths both select the proprietary posture; project LICENSE files must be
+# absent. The flag run passes --license=private, the deprecated spelling, which init.sh reads as
+# that posture, not as a repository visibility.
 run_private_case \
   "license-private" \
   bash -c \
   "printf '2\n' | ./init.sh --slug=license-private --desc='License validation test' --layout=multi --collab=solo --remotes=no"
 
 # Answering nothing at all must not license the project. The project-type question defaults to
-# private/proprietary precisely so that a user who presses Enter has granted nobody anything; an
+# proprietary precisely so that a user who presses Enter has granted nobody anything; an
 # open-source default would hand out an irrevocable license they never named.
 run_private_case \
   "license-bare-enter" \
@@ -1788,7 +1791,8 @@ run_private_case \
   --remotes=no
 
 # --- Flag-based license normalization ----------------------------------------
-# Friendly CLI spellings should normalize to canonical license IDs and template text.
+# A friendly --license spelling, BSD-3, normalizes to BSD-3-Clause: the LICENSE files in the docs
+# hub and in prompts/ carry its template text.
 run_flag_case \
   "license-bsd" \
   "BSD-3" \
@@ -1801,13 +1805,16 @@ run_mono_case
 run_private_mono_case
 
 # --- registries/ always ships ------------------------------------------------
-# The directory carries the registers the generated docs cite unconditionally. --registries
-# survives as a deprecated no-op.
+# The directory carries the registers the generated docs cite unconditionally. --registries is
+# deprecated and changes nothing: these runs pass `no` and check its warning, and an unknown value
+# is an error, checked with the invalid inputs below.
 run_registry_mono_case
 run_registry_multi_case
 
 # --- GitHub visibility behavior ----------------------------------------------
-# Visibility is remote metadata. It must not change the selected project-license posture.
+# Visibility is remote metadata. These runs check the visibility flag gh receives for both
+# repositories and that each recorded remote holds the trunk; the public proprietary case below
+# checks that public visibility keeps a proprietary project proprietary, with no LICENSE.
 run_visibility_case "visibility-public" "public"
 run_visibility_case "visibility-private" "private"
 
@@ -1816,7 +1823,7 @@ run_visibility_case "visibility-private" "private"
 # intact and avoid remote creation.
 run_public_proprietary_case
 
-# --- Remote setup and missing canonical license behavior -----------------------
+# --- Remote setup behavior ---------------------------------------------------
 run_invalid_visibility_case
 run_manual_multi_remote_case
 
@@ -1826,14 +1833,15 @@ run_manual_multi_remote_case
 run_remote_failure_multi_case
 run_remote_failure_mono_case
 
-# --- Typed answers, not just flags --------------------------------------------
+# --- Typed answers, not just flags; a missing canonical license --------------
 run_typed_layout_collab_case
 run_missing_canonical_license_case
 
-# --- An answer nobody gave --------------------------------------------------------
-# The wizard must not act on Enter where the answer is structural, must not act on an answer
-# stream that has run out, and must say which flags it dropped. Each case pairs its refusal with
-# the acceptance beside it: a project still gets built in every one of them.
+# --- Missing, refused and dropped answers and flags; what the run says -------
+# The wizard must not act on Enter at the remote menu or on an answer stream that has run out,
+# and must say which flags and answers it dropped; what it prints has to agree with what it does.
+# Every case but end-of-input also builds a project, so a wizard that refused everything would
+# fail here.
 run_end_of_input_case
 run_remote_menu_case
 run_ignored_flag_case
@@ -1846,8 +1854,8 @@ run_solo_adr_flag_case
 run_saved_tip_multi_case
 
 # --- Invalid inputs fail before destructive bootstrap work ---------------------
-# Bad license input and missing license templates are detected before template files or
-# maintainer tests are removed.
+# Bad --license and --registries values and a missing license template are detected before
+# template files or maintainer tests are removed.
 invalid_work="$TMP_ROOT/license-invalid-flag"
 copy_template "$invalid_work"
 set +e
@@ -1868,8 +1876,8 @@ set -e
 assert_maintainer_tests_retained "license-invalid-flag" "$invalid_work"
 grep -Fq "invalid --license 'not-a-license'" "$TMP_ROOT/license-invalid-flag.out"
 
-# A deprecated flag still validates its value, and does it in both layouts. The check used to run
-# only in mono-repo mode, so a multi-repo caller could pass anything and be silently ignored.
+# --registries is deprecated but checks its value: an unknown one has to stop the run with exit 2
+# before any destructive bootstrap work.
 registry_invalid_work="$TMP_ROOT/registry-invalid-flag"
 copy_template "$registry_invalid_work"
 set +e
@@ -1917,13 +1925,15 @@ grep -Fq "project license template is missing" "$TMP_ROOT/license-missing-templa
 
 # --- --notice-only: the Throughstone notice, and nothing else -----------------
 # A repository the method did not create needs a notice for our material, but its own licensing
-# is not ours to state. Every abort arm below fires on ordinary adopted repos in the default
-# mode — including on an open-source project, so it is not a proprietary-posture edge — and this
-# mode must clear all of them without ever touching the target's LICENSE.
+# is not ours to state. Four of the setups below also run the default mode, which exits 1 in
+# each, and --notice-only must complete in all four without touching a target's LICENSE. In two,
+# a proprietary project and an open-source one each meet an adopted repo with its own LICENSE, so
+# the refusal is not peculiar to a proprietary project. In the third, the target holds a notice
+# that differs from ours; in the fourth, the docs hub has no posture file.
 #
 # Both fixtures are reused from earlier cases so the two layouts and two non-MIT postures are
 # both exercised: license-private-flag is Proprietary and multi-repo, license-mono is Apache-2.0
-# and mono. Neither is an all-default configuration.
+# and mono.
 notice_priv="$TMP_ROOT/license-private-flag"
 notice_open="$TMP_ROOT/license-mono"
 notice_priv_script="$notice_priv/Code/license-private-flag-docs/scripts/apply-project-license.sh"
@@ -1948,8 +1958,8 @@ adopted_repo() {
   cp "$1/LICENSE" "$1/.license-fingerprint"
 }
 
-# A proprietary project meeting an adopted repo that has its own LICENSE — `exit 1` in the
-# default mode, because a proprietary project refuses to stand beside a target LICENSE at all.
+# A proprietary project meeting an adopted repo that has its own LICENSE: --notice-only copies the
+# notice, leaves the LICENSE as it was and writes no LICENSING.md.
 notice_target="$TMP_ROOT/notice-adopted-proprietary"
 adopted_repo "$notice_target"
 "$notice_priv_script" --notice-only "$notice_target" >"$TMP_ROOT/notice-priv.out" 2>&1
@@ -1964,8 +1974,8 @@ grep -Fq "already present, left as it is" "$TMP_ROOT/notice-priv-again.out"
 cmp -s "$notice_target/.license-fingerprint" "$notice_target/LICENSE"
 [ ! -e "$notice_target/LICENSING.md" ]
 
-# The default mode still refuses that same repo. --notice-only is an added mode, not a
-# loosening of the one that exists.
+# The default mode exits 1 on that same repo: a proprietary project refuses to stand beside a
+# target LICENSE at all. --notice-only is a separate mode, not a loosening of the default one.
 set +e
 "$notice_priv_script" "$notice_target" >"$TMP_ROOT/notice-default-still-aborts.out" 2>&1
 notice_default_status=$?
@@ -1974,8 +1984,9 @@ set -e
 grep -Fq "project is proprietary, but target already has LICENSE" \
   "$TMP_ROOT/notice-default-still-aborts.out"
 
-# An open-source project meeting the same repo — `exit 1` in the default mode for a different
-# reason, which is what shows the abort is about the target's license, not the project's posture.
+# An open-source project meeting a second adopted repo, built the same way: --notice-only copies
+# the notice, leaves the LICENSE as it was and writes no LICENSING.md. The default mode exits 1
+# here too, refusing to overwrite a LICENSE that is not the project's.
 notice_open_target="$TMP_ROOT/notice-adopted-open"
 adopted_repo "$notice_open_target"
 "$notice_open_script" --notice-only "$notice_open_target" >"$TMP_ROOT/notice-open.out" 2>&1
@@ -2039,8 +2050,9 @@ mv "$TMP_ROOT/notice-stash" "$notice_priv_hub/LICENSE-THROUGHSTONE"
 [ ! -e "$notice_nosource/LICENSE-THROUGHSTONE" ]
 grep -Fq "notice not written" "$TMP_ROOT/notice-nosource.out"
 
-# The flag reads in either position, and a caller's mistake is still a usage error rather than
-# a path: a misspelled flag must not be taken for a target directory.
+# --notice-only works before or after the target. Each caller mistake below exits 2 with its own
+# message: a misspelled `--` option (which must not be taken for a target directory), a second
+# target, a target directory that does not exist, and no target at all.
 notice_order="$TMP_ROOT/notice-flag-after"
 rm -rf "$notice_order"
 mkdir -p "$notice_order"
