@@ -1165,8 +1165,8 @@ done
 # Rename the docs hub before filling descriptions so later scans walk the generated path.
 [ -d "Code/{{PROJECT}}-docs" ] && mv "Code/{{PROJECT}}-docs" "Code/${SLUG}-docs"
 
-# Root pointers include a scaffold-only guard that tells agents not to start kickoff while
-# {{PROJECT}} is unresolved. Generated projects remove that guard and keep only the handoff.
+# Root pointers include a scaffold-only guard for Throughstone's own authors. Generated projects
+# remove that guard and keep only the handoff.
 for f in AGENTS.md CLAUDE.md; do
   [ -f "$f" ] || continue
   perl -0pi -e 's/<!-- THROUGHSTONE-TEMPLATE-GUARD:BEGIN -->\n.*?<!-- THROUGHSTONE-TEMPLATE-GUARD:END -->\n\n//s' "$f"
