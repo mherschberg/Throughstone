@@ -448,7 +448,7 @@ Periodically the roadmap includes a **Check-in STEP** — a full STEP whose job 
 `runbooks/check-in.md`: reconcile the architecture docs against the code in **both directions**
 (stale doc → fix the doc/write an ADR; code drifted from a still-correct doc → file a bug),
 re-evaluate every available conditional architecture session, review the accepted risks/debt in
-`registries/risks.yml`, and **run the full test suite**. The implementation planning session
+`registries/risks.yml`, and **run every test suite**. The implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
 capability lands, not mid-feature). Title its index row `Check-in` — a scope may follow
 (`Check-in: phase 1`) — so the roadmap reads clearly.
@@ -540,9 +540,8 @@ what it is** — its role and the slice of the system it owns, with a matching o
 `description` in `registries/repos.yml`; **which README it gets is decided by what is in the repo,
 not by how the repo arrived** (`runbooks/register-repo.md`). A repo or code folder with real
 internal complexity adds an `ARCHITECTURE.md` beside its README for its internal design.
-**Licensing follows the posture `init.sh` established** — one selection for the whole project,
-recorded in the docs hub's `.throughstone/project-license` and applied per repo by
-`scripts/apply-project-license.sh` when the repo is brought in.
+**Licensing starts from the posture `init.sh` established** — one selection for the whole project,
+recorded in the docs hub's `.throughstone/project-license`.
 
 **Making a repo public takes an explicit instruction from the user naming that repo** — a license,
 a public sibling repo, a remote, or a project that calls itself open source is not that
@@ -578,11 +577,9 @@ from someone else's machine must not be written to here even when it happens to 
 **What a row records, and what it does not.** A row is an inventory entry, never a status board;
 `registries/repos.yml` documents its fields. Two of them are **stamps for a reader** — `added_as`
 and `type`: no script reads either, and the STEP process must not branch on how a repo arrived.
-When a repo is registered (`runbooks/register-repo.md`), its licensing depends on how it
-arrived: a repo the method created takes the project posture — except one carved out of another
-repo, which keeps the licensing that came across with the code
-(`runbooks/splitting-repos.md`) — and an adopted one only the Throughstone notice. Any other case
-is a decision taken deliberately, not a pattern to reach for. **Nothing else
+When a repo is registered, its licensing depends on how it arrived (`runbooks/register-repo.md`
+step 3); a case that step does not cover is a decision taken deliberately, not a pattern to reach
+for. **Nothing else
 is tracked per repo.** The work of bringing a repo in is *done* at the time, never recorded as a
 status, and anything missed is found later by looking at the repo.
 
@@ -670,10 +667,10 @@ itself is that one repo** (the lone exception to "the root is not a repo" above)
 `prompts/`, `Code/{{PROJECT}}-docs/` and each code folder inside it rather than as sibling repos.
 **It does not take a separate repository in**: bringing in one with a history of its own means
 converting first (`runbooks/splitting-repos.md` Case 2). In this mode the root pointers
-(`CLAUDE.md` / `AGENTS.md`) are just ordinary committed files, not per-machine artifacts, and the
-hygiene rule does not apply. It's a convenience for getting moving solo; the multi-repo layout is
-the target — but move to it when the architecture asks for it. **How many repos a project has
-follows its architecture, not its headcount.** A
+(`CLAUDE.md` / `AGENTS.md`) and `doctor.sh` are just ordinary committed files, not per-machine
+artifacts, and the hygiene rule does not apply. It's a convenience for getting moving solo; the
+multi-repo layout is the target — but move to it when the architecture asks for it. **How many
+repos a project has follows its architecture, not its headcount.** A
 mono-repo project that gains a second contributor needs **shared remotes** — so the push-reject
 that referees STEP-number reservation can fire (`runbooks/collaboration.md` §2, whose solo→team
 section carries the mono path) — not a split.
@@ -689,7 +686,7 @@ concurrent STEPs are the normal case — git keeps them isolated. The main thing
 the **global STEP number**: adding a STEP row to `prompts/STEP-index.md` *is* reserving its
 number, so it's committed and pushed **before** branching, and the loser of a race renumbers.
 **ADR numbers are reserved the same way** — the registry in `adr/README.md` is shared, so two
-authors appending the same number merge into a silent duplicate unless they renumber.
+authors appending the same number can merge into a silent duplicate unless they renumber.
 Decisions are socialized through ADRs (`Proposed` → `Accepted` in a team). Full conventions —
 shared-file editing, the overlap warning, ADR authority, solo→team onboarding — are in
 `runbooks/collaboration.md`.
@@ -797,10 +794,12 @@ due.
    for user approval. A whole-STEP command such as *"run STEP 6"*, *"run STEP-6"*,
    *"start STEP 6"*, or *"kick off STEP 6"* means **plan the STEP and wait**; it is not
    approval to execute the substeps you just created.
-6. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run only the
-   explicitly requested substep: *"run substep N.M"*. If the user says only *"run STEP N"*,
-   identify the lowest open substep and wait for that explicit substep command. When the last
-   substep is done, run the STEP's review,
+6. **A STEP is `In progress`?** → in a team, first ask the user which In-progress STEP is theirs
+   — by default a STEP's PLAN is only on its owner's machine — and if none is, plan the
+   lowest-numbered `Planned` STEP no one owns, as in rule 5. Then open its PLAN in
+   `Upcoming Prompts/` and run only the explicitly requested substep: *"run substep N.M"*. If the
+   user says only *"run STEP N"*, identify the lowest open substep and wait for that explicit
+   substep command. When the last substep is done, run the STEP's review,
    then archive it (§5) and mark it `Done`. **A Check-in STEP is the exception**: its two substeps
    are fixed and `runbooks/check-in.md` is their prompt, so *"run the check-in"* runs both, end to
    end. Nothing else is invoked whole.
