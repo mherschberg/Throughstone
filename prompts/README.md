@@ -66,7 +66,7 @@ session asks where they belong and records the first one in `Code/{{PROJECT}}-do
 e.g. `Check-in: phase 1`) and is a full STEP that runs
 `Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
 conditional-session coverage, review accepted risks/debt in
-`Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). Its completed
+`Code/{{PROJECT}}-docs/registries/risks.yml`, and run every test suite). Its completed
 report is written under `Code/{{PROJECT}}-docs/reports/`; the archived STEP folder here keeps
 the thin PLAN. The agent proposes one when the scheduled point is reached
 (see `Code/{{PROJECT}}-docs/METHOD.md` §5).
