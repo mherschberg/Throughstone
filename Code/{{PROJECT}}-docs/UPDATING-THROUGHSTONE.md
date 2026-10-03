@@ -467,7 +467,7 @@ appendix covers purging history first when that matters.
   folder that is now its own repo — which is accepted rather than overlooked.
 - *Tools / scripts* (`scripts/check.sh`, `scripts/status.sh`, `scripts/setup-workspace.sh`,
   `scripts/links.sh`, `scripts/doctor.sh`, `scripts/apply-project-license.sh`): all six changed.
-  `check.sh` gains a pass over `registries/repos.yml`,
+  `check.sh` fails two ADR files that share a number, and gains a pass over `registries/repos.yml`,
   a `--check-in` flag that turns on the checks the periodic check-in owns, and a fix so that a
   check which read nothing warns instead of passing; two of its messages now say what they looked
   at. **Its workspace-root check now reads `registries/repos.yml` as well**, so a repo registered
@@ -476,11 +476,12 @@ appendix covers purging history first when that matters.
   intake folder used to cover it. Two of its skip lines name the file that is absent rather than
   suggesting the project was never initialized: in a multi-repo project a checkout of the docs hub
   alone carries no `prompts/STEP-index.md`, and nothing is wrong with it.
-  `status.sh` carries the scheduled check-in (item 6 above), and a STEP row with an inline
-  `<!-- … -->` note is visible to the resolver again where the note used to swallow the row; an
-  In-progress **Check-in** STEP is now told to wait for *"run the check-in"* rather than for a
-  substep command nobody authors for one. `status.sh` also counts an `Abandoned` substep as final,
-  as it does `Deferred` and `N/A`, and reads a zero-padded substep number such as `1.08` as a number.
+  `status.sh` carries the scheduled check-in (item 6 above), names the owner of the STEP in
+  progress, and a STEP row with an inline `<!-- … -->` note is visible to the resolver again where
+  the note used to swallow the row; an In-progress **Check-in** STEP is now told to wait for *"run
+  the check-in"* rather than for a substep command nobody authors for one. `status.sh` also counts
+  an `Abandoned` substep as final, as it does `Deferred` and `N/A`, and reads a zero-padded substep
+  number such as `1.08` as a number.
   `setup-workspace.sh` no longer stops at the first repo it cannot clone, writes the workspace
   root's pointer files *before* the clone loop rather than after, and is stricter about what counts
   as a repo already being there — the four *Multi-repo only* paragraphs below are the detail of
@@ -499,19 +500,19 @@ appendix covers purging history first when that matters.
 - *Process docs that stand on their own* (`ONBOARDING.md`, the docs hub's own `README.md`, and
   §2's file-bucket table above): *Process docs*, like the first group in this list — §2's examples
   name `UPDATING-THROUGHSTONE.md` but not the other two, which belong there in kind. These
-  reference nothing else, so review them one at a time rather than as a coherent set. The first two were written when
+  reference nothing else, so review them one at a time rather than as a coherent set. The last two were written when
   Throughstone only ever *created* a repo; the method can now also take on one that already exists,
   where it writes at most two files — that repo's README and the `LICENSE-THROUGHSTONE` notice,
   never CI and never a project licence. §2's *Stamped/generated files* row above says so now.
-  `ONBOARDING.md` is the third for a different reason: it still described `setup-workspace.sh`
-  cloning before it writes the root pointer files, which is the order this release reversed, and it
-  gains a line declaring that its own paths are relative to the workspace root. `AGENTS.md`
-  described that same old order and is corrected too — it is already in the process-docs group
-  above, so pulling that group picks it up. The hub's own `README.md` also stops calling itself a
-  repo and `prompts/` a sibling repo of it — in mono-repo-for-now both are folders — and its
-  licence note stops saying an open-source project's `LICENSE` is copied into every new code repo,
-  pointing at `runbooks/register-repo.md` step 3 instead, which item 1's group brings. Nothing of
-  yours is rewritten.
+  `ONBOARDING.md`, the first, is on the list for a different reason: it still described
+  `setup-workspace.sh` cloning before it writes the root pointer files, which is the order this
+  release reversed, and it gains a line declaring that its own paths are relative to the workspace
+  root. `AGENTS.md` described that same old order and is corrected too — it is already in the
+  process-docs group above, so pulling that group picks it up. The hub's own `README.md` also stops
+  calling itself a repo and `prompts/` a sibling repo of it — in mono-repo-for-now both are folders
+  — and its licence note stops saying an open-source project's `LICENSE` is copied into every new
+  code repo, pointing at `runbooks/register-repo.md` step 3 instead, which item 1's group brings.
+  Nothing of yours is rewritten.
 - *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
   `provenance:` is a new optional block recording that a repo was split out of another one — where
   it came from, and where the two histories part company. It is written **at** a split and only
