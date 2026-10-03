@@ -98,15 +98,11 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    `**/.claude/*.local.json`, `**/.claude/#*#` and `**/.claude/*~` lines so per-machine agent config
    does not get committed either). Apply the project-license posture too: run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` for every new code
-   repo. It reads `.throughstone/project-license`, requires the canonical docs-hub `LICENSE`
-   for an open-source selection, and copies that file unchanged. For `Proprietary`, no project
-   `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
-   and CI starter are retained Throughstone-authored scaffold material, and writes
-   `LICENSING.md` to make clear that notice is not the application-code license. Repository
-   visibility is decided on its own, not read off the license. Where a new code repo is given a
-   remote, create it **private** — widening is a separate decision, made deliberately later
-   under the rule at the end of this item, and when it comes up, say plainly that publishing a
-   proprietary repo makes its source visible without granting open-source reuse rights.
+   repo (`runbooks/register-repo.md` step 3). Repository visibility is decided on its own, not read
+   off the license. Where a new code repo is given a remote, create it **private** — widening is a
+   separate decision, made deliberately later under the rule at the end of this item, and when it
+   comes up, say plainly that publishing a proprietary repo makes its source visible without
+   granting open-source reuse rights.
    **Each repo's README isn't just stamped — its role one-liner and Overview get filled in**
    (what the repo is and the slice of the system it owns); a repo isn't scaffolded until it can
    explain itself.
