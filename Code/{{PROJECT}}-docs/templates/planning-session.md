@@ -175,7 +175,7 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    end (or none) is fine; use judgment.
 
    **Then write the first one into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line** — the STEP
-   number you just placed it at. That line is the only record of when a check-in is due
+   number you just placed it at. That line is the record of when a check-in is due
    (`METHOD.md` §5). It matters most on a **re-run**: a line still naming a check-in the project
    has already worked past reads as due on every run until someone moves it.
 5. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
