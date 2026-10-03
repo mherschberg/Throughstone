@@ -213,9 +213,10 @@ brought into a project at all — in a second new runbook; none of that asks any
 21. **Multi-repo only: delete the `.gitignore` at your workspace root** — it is the template's own,
     it belongs to no repository, and your repos keep their own.
 22. **Optional: widen one line in each repo's `.gitignore`.** Replace `.claude/settings.local.json`
-    with `.claude/*.local.json`, `.claude/#*#` and `.claude/*~`, the lines a new project gets, so an
-    editor's lock or autosave copy of that file is not committed. Shared `.claude/settings.json`
-    still commits.
+    with `**/.claude/*.local.json`, `**/.claude/#*#` and `**/.claude/*~`, the lines a new project
+    gets, so an editor's lock or autosave copy of that file is not committed, and neither is one in
+    a subfolder — in a mono-repo-for-now project, any code folder an agent was started in. Shared
+    `.claude/settings.json` still commits.
 23. Nothing else. A project that never splits reads none of the splitting material.
 
 **The STEP index's `Repos (projection)` column is retired — leave yours alone.** The overlap
