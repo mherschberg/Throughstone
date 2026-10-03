@@ -558,8 +558,9 @@ reports, fixes, and ideas are genuinely welcome. A few starting points:
 This Throughstone template is released under the [BSD 3-Clause License](LICENSE) — use
 it freely. `init.sh` asks whether **your** project is open source (MIT, BSD-3, or Apache-2.0)
 or proprietary. Open-source projects get the selected project `LICENSE`; proprietary
-projects get no project license file. The selected license in the docs hub is the source copied
-into application-code repos when they are created later. The durable selection is recorded in
+projects get no project license file. The selected license in the docs hub is the canonical copy.
+When an application-code repo is added, its license files follow
+`Code/{{PROJECT}}-docs/runbooks/register-repo.md` step 3. The durable selection is recorded in
 the docs hub's `.throughstone/project-license`, so deleting or losing the canonical `LICENSE`
 causes an error instead of silently changing an open-source project to proprietary.
 Throughstone-authored scaffold material remains under BSD-3-Clause, so `init.sh` retains that
