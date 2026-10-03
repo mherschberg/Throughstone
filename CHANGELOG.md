@@ -1246,7 +1246,9 @@ any project built with it.
   Every repo `init.sh` creates ignored `.claude/settings.local.json` exactly, so an editor's lock or
   autosave sibling (`#settings.local.json#`, `settings.local.json~`) — per-machine files, all of
   them — was left untracked and swept in by a `git add -A`. Throughstone's own repository moved off
-  the by-name rule for this reason and the generated one did not follow. Now matched by pattern.
+  the by-name rule for this reason and the generated one did not follow. Now matched by pattern, in
+  any folder: the old rule also missed a `.claude/` below the repo root, which in a
+  mono-repo-for-now project is wherever an agent was started inside a code folder.
   Shared project config (`.claude/settings.json`) is still committed, so this narrows what leaks
   without narrowing what a team can share. An existing project can make the same change by hand;
   `UPDATING-THROUGHSTONE.md` has the step.
