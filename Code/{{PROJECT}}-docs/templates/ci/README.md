@@ -23,7 +23,7 @@ at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-r
   workflow auto-detects `Code/<project>-docs/scripts/check.sh`; from the root, that script sees
   `prompts/` too, so the STEP-index checks run as well.
 
-## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
+## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per codebase)*
 
 The test gate for a code repo. When you scaffold a code repo (stamping its README from
 `templates/repo-readme-template.md`), also drop this into that repo's `.github/workflows/ci.yml` and fill in
