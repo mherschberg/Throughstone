@@ -128,7 +128,7 @@ itself a repo, the pointers are committed files, and these are folders inside it
 
 `Code/{{PROJECT}}-docs/registries/repos.yml` is the canonical inventory **and the index to the repos** — each
 entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
-`ARCHITECTURE.md` if it has deep internals). A repo joins it by being **registered**
+`ARCHITECTURE.md` if it has real internal complexity). A repo joins it by being **registered**
 (`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). When an application-code repo is added, its
 licence files follow `Code/{{PROJECT}}-docs/runbooks/register-repo.md` step 3. **Before working in
 a repo or code folder, read its README first** — the same way you read the architecture docs
