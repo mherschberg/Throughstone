@@ -593,6 +593,19 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **`runbooks/register-repo.md` gives an Architecture Overview it creates an entry for every
+  registered repo**, not only the one being registered.
+- **`runbooks/splitting-repos.md` gives the docs hub the root's `method-check.yml` when the hub has
+  none of its own**, so converting to multi-repo no longer leaves the hub without one.
+- **`scripts/apply-project-license.sh` prints one slash, not two, after a location ending in `/`.**
+- **The check-in report template's Repo READMEs row offers "re-registered" and "raised", and its
+  Summary covers a next check-in that is not scheduled yet.**
+- **Wording that disagreed with the method:** `runbooks/collaboration.md` names two runbooks by
+  path; `METHOD.md` says the check-in writes the next date as it closes, and drops a reason that
+  cited a baseline nothing defines; the planning session no longer calls the NEXT-CHECK-IN line the
+  only record; the test-results template names the test-strategy doc by pattern; `AGENTS.md` uses
+  `METHOD.md`'s words for when a repo needs an `ARCHITECTURE.md`; and the substep prompt names that
+  file among the docs to keep true.
 - **`runbooks/register-repo.md` asks before adding the project's licensing to a split-out repo that
   has neither a `LICENSE` nor a `LICENSING.md`, in a proprietary project too.**
 - **`METHOD.md`'s example of a command run from another folder names Case 2 step 8 of
