@@ -252,7 +252,7 @@ repos it touches — that single record is what keeps the history coherent acros
 - Its **PLAN lists the repos it touches and the order they merge in** (cross-repo
   sequencing). Reference commits / PRs / tags where ordering matters.
 - It uses the **same `step-NNNN` branch name in each repo** (§1).
-- If it creates a new repo, **register it** (`register-repo.md`) — your row only (§5).
+- If it creates a new repo, **register it** (`runbooks/register-repo.md`) — your row only (§5).
 
 ## 9. Going from solo to team
 The *structural* habits above you already practice solo — branch-per-STEP (§1) and allocating
@@ -266,7 +266,7 @@ flow (§6). The transition is mostly mechanical:
    for `prompts/`, the docs hub, and every code repo **that has no remote yet**, then
    **`git push` your existing history to each** — otherwise newcomers clone empty repos and the
    STEP-number registry of record is gone. **A repo that already has a remote keeps the one it
-   has** — never create a second and never repoint it (`register-repo.md`); (b) add the
+   has** — never create a second and never repoint it (`runbooks/register-repo.md`); (b) add the
    `remote:` fields in `registries/repos.yml`, for every repo that has one; (c) have each new
    contributor run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, from the workspace root,
    to clone them. Number reservation (§2) relies on this shared `prompts/` remote.
@@ -286,7 +286,7 @@ flow (§6). The transition is mostly mechanical:
    new contributor has the chance. Everything else is the same, including number reservation,
    which needs a shared remote and not a particular number of them. Whether to split is a
    separate question, answered by the architecture rather than by the size of the team — see
-   `splitting-repos.md`.
+   `runbooks/splitting-repos.md`.
 2. **Have each contributor create their local profile** (`.throughstone/local-user.md`) during
    onboarding. This records their own Experience level and Communication style; do not copy
    the original solo maintainer's preferences into project docs.
