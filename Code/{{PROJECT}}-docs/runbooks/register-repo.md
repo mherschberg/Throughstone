@@ -151,7 +151,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
    and where its detail lives. The doc is
    `Code/{{PROJECT}}-docs/architecture/03-architecture-overview.md`; match an existing entry by
    repo name. **If the doc does not exist, create it at exactly that path** from
-   `Code/{{PROJECT}}-docs/templates/architecture-doc-template.md` at `**Status:** Draft`.
+   `Code/{{PROJECT}}-docs/templates/architecture-doc-template.md` at `**Status:** Draft`, with an
+   entry for every row in `Code/{{PROJECT}}-docs/registries/repos.yml`, not this repo's alone.
 
    **Always do both step 1 and step 4** — a row with no architecture entry, or the reverse, is
    half a registration. But if one fails, **do not roll back the other**: finish what works,
