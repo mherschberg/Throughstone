@@ -55,7 +55,7 @@ built in rather than bolted on — especially where separately built pieces have
 6. **CI gates.** What must pass before code merges and before it deploys (tests, linters,
    type checks, build). Keep the gate fast enough that people don't route around it. Two
    workflows ship: the method-integrity check (`.github/workflows/method-check.yml`, which runs
-   `scripts/check.sh`), already live, and a per-repo test workflow to fill in
+   `scripts/check.sh`), already live, and a test workflow to fill in for each codebase
    (`templates/ci/code-repo-ci.yml`). See `templates/ci/README.md`.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
 7. **Coverage tooling and reporting.** For each real implementation language, choose the
