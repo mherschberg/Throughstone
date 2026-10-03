@@ -113,8 +113,9 @@ just change the code:
   named in the Interface Contracts architecture doc
   (`architecture/*-interface-contracts.md`) when you add or
   change an endpoint, event, webhook, CLI contract, library public API, or import/export format;
-  the repo **README** when setup/run/test changes; the Glossary architecture doc
-  (`architecture/*-glossary.md`) for new domain terms.
+  the repo **README** when setup/run/test changes, and any `ARCHITECTURE.md` beside it when the
+  design it describes changes; the Glossary architecture doc (`architecture/*-glossary.md`) for
+  new domain terms.
 - **Accepted risk or debt:** if this substep consciously defers a security control,
   dependency fix, incident follow-up, operational weakness, or other tech debt, add or update
   `registries/risks.yml` with severity, owner, and revisit trigger. The register is an index:
