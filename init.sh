@@ -949,14 +949,14 @@ if [ "$MODE" = "existing" ]; then
     exit 1; }
   echo "  retcon: PROJECT-STATUS set to 'retcon' (adopting an existing codebase)"
   # Scaffold the pre-answer-sheet scratch folder. RETCON-PROMPT.md's per-session harvest (Stage 3)
-  # drops one transient sheet per in-scope session here; seeding it now gives that a home from
+  # drops one transient sheet per harvested session here; seeding it now gives that a home from
   # adoption start rather than having the first session create it.
   mkdir -p "$ROOT/Upcoming Prompts/retcon"
   cat > "$ROOT/Upcoming Prompts/retcon/README.md" <<'RETCON_SCRATCH_README'
 # Retcon scratch — pre-answer sheets
 
 Transient working folder for **retcon adoption** (see `RETCON-PROMPT.md`). During the per-session
-harvest, each in-scope architecture session gets a **pre-answer sheet** here — one drafted answer per
+harvest, each harvested architecture session gets a **pre-answer sheet** here — one drafted answer per
 decision, with provenance tags — which the confirm pass consumes before the clean `architecture/`
 doc is written. Start each sheet from your docs hub's `templates/retcon-preanswer-sheet.md`.
 
