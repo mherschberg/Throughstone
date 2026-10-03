@@ -196,11 +196,11 @@ Representative report excerpt:
 - Updated architecture/03-architecture-overview.md for the new worker repo.
 - Filed STEP-13 for API pagination drift; the doc was still correct.
 
-## Conditional coverage
+## Conditional Coverage
 - Identity & auth: still included and current.
 - Privacy/compliance: trigger fired after calendar metadata retention changed; opened STEP-14.
 
-## Risks/debt
+## Risks And Debt
 - Closed RISK-002 after token-rotation automation shipped.
 
 ## Tests
