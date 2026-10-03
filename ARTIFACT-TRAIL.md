@@ -182,7 +182,7 @@ and
 When the check-in scheduled in `Code/<project>-docs/overview.md` — the `NEXT-CHECK-IN` line,
 a STEP number or a date — comes up, a check-in STEP runs a deliberate
 sweep. It compares architecture docs against code in both directions, re-evaluates conditional
-architecture sessions, reviews accepted risks and debt, and runs the full test suite.
+architecture sessions, reviews accepted risks and debt, and runs every test suite.
 
 Completed check-in reports live directly under `Code/<project>-docs/reports/`. The STEP folder
 in `prompts/` keeps the thin PLAN and any execution notes.
