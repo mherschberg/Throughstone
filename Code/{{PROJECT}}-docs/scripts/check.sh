@@ -13,7 +13,8 @@
 #   3. STEP / substep statuses are from the allowed set — warns on no STEP row, or on a STEP
 #      row under no Status column
 #   4. Every architecture/NN-*.md carries Version / Status / Version Log
-#   5. The ADR registry and the ADR files on disk match (both directions)
+#   5. The ADR registry and the ADR files on disk match (both directions) — fails a number that
+#      more than one file carries
 #   6. overview.md does not carry legacy local user preferences
 #   7. (multi-repo only) No stray files at the workspace root
 #   8. Architecture-session template numbers match the STEP-index seed
@@ -257,7 +258,8 @@ hdr "5. ADR registry matches ADR files on disk (both directions)"
 if [ -f "$ADR_INDEX" ]; then
   # Invariant: each registered ADR has exactly one file, and each ADR file is registered.
   # The registry is adr/README.md; the disk authority for materialized decisions is adr/ADR-*.md.
-  # Compare normalized ID sets both ways to catch stale rows and orphan files.
+  # Compare normalized ID sets both ways to catch stale rows and orphan files, then look for a
+  # number that more than one file carries.
   reg_ids="$(grep -oE '^\|[[:space:]]*ADR-[0-9]+' "$ADR_INDEX" | grep -oE 'ADR-[0-9]+')"
   disk_ids=""
   for f in "$ADR_DIR"/ADR-*.md; do disk_ids="$disk_ids$(basename "$f" | grep -oE 'ADR-[0-9]+')"$'\n'; done
@@ -267,6 +269,8 @@ if [ -f "$ADR_INDEX" ]; then
   ok=1
   [ -n "$missing_files" ] && { fail "in registry but no file: $(echo "$missing_files" | tr '\n' ' ')"; ok=0; hint "create the ADR file(s) from $DOCS_REL/templates/adr-template.md, or remove the stale registry row(s) in $DOCS_REL/adr/README.md."; }
   [ -n "$missing_rows" ]  && { fail "file on disk but not in registry: $(echo "$missing_rows" | tr '\n' ' ')"; ok=0; hint "add a registry row in $DOCS_REL/adr/README.md for the file(s), or delete the file if it shouldn't exist."; }
+  shared="$(printf '%s' "$disk_ids" | sed '/^[[:space:]]*$/d' | sort | uniq -d)"
+  [ -n "$shared" ] && { fail "more than one file per ADR number: $(echo "$shared" | tr '\n' ' ')"; ok=0; nextn="$(printf '%s\n%s\n' "$reg_ids" "$disk_ids" | grep -oE '[0-9]+' | sed 's/^0*//' | sort -n | tail -1)"; hint "renumber the file added later to $(printf 'ADR-%04d' "$((nextn + 1))") and give it its own registry row in $DOCS_REL/adr/README.md — never reuse a number."; }
   [ "$ok" -eq 1 ] && pass "registry and files agree ($(emit "$reg_ids" | grep -c . ) ADR(s))"
 else
   warn "no $DOCS_REL/adr/README.md — skipping ADR registry/disk check"
