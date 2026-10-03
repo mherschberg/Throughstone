@@ -593,6 +593,10 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **`runbooks/register-repo.md` asks before adding the project's licensing to a split-out repo that
+  has neither a `LICENSE` nor a `LICENSING.md`, in a proprietary project too.**
+- **`METHOD.md`'s example of a command run from another folder names Case 2 step 8 of
+  `runbooks/splitting-repos.md`, which has a step 8 in each case.**
 - **`init.sh` no longer deletes your `TODO.md`, `.dev/` or `.test-fixtures/`, and leaves its own
   source as shipped.** Those are names from Throughstone's own checkout, so a file of yours with
   one of them was lost. Now they stay, and in a mono-repo-for-now project the stray-file warning
