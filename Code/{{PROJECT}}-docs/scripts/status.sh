@@ -72,7 +72,7 @@ fi
 
 # --- Parse the index into STEP rows and STEP-1 substep rows --------------------
 # Locate each table's columns from its header, then emit normalized pipe-delimited records:
-#   STEP|STEP-N|Status|Title
+#   STEP|STEP-N|Status|Owner|Title
 #   SUB|N.M[a]|Status|Session
 # The parser depends on Markdown table headers, not fixed column positions, and ignores commented
 # content so dormant scaffold examples do not affect generated-project status.
@@ -103,7 +103,7 @@ parsed="$(awk -F'|' '
     if ($0 ~ /^[[:space:]]*$/) next
   }
   /^[[:space:]]*\|/ {
-    isstep = 0; issub = 0
+    isstep = 0; issub = 0; oc = 0
     for (i = 1; i <= NF; i++) {
       c = trim($i)
       if (c == "STEP")    { isstep = 1; stepcol = i }
@@ -111,14 +111,15 @@ parsed="$(awk -F'|' '
       if (c == "Title")   { titlecol   = i }
       if (c == "Session") { sessioncol = i }
       if (c == "Status")  { scol = i }
+      if (c == "Owner")   { oc = i }
     }
-    if (isstep) { mode = "step"; statuscol = scol; next }
+    if (isstep) { mode = "step"; statuscol = scol; ownercol = oc; next }
     if (issub)  { mode = "sub";  statuscol = scol; next }
     if (mode == "" || statuscol == 0) next
     st = trim($statuscol)
     if (st == "" || st ~ /^:?-+:?$/) next
     if (mode == "step") {
-      id = trim($stepcol);    if (id ~ /^STEP-[0-9]+$/)            print "STEP|" id "|" st "|" trim($titlecol)
+      id = trim($stepcol);    if (id ~ /^STEP-[0-9]+$/)            print "STEP|" id "|" st "|" (ownercol ? trim($ownercol) : "") "|" trim($titlecol)
     } else {
       id = trim($subcol);     if (id ~ /^[0-9]+\.[0-9]+[a-z]?$/)   print "SUB|"  id "|" st "|" trim($sessioncol)
     }
@@ -126,15 +127,15 @@ parsed="$(awk -F'|' '
 ' "$INDEX")"
 
 # Parallel indexed arrays preserve row shape while staying compatible with bash 3.2 (stock
-# macOS has no associative arrays). For each i, step_id/st/ti or sub_id/st/se is one record.
-step_id=(); step_st=(); step_ti=()
+# macOS has no associative arrays). For each i, step_id/st/ow/ti or sub_id/st/se is one record.
+step_id=(); step_st=(); step_ti=(); step_ow=()
 sub_id=(); sub_st=(); sub_se=()
-while IFS='|' read -r kind id st extra; do
+while IFS='|' read -r kind id st f4 f5; do
   [ -z "${kind:-}" ] && continue
   if [ "$kind" = "STEP" ]; then
-    step_id+=("$id"); step_st+=("$st"); step_ti+=("$extra")
+    step_id+=("$id"); step_st+=("$st"); step_ow+=("$f4"); step_ti+=("$f5")
   elif [ "$kind" = "SUB" ]; then
-    sub_id+=("$id"); sub_st+=("$st"); sub_se+=("$extra")
+    sub_id+=("$id"); sub_st+=("$st"); sub_se+=("$f4")
   fi
 done <<< "$parsed"
 
@@ -169,7 +170,7 @@ done
 # Scan implementation STEPs once and retain the lowest-numbered candidate in each resolver
 # bucket: active STEP, planned conditional follow-up, and ordinary planned STEP.
 maxnum=0; have_impl=0; nonfinal=0; step1_st=""
-inprog=""; inprog_ti=""; inprog_n=999999
+inprog=""; inprog_ti=""; inprog_ow=""; inprog_n=999999
 lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
 lowplanned=""; lowplanned_ti=""; lowplanned_n=999999
 n_steps=${#step_id[@]}; i=0
@@ -178,7 +179,7 @@ while [ "$i" -lt "$n_steps" ]; do
   [ "$id" = "STEP-1" ] && step1_st="$st"
   [ "$n" -gt "$maxnum" ] && maxnum=$n
   [ "$n" -ge 2 ] && have_impl=1
-  if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; fi
+  if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; inprog_ow="${step_ow[$i]}"; fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] &&
      printf '%s' "$ti" | grep -qiE '^conditional session:' &&
      [ "$n" -lt "$lowplanned_cond_n" ]; then
@@ -272,6 +273,12 @@ elif [ -n "$inprog" ]; then                                 # §10.6
     next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\" and wait for \"run the check-in\" — its two substeps are fixed and $DOCS_REL/runbooks/check-in.md is their prompt, so that one command runs both, end to end. Then: report under $DOCS_REL/reports/, archive the thin PLAN to prompts/, mark ${inprog} Done, and schedule the next check-in in $DOCS_REL/overview.md's NEXT-CHECK-IN line."
   else
     next="open ${inprog}'s PLAN in \"Upcoming Prompts/\", identify its lowest open substep, and wait for an explicit substep command (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
+  fi
+  # In a team the STEP may be a teammate's, whose PLAN is by default only on their machine
+  # (collaboration.md §3).
+  if [ -n "$inprog_ow" ]; then
+    where="${where%.}, owned by ${inprog_ow}."
+    next="in a team, ask the user whether ${inprog} is theirs: by default a STEP's PLAN is only on its owner's machine. If not, ask which STEP is (if none is, plan the lowest-numbered Planned STEP no one owns). If it is, or the project is solo: ${next}"
   fi
 elif [ -n "$lowplanned_cond" ]; then                        # §10.4
   where="Architecture follow-up required — ${lowplanned_cond} (${lowplanned_cond_ti}) is Planned."
