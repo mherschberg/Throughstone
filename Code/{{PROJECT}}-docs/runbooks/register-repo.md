@@ -142,8 +142,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
    `--notice-only` command instead, so the notice still lands, and raise the licence in the chat.
    **A root with no project `LICENSE` in it is not always a repo that needs one** — a repo carved
    out of another carries its origin's licensing, and an origin that had none leaves its child
-   with none. Where the posture would write one, the row has a `provenance:` block and none is
-   there, ask before stamping it.
+   with none. Where the row has a `provenance:` block and neither a project `LICENSE` nor a
+   `LICENSING.md` is there, ask before stamping the posture.
    A **proprietary** posture writes `LICENSING.md` and the notice but no project `LICENSE` — that
    is the posture doing its job, not a failure.
 
