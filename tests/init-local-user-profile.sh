@@ -136,17 +136,30 @@ assert_contains "$mono_work/.gitignore" "/.throughstone/local-user.md"
 
 # In the mono layout the workspace root is the repository, so its ignore file is all that keeps an
 # ordinary `git add -A` from committing the in-flight STEP's sheets, which METHOD.md §5 calls
-# un-versioned. Ask git rather than reading .gitignore: a line git does not honour would still
-# match. The probe is a file the dry run has to name, so a dry run that saw nothing cannot pass, and
-# matching the whole output also catches an ignore file the bootstrap commit left modified.
+# un-versioned, and per-machine agent config. That config can sit in a .claude/ in any folder, so
+# one goes at the root, in the docs hub and in a code folder, and only the shared settings.json in
+# each may be listed. Ask git rather than reading .gitignore: a line git does not honour would still
+# match. core.excludesFile=/dev/null stops a machine's global ignore file from hiding a line the
+# generated one lacks. add-probe.txt is a file the dry run has to name, so a dry run that saw
+# nothing cannot pass, and matching the whole output also catches an ignore file the bootstrap
+# commit left modified.
 sheet="Upcoming Prompts/$mono-STEP-2-PLAN.md"
 printf '# in-flight plan\n' >"$mono_work/$sheet"
 printf 'probe\n' >"$mono_work/add-probe.txt"
-dry_run="$(git -C "$mono_work" add -A --dry-run)"
+for dir in . "Code/$mono-docs" Code/app; do
+  mkdir -p "$mono_work/$dir/.claude"
+  for file in settings.local.json '#settings.local.json#' 'settings.local.json~' settings.json; do
+    touch "$mono_work/$dir/.claude/$file"
+  done
+done
+dry_run="$(git -C "$mono_work" -c core.excludesFile=/dev/null add -A --dry-run)"
 rm -f "$mono_work/$sheet" "$mono_work/add-probe.txt"
-[ "$dry_run" = "add 'add-probe.txt'" ] || {
-  printf 'FAIL: git add -A in a fresh mono project should list only add-probe.txt, not %s; got:\n' \
-    "$sheet" >&2
+rm -rf "$mono_work/.claude" "$mono_work/Code/$mono-docs/.claude" "$mono_work/Code/app"
+expected="$(printf "add '%s'\n" .claude/settings.json Code/app/.claude/settings.json \
+  "Code/$mono-docs/.claude/settings.json" add-probe.txt)"
+[ "$dry_run" = "$expected" ] || {
+  printf 'FAIL: git add -A in a fresh mono project should list only these files:\n%s\ngot:\n' \
+    "$expected" >&2
   printf '%s\n' "$dry_run" >&2
   exit 1
 }
