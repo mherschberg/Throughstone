@@ -457,7 +457,7 @@ capability lands, not mid-feature). Title its index row `Check-in` — a scope m
 `<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or a date (`2026-11-15`).
 `scripts/status.sh` reports it as due once that point is reached, and keeps saying so until
 someone moves it. Whoever schedules a check-in writes the line — the planning session as it lays
-out a phase, the check-in itself before it closes, or the user at any time. **The user answers in
+out a phase, the check-in itself as it closes, or the user at any time. **The user answers in
 whatever terms suit them** (*"in about three STEPs"*, *"after the launch"*, *"remind me in
 November"*); the agent turns that into a STEP number or a date and writes it. A missing or
 unreadable value reads as *none scheduled*, which is the nudge to set one. Nothing validates the
@@ -775,10 +775,9 @@ due.
    optional but preferred because it gives the chat/task a clearer title. Skip any substep
    marked `N/A`, `Deferred` or `Abandoned`.
    **The row is what says whether architecture is over.** Once STEP-1 reads `Done` an open substep
-   is no longer the next action, and the rules below answer instead: a baseline that closed STEP-1
-   without running every session is a legitimate state, not a mistake to route back into. The
-   mirror holds as well — substeps all final while the row is still open means the close-out is
-   the work (§5), not the planning session. A substep with a
+   is no longer the next action, and the rules below answer instead. The mirror holds as well —
+   substeps all final while the row is still open means the close-out is the work (§5), not the
+   planning session. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — use `Run STEP-1.Xa: <Conditional session label>` plus the invocation **by name**
    (*"run the identity-auth session"* / *"run the native-app session"* / *"run the privacy
