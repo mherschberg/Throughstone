@@ -111,11 +111,11 @@ substep. **Do not interpret a whole-STEP command as permission to execute the su
 created.** Execution starts only when the user explicitly says **"run substep N.M"** (or gives
 an equally specific substep command).
 
-For an `In progress` implementation STEP, open its PLAN in `Upcoming Prompts/`, identify the
-lowest open substep, and wait for the user's explicit substep command unless the current
-message already names that substep. Never run multiple substeps from a whole-STEP command. A
-Check-in STEP is the one exception: wait for *"run the check-in"*, which runs both its substeps
-end to end (`Code/{{PROJECT}}-docs/METHOD.md` §10 rule 6).
+For an `In progress` implementation STEP — in a team, the one the user says is theirs — open its
+PLAN in `Upcoming Prompts/`, identify the lowest open substep, and wait for the user's explicit
+substep command unless the current message already names that substep. Never run multiple substeps
+from a whole-STEP command. A Check-in STEP is the one exception: wait for *"run the check-in"*,
+which runs both its substeps end to end (`Code/{{PROJECT}}-docs/METHOD.md` §10 rule 6).
 
 ## Repos & workspace layout
 The `layout:` line in `Code/{{PROJECT}}-docs/registries/repos.yml` says which layout this
@@ -127,7 +127,7 @@ itself a repo, the pointers are committed files, and these are folders inside it
 - `Code/{{PROJECT}}-*` — the codebases, created as the architecture names them.
 
 `Code/{{PROJECT}}-docs/registries/repos.yml` is the canonical inventory **and the index to the repos** — each
-entry points to a repo whose **README is its "about"** (what it is, how to set it up; plus an
+entry points to a repo or folder whose **README is its "about"** (what it is, how to set it up; plus an
 `ARCHITECTURE.md` if it has real internal complexity). A repo joins it by being **registered**
 (`Code/{{PROJECT}}-docs/runbooks/register-repo.md`). When an application-code repo is added, its
 licence files follow `Code/{{PROJECT}}-docs/runbooks/register-repo.md` step 3. **Before working in
@@ -186,12 +186,8 @@ is itself a repo, so this rule does not apply there.
   and what later sessions may still need from it, then ask the user whether the input is now fully
   captured; move it to `Code/{{PROJECT}}-docs/inputs/archive/` only on a yes, with an entry saying
   so — a *not yet* leaves it where it is. **Lift architecture-grade inputs — a protocol/API spec, a
-  formal contract, a finished design doc — into `architecture/` promptly** (often a whole-file copy
-  or a light reformat to match doc conventions), rather than leaving them live here with
-  `architecture/` merely pointing at them; the original stays as provenance. (Use judgment,
-  though: some inputs are better **referenced** from `architecture/` and kept here long-lived — a
-  large external standard you only partially implement is one example, not the only one.) See
-  `Code/{{PROJECT}}-docs/inputs/README.md`.
+  formal contract, a finished design doc — into `architecture/` promptly**, or reference one from
+  there when that fits better; `Code/{{PROJECT}}-docs/inputs/README.md` says how and when.
 - **Keep accepted risks visible.** Known, accepted risks and deferred technical debt live in
   `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
   dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is
@@ -236,8 +232,8 @@ The rules that bind you as an agent, solo or not:
   repo it touches. Do this even solo.
 - **Reserve the STEP number before working:** take `max + 1` and add the row to
   `prompts/STEP-index.md` on the trunk, never a `step-NNNN` branch, before you branch or write.
-- **Flip your STEP's row to `In progress` on the trunk when you start** — the next-action
-  resolver reads it.
+- **Flip your STEP's row to `In progress` on the trunk when you start** — in a team, with you
+  as its Owner — the next-action resolver reads it.
 
 **When more than one contributor is active** — `Code/{{PROJECT}}-docs/adr/README.md`'s *Who
 accepts an ADR* line names anyone but `_solo author_`, or the user has other agents working
