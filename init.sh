@@ -1358,7 +1358,7 @@ stamp_license() {
     cp "$1/LICENSE" "$DOCS/LICENSE"
     # One repository, two copies of one text: say what each copy is for.
     echo "  license: $1/LICENSE (this repository's license)"
-    echo "  license: $DOCS/LICENSE (the canonical copy, same text, which apply-project-license.sh gives new code repos)"
+    echo "  license: $DOCS/LICENSE (the canonical copy, same text, which apply-project-license.sh copies from)"
   else
     echo "  license: $1/LICENSE"
   fi
