@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for init.sh license validation and generated license posture.
+# Regression coverage for init.sh: license validation and the generated license posture, the
+# wizard's other answers (slug, layout, collaboration, remotes), ignored flags, input that runs
+# out, and the registries/ a project ships with. Also apply-project-license.sh, --notice-only
+# included.
 
 set -euo pipefail
 export LC_ALL=C
@@ -11,11 +14,11 @@ trap 'rm -rf "$TMP_ROOT"' EXIT
 
 # run_with_deadline SECONDS CMD... — run CMD and exit 124 if it outlives the deadline.
 #
-# The wizard's failure mode when a prompt insists on an answer and the answer stream has run out
-# is not a wrong result, it is no result: it re-asks forever. A test that only asserts the exit
-# status hangs the whole suite instead of failing when that comes back. Written in perl because
-# init.sh already requires perl, while `timeout` is GNU coreutils and absent from a stock macOS —
-# the suite must fail on the machine of anyone who downloaded this template, not only on CI's.
+# A wizard that re-asks a question after the answer stream has run out gives no result, not a
+# wrong one: it loops forever. A test that only asserted the exit status would then hang the whole
+# suite instead of failing. Written in perl because init.sh already requires perl, while `timeout`
+# is GNU coreutils and absent from a stock macOS — the suite must fail on the machine of anyone who
+# downloaded this template, not only on CI's.
 run_with_deadline() {
   local secs="$1"; shift
   perl -e '
@@ -33,8 +36,9 @@ run_with_deadline() {
 }
 
 # copy_template DEST — build an init.sh fixture from HEAD, then overlay current worktree
-# changes. The overlay keeps uncommitted bootstrap/comment-pass edits under test, while leaving
-# Git metadata behind so init.sh sees the same shape as a downloaded template.
+# changes: uncommitted edits and deletions, and untracked files .gitignore does not exclude. That
+# keeps work in progress under test, while leaving Git metadata behind so init.sh sees the same
+# shape as a downloaded template.
 copy_template() {
   local dest="$1" file
   mkdir -p "$dest"
@@ -240,14 +244,14 @@ run_private_case() {
   grep -Fq "does not grant permission" "$work/Code/$name-api/LICENSING.md"
 
   assert_maintainer_tests_removed "$name" "$work"
-  # Nothing here greps the captured output for the copyright-holder prompt. That assertion used to
-  # exist and could never fail: bash writes a `read -p` prompt only when input is coming from a
-  # terminal, and every case runs under a pipe, so the prompt was written nowhere and the grep was
-  # true whatever init.sh asked. What stands in its place is the invocation above: these cases run
-  # `--non-interactive`, where a question with no answer and no default is an error rather than a
-  # prompt, so a wizard that asked a proprietary project for a copyright holder would exit 2 and
-  # fail the case outright. Driving these cases under a pty to make the prompt real would buy a
-  # weaker signal at the price of a BSD/GNU fork in `script(1)`.
+  # The invocation is the check that a proprietary project is never asked for a copyright holder.
+  # That question has no default, so asking it would exit 2 and errexit would fail the file there:
+  # under --non-interactive (license-private-flag) a question with no answer and no default is an
+  # error, and on the piped runs below (license-private, license-bare-enter) the one answer line
+  # has already been read. Nothing greps the captured output for the prompt: bash writes a
+  # `read -p` prompt only when input comes from a terminal, and none of these runs reads from one,
+  # so a grep for its absence would pass whatever init.sh asked. Driving these cases under a pty
+  # to make the prompt real would buy a weaker signal at the price of a BSD/GNU fork in `script(1)`.
 }
 
 # run_mono_case — mono mode keeps both the root project LICENSE and the docs-hub canonical
@@ -321,8 +325,8 @@ run_registry_mono_case() {
       --remotes=no
   ) >"$TMP_ROOT/$name.out" 2>&1
 
-  # The flag is accepted, ignored, and says so. It used to delete the whole directory, taking the
-  # risk and security-review registers with it — both cited unconditionally by the generated docs.
+  # The flag is accepted, ignored, and says so: registries/ always ships, because the generated
+  # docs cite its registers unconditionally.
   grep -Fq -- "--registries=no is ignored" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name did not warn that --registries=no is ignored" >&2
     return 1
@@ -334,13 +338,13 @@ run_registry_mono_case() {
     }
   done
 
-  # A register that exists is not a register. Each of these ships a {{PROJECT}} token in its
-  # header comment and a top-level key the docs tell agents to append rows under, and the `-f`
-  # above is satisfied by a zero-byte file — so a prune that emptied one, or a rename that
-  # took the substitution pass past them, would land in silence. Nothing else looks: check.sh
-  # reads repos.yml and no other registry, in either layout. `^risks:` and `^captures:` are
-  # anchored because each file also carries a commented-out example repeating its key verbatim;
-  # the security ledger's keys are anchored to match, not because anything there needs it.
+  # Each register must have the {{PROJECT}} token in its header replaced with the slug, and must
+  # keep the top-level key that holds its entries. The `-f` above passes on a zero-byte file, so an
+  # emptied register or a header the substitution missed would otherwise go unnoticed, and nothing
+  # else looks: check.sh reads repos.yml and no other registry, in either layout. `^risks:` and
+  # `^captures:` are anchored because each file also carries a commented-out example repeating its
+  # key verbatim; the security ledger's keys are anchored to match, and their two-space indent is
+  # what keeps `S0:` off the header's `# - S0:` lines.
   for field in "register for $name." "^risks:"; do
     grep -q "$field" "$work/Code/$name-docs/registries/risks.yml" || {
       echo "FAIL: $name registries/risks.yml does not match: $field" >&2
@@ -360,8 +364,8 @@ run_registry_mono_case() {
     }
   done
 
-  # The workspace root leads the inventory. Generated with --remotes=no, so nothing recorded a
-  # remote on that row; with no `remote:` the clone parser in setup-workspace.sh passes over it.
+  # The workspace root leads the inventory. The project was generated with --remotes=no, so the
+  # row carries no `remote:`.
   reg="$work/Code/$name-docs/registries/repos.yml"
   root_row="$(first_registry_row "$reg")"
   for field in "name: \"$name\"" 'location: "."' 'type: mono' 'added_as: created'; do
@@ -388,8 +392,10 @@ run_registry_mono_case() {
     return 1
   }
 
-  # The new row must change nothing the shipped tooling reports. check.sh exits 0 on warnings, so
-  # assert the summary line rather than the status.
+  # A fresh mono project passes the doctor's default run clean. That run reads no registry row:
+  # check 10 (the repo registry) runs only with --check-in, where this remote-less row would warn,
+  # and check 7 (workspace-root hygiene) skips a root that is a repository. check.sh exits 0 on
+  # warnings, so assert the summary line rather than the status.
   ( cd "$work" && bash "Code/$name-docs/scripts/check.sh" ) >"$TMP_ROOT/$name-check.out" 2>&1 || true
   grep -Fq "0 fail(s), 0 warning(s)" "$TMP_ROOT/$name-check.out" || {
     echo "FAIL: $name doctor was not clean with the workspace-root row present" >&2
@@ -430,7 +436,7 @@ run_registry_multi_case() {
     return 1
   }
   # The other registers ship in this layout too. Same assertions as the mono case above: the
-  # substituted half of each header comment, and the top-level key rows are appended under.
+  # substituted half of each header comment, and the top-level key that holds its entries.
   for field in "register for $name." "^risks:"; do
     grep -q "$field" "$work/Code/$name-docs/registries/risks.yml" || {
       echo "FAIL: $name registries/risks.yml does not match: $field" >&2
@@ -462,14 +468,13 @@ run_registry_multi_case() {
 }
 
 # run_typed_layout_collab_case — the layout and collaboration answers typed at the prompt, in the
-# vocabulary the menus offer. Both questions used to assign their answer raw while everything
-# downstream compared against "1" or "2", so a typed word was neither: typing "mono" built a
-# hybrid, and typing "team" built a solo project. Both now go through the same normaliser the
-# flags use, and this is the only case that enters that branch at all — every other invocation in
-# the suite passes --layout and --collab, which is the path that already normalised.
+# vocabulary the menus offer. A typed word goes through the same normaliser as --layout and
+# --collab, so "mono" has to build a mono project and "team" a team one. This is the only case
+# that answers these two menus with a word.
 #
-# The re-prompts are the cheap half. The assertions that matter are about the project that came
-# out: a hybrid answers the hints identically.
+# The re-prompts count only the answers refused. A word that is accepted and then built into the
+# wrong project prints the same ones, so the assertions that matter are about the project that
+# came out.
 run_typed_layout_collab_case() {
   local name="typed-layout-collab" status
   local work="$TMP_ROOT/$name"
@@ -504,10 +509,10 @@ run_typed_layout_collab_case() {
 
   # Two re-asks each, not one. The first is the unrecognised word; the second is the answer that
   # is not there — Enter at the layout question, a space at the collaboration one. Neither menu
-  # offers a default any more, and counting the re-asks is the only way to see that: `read -p`
-  # prints its prompt to a terminal only, so under a pipe there is no prompt text in the output to
-  # read a default off. Enter and a space used to buy multi and solo here — a layout fixed at
-  # creation, and an ADR register naming the reader as its own acceptance authority.
+  # offers a default, and counting the re-asks is how this output shows that: `read -p` prints its
+  # prompt to a terminal only, so under a pipe there is no prompt text in the output to read a
+  # default off. A default would turn a blank answer into a choice nobody made: a layout, which is
+  # fixed at creation, or solo, which names the reader as the ADR register's acceptance authority.
   [ "$(grep -c -F "answer 1 or 2 (the words multi and mono work too)" "$TMP_ROOT/$name.out")" = "2" ] || {
     echo "FAIL: $name — the layout question did not re-ask both an unrecognised answer and a blank one" >&2
     return 1
@@ -518,9 +523,9 @@ run_typed_layout_collab_case() {
   }
   # The menu has to name what each layout does to this folder, at the moment the choice is made.
   # This is a wording assertion and only that: it proves the sentence is on screen, not that a
-  # reader takes it in. What it describes is asserted for real just below, where this case
-  # separates the layouts by what they actually build. Both halves, because a one-sided contrast
-  # is what the old text had — "become separate repos" never said separate from what.
+  # reader takes it in. The mono layout itself, one repository at this folder with prompts/ inside
+  # it, is asserted below by what this case builds. Both halves are pinned: a contrast with one side
+  # missing does not say what the choice is between.
   grep -Fq "this folder is not itself a repo" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name — the multi option does not say the workspace root stops being a repository" >&2
     return 1
@@ -542,9 +547,10 @@ run_typed_layout_collab_case() {
     return 1
   fi
 
-  # "mono" has to mean the mono layout, not most of it. The hybrid's signature was prompts/ left
-  # as a repository of its own while every other decision went the mono way, so these two
-  # assertions together are what separates the layouts -- neither alone does.
+  # "mono" has to mean the mono layout, not most of it: the workspace root is a repository and
+  # prompts/ is not one of its own. Either assertion fails a multi build. Only the second fails a
+  # hybrid, which does everything else the mono way but leaves prompts/ a repository of its own;
+  # nothing else in this case catches one.
   [ -d "$work/.git" ] || {
     echo "FAIL: $name did not make the workspace root a repository" >&2
     return 1
@@ -558,10 +564,10 @@ run_typed_layout_collab_case() {
     return 1
   }
 
-  # "team" has to reach the one thing the answer decides. Solo stamps "_solo author_" on this
-  # field; the flag's value only lands there if the typed answer was read as team. Match the
-  # field and its value together: the line below it is a template comment offering "tech lead"
-  # as an example, so a bare grep for the value passes in a solo project too — measured.
+  # "team" has to reach the ADR register, the one file the answer is written into. Solo stamps
+  # "_solo author_" on this field; the flag's value only lands there if the typed answer was read
+  # as team. Match the field and its value together: the line below it is a template comment
+  # offering "tech lead" as an example, so a bare grep for the value passes in a solo project too.
   grep -Fq '**Who accepts an ADR in this project:** tech lead' \
     "$work/Code/$name-docs/adr/README.md" || {
     echo "FAIL: $name did not record the ADR acceptance authority — typed 'team' read as solo" >&2
@@ -573,8 +579,8 @@ run_typed_layout_collab_case() {
 
 # refusing_remote PATH — a bare repo that accepts no push. `git ls-remote` still answers, so
 # init.sh's pre-boundary reachability check passes and the failure lands where these cases need
-# it: after the project is generated and committed, which is the only place the two layouts ever
-# disagreed about what to do next.
+# it: after the project is generated and committed, where both layouts must name the failed
+# backup, print the closing instructions and exit non-zero.
 refusing_remote() {
   bare_remote "$1"
   printf '#!/bin/sh\nexit 1\n' >"$1/hooks/pre-receive"
@@ -584,8 +590,8 @@ refusing_remote() {
 # run_remote_failure_multi_case — a backup the user asked for and did not get must not read as
 # success. The prompts remote refuses every push and the docs remote works, so this also pins
 # that only the repo that failed is named: sending someone to a repo that is fine is its own
-# defect. Multi used to exit 0 here, which told a caller -- --non-interactive is documented as
-# being for scripts and CI -- that the backup exists.
+# defect. A zero exit would tell a caller -- --non-interactive is documented as being for scripts
+# and CI -- that the backup exists.
 run_remote_failure_multi_case() {
   local name="remote-failure-multi"
   local work="$TMP_ROOT/$name"
@@ -660,9 +666,10 @@ run_remote_failure_multi_case() {
 
 # run_remote_failure_mono_case — the same failure through the other layout's code. Mono reaches
 # it by reusing an origin the folder already had, so the push is inside reuse_root_origin rather
-# than setup_remote, and it used to end the run outright: the project was generated and committed
-# and the closing instructions never printed. The origin stays attached here, which is why the
-# report is careful to say the push did not complete rather than that there is no remote.
+# than setup_remote. A failed push there must not end the run: the project is already generated
+# and committed, and the closing instructions and the failure report come after it. The origin
+# stays attached here, which is why the report is careful to say the push did not complete rather
+# than that there is no remote.
 run_remote_failure_mono_case() {
   local name="remote-failure-mono"
   local work="$TMP_ROOT/$name"
@@ -774,9 +781,9 @@ run_visibility_case() {
   # records a URL after gh reports success, and this is what gives that guarantee teeth: an
   # address in repos.yml proves nothing, and neither does an arbitrary branch on the far end.
   #
-  # The count is asserted first and deliberately. A loop fed by grep runs zero times when the file
-  # holds no rows, and passes -- so without this the whole check could succeed having examined
-  # nothing at all.
+  # The count is asserted too, after the loop. A loop fed by grep runs zero times when no row
+  # carries a `remote:` line, and passes -- so without the count the whole check could succeed
+  # having examined nothing at all.
   local recorded url rowname local_repo want_sha got_sha n=0
   while IFS= read -r recorded; do
     n=$((n + 1))
@@ -876,7 +883,7 @@ run_public_proprietary_case() {
   [ ! -s "$gh_log" ]
 }
 
-# run_missing_canonical_license_case — posture metadata prevents silent open-source-to-private
+# run_missing_canonical_license_case — posture metadata prevents silent open-source-to-proprietary
 # drift if the docs hub's canonical project LICENSE disappears later.
 run_missing_canonical_license_case() {
   local name="license-missing-canonical"
