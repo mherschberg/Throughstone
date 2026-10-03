@@ -1315,9 +1315,10 @@ write_gitignore() {
 # Per-machine agent config (not shared). Patterns rather than one filename: an editor's lock and
 # autosave siblings (#settings.local.json#, settings.local.json~) are per-machine too, and a
 # `git add -A` would otherwise commit them. Shared project config (.claude/settings.json) still commits.
-.claude/*.local.json
-.claude/#*#
-.claude/*~
+# **/ matches at any depth: an agent started inside a code folder writes its .claude/ there.
+**/.claude/*.local.json
+**/.claude/#*#
+**/.claude/*~
 
 # Personal local Throughstone profile (not shared)
 /.throughstone/local-user.md
