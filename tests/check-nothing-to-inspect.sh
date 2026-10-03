@@ -2,15 +2,15 @@
 #
 # Regression coverage for the every-run doctor checks that read rows out of a table, or templates
 # out of a folder, when there is nothing there to read: scripts/check.sh's duplicate-STEP,
-# duplicate-ADR, status and conditional-template checks — and for the one row the status check
-# skips on purpose, a table's separator, which a data row with a Status of only dashes, or none,
-# must not pass for.
+# duplicate-ADR, ADR registry-against-files, status and conditional-template checks — and for the
+# one row the status check skips on purpose, a table's separator, which a data row with a Status
+# of only dashes, or none, must not pass for.
 #
 # The defect under test is a clean PASS over rows the check never read — an emptied STEP index or
 # ADR registry, a STEP table whose Status header was renamed, a missing session-templates folder,
-# or a data row skipped as a separator. So every case refutes its section's PASS as well as
-# expecting the WARN or FAIL: that finding alone could be printed beside a PASS that still vouches
-# for rows nobody read.
+# a second ADR file under a number already counted, or a data row skipped as a separator. So
+# every case refutes its section's PASS as well as expecting the WARN or FAIL: that finding alone
+# could be printed beside a PASS that still vouches for rows nobody read.
 #
 # Half of the rule is staying quiet. Some zeros are how a project starts — no ADR yet — or a
 # choice a project may make — deleting the optional conditional templates — and a doctor that
@@ -302,6 +302,19 @@ look "Legacy local user profile fields"
 expect "[PASS] no Code/$SLUG-docs/overview.md in the docs hub — nothing to read" "a docs hub with no overview.md"
 refute "not initialized" "a docs hub with no overview.md"
 refute "[WARN]" "a docs hub with no overview.md"
+
+# --- 8. Two ADR files on one number ----------------------------------------------
+# One registry row, two ADR-0001 files. The registry check counts each file's number, so the
+# second file fails the section instead of disappearing into a set of numbers.
+c="$(fixture shared-adr-number)"
+adr="$c/Code/$SLUG-docs/adr"
+printf '| ADR-0001 | A decision | Accepted | 2026-01-15 |\n' >> "$adr/README.md"
+printf '# ADR-0001: A decision\n' > "$adr/ADR-0001-a-decision.md"
+printf '# ADR-0001: Another decision\n' > "$adr/ADR-0001-another-decision.md"
+doctor "$c"
+look "ADR registry matches ADR files on disk"
+expect "[FAIL] more than one file per ADR number: ADR-0001" "two ADR files sharing a number"
+refute "[PASS]" "two ADR files sharing a number"
 
 if [ "$failures" -ne 0 ]; then
   printf 'check.sh nothing-to-inspect checks: %d FAILURE(S)\n' "$failures" >&2
