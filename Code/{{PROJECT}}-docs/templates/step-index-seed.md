@@ -10,11 +10,11 @@ worked, and completed.
 > Those five are the STEP states. A **substep** row uses the same values plus **N/A** (this area
 > structurally doesn't apply — an API-only system's UI session, say); keep the row either way, since
 > the next-action resolver skips `Deferred`, `Abandoned` and `N/A` rather than reading an absence
-> (`METHOD.md` §10).
+> (`Code/{{PROJECT}}-docs/METHOD.md` §10).
 > Flip a STEP to **In progress** when you start it — the next-action resolver reads it.
-> STEP numbers are global and never reset (see `METHOD.md` §1, §8).
+> STEP numbers are global and never reset (see `Code/{{PROJECT}}-docs/METHOD.md` §1, §8).
 > **What to do next** is always derivable from this index — see the next-action resolver in
-> `METHOD.md` §10.
+> `Code/{{PROJECT}}-docs/METHOD.md` §10.
 >
 > **Reserving a number:** adding a STEP row *is* reserving its number — take `max + 1` and add the
 > row on the trunk, never a `step-NNNN` branch, before you branch or write. In a team, follow
