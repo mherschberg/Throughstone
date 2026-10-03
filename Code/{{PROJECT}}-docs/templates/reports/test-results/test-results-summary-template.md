@@ -7,7 +7,7 @@
 **Run by:** {{person / agent / CI workflow}}
 **Run source:** {{local command / CI run URL / PR URL / release job / other}}
 **Environment:** {{local / CI / staging / production-like / other}}
-**Architecture source:** `architecture/12-test-strategy.md`
+**Architecture source:** `architecture/*-test-strategy.md`
 
 ## Scope
 
