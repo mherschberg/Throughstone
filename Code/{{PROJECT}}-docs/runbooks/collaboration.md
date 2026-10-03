@@ -68,16 +68,17 @@ its own repo at the workspace root in a multi-repo project, the root repo in mon
      (`templates/planning-session.md`) lays down many STEPs in one commit and loses a push
      race, move the **whole batch** above the new `max` — not just one row — then push again.
 6. **Scan for a duplicate before every push — even on a clean merge.** A rejected push is *not*
-   the only way a duplicate appears: two contributors who each *append* a row merge with **no
+   the only way a duplicate appears: two contributors who each *append* a row can merge with **no
    conflict** (see the note below), so git won't flag it. After any pull/merge and before you
-   push, scan the index for a repeated number:
+   push, scan the index for a repeated number from the workspace root:
    ```
    grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d   # prints nothing when clean
    ```
    If it prints anything, recompute `max + 1`, renumber your row, and re-scan until it's empty.
 
-> **Renumber even when the pull merges cleanly.** Two contributors each *append* a new row,
-> so the edits land on different lines and git merges them **without a conflict** — leaving
+> **Renumber even when the pull merges cleanly.** Two contributors each add a new row, and when
+> the rows land in different places — different phase tables, or after different rows — git
+> merges them **without a conflict** — leaving
 > two `STEP-6` rows that no merge flags. A clean pull is *not* proof you're safe: the duplicate
 > scan (step 6) is what catches it, so run it after any pull/merge, recompute `max + 1`, and
 > renumber your row; never just re-push the merge commit. (This is also why reserving happens
@@ -94,7 +95,8 @@ After that the number is yours; everyone who pulls sees it.
 **Flip the row to `In progress` when you start — and push the flip.** Reservation leaves the
 row `Planned`; the overlap warning (§4) reads in-flight STEPs *from the shared index*, so the
 moment you cut the `step-NNNN` branch and begin work, set the row's **Status** to `In progress`
-in a small commit pushed to the trunk (the same your-row-only edit as reserve, §5).
+and its **Owner** to you, in a small commit pushed to the trunk (the same your-row-only edit as
+reserve, §5).
 The later `Done` / `Abandoned` transitions are pushed the same way. A STEP being worked must
 never be left at `Planned` on the shared branch — or have its flip sitting unpushed locally —
 or it's invisible to everyone else's overlap check.
@@ -157,7 +159,7 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
 A few files are global and edited by everyone. They fall into two kinds:
 
 **Table files** — `prompts/STEP-index.md`, `adr/README.md` (the registry), each phase `README.md`,
-and `registries/repos.yml`. These conflict only when people reflow them:
+and `registries/repos.yml`. These merge best when nobody reflows them:
 - Edit **only your own row(s)**; never re-sort or reformat the whole table.
 - Land index/registry edits in **small, dedicated commits** and push promptly.
 - A conflict here is almost always two edits on **different rows** — keep both.
@@ -180,7 +182,7 @@ for that brief edit. It's most valuable on the **narrative files**, where a conc
 the costliest case above — there the lock guards against a *prose merge*, not a number clash.
 (Architecture-doc numbers need no reservation ceremony at all: the docs are separate files with
 descriptive names — `06-security-model.md`, not just `06` — so a duplicate number shows up
-visibly in `git status` rather than merging into a silent duplicate the way two index rows do,
+visibly in `git status` rather than merging into a silent duplicate the way two index rows can,
 and it's fixed by renaming one file. The reserve-and-scan protocol is only for the shared
 *append-into-one-file* registries: STEP numbers and ADR numbers.) Mark the files lockable once,
 in each repo's `.gitattributes`:
@@ -220,11 +222,11 @@ reviewing, and recording it. The ADR template already carries the needed states
   the superseding ADR in the registry is how dependents find out.
 - **Reserve the ADR number like a STEP number.** ADR numbers are sequential and never reused,
   and the registry in `adr/README.md` is shared — so two authors each appending an `ADR-0005`
-  row merge **cleanly** into a silent duplicate, exactly as two `STEP-6` rows do (§2). A clean
+  row can merge **cleanly** into a silent duplicate, exactly as two `STEP-6` rows do (§2). A clean
   pull is not proof you're safe. Use the same protocol, on the docs hub's shared trunk: pull,
   take `max + 1` over the registry, add your row and create the `ADR-NNNN-*.md` file, then
   **commit and push immediately** in a dedicated commit. Before every push, even on a clean
-  merge, scan for a repeated number:
+  merge, scan for a repeated number from the workspace root:
   ```
   grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d   # prints nothing when clean
   ```
