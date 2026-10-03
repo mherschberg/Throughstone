@@ -626,7 +626,7 @@ at: `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`,
 `Code/{{PROJECT}}-docs/scripts/check.sh --check-in`. This holds in **every** document, the
 hub-local ones below included, and it holds whether the reader is being told to run the command or
 warned off it — a warning has to name the program unambiguously too. Anything that works from
-somewhere else **names that directory in the same breath**: step 8 of
+somewhere else **names that directory in the same breath**: Case 2 step 8 of
 `runbooks/splitting-repos.md` says to run `scripts/setup-workspace.sh` *from the new hub*.
 
 **Everything else follows the file it is written in.** A document inside the docs hub names the
