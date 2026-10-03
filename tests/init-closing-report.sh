@@ -109,7 +109,7 @@ expect_status 0
 expect_line "  git repo: . (initial commit on trunk)" "$OUT"
 [ "$(git -C "$W" rev-list --count trunk 2>/dev/null)" = "1" ] || fail "the reported commit is not on trunk"
 expect_line "  license: ./LICENSE (this repository's license)" "$OUT"
-expect_line "  license: Code/$CASE-docs/LICENSE (the canonical copy, same text, which apply-project-license.sh gives new code repos)" "$OUT"
+expect_line "  license: Code/$CASE-docs/LICENSE (the canonical copy, same text, which apply-project-license.sh copies from)" "$OUT"
 [ -z "$(git -C "$W" remote)" ] || fail "the run attached a remote, so the case does not test what it says"
 expect_line "Recommended optional backup:" "$END"
 expect_line "  No remote is attached. To back up, create one empty repo on your host, attach it" "$END"
