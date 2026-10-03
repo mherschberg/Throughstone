@@ -1036,14 +1036,14 @@ run_manual_multi_remote_case() {
   assert_maintainer_tests_removed "$name" "$work"
 }
 
-# run_end_of_input_case — the run stops when the answers run out.
+# run_end_of_input_case — once input has run out, a question with no default stops the run.
 #
-# An unattended run — an agent, a `< /dev/null`, a script whose answer stream is shorter than the
-# question list — used to get an unlimited supply of empty answers, because ask discarded read's
-# exit status. At a question with a default that silently built a whole project; at the slug
-# question, whose loop re-asks until the answer is valid and where blank never is, it spun: the
-# behaviour this case pins was measured at 94KB of the same notice in twelve seconds before it was
-# killed. The slug question is the first one asked, so this is also the shortest path to it.
+# An unattended run (an agent, a `< /dev/null`, a script whose answer stream is shorter than the
+# question list) that is out of input at a question with no default has to stop there with exit 2
+# and an error quoting that question's prompt, not read end of input as a blank answer. The slug
+# question re-asks until the answer is valid, and blank never is, so a run that took blanks would
+# loop on it forever. It is also the first question asked, so an empty input stream reaches it at
+# once.
 run_end_of_input_case() {
   local name="end-of-input" work status
   work="$TMP_ROOT/$name"
@@ -1080,13 +1080,13 @@ run_end_of_input_case() {
   assert_maintainer_tests_retained "$name" "$work"
 }
 
-# run_remote_menu_case — the one question in the wizard that reaches outside this machine.
+# run_remote_menu_case — the menu whose answer 1 can create repositories on GitHub has no default.
 #
-# "Remote setup" used to default to 1, so Enter meant "create real GitHub repositories under your
-# account" — the only accidental answer here that leaves something to clean up on someone else's
-# server. It now has no default and re-asks instead of exiting, and the same run proves the
-# visibility default below it was kept: that one is cheap to accept by accident, because a repo
-# nobody can read is one setting away from being right.
+# A default of 1 would make Enter mean "create real GitHub repositories", which would leave
+# repositories to delete on someone else's server. So a blank answer is re-asked, like an unknown
+# one. The same run checks that the visibility question, asked next, has a default, Private: that
+# one is cheap to accept by accident, because a repo nobody else can read is one setting away from
+# being right.
 run_remote_menu_case() {
   local name="remote-menu" status
   local work="$TMP_ROOT/$name"
@@ -1099,16 +1099,17 @@ run_remote_menu_case() {
   cp "$ROOT/tests/fixtures/gh-stub.sh" "$stub_bin/gh"
   chmod +x "$stub_bin/gh"
   : > "$gh_log"
-  # The answer stream is exactly as long as the questions that should be asked, so a question
-  # that gains a default consumes an answer meant for the next one and the stream runs out early.
-  # The status is captured rather than left to errexit for that reason: that failure has to name
-  # itself here, not kill the suite from inside a subshell with nothing written down.
+  # The answer stream carries exactly the answers this run should need. If the visibility question
+  # loses its default, it re-asks after the Enter meant for it, the stream runs out, and the run
+  # stops with exit 2. The status is captured rather than left to errexit for that reason: that
+  # failure has to name itself here, not kill the suite from inside a subshell with nothing
+  # written down.
   set +e
   (
     cd "$work"
     # y at "Set up online Git remotes now?", then the remote menu answered blank, then with a
-    # word it does not know, then 1; then Enter at the visibility question, which still has a
-    # default to take.
+    # word it does not know, then 1; then Enter at the visibility question, which has a default
+    # to take.
     printf 'y\n\nboth\n1\n\n' | \
       PATH="$stub_bin:$PATH" \
       GH_LOG="$gh_log" \
@@ -1130,29 +1131,30 @@ run_remote_menu_case() {
     return 1
   }
 
-  # The removal and the keep, measured in one run and only by behaviour: `read -p` prints its
-  # prompt to a terminal only, so a pipe never sees the `[1]` that renders a default.
+  # The menu has no default and the visibility question has one, and this case can check both
+  # only by behaviour: `read -p` shows its prompt only when its input is a terminal, so with the
+  # answers piped in, the output never carries the `[1]` that renders a default.
   #
-  # Removed — the blank answer and the unrecognised one both come back as questions. Two, not one:
-  # a menu that still defaulted would answer the blank itself and re-ask only "both".
+  # No default at the menu: the blank answer and the unrecognised one are both re-asked, so the
+  # "choose 1 to create GitHub remotes" hint is printed twice. A menu that defaulted to 1 would
+  # take the blank, print the hint zero times and still finish the run, so this count catches it.
   [ "$(grep -c -F "choose 1 to create GitHub remotes" "$TMP_ROOT/$name.out")" = "2" ] || {
     echo "FAIL: $name — Enter at the remote menu was taken as 'create GitHub repositories'" >&2
     cat "$TMP_ROOT/$name.out" >&2
     return 1
   }
-  # Option 2's requirements are on screen with the option. They were already stated on the branch
-  # taken when gh is missing, so the wizard explained itself only where it could not offer the
-  # easier path; this run is the gh-installed one, where it did not. A wording assertion, and only
-  # that — but the wording is the whole change.
+  # Option 2's requirements are on screen with the option, so they can be read before any URL is
+  # typed instead of learned from a refusal afterwards. A wording assertion, and only that: it
+  # proves the text is printed, not that a reader takes it in.
   grep -Fq "must already exist, be empty, and be reachable" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name — the existing-URL option does not say what those URLs must be" >&2
     cat "$TMP_ROOT/$name.out" >&2
     return 1
   }
-  # Kept — the visibility question got nothing but Enter, and private is what reached the host.
-  # An open-source licence is chosen here for that assertion's sake: under a proprietary one, a
-  # public answer trips the public/proprietary warning and cancels the run, so this case would go
-  # red before ever reading the log and the line below would be measuring nothing.
+  # The visibility default: the question got nothing but Enter, and private is what reached the
+  # host. An open-source licence is chosen here for that assertion's sake: under a proprietary
+  # one, a public answer trips the public/proprietary warning and cancels the run, so this case
+  # would go red before ever reading the log and the line below would be measuring nothing.
   grep -Fq -- "--private" "$gh_log" || {
     echo "FAIL: $name — Enter at the visibility question did not create private repositories" >&2
     cat "$gh_log" >&2
@@ -1165,9 +1167,10 @@ run_remote_menu_case() {
 # run_ignored_flag_case — a flag that cannot apply is named, not obeyed and not refused.
 #
 # A mono project has one repository, so --docs-remote and --prompts-remote have nothing to attach
-# to. They were dropped without a word, which left a project whose single remote contradicts the
-# command that created it. Refusing instead would break a wrapper that passes the same flag set to
-# every project, and the flags are harmless — so the run says what it discarded and carries on.
+# to. Dropped in silence, they would leave a project whose single remote contradicts the command
+# that created it, with nothing in the run admitting the difference. Refusing them would break a
+# wrapper that passes the same flag set to every project, and beside --remote-url the two flags
+# change nothing else, so the run says what it discarded and carries on.
 run_ignored_flag_case() {
   local name="ignored-flag"
   local work="$TMP_ROOT/$name"
@@ -1227,8 +1230,7 @@ run_ignored_flag_case() {
 # run_ignored_flag_multi_case — the same rule in the other layout, which is the whole point of it.
 #
 # A multi project has two durable repos and no single one, so --remote-url has nothing to attach
-# to; it was accepted, never read and never mentioned, exactly as --docs-remote was in mono. A
-# rule that held in one layout only would be the same defect wearing the other hat.
+# to, and the run names it as dropped, as a mono run does for --docs-remote and --prompts-remote.
 run_ignored_flag_multi_case() {
   local name="ignored-flag-multi"
   local work="$TMP_ROOT/$name"
@@ -1287,13 +1289,13 @@ run_ignored_flag_multi_case() {
 # run_github_choice_discarded_case — an answer that cannot apply is named, the way a flag is.
 #
 # A mono project's one repository is the workspace root, so when that folder already has an empty
-# origin there is nothing for "create a repository on GitHub" to create. Reusing the origin is the
-# right outcome; not saying so was the defect. Measured before the fix: the run answered y and
-# then 1 at the remote menu, never called `gh`, never asked for the owner, and reported the result
-# only as a reuse — after the destructive boundary, and never as creation having been dropped.
+# origin there is nothing for answer 1 at the remote menu ("Create GitHub remotes now") to create.
+# Reusing the origin is the right outcome, and the run has to say so before the destructive
+# boundary: a note that creation is dropped, naming the origin used instead. `gh` is never called,
+# and neither the owner question nor the visibility question is asked.
 #
-# Both halves run here. Without a reusable origin the same answers must still create the repo and
-# must not print the note; a note that fired there would be describing work the run actually did.
+# Both halves run here. Without a reusable origin, y and 1 must create the repo and must not print
+# the note; a note that fired there would deny work the run actually did.
 run_github_choice_discarded_case() {
   local name="github-choice-discarded" status
   local work="$TMP_ROOT/$name" plain="$TMP_ROOT/$name-plain"
@@ -1329,10 +1331,8 @@ run_github_choice_discarded_case() {
     return 1
   }
   # Both assertions read only what was printed before the destructive boundary, because "before"
-  # is the whole claim: `reuse_root_origin` already names the same URL afterwards, and telling
-  # someone where their project went once it is too late to stop is the defect, not the fix.
-  # Measured — against the full log, deleting the URL line from the note changes nothing and the
-  # mutation survives.
+  # is the whole claim: `reuse_root_origin` names the same URL afterwards, once it is too late to
+  # stop.
   sed -n "1,/Detaching from the template/p" "$TMP_ROOT/$name.out" > "$TMP_ROOT/$name.pre"
   grep -Fq "note: not creating a repository on GitHub" "$TMP_ROOT/$name.pre" || {
     echo "FAIL: $name — the GitHub-creation answer was discarded without saying so, or said too late" >&2
@@ -1340,6 +1340,9 @@ run_github_choice_discarded_case() {
     return 1
   }
   # The URL belongs in the note: it decides where the project ends up and nothing earlier shows it.
+  # The grep cannot tell which note printed it, though: this run is proprietary, so the note asking
+  # for the remote to be checked as private names the same origin, and the case passes even when
+  # the creation note leaves it out.
   grep -Fq "$theirs" "$TMP_ROOT/$name.pre" || {
     echo "FAIL: $name — the note did not name the origin that is used instead" >&2
     cat "$TMP_ROOT/$name.pre" >&2
@@ -1388,14 +1391,14 @@ run_github_choice_discarded_case() {
 
 # run_slug_message_case — a refusal has to describe the rule it actually enforces.
 #
-# The slug pattern is `^[a-z][a-z0-9-]*$`, and the refusal read "lowercase letters, digits,
-# hyphens only" — which `3d-printer` satisfies. Measured: the flag path exited 2 quoting that
-# message back at a slug obeying it. At the prompt the same string is worse, because the loop
-# re-asks and nothing in it leads to an answer that works.
+# The slug pattern is `^[a-z][a-z0-9-]*$`. `3d-printer` uses only lowercase letters, digits and
+# hyphens, yet the pattern rejects it, so the refusal has to name the first-character rule. A
+# message that names less costs a rerun on the flag path; at the prompt it costs more, because the
+# loop re-asks and nothing in such a message leads to an answer that works.
 #
-# Both call sites share one string, so both are checked here — and the prompt run has to go on to
-# build the project, which is the must-proceed half: a refusal that never accepts anything is not
-# an improvement on one that explains itself badly.
+# Both paths, the --slug flag and the prompt, print the same reason from one function, and both are
+# checked here. The prompt run also has to go on to build the project, which is the must-proceed
+# half: a slug rule that refused every slug, the good one included, would pass both message checks.
 run_slug_message_case() {
   local name="slug-message" status
   local flag_work="$TMP_ROOT/$name-flag" prompt_work="$TMP_ROOT/$name-prompt"
@@ -1461,22 +1464,23 @@ run_slug_message_case() {
 
 # run_licence_vocabulary_case — one word, one meaning.
 #
-# The licence question called its own answer "Private / proprietary" while a question twenty lines
-# later offers "1) Private" for repository visibility, which is unrelated: a private repo can carry
-# MIT and a public repo can be proprietary. A reader who took the first question to be about
-# visibility answered it and got a project licensed to nobody. `proprietary` is now the licence
-# word everywhere — label, flag value and internal token — and `private` belongs to visibility.
+# `proprietary` is the licence word everywhere (label, flag value and internal token), and
+# `private` is who can see the repository, which the GitHub visibility question, asked later,
+# offers as "1) Private". The two are independent: a private repo can carry MIT and a public repo
+# can be proprietary. A licence question that used `private` could be taken for the visibility
+# question, and a reader who wanted a private repo would get a project licensed to nobody.
 #
-# Three parts, because the rule is only true if all three hold: the question stops using the word,
-# the new spelling works, and the old spelling keeps working while saying what to write instead.
-# That last part is the must-proceed half — a vocabulary change that breaks every existing wrapper
-# is not an improvement, and other test files in this suite still pass --license=private.
+# Three parts, because the rule is only true if all three hold: the prompted run never prints
+# "private", the deprecated `--license=private` builds a proprietary project and says it is
+# deprecated, and `--license=proprietary` builds one without that notice. The middle part is the
+# must-proceed case: a wrapper that passes --license=private must not break, and other test files
+# in this suite pass it too.
 run_licence_vocabulary_case() {
   local name="licence-vocabulary" status
   local ask_work="$TMP_ROOT/$name-ask"
   local old_work="$TMP_ROOT/$name-old" new_work="$TMP_ROOT/$name-new"
 
-  # --- the question no longer spends "private" on licensing ---
+  # --- the licence question does not spend "private": the whole run never prints it ---
   copy_template "$ask_work"
   (
     cd "$ask_work"
@@ -1493,7 +1497,7 @@ run_licence_vocabulary_case() {
     cat "$TMP_ROOT/$name-ask.out" >&2
     return 1
   }
-  # And it says the two questions are different, which is the whole reason the reader went wrong.
+  # And it says the two questions are different, so a reader does not take one for the other.
   grep -Fq "Not the same as who can see the repository" "$TMP_ROOT/$name-ask.out" || {
     echo "FAIL: $name — nothing tells the reader visibility is a separate question" >&2
     return 1
@@ -1503,7 +1507,7 @@ run_licence_vocabulary_case() {
     return 1
   }
 
-  # --- the deprecated spelling still builds the same project, and says so once ---
+  # --- the deprecated spelling builds a proprietary project, and says it is deprecated ---
   copy_template "$old_work"
   set +e
   (
@@ -1522,15 +1526,14 @@ run_licence_vocabulary_case() {
     echo "FAIL: $name — --license=private no longer means the proprietary posture" >&2
     return 1
   }
-  # `--` before the pattern: without it grep reads a pattern starting with "--" as an option and
-  # the assertion fails on a run that printed exactly the right thing. Measured, right here.
+  # `--` before the pattern, because the pattern itself starts with "--".
   grep -Fq -- "--license=private is deprecated" "$TMP_ROOT/$name-old.out" || {
     echo "FAIL: $name — the deprecated spelling was accepted without saying what to write instead" >&2
     cat "$TMP_ROOT/$name-old.out" >&2
     return 1
   }
 
-  # --- the new spelling builds it too, and says nothing ---
+  # --- the recommended spelling builds one too, and never prints "deprecated" ---
   copy_template "$new_work"
   (
     cd "$new_work"
@@ -1555,9 +1558,10 @@ run_licence_vocabulary_case() {
 # the authority arrived — typed, passed as `--adr-authority`, or defaulted by `--non-interactive` —
 # and for no solo project.
 #
-# Five runs: the three ways a team project can be created, all of which must print it, and the two
-# neighbouring combinations, of which only the team may. The three are mono and the last is multi,
-# so the line cannot come to depend on the layout without failing here.
+# Five runs: the three ways a team's ADR authority can arrive, all of which must print it, and two
+# runs one flag away from the --non-interactive one: mono solo, which must not print it, and multi
+# team, which must. The three are mono and the last is multi, so the line cannot come to depend on
+# the layout without failing here.
 run_team_headsup_case() {
   local name="team-headsup" n out
   local headsup="Heads-up: team collaboration relies on shared Git remotes"
@@ -1616,22 +1620,20 @@ run_team_headsup_case() {
 
 # run_solo_adr_flag_case — a solo project records the author, so a supplied authority is dropped.
 #
-# `--collab=solo --adr-authority="the CTO"` used to exit 0 with the register stamped `_solo author_`
-# and no mention of the flag at all — measured. That is the fifth instance of one pattern on this
-# branch: the wizard accepting something it cannot use and saying nothing, leaving a project that
-# disagrees with the command that made it. Named rather than refused, because a wrapper passing one
-# flag set to every project should not fail over a value that costs nothing to drop.
+# `--collab=solo --adr-authority="the CTO"` builds a project whose register is stamped
+# `_solo author_`, so the flag cannot apply. Dropped in silence, it would leave a project that
+# disagrees with the command that made it, so the run names it as ignored. Named rather than
+# refused, because a wrapper passing one flag set to every project should not fail over a value
+# that costs nothing to drop.
 #
-# Both directions, since a note that fires everywhere is a different defect with the same symptom:
-# solo with the flag must say so, and team with the same flag must obey it in silence.
+# Three runs: solo with the flag must name it as ignored, team with the same flag must obey it
+# without that note, and solo with no flag must not print the note either.
 run_solo_adr_flag_case() {
   local name="solo-adr-flag" status n out
   local note="note: ignoring --adr-authority"
 
-  # Three runs. solo and team both pass the flag; quiet passes none, and is the run that keeps the
-  # note off the common path — without it a note that fires for every solo project passes this
-  # case, which is a different defect with the same symptom. Measured: a mutation dropping the
-  # flag test survived until this run existed.
+  # The quiet run keeps the note off the common path: a note that fired for every solo project,
+  # flag or not, would pass the solo and team runs.
   for n in solo team quiet; do
     out="$TMP_ROOT/$name-$n.out"
     copy_template "$TMP_ROOT/$name-$n"
@@ -1671,7 +1673,7 @@ run_solo_adr_flag_case() {
     echo "FAIL: $name — a solo project did not record the author as the authority" >&2
     return 1
   }
-  # Team: obeyed, and not named — this is the layout the flag is for.
+  # Team: obeyed, and not named — the flag is for team projects.
   if grep -Fq -- "$note" "$TMP_ROOT/$name-team.out"; then
     echo "FAIL: $name — the flag was reported as ignored on a project that uses it" >&2
     return 1
@@ -1686,10 +1688,10 @@ run_solo_adr_flag_case() {
 # run_saved_tip_multi_case — the ending agrees with the layout menu about what is saved.
 #
 # The layout question tells a multi-repo reader that this folder is not a repository and files left
-# here are not tracked. The closing section then said "your project is saved locally with Git",
-# unconditionally, in the same run a few screens later. Two sentences, one contradiction, and the
-# reassuring one is the one a reader believes — so the ending is now per-layout, the way the
-# init.sh tip beside it already was. The mono half is asserted in run_typed_layout_collab_case.
+# here are not tracked, so the ending has to agree: both repositories hold the committed work, and
+# files at the workspace root are in neither. An ending that said the whole project is saved would
+# leave a contradiction for the reader to resolve, and they will believe the reassuring half. The
+# mono half is asserted in run_typed_layout_collab_case.
 run_saved_tip_multi_case() {
   local name="saved-tip-multi"
   local work="$TMP_ROOT/$name"
@@ -1710,7 +1712,8 @@ run_saved_tip_multi_case() {
     echo "FAIL: $name — the ending contradicts the layout menu about the workspace root" >&2
     return 1
   }
-  # The sentence that caused the contradiction must be gone, not merely joined by a correction.
+  # The unqualified "your project is saved locally with Git" must not be printed as well: a
+  # correction beside it leaves the contradiction standing.
   if grep -Fq "your project is saved locally with Git" "$TMP_ROOT/$name.out"; then
     echo "FAIL: $name — the unqualified 'project is saved' claim is still printed in multi" >&2
     return 1
