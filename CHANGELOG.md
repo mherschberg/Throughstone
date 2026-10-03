@@ -593,6 +593,30 @@ any project built with it.
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
 
 ### Fixed
+- **`./doctor.sh status` names the owner of the STEP in progress**, and in a team tells the agent to
+  ask whether that STEP is the user's before opening its PLAN, which by default is only on its
+  owner's machine. `METHOD.md` §10 rule 6, `AGENTS.md` and `runbooks/collaboration.md` say the
+  same, and a team sets a row's Owner when it flips the row to `In progress`.
+- **`./doctor.sh check` fails two ADR files that share a number.**
+- **`runbooks/collaboration.md` and `METHOD.md` say appended rows *can* merge without a conflict**,
+  and the duplicate scans say to run from the workspace root.
+- **`AGENTS.md` no longer repeats `inputs/README.md`'s lift guidance**, a copy that left out the
+  header fields a lifted doc needs; it keeps the rule and points there. `inputs/README.md` writes
+  hub paths without `../`.
+- **Wording for mono-repo-for-now projects:** the registry header orients the reader in either
+  layout and, like `AGENTS.md`, says an entry points to a repo or folder; the substep prompt asks
+  for the README of each repo or code folder it touches; the CI README and test-strategy session
+  say a test workflow per codebase; `METHOD.md` §7 counts `doctor.sh` among the files a mono root
+  commits.
+- **`METHOD.md` §5, `prompts/README.md` and `runbooks/check-in.md` say a check-in runs every test
+  suite, in every repo or code folder.**
+- **Licence notes point at `runbooks/register-repo.md` step 3 instead of restating it** — the
+  README, `METHOD.md` §7, the registry's `added_as` note and the planning session — and
+  `METHOD.md` says licensing starts from the posture rather than that it is applied to every repo.
+- **A created repo that already held a licence no longer keeps a README link to a missing
+  `LICENSING.md`**: step 3's notice-only fallback cuts the Licensing section back.
+- **`runbooks/register-repo.md` and the STEP-index seed write `METHOD.md` and
+  `runbooks/check-in.md` from the workspace root.**
 - **`runbooks/register-repo.md` gives an Architecture Overview it creates an entry for every
   registered repo**, not only the one being registered.
 - **`runbooks/splitting-repos.md` gives the docs hub the root's `method-check.yml` when the hub has
@@ -702,7 +726,7 @@ any project built with it.
   its initial commit is on. A repository created on GitHub is reported with the visibility it was
   created with, then the URL it was pushed to. In the mono-repo layout the two license lines say
   which file is the repository's license, and that the one in the docs folder is the canonical copy
-  of the same text, the one `apply-project-license.sh` gives new code repos.
+  of the same text, the one `apply-project-license.sh` copies from.
 
   Existing projects are unaffected: `init.sh` runs once.
 - **The setup wizard checks more before it changes anything, and says where the project will go.**
