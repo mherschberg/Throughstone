@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for conditional-session priority in status.sh, and for the per-title arms
-# that answer for whichever STEP is In progress.
+# Regression coverage for conditional-session priority in status.sh, for the per-title arms that
+# answer for whichever STEP is In progress, and for naming that STEP's owner.
 
 set -euo pipefail
 export LC_ALL=C
@@ -147,5 +147,26 @@ assert_contains "$output" \
   'Building — no STEP In progress; next up is STEP-2 (Ordinary implementation).'
 assert_contains "$output" \
   'then stop for approval before running any substep'
+
+# In a team the lowest In-progress STEP may be a teammate's, whose PLAN is by default only on their
+# machine, so an owned row is named and the agent is told to ask, in a team, whether it is the
+# user's. A blank Owner prints neither, and a blank Title does not take the owner's name.
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | Payments | Alice | In progress | | Fixture |
+| STEP-3 | Search | Bob | In progress | | Fixture |'
+output="$(run_status "$index")"
+assert_contains "$output" 'is In progress, owned by Alice.'
+assert_contains "$output" 'in a team, ask the user whether STEP-2 is theirs'
+assert_contains "$output" 'If it is, or the project is solo: open STEP-2'
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | | Alice | In progress | | Fixture |'
+assert_absent "$(run_status "$index")" 'STEP-2 (Alice)'
+write_index "$index" \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | Payments | | In progress | | Fixture |'
+output="$(run_status "$index")"
+assert_absent "$output" 'owned by'
 
 echo "status.sh conditional priority + In-progress arms: PASS"
