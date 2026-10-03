@@ -159,8 +159,8 @@ STEP** for S2.
 Update `registries/security-reviews.yml` only when a review actually runs.
 
 ## Part 2 — Run all tests  *(substep N.2)*
-- Run **every** test suite — in every repo you can reach — and name any you can't, so a
-  partial sweep reads as partial rather than as clean.
+- Run **every** test suite — in every repo or code folder you can reach — and name any you can't,
+  so a partial sweep reads as partial rather than as clean.
 - Record the result: pass/fail counts, anything skipped, and coverage if you track it. Put
   durable test-result or coverage-report details under `reports/test-results/` and summarize the
   important outcome in the check-in report.
