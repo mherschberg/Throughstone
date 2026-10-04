@@ -1,31 +1,32 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for check 10 — scripts/check.sh's repo registry check.
+# Regression coverage for check 10 — scripts/check.sh's repo registry check — and for the
+# `layout:` line init.sh writes into the registry.
 #
-# Two things are under test, and the second matters as much as the first: what the check
-# reports, and that without --check-in it prints a skipped section and produces no finding. The
-# registry changes when a repo is created, adopted or split out; the doctor runs on every push
-# and all through a STEP, so a typo in repos.yml must not fail a build. A suite that only
-# exercised --check-in would not notice the check leaking back onto the common path, which is
-# the thing it was moved off.
+# Three things are under test: that init.sh writes each layout's `layout:` line above `repos:`,
+# what the check reports, and that without --check-in it prints a skipped section and produces no
+# finding. The last matters as much as the others: the registry changes when a repo is created,
+# adopted or split out, and the doctor runs on every push and all through a STEP, so a typo in
+# repos.yml must not fail a build. A suite that ran only with --check-in would not notice the
+# check running without it.
 #
-# Findings are read out of check 10's own section, WITH their severity marker, so that a finding
-# from an unrelated check cannot satisfy one of these and a FAIL quietly downgraded to a WARN
-# cannot hide behind some other check's failure. Exit status is necessarily whole-run — that is
-# what a FAIL means — so it is asserted beside the section, never instead of it. A missing
+# Findings are read out of check 10's own section, most of them WITH their severity marker, so
+# that a finding from an unrelated check cannot satisfy one of these and a FAIL quietly downgraded
+# to a WARN cannot hide behind some other check's failure. Exit status is necessarily whole-run —
+# that is what a FAIL means — so it is asserted beside the section, never instead of it. A missing
 # remote is a WARN and leaves the exit code at 0, so $? alone would not see that finding at all.
 #
-# Pinned on purpose, so a red assertion is known to be real: the hint sentences, which are the
-# check's only actionable advice, and the row counts in the pass line and in the failure for a
-# row the check did not read. Names are listed in registry order and asserted as they fall out; a
-# walk that reorders them shows up here.
+# Pinned on purpose, so a red assertion is known to be real: a phrase from every hint but the
+# empty declaration's — the hints are the check's only actionable advice — and the row counts in
+# the pass line and in the failure for a row the check did not read. Names are listed in registry
+# order and asserted as they fall out; a walk that reorders them shows up here.
 #
-# Deliberately absent, and not an oversight to fill in: anything asserting the registry's shape
-# beyond whether every row was read — the check reads two fields and does not police the file, so
-# a malformed row is fixed by whoever just edited it — and the no-registry branch, which has no
-# logic in it and names a file a reader can see is not there. A registry that is there and holds
-# no rows is the opposite case, and it is covered below: nothing in the output says so unless the
-# check says it. This file grows only if the check does.
+# Deliberately absent, and not an oversight to fill in: anything asserting a row's shape beyond
+# what the check reads — its `- name:` line, location: and remote: — since the check leaves other
+# mistakes in a row to whoever edits it; and the no-registry branch, which has no logic in it and
+# names a file a reader can see is not there. A registry that is there and holds no rows is the
+# opposite case, and it is covered below: nothing in the output says so unless the check says it.
+# This file grows only if the check does.
 
 set -uo pipefail
 export LC_ALL=C
@@ -90,12 +91,12 @@ registry_of() { set -- "$1"/Code/*-docs/registries/repos.yml; printf '%s\n' "$1"
 doctor_of()   { set -- "$1"/Code/*-docs/scripts/check.sh;      printf '%s\n' "$1"; }
 
 # doctor WORK [ARGS...] — run the generated project's doctor. DOC_STATUS is the exit status and
-# DOC_OUT the whole run; SEC is check 10's section alone, which is what the assertions read.
+# DOC_OUT the whole run; SEC is check 10's section alone, which expect() and refute() read.
 doctor() {
   local work="$1"; shift
   DOC_OUT="$(bash "$(doctor_of "$work")" "$@" 2>&1)"
   DOC_STATUS=$?
-  # The heading names the registry file, and that name now carries the project slug, so the
+  # The heading names the registry file by a path that carries the project slug, so the
   # assertions read the section body only: a refutation must not match the path in a heading.
   SEC="$(printf '%s\n' "$DOC_OUT" | awk '/^10\. Repo registry/ { f = 1; next } f && /^Summary$/ { exit } f')"
   case "$DOC_OUT" in
@@ -111,7 +112,7 @@ result() { case "$DOC_OUT" in *"RESULT: $1"*) ;; *) bad "$2 — expected RESULT:
 
 # clean LABEL — the section reported nothing and the run passed. The guard against an assertion
 # that cannot fail: every case that expects a finding is paired with a case that must not have
-# one, so a check that had silently stopped reporting could not pass this file.
+# one, so a check that reported its finding on every registry could not pass this file.
 clean() {
   refute "[FAIL]" "$1"
   refute "[WARN]" "$1"
@@ -162,9 +163,7 @@ mono="$(bootstrap "registry-mono" mono bsd-3)"         || exit 1
 # Both layouts declare themselves, and the line is above the rows. Placement is not cosmetic:
 # anything that rewrites a row scans forward from its `- name:` to the next one and nothing bounds
 # that scan at the end of the list, so a top-level key written below the rows sits inside the last
-# row's block, where a rewriter reaches it and writes it back as one of that row's fields. Read as
-# line numbers rather than by eye, because a file that declares the right value in the wrong place
-# passes every other assertion in this file.
+# row's block, where a rewriter reaches it and writes it back as one of that row's fields.
 declares() {
   local reg lay rep; reg="$(registry_of "$1")"
   lay="$(grep -n "^layout: $2\$" "$reg" | head -1 | cut -d: -f1)"
@@ -202,8 +201,8 @@ grep -qE '^[[:space:]]*location:[[:space:]]*"\."' "$(registry_of "$mono")" \
   || bad "mono registry has no workspace-root row (location: \".\")"
 
 # --- 2. What a recorded remote covers ------------------------------------------
-# Three cases which between them are the whole rule: a remote on the "." row covers every row,
-# a remote on any other row covers only itself, and a row with none is named.
+# Three cases which between them are the whole rule: under mono a remote on the "." row covers
+# every row; under multi a remote covers only its own row, and a row with none is named.
 set_field "$mono" "registry-mono" remote "git@example.com:TEAM/registry-mono.git"
 doctor "$mono" --check-in
 expect "3 row(s) in a mono project: all have a location, and a recorded remote covers every one" "mono root remote"
@@ -214,8 +213,8 @@ doctor "$multi" --check-in
 expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/)" "a sibling's remote covers only itself"
 refute "prompts" "the row that has a remote is not named"
 
-# An empty remote: is not a remote. runbooks/check-in.md tells the operator to fill in a field
-# that is "absent or empty"; the doctor has to agree with it about the second half.
+# An empty remote: is not a remote. runbooks/register-repo.md tells the operator to fill in a
+# remote: that is "absent or empty"; the doctor has to agree with it about the second half.
 set_field "$multi" "registry-multi-docs" remote ""
 doctor "$multi" --check-in
 expect "[WARN] repo(s) with no remote: registry-multi-docs (Code/registry-multi-docs/)" "an empty remote reads as absent"
@@ -318,11 +317,12 @@ repos:
 YAML
 
 # --- 7. A registry with no rows in it ---------------------------------------------
-# Emptying the file is quieter than deleting it: a deleted registry warns before the walk, and a
-# row the walk cannot read fails, but a registry with nothing in it read as a clean pass over zero
-# rows — a pass vouching for the whole inventory on the strength of having read none of it. Zero
-# rows is not a project with no repos: this file lives in the docs hub, which has a row of its
-# own, and init.sh writes that row and prompts/ before anyone can run the doctor.
+# An emptied registry needs a finding of its own: a deleted one warns before the walk, and a row
+# the walk cannot read fails, but a registry with no rows gives the walk nothing to report, and
+# one that still declares a layout would pass over zero rows, vouching for the whole inventory on
+# the strength of having read none of it. Zero rows is not a project with no repos: the registry
+# lives in the docs hub, which has a row of its own, and init.sh writes that row and prompts/
+# before anyone can run the doctor.
 #
 # Three shapes, because each rules out a different way of writing the check. The file emptied
 # outright is the plain case. The `repos:` key left behind with nothing under it is what a test
@@ -367,13 +367,14 @@ refute "found no repo rows" "one row is not none"
 clean "one row is not none"
 
 # --- 8. A registry nothing can read ------------------------------------------------
-# `-f` is type and existence, not readability, so a registry that is entirely intact and merely
-# unreadable walks to zero rows exactly as an empty one does. It gets its own finding, because the
-# empty registry's advice — restore the rows — is wrong for a file whose rows never left.
+# `-f` is type and existence, not readability. A walk over an intact registry that cannot be read
+# would find zero rows, as in an empty one, so the check tests -r before the walk and gives this
+# its own finding: the empty registry's advice — restore the rows — is wrong for a file whose rows
+# never left.
 chmod 000 "$(registry_of "$multi")"
-# chmod 000 does not stop a privileged reader, and the case would then pass having exercised
-# nothing at all. Establish the precondition rather than assume it, as the setup-workspace suite
-# does for the same fixture.
+# chmod 000 does not stop a privileged reader, and the case would then fail on the check's output
+# without saying why. Establish the precondition rather than assume it, as the setup-workspace
+# suite does for its unreadable registry.
 head -c1 "$(registry_of "$multi")" >/dev/null 2>&1 \
   && bad "unreadable registry: the fixture is still readable, so this case proved nothing"
 doctor "$multi" --check-in
@@ -388,14 +389,13 @@ result OK "unreadable registry"
 # The coverage rule above asks whether a row's work is backed up anywhere, and the answer depends
 # on which layout the project is in: under `multi` every row answers for itself, under `mono` the
 # workspace-root row's remote covers the folders inside it. That is read from the `layout:` line
-# the registry declares and from nothing else — the rows cannot say it, because a mono project has
-# MORE rows than a multi one and the `.` row can never be required of a multi project, so its
-# absence means multi, or a project made before the field existed, and no check can tell those
-# apart.
+# the registry declares and from nothing else. The rows cannot say it: at bootstrap a mono project
+# has MORE rows than a multi one, and the `.` row can never be required of a multi project, so its
+# absence means multi, or a mono project without one, and no check can tell those apart.
 #
 # So the declaration is one fact and the rows are another, and a fact kept in two places drifts.
-# Each case below is a way they can disagree, and the pass at the end is the control: a check that
-# had stopped reconciling would satisfy every refutation here and fail that one.
+# The cases below test the declaration itself — missing, repeated, misplaced, empty or unknown —
+# and the rows against it. The pass at the end is the control.
 #
 # Whole registries rather than edits, because what is under test includes a line that is not in a
 # row and a row that is not there at all.
@@ -404,10 +404,9 @@ reg_is() {
   doctor "$multi" --check-in
 }
 
-# An undeclared registry is the shape every project bootstrapped before the field has. Nothing
-# guesses a layout from it, so the coverage rule does not run: the finding is the missing line,
-# and the WARN naming repos it cannot judge must not come back beside it. That WARN, on exactly
-# this shape, is what this whole field replaces.
+# An undeclared registry: no `layout:` line at all. Nothing guesses a layout from it, so the
+# coverage rule does not run: the finding is the missing line, and the no-remote warning must not
+# appear beside it.
 reg_is <<'YAML'
 repos:
   - name: "alpha"
@@ -423,11 +422,10 @@ refute "[FAIL]" "an undeclared layout is a question, not drift"
 result OK "an undeclared registry"
 
 # One declaration, and it has to be findable. Two lines and the layout is whatever the bottom one
-# says, which is how someone who follows the warning above — add the line at the top — ends up
-# overruled by the stale line they meant to replace. A line below the rows is inside the last row
-# block for anything that rewrites a row, which is what its placement rule exists for; nothing
-# else in the file could ever catch that, because a reader looking for `^layout:` finds it either
-# way.
+# says, so a line added at the top is overruled by a stale one further down. A line below the
+# rows is inside the last row block for anything that rewrites a row, which is what its placement
+# rule exists for. Only the below-the-rows finding catches that: any reader looking for `^layout:`
+# finds the line either way.
 reg_is <<'YAML'
 layout: multi
 
@@ -497,11 +495,11 @@ YAML
 expect 'declares layout: multi and carries a row whose location: is "."' "a multi root row spelled ./"
 
 # The rows are compared against the declaration only when the walk read all of them. A row written
-# fields-first is not read, and its remote: lands on the row above (the count failure says so), so
-# judging the rows here would report a root row that is present as missing and a folder that
-# inherited a remote as a repository of its own — and send the reader to a repository conversion
-# over a field in the wrong order. That is the one row the 1.8 migration asks a mono project to
-# type by hand.
+# fields-first is not read, and its remote: lands on the row above, so judging the rows here would
+# report a root row that is present as missing and a folder that inherited a remote as a
+# repository of its own — and send the reader to a repository conversion over a field in the
+# wrong order. The count failure is the finding here. The row out of order is the workspace-root
+# row, which UPDATING-THROUGHSTONE.md asks an existing mono project to type by hand.
 reg_is <<'YAML'
 layout: mono
 
@@ -562,10 +560,10 @@ refute "[PASS]" "an unreadable layout value does not pass"
 result FAIL "an unreadable layout value"
 [ "$DOC_STATUS" -eq 1 ] || bad "an unreadable layout value — expected exit 1, got $DOC_STATUS"
 
-# Declared mono with no workspace-root row: the state a 1.7 mono project upgrades from, and the
-# one nothing could diagnose before, because the row's absence was the only signal there was. The
-# folder rows must NOT be named here — telling a mono project to go and create remotes for the
-# folders inside its one repository is the false warning this replaces.
+# Declared mono with no workspace-root row: where an existing mono project stands between the two
+# edits UPDATING-THROUGHSTONE.md asks of it, the `layout: mono` line and then the row. The folder
+# rows must NOT be named here: that would tell a mono project to go and create remotes for the
+# folders inside its one repository.
 reg_is <<'YAML'
 layout: mono
 
@@ -600,7 +598,8 @@ result FAIL "multi with a root row"
 
 # Declared mono holding a separate repository — the state the method forbids. A mono project is
 # one repository, so a row that is not the root and carries a remote of its own is a second one,
-# and the way out is the conversion, not a registry edit.
+# and the way out is the conversion, or correcting the declaration if the conversion has already
+# happened.
 reg_is <<'YAML'
 layout: mono
 
@@ -634,8 +633,9 @@ expect "declares layout: mono and has no row for the workspace root" "two disagr
 expect "declares layout: mono and registers a separate repository: sibling (Code/sibling/)" "two disagreements: the separate repository"
 result FAIL "two disagreements at once"
 
-# The control. Same rows as the case above with the second one made a folder again: every
-# reconciliation above has to be able to come back clean, or they are assertions that cannot fail.
+# The control: the separate-repository case's rows, with sibling made a folder again by dropping
+# its remote. Each mono reconciliation above has to be able to come back clean, or its assertions
+# cannot fail; the multi runs in sections 1, 5 and 7 are the same control for the multi one.
 reg_is <<'YAML'
 layout: mono
 
