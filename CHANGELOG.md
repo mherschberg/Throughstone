@@ -121,7 +121,8 @@ any project built with it.
   of all to lose the inventory. `scripts/setup-workspace.sh` reads the same file the same way and
   was blind the same way — it announced the clone step over an empty registry, cloned nothing, and
   ended on `Done.`, telling a teammate a workspace with no repos in it was ready. Both readers now
-  also stop on a registry they cannot open, which `-f` alone does not catch.
+  also stop on a registry they cannot open, which `-f` alone does not catch; `setup-workspace.sh`
+  stops before it writes anything, since it cannot tell whether that file declares `mono`.
   **A repo that no recorded remote covers is a warning**, because as far as the project knows
   that work lives on exactly one laptop. A row is covered by its own `remote:`, or by the root
   repository's when it lives inside it — in a project that declares `layout: mono` the row whose
@@ -817,7 +818,7 @@ any project built with it.
   STEP, ADR and status checks' pass lines now say how many rows they read, as
   `all statuses valid (1 STEP row(s), 14 substep row(s))`, so a zero shows even where it is
   allowed. The new findings are warnings: a run that exited 0 before still does.
-- **The workspace setup no longer clones from a registry it cannot fully read.**
+- **The workspace setup no longer clones from a registry with a row it cannot read.**
   `scripts/setup-workspace.sh` finds a row by its `- name:` line, so a row written any other way —
   starting on a bare `-`, or with another field first — was not read, and its fields landed on the
   row above it: that repo was never cloned and nothing said so, or one repo's remote was cloned into
@@ -1206,13 +1207,12 @@ any project built with it.
   on their machine. It used to clone the repos `registries/repos.yml` gives a `remote:` *before*
   writing the workspace root's `AGENTS.md`, `CLAUDE.md` and `doctor.sh`, so a clone that failed
   aborted the run before it reached those files and the contributor ended up with **no workspace at
-  all** — over a repository they may not even need. Four situations did it, all measured: a remote nobody on
-  the team can reach, a stray folder or half-finished clone already sitting where a repo should go, a
-  `location:` left behind as an absolute path from the first developer's machine, and — less
-  ordinarily — a registry file the parser could not read at all. A failed clone is now reported and the run
-  continues; the pointer files are written before the clone step rather than after it; the parser
-  feeds the loop directly so its own exit status cannot take the run down; and the closing line says
-  how many repos did not arrive instead of reporting plain success. `ONBOARDING.md` and `AGENTS.md`
+  all** — over a repository they may not even need. Three situations did it, all measured: a remote
+  nobody on the team can reach, a stray folder or half-finished clone already sitting where a repo
+  should go, and a `location:` left behind as an absolute path from the first developer's machine. A
+  failed clone is now reported and the run continues; the pointer files are written before the clone
+  step rather than after it; and the closing line says how many repos did not arrive instead of
+  reporting plain success. `ONBOARDING.md` and `AGENTS.md`
   both described the old order and now describe the new one. A `location:` beginning with `-`
   also used to reach `git` as an option and kill the run — the clone arguments now sit behind `--`. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
   already cloned are left alone.
