@@ -56,7 +56,18 @@ echo "Docs hub:       $DOCS_REL"
 # it, `mono` and a value no reader can make sense of alike — what is on the other side of the
 # decision is overwriting files a repository has committed, so a declaration this cannot read is
 # not a reason to go on. scripts/check.sh fails the same unreadable value.
+#
+# A registry this script cannot open stops it for the same reason: it cannot tell what that file
+# declares. The read below skips a file it cannot open, which would count as declaring nothing.
 REG="$DOCS_DIR/registries/repos.yml"
+if [ -f "$REG" ] && [ ! -r "$REG" ]; then
+  echo
+  echo "Cannot read $DOCS_REL/registries/repos.yml, so this script cannot tell which layout"
+  echo "it declares. Nothing has been written: in a mono-repo-for-now project this script"
+  echo "would replace root files that project has committed. Fix that file's permissions,"
+  echo "then run this script again."
+  exit 1
+fi
 DECLARED_LINES=0
 DECLARED=""
 if [ -r "$REG" ]; then
@@ -162,14 +173,9 @@ missing=0
 # repo's location. So every list entry is also counted on its own, under the same comment rule, and
 # when the two counts disagree nothing is cloned. Each awk succeeds only on the state its own arm
 # reports, so an awk that cannot run at all falls past both and reaches the clone step, whose parse
-# is not fatal either. A registry nothing can read does not get that far: -r stops it above.
+# is not fatal either. A registry this script cannot read never gets here: step 0 stops on it.
 if [ ! -f "$REG" ]; then
   echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
-elif [ ! -r "$REG" ]; then
-  # -f is type and existence, not readability, and a registry no one can open reads here exactly
-  # like one with nothing in it. Without this arm the clone step announces itself and clones nothing.
-  echo "Not cloning: cannot read $DOCS_REL/registries/repos.yml. Fix its permissions, then re-run"
-  echo "this script."
 elif awk '
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
@@ -198,8 +204,8 @@ else
   # and remote-less repos are skipped.
   #
   # The loop is fed by process substitution rather than a pipe for two reasons: the parser's
-  # exit status stays out of the pipeline, so a registry awk cannot read is not fatal either;
-  # and the loop body runs in this shell rather than a subshell, so the count below survives it.
+  # exit status stays out of the pipeline, so an awk that fails is not fatal either; and the
+  # loop body runs in this shell rather than a subshell, so the count below survives it.
   while IFS='|' read -r loc rem; do
     [ -n "${rem:-}" ] || continue
     # A location is meant to be a path relative to the workspace root, and one that is not never

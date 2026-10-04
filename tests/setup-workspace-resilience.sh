@@ -20,9 +20,8 @@
 # that cannot move is reached through a symlink at a workspace-relative location, and that must
 # still be left alone. Two are about rows that do not start with their `- name:` line: a registry
 # holding one clones nothing, since that row's fields sit under the row above it, and says to fix
-# the row even when every row is written that way. Two more check that a run which clones nothing
-# says why: a registry that holds no rows, and one the run cannot read. Each names its own cause,
-# and neither announces a clone step.
+# the row even when every row is written that way. And a registry that holds no rows says so,
+# rather than announcing a clone step that clones nothing.
 #
 # Assertions read the output as well as the exit status: almost every case exits 0, so a test
 # that only looked at $? could not tell a clone from a refusal.
@@ -517,26 +516,6 @@ run_setup "$tw"
 assert_assembled "occupied location" "$tw"
 assert_out "occupied location" "warning: could not clone"
 
-# Not a clone that fails but a registry the run cannot read. The script tests it with `-r` before
-# any awk opens it, says so and skips the clone step; the workspace must still be assembled.
-echo "A registry file the clone step's awk cannot read ..."
-tw="$(teammate unreadable "$MULTI_DOCS")"
-chmod 000 "$(registry_of "$tw")"
-# chmod 000 does not stop a privileged reader, and the case would then fail on the script's
-# output without saying why. Establish the precondition rather than assume it.
-head -c1 "$(registry_of "$tw")" >/dev/null 2>&1 \
-  && bad "unreadable registry: the fixture is still readable, so this case proved nothing"
-run_setup "$tw"
-chmod 644 "$(registry_of "$tw")"
-assert_assembled "unreadable registry" "$tw"
-# Surviving is not enough. `-f` is type and existence, not readability, so without the clone
-# step's `-r` arm the script would announce the clone step over a registry it cannot open and
-# clone nothing. The run must also not call the file empty: the advice for an empty registry —
-# restore the rows — is wrong for a file whose rows never left.
-assert_out "unreadable registry" "cannot read"
-assert_not_out "unreadable registry" "holds no repo rows"
-assert_not_out "unreadable registry" "Cloning sibling repos"
-
 echo "A project with no registries/ at all ..."
 tw="$(teammate noregistry "$MULTI_DOCS")"
 rm -rf "$tw"/Code/*-docs/registries
@@ -940,9 +919,32 @@ for f in CLAUDE.md AGENTS.md doctor.sh; do
   [ -e "$tw/$f" ] && bad "an unreadable declaration — $f was written after the run said nothing had been"
 done
 
+# A registry the script cannot open stops it the same way, before anything is written: it cannot
+# tell what the file declares, and in a mono project the root files it would replace are committed.
+# Step 0's read skips a file it cannot open, which would count as declaring nothing. The registry
+# here is the mono project's, since a mono project is the one a run that went ahead would damage.
+echo "A registry this script cannot read ..."
+tw="$(teammate unreadable "$MONO_DOCS")"
+chmod 000 "$(registry_of "$tw")"
+# chmod 000 does not stop a privileged reader, and the case would then fail on the script's
+# output without saying why. Establish the precondition rather than assume it.
+head -c1 "$(registry_of "$tw")" >/dev/null 2>&1 \
+  && bad "an unreadable registry: the fixture is still readable, so this case proves nothing"
+run_setup "$tw"
+chmod 644 "$(registry_of "$tw")"
+assert_out "an unreadable registry" "Fix that file's permissions"
+assert_out "an unreadable registry" "Nothing has been written"
+assert_not_out "an unreadable registry" "Writing per-machine pointers"
+[ "$SETUP_STATUS" -eq 1 ] \
+  || bad "an unreadable registry — the run did not happen, expected exit 1, got $SETUP_STATUS"
+for f in CLAUDE.md AGENTS.md doctor.sh; do
+  [ -e "$tw/$f" ] \
+    && bad "an unreadable registry — $f was written after the run said nothing had been"
+done
+
 # And the same registry declaring multi is the control: only that line may decide, so a guard keyed
 # on anything else about this hub, such as its missing .git or the `.` row its registry already
-# has, fails here even where it passes the two cases above. The control also gets a second `.` row,
+# has, fails here even where it passes the cases above. The control also gets a second `.` row,
 # with a remote, which the guard does not read: the script treats it as a clone target like any
 # other, so the run tries to clone into the workspace root and warns that it could not.
 echo "The same registry declaring the other layout ..."
@@ -965,7 +967,7 @@ assert_not_out "a multi declaration over the same rows" "declares layout: mono"
 assert_out "a multi declaration over the same rows" "warning: could not clone"
 
 if [ "$failures" -eq 0 ]; then
-  printf 'PASS: setup-workspace.sh assembles the workspace in every measured failure shape\n'
+  printf 'PASS: setup-workspace.sh assembles the workspace, or stops before writing anything, in every case\n'
   exit 0
 fi
 printf 'FAILED: %d assertion(s)\n' "$failures" >&2
