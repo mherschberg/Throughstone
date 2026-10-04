@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for the root doctor.sh dispatcher.
+# Regression coverage for the root doctor.sh wrapper and the docs-hub dispatcher it execs.
 
 set -euo pipefail
 export LC_ALL=C
@@ -9,8 +9,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-doctor-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
-# assert_contains OUTPUT EXPECTED — preserve only the dispatch contract sentence so helper
-# output can evolve independently.
+# assert_contains OUTPUT EXPECTED — a fixed-string substring test, so the rest of OUTPUT can
+# change without failing it.
 assert_contains() {
   local output="$1" expected="$2"
   if ! printf '%s\n' "$output" | grep -Fq "$expected"; then
@@ -22,8 +22,8 @@ assert_contains() {
 
 # Build a minimal generated-workspace shape with fake helper scripts, and stamp the root wrapper's
 # docs-hub path the way init.sh does. The dispatcher test cares that doctor.sh finds and execs the
-# right helper, forwarding any extra arguments and handing back its exit code; status.sh and
-# check.sh behavior is covered by their own tests (tests/status-*.sh, tests/check-repo-registry.sh).
+# right helper, forwarding any extra arguments and handing back its exit code; the helpers'
+# behavior is covered by their own tests (tests/status-*.sh, tests/check-*.sh, tests/links.sh).
 fixture="$TMP_ROOT/workspace"
 mkdir -p "$fixture/Code/acme-docs/scripts"
 cp -p "$ROOT/doctor.sh" "$fixture/doctor.sh"
@@ -50,7 +50,8 @@ printf 'links helper: %s\n' "$*"
 LINKS
 chmod +x "$fixture/Code/acme-docs/scripts/links.sh"
 
-# Help output is the user-facing command list; keep it explicit so new commands are deliberate.
+# Help output is the user-facing command list. These checks look only for the usage line and for
+# each helper command's name anywhere in it.
 help_output="$("$ROOT/doctor.sh" --help)"
 assert_contains "$help_output" "Usage: ./doctor.sh <command> [args]"
 assert_contains "$help_output" "status"
@@ -96,7 +97,7 @@ set -e
 }
 
 # Multi-repo workspace roots are per-machine and not committed, so setup-workspace.sh must
-# regenerate the root dispatcher for later developers' machines.
+# regenerate the root wrapper for later developers' machines.
 setup_fixture="$TMP_ROOT/setup-workspace"
 mkdir -p "$setup_fixture/Code"
 cp -R "$ROOT/Code/{{PROJECT}}-docs" "$setup_fixture/Code/acme-docs"
