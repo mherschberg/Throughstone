@@ -2,13 +2,14 @@
 #
 # Contract coverage for the prose documents that other files open, quote, or parse.
 #
-# Truncate METHOD.md, AGENTS.md, BOOTSTRAP-PROMPT.md or runbooks/check-in.md to one line each
-# and every other test in tests/ still passes — nothing else in the suite reads a document's
-# body. That matters more here than in a normal repo, because in this one the documents ARE
-# part of the machinery: several state, in words, a rule that a script enforces in code
-# somewhere else. When those two drift the script keeps working and the document quietly
-# starts lying — METHOD.md can teach a STEP status the doctor hard-FAILs, or name a check-in
-# window status.sh does not compute, and nothing anywhere notices.
+# Truncate METHOD.md or runbooks/check-in.md to one line and every other test in tests/ still
+# passes. Elsewhere the suite pins only a line or two of AGENTS.md, and checks only that
+# BOOTSTRAP-PROMPT.md keeps a placeholder. That matters more here than in a normal repo, because
+# in this one the documents ARE part of the machinery: several state, in words, a rule that a
+# script enforces in code somewhere else. When those two drift the script keeps working and the
+# document quietly starts lying — METHOD.md can teach a STEP status the doctor hard-FAILs, or
+# tell agents to schedule a check-in without naming the NEXT-CHECK-IN line status.sh reads — and
+# without this file nothing notices.
 #
 # So this file pins only the parts of a document that have an identified reader: a script that
 # greps for the exact string, a sibling document that quotes it, or a template a generated
@@ -21,8 +22,7 @@
 #
 # There is deliberately no line-count floor: a document full of the wrong words passes one.
 #
-# This runs against the template repo, not a generated project: check.sh validates a project's
-# own docs, while this guards the documents Throughstone ships.
+# This runs against the template repo, not a generated project.
 
 set -euo pipefail
 export LC_ALL=C
@@ -57,16 +57,15 @@ for f in "$METHOD" "$AGENTS" "$BOOT" "$ONBOARD" "$CHECKIN" "$CHECK_SH" "$STATUS_
 done
 
 # These documents hard-wrap, so a sentence one file quotes out of another routinely straddles a
-# newline and a plain grep for it finds nothing. Compare on whitespace-collapsed text instead —
-# the same normalization session-template-contract.sh uses on the session templates.
+# newline and a plain grep for it finds nothing. Compare on whitespace-collapsed text instead.
 #
 # Note the shape of every negative test below: "if grep ...; then fail; fi", never a bare
 # "! grep". Under set -e a bare "!" statement mid-script is inert — nothing reads its status —
 # so an assertion written that way can never fail. (There is no backtick anywhere in this file
 # on purpose: one inside a comment inside a $(...) is enough to break the whole script.)
-# Every extraction below ends in "|| true" for one reason: with set -e and pipefail, a grep that
-# matches nothing fails its pipeline and aborts the script mid-assignment, exiting 1 with no
-# message at all. The explicit non-empty check that follows each extraction is what reports it.
+# Every grep below that feeds a variable ends in "|| true" for one reason: with set -e and
+# pipefail, a grep that matches nothing fails its pipeline and aborts the script mid-assignment,
+# exiting 1 with no message at all. The check after each one reports the empty match instead.
 flat() { tr -s ' \t\n' ' ' < "$1"; }
 contains() {  # contains FILE STRING — substring test on the flattened file
   case "$(flat "$1")" in *"$2"*) return 0 ;; *) return 1 ;; esac
@@ -78,9 +77,9 @@ section() {   # section FILE N — the body of "## N. …" up to the next "## "
 # --- 1. Section citations resolve --------------------------------------------
 # Both the helpers and the documents send a reader to a numbered section by number —
 # check.sh prints "See Code/<project>-docs/METHOD.md §1." under a finding, and AGENTS.md points
-# at METHOD.md §10 for the resolver. Nothing resolves those: links.sh checks Markdown link
-# targets, and a "§7" in running prose is not a link. So renumbering a section leaves every
-# citation of it pointing somewhere else, silently.
+# at METHOD.md §10 for the resolver. Nothing else checks those: links.sh checks Markdown link
+# targets, and a "§7" in running prose is not a link, so a renumbered section can leave every
+# citation of it pointing somewhere else.
 CITERS=(
   "$CHECK_SH" "$STATUS_SH" "$SETUP_SH"
   "$AGENTS" "$BOOT" "$ONBOARD" "$CHECKIN" "$METHOD"
@@ -96,8 +95,8 @@ cites="$(
       | sed -E 's|.*/||; s|\.md.*§|.md |' || true
   done | sort -u
 )"
-# A global floor only: some of the files above legitimately carry no section citation today,
-# so requiring one per file would be wrong. What it catches is the extraction breaking outright.
+# A global floor only: a file above can lose its last section citation without being wrong, so
+# one per file is not required. What it catches is the extraction breaking outright.
 [ -n "$cites" ] || fail "found no '<doc>.md §N' citations at all — this check has stopped reading anything"
 case "$cites" in *"METHOD.md "*) : ;; *) fail "no METHOD.md section citation found; check.sh, status.sh and AGENTS.md all carry several, so the extraction above is broken" ;; esac
 
@@ -114,8 +113,9 @@ while read -r doc sec; do
 done <<< "$cites"
 
 # Every cited document's numbered sections must run 1..N with nothing missing or out of order.
-# The citations above only prove the numbers used still exist; this catches the reorder that
-# keeps them all present but moves the content out from under them.
+# The citations above only prove the numbers used still exist; this catches a number skipped,
+# repeated or out of order. A section inserted with the rest renumbered in order passes both,
+# and leaves citations of the renumbered sections pointing at the wrong content.
 for doc in $cited_docs; do
   file="$(find "$DOCS" -name "$doc" -type f)"
   nums="$(grep -oE '^## [0-9]+\. ' "$file" | grep -oE '[0-9]+' || true)"
@@ -128,9 +128,10 @@ for doc in $cited_docs; do
 done
 
 # --- 2. BOOTSTRAP-PROMPT.md's stages ------------------------------------------
-# AGENTS.md, METHOD.md, ONBOARDING.md and all 17 session templates send the agent to a stage of the kickoff
-# BY NUMBER — "ask the two local-profile questions from BOOTSTRAP-PROMPT.md Stage 0". A stage
-# that is renamed, renumbered or dropped makes every one of those instructions a dead end.
+# AGENTS.md, METHOD.md, ONBOARDING.md, the planning session and the session templates send the
+# agent to a stage of the kickoff BY NUMBER — "ask the two local-profile questions from
+# BOOTSTRAP-PROMPT.md Stage 0". A stage that is renamed, renumbered or dropped makes every one of
+# those instructions a dead end.
 stages="$(
   for f in "$AGENTS" "$METHOD" "$ONBOARD" "$CHECKIN" "$SESSIONS"/*.md "$DOCS/templates/planning-session.md"; do
     [ -f "$f" ] || continue
@@ -143,8 +144,8 @@ for s in $stages; do
 done
 
 # --- 3. The STEP status vocabulary --------------------------------------------
-# METHOD.md §1 teaches the status vocabulary; check.sh check 3 enforces it in awk. Nothing has
-# ever read both, so a rename on either side leaves the other teaching a status the doctor
+# METHOD.md §1 teaches the status vocabulary; check.sh check 3 enforces it in awk. Nothing else
+# reads both, so a rename on either side would leave METHOD.md teaching a status the doctor
 # rejects. Derive the set the doctor actually accepts and require §1 to name each one.
 #
 # This is one direction, not both: it catches a status check.sh accepts that §1 stopped naming.
@@ -195,7 +196,7 @@ for f in "$AGENTS" "$BOOT"; do
 done
 
 # --- 5. The scheduled-check-in marker -----------------------------------------
-# overview.md's NEXT-CHECK-IN line is the only record of when a check-in is due, and nothing
+# overview.md's NEXT-CHECK-IN line is the record of when a check-in is due, and nothing
 # validates it at runtime: status.sh reads what it recognises and treats everything else as
 # "none scheduled". Two things therefore have to hold in the documents.
 #
@@ -213,8 +214,7 @@ printf '%s\n' "$nci_val" | grep -qE "$nci_re_step|$nci_re_date" \
   || fail "templates/overview-template.md seeds a NEXT-CHECK-IN value status.sh does not recognise (\"$nci_val\"); a project created from it would read as having no check-in scheduled"
 
 # Second, the line is written by agents following prose, so every document that tells someone to
-# schedule a check-in has to name it. If they stop, nothing writes the line and nothing reports it
-# missing — the project just quietly never has one scheduled again.
+# schedule a check-in has to name it.
 for f in "$METHOD" "$AGENTS" "$CHECKIN" "$DOCS/templates/planning-session.md"; do
   rel="${f#"$ROOT/"}"
   [ -f "$f" ] || fail "$rel is missing; the scheduled-check-in wording cannot be checked"
@@ -305,8 +305,7 @@ done
 
 # --- 8. The helper surface the documents tell people to run -------------------
 # doctor.sh dispatches a fixed set of commands. AGENTS.md and ONBOARDING.md are where a human or
-# agent learns they exist; doctor-dispatcher.sh proves the dispatcher's own help text can be
-# deleted without a test noticing, so these two documents are the surface's only description.
+# agent learns they exist, so each has to name every command the dispatcher hands to a helper.
 cmds="$(grep -oE '^ +run_helper [a-z][a-z0-9-]*' "$DOCTOR_SH" | awk '{ print $2 }' | sort -u || true)"
 [ -n "$cmds" ] || fail "could not read the command surface out of scripts/doctor.sh"
 for c in $cmds; do
@@ -315,9 +314,9 @@ for c in $cmds; do
 done
 
 # --- 9. What setup-workspace.sh leaves at the workspace root ------------------
-# ONBOARDING.md §2 tells a new contributor to verify a specific list of files after running the
-# helper. That list is the only check anyone performs on the helper's first step, so it has to
-# be the files the helper actually writes.
+# ONBOARDING.md §2 tells a new contributor to verify a specific list of files after running
+# setup-workspace.sh. On a new machine, that list is the only check of what the script wrote, so
+# it has to be the files the script actually writes.
 rootfiles="$(
   { sed -n 's/^for name in \(.*\); do$/\1/p' "$SETUP_SH" | tr ' ' '\n'
     grep -oE 'cat > "\$ROOT/[^"$]+"' "$SETUP_SH" | sed 's|.*ROOT/||; s|"$||' || true
@@ -337,10 +336,10 @@ if [ "$onb_list" != "$rootfiles" ]; then
 fi
 
 # --- 10. The architecture-doc header contract ---------------------------------
-# check.sh check 4 FAILs any architecture/NN-*.md missing these fields — but it runs against a
-# generated project, and the scaffold has no architecture docs, so nothing here checks that the
-# template those docs are written from still carries them. Lose a field in the template and
-# every project built afterwards fails its own doctor on its own first architecture doc.
+# check.sh check 4 FAILs any architecture/NN-*.md missing these fields — but it reads only the
+# architecture docs, never the template they are written from, and the scaffold has none of its
+# own. Lose a field in the template and every project built afterwards fails its own doctor on
+# its own first architecture doc.
 fields="$(awk -F"'" '/^# --- 4\./{ f = 1 } /^# --- 5\./{ f = 0 } f && /grep -q/ { print $2 }' "$CHECK_SH")"
 [ -n "$fields" ] || fail "could not read the required architecture-doc fields out of check.sh check 4"
 m6="$(section "$METHOD" 6)"
@@ -364,10 +363,10 @@ esac
 contains "$CHECKIN" "Deprecated" || fail "runbooks/check-in.md no longer names the 'Deprecated' Status rung its drift sweep skips"
 
 # --- 11. The section the root pointers send every agent to --------------------
-# The root AGENTS.md/CLAUDE.md — and setup-workspace.sh, which regenerates them on every new
-# machine — promise that the canonical AGENTS.md "opens with" a section of this exact name, and
-# status.sh and METHOD.md §10 both cite it. Rename or move it and the first instruction every
-# agent receives points at nothing.
+# The root AGENTS.md/CLAUDE.md — and setup-workspace.sh, which regenerates them on a new machine
+# in a multi-repo project — promise that the canonical AGENTS.md "opens with" a section of this
+# exact name, and status.sh and METHOD.md §10 both cite it. Rename or move it and the first
+# instruction every agent receives points at nothing.
 first_h2="$(grep -m1 -E '^## ' "$AGENTS" | sed 's/^## //' || true)"
 [ "$first_h2" = "First action — kickoff or resume?" ] || fail "the docs hub AGENTS.md no longer opens with the 'First action — kickoff or resume?' section (first section is now: $first_h2)"
 for p in "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$SETUP_SH"; do
@@ -376,9 +375,10 @@ done
 contains "$METHOD" '"First action"' || fail "METHOD.md §10 no longer points a resuming agent at AGENTS.md's \"First action\""
 
 # --- 12. The seeded overview does not trip the doctor it ships with -----------
-# check.sh check 6 WARNs on the legacy personal-preference sections that used to live in
-# overview.md. The template a project's overview.md is copied from must not carry them, or every
-# new project warns about its own seed on its first doctor run.
+# check.sh check 6 WARNs when overview.md carries the personal-preference sections its pattern
+# names: preferences belong in .throughstone/local-user.md, not overview.md (as some projects may
+# have). The template a project's overview.md is copied from must not carry them, or every new
+# project warns about its own seed on its first doctor run.
 legacy_re="$(awk -F"'" '/legacy_profile_fields=/ { print $2 }' "$CHECK_SH")"
 [ -n "$legacy_re" ] || fail "could not read check.sh check 6's legacy-profile pattern"
 if grep -qE "$legacy_re" "$OVERVIEW_TPL"; then
@@ -387,20 +387,21 @@ fi
 
 # --- 13. The marker registration recognises its own README by ----------------
 # runbooks/register-repo.md step 2 decides what to do with a repo README by asking whether this
-# method stamped it, and the only answer available is a string the stamping itself leaves behind:
-# templates/repo-readme-template.md is nine bare headings and one block of literal prose, its
-# Licensing section, whose sentence names the LICENSE-THROUGHSTONE notice. No script reads a repo
-# README anywhere -- check.sh reads registries/repos.yml and stops -- so there is no enforcer to
-# derive from, and the template is the closest thing: it is the artifact stamping copies. Rename
-# or empty that section and the runbook tests for a string nothing writes any more, every README
-# the method stamped reads as one it did not write, and a re-run appends a second statement of the
-# repo role beside the one already there.
+# method stamped it, and its test for that is text the stamping itself leaves behind:
+# templates/repo-readme-template.md is headings, guidance and one block of literal prose, its
+# Licensing section, whose last sentence names the LICENSE-THROUGHSTONE notice. No script tells a
+# stamped README from any other -- check.sh reads registries/repos.yml and stops -- so there is
+# no enforcer to derive from, and the template is the closest thing: it is the artifact stamping
+# copies. Rename or empty that section and the runbook tests for a string nothing writes any
+# more: every README stamped from then on reads as one the method did not write, and a re-run can
+# append a second statement of the repo role beside the one already there.
 #
 # Two limits, stated rather than implied. This pins that step 2 names the marker; it cannot pin
-# that step 2 still branches three ways, which is the defect itself. And the marker is
-# distinctive, not unique: step 3 writes the notice file into every repo, so a README somebody
+# that step 2 still takes its three cases in order, which is what keeps a re-run from taking a
+# README the method stamped for somebody else's and adding a Role section to it. And the marker
+# is distinctive, not unique: step 3 writes the notice file into every repo, so a README somebody
 # else wrote can honestly come to name it -- which is why the runbook asks rather than assumes
-# when a README carries both markers.
+# when a README carries the marker and a Role section.
 lic_head="$(grep -m1 -E '^## Licen' "$README_TPL" || true)"
 [ -n "$lic_head" ] || fail "templates/repo-readme-template.md has no top-level Licensing section; runbooks/register-repo.md step 2 recognises a README this method stamped by that section, so its test would match nothing"
 # Read the section BODY, not the file: a mention anywhere else in the template would keep passing
@@ -410,8 +411,8 @@ lic_body="$(awk '/^## Licen/ { f = 1; next } /^## / { f = 0 } f' "$README_TPL" |
 lic_token="$(printf '%s\n' "$lic_body" | grep -oE 'LICENSE-[A-Z]+' | sort -u | head -1 || true)"
 [ -n "$lic_token" ] || fail "the Licensing section of templates/repo-readme-template.md names no LICENSE-<NAME> notice file, so stamping leaves nothing behind to recognise it by"
 # register-repo.md's steps are ordered-list items, not '## N.' headings, so section() cannot reach
-# them. The range is scoped to step 2 because step 3 applies the licence and names the notice
-# three times, which would satisfy this check without step 2 saying anything at all. The d flag
+# them. The range is scoped to step 2 because step 3 applies the licence and names both halves of
+# the marker, which would satisfy this check without step 2 saying anything at all. The d flag
 # stops the range reopening on the worked example numbered list further down the file.
 reg_step2="$(awk '/^3\. / { if (f) { f = 0; d = 1 } } /^2\. / { if (!d) f = 1 } f' "$REGISTER" | tr -s ' \t\n' ' ' || true)"
 [ -n "$reg_step2" ] || fail "could not read step 2 out of runbooks/register-repo.md, the step that decides a repo README"
