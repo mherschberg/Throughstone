@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 #
 # Regression coverage for scripts/setup-workspace.sh — the script every developer after the
-# first runs to assemble the project on their machine.
+# first runs, in a multi-repo project, to assemble the project on their machine.
 #
-# One property is under test in Parts 1 to 3: the workspace always gets assembled. It clones the
-# repos the registry lists, and every measured way a clone could go wrong used to abort it under
-# `set -e` — leaving the contributor with no AGENTS.md, no CLAUDE.md and no doctor.sh at all,
-# over a repository they may not even need. So every one of those cases asserts the same thing:
-# the run exits 0, and the workspace it left behind is one a contributor can use — the two
-# Markdown pointers naming the docs hub the run itself reported and carrying the text init.sh
-# leaves at a project root, and a doctor.sh that reaches the dispatcher inside it. Presence was
-# what this used to assert, and presence is satisfied by three zero-byte files. Part 0 is a
-# different property riding on the same two bootstraps; it says so.
+# One property is under test in Parts 1 to 3: the workspace always gets assembled. The script
+# clones each repo the registry lists with a remote, and one that does not arrive is reported
+# while the run goes on, so a repository the contributor may not even need never stops the run.
+# Every one of those cases asserts the same thing: the run exits 0, and the workspace it left
+# behind is one a contributor can use — the two Markdown pointers naming the docs hub the run
+# itself reported and carrying the text init.sh leaves at a project root, and a doctor.sh that
+# reaches the dispatcher inside it. Presence alone would not show that, because three zero-byte
+# files satisfy it. Parts 0 and 4 test other properties, and each says which.
 #
-# The second half is about where a clone is allowed to land. A registered location is always a
-# path relative to the workspace root, and one that breaks that shape used to be cloned into
-# verbatim, putting a repository outside the workspace — or, for a tilde, into a literal `~`
-# directory — whenever the path happened to be writable. Those cases
-# assert the absence of a clone, not just the presence of a message. One case is the other side
-# of the same rule: a repo that cannot move is reached through a symlink at a workspace-relative
-# location, and that must still be left alone. Another is about which row a clone belongs to: a
-# registry with a row the parser cannot read clones nothing, since that row's fields sit under
-# the row above it. Two more say so out loud rather than going quiet: a registry that holds no
-# rows, and one nothing can read, each of which the script used to announce a clone step over and
-# then clone nothing from.
+# Several of the cases in Parts 1 to 3 also check where a clone is allowed to land. A registered
+# location is always a path relative to the workspace root, and one that breaks that shape is
+# never cloned into: it could put a repository outside the workspace — or, for a tilde, into a
+# literal `~` directory — wherever the path is writable. Those cases assert the absence of a
+# clone, not just the presence of a message. One case is the other side of the same rule: a repo
+# that cannot move is reached through a symlink at a workspace-relative location, and that must
+# still be left alone. Two are about rows that do not start with their `- name:` line: a registry
+# holding one clones nothing, since that row's fields sit under the row above it, and says to fix
+# the row even when every row is written that way. Two more check that a run which clones nothing
+# says why: a registry that holds no rows, and one the run cannot read. Each names its own cause,
+# and neither announces a clone step.
 #
-# Assertions read the output as well as the exit status: after this change almost everything
-# exits 0, so a test that only looked at $? could not tell a clone from a refusal.
+# Assertions read the output as well as the exit status: almost every case exits 0, so a test
+# that only looked at $? could not tell a clone from a refusal.
 
 set -uo pipefail
 export LC_ALL=C
-# A contributor who cannot reach a remote must fail fast rather than block on a credential
-# prompt. The unreachable-remote fixtures below would otherwise hang.
+# Nobody is there to answer a prompt, so git and ssh must never ask for a password or a host key,
+# here or in the script under test, and ssh gives up on a connection after five seconds.
+# UNREACHABLE below is an ssh remote on a host that does not exist.
 export GIT_TERMINAL_PROMPT=0
 export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5"
 
@@ -69,8 +69,8 @@ copy_template() {
 }
 
 # bootstrap NAME LAYOUT LICENSE — generate a project and echo its workspace root. Never an
-# all-default configuration: a fixture that always picks the same license is how a hardcoded
-# example row survived three review passes in an earlier line of this work.
+# all-default configuration: a fixture that always makes the same choices cannot tell a value
+# init.sh fills in from one hardcoded to match it.
 bootstrap() {
   local name="$1" layout="$2" license="$3"
   local work="$TMP_ROOT/$name"
@@ -176,8 +176,8 @@ assert_assembled() {
         bad "$label: the generated project's own $f does not name $canon_hub/AGENTS.md, so there is nothing to compare against"
       elif [ "$(flat "$canon/$f")" != "$(flat "$tw/$f")" ]; then
         bad "$label: $f is not the text init.sh leaves at a project root"
-        # Diff what was compared. The two writers wrap differently by design, so a raw diff of
-        # the files is never clean and would bury the words that changed in line-break churn.
+        # Diff what was compared. The two writers wrap differently, so a raw diff of the files
+        # is not clean and would bury the words that changed in line-break churn.
         diff <(flat "$canon/$f" | tr ' ' '\n') <(flat "$tw/$f" | tr ' ' '\n') >&2
       fi
     done
@@ -216,8 +216,8 @@ assert_not_out() {
 # even for a clone that fetched every object and then checked nothing out — which is exactly what
 # a remote whose HEAD names a branch it does not carry produces, exit 0 and all. Ask the
 # repository what it holds instead of asking the filesystem: `ls-files` reads the index, which is
-# empty for precisely that clone, and nothing but git can put an entry in it, so a stray file
-# left at the location by an earlier case cannot satisfy this either.
+# empty for precisely that clone, and nothing but git can put an entry in it, so a stray file at
+# the location cannot satisfy this either.
 assert_cloned() {
   [ -d "$2/.git" ] || { bad "$1: expected a clone at $2"; return; }
   [ -n "$(git -C "$2" ls-files)" ] || bad "$1: the clone at $2 checked out no files"
@@ -230,8 +230,9 @@ assert_not_cloned() {
 # `main`, which is what every fixture in this file is pushed as). `git init --bare` alone
 # leaves HEAD at `init.defaultBranch`, and where that is unset — CI, and any machine nobody has
 # configured — that is `refs/heads/master`: a branch the pushed content never reaches. Cloning
-# such a remote still exits 0 and still creates `.git`, so a clone-based assertion passes over a
-# working tree with nothing in it. Name the branch at creation, the way a real host does.
+# such a remote exits 0 but checks nothing out, so every case that needs a real checkout would
+# fail on the fixture rather than on the script. Name the branch at creation, the way a real host
+# does.
 bare_remote() {
   git init --bare -q -b "${2:-main}" "$1"
 }
@@ -281,18 +282,16 @@ note "mono:  $MONO_DOCS"
 
 # --- Part 0. The generated projects carry no unresolved template placeholders ----------------
 # Not a property of setup-workspace.sh, and it is here for what the two bootstraps above already
-# provide: the suite's only pair covering both layouts with a real project license stamped.
-# init.sh step 3 turns {{PROJECT}} into the slug, and nothing anywhere checked that it happened.
-# A project that shipped literal {{PROJECT}} in METHOD.md and the three runbook families passed
-# every test in this suite and reported RESULT: OK from its own doctor.sh, while every path
-# those documents tell an agent to open was wrong.
+# provide: a pair covering both layouts with a real project license stamped. init.sh step 3 turns
+# {{PROJECT}} into the slug. Miss a file, such as METHOD.md, and the project still passes its own
+# `./doctor.sh check`, while every path in that file that carries the token is wrong.
 #
-# The list below is what a generated project is allowed to keep: the fill-in-the-blank templates
-# a human completes later, the seeded STEP index, and init.sh itself, which setup leaves as the
-# template shipped it. Holding it as a literal means a newly leaked file arrives as an added line
-# rather than as silence, and comparing the whole set rather than hunting for stragglers doubles
-# as the positive control: a grep that had quietly stopped seeing files comes up short here
-# instead of passing on an empty result.
+# The list below is what a generated project is allowed to keep: the fill-in-the-blank templates,
+# the seeded STEP index, documents that quote a token, and init.sh itself, which setup leaves as
+# the template shipped it. Holding it as a literal means a newly leaked file arrives as an added
+# line rather than as silence, and comparing the whole set rather than hunting for stragglers
+# doubles as the positive control: a grep that had quietly stopped seeing files comes up short
+# here instead of passing on an empty result.
 RETAINED_PLACEHOLDERS="$TMP_ROOT/placeholders-retained"
 cat > "$RETAINED_PLACEHOLDERS" <<'EOF'
 Code/DOCS/BOOTSTRAP-PROMPT.md
@@ -322,9 +321,9 @@ assert_no_placeholders() {
   local slug="$1" work="$2"
   local leaked named actual="$TMP_ROOT/placeholders-$slug"
 
-  # The three tokens init.sh has a value for. They have to be named rather than inferred from the
-  # file list, because many of the files pinned above legitimately hold other {{ tokens: a
-  # {{PROJECT}} that survived inside one of those would leave the list below entirely unchanged.
+  # The three tokens init.sh replaces across the tree. They have to be named rather than inferred
+  # from the file list, because many of the files pinned above legitimately hold other {{ tokens:
+  # a {{PROJECT}} that survived inside one of those would leave that list entirely unchanged.
   # init.sh holds all three: setup skips it, so it is compared with the template's copy instead.
   leaked="$( cd "$work" && grep -rlF --exclude-dir=.git \
     -e '{{PROJECT}}' -e '{{PROJECT_DESCRIPTION}}' -e '{{TRUNK_BRANCH}}' . 2>/dev/null \
@@ -336,11 +335,11 @@ assert_no_placeholders() {
   cmp -s "$ROOT/init.sh" "$work/init.sh" \
     || bad "$slug: setup changed or removed init.sh; a project keeps the copy the template shipped"
 
-  # Absence is only half of it: a substitution that resolved to NOTHING satisfies every check in
-  # this function. One character in init.sh's perl expression — a mistyped %ENV key — empties
-  # every token it owns and leaves a tree with no placeholder in it anywhere. So assert the value
-  # arrived as well as the token leaving. The docs hub's own path is the one string every
-  # generated project spells out, in its pointers, its runbooks and its registry.
+  # Absence is only half of it: a substitution that resolved to NOTHING passes every other check
+  # in this function. One character in one of init.sh's perl expressions — a mistyped %ENV key —
+  # empties that token in every file and leaves no placeholder behind. So assert the value arrived
+  # as well as the token leaving. This covers {{PROJECT}} only: the docs hub's own path is the one
+  # string every generated project spells out, in its pointers, its runbooks and its registry.
   if ! ( cd "$work" && grep -rqF --exclude-dir=.git "Code/$slug-docs" . 2>/dev/null ); then
     bad "$slug: nothing names Code/$slug-docs — the {{PROJECT}} substitution resolved to nothing"
   fi
@@ -353,9 +352,9 @@ assert_no_placeholders() {
   diff -u "$RETAINED_PLACEHOLDERS" "$actual" \
     || bad "$slug: the files still holding a {{ token have drifted (- expected, + found)"
 
-  # A content grep never looks at a path. The docs hub ships as the literal directory
-  # Code/{{PROJECT}}-docs and is renamed at the end of step 3 — drop that one line and every file
-  # inside it reads correctly while the directory holding them still says {{PROJECT}}.
+  # A content grep never looks at a path, so the find below does. The docs hub ships as the
+  # literal directory Code/{{PROJECT}}-docs and step 3 renames it; a generated path that still
+  # carries a token, that one or any other, is caught here.
   named="$( find "$work" -name .git -prune -o -name '*{{*' -print 2>/dev/null )"
   if [ -n "$named" ]; then
     bad "$slug: a generated path still contains a placeholder"
@@ -393,8 +392,9 @@ assert_out "unreachable remote" "did not arrive"
 # adopted as the repo.
 #
 # Neither assertion can be satisfied by git's own voice: run_setup captures stderr, so git's
-# "remote HEAD refers to nonexistent ref" is inside SETUP_OUT and would pass with this change
-# reverted. "nothing checked out" and "did not arrive" are strings only the script writes.
+# "remote HEAD refers to nonexistent ref" is inside SETUP_OUT, and an assertion on it would pass
+# even if the script said nothing. "nothing checked out" and "did not arrive" are strings only
+# the script writes.
 echo "A remote that clones with nothing checked out ..."
 tw="$(teammate danglinghead "$MULTI_DOCS")"
 add_row "$tw" <<EOF
@@ -417,11 +417,11 @@ assert_out "dangling remote HEAD" "did not arrive"
 git -C "$tw/Code/multi-api" rev-parse --verify -q HEAD >/dev/null 2>&1 \
   && bad "dangling remote HEAD: fixture is wrong — the checkout is not empty"
 
-# The half that was silent. The directory is still there, so a re-run meets it again and has to
-# reach the same answer rather than adopting it — and must not say "could not clone", which would
-# send this contributor to check a remote and a network that are both fine and would never
-# mention the directory that has to be deleted first. This directory holds nothing but .git, so
-# deleting it is the right advice and the run gives it.
+# The re-run half. The directory is still there, so a re-run meets it again and has to reach the
+# same answer rather than adopting it — and must not say "could not clone", which would send this
+# contributor to check a connection that works and would never say that the directory has to be
+# deleted first. This directory holds nothing but .git, so deleting it is the right advice and
+# the run gives it.
 run_setup "$tw"
 assert_assembled "dangling remote HEAD re-run" "$tw"
 assert_not_out "dangling remote HEAD re-run" "exists: Code/multi-api/"
@@ -464,10 +464,11 @@ assert_not_out "uncommitted git init" "exists: Code/multi-api/"
   || bad "uncommitted git init: the work at the location is gone"
 
 # A `.git` that git cannot use, at a location inside a workspace that is itself under a checkout.
-# This is what makes the HEAD question worth asking about the location rather than from it: git's
-# discovery walks up, so an enclosing repository answers for the location and the run reports a
-# repo that is not there as present — silently, and on every later run. The enclosing repo is the
-# fixture's whole point; without it this shape is merely unreadable rather than wrongly readable.
+# This is why the run asks git about the location's own .git before asking for HEAD: asked from
+# the location alone, git's discovery walks up, so an enclosing repository would answer for it
+# and the run would report a repo that is not there as present — silently, and on every later
+# run. The enclosing repo is the fixture's whole point; without it this shape is merely
+# unreadable rather than wrongly readable.
 echo "A .git git cannot use, inside an enclosing repository ..."
 enclosing="$TMP_ROOT/enclosing"
 rm -rf "$enclosing"
@@ -516,23 +517,22 @@ run_setup "$tw"
 assert_assembled "occupied location" "$tw"
 assert_out "occupied location" "warning: could not clone"
 
-# Not a clone that fails but a parse that does: awk cannot open the file at all. The clone loop
-# is fed by process substitution rather than a pipe precisely so that awk's exit status stays out
-# of `pipefail` — feed it by a pipe and this case takes the whole run down with it.
+# Not a clone that fails but a registry the run cannot read. The script tests it with `-r` before
+# any awk opens it, says so and skips the clone step; the workspace must still be assembled.
 echo "A registry file the clone step's awk cannot read ..."
 tw="$(teammate unreadable "$MULTI_DOCS")"
 chmod 000 "$(registry_of "$tw")"
-# chmod 000 does not stop a privileged reader, and the case would then pass having exercised
-# nothing at all. Establish the precondition rather than assume it.
+# chmod 000 does not stop a privileged reader, and the case would then fail on the script's
+# output without saying why. Establish the precondition rather than assume it.
 head -c1 "$(registry_of "$tw")" >/dev/null 2>&1 \
   && bad "unreadable registry: the fixture is still readable, so this case proved nothing"
 run_setup "$tw"
 chmod 644 "$(registry_of "$tw")"
 assert_assembled "unreadable registry" "$tw"
-# Surviving is not enough: `-f` is type and existence, not readability, so an intact registry
-# whose permissions were lost reads here exactly as one with nothing in it, and the run used to
-# announce the clone step and clone nothing. It says which of the two it is, because the advice
-# for an empty registry — restore the rows — is wrong for a file whose rows never left.
+# Surviving is not enough. `-f` is type and existence, not readability, so without the clone
+# step's `-r` arm the script would announce the clone step over a registry it cannot open and
+# clone nothing. The run must also not call the file empty: the advice for an empty registry —
+# restore the rows — is wrong for a file whose rows never left.
 assert_out "unreadable registry" "cannot read"
 assert_not_out "unreadable registry" "holds no repo rows"
 assert_not_out "unreadable registry" "Cloning sibling repos"
@@ -592,11 +592,11 @@ assert_out "authored-here location" "did not arrive"
 assert_not_out "authored-here location" "exists: $authored"
 [ -f "$authored/uncommitted.txt" ] || bad "authored-here location: the checkout there was disturbed"
 
-# A tilde is not an absolute path and does not reach out with `..`, and it is the one shape the
-# workspace does not own that a run could complete "successfully": this loop reads the location
-# out of a variable, where the shell performs no tilde expansion, so an unskipped tilde location
-# is cloned into a literal `~` directory under the workspace root and counted as a clone that
-# worked. Assert the directory is absent, not just the message.
+# A tilde is not an absolute path and does not reach out with `..`, so the shape guard needs its
+# own pattern for it. The clone loop reads the location out of a variable, where the shell
+# performs no tilde expansion, so an unskipped tilde location is cloned into a literal `~`
+# directory under the workspace root and counted as a clone that worked. Assert the directory is
+# absent, not just the message.
 echo "A location that starts with a tilde ..."
 tw="$(teammate tilde "$MULTI_DOCS")"
 add_row "$tw" <<EOF
@@ -637,12 +637,12 @@ assert_not_cloned "dotdot location" "$escaped"
 # a workspace-relative location points at it, so the row is the same on every machine. Two
 # mechanics carry it — the location is contained, so it passes the shape guard on its text, and
 # the existing-checkout branch reaches `.git` through the link because `-e` follows symlinks.
-# The second is what this case holds: make a symlinked location stop counting as an existing
-# checkout and the run tries to clone over the link instead.
+# This case holds both: the shape guard must stay silent on the link, and the run must report the
+# checkout behind it as existing rather than try to clone over the link.
 # Uncommitted local work, so the failure that matters — the checkout replaced or cleared, the
 # contributor's own work gone with it — is caught as state. The `exists:` line below is printed
-# by the branch that skips the clone, but a maintainer who restructures that loop could print it
-# and still re-clone or clear the directory.
+# by the branch that skips the clone, but a maintainer who restructures the clone loop could
+# print it and still re-clone or clear the directory.
 echo "A repo that cannot move, reached through a symlink at a workspace-relative location ..."
 tw="$(teammate symlink "$MULTI_DOCS")"
 immovable="$TMP_ROOT/immovable-lib"
@@ -667,7 +667,7 @@ assert_out "symlinked location" "exists: Code/immovable-lib/"
 assert_not_out "symlinked location" "a location must be a path relative to the workspace root"
 assert_not_out "symlinked location" "did not arrive"
 
-# git reads a leading `-` as an option, so without the `--` in the clone the run dies with
+# git reads a leading `-` as an option, so without the `--` in the clone git stops with
 # `unknown switch` and the repo does not arrive. Nothing else in the suite passes git a value it
 # could mistake for a flag, so deleting the `--` is invisible without this case.
 echo "A location that begins with a dash ..."
@@ -731,10 +731,10 @@ assert_out "unread row" "does not start with its - name: line"
 assert_not_cloned "unread row" "$tw/Code/multi-api"
 assert_not_cloned "unread row" "$tw/Code/multi-web"
 
-# The same registry read the other way round: every row starts with its `location:`, so the walk
-# reads none of them while the list still holds two entries. Which arm answers is what this case
-# pins — the rows are there and need reordering, and a registry with no rows in it needs its rows
-# restored, so the count check has to speak first or the advice is for the wrong file.
+# The same two repos written the other way round: every row starts with its `location:`, so the
+# walk reads none of them while the list still holds two entries. Which arm answers is what this
+# case pins — the rows are there and need reordering, and a registry with no rows in it needs its
+# rows restored, so the count check has to speak first or the advice is for the wrong file.
 echo "A registry whose every row starts with its location ..."
 tw="$(teammate everyrowunread "$MULTI_DOCS")"
 cat > "$(registry_of "$tw")" <<EOF
@@ -753,16 +753,15 @@ assert_not_out "every row unread" "holds no repo rows"
 assert_not_cloned "every row unread" "$tw/Code/multi-api"
 assert_not_cloned "every row unread" "$tw/Code/multi-web"
 
-# A registry that is still there and holds no rows at all. Emptying the file is quieter than
-# deleting it: a deleted registry says it is skipping the clone step, while an empty one reached
-# the clone step, announced it, and cloned nothing — so the run ended on "Done." and a teammate
-# was told a workspace with no repos in it was ready. The counts above cannot see this, because
-# rows and entries agree at zero. The same three shapes the doctor's suite pins — the file emptied
-# outright, the `repos:` key left with nothing under it, and every row commented out — because the
-# two readers have to agree about what counts as no rows, which is the drift
-# tests/registry-reader-parity.sh exists to catch in the fields they read. Each asserts the message
-# and the absence of the clone announcement, since the announcement is what made this read as
-# success.
+# A registry that is still there and holds no rows at all. A deleted registry fails the `-f` test
+# and says it is skipping the clone step. An empty one gets past every other check before the
+# clone step, so without the arm that names it the run would announce the clone step and clone
+# nothing. The counts above cannot see this, because rows and entries agree at zero. The same
+# three shapes tests/check-repo-registry.sh pins for check.sh — the file emptied outright, the
+# `repos:` key left with nothing under it, and every row commented out — because the two readers
+# have to agree about what counts as no rows, which is the drift tests/registry-reader-parity.sh
+# exists to catch in the fields they read. Each asserts the message and the absence of the clone
+# announcement, since the announcement is what would make this read as success.
 echo "A registry that holds no rows ..."
 for shape in emptied keyonly commented; do
   tw="$(teammate "norows-$shape" "$MULTI_DOCS")"
@@ -813,9 +812,9 @@ assert_not_out "re-run" "did not arrive"
 # Every other case starts from a root with no pointers at all, or one this same build wrote a
 # moment ago, so none of them asks the question a contributor upgrading an existing machine asks:
 # does a run replace a pointer that is already there? It is the only way their machine gets the
-# fuller text, since pulling the docs hub writes nothing at the root, and it is what
-# UPDATING-THROUGHSTONE.md's migration entry tells them to do. Seeded with the shorter pointer a
-# release before this one wrote, so the fixture is the state those machines are actually in.
+# full text, since pulling the docs hub writes nothing at the root, and it is what
+# UPDATING-THROUGHSTONE.md's migration entry tells them to do. Seeded with the shorter pointer an
+# earlier release wrote, so the fixture is the state those machines are actually in.
 echo "A root already holding the shorter pointers an earlier release wrote ..."
 tw="$(teammate stalepointers "$MULTI_DOCS")"
 stale_hub="$(hub_of "$tw")"
@@ -839,13 +838,14 @@ run_setup "$tw"
 assert_assembled "stale pointers" "$tw"
 
 # A repo supplied by hand need not be a plain clone. A linked worktree and an initialized
-# submodule are both repositories and both keep `.git` as a FILE, so the skip above has to ask
-# whether `.git` exists and not whether it is a directory — otherwise the run clones over a
-# checkout that is already there, git refuses, and the repo is reported missing on every run.
+# submodule are both repositories and both keep `.git` as a FILE, so the script's
+# existing-checkout test has to ask whether `.git` exists and not whether it is a directory —
+# otherwise the run tries to clone over a checkout that is already there, git refuses, and the
+# repo is reported missing on every run.
 # The worktree is the shape built here: both reach the same predicate by the same route, and this
 # one needs no `protocol.file.allow` override to create. The `exists:` line alone would not hold
-# the case — a maintainer restructuring that loop could print it and still re-clone — so the
-# checkout's own state is asserted after the run as well.
+# the case — a maintainer restructuring the clone loop could print it and still re-clone — so
+# the checkout's own state is asserted after the run as well.
 echo "A registered checkout whose .git is a FILE — a linked worktree ..."
 tw="$(teammate worktree "$MULTI_DOCS")"
 wtsrc="$TMP_ROOT/worktree-source"
@@ -895,15 +895,15 @@ assert_cloned "empty target dir" "$tw/Code/multi-api"
 
 # --- Part 4. The layout the project declares --------------------------------------------------
 # collaboration.md §9 says not to run this script in a mono-repo-for-now project, and the script
-# now stops instead of trusting that. There the workspace root IS the repository: its CLAUDE.md,
-# AGENTS.md and doctor.sh are committed files that step 1 would replace with per-machine copies,
-# and the clone step has nothing to clone because every row is a folder inside the repository the
-# reader already has.
+# stops on a registry that declares `layout: mono` rather than trusting the reader. There the
+# workspace root IS the repository: its CLAUDE.md, AGENTS.md and doctor.sh are committed files that
+# step 1 would replace with per-machine copies, and the clone step has nothing to clone because
+# every row is the repository the reader already has or a folder inside it.
 #
 # What it reads is the `layout:` line the registry declares, never the shape of the workspace — a
-# script cannot tell one workspace shape from another by looking, and this fixture proves the
-# reading is the declaration: it is a multi-repo teammate workspace, with nothing mono about it
-# but the registry a mono project generated.
+# script cannot tell one workspace shape from another by looking. This fixture is a teammate
+# workspace around the docs hub a mono project generated, and the control at the end of this part
+# is the same hub declaring multi: between them, that line is what decides.
 echo "The registry a mono project generates ..."
 tw="$(teammate monoshape "$MONO_DOCS")"
 grep -q '^layout: mono$' "$(registry_of "$tw")" \
@@ -924,8 +924,8 @@ done
 
 # A declaration nobody can read stops it too, and that asymmetry is the point: what is on the far
 # side of this decision is replacing files a repository has committed, so a value the script cannot
-# make sense of is not a reason to go ahead as though it said multi. A mono project whose line was
-# hand-typed during the 1.8 migration is exactly where a misspelling comes from.
+# make sense of is not a reason to go ahead as though it said multi. A line typed by hand is
+# exactly where a misspelling comes from.
 echo "A declaration this script cannot read ..."
 tw="$(teammate badlayout "$MONO_DOCS")"
 perl -pi -e 's/^layout: mono$/layout: Mono/' "$(registry_of "$tw")"
@@ -940,10 +940,11 @@ for f in CLAUDE.md AGENTS.md doctor.sh; do
   [ -e "$tw/$f" ] && bad "an unreadable declaration — $f was written after the run said nothing had been"
 done
 
-# And the same registry with its declaration changed is the control: one line decides it, the rest
-# of the fixture is identical, and a guard that had stopped reading would fail here instead of
-# passing everything. It also keeps the coverage the mono shape used to carry — a `.` row with a
-# remote is a clone target like any other, which is what makes a root-location row observable.
+# And the same registry declaring multi is the control: only that line may decide, so a guard keyed
+# on anything else about this hub, such as its missing .git or the `.` row its registry already
+# has, fails here even where it passes the two cases above. The control also gets a second `.` row,
+# with a remote, which the guard does not read: the script treats it as a clone target like any
+# other, so the run tries to clone into the workspace root and warns that it could not.
 echo "The same registry declaring the other layout ..."
 tw="$(teammate monoroot "$MONO_DOCS")"
 perl -pi -e 's/^layout: mono$/layout: multi/' "$(registry_of "$tw")"
