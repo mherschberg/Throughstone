@@ -87,7 +87,7 @@ shopt -s nullglob
 fails=0
 warns=0
 # pass/fail/warn/hdr are presentation helpers only. fail increments the hard-failure count;
-# warn increments the advisory count; neither exits early so one run reports all drift.
+# warn increments the advisory count; neither exits early, so every check runs and reports.
 pass() { printf '  [PASS] %s\n' "$1"; }
 fail() { printf '  [FAIL] %s\n' "$1"; fails=$((fails + 1)); }
 warn() { printf '  [WARN] %s\n' "$1"; warns=$((warns + 1)); }
@@ -509,24 +509,27 @@ fi
 # Deliberately not run on every invocation: the registry changes when a repo is created, adopted
 # or split out, and the doctor runs constantly during STEPS.
 #
-# It warns when a repo has no remote, which leaves its work on one machine. It fails a row it
-# cannot read, a row with no location, and a `layout:` line that is repeated, empty, unknown,
-# below the rows, or contradicted by them. Other mistakes in a row are left to whoever edits it —
+# It warns when a repo has no remote, which leaves its work on one machine, and when the registry
+# is missing, cannot be read, declares no layout, or holds no rows. It fails a row it cannot read,
+# a row with no location, and a `layout:` line that is repeated, empty, unknown, below the rows,
+# or contradicted by them. Other mistakes in a row are left to whoever edits it —
 # see runbooks/register-repo.md, which raises anything that did not work.
 #
 # A row is covered by its own remote:, or — in the mono-repo-for-now layout — by the root
 # repository's remote, because there every other row's path sits inside that one repository's
 # working tree. Which of the two rules applies comes from the `layout:` the registry declares, not
 # from the rows: a reader cannot work the layout out from them, and the row with `location: "."` is
-# the root repository's entry here rather than a signal about the project. The root row is covered
-# by nothing else: if it has no remote, it is flagged like any other repo. A registry that declares
-# no layout is not judged either way — it is asked to declare one.
+# the root repository's entry here rather than a signal about the project. Under mono the root row
+# is covered by nothing else, so it is flagged when it has no remote. Under multi that row is not a
+# repository, and it is left to the reconciliation below. A registry that declares no layout is not
+# judged either way — it is asked to declare one.
 #
 # The declaration and the rows can disagree, and the second half of this check is what says so,
 # because one fact recorded in two places drifts. A mono project's rows are folders inside its one
 # repository, so a row of its own with a remote of its own is a separate repository — which a
 # mono-repo-for-now project cannot hold. It converts to multi-repo first
-# (`runbooks/splitting-repos.md` Case 2), and that is what the finding says.
+# (`runbooks/splitting-repos.md` Case 2), and that is what the finding says; if the conversion has
+# already happened, the finding says the declaration is what is stale.
 if [ "$CHECK_IN" -eq 1 ]; then
   hdr "10. Repo registry ($DOCS_REL/registries/repos.yml)"
   if [ ! -f "$REPOS_REGISTRY" ]; then
@@ -557,7 +560,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
       }
       /^[[:space:]]*#/ { next }
       # How many declarations there are, and whether one sits below the rows. Both are the shape
-      # that file states for itself, not a preference of this check: one key, at column 0, above
+      # repos.yml states for itself, not a preference of this check: one key, at column 0, above
       # `repos:`.
       /^layout:/ { layouts++; if (seen_repos) below = 1 }
       /^repos:/  { seen_repos = 1 }
@@ -575,15 +578,15 @@ if [ "$CHECK_IN" -eq 1 ]; then
           # A row that is not the workspace root and carries a remote of its own describes a
           # repository rather than a folder. Harmless in multi, where that is every row; read
           # below only under a mono declaration, which forbids it. A row with no location at all
-          # is not a second repository; it is the failure of the row above, reported there.
+          # is not a second repository; its missing location is reported by the line above.
           if (locs[i] != "" && !isroot(locs[i]) && rems[i] != "") print "own-remote\t" names[i] "\t" locs[i]
           # Covered by its own remote, or — under a mono declaration — by the remote of the row
           # at "." that contains it. The location travels with the name: the fix acts on that
           # repo, and a name alone does not say where it is. An undeclared layout answers
           # neither way, so nothing is judged.
           if (layout != "mono" && layout != "multi") continue
-          # Under multi the root row is condemned by the reconciliation below, which says to delete
-          # it. Naming it here as well would tell the reader to give that same row a remote.
+          # Under multi the root row is left to the reconciliation below, which says to delete it.
+          # Naming it here as well would tell the reader to give that same row a remote.
           if (layout == "multi" && isroot(locs[i])) continue
           if (rems[i] == "" && !(layout == "mono" && !isroot(locs[i]))) print "remote\t" names[i] "\t" locs[i]
         }
@@ -611,8 +614,9 @@ if [ "$CHECK_IN" -eq 1 ]; then
     # What the registry declares, and whether its rows agree with it. The two are one fact written
     # in two shapes, and a fact kept in two places drifts — so a disagreement is reported here
     # rather than settled by quietly preferring one of them. Each finding speaks on its own, like
-    # every other one in this file: nothing exits early, so one run reports all the drift there is,
-    # and `recon` only says whether the pass line below may be printed.
+    # every other one in this file: nothing exits early, so once every row is read, a registry
+    # with two disagreements is told about both, and `recon` only says whether the pass line below
+    # may be printed.
     #
     # First the declaration itself, which is read from the file rather than from the rows and so is
     # answerable whatever state they are in.
@@ -623,8 +627,8 @@ if [ "$CHECK_IN" -eq 1 ]; then
       hint "add one line at the left margin above repos: — layout: mono if the workspace root is the one repository this project has, layout: multi if each row is a repository of its own (METHOD.md §7; see $DOCS_REL/UPDATING-THROUGHSTONE.md). Until it is there, the remote coverage below is not judged."
     elif [ "${layouts:-0}" -gt 1 ]; then
       # Last one wins in every reader, so two lines make the layout whatever the bottom one says —
-      # including when someone adds the line this check asked for above a stale one and it is
-      # overruled from below.
+      # including when someone adds a line at the top instead of moving or fixing the one already
+      # there, which then overrules the new line from below.
       recon=0
       fail "$DOCS_REL/registries/repos.yml declares a layout $layouts times, so which one the project is in depends on which line a reader stops at"
       hint "keep one layout: line, at the left margin above repos:, and delete the others."
@@ -651,7 +655,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
       if [ "$LAYOUT" = "mono" ] && [ "${root:-0}" -eq 0 ]; then
         recon=0
         fail "declares layout: mono and has no row for the workspace root — the one repository a mono project has is missing from its own inventory"
-        hint "add a row whose location: is \".\", carrying the root repository's remote: if it has one — the recipe is in $DOCS_REL/UPDATING-THROUGHSTONE.md. Nothing else here can say whether that repository is backed up, so until it is there the rows below it are not judged."
+        hint "add a row whose location: is \".\", carrying the root repository's remote: if it has one — the recipe is in $DOCS_REL/UPDATING-THROUGHSTONE.md. Nothing else here can say whether that repository is backed up, so until it is there the remote coverage below is not judged."
       fi
       if [ "$LAYOUT" = "multi" ] && [ "${root:-0}" -eq 1 ]; then
         recon=0
@@ -669,8 +673,8 @@ if [ "$CHECK_IN" -eq 1 ]; then
       warn "repo(s) with no remote: $(printf '%s' "$no_rem" | tr '\n' ' ')"
       hint "a repo with no remote lives on one machine — a bus factor of one. Record the URL in remote: if it already has one; if not, create one — private, widening is a separate decision — or accept the risk deliberately."
     fi
-    # Zero rows is not a project with no repos. This file lives in the docs hub, which has a row
-    # of its own, and init.sh writes that row and prompts/ before anyone can run the doctor; no
+    # Zero rows is not a project with no repos. The registry lives in the docs hub, which has a
+    # row of its own, and init.sh writes that row and prompts/ before anyone can run the doctor; no
     # procedure that edits the registry takes a row away without putting repos in its place. So
     # no rows means the rows are gone, and a pass here would vouch for the whole inventory on the
     # strength of having read none of it. Both counts, because a registry with entries the walk
