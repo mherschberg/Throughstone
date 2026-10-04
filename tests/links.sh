@@ -44,7 +44,7 @@ See [docs](Code/acme-docs/README.md).
 ARTIFACTS
 
 # links.sh is scoped to four root files by name, and two of them are the pointers the whole method
-# depends on. The fixture never created either, so nothing here checked that they are looked at.
+# depends on.
 cat > "$fixture/AGENTS.md" <<'AGENTSMD'
 # Agents
 
@@ -59,8 +59,7 @@ CLAUDEMD
 
 # Everything a link parser must NOT read: a fenced block, an HTML comment, and an inline code
 # span. Each names a file that does not exist, so if the suppression engine stops suppressing,
-# the clean run below reports findings instead of RESULT: OK. Nothing exercised those 29 lines
-# before, and the whole engine could be replaced with a passthrough with this test still green.
+# the clean run below reports findings instead of RESULT: OK.
 cat > "$fixture/Code/acme-docs/suppressed.md" <<'SUPPRESSED'
 # Suppressed
 
@@ -94,8 +93,9 @@ TEMPLATE
 
 # Imported documents are kept as they arrived, so a broken link in one must not fail the run. Each
 # link climbs out of inputs/ and lands on a missing path inside the workspace; one above the
-# workspace root is skipped anyway and would prove nothing. A superseded input is moved to
-# inputs/archive/, so that file stops a skip that covers only the top of inputs/.
+# workspace root is skipped anyway and would prove nothing. A fully captured input is moved to
+# inputs/archive/, so retired.md below sits there: a skip covering only the top of inputs/ would
+# let its broken link fail the run.
 cat > "$fixture/Code/acme-docs/inputs/imported.md" <<'INPUT'
 # Imported Spec
 
@@ -127,9 +127,9 @@ cat > "$fixture/Code/acme-docs/broken.md" <<'BROKEN'
 [undefined reference][missing-ref]
 BROKEN
 
-# A broken link in a root pointer has to be reported too. Creating AGENTS.md above proves it is
-# parsed; only a finding attributed to it proves it is in scope. Dropping the two pointers from
-# the scoped list is otherwise invisible — they are the files the method depends on most.
+# A broken link in a root pointer has to be reported too. The clean run is checked only for
+# RESULT: OK, which holds whether or not AGENTS.md is read, so a finding attributed to AGENTS.md
+# is what shows that the file is in scope.
 printf '\n[pointer to nowhere](never-written.md)\n' >> "$fixture/AGENTS.md"
 
 set +e
