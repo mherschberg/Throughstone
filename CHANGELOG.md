@@ -115,7 +115,7 @@ any project built with it.
   guessing a path is worse than asking — **and so does a row the doctor cannot read**: it finds a
   row by its `- name:` line, counts the list's entries apart from that, and fails when the two
   disagree rather than pass over a repo it never saw. **A registry with no rows in it at all
-  warns**, because zero rows is not a project with no repos: this file lives in the docs hub, which has a row of its own, and `init.sh`
+  warns**, because zero rows is not a project with no repos: the registry lives in the docs hub, which has a row of its own, and `init.sh`
   writes that row and `prompts/` before anyone can run the doctor. A registry that is missing warns
   and rows the walk cannot read fail, so without this one an emptied file would be the quietest way
   of all to lose the inventory. `scripts/setup-workspace.sh` reads the same file the same way and
