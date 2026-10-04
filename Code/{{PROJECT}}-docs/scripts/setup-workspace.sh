@@ -43,7 +43,7 @@ echo "Docs hub:       $DOCS_REL"
 # Every step below this line writes something. In a mono-repo-for-now project the workspace root
 # is the repository, its CLAUDE.md, AGENTS.md and doctor.sh are committed files, and step 1
 # would replace them with per-machine copies; the clone step then has nothing to clone, because
-# every row is a folder inside the repository the reader has already cloned.
+# every row is the repository the reader has already cloned or a folder inside it.
 # runbooks/collaboration.md §9 says not to run this script there, and this is that sentence as
 # code.
 #
@@ -206,9 +206,9 @@ else
     # gets cloned into. An absolute or `..` path can put the repository outside the workspace this
     # script is assembling, silently, whenever that path happens to be writable. The test is
     # textual on purpose: an absolute path from the first developer's machine is skipped whether
-    # or not it resolves to anything here. `~` fails differently and needs its own arm — this loop
-    # reads the path out of a variable, where no tilde expansion happens, so cloning it builds a
-    # literal `~` directory here. The arm is quoted so the pattern matches a literal tilde.
+    # or not it resolves to anything here. `~` fails differently and needs its own pattern — this
+    # loop reads the path out of a variable, where no tilde expansion happens, so cloning it builds
+    # a literal `~` directory here. The tilde is quoted so the pattern matches a literal tilde.
     #
     # This runs before the existing-checkout test below, and the order is the point: on a machine
     # where a bad location does resolve — usually the one whose paths it was written from — that
