@@ -7,9 +7,10 @@
 #
 # The step is run the way GitHub Actions runs a `shell: bash` step — `bash --noprofile --norc -eo
 # pipefail`, with CI set — from the root of a fresh clone of the repository the workflow sits in.
-# It looks for the doctor in two places, and both are run: scripts/check.sh at the root of a docs
-# hub that is its own repository, as in multi-repo CI, and Code/<project>-docs/scripts/check.sh
-# under a mono project's workspace root, which wins over a root scripts/check.sh of the project's.
+# The step runs the doctor from one of two places, and this test covers both. In a docs hub that
+# is its own repository, as in multi-repo CI, the step runs scripts/check.sh at the root. Under a
+# mono project's workspace root it runs Code/<project>-docs/scripts/check.sh, even when the root
+# has a scripts/check.sh of its own.
 #
 # Nothing here parses YAML, so the step is lifted out of the workflow as text. A wrong lift cannot
 # pass: an empty one is reported, and every run must print the doctor's own RESULT line, so a step
@@ -72,8 +73,8 @@ bootstrap() {
   printf '%s\n' "$work"
 }
 
-# doctor_step FILE — print the `run: |` block of the step named "Run method doctor", without its
-# YAML indentation. The block ends at the first line indented no deeper than its `run:` key.
+# doctor_step FILE — print the `run: |` block of the step whose name starts "Run method doctor",
+# without its YAML indentation. The block ends at the first line indented no deeper than `run:`.
 doctor_step() {
   awk '
     /^[[:space:]]*- name: Run method doctor/ { step = 1; next }
