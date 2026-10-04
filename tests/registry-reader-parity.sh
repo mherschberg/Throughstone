@@ -66,17 +66,17 @@ add_reader() {
 }
 
 # --- 1. Extract the expressions from the scripts --------------------------------
-# The guards on check.sh read content, never line numbers: some line there has to strip a key:
-# prefix, and every line that does has to open a val() function, the one shape the extraction
-# below runs.
+# The guards on check.sh read content, never line numbers: it has to hold at least as many lines
+# that strip a key: prefix as it has awk programs that read the registry, three, and every such
+# line has to open a val() function, the one shape the extraction below runs.
 check_hits="$(copies "$CHECK" | awk 'END { print NR }')"
 setup_hits="$(copies "$SETUP" | awk 'END { print NR }')"
 check_vals="$(copies "$CHECK" | grep -cF 'function val(')"
-[ "$check_hits" -ge 1 ] \
-  || bad "check.sh no longer strips a key: prefix anywhere — find what now reads the three fields"
+[ "$check_hits" -ge 3 ] \
+  || bad "check.sh has $check_hits line(s) stripping a key: prefix, fewer than its three awk programs that read the registry — check how the others now read their fields"
 [ "$check_vals" = "$check_hits" ] \
   || bad "check.sh has $check_hits line(s) stripping a key: prefix and $check_vals of them sit in a val() function, which is the only shape this file knows how to run — teach the extraction below the shape the rest have, or keep every strip on one line with a val() header"
-[ "$setup_hits" -ge 2 ] \
+[ "$setup_hits" -ge 3 ] \
   || bad "setup-workspace.sh has $setup_hits line(s) stripping a key: prefix, fewer than the fields it reads — check what now reads the others"
 
 # check.sh wraps each copy in a val() function, so a program is that function plus a call. It
@@ -197,7 +197,7 @@ while [ "$i" -lt "$rows" ]; do
     label="$(cat "$TMP_ROOT/reader.$r.label")"
     got="$(sed -n "${i}p" "$TMP_ROOT/out.$r")"
     [ "$got" = "$want" ] \
-      || bad "$line_label: $label returned $got, and repos.yml says the value is $want"
+      || bad "$line_label: $label returned $got where the line carries $want"
     if [ "$r" -eq 1 ]; then
       first="$got"
       first_label="$label"
