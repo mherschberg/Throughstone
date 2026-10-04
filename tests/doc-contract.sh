@@ -407,7 +407,7 @@ lic_head="$(grep -m1 -E '^## Licen' "$README_TPL" || true)"
 # Read the section BODY, not the file: a mention anywhere else in the template would keep passing
 # after the section a stamped README actually carries was deleted.
 lic_body="$(awk '/^## Licen/ { f = 1; next } /^## / { f = 0 } f' "$README_TPL" | tr -s ' \t\n' ' ' || true)"
-[ -n "$lic_body" ] || fail "the Licensing section of templates/repo-readme-template.md is empty; the sentence in it is the whole of what marks a README as stamped"
+[ -n "$lic_body" ] || fail "the Licensing section of templates/repo-readme-template.md is empty; the sentence in it is half of what marks a README as stamped"
 lic_token="$(printf '%s\n' "$lic_body" | grep -oE 'LICENSE-[A-Z]+' | sort -u | head -1 || true)"
 [ -n "$lic_token" ] || fail "the Licensing section of templates/repo-readme-template.md names no LICENSE-<NAME> notice file, so stamping leaves nothing behind to recognise it by"
 # register-repo.md's steps are ordered-list items, not '## N.' headings, so section() cannot reach
@@ -423,7 +423,7 @@ esac
 for m in "$lic_head" "$lic_token"; do
   case "$reg_step2" in
     *"$m"*) : ;;
-    *) fail "runbooks/register-repo.md step 2 does not name \"$m\", half of the test that tells a README this method stamped from one it did not; without it a re-run appends a role section to a file that already carries one" ;;
+    *) fail "runbooks/register-repo.md step 2 does not name \"$m\", half of the test that tells a README this method stamped from one it did not; without it a re-run can add a Role section to a README that already states the role" ;;
   esac
 done
 
