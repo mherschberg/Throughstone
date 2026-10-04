@@ -688,6 +688,8 @@ row is a folder inside your one repository or a repository of its own, which is 
 above rests on. And `scripts/setup-workspace.sh` stops when it says `mono`, where there is nothing
 to assemble and the per-machine pointers it writes would replace files your one repository has
 committed — `runbooks/collaboration.md` §9 already told you not to run it there, and now it does not.
+It stops the same way, writing nothing, on a registry it cannot open, since it cannot tell what that
+file declares.
 
 **Until the line is there the check-in asks for it and stops judging your remote coverage**: one
 warning naming the missing line, in place of the row-by-row backup warning above. That is not a
