@@ -710,7 +710,8 @@ contains the others, and before this release its absence was read as "this is no
 which is how you came to be told all your repos were unbacked-up even when the one real repo was
 pushed. Add it by hand, and three things about how you type it. **Start the row with its
 `- name:` line**, as below: a row that begins with any other field is not read at all, its fields
-land on the row above, and the check-in says so rather than judging rows it could not read.
+are lost or land on the row above, and the check-in fails, saying a row went unread; until it
+reads every row, its other findings may name the wrong repo.
 **Put nothing after any value**: these readers treat a `#` on a value line as part of the value
 rather than as a comment. **Quote values with double quotes, as below, or not at all**: they read a
 single quote as part of the value too. Drop the `remote:` line if the repo has no remote yet:
