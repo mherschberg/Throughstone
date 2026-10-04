@@ -2,32 +2,31 @@
 #
 # Parity coverage for the two scripts that read registries/repos.yml.
 #
-# `layout:`, `- name:`, `location:` and `remote:` are read by the same two lines of awk, written
-# out several times across two files: scripts/check.sh keeps them in a `val()` function per awk
-# program that reads the registry — the declared layout, the check-in's fields, and the
+# `layout:`, `- name:`, `location:` and `remote:` are read by the same pair of awk sub() calls,
+# written out several times across two files: scripts/check.sh keeps them in a `val()` function
+# per awk program that reads the registry — the declared layout, the check-in's fields, and the
 # workspace-root locations check 7 allows — and scripts/setup-workspace.sh has them inline, for
 # the location it clones into, the remote it clones from, and the layout it refuses to run under.
-# Nothing connects the copies. The failure
-# that follows is a quiet one: teach one of them a new quoting rule and leave the other alone, and
-# the check-in passes a row that the clone loop then clones into a directory whose name starts
-# with a quote.
+# Nothing connects the copies. Teach check.sh to strip a single quote and leave setup-workspace.sh
+# alone, and the check-in reads `location: 'Code/api'` as Code/api while the clone loop still
+# clones it into a directory whose name starts with a quote.
 #
 # So this file extracts the expressions from the scripts themselves — by content, never by line
-# number, because both coordinates recorded for them went stale before it was written — runs every
-# one over the same registry lines, and asserts two things per line. That every one of them
-# returns the same string: that is the drift this exists to catch, and it is the one that will actually
-# happen. And that the string is the value registries/repos.yml's own rules say the line carries:
-# copies of one expression cannot disagree with each other about a case they all get wrong,
-# so agreement on its own would not be correctness.
+# number, since a script's lines move whenever it is edited — runs every one over the same
+# registry lines, and asserts two things per line. That every one of them returns the same string:
+# that is the drift this exists to catch, and it is the one that will actually happen. And that
+# the string is the value the line carries, which section 2 sets out: copies of one expression
+# cannot disagree with each other about a case they all get wrong, so agreement on its own would
+# not be correctness.
 #
 # It binds the duplication; it does not remove it. Reading the copies into one shared reader is a
 # much larger change and not one this test is a step towards.
 #
-# Deliberately absent, and not an oversight to fill in: any line whose value repos.yml does not
-# describe — an embedded `\"`, a doubled closing quote — because pinning an expected value with no
+# Deliberately absent, and not an oversight to fill in: any line whose value no rule settles — an
+# embedded `\"`, a doubled closing quote — because pinning an expected value with no
 # rule behind it fixes an accident in place. Absent too are the patterns deciding which lines are
-# fields at all (`/^[[:space:]]*location:/` and its twin). They are duplicated the same way and are
-# identical today, but they are a different expression and belong to a case of their own.
+# fields at all, such as `/^[[:space:]]*location:/`. They are duplicated the same way and are
+# identical today, but they are a different expression, and binding them is out of scope here.
 
 set -uo pipefail
 export LC_ALL=C
@@ -67,8 +66,9 @@ add_reader() {
 }
 
 # --- 1. Extract the expressions from the scripts --------------------------------
-# check.sh wraps its copy in a function, so the program is that function plus a call. The guard
-# is not that the line is where it was, but that it is still the shape the call assumes.
+# The guards on check.sh read content, never line numbers: some line there has to strip a key:
+# prefix, and every line that does has to open a val() function, the one shape the extraction
+# below runs.
 check_hits="$(copies "$CHECK" | awk 'END { print NR }')"
 setup_hits="$(copies "$SETUP" | awk 'END { print NR }')"
 check_vals="$(copies "$CHECK" | grep -cF 'function val(')"
@@ -95,7 +95,7 @@ done < <(copies "$CHECK" | grep -F 'function val(')
 #
 # The field's name is the last `<name>:` in the pattern, whatever precedes it, because the patterns
 # are not one shape: the row fields are matched at any indentation (`/^[[:space:]]*location:/`) and
-# `layout:` only at column 0 (`/^layout:/`), since that file's own rule 2 makes an indented key part
+# `layout:` only at column 0 (`/^layout:/`), since repos.yml's rule 2 makes an indented key part
 # of a row block. Reading the name rather than the punctuation around it is what keeps a pattern
 # written some third way from landing in the message below as an unreadable line.
 while IFS= read -r line; do
@@ -118,17 +118,19 @@ done < <(copies "$SETUP")
 [ "$readers" -eq $((check_hits + setup_hits)) ] \
   || bad "built $readers runnable reader(s) from $((check_hits + setup_hits)) line(s) that strip a key: prefix — the copies this file could not run are bound by nothing"
 
-# --- 2. The lines, and the value repos.yml says each one carries ------------------
-# Every expected value here is what registries/repos.yml states, not what the readers happen to
-# do. Its rules: a value is a single-line scalar; a `#` on a value line is part of the value, not
-# a comment; and the three fields these readers touch are quoted with double quotes or not at all,
-# because a single quote is read as part of the value too.
+# --- 2. The lines, and the value each one carries ---------------------------------
+# Every expected value here is the value the line carries, not what the readers happen to do.
+# registries/repos.yml's rules settle most of them: a value is a single-line scalar; a `#` on
+# a value line is part of the value, not a comment; and the four fields these readers touch are
+# quoted with double quotes or not at all, because a single quote is read as part of the value
+# too. They say nothing about whitespace or an empty value, so the rows for those pin the plain
+# reading, spelled out beside them.
 IN="$TMP_ROOT/inputs"
 EXPECTED="$TMP_ROOT/expected"
 LABELS="$TMP_ROOT/labels"
 : > "$IN"; : > "$EXPECTED"; : > "$LABELS"
 
-# row LABEL LINE VALUE — one registry line, and the value repos.yml says it carries.
+# row LABEL LINE VALUE — one registry line, and the value it carries.
 row() {
   printf '%s\n' "$1" >> "$LABELS"
   printf '%s\n' "$2" >> "$IN"
@@ -178,10 +180,10 @@ while [ "$r" -lt "$readers" ]; do
 done
 
 # --- 4. The two assertions, per line ------------------------------------------------
-# They are independent on purpose. A reader that has drifted fails both — the schema assertion
+# They are independent on purpose. A reader that has drifted fails both — the value assertion
 # names which one is wrong, the parity assertion names what it now disagrees with — and readers
-# that agree on a wrong value fail only the first, which is the case agreement alone
-# would never have shown.
+# that agree on a wrong value fail only the first, which is the case agreement alone would never
+# have shown.
 i=0
 while [ "$i" -lt "$rows" ]; do
   i=$((i + 1))
