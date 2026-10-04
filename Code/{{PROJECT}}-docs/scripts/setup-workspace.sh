@@ -165,8 +165,8 @@ mkdir -p "$ROOT/.throughstone"
 # Nothing in this step is allowed to be fatal. A contributor who cannot reach one repository —
 # or whose registry names a path this workspace has no business writing to — must still end up
 # with a usable workspace, so every repo that does not arrive is reported and counted rather
-# than aborting the run. A registry with a row that cannot be read is the one exception to the
-# count: it is reported once, and nothing in it is cloned.
+# than aborting the run. A registry that is missing, has a row that cannot be read, or has no rows
+# at all is an exception to the count: each is reported once, and nothing is cloned.
 missing=0
 # A row is found by its `- name:` line, so a row written any other way is not read, and its fields
 # land on the row above it: that repo never arrives, or one repo's remote is cloned into another
@@ -191,8 +191,8 @@ elif awk '
   ' "$REG" 2>/dev/null; then
   # A registry with no rows in it is not a workspace with no repos: every project has a row for the
   # docs hub and one for prompts/. This arm runs after the counts above, so a registry holding
-  # entries the walk could not read has already been reported as that; what is left here is a file
-  # with nothing in it, which the counts cannot see because they agree at zero.
+  # entries the walk could not read has already been reported as that; what is left here is a
+  # registry with no rows, which the counts cannot see because they agree at zero.
   echo "Not cloning: $DOCS_REL/registries/repos.yml holds no repo rows, so there is nothing here to"
   echo "clone. Every project has a row for the docs hub and one for prompts/ — restore the rows from"
   echo "git history, then re-run this script."
