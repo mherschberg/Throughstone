@@ -261,7 +261,7 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 ├── .claude/                     ← per-machine agent config
 ├── .throughstone/               ← per-machine local user profile
 ├── init.sh                      ← one-time setup wizard (this download)
-├── doctor.sh                    ← small dispatcher for status/check/links helpers
+├── doctor.sh                    ← small wrapper that runs the status/check/links helpers
 ├── prompts/                     ← [repo] prompts/STEP-index.md roadmap + archived STEP plans/prompts
 ├── Upcoming Prompts/            ← scratch for the in-flight STEP (not a repo)
 └── Code/
