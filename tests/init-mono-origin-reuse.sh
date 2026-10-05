@@ -43,9 +43,9 @@ bare_remote() {
 #
 # The case below is named for a machine that has not installed gh, and shows that reusing an empty
 # origin never needs it. Resetting PATH to "/usr/bin:/bin" only hides gh where gh lives somewhere
-# else; on a GitHub runner gh IS /usr/bin/gh, so the case would run with gh available and every
-# assertion would still pass. Mirroring the search path and dropping the one entry is the only
-# reset that does not depend on where a particular machine installed things.
+# else; on a GitHub runner gh IS /usr/bin/gh, so the case would run with gh available and fail its
+# precondition check. Mirroring the search path and dropping the one entry is the only reset that
+# does not depend on where a particular machine installed things.
 path_without_gh() {
   local mirror="$TMP_ROOT/no-gh-bin" dir
   rm -rf "$mirror"
@@ -134,9 +134,8 @@ run_empty_origin_case() {
   grep -Fq "remote: reused existing origin ($remote)" "$TMP_ROOT/$name.out"
   # --remotes=no means attach the origin, not publish to it, and nothing above can tell the
   # difference: the reused URL is still attached and the message is still printed whether or not
-  # anything was uploaded. Replacing the MK_REMOTES guard in reuse_root_origin with `if true` sent
-  # the whole project to the user's remote against their answer and left this case green. The
-  # remote itself is the only witness -- it was created empty and has to have stayed that way.
+  # anything was uploaded. The remote itself is the only witness -- it was created empty and has to
+  # have stayed that way.
   remote_refs="$(git --git-dir="$remote" for-each-ref)"
   [ -z "$remote_refs" ] || {
     echo "FAIL: --remotes=no pushed to the reused origin" >&2
@@ -154,9 +153,9 @@ run_empty_origin_push_without_gh_case() {
 
   copy_template "$work"
   bare_remote "$remote"
-  # A bare repository keeps no record of its ref updates unless asked to. The push assertion below
-  # needs that record: it is what tells a branch that arrived here during the run apart from one
-  # the run's final push delivered.
+  # A bare repository keeps no record of its ref updates unless asked to. The reflog check at the
+  # end of this case needs that record to tell the reuse push apart from the run's final registry
+  # push, which lands on this same remote.
   git --git-dir="$remote" config core.logAllRefUpdates true
   (
     cd "$work"
@@ -186,10 +185,7 @@ run_empty_origin_push_without_gh_case() {
   grep -Fq "pushed: $remote" "$TMP_ROOT/$name.out"
 
   # A mono project records its one repository's remote on the row whose location is ".", and the
-  # check-in flags that row until it does. Nothing else in the suite reads a remote back out of a
-  # mono registry -- the multi read-back lives in tests/init-license-validation.sh -- so deleting
-  # the write left every case green while every generated mono project reported its own repo as
-  # backed up nowhere.
+  # check-in flags that row until it does. No other test checks that the remote is written there.
   root_row="$(awk '/^[[:space:]]*-[[:space:]]*name:/ { n++ } n == 1' \
     "$work/Code/$name-docs/registries/repos.yml")"
   printf '%s\n' "$root_row" | grep -Fq 'location: "."' || {
