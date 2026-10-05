@@ -4,13 +4,13 @@
 #
 # overview.md's `<!-- NEXT-CHECK-IN: … -->` line holds a STEP number or an ISO date. status.sh
 # reports it as due once that point is reached and keeps saying so; anything it cannot read —
-# including a missing line — reads as "none scheduled". Nothing here is validated anywhere else,
-# so this file is the only thing standing between a malformed value and a wrong report.
+# including a missing line — reads as "none scheduled".
 #
-# It also holds METHOD.md §10 rule 7's contract: the check-in advises and proposes, and never
-# becomes the next action. An overdue project must still be told to get on with its next STEP —
-# the case at the end asserts both halves, because a gate would satisfy every assertion above
-# while breaking the rule they exist to serve.
+# This file also tests METHOD.md §10 rule 7's contract, for a check-in scheduled by STEP number:
+# the check-in advises and proposes, and never becomes the next action. An overdue project must
+# still be told to get on with its next STEP, so the rule 7 case asserts the next action, the
+# proposal beside it and the proposal's wording. No other case would catch a gate that fires only
+# when the project is badly overdue.
 
 set -euo pipefail
 export LC_ALL=C
@@ -58,23 +58,24 @@ hasnt() {
   fi
 }
 
-# --- A STEP number: due once the index reaches it, and from then on ------------
+# --- A STEP number: due once the project reaches it, and from then on ----------
 has "$(run '<!-- NEXT-CHECK-IN: STEP-20 -->' 12)" 'next at STEP-20 (the project is at STEP-12).'
 has "$(run '<!-- NEXT-CHECK-IN: STEP-20 -->' 20)" 'due — scheduled for STEP-20, and the project is at STEP-20.'
 has "$(run '<!-- NEXT-CHECK-IN: STEP-20 -->' 41)" 'due — scheduled for STEP-20, and the project is at STEP-41.'
 
-# A hand-written leading zero is base 10, not octal. Read as octal it aborts the arithmetic and
-# takes the whole resolver down with it, so the next action disappears too — assert both. The
-# number is printed normalised, so the line reports what was read rather than what was typed.
+# A hand-written leading zero is base 10, not octal. Read as octal, 08 is an arithmetic error:
+# status.sh prints the next action, then exits 1 where the check-in line should be, and set -e
+# stops this test at the assignment below. The number is printed normalised, so the line reports
+# what was read rather than what was typed.
 zero="$(run '<!-- NEXT-CHECK-IN: STEP-08 -->' 12)"
 has "$zero" 'due — scheduled for STEP-8, and the project is at STEP-12.'
 has "$zero" 'plan STEP-12'
 
 # --- A date: compared against today, no arithmetic ----------------------------
-# Whether the proposal is offered is asserted on both arms, not just the wording of the line.
-# One flag decides it and five branches set or leave it unset; asserting it on the STEP arms
-# alone let a date-scheduled project stop being offered a check-in, or start being offered one
-# before it was due, without a single test noticing.
+# Whether the proposal is offered is asserted on both date arms, not just the wording of the
+# line. One flag carries it, and each arm decides it separately, so asserting it on the STEP arms
+# alone would let a date-scheduled project stop being offered a check-in, or start being offered
+# one before it is due, without a single test noticing.
 today="$(date +%F)"
 future="$(run '<!-- NEXT-CHECK-IN: 2999-01-15 -->' 12)"
 has   "$future" "next on 2999-01-15 (today is $today)."
@@ -106,8 +107,8 @@ for marker in '' '<!-- NEXT-CHECK-IN: -->'; do
   has "$out" 'Also worth proposing: a Check-in STEP'
 done
 
-# Two lines: the first wins. Nothing forbids a second, and a stale one left above the live one
-# would otherwise change the answer silently depending on which the extraction happened to reach.
+# Two lines: the first wins, and this case pins that. Nothing forbids a second, so a stale line
+# left above the live one is the one reported.
 two="$(run '<!-- NEXT-CHECK-IN: STEP-99 -->
 <!-- NEXT-CHECK-IN: STEP-2 -->' 12)"
 has "$two" 'next at STEP-99 (the project is at STEP-12).'
@@ -173,10 +174,11 @@ ROWS
 )"
 has "$done_phase" 'due — scheduled for STEP-20, and the project is at STEP-25.'
 
-# The position follows the resolver's own precedence, so the two halves of the output can never
-# name different STEPs. A lower Planned row sitting under an active one is the case that separates
-# precedence from "lowest of the three": taking the lowest said the project was at STEP-3 while the
-# next action said to open STEP-4, and called a check-in scheduled at STEP-4 not yet due.
+# The position is the lowest In-progress STEP, else the lowest Planned one after STEP-1, else the
+# highest row. In the next two cases that is the STEP the next action names, so the check-in line
+# and the next action agree there. A Planned row numbered below an In-progress one tells this
+# apart from taking the lowest open row, which would say the project is at STEP-3 while the next
+# action says to open STEP-4, and call a check-in scheduled at STEP-4 not yet due.
 skipped="$(run_rows STEP-4 <<'ROWS'
 | STEP-1 | Architecture | | Done | | Fixture |
 | STEP-3 | Skipped for now | | Planned | | Fixture |
@@ -201,8 +203,9 @@ has "$padded" 'next at STEP-20 (the project is at STEP-12).'
 
 # --- It advises; it never becomes the next action (METHOD.md §10 rule 7) -------
 # A badly overdue project with a Planned STEP still resolves to planning that STEP. The check-in
-# is offered beside it, marked as advice. Rule 7 sits after rule 5 in §10 for this reason, and
-# the wording is asserted so an "insert a Check-in STEP now" imperative cannot creep back in.
+# is offered beside it, marked as advice: §10 takes the first rule that matches, except rule 7,
+# which is reported alongside the next action and never in place of it. The last assert keeps out
+# the imperative "insert a Check-in STEP now", and only as that exact, case-sensitive phrase.
 out="$(run '<!-- NEXT-CHECK-IN: STEP-2 -->' 41)"
 has "$out" 'due — scheduled for STEP-2'
 has "$out" 'plan STEP-41'
