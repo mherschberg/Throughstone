@@ -1033,8 +1033,10 @@ any project built with it.
   two and no use for `--remote-url`. Passing the wrong set produced a project whose remotes
   contradicted the command that created it, with nothing in the run admitting the difference. Each
   now prints a line of the form `note: ignoring --docs-remote — mono layout has one repo` and the
-  run continues. Refusing was considered and rejected: a wrapper passing one harmless extra flag
-  should not fail, and being told is the whole of what was missing.
+  run continues as if the flag were absent: on its own it no longer turns remote setup on, and with
+  `--remotes=no` or `--remote-provider=github` it is no longer refused. Refusing was considered and
+  rejected: a wrapper passing one harmless extra flag should not fail, and being told is the whole of
+  what was missing. `INIT_REMOTE_URL`, `INIT_DOCS_REMOTE` and `INIT_PROMPTS_REMOTE` are the same story.
 
   **The same goes for an answer that cannot apply.** A mono project's one repository is the
   workspace root, so when that folder already has an empty Git origin there is nothing for
@@ -1101,7 +1103,9 @@ any project built with it.
   wrong one here. The line is now per-layout, the way the `init.sh`-deletion note beside it already
   was: a mono project is told everything in the folder is in its repository, and a multi project is
   told which two repositories hold the committed work and that files at the root are in neither.
-  Both now also say the work was **committed**, which neither of them used to mention at all.
+  Both now also say the work was **committed**, which neither of them used to mention at all. The
+  line before the remotes question is per-layout too: a multi project is told that its two
+  repositories, not the whole project, will be saved locally with Git.
 - **A mistyped argument to a helper is no longer silently ignored.** `scripts/check.sh`,
   `scripts/status.sh`, `scripts/links.sh` and `scripts/setup-workspace.sh` read no arguments at all,
   so anything passed to them was discarded without a word — `./doctor.sh status --check-in` ran an
