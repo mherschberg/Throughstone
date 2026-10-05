@@ -88,7 +88,8 @@ run_init() {
   sed -n '1,/Detaching from the template/p' "$OUT" > "$PRE"
 }
 
-# expect_refused WORK TEXT - the run exited 2, said TEXT, and changed nothing.
+# expect_refused WORK TEXT - the run exited 2, said TEXT, and stopped before the boundary with
+# the template still in place.
 expect_refused() {
   local work="$1" text="$2"
   [ "$STATUS" -eq 2 ] || fail "expected exit 2, got $STATUS"
@@ -216,7 +217,7 @@ grep -Fxq 'Plain description' "$W/Code/$CASE-docs/AGENTS.md" || fail "the second
 
 # --- the folder's own empty origin is named before anything changes ---------------------------
 
-# with_origin CASE - a template copy with an empty origin attached; sets W and ORIGIN.
+# with_origin CASE - a template copy with an empty origin attached; sets CASE, W and ORIGIN.
 with_origin() {
   CASE="$1"
   W="$TMP_ROOT/$CASE"; ORIGIN="$TMP_ROOT/$CASE-origin.git"
