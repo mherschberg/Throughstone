@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for init.sh local user profile bootstrap output.
+# Regression coverage for init.sh's local user profile bootstrap output, and for where each layout
+# puts its ignore files and what they keep out of commits.
 
 set -euo pipefail
 export LC_ALL=C
@@ -76,7 +77,7 @@ assert_profile_output "$multi_work" "Code/$multi-docs"
 assert_contains "$multi_work/Code/$multi-docs/.gitignore" "/.throughstone/local-user.md"
 assert_contains "$multi_work/prompts/.gitignore" "/.throughstone/local-user.md"
 # A multi workspace root is not a repository, so an ignore file there would be the template's own,
-# applied by ignore-honouring search to every repo below.
+# which a search that honours ignore files, run from the root, can apply to every repo below.
 [ ! -e "$multi_work/.gitignore" ] || {
   printf 'FAIL: init.sh left a .gitignore at the multi-repo workspace root\n' >&2
   exit 1
@@ -86,9 +87,9 @@ assert_contains "$multi_work/prompts/.gitignore" "/.throughstone/local-user.md"
 # so the stray-entry assertion below is unfalsifiable whenever the caller happens to have CI set
 # — which is every hosted runner. The variable is pinned here rather than left to whoever invokes
 # the test, for the same reason LC_ALL is pinned at the top of this file: an assertion whose
-# meaning depends on the ambient environment is not one, and this suite has no runner to pin it
-# on our behalf. Nothing else in the bootstrap reads CI, so this scopes to the single command
-# whose behaviour it changes.
+# meaning depends on the ambient environment is not one. The Tests workflow unsets CI too, but a
+# test run on its own inherits the caller's. Nothing else in the bootstrap reads CI, so this
+# scopes to the doctor runs, the only commands whose behaviour it changes.
 check_output="$(env -u CI "$multi_work/doctor.sh" check)"
 printf '%s\n' "$check_output" | grep -Fq \
   'overview.md has no legacy local user preference sections' || {
