@@ -11,8 +11,8 @@ TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-adr-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
 # copy_template DEST — build an init.sh fixture from HEAD, then overlay current worktree
-# changes. The overlay keeps comment-pass and bootstrap edits under test before they are
-# committed, while leaving Git metadata behind so init.sh sees a downloaded template.
+# changes. The overlay keeps uncommitted edits under test, while leaving Git metadata behind so
+# init.sh sees a downloaded template.
 copy_template() {
   local dest="$1" file
   mkdir -p "$dest"
@@ -32,7 +32,7 @@ copy_template() {
   )
 }
 
-# run_init_case NAME ARGS... — bootstrap one private multi-repo fixture and keep stdout for
+# run_init_case NAME ARGS... — bootstrap one multi-repo fixture and keep its output for
 # assertions about generated collaboration metadata.
 run_init_case() {
   local name="$1"
@@ -55,9 +55,8 @@ run_init_case() {
 
 # assert_absent FILE TEXT — fail when TEXT appears in FILE. Negative assertions are written this
 # way rather than as a top-level `! grep -Fq ...`: bash exempts a `!`-inverted command from
-# set -e, so a bare inverted grep mid-script has nowhere for its status to land. All three of the
-# ones below were inert for exactly that reason — a substitution that left every marker and the
-# solo default in place still reported PASS, because the script's status was the closing echo.
+# set -e, so a bare inverted grep that matches mid-script does not stop the script, and the
+# closing echo still reports PASS.
 assert_absent() {
   local file="$1" text="$2"
   if [ ! -f "$file" ]; then
