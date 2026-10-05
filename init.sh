@@ -1050,18 +1050,6 @@ if [ "$MK_REMOTES" = "1" ]; then
     echo "  note: --visibility records your intent only; manual remotes must already have the desired host visibility."
   fi
 fi
-if [ "$MK_REMOTES" = "1" ]; then
-  if [ "$REMOTE_PROVIDER" = "manual" ]; then
-    if [ "$LAYOUT" = "1" ] && { [ -z "$DOCS_REMOTE" ] || [ -z "$PROMPTS_REMOTE" ]; }; then
-      echo "init.sh: manual multi-repo remotes need --docs-remote and --prompts-remote." >&2
-      exit 2
-    fi
-    if [ "$LAYOUT" = "2" ] && ! root_origin_can_be_reused && [ -z "$REMOTE_URL" ]; then
-      echo "init.sh: manual mono-repo remotes need --remote-url unless an empty root origin can be reused." >&2
-      exit 2
-    fi
-  fi
-fi
 # The folder's own empty origin decides where the project ends up, and nothing earlier shows it, so
 # it is named on every path that keeps it.
 if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
