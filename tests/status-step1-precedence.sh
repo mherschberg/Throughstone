@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for the STEP-1 row's authority over its own substeps in status.sh.
+# Regression coverage for the STEP-1 row's authority over its own substeps in status.sh, and for
+# how the resolver reads an Abandoned or zero-padded substep.
 #
 # METHOD.md §10 resolves the next action top-down and the first matching rule wins, with the
 # index authoritative for which STEP is next. The substep rules sit near the top of that walk,
-# so they have to be gated on the STEP-1 row: a STEP-1 marked Done over a still-open substep
-# used to report "Architecture (STEP-1) in progress" and send the reader back into an
-# architecture session, and — because that rule stops the walk — it kept reporting it for the
-# rest of the project's life, hiding whatever STEP was actually in flight.
+# so they have to be gated on the STEP-1 row. Without the gate, a STEP-1 marked Done over a
+# still-open substep reads as "Architecture (STEP-1) in progress" and sends the reader back into
+# an architecture session, and — because that rule stops the walk — keeps reading that way for
+# the rest of the project's life, hiding whatever STEP is actually in flight.
 #
 # The two directions of the same disagreement are both asserted here. The row wins in each:
 # Done over an open substep means architecture is over, and an open row under substeps that are
@@ -55,8 +56,7 @@ assert_contains() {
   fi
 }
 
-# assert_absent OUTPUT UNEXPECTED — the routed-backwards answers are what this file exists to
-# keep out, so they are asserted against directly rather than only implied by the right answer.
+# assert_absent OUTPUT UNEXPECTED — fail if OUTPUT holds the wording a case rules out.
 assert_absent() {
   local output="$1" unexpected="$2"
   if printf '%s\n' "$output" | grep -Fq "$unexpected"; then
@@ -70,7 +70,8 @@ open_substeps='| 1.1 | System Overview | Done | architecture/01-system-overview.
 | 1.7 | Data Model | Planned | architecture/07-data-model.md |'
 
 # A STEP-1 row marked Done closes architecture even with sessions left open — the state an
-# adopted codebase lands in, since its baseline closes STEP-1 without running every session.
+# adopted codebase lands in, since its baseline marks STEP-1 Done and leaves the sessions it ran
+# at their Planned seed.
 # The next action is the planning session, not the open substep.
 write_index \
 '| STEP-1 | Architecture | | Done | | Fixture |' \
@@ -81,9 +82,7 @@ assert_contains "$output" 'run the planning session'
 assert_absent "$output" 'Run STEP-1.7'
 assert_absent "$output" 'Architecture (STEP-1) in progress'
 
-# The same index once the project is building. This is the case that made the defect permanent
-# rather than momentary: the substep rule stops the walk, so the STEP in flight was never
-# reached and every later status call repeated the architecture answer.
+# The same index once a later STEP is In progress: the resolver reaches it past the open substep.
 write_index \
 '| STEP-1 | Architecture | | Done | | Fixture |
 | STEP-5 | Build the thing | | In progress | | Fixture |' \
@@ -152,8 +151,9 @@ assert_contains "$output" 'in progress — 2/3 substeps complete.'
 assert_contains "$output" 'Run STEP-1.8: API Design.'
 assert_absent "$output" 'Run STEP-1.7'
 
-# A zero-padded substep number is still a number, on either side of the dot: 1.08 is the next
-# session and 08.1 sorts after it, rather than either being dropped by octal arithmetic.
+# A zero-padded substep number is still a number, on either side of the dot (1.08, 08.1). Read as
+# octal, 08 is an arithmetic error; 1.08 is the first open row, so the answer comes out right
+# either way, and the error assert is what catches it.
 write_index \
 '| STEP-1 | Architecture | | In progress | | Fixture |' \
 '| 1.07 | Data Model | Done | architecture/07-data-model.md |
