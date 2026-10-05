@@ -1162,6 +1162,18 @@ run_remote_menu_case() {
     return 1
   }
   [ "$(git -C "$work/Code/$name-docs" remote get-url origin)" = "$remote_root/$name-docs.git" ]
+  # Before the remotes question the run says what Git will save. In multi that is the two
+  # repositories, by name, not "your project": the workspace root is not a repository.
+  grep -Fq "Your project's two repositories, Code/$name-docs/ and prompts/," \
+    "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — the remotes question does not name the two repositories Git saves" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  if grep -Fq "Your project will be saved locally with Git" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name — the remotes question says the whole multi-repo project is saved" >&2
+    return 1
+  fi
   assert_maintainer_tests_removed "$name" "$work"
 }
 
@@ -1285,6 +1297,111 @@ run_ignored_flag_multi_case() {
     return 1
   fi
   assert_maintainer_tests_removed "$name" "$work"
+}
+
+# run_ignored_flag_alone_case — a flag the layout drops does not turn remote setup on.
+#
+# A URL flag counts as asking for remotes only in the layout that reads it. Passed alone, the other
+# layout's flag is named and changes nothing: in mono the folder's empty origin is kept and nothing
+# is pushed, as with no flag at all, and in multi no remote is attached and no URL is asked for.
+# Beside --remote-provider=github it is not refused either: GitHub creates the one repository.
+run_ignored_flag_alone_case() {
+  local name="ignored-flag-alone" status
+  local work="$TMP_ROOT/$name" multi_work="$TMP_ROOT/$name-multi" gh_work="$TMP_ROOT/$name-gh"
+  local origin="$TMP_ROOT/$name-origin.git" unused="$TMP_ROOT/$name-unused.git"
+  local stub_bin="$TMP_ROOT/$name-bin" remote_root="$TMP_ROOT/$name-remotes"
+  local gh_log="$TMP_ROOT/$name-gh.log"
+
+  copy_template "$work"
+  bare_remote "$origin"
+  bare_remote "$unused"
+  ( cd "$work" && git init -q && git remote add origin "$origin" )
+  set +e
+  (
+    cd "$work"
+    ./init.sh --non-interactive --slug="$name" --desc="Ignored flag alone test" \
+      --license=proprietary --layout=mono --collab=solo --docs-remote="$unused"
+  ) >"$TMP_ROOT/$name.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name — the run did not finish (exit $status)" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  grep -Fq "note: ignoring --docs-remote — mono layout has one repo" "$TMP_ROOT/$name.out" || {
+    echo "FAIL: $name — --docs-remote was dropped without saying so" >&2
+    cat "$TMP_ROOT/$name.out" >&2
+    return 1
+  }
+  if [ -n "$(git --git-dir="$origin" for-each-ref)" ] \
+    || [ -n "$(git --git-dir="$unused" for-each-ref)" ]; then
+    echo "FAIL: $name — an ignored flag turned remote setup on, and something was pushed" >&2
+    return 1
+  fi
+  [ "$(git -C "$work" remote get-url origin)" = "$origin" ] || {
+    echo "FAIL: $name — the folder's empty origin was not kept" >&2
+    return 1
+  }
+  assert_maintainer_tests_removed "$name" "$work"
+
+  copy_template "$multi_work"
+  set +e
+  (
+    cd "$multi_work"
+    ./init.sh --non-interactive --slug="$name-multi" --desc="Ignored flag alone multi test" \
+      --license=proprietary --layout=multi --collab=solo --remote-url="$unused"
+  ) >"$TMP_ROOT/$name-multi.out" 2>&1
+  status=$?
+  set -e
+  # Under --non-interactive a URL question stops the run, so finishing shows none was asked.
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name-multi — the run did not finish (exit $status)" >&2
+    cat "$TMP_ROOT/$name-multi.out" >&2
+    return 1
+  }
+  grep -Fq "note: ignoring --remote-url — multi layout has two repos" \
+    "$TMP_ROOT/$name-multi.out" || {
+    echo "FAIL: $name-multi — --remote-url was dropped without saying so" >&2
+    cat "$TMP_ROOT/$name-multi.out" >&2
+    return 1
+  }
+  if [ -n "$(git -C "$multi_work/Code/$name-multi-docs" remote)" ] \
+    || [ -n "$(git -C "$multi_work/prompts" remote)" ] \
+    || [ -n "$(git --git-dir="$unused" for-each-ref)" ]; then
+    echo "FAIL: $name-multi — an ignored flag turned remote setup on" >&2
+    return 1
+  fi
+  assert_maintainer_tests_removed "$name-multi" "$multi_work"
+
+  copy_template "$gh_work"
+  mkdir -p "$stub_bin" "$remote_root"
+  cp "$ROOT/tests/fixtures/gh-stub.sh" "$stub_bin/gh"
+  chmod +x "$stub_bin/gh"
+  : > "$gh_log"
+  set +e
+  (
+    cd "$gh_work"
+    PATH="$stub_bin:$PATH" GH_LOG="$gh_log" GH_REMOTE_ROOT="$remote_root" \
+      ./init.sh --non-interactive --slug="$name-gh" --desc="Ignored flag beside github test" \
+        --license=proprietary --layout=mono --collab=solo --remotes=yes \
+        --remote-provider=github --owner=throughstone-test --docs-remote="$unused"
+  ) >"$TMP_ROOT/$name-gh.out" 2>&1
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    echo "FAIL: $name-gh — a dropped flag stopped a GitHub run (exit $status)" >&2
+    cat "$TMP_ROOT/$name-gh.out" >&2
+    return 1
+  }
+  [ "$(git -C "$gh_work" remote get-url origin)" = "$remote_root/$name-gh.git" ] || {
+    echo "FAIL: $name-gh — the repository GitHub created was not attached" >&2
+    return 1
+  }
+  if [ -n "$(git --git-dir="$unused" for-each-ref)" ]; then
+    echo "FAIL: $name-gh — the dropped flag's URL was written to" >&2
+    return 1
+  fi
 }
 
 # run_github_choice_discarded_case — an answer that cannot apply is named, the way a flag is.
@@ -1846,6 +1963,7 @@ run_end_of_input_case
 run_remote_menu_case
 run_ignored_flag_case
 run_ignored_flag_multi_case
+run_ignored_flag_alone_case
 run_github_choice_discarded_case
 run_slug_message_case
 run_licence_vocabulary_case
@@ -1954,7 +2072,6 @@ adopted_repo() {
   rm -rf "$1"
   mkdir -p "$1"
   printf 'MIT License\n\nCopyright (c) 2020 Another Team\n' > "$1/LICENSE"
-  printf 'their license\n' > "$1/.license-fingerprint"
   cp "$1/LICENSE" "$1/.license-fingerprint"
 }
 
