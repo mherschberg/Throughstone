@@ -110,7 +110,7 @@ if init_once "$fresh" acme --layout=mono >"$TMP_ROOT/rerun.out" 2>&1; then
   exit 1
 fi
 grep -Fq "The root pointers carry no template marker" "$TMP_ROOT/rerun.out" \
-  || { echo "FAIL: re-run refusal did not print the fresh-template message" >&2; cat "$TMP_ROOT/rerun.out" >&2; exit 1; }
+  || { echo "FAIL: re-run refusal did not name the marker check" >&2; cat "$TMP_ROOT/rerun.out" >&2; exit 1; }
 commits_after="$(git -C "$fresh" rev-list --count HEAD 2>/dev/null || echo 0)"
 [ "$commits_after" = "$commits_before" ] \
   || { echo "FAIL: re-run destroyed the generated repo's history ($commits_before -> $commits_after)" >&2; exit 1; }
