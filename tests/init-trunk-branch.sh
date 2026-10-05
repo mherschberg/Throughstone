@@ -121,8 +121,8 @@ run_manual_remote_custom_case() {
   # value is not compared, because how many commits separate the two pushes is init.sh's business,
   # not this test's.
   git --git-dir="$docs_remote" rev-parse --verify --quiet "refs/heads/master@{1}" >/dev/null || {
-    echo "FAIL: the docs trunk reached its remote only once, so nothing here covers" >&2
-    echo "      setup_remote's push -- only the registry push that follows it" >&2
+    echo "FAIL: the docs trunk did not reach its remote twice: setup_remote's push or the" >&2
+    echo "      registry push that follows it did not arrive" >&2
     return 1
   }
   git --git-dir="$prompts_remote" rev-parse --verify refs/heads/master >/dev/null
@@ -173,8 +173,8 @@ run_mono_reused_origin_custom_case() {
   # whether or not the first push happened. A second reflog entry for the trunk is the part only
   # the earlier push can account for.
   git --git-dir="$remote" rev-parse --verify --quiet "refs/heads/release/stable@{1}" >/dev/null || {
-    echo "FAIL: the trunk reached the reused origin only once, so nothing here covers" >&2
-    echo "      the reuse push -- only the registry push that follows it" >&2
+    echo "FAIL: the trunk did not reach the reused origin twice: the reuse push or the" >&2
+    echo "      registry push that follows it did not arrive" >&2
     return 1
   }
   assert_only_branch "$remote" refs/heads/release/stable
