@@ -214,8 +214,8 @@ run_empty_origin_push_without_gh_case() {
   # compared, because how many commits separate the two pushes is init.sh's business, not this
   # test's.
   git --git-dir="$remote" rev-parse --verify --quiet "refs/heads/main@{1}" >/dev/null || {
-    echo "FAIL: the trunk reached the reused origin only once, so nothing here covers the" >&2
-    echo "      reuse push -- only the registry push that follows it" >&2
+    echo "FAIL: the trunk did not reach the reused origin twice: the reuse push or the" >&2
+    echo "      registry push that follows it did not arrive" >&2
     return 1
   }
   # And it must have arrived alone. A run that quietly published a second branch to a remote the
