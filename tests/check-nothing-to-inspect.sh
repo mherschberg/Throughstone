@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for the every-run doctor checks that read rows out of a table, or templates
-# out of a folder, when there is nothing there to read: scripts/check.sh's duplicate-STEP,
-# duplicate-ADR, ADR registry-against-files, status and conditional-template checks — and for the
-# one row the status check skips on purpose, a table's separator, which a data row with a Status
-# of only dashes, or none, must not pass for.
+# Regression coverage for every-run doctor checks that read rows out of a table, templates out of
+# a folder, or sections out of overview.md, when there is nothing there to read: scripts/check.sh's
+# duplicate-STEP, duplicate-ADR, status, legacy-profile and conditional-template checks. It also
+# covers the ADR registry-against-files check when two ADR files carry one number, and the one row
+# the status check skips on purpose, a table's separator, which a data row with a Status of only
+# dashes, or none, must not pass for.
 #
 # The defect under test is a clean PASS over rows the check never read — an emptied STEP index or
 # ADR registry, a STEP table whose Status header was renamed, a missing session-templates folder,
 # a second ADR file under a number already counted, or a data row skipped as a separator. So
-# every case refutes its section's PASS as well as expecting the WARN or FAIL: that finding alone
-# could be printed beside a PASS that still vouches for rows nobody read.
+# every case that expects a WARN or FAIL also refutes its section's PASS: the finding could be
+# printed beside a PASS that still vouches for rows nobody read.
 #
 # Half of the rule is staying quiet. Some zeros are how a project starts — no ADR yet — or a
 # choice a project may make — deleting the optional conditional templates — and a doctor that
@@ -18,12 +19,14 @@
 # the row counts its pass lines print, and the deliberate deletion is asserted to pass.
 #
 # A file that is not in the checkout at all is the third shape. A doctor run does not always see
-# the whole workspace — the STEP index lives in the prompts/ repo, and a generated project's CI
-# checks out one repo on its own — so the line about the absence is the whole of what its reader
-# gets, and it has to name what is missing instead of guessing why.
+# the whole workspace — in a multi-repo project, the STEP index lives in the prompts/ repo and the
+# generated project's CI checks out the docs hub on its own — so the line about the absence is the
+# whole of what its reader gets, and it has to name what is missing rather than guess that the
+# project was never set up.
 #
 # Findings are read out of each check's own section, found by its title rather than its number,
-# with their severity marker. Every case breaks its own copy of one generated project.
+# with their severity marker. Case 1 runs the doctor on the generated project as it is; every
+# later case changes copies of its own.
 
 set -uo pipefail
 export LC_ALL=C
@@ -58,8 +61,9 @@ copy_template() {
   )
 }
 
-# bootstrap — generate the project every case copies, and echo its workspace root. The checks
-# under test read the same files in either layout.
+# bootstrap — generate the project the cases run on, and echo its workspace root. It is
+# multi-repo because case 7 expects a clause that check 1 prints only in that layout; case 7
+# also declares one copy mono to test the other layout.
 bootstrap() {
   local work="$TMP_ROOT/$SLUG"
   copy_template "$work"
@@ -82,7 +86,7 @@ bootstrap() {
   printf '%s\n' "$work"
 }
 
-# fixture LABEL — a fresh copy of the generated project for one case to break. The doctor finds
+# fixture LABEL — a fresh copy of the generated project for one case to change. The doctor finds
 # its root from its own path, so the copy is a project in its own right.
 fixture() {
   cp -R "$base" "$TMP_ROOT/case-$1"
@@ -266,7 +270,8 @@ refute "[PASS]" "dash or blank status"
 # The STEP index is in the prompts/ repo, so a checkout of the docs hub alone never has it and
 # nothing is wrong: the generated project's own CI runs exactly that way. A message reading the
 # absence as an uninitialized project sends whoever is looking to go and fix a project that is
-# fine, so the warning names the file, says which repo it is in, and stops there.
+# fine, so the warning names the file, says which repo it is in and why a docs-hub checkout
+# lacks it, and stops there.
 c="$(fixture no-prompts-repo)"
 rm -rf "${c:?}/prompts"
 doctor "$c"
@@ -292,9 +297,9 @@ refute "in a multi-repo project the roadmap is the prompts/ repo" "a mono projec
 refute "[PASS]" "a mono project with no STEP index"
 [ "$DOC_STATUS" -eq 0 ] || bad "a mono project with no STEP index — a WARN must not change the exit code, got $DOC_STATUS"
 
-# overview.md is the docs hub's own file, and check.sh is run from inside that hub, so its
-# absence says nothing about how much of the workspace is here — only that there is nothing to
-# read the legacy sections out of.
+# overview.md is the docs hub's own file, and check.sh is itself a file in that hub, so a missing
+# overview.md says nothing about how much of the workspace is here — only that there is nothing
+# to read the legacy sections out of.
 c="$(fixture no-overview)"
 rm -f "$c/Code/$SLUG-docs/overview.md"
 doctor "$c"
