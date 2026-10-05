@@ -25,7 +25,7 @@ say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 # the answer is one of its valid options, and blank is never one of them.
 #
 # End of input is not an answer. When input runs out, a question with a default takes its default,
-# and a question without one stops the run with an error naming the question. Otherwise an
+# and a question without one stops the run with an error that quotes its prompt. Otherwise an
 # unattended run (an agent, a script, `< /dev/null`) would get blank answers forever, so a question
 # that re-asks until the answer is valid, like the slug question, would never end. The yesno and
 # want helpers follow the same rule.
@@ -861,8 +861,22 @@ check_github_ready() {
 MK_REMOTES=0; REMOTE_PROVIDER=""; OWNER=""; REMOTE_URL=""; DOCS_REMOTE=""; PROMPTS_REMOTE=""
 REMOTE_VISIBILITY=private
 GH_NEW_REPOS=""
+# Each layout reads only the URL flags that match its shape. The other layout's flags are dropped
+# and do not count as asking for remotes. Say so rather than refuse: a wrapper that passes the same
+# flag set to every project would break on a refusal, and an unusable URL is harmless. Say so rather
+# than stay silent: the alternative is a project whose remotes contradict the command that created
+# it, with nothing in the run admitting the difference.
 HAS_MANUAL_REMOTE_INPUT=0
-[ -n "$REMOTE_URL_IN$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] && HAS_MANUAL_REMOTE_INPUT=1
+if [ "$LAYOUT" = "2" ]; then
+  # One repository, so the two multi-repo URL flags have nothing to attach to.
+  [ -z "$DOCS_REMOTE_IN" ] || echo "  note: ignoring --docs-remote — mono layout has one repo"
+  [ -z "$PROMPTS_REMOTE_IN" ] || echo "  note: ignoring --prompts-remote — mono layout has one repo"
+  [ -z "$REMOTE_URL_IN" ] || HAS_MANUAL_REMOTE_INPUT=1
+else
+  # Two repositories and no single one, so --remote-url has nothing to attach to.
+  [ -z "$REMOTE_URL_IN" ] || echo "  note: ignoring --remote-url — multi layout has two repos"
+  [ -z "$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] || HAS_MANUAL_REMOTE_INPUT=1
+fi
 if [ -n "$REMOTES_IN" ]; then
   normalize_yesno "$REMOTES_IN" \
     || { echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2; }
@@ -871,7 +885,12 @@ elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
   MK_REMOTES=1
 elif [ "$NONINTERACTIVE" != "1" ]; then
   echo "Online backup / sharing (optional):"
-  echo "  Your project will be saved locally with Git."
+  if [ "$LAYOUT" = "2" ]; then
+    echo "  Your project will be saved locally with Git."
+  else
+    echo "  Your project's two repositories, Code/${SLUG}-docs/ and prompts/,"
+    echo "  will be saved locally with Git."
+  fi
   echo "  A Git remote is an online copy on GitHub, Bitbucket, GitLab, or another Git host."
   echo "  You can skip this now and add one later."
   if ! yesno "Set up online Git remotes now?"; then
@@ -980,31 +999,15 @@ if [ "$MK_REMOTES" = "1" ]; then
       echo "init.sh: --owner is only used with --remote-provider=github." >&2
       exit 2
     fi
-    # Each layout reads the URL flags that match its shape and has no use for the others, so one
-    # of the two sets is always dropped. Say so rather than refuse: a wrapper that passes the same
-    # flag set to every project would break on a refusal, and an unusable URL is harmless. Say so
-    # rather than stay silent: the alternative is a project whose remotes contradict the command
-    # that created it, with nothing in the run admitting the difference. Both directions are here
-    # because a rule that held in one layout only would be the same defect wearing the other hat.
+    # Only the layout's own URL flags are read here; the others were named and dropped where
+    # HAS_MANUAL_REMOTE_INPUT is set.
     if [ "$LAYOUT" = "2" ]; then
-      # One repository, so the two multi-repo URL flags have nothing to attach to.
-      if [ -n "$DOCS_REMOTE_IN" ]; then
-        echo "  note: ignoring --docs-remote — mono layout has one repo"
-      fi
-      if [ -n "$PROMPTS_REMOTE_IN" ]; then
-        echo "  note: ignoring --prompts-remote — mono layout has one repo"
-      fi
       if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
         REMOTE_URL=""
       else
         REMOTE_URL="$(want "$REMOTE_URL_IN" 'Project repo remote URL')"
       fi
     else
-      # Two repositories and no single one, so --remote-url has nothing to attach to. Nothing here
-      # asks for the workspace root's URL, because in this layout the root is not a repository.
-      if [ -n "$REMOTE_URL_IN" ]; then
-        echo "  note: ignoring --remote-url — multi layout has two repos"
-      fi
       DOCS_REMOTE="$(want "$DOCS_REMOTE_IN" 'Docs repo remote URL')"
       PROMPTS_REMOTE="$(want "$PROMPTS_REMOTE_IN" 'Prompts repo remote URL')"
       # Each URL passes the emptiness check below on its own, so the same one given twice would
@@ -1045,12 +1048,6 @@ fi
 if [ "$MK_REMOTES" = "1" ]; then
   if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$VISIBILITY_IN" ]; then
     echo "  note: --visibility records your intent only; manual remotes must already have the desired host visibility."
-  fi
-fi
-if [ "$MK_REMOTES" = "1" ]; then
-  if [ "$REMOTE_PROVIDER" = "github" ] && [ -n "$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN$REMOTE_URL_IN" ]; then
-    echo "init.sh: remote URL flags are not used with --remote-provider=github." >&2
-    exit 2
   fi
 fi
 if [ "$MK_REMOTES" = "1" ]; then
