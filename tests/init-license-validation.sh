@@ -2192,7 +2192,7 @@ grep -Fq "unknown option: --notice_only" "$TMP_ROOT/notice-badflag.out"
 [ "$notice_twotargets_status" -eq 2 ]
 grep -Fq "unexpected extra argument" "$TMP_ROOT/notice-twotargets.out"
 [ "$notice_nodir_status" -eq 2 ]
-grep -Fq "target directory does not exist" "$TMP_ROOT/notice-nodir.out"
+grep -Fq "target is not a directory" "$TMP_ROOT/notice-nodir.out"
 [ "$notice_noargs_status" -eq 2 ]
 grep -Fq "[--notice-only] TARGET_REPO" "$TMP_ROOT/notice-noargs.out"
 
