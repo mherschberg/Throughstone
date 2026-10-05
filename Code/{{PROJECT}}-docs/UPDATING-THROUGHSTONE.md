@@ -343,26 +343,6 @@ each 2.0 change lands. Nothing here rewrites project files. The adoption machine
 greenfield-inert; the couple of general robustness fixes at the end change only error/corruption and
 re-run paths, never normal operation.
 
-**`control:` field on repo rows.** `registries/repos.yml` gains a per-row `control:` field recording
-whether Throughstone may write into each repo — `managed` (it may) or `external` (it is recorded and
-referenced, never written into). The field is **inert in this release**: nothing reads it yet, and
-nothing changes about how your project behaves whether you add it or not. The readers arrive with the
-repo-control work in a later release.
-
-**Add `control: managed` to each repo entry you want Throughstone to keep maintaining.** This is the
-one thing worth doing now rather than later, because **a missing value will read as `external`** once
-the readers land — control is a permission, and an unanswered permission is not granted, so the method
-records the repo and writes nothing into it until somebody answers. Adding the line while it is inert
-means nothing changes under you when that release arrives; leaving it means your rows arrive at the
-control work unanswered and get surfaced then. Either way you are asked before anything stops, never
-silently switched.
-
-Adding the field is a **safe additive edit**: it inserts one line per row and changes no existing data.
-`registries/repos.yml` is project state (a registry, like `inputs/inputs-index.md`), so this is
-**review-required and never auto-overwritten** — updater tooling adds the line to each row for your
-review rather than replacing the file. Pull the updated `registries/repos.yml` header (which documents
-the field and the default) alongside it.
-
 **Recon-map report template.** A new `templates/reports/recon-map-report-template.md` (plus a short
 "Recon Map Report" section in `reports/README.md`) ships for existing-codebase adoption — the
 point-in-time map an adoption produces at STEP-1. It is **future-only and greenfield-inert**: a
