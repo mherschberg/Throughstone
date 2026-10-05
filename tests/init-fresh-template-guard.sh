@@ -15,12 +15,12 @@
 #   a fresh unpacked template (no .git)        an already-initialized project (no sentinel)
 #                                              init.sh alone in someone else's repository
 #   a clone of the template's own history      history that is not the template's
-#   `git init` beside the template, empty      a repo tracking files the template does not ship
-#                                              an unborn HEAD with commits on another branch
+#                                              a repo tracking files the template does not ship
+#   `git init` beside the template, empty      an unborn HEAD with commits on another branch
 #                                              an unborn HEAD with files staged, never committed
 #   the template's own plain prompts/          a repository of someone else's under prompts/
 #
-# The last check pins the template's root-entry list, which the guard carries as a literal, to the
+# The last case pins the template's root-entry list, which the guard carries as a literal, to the
 # template itself so it cannot rot.
 
 set -euo pipefail
@@ -31,7 +31,7 @@ TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-fresh-guard-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
 # copy_template DEST — build an init.sh fixture from HEAD, then overlay current worktree changes so
-# this test covers uncommitted bootstrap edits (same helper as the sibling init tests).
+# this test covers uncommitted bootstrap edits. The sibling init tests carry copies of it.
 copy_template() {
   local dest="$1" file
   mkdir -p "$dest"
@@ -74,7 +74,8 @@ assert_refused() {
     || { echo "FAIL: $name — refusal did not name the expected check ('$reason')" >&2; cat "$TMP_ROOT/$name.out" >&2; exit 1; }
 }
 
-# assert_history_intact NAME DIR SHA — refusing must leave the user's repository exactly as found.
+# assert_history_intact NAME DIR SHA — refusing must leave the user's .git directory, their commit
+# SHA and their app.py in place.
 assert_history_intact() {
   local name="$1" dir="$2" sha="$3"
   [ -d "$dir/.git" ] \
@@ -135,8 +136,8 @@ init_once "$empty_repo" emptyrepo --layout=multi >"$TMP_ROOT/empty-repo.out" 2>&
   || { echo "FAIL: guard blocked an empty repo attached to a fresh template" >&2; cat "$TMP_ROOT/empty-repo.out" >&2; exit 1; }
 
 # --- 5. init.sh alone, dropped into a repository that is not the template, is refused. --------
-# The marker check is the first line of defence and the only one that can fire when there are no
-# template files present at all — someone who fetched just this script and ran it where they stood.
+# No other template file is here: someone fetched just this script and ran it in their own
+# repository. The marker check comes first, so it is the one that refuses.
 alone="$TMP_ROOT/alone"
 alone_sha="$(seed_user_repo "$alone")"
 cp -p "$ROOT/init.sh" "$alone/init.sh"
@@ -164,8 +165,8 @@ assert_refused "committed" "$committed" "which Throughstone does not ship"
 assert_history_intact "committed" "$committed" "$committed_sha"
 
 # --- 8. An unborn HEAD inside a live repository is refused. -----------------------------------
-# `git checkout --orphan` leaves no HEAD and an index the user may well have cleared, but every
-# commit is still reachable from the branch they came from.
+# `git checkout --orphan` leaves HEAD unborn and an index the user may well have cleared, but
+# every commit is still reachable from the branch they came from.
 orphan="$TMP_ROOT/orphan"
 orphan_sha="$(seed_user_repo "$orphan")"
 ( cd "$orphan" && git checkout -q --orphan blank && git rm -rq --cached . )
@@ -184,11 +185,10 @@ assert_refused "staged" "$staged" "staged files that were never committed"
   || { echo "FAIL: staged — init.sh cleared the user's index before refusing" >&2; exit 1; }
 
 # --- 10. A repository of someone else's under prompts/ is refused. -----------------------------
-# Checks 1-4 only ever read the workspace root, and the multi layout initializes a second durable
-# repo one directory down. Without this check init_repo ran `git init && git add -A && git commit
-# && git branch -M` inside whatever was already there: a commit added to history that is not this
-# project's, the branch it was on renamed, and exit 0. Nothing above catches it — the root here is
-# an ordinary unpacked template and passes every one of them.
+# The root here is an ordinary unpacked template with no .git, so init.sh's check 1 passes it and
+# checks 2-4 do not run. Only check 5 looks at prompts/, which the multi layout makes a repository.
+# Without check 5, init_repo would commit into the repository already there and rename its branch,
+# and the run would exit 0.
 nested="$TMP_ROOT/nested-prompts"
 copy_template "$nested"
 ( cd "$nested/prompts" && git init -q && printf 'my prompt\n' > mine.md && git add -A \
@@ -215,9 +215,9 @@ grep -Fq "prompts/ is already a Git repository" "$TMP_ROOT/nested.out" \
   || { echo "FAIL: nested-prompts — init.sh crossed the destructive boundary before refusing" >&2; exit 1; }
 
 # --- 11. The template's own prompts/ still proceeds (the matching must-proceed case). ----------
-# Every other case in this file leaves prompts/ a plain directory, so this pairing is already
-# carried by case 1 above; assert it here too, next to the refusal it bounds, because a check
-# written as `[ -e prompts ]` would pass every assertion in section 10 and refuse every project.
+# Cases 1, 3 and 4 already carry this pairing, since their prompts/ is a plain directory too;
+# assert it here as well, next to the refusal it bounds, because a check written as
+# `[ -e prompts ]` would pass every assertion in case 10 and refuse every project.
 plain_prompts="$TMP_ROOT/plain-prompts"
 copy_template "$plain_prompts"
 [ -d "$plain_prompts/prompts" ] && [ ! -e "$plain_prompts/prompts/.git" ] \
