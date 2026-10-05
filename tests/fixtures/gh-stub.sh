@@ -31,24 +31,26 @@ case "${1:-} ${2:-}" in
     ;;
 esac
 
-# Otherwise only `gh repo create OWNER/NAME ...` is modeled. The stub creates a local bare repository,
-# adds it as origin in the current checkout, and pushes -- matching the init.sh side effects
-# under test.
+# Otherwise only `gh repo create OWNER/NAME ...` is modeled. The stub creates a local bare
+# repository and, when the options ask for it, attaches it in the current checkout and pushes --
+# the side effects init.sh relies on.
 #
 # The push is the point, not a detail. init.sh invokes this with --push and treats a zero exit
 # as proof that the branch is on the remote: on that basis it records the remote's URL in
-# registries/repos.yml. A stub that created the repository and stopped reported success for an
-# upload that had not happened, so the tests modelled init.sh recording a remote for a provably
-# empty repository -- the one thing the registry is supposed never to claim.
+# registries/repos.yml. A stub that created and attached the repository but did not push would
+# report success for an upload that never happened, and the tests would model init.sh recording
+# a remote the branch never reached, which the registry must never name.
 if [ "${1:-}" != "repo" ] || [ "${2:-}" != "create" ] || [ -z "${3:-}" ]; then
   echo "gh-stub.sh: unsupported command: $*" >&2
   exit 2
 fi
 
-# The side effects are driven by the options, not assumed. `gh repo create` only attaches a
-# remote when told which local checkout to use and what to call it, and only uploads when told to
-# -- so a stub that always did both would keep reporting success after those options were dropped
-# from init.sh, and the tests would not notice. Model the contract; do not stand in for it.
+# The side effects are driven by the options, not assumed. `gh repo create` attaches a remote only
+# when told which local checkout to use (--source), naming it origin unless --remote names another,
+# and uploads only when told to (--push) -- so a stub that always did both would keep reporting
+# success after --source or --push was dropped from init.sh, and the tests would not notice. Model
+# the contract; do not stand in for it. The stub differs from gh here: without --remote it still
+# exits 0, but attaches nothing and pushes nothing.
 want_source=0; want_remote=""; want_push=0
 for arg in "$@"; do
   case "$arg" in
@@ -60,10 +62,11 @@ done
 
 repo_name="${3##*/}"
 remote="$GH_REMOTE_ROOT/$repo_name.git"
-# `main` is what a real `gh repo create` hands back. Without a branch here the repo is born
-# pointing at `init.defaultBranch` -- `refs/heads/master` wherever that is unset -- and while the
-# push below corrects HEAD on the path that pushes, the path that does not leaves a repository
-# whose HEAD names a branch anything pushed to it later will not be on.
+# `main` is the branch a real `gh repo create` starts a repository on unless the account sets
+# another. Without a branch here the repo is born pointing at `init.defaultBranch` --
+# `refs/heads/master` wherever that is unset -- and while the `symbolic-ref` after the push below
+# repoints HEAD on the path that pushes, the path that does not leaves a repository whose HEAD
+# names a branch anything pushed to it later will not be on.
 git init --bare -q -b main "$remote"
 
 # --source tells gh which checkout to attach; without it there is nothing to attach or upload.
@@ -73,7 +76,7 @@ if [ "$want_push" = "1" ] && [ -n "$want_remote" ]; then
   branch="$(git symbolic-ref --short HEAD)"
   git push -q -u "$want_remote" "$branch"
   # A real host leaves the created repository pointing at the branch it received. Without this the
-  # bare repo's HEAD names the branch `git init` defaulted to, which never arrives, and a later
-  # clone of it checks nothing out.
+  # bare repo's HEAD stays at main, so when the trunk has another name a later clone of it checks
+  # nothing out.
   git --git-dir="$remote" symbolic-ref HEAD "refs/heads/$branch"
 fi
