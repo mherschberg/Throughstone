@@ -11,7 +11,7 @@ STATUS="$ROOT/Code/{{PROJECT}}-docs/scripts/status.sh"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-status-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
-# write_index PATH ROWS — write the minimum STEP table the resolver needs.
+# write_index PATH ROWS — write an index whose only table is a STEP table holding ROWS.
 # Its header keeps the retired Repos (projection) column, as an existing project's index may.
 write_index() {
   local path="$1" rows="$2"
@@ -40,8 +40,7 @@ assert_contains() {
   fi
 }
 
-# assert_absent OUTPUT UNEXPECTED — an arm that answers correctly while the wrong answer is still
-# in the output is not fixed, so the displaced wording is asserted against directly.
+# assert_absent OUTPUT UNEXPECTED — fail if OUTPUT holds the wording a case rules out.
 assert_absent() {
   local output="$1" unexpected="$2"
   if printf '%s\n' "$output" | grep -Fq "$unexpected"; then
