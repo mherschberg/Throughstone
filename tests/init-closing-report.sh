@@ -118,7 +118,8 @@ expect_in "registries/repos.yml whose" "$END"
 expect_not_in "existing origin is kept" "$END"
 expect_not_in "Saved:" "$END"
 expect_not_in "also pushed" "$END"
-# Nothing after this run can create a GitHub remote, so the ending does not offer gh for it.
+# No Throughstone script creates a remote once setup has finished, so the ending does not offer
+# the GitHub CLI to create one.
 expect_not_in "GitHub CLI" "$END"
 
 # Mono keeping the folder's empty origin: the ending names it, says nothing went to it, and gives
