@@ -41,7 +41,7 @@ if [ -z "$TARGET" ]; then
   exit 2
 fi
 if [ ! -d "$TARGET" ]; then
-  echo "apply-project-license.sh: target directory does not exist: $TARGET" >&2
+  echo "apply-project-license.sh: target is not a directory: $TARGET" >&2
   exit 2
 fi
 # A registry location ends in "/"; drop it so the paths printed below carry one slash, not two.
