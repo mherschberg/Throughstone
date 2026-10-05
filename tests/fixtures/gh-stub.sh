@@ -49,8 +49,7 @@ fi
 # when told which local checkout to use (--source), naming it origin unless --remote names another,
 # and uploads only when told to (--push) -- so a stub that always did both would keep reporting
 # success after --source or --push was dropped from init.sh, and the tests would not notice. Model
-# the contract; do not stand in for it. The stub differs from gh here: without --remote it still
-# exits 0, but attaches nothing and pushes nothing.
+# the contract; do not stand in for it.
 want_source=0; want_remote=""; want_push=0
 for arg in "$@"; do
   case "$arg" in
@@ -59,6 +58,13 @@ for arg in "$@"; do
     --push)       want_push=1 ;;
   esac
 done
+# Like gh, refuse --remote or --push without --source, before anything is created.
+if [ "$want_source" != "1" ]; then
+  [ -z "$want_remote" ] \
+    || { echo 'the `--remote` option can only be used with `--source`' >&2; exit 1; }
+  [ "$want_push" != "1" ] \
+    || { echo 'the `--push` option can only be used with `--source`' >&2; exit 1; }
+fi
 
 repo_name="${3##*/}"
 remote="$GH_REMOTE_ROOT/$repo_name.git"
@@ -71,10 +77,11 @@ git init --bare -q -b main "$remote"
 
 # --source tells gh which checkout to attach; without it there is nothing to attach or upload.
 [ "$want_source" = "1" ] || exit 0
-[ -n "$want_remote" ] && git remote add "$want_remote" "$remote"
-if [ "$want_push" = "1" ] && [ -n "$want_remote" ]; then
+remote_name="${want_remote:-origin}"
+git remote add "$remote_name" "$remote"
+if [ "$want_push" = "1" ]; then
   branch="$(git symbolic-ref --short HEAD)"
-  git push -q -u "$want_remote" "$branch"
+  git push -q -u "$remote_name" "$branch"
   # A real host leaves the created repository pointing at the branch it received. Without this the
   # bare repo's HEAD stays at main, so when the trunk has another name a later clone of it checks
   # nothing out.
