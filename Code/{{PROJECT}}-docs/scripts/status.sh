@@ -314,15 +314,15 @@ fi
 nci_step="$(printf '%s' "$nci" | grep -oE '^STEP-[0-9]+$' | grep -oE '[0-9]+$')"
 nci_date="$(printf '%s' "$nci" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"
 
-# Where the project actually is — the STEP the next action above just named, which is what a
-# scheduled STEP has to be measured against. It is NOT the highest row in the index: the planning
+# The project's position is what a scheduled STEP is measured against. It is the lowest
+# In-progress STEP, else the lowest Planned STEP after STEP-1, else the highest row, as when every
+# row is final and the phase is over (rule 8). It is not simply the highest row: the planning
 # session writes a whole phase of Planned rows at once, so the highest row is where the phase
-# ends, and comparing against it would report every freshly-planned phase as due on its first day.
+# ends. Measuring against it would report every freshly-planned phase as due on its first day.
 #
-# This follows the resolver's own precedence rather than taking the lowest of the three, so the
-# two halves of the output cannot name different STEPs: an active STEP wins, then the lowest
-# Planned one, and only when every row is final (§10.8, the phase is over) is the highest row the
-# position.
+# The position is usually the STEP the next action above names, but not always. For example,
+# rule 4 plans a Planned conditional follow-up ahead of a lower Planned STEP, and the position
+# stays at the lower one.
 if   [ "$inprog_n"    -lt 999999 ]; then atstep=$inprog_n
 elif [ "$lowplanned_n" -lt 999999 ]; then atstep=$lowplanned_n
 else atstep=$maxnum
