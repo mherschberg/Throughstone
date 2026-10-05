@@ -2,8 +2,9 @@
 #
 # Regression coverage for check 7 — scripts/check.sh's workspace-root hygiene check.
 #
-# The check answers one question per entry at the workspace root: did the method put this here,
-# or does it belong inside a repo? Two ways of answering it wrongly are what this file pins.
+# The check asks one question of each entry at the workspace root: is it accounted for — by the
+# method or by a registry row — or does it belong inside a repo? Two ways of answering it wrongly
+# are what this file pins.
 #
 # The first is a false warning. A repo may be registered at any path inside the workspace and is
 # never made to move, so a row whose `location:` names a root-level folder is the project saying
@@ -12,24 +13,22 @@
 #
 # The second is a false silence, and it is the quieter of the two. One allowed entry holds a
 # space — `Upcoming Prompts` — so a membership test that cannot tell one entry with a space from
-# two entries without one lets a stray through under either word. Every case below that expects a
-# warning is paired with one that must not have it: a check that had stopped reporting anything
-# would otherwise pass this file from end to end.
+# two entries without one lets a stray through under either word.
 #
 # The fixture is a multi-repo project, because check 7 stands down when the workspace root is
-# itself a repository and when CI is set. Both branches are asserted at the end rather than
-# assumed, and the doctor is run with CI unset throughout: whether the section under test runs at
-# all must not depend on the environment the suite happens to be started in.
+# itself a repository. It also stands down when CI is non-empty. Both branches are asserted at the
+# end rather than assumed, and every run but the CI one has CI unset: whether the section under
+# test runs at all must not depend on the environment the suite happens to be started in.
 #
-# `Upcoming` is the word the strays here are built from, and `Prompts` is not. They come from the
-# same entry and fail the same way, but a case-insensitive filesystem resolves `Prompts` to the
-# `prompts/` repo already at the root, so on macOS the entry a fixture means to create never
-# exists and the case would pass without testing anything.
+# `Upcoming` is the word case 3's stray is built from, and `Prompts` is not. They come from the
+# same entry and slip through the same way, but a case-insensitive filesystem resolves `Prompts`
+# to the `prompts/` repo already at the root, so on macOS the entry a fixture means to create
+# never exists and the case would fail there without testing anything.
 #
 # Deliberately absent, and not an oversight to fill in: anything about whether a registered
 # location exists on disk, holds a repo, or is spelled the way repos.yml requires. Check 7 asks
-# only whether a root entry is accounted for; the rows themselves are check 10's subject and
-# tests/check-repo-registry.sh's.
+# only whether a root entry is accounted for, and no doctor check asks those three questions:
+# check 10, the registry check, leaves them to whoever edits the row.
 
 set -uo pipefail
 export LC_ALL=C
@@ -65,7 +64,7 @@ copy_template() {
   )
 }
 
-# bootstrap — generate the project every case copies, and echo its workspace root. The layout is
+# bootstrap — generate the project the cases run on, and echo its workspace root. The layout is
 # multi because that is the one whose root is not a repository, which is the only layout in which
 # check 7 does any work.
 bootstrap() {
@@ -124,8 +123,7 @@ has()    { case "$SEC" in *"$1"*) return 0 ;; *) return 1 ;; esac; }
 expect() { has "$1" || bad "$2 — expected check 7 to report: $1"; }
 refute() { has "$1" && bad "$2 — check 7 should NOT report: $1"; return 0; }
 
-# quiet LABEL — the section said only that the root is as expected, and the run passed. Every
-# case expecting a warning is paired with one of these.
+# quiet LABEL — the section said only that the root is as expected, and the run passed.
 quiet() {
   expect "[PASS] only the expected pointers / repos at the workspace root" "$1"
   refute "[WARN]" "$1"
@@ -158,8 +156,8 @@ for entry in "Code" "prompts" "Upcoming Prompts" "CLAUDE.md" "AGENTS.md"; do
 done
 
 # --- 2. An entry nobody accounted for ----------------------------------------------
-# The plain case, and the control for every refutation below: when something really is unexpected
-# the check says so, names it, and says what to do about it.
+# The plain case, and the control for the cases below that refute `scratch` or `no row in`: when
+# something really is unexpected the check says so, names it, and says what to do about it.
 c="$(fixture plain)"
 mkdir "$c/scratch"
 doctor "$c"
@@ -169,9 +167,9 @@ expect "registers a path starting at one" "an unaccounted entry hint"
 expect "never has to move" "an unaccounted entry hint"
 
 # --- 3. One word of an entry that holds a space ------------------------------------
-# `Upcoming Prompts` is one allowed entry, not two. A test that joins the allowed entries on
-# spaces and looks for " $name " inside the join lets `Upcoming` — and `Prompts`, which this
-# fixture cannot create — through as allowed entries of their own.
+# `Upcoming Prompts` is one allowed entry, not two. A membership test that joins the allowed
+# entries on spaces and looks for " $name " inside the join lets `Upcoming` — and `Prompts`, which
+# this fixture cannot create on macOS — through as allowed entries of their own.
 c="$(fixture one-word)"
 mkdir "$c/Upcoming"
 doctor "$c"
@@ -192,9 +190,8 @@ quiet "a repo registered at a root-level location"
 # --- 4b. The same location, spelled with a leading ./ ---------------------------------
 # `./sidecar/` and `sidecar/` are one path. repos.yml requires only that a location stay inside
 # the workspace, `scripts/setup-workspace.sh` clones the first spelling as readily as the second,
-# and check 10 reads it as an ordinary row — so nothing else tells the writer it is a mistake,
-# and a reader that took the head before the `./` came off would drop the row as the workspace
-# root and warn about the repo anyway.
+# and check 10 reads it as an ordinary row. So check 7 must too: taking the head of the path
+# before the `./` came off would drop the row as the workspace root and warn about the repo anyway.
 c="$(fixture dot-slash)"
 mkdir "$c/sidecar"
 add_row "$c" "sidecar" "./sidecar/"
@@ -234,8 +231,8 @@ doctor "$c"
 stray "a location of ." "scratch"
 
 # --- 8. No registry to read -------------------------------------------------------------
-# The fixed list is what the check has left, and it still works off it. Check 10 is what reports
-# a registry that is not there; check 7 does not diagnose it a second time.
+# The fixed list is what the check has left, and it still works off it. Check 10 reports a
+# registry that is not there, at the check-in; check 7 raises no finding of its own about it.
 c="$(fixture no-registry)"
 mkdir "$c/sidecar"
 rm -f "$(registry_of "$c")"
