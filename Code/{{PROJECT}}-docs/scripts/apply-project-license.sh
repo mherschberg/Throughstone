@@ -11,7 +11,8 @@
 # --notice-only writes only LICENSE-THROUGHSTONE and reads no posture. It is for a repository
 # Throughstone did not create: Throughstone's material there needs a notice, but the repository's
 # licensing is not the project's to state, so no LICENSE and no LICENSING.md are written and an
-# existing notice is left alone. It warns rather than failing, so a caller is never stopped by it.
+# existing notice is left alone. A notice it cannot write is a warning, not a failure; it still
+# stops with exit 2 on a usage error or a target that is not a directory.
 
 set -euo pipefail
 
@@ -78,8 +79,8 @@ copy_if_missing() {
 # touches the target's LICENSE. It deliberately does not use verify_compatible: a notice that is
 # already there is left exactly as it is, whatever it says, because a differing notice is the
 # ordinary state an idempotent re-run meets after the notice text changes, not a conflict to
-# resolve. Every way this can fall short is a warning and a zero exit — a caller registering a
-# repository must not be stopped by the notice.
+# resolve. Past the argument checks above, every way this can fall short is a warning and a zero
+# exit — a caller registering a repository must not be stopped by the notice.
 if [ "$NOTICE_ONLY" = "1" ]; then
   if [ -e "$TARGET/LICENSE-THROUGHSTONE" ]; then
     echo "Throughstone license: $TARGET/LICENSE-THROUGHSTONE (already present, left as it is)"
