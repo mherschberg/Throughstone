@@ -39,15 +39,6 @@ error/corruption and re-run paths, not normal operation.
   baseline (equivalent to a greenfield one, from which the ordinary forward flow continues) arrives in
   a remaining 2.0 increment. **Default mode is `new`**; a project stood up from scratch never enters this path and is
   unchanged.
-- **`control:` field on repo rows** (`registries/repos.yml`) — records whether Throughstone may write
-  into a repo: `managed` (it may) or `external` (recorded and referenced, never written into). Control
-  is a state that changes over time rather than a fact about who created the repo, so a repo the method
-  built can be handed over and a repo it never built can be placed under its care. **Inert in this
-  release** — nothing reads it yet, and adding it changes no behavior. **A missing value reads as
-  `external`**, because control is a permission and an unanswered permission is not granted; a
-  defaulted row is surfaced, never silently accepted. Both front doors write it, so a greenfield
-  inventory and an adopted one have the same shape. The readers — the ladder that decides what is
-  written into each repo, and the checks that enforce it — arrive with the repo-control work.
 - **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
   `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
   inventory, stack per repo, services, data stores, integrations, existing-docs classification,
