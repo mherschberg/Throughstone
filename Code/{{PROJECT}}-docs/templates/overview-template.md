@@ -8,7 +8,7 @@
 
 <!-- NEXT-CHECK-IN: STEP-20 -->
 <!-- ^ When the next Check-in STEP is due: a STEP number (STEP-45) or a date (2026-11-15).
-     Whoever schedules a check-in writes it here, and each check-in sets the next one before it
+     Whoever schedules a check-in writes it here, and each check-in sets the next one as it
      closes. `status.sh` reports it as due once it is reached, and keeps saying so until you move
      it. Move it whenever you like — it is a plan, not a rule. See METHOD.md §5. -->
 
