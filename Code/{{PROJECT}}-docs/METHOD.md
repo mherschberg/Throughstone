@@ -90,12 +90,8 @@ Other folders in the hub: `coding-standards/` (per-language plus cross-cutting �
 `shell.md`, `api.md`; defaults ship for common languages, and the Test Strategy session
 reconciles them to the stack you pick and records the result in the Test Strategy architecture
 doc — review what's there, add what's missing, prune the rest), `runbooks/`
-(repeatable procedures — ships with
-`check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
-deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
-spin up an Incident STEP to RCA → find similar → fix, with a postmortem report from
-`templates/reports/incidents/incident-postmortem-report-template.md`), and `dependency-supply-chain.md` (vet a new dependency;
-audit dependencies for vulns/licenses on a cadence); add your own operational ones),
+(repeatable procedures — `runbooks/README.md` lists the ones that ship; add your own
+operational ones),
 `reports/` (durable review and operational reports, kept in the docs hub rather than inside
 STEP folders — check-in reports live directly in `reports/`, `reports/incidents/` holds
 incident postmortem reports, `reports/security/` holds security baseline, sweep, and audit
@@ -451,7 +447,7 @@ re-evaluate every available conditional architecture session, review the accepte
 `registries/risks.yml`, and **run every test suite**. The implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
 capability lands, not mid-feature). Title its index row `Check-in` — a scope may follow
-(`Check-in: phase 1`) — so the roadmap reads clearly.
+(`Check-in: phase 1`) — so the roadmap reads clearly and `status.sh` knows it is a check-in.
 
 **When the next one is due is recorded, not calculated.** `overview.md` carries
 `<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or a date (`2026-11-15`).
