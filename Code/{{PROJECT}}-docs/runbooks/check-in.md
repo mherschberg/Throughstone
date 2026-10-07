@@ -173,10 +173,9 @@ Write a short **check-in report** under `reports/` in the docs hub. Use
 `reports/YYYY-MM-DD-step-NNNN-check-in-report.md`. Fill in every section of the template; where a
 sweep found nothing, say so rather than leaving the section out.
 
-Then update `prompts/STEP-index.md` (the check-in STEP is Done; add any bug or conditional
-follow-up STEPs it spawned), apply the doc fixes (Version Logs bumped), add any new ADRs to
-`adr/README.md`, and archive the thin check-in PLAN under `prompts/` like any other completed
-STEP.
+Then apply the doc fixes (Version Logs bumped), add any new ADRs to `adr/README.md`, add any bug or
+conditional follow-up STEPs it spawned to `prompts/STEP-index.md`, archive the thin check-in PLAN
+under `prompts/` like any other completed STEP, and then mark the check-in STEP `Done` in the index.
 
 **Last, schedule the next one.** Ask the user when it should be. They answer in their own terms;
 turn that into a STEP number or a date and write it into `overview.md`'s
