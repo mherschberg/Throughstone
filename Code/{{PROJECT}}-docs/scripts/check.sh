@@ -244,7 +244,7 @@ else
     grep -qF '**Version:**'  "$f" || missing="$missing Version"
     grep -qF '**Status:**'   "$f" || missing="$missing Status"
     grep -qiF 'version log'  "$f" || missing="$missing Version-Log"
-    if [ -n "$missing" ]; then fail "$b missing:$missing"; missing_any=1; fi
+    if [ -n "$missing" ]; then fail "$DOCS_REL/architecture/$b missing:$missing"; missing_any=1; fi
   done
   if [ "$missing_any" -eq 0 ]; then
     pass "all ${#docs[@]} architecture doc(s) have the required fields"
@@ -373,14 +373,14 @@ else
     # session number, seed-row label, and expected output path must all describe the same slot.
     heading="$(grep -m1 -E '^# .*Session 1\.[0-9]+\)' "$f" || true)"
     if [ -z "$heading" ]; then
-      fail "$b has no heading with '(Session 1.N)'"
+      fail "$DOCS_REL/templates/architecture-sessions/$b has no heading with '(Session 1.N)'"
       numbering_ok=0
       continue
     fi
     minor="$(printf '%s\n' "$heading" | sed -E 's/.*Session 1\.([0-9]+).*/\1/')"
     template_minors="$template_minors $minor "
     if [ "$prefix_n" -ne "$minor" ]; then
-      fail "$b prefix ($prefix_n) does not match heading session 1.$minor"
+      fail "$DOCS_REL/templates/architecture-sessions/$b prefix ($prefix_n) does not match heading session 1.$minor"
       numbering_ok=0
     fi
 
@@ -395,7 +395,7 @@ else
       }
     ' "$STEP_INDEX_SEED")"
     if [ -z "$seed_row" ]; then
-      fail "$b has no matching 1.$minor row in $DOCS_REL/templates/step-index-seed.md"
+      fail "$DOCS_REL/templates/architecture-sessions/$b has no matching 1.$minor row in $DOCS_REL/templates/step-index-seed.md"
       numbering_ok=0
       seed_label=""
       seed_output=""
@@ -405,7 +405,7 @@ else
       title_norm="$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]')"
       seed_label_norm="$(printf '%s' "$seed_label" | tr '[:upper:]' '[:lower:]')"
       if [ "$title_norm" != "$seed_label_norm" ]; then
-        fail "$b heading session label ('$title') does not match seed row label ('$seed_label')"
+        fail "$DOCS_REL/templates/architecture-sessions/$b heading session label ('$title') does not match seed row label ('$seed_label')"
         numbering_ok=0
       fi
     fi
@@ -414,15 +414,15 @@ else
     # exception: it produces a review doc after all numbered architecture docs exist.
     if [[ "$b" != *cross-cutting-review.md ]]; then
       if ! grep -Eq "^Write \`architecture/${prefix}-[^\`]+\`" "$f"; then
-        fail "$b has no line starting with Write \`architecture/${prefix}-…\`"
+        fail "$DOCS_REL/templates/architecture-sessions/$b has no line starting with Write \`architecture/${prefix}-…\`"
         numbering_ok=0
       fi
       if [ -n "$seed_output" ] && ! printf '%s' "$seed_output" | grep -q "architecture/${prefix}-"; then
-        fail "$b seed row output ('$seed_output') does not point at architecture/${prefix}-…"
+        fail "$DOCS_REL/templates/architecture-sessions/$b seed row output ('$seed_output') does not point at architecture/${prefix}-…"
         numbering_ok=0
       fi
     elif [ -n "$seed_output" ] && [ "$seed_output" != "review doc" ]; then
-      fail "$b seed row output ('$seed_output') should be 'review doc'"
+      fail "$DOCS_REL/templates/architecture-sessions/$b seed row output ('$seed_output') should be 'review doc'"
       numbering_ok=0
     fi
   done
@@ -454,7 +454,7 @@ else
   # The Cross-Cutting Review must stay last because it checks consistency across the complete
   # architecture set; adding numbered architecture sessions after it would make the review stale.
   if [[ "$max_file" != *cross-cutting-review.md ]]; then
-    fail "Cross-Cutting Review is not the final numbered session (last is $max_file)"
+    fail "Cross-Cutting Review is not the final numbered session (last is $DOCS_REL/templates/architecture-sessions/$max_file)"
     numbering_ok=0
   fi
 
@@ -494,7 +494,7 @@ else
     grep -qF 'architecture/README.md' "$f" || missing="$missing architecture-index-update"
     grep -qiE 'mark (this|the active) substep done' "$f" || missing="$missing active-substep-update"
     if [ -n "$missing" ]; then
-      fail "$b missing:$missing"
+      fail "$DOCS_REL/templates/architecture-sessions/$b missing:$missing"
       conditional_ok=0
     fi
   done
@@ -624,7 +624,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
     if [ "${layouts:-0}" -eq 0 ]; then
       recon=0
       warn "$DOCS_REL/registries/repos.yml does not declare a layout, so its rows cannot be read as folders or as repos"
-      hint "add one line at the left margin above repos: — layout: mono if the workspace root is the one repository this project has, layout: multi if each row is a repository of its own (METHOD.md §7; see $DOCS_REL/UPDATING-THROUGHSTONE.md). Until it is there, the remote coverage below is not judged."
+      hint "add one line at the left margin above repos: — layout: mono if the workspace root is the one repository this project has, layout: multi if each row is a repository of its own ($DOCS_REL/METHOD.md §7; see $DOCS_REL/UPDATING-THROUGHSTONE.md). Until it is there, the remote coverage below is not judged."
     elif [ "${layouts:-0}" -gt 1 ]; then
       # Last one wins in every reader, so two lines make the layout whatever the bottom one says —
       # including when someone adds a line at the top instead of moving or fixing the one already
@@ -635,11 +635,11 @@ if [ "$CHECK_IN" -eq 1 ]; then
     elif [ -z "$LAYOUT" ]; then
       recon=0
       fail "$DOCS_REL/registries/repos.yml has a layout: line with nothing after it"
-      hint "write mono or multi after the colon — an empty value says no more than no line at all, and it takes precedence over one added above it. See METHOD.md §7."
+      hint "write mono or multi after the colon — an empty value says no more than no line at all, and it takes precedence over one added above it. See $DOCS_REL/METHOD.md §7."
     elif [ "$LAYOUT" != "mono" ] && [ "$LAYOUT" != "multi" ]; then
       recon=0
       fail "$DOCS_REL/registries/repos.yml declares layout: $LAYOUT, which is not a layout"
-      hint "the two values are mono and multi, and nothing else is read as either, so the remote coverage below is not judged. See METHOD.md §7."
+      hint "the two values are mono and multi, and nothing else is read as either, so the remote coverage below is not judged. See $DOCS_REL/METHOD.md §7."
     fi
     if [ "${below:-0}" -eq 1 ]; then
       recon=0
@@ -660,7 +660,7 @@ if [ "$CHECK_IN" -eq 1 ]; then
       if [ "$LAYOUT" = "multi" ] && [ "${root:-0}" -eq 1 ]; then
         recon=0
         fail "declares layout: multi and carries a row whose location: is \".\" — the workspace root is not a repository in that layout"
-        hint "delete the workspace-root row, or correct the declaration to layout: mono if the root really is this project's one repository. In multi-repo the root is a per-machine shell, not a repo (METHOD.md §7)."
+        hint "delete the workspace-root row, or correct the declaration to layout: mono if the root really is this project's one repository. In multi-repo the root is a per-machine shell, not a repo ($DOCS_REL/METHOD.md §7)."
       fi
       if [ "$LAYOUT" = "mono" ] && [ -n "$own_rem" ]; then
         recon=0
