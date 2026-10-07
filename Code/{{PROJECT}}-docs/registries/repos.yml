@@ -78,9 +78,8 @@
 #    whose first non-blank character is `#`, so the fields they actually read — `layout:`,
 #    `- name:`, `location:` and `remote:` — must carry nothing after the value, and are quoted
 #    with double quotes or not at all: a single quote is read as part of the value too.
-#    (`type:` below carries an annotation; no script reads that field.) The annotations in the
-#    example block are safe only because the whole block is commented out; move them off the
-#    value lines before uncommenting a row.
+#    (`type:` below carries an annotation, and so do some fields in the example block; no script
+#    reads any of them.)
 
 repos:
   - name: "{{PROJECT}}-docs"
@@ -99,12 +98,12 @@ repos:
   # here or adopted. A repo with no README is stamped from templates/repo-readme-template.md; one
   # that arrived with a README of its own keeps it and gains a `## Role in <project>` section
   # instead — what is in the repo decides, not how it arrived. See runbooks/register-repo.md.
-  # Example:
+  # Example (`remote:` is recorded only if the repo has one):
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
   #   added_as: created                                    # created | adopted — written once
-  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # recorded if it has one
+  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"
   #   description: "..."
   #   provenance:                                          # only on a repo that was split out
   #     from: "{{PROJECT}}-web"                            # the repo this used to be part of
