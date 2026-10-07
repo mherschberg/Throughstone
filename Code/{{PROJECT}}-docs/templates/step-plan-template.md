@@ -42,7 +42,8 @@
      templates/architecture-sessions/ (1.1 → session 01, etc.), and their status lives in
      prompts/STEP-index.md, which the next-action resolver reads — drop the Status column here.
      For later STEPs, the Status column above is where each substep's status lives, and each
-     substep gets a prompt authored from templates/substep-prompt-template.md. A Check-in STEP is
+     substep gets a prompt authored from templates/substep-prompt-template.md unless the STEP is
+     thin (step 5 of the recipe in prompts/README.md says which). A Check-in STEP is
      thin: no prompts are authored — its two substeps are doc-drift/conditional-coverage
      reconciliation (N.1) and the full test run (N.2) defined in runbooks/check-in.md; this
      PLAN just points there. A late conditional-session follow-up STEP is also thin: its
