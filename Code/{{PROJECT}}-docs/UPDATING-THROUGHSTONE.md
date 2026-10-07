@@ -186,6 +186,7 @@ brought into a project at all — in a second new runbook; none of that asks any
     you pull them, and nothing else in this guide pulls them for you — details below.
 14. **Pull the session templates and the guidance text around them as one group** —
     `templates/architecture-sessions/*.md`, `templates/planning-session.md`,
+    `templates/step-plan-template.md`,
     `templates/architecture-doc-template.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md` and
     `runbooks/check-in.md`. Several of these travel with item 1's or item 9's group already, so
     pull them once. They change no script behaviour and touch no project state, but once they are
@@ -425,7 +426,8 @@ appendix covers purging history first when that matters.
   `METHOD.md` §7 gains the mono→multi special case (that STEP is
   branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
   through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
-  and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone,
+  and `prompts/README.md`'s thin-STEP note now names two families rather than listing each kind
+  (the note at the top of its recipe points there too),
   while its opening paragraph names both layouts — `prompts/` is its own repo in a multi-repo
   project and a folder inside the root repo in mono-repo-for-now — rather than calling it a repo
   of its own whichever layout you are in; the recipe's reserve and archive steps drop the same
@@ -846,10 +848,8 @@ reports that repo as one that did not arrive, on every machine except the one th
 checkout, where it says `exists` and nothing more; and the check-in counts the value as a recorded
 remote. Move the note to a line of its own, or delete it.
 
-**Templates and guidance text, with nothing to undo.** Three edits to
-`templates/architecture-sessions/*.md`, one to `METHOD.md` §3, one to
-`templates/planning-session.md`, and three documentation fixes. None
-of them rewrites anything you already produced; they affect work you do after pulling them.
+**Templates and guidance text, with nothing to undo.** None of these edits rewrites anything you
+already produced; they affect work you do after pulling them.
 
 - **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
   here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
@@ -905,9 +905,18 @@ of them rewrites anything you already produced; they affect work you do after pu
   building on the doc, written as an ordinary bold header field (`**Coverage:** deferred — …`). A
   bare value you already have is expanded under item 19 of the fast path; nothing rewrites it for
   you.
+- **A STEP is archived before it is marked `Done`.** The Cross-Cutting Review and
+  `runbooks/check-in.md` had you mark the STEP `Done` and then archive it; both now archive first,
+  as `METHOD.md` §10 does, so `./doctor.sh status` still says to archive if a session stops between
+  the two. `runbooks/incident-postmortem.md`, in item 1's group, now says to archive at all.
+- **Pointers instead of lists.** `METHOD.md` §3 points at `runbooks/README.md` for the runbooks that
+  ship, and `templates/step-plan-template.md` sends you to step 5 of `prompts/README.md`'s recipe for
+  which STEPs are thin, which covers a repository split. `templates/planning-session.md` also names
+  the `NEXT-CHECK-IN` line among what the session writes.
 
 Pull `templates/architecture-sessions/*.md`, `METHOD.md` §3, §4 and §6, `inputs/README.md`,
-`templates/architecture-doc-template.md`, `templates/planning-session.md`, and
+`templates/architecture-doc-template.md`, `templates/planning-session.md`,
+`templates/step-plan-template.md`, and
 `runbooks/check-in.md` as a group — this is item 14 of the fast path. Nothing else in this group is affected: these files
 change no script behavior and touch no project state.
 
