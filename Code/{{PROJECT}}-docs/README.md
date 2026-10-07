@@ -28,7 +28,7 @@ and the method that governs how it's built. This hub is *state* (the system as i
 | [`architecture/`](architecture/README.md) | *What* the system is — living, versioned design docs (indexed). |
 | [`adr/`](adr/README.md) | *Why* it's that way — point-in-time decision records (indexed). |
 | [`coding-standards/`](coding-standards/README.md) | Per-language engineering standards (indexed). |
-| [`runbooks/`](runbooks/README.md) | Repeatable procedures — check-in, release, incident, dependencies, secrets, collaboration (indexed). |
+| [`runbooks/`](runbooks/README.md) | Repeatable procedures (indexed). |
 | [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`), accepted risk / tech-debt index (`risks.yml`), input capture log (`input-captures.yml`), and security review ledger (`security-reviews.yml`) (indexed). |
 | [`reports/`](reports/README.md) | Durable review and operational reports, including check-in, incident, security review, and test-result reports. |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
