@@ -116,7 +116,8 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    the row and the Architecture Overview entry — attempting both, rolling back neither, reporting
    whatever did not land — and is safe to re-run. **That is a STEP's work, not this session's** —
    the action writes on that STEP's branch, and this session writes nothing but the STEP-index
-   rows. Here you decide which repos are on which branch and say so in the outline of the STEP
+   rows and `overview.md`'s `NEXT-CHECK-IN` line. Here you decide which repos are on which branch
+   and say so in the outline of the STEP
    that takes them on; **if any repo needs creating or registering, make sure this phase has a
    STEP that does it** — a later phase that only extends what already exists may have no
    scaffolding STEP to inherit the work.
@@ -187,7 +188,8 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
 ## Output
 - **Update `prompts/STEP-index.md`:** add a row for every implementation STEP of the target phase —
   global STEP number, title, status `Planned`, and the short (2–3 sentence) outline as its
-  scope — in dependency order after STEP-1. **That list is the whole deliverable.** On a
+  scope — in dependency order after STEP-1. **That list, and the `NEXT-CHECK-IN` line item 4
+  writes into `overview.md`, are the whole deliverable.** On a
   re-run, follow the history-preserving rules above instead of adding duplicate rows.
   - *In a team:* this batch is a number reservation like any other
     (`runbooks/collaboration.md` §2) — commit it on the shared trunk and push. If the
