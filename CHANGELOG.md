@@ -592,6 +592,8 @@ any project built with it.
   and the comments and messages in `init.sh`, `scripts/`, `registries/repos.yml` and
   `method-check.yml` describe how things work now.** Asides about older projects and the method's
   earlier wording are gone; the upgrade guide keeps every migration step they mentioned.
+- **`prompts/README.md`'s STEP-planning note and the PLAN template send you to the recipe's step 5
+  for which STEPs are thin**, so they cover the repository split this release adds.
 
 ### Fixed
 - **`./doctor.sh status` names the owner of the STEP in progress**, and in a team tells the agent to
@@ -1387,6 +1389,13 @@ any project built with it.
   `runbooks/register-repo.md` matches rows by name, and nothing stopped two rows sharing one, so a
   new repo could be taken for an existing row. Step 1 now has you ask the user what to call the repo
   and where it goes; for an adopted repo, the docs hub's own row is the likely clash.
+- **`METHOD.md` and the docs hub's README point at `runbooks/README.md` for the runbooks that ship**
+  instead of naming some of them; both lists already missed the security-review runbook in 1.7.1.
+- **The Cross-Cutting Review, the check-in and the incident runbook archive a STEP before marking it
+  `Done`**, as `METHOD.md` does, so `./doctor.sh status` still reminds you to archive if a session
+  stops in between.
+- **`./doctor.sh check` and `./doctor.sh status` name a file by its path from the workspace root**
+  where they printed only its name.
 
 ## [1.7.1] - 2026-08-10
 
