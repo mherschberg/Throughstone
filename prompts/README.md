@@ -98,8 +98,7 @@ teammate will need later.
 > A whole-STEP command such as **"run STEP 6"**, **"run STEP-6"**, **"start STEP 6"**,
 > **"kick off STEP 6"**, or **"do STEP 6"** means **write or revise this STEP plan and its
 > substep prompts, then stop for approval**. It is not permission to execute the substeps.
-> For thin STEPs (Check-in, Incident, late conditional-session follow-up, or an explicit
-> Security Baseline/Review/Audit STEP), write the thin PLAN and record the runbook/session
+> For thin STEPs (step 5 below says which), write the thin PLAN and record the runbook/session
 > substeps instead of authoring normal substep prompts; still stop for approval before running
 > the runbook or session.
 > Substep execution requires an explicit substep command such as **"run substep 6.1"** — or, for
