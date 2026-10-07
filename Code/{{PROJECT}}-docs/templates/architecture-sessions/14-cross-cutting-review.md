@@ -124,18 +124,19 @@ between "we have a pile of docs" and "we have a coherent architecture."
   (number and title). This is the first time every doc exists in one place, so it's where the
   index gets filled in.
 - A consolidated **Open Questions** list carried forward into the first implementation STEP.
-- Update `prompts/STEP-index.md`: mark substep 1.14 `Done` and mark the STEP-1 row `Done`
-  once the review is clean. STEP-1 is now ready to be archived: take the phase-folder name from
+- Update `prompts/STEP-index.md`: mark substep 1.14 `Done` once the review is clean. STEP-1 is
+  now ready to be archived: take the phase-folder name from
   the `## Phase 1 — <name>` heading in `prompts/STEP-index.md` (kebab-case the name — e.g. `MVP`
   → `mvp`, `POC` → `poc`), create the Phase-1 folder `prompts/001-<phase-name>/` with a
   `README.md` from `templates/phase-readme-template.md` (this is its first STEP, so the folder
   doesn't exist yet), then move the STEP-1 files into `prompts/001-<phase-name>/step-0001/` —
-  all per `prompts/README.md`.
+  all per `prompts/README.md`. Then mark the STEP-1 row `Done`.
 
 ## Next
-Once the review is clean, the architecture STEP is done — mark the STEP-1 row `Done` and archive
-it to the Phase-1 folder `prompts/001-<phase-name>/step-0001/` (created from the `## Phase 1 — <name>`
-index heading — see the Output section and `prompts/README.md`). The next action is to move into
+Once the review is clean, the architecture STEP is done — archive it to the Phase-1 folder
+`prompts/001-<phase-name>/step-0001/` (created from the `## Phase 1 — <name>` index heading — see
+the Output section and `prompts/README.md`), then mark the STEP-1 row `Done`.
+The next action is to move into
 building: **start a fresh chat** and run the **implementation planning session**
 (`templates/planning-session.md`, *"Run planning session: Phase-1 implementation roadmap"*) — it outlines the Phase-1
 implementation STEPs. See the next-action resolver (`METHOD.md` §10).
