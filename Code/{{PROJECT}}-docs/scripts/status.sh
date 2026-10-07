@@ -233,10 +233,10 @@ elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
     next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
-  # §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what says so: the
-  # Cross-Cutting Review, the archive to prompts/, and the flip to Done all happen after the last
-  # substep goes Done (templates/architecture-sessions/14-cross-cutting-review.md — the row flips
-  # "once the review is clean"). While the row is still open that close-out is the work, so
+  # §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what says so: the archive
+  # to prompts/ and the flip to Done both happen after the last substep, the Cross-Cutting Review,
+  # goes Done (templates/architecture-sessions/14-cross-cutting-review.md). While the row is still
+  # open that close-out is the work, so
   # answering "run the planning session" skips it — and §10's closing rule makes the index
   # authoritative for which STEP is next. A missing STEP-1 row leaves the answer to the substeps.
   if [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&
@@ -282,7 +282,7 @@ elif [ -n "$inprog" ]; then                                 # §10.6
   fi
 elif [ -n "$lowplanned_cond" ]; then                        # §10.4
   where="Architecture follow-up required — ${lowplanned_cond} (${lowplanned_cond_ti}) is Planned."
-  next="plan ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching conditional-*.md template, record the exact by-name invocation and output-doc number, then stop for approval before invoking it."
+  next="plan ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching $DOCS_REL/templates/architecture-sessions/conditional-*.md template, record the exact by-name invocation and output-doc number, then stop for approval before invoking it."
 elif [ -n "$lowplanned" ]; then                             # §10.5
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
   next="plan ${lowplanned} — confirm scope, author its PLAN and any substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
