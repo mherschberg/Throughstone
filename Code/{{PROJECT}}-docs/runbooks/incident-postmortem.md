@@ -101,5 +101,6 @@ the *next* one is caught sooner and cheaper:
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any
   **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
   in `registries/risks.yml`.
-- Mark the Incident STEP's substeps and the STEP **Done**; note anything to watch at the next
-  **check-in** (`runbooks/check-in.md`).
+- Mark the Incident STEP's substeps **Done**, archive its thin PLAN under `prompts/` like any other
+  completed STEP, and then mark the STEP **Done**; note anything to watch at the next **check-in**
+  (`runbooks/check-in.md`).
