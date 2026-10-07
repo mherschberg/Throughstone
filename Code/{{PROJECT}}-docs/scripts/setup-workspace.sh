@@ -21,7 +21,7 @@ set -euo pipefail
 # This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
 # flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
 # same contract check.sh keeps. The message stays bare rather than naming a help command,
-# because the helper can be reached both through ./doctor.sh and directly.
+# because this script has no help of its own and ./doctor.sh does not run it.
 if [ "$#" -gt 0 ]; then
   echo "setup-workspace.sh: unknown option: $1" >&2
   exit 2
@@ -87,9 +87,9 @@ if [ "$DECLARED_LINES" != "0" ] && [ "$DECLARED" != "multi" ]; then
   if [ "$DECLARED" = "mono" ]; then
     echo "$DOCS_REL/registries/repos.yml declares layout: mono, so this project is mono-repo-for-now:"
     echo "the workspace root is its one repository and you have already cloned it. There is nothing"
-    echo "here to assemble, and nothing has been written. See METHOD.md §7 and"
-    echo "runbooks/collaboration.md §9; runbooks/splitting-repos.md Case 2 is what converts the"
-    echo "project to multi-repo, and it is what changes that line to multi."
+    echo "here to assemble, and nothing has been written. See $DOCS_REL/METHOD.md §7 and"
+    echo "$DOCS_REL/runbooks/collaboration.md §9; $DOCS_REL/runbooks/splitting-repos.md Case 2"
+    echo "is what converts the project to multi-repo, and it is what changes that line to multi."
     exit 0
   fi
   echo "$DOCS_REL/registries/repos.yml declares a layout this script cannot read: \"$DECLARED\"."
