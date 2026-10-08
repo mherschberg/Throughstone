@@ -11,6 +11,98 @@ any project built with it.
 
 ### Setup
 
+- **New:** setting up a new mono-repo-for-now project, `init.sh` warns about each top-level file or
+  folder of yours that the first commit will take in, then carries on.
+- **Changed:** pressing Enter no longer settles the answers that shape a new project. At the
+  open-source-or-proprietary question, Enter now means proprietary, which writes no `LICENSE`, where
+  in 1.x two Enters chose open source and MIT. The open-source licence, layout, solo/team and
+  remote-setup menus have no default, and ask again until they get an answer they know;
+  `init.sh --help` marks the defaults `--non-interactive` falls back to.
+- **Changed:** `init.sh`'s questions say what each answer does to a new project. The layout menu,
+  the line before the remotes question and the closing note say what each layout commits: in
+  mono-repo-for-now, everything but the STEP in flight in `Upcoming Prompts/`; in multi-repo, its
+  two repositories, with nothing at the root tracked or backed up. The choice to use existing remote
+  URLs says each repository must already exist, be empty and be reachable, and that all three are
+  checked before anything changes.
+- **Changed:** a new project's setup says more about what it did. Each `git repo:` line names the
+  branch its initial commit is on, a repository created on GitHub is reported with its visibility
+  and then the URL pushed to, and in mono-repo-for-now the two licence lines say which file is the
+  repository's licence. Its notes also say that `./doctor.sh links` needs `python3` and that the
+  kickoff drafts `overview.md`, and a multi-repo run mentions an origin already at the root only
+  when no remotes were asked for.
+- **Changed:** in a new project, `BOOTSTRAP-PROMPT.md` opens by saying the agent follows it once the
+  user says "Read `AGENTS.md` and follow it", instead of giving a second kickoff command, and
+  `overview.md` opens as your project brief, which the kickoff drafts with you, instead of calling
+  itself a template.
+- **Changed:** when `init.sh` records a new project's remote on a registry row, it puts the
+  `remote:` line right after `location:` instead of after `type:`, so the three values scripts read
+  sit together.
+- **Fixed:** `init.sh` sets up a new project only in a fresh copy of the template, and no longer
+  destroys a repository it's run in. It checks before it changes anything, and stops with exit 2 in
+  any other folder, or when `prompts/` is already a repository; 1.x deleted the folder's `.git`,
+  every commit with it, or committed on top of the repository in `prompts/`, and exited 0.
+- **Fixed:** a new project's setup stops when its input runs out. A question with a default takes
+  it, and one without stops `init.sh` with exit 2, naming the question; 1.x carried on with blank
+  answers, or asked for the slug forever.
+- **Fixed:** setting up a new project, `init.sh` reads typed answers as meant. Yes/no questions take
+  `y`, `yes`, `true` or `1` and their opposites, in any case, where 1.x read `YES` or `1` as no, and
+  the layout and solo/team menus take the words they show as well as their numbers, where in 1.x a
+  typed `mono` or `team` built the wrong project. Anything else is asked again, and so is a blank
+  description or copyright holder, which 1.x wrote into the project's files.
+- **Fixed:** a flag written in the space form must have a value: `--desc ""`, or `--desc` followed
+  by another flag, now stops `init.sh` with exit 2, naming the flag. 1.x took the next flag as the
+  value, so `--desc --layout=mono` set up a new multi-repo project described as `--layout=mono`, and
+  exited 0.
+- **Fixed:** `init.sh` checks a new project's slug before it changes anything, stopping with exit 2,
+  or asking again when it's typed, if the slug is over 64 characters or `Code/<slug>-docs` already
+  exists. 1.x failed partway through on a slug over 250 characters, leaving a half-renamed tree, and
+  nested the template inside an existing `Code/<slug>-docs`; a slug of 65 to 250 characters, which
+  1.x took, is now refused. A slug that breaks the pattern is now told the rule in full, including
+  that it starts with a letter.
+- **Fixed:** a description or copyright holder with a line break or a placeholder in double braces
+  is refused before anything changes, with exit 2 from a flag or environment variable and the
+  question again when typed; so is any flag value of only spaces. 1.x wrote them into the new
+  project's files, where a line break split the description across lines.
+- **Fixed:** a new project's remotes are checked before anything changes, and a problem stops
+  `init.sh` with exit 2: on GitHub, a `gh` that isn't signed in or can't reach it, or a repository
+  it would create that already exists; with URLs given, the same one for `--docs-remote` and
+  `--prompts-remote`. 1.x found these only after building the project, and a multi-repo run still
+  exited 0.
+- **Fixed:** a new project's setup says where it will push before it changes anything. In
+  mono-repo-for-now, an empty origin the folder already has is named on every path, with whether it
+  will be pushed to, and the GitHub path then creates nothing and needs no `gh`; 1.x named that
+  origin only after building the project. A proprietary project pushing to a URL it was given, or to
+  that origin, is warned that if it's public, pushing publishes the source, which 1.x said only of a
+  repository it created public.
+- **Fixed:** a flag that a new project's layout or mode can't use is named and ignored. The other
+  layout's remote-URL flags and their environment variables no longer switch on remote setup, and
+  `--adr-authority` in a solo project is no longer dropped without a word. Every team is now told
+  that team collaboration relies on shared remotes, not only one that typed its ADR authority.
+- **Fixed:** a remote backup that was asked for and didn't complete no longer cuts a new project's
+  setup short or goes unreported. `init.sh` prints its whole closing text under "Done — but the
+  backup did not complete.", reports on stderr which repositories to check and how, and exits 1; 1.x
+  exited 0, or in mono-repo-for-now stopped before the closing text.
+- **Fixed:** a new project's closing report fits the run. Backup advice appears only when no remote
+  was asked for, and fits the layout, where 1.x gave every project multi-repo advice even once its
+  backup was done; the note on deleting `init.sh` no longer tells a mono-repo-for-now project that
+  it's free, since its first commit holds the file.
+- **Fixed:** `init.sh` no longer deletes a `TODO.md`, `.dev/` or `.test-fixtures/` from the folder
+  it sets up a new project in. Those are names from Throughstone's own checkout, and 1.x lost a file
+  of yours that had one. It also leaves the copy of itself exactly as the template shipped it,
+  without the project's name, description and trunk branch written in.
+- **Fixed:** `init.sh` no longer leaves the template's own `.gitignore` at a multi-repo workspace
+  root, and the root `doctor.sh` it leaves goes straight to the docs hub, as the one
+  `setup-workspace.sh` writes does. The `.gitignore` belonged to no repository, but a search tool
+  that reads ignore files applied it from the root to every repo below, hiding files such as a
+  `TODO.md` in the docs hub. *(Upgrade step 6.)*
+- **Fixed:** the `.gitignore` that `init.sh` writes, and the one `templates/planning-session.md`
+  asks for in a new code repo, keep per-machine agent settings out of commits in any folder: every
+  `*.local.json` in a `.claude/` folder, and an editor's lock or autosave copy there. 1.x's
+  `.gitignore` named only `.claude/settings.local.json`, at the repo's top level, so a
+  mono-repo-for-now code folder an agent was started in could commit its own, and the planning
+  session gave a new code repo no such line. A shared `.claude/settings.json` still commits.
+  *(Upgrade step 18.)*
+
 ### Registry and workspace
 
 - **New:** `registries/repos.yml` declares the project's layout in one `layout: mono` or
@@ -137,6 +229,26 @@ any project built with it.
 ### Architecture docs and inputs
 
 ### Licensing
+
+- **New:** `apply-project-license.sh --notice-only <repo>`, for a repository your project didn't
+  create, writes the Throughstone notice, `LICENSE-THROUGHSTONE`, and nothing else: it reads no
+  licence posture, never touches the repo's `LICENSE` or `LICENSING.md`, and leaves a notice already
+  there as it is. It still stops with exit 2 on a usage error or a target that isn't a directory,
+  but a notice it can't write is only a warning, with exit 0.
+- **Changed:** `proprietary` now names a licence, and `private` only a repository's visibility, a
+  separate question. `init.sh`'s open-source-or-proprietary question offers *Proprietary*, where 1.x
+  offered *Private / proprietary*, and its flag value is `--license=proprietary`;
+  `--license=private` still works, with a deprecation notice. `METHOD.md`, the docs hub's
+  `README.md` and `templates/licenses/README.md` use the two words the same way.
+- **Changed:** `apply-project-license.sh` stops with exit 2, naming the argument, on a second
+  positional argument or an option it doesn't know; 1.x ignored the extra argument, and took an
+  unknown option for the target. *(Upgrade step 17.)*
+- **Fixed:** `apply-project-license.sh` prints one slash, not two, after a target ending in `/`, and
+  says "target is not a directory" for any target that isn't one, where 1.x said it didn't exist.
+  Its comments now speak of Throughstone in the third person.
+- **Fixed:** `templates/licenses/README.md` says a licence other than the three it offers goes into
+  the repo by hand. 1.x also suggested adding a template and a branch to `init.sh`, which a project
+  never runs again.
 
 ### Paths and wording
 
