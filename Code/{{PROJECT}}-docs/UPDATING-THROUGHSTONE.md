@@ -141,25 +141,134 @@ and skip any step they mark as superseded.
 2. **Every project: add `registries/input-captures.yml`, and replace the comments in
    `registries/repos.yml` with the scaffold's; a mono-repo-for-now project with no
    `registries/repos.yml` copies in the scaffold's whole `registries/` folder.**
+   - Copy in the scaffold's `registries/input-captures.yml`, which holds no captures yet. Sessions
+     add to it from now on; if you have `inputs/inputs-index.md`, step 14 carries that ledger's
+     `Superseded` rows into it.
+   - In `registries/repos.yml`, replace two comment blocks with the scaffold's: the header above
+     `repos:`, and the block holding the commented example row, which starts
+     `# Service / app / library repos get added here`. Leave every row as it is, wherever that block
+     sits among them; steps 3 and 4 edit the rows.
+   - Mono-repo-for-now with no `registries/repos.yml`: 1.x let a mono project leave `registries/`
+     out. Copy in the scaffold's whole `registries/` folder, and keep both seeded rows: the docs hub
+     and `prompts/` are folders inside your one repository, and the registry lists them anyway.
+     Delete a row only if it names something your project doesn't have. Step 4 adds the third row,
+     for the workspace root.
+   - Each file you copy, and each comment block you replace, holds the `PROJECT` placeholder (in
+     double braces): fill it in as step 1 says.
+   - Gotcha: a comment at the end of a row's line, like the one after the docs hub's `type:`, is
+     part of that row. Leave it.
+   - Check: run from the docs hub, `git diff registries/repos.yml` changes only comment and blank
+     lines (where you copied the folder in, `git status` shows it as new instead), and nothing in
+     `registries/` still holds the `PROJECT` placeholder.
 
 3. **Every project: check each row of `registries/repos.yml`.**
+   - Each row starts with its `- name:` line, and every value is on one line: no lists.
+   - Nothing follows a `- name:`, `location:` or `remote:` value, because a `#` there is read as
+     part of the value. A row copied from 1.x's commented example has `# team mode: …` after its
+     `remote:`; move that note onto a line of its own, or delete it.
+   - Values are in double quotes or none.
+   - Each `location:` is a path relative to the workspace root: it never starts with `/` or `~`, and
+     has no `..` segment. Move a repo that breaks this into the workspace and update its row. If it
+     can't move, leave it where it is, put a symlink at a workspace-relative path pointing at it,
+     and register the symlink's path.
+   - Gotcha: values are taken literally, so `~/lib` and `$HOME/lib` are folder names, not paths into
+     a home directory.
+   - Check: `./doctor.sh check --check-in` reports no row it couldn't read and no row without a
+     `location:`.
 
 4. **Every project: declare the layout in `registries/repos.yml`, and, mono-repo-for-now only, add a
    row for the workspace root.**
+   - Add `layout: mono` or `layout: multi` at the left margin, above `repos:`, with a blank line
+     between. One line only, and never below the rows.
+   - Mono-repo-for-now: add this as the first row under `repos:`, leaving out the `remote:` line if
+     the repository has no remote yet:
+     ```yaml
+       - name: "<your-project>"
+         location: "."
+         remote: "git@example.com:TEAM/<your-project>.git"
+         type: mono
+         added_as: created
+         description: "The workspace root: the one repository this project lives in until it is split."
+     ```
+   - Gotcha (mono): with the line but not the row, the check-in fails, so make both edits together.
+   - Gotcha (mono): a row that already has a `remote:` of its own is a separate repository, so the
+     project isn't mono-repo-for-now in practice. Decide which layout you're in before declaring
+     one: `mono` fails on that row and points you to `runbooks/splitting-repos.md` Case 2.
+   - Gotcha: once the line is there, the check-in warns about each repo no recorded remote covers,
+     and a 1.x registry often has rows without one. For each, record the URL; or create a private
+     remote, push to it, then record it; or decide local-only is fine. Nothing records that
+     decision, so the warning comes back at every check-in.
+   - Check: `./doctor.sh check --check-in` no longer warns that the registry declares no layout, and
+     shows no registry `[FAIL]`.
 
 5. **Multi-repo only: on each machine `setup-workspace.sh` set up, run it again** from the workspace
    root: `Code/<project>-docs/scripts/setup-workspace.sh`.
+   - It rewrites the root `AGENTS.md`, `CLAUDE.md` and `doctor.sh` (the older pair lacks the
+     paragraph that makes "Read `AGENTS.md` and follow it" an instruction), leaves repos already
+     cloned alone, and clones any that are missing.
+   - Gotcha: a location holding a `.git` and nothing else is an empty clone, now reported. Fix the
+     branch on that remote, delete the empty directory, and run again. A location where someone ran
+     `git init` and never committed is reported too: move it aside, because the files in it are
+     theirs.
+   - Check: the run ends with "Done.", no `skipped:` or `Not cloning:` line, and no count of repos
+     that didn't arrive.
 
 6. **Multi-repo only: delete the `.gitignore` at the workspace root, on any machine that has one.**
 
 7. **Mono-repo-for-now only: copy `method-check.yml` to `.github/workflows/` at the workspace root,
    and commit it.**
+   - Copy the docs hub's `.github/workflows/method-check.yml`, which step 1 brought up to date, over
+     any copy already at the root. GitHub reads workflows only at a repository root, and in this
+     layout the docs hub is a folder, so unless someone copied the file to the root by hand, your CI
+     gate has never run.
+   - If you already have a root copy, replace it: 1.x's runs a root `scripts/check.sh` of your own,
+     where there is one, in place of the doctor. The new copy needs no edit: it runs the docs hub's
+     doctor, and from the root it reaches `prompts/` too, so the STEP-index checks run as well.
+   - Leave the docs hub's copy where it is. It gives the docs hub CI of its own if the project is
+     ever split.
+   - Gotcha: the first run checks work no gate has seen before, so it may fail. It runs the same
+     checks as `./doctor.sh check`, so push once that ends with `RESULT: OK` in step 20.
+   - Gotcha: the test workflows your code folders were stamped with, from
+     `templates/ci/code-repo-ci.yml`, never run in this layout either, and the root gate runs the
+     method checks, not your tests. Leave them stamped and configured for a split. To gate tests
+     before then, add a root copy with one job per code folder, as `templates/ci/README.md` §2 says.
+   - Check: from the workspace root, `git ls-files .github/workflows` lists `method-check.yml`, and
+     once you push to GitHub, the commit shows a `method-check` run.
 
 8. **Mono-repo-for-now only: add two lines to the `.gitignore` at the workspace root, and commit
    it.**
+   - Add them at the end of the file, in this order, so the second keeps the folder's `.gitkeep`:
+     ```gitignore
+     /Upcoming Prompts/*
+     !/Upcoming Prompts/.gitkeep
+     ```
+   - In this layout the workspace root is the repository, so without them a `git add -A` commits the
+     PLAN and substep prompts of the STEP in flight, which stay on the machine of whoever runs the
+     STEP until it's archived into `prompts/`.
+   - Gotcha: the lines untrack nothing. From the workspace root, `git ls-files "Upcoming Prompts"`
+     lists what's still tracked. To untrack a sheet, `git rm --cached` it and commit: your copy
+     stays on disk, but a teammate who pulls that commit loses their copy if they haven't edited it,
+     so leave each sheet to whoever owns its STEP.
+   - Check: `git ls-files "Upcoming Prompts"` lists only `.gitkeep` and any sheet you've left to its
+     owner, and a new file in `Upcoming Prompts/` doesn't show in `git status`.
 
 9. **Mono-repo-for-now only: bring the root `CLAUDE.md` and `AGENTS.md` up to date, and commit
    them.**
+   - In each, replace everything from the line starting `The canonical agent context` to the end
+     with the same text from the scaffold's root file of the same name, and fill in the `PROJECT`
+     placeholder (in double braces) as step 1 says.
+   - In this layout both files are committed in your one repository, but 1.x's text calls the docs
+     hub a repo and says they're per-machine and not versioned. The new text says that only of a
+     multi-repo project, where step 5 rewrites them instead.
+   - Gotcha: copy nothing from above that line. The scaffold's root files open with a block for
+     Throughstone's own authors, between `THROUGHSTONE-TEMPLATE-GUARD` markers, which setup removes
+     from every project.
+   - Gotcha: the replacement also deletes anything added below that line since setup, such as notes
+     for your agent. Move such text above that line first, so it survives and the file still ends as
+     the Check says.
+   - Check: each file says that in mono-repo-for-now it is committed in the root repo, and ends with
+     *"Read AGENTS.md and follow it."*; neither still holds the `PROJECT` placeholder; and
+     `git status` lists neither file.
 
 10. **Every project: put a `NEXT-CHECK-IN` line in `overview.md`, in place of any `CHECK-IN-CADENCE`
     line.**
@@ -181,6 +290,22 @@ and skip any step they mark as superseded.
 
 16. **Every project: update the ADR-number scan in `adr/README.md`, and, in a team, check its
     *Who accepts an ADR* line.**
+    - `adr/README.md` is your project's own file, so step 1 doesn't replace it. Its 1.x scan names
+      the file as `adr/README.md`, a path from inside the docs hub, so run from the workspace root,
+      where agents start, it scans nothing and reports no duplicate.
+    - Replace two parts with the scaffold's: the bullet under `## Conventions` that starts
+      *Reserve the number*, which now sends a team to `runbooks/collaboration.md` §6, where the scan
+      runs from the workspace root; and the note under `## Registry`, which pointed at the old scan.
+      Neither holds a placeholder.
+    - In a team, check the *Who accepts an ADR* line. `AGENTS.md` now gives an agent the team rules
+      only when that line names someone other than `_solo author_`, or agents work in parallel. If
+      more than one person works on the project and the line still reads `_solo author_`, record
+      your rule there, as `runbooks/collaboration.md` §9 step 3 says.
+    - Gotcha: if you've reworded that bullet, keep your wording and fix only its command, naming the
+      file as `Code/<project>-docs/adr/README.md`, as `runbooks/collaboration.md` §6 does.
+    - Check: the bullet in `adr/README.md` points at `runbooks/collaboration.md` §6 or, where you
+      kept your own wording, its scan command names `Code/<project>-docs/adr/README.md`; in a team,
+      the *Who accepts an ADR* line names your rule.
 
 17. **If a script or CI job of yours runs a Throughstone helper: check the arguments it passes and
     the output it reads.**
