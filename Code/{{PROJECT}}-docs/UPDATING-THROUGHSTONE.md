@@ -214,6 +214,15 @@ and skip any step they mark as superseded.
      that didn't arrive.
 
 6. **Multi-repo only: delete the `.gitignore` at the workspace root, on any machine that has one.**
+   - It's the template's own, which 1.x's `init.sh` left there. The workspace root is in no
+     repository, so git never reads the file, and each repo keeps its own `.gitignore`. But a search
+     tool that reads ignore files applies it from the root to every repo below, so files such as a
+     `TODO.md` in the docs hub don't show up.
+   - Usually only the machine the project was set up on has one: `setup-workspace.sh` doesn't write
+     it.
+   - Gotcha: anything you added to it never applied to git. Copy any line a repo needs into that
+     repo's own `.gitignore` before you delete the file.
+   - Check: from the workspace root, `ls -a` lists no `.gitignore`.
 
 7. **Mono-repo-for-now only: copy `method-check.yml` to `.github/workflows/` at the workspace root,
    and commit it.**
@@ -311,6 +320,29 @@ and skip any step they mark as superseded.
     the output it reads.**
 
 18. **Optional, every project: widen the `.claude` line in each repo's `.gitignore`.**
+    - Replace the line `.claude/settings.local.json` with the three lines a new project gets, and
+      leave every other line as it is:
+      ```gitignore
+      **/.claude/*.local.json
+      **/.claude/#*#
+      **/.claude/*~
+      ```
+    - The old line ignores that one file at the repo's top level. The new ones also ignore an
+      editor's lock or autosave copy of it, and any of these in a subfolder: in mono-repo-for-now,
+      an agent started inside a code folder writes its own `.claude/` there. A shared
+      `.claude/settings.json` still commits.
+    - In multi-repo, do this in the docs hub's, `prompts/`'s and each code repo's `.gitignore`; in
+      mono-repo-for-now, only in the one at the workspace root, whose lines cover every folder below
+      it. Leave a repo the project took in that already existed: its `.gitignore` is its own.
+    - Gotcha: a code repo a 1.x planning session made may have no `.claude` line to replace. Add the
+      three lines anyway.
+    - Gotcha: the lines untrack nothing. A per-machine file already committed, such as a code
+      folder's `.claude/settings.local.json` in mono-repo-for-now, stays tracked until you
+      `git rm --cached` it and commit. Your copy stays on disk, but a teammate who pulls that commit
+      loses theirs if they haven't edited it, so tell them first.
+    - Check: from the top of each repo you changed,
+      `git check-ignore -v sub/.claude/settings.local.json` prints the `**/.claude/*.local.json`
+      line. The path needn't exist.
 
 19. **Optional, each contributor: check the communication style in your root
     `.throughstone/local-user.md`.**
