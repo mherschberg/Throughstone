@@ -151,9 +151,9 @@ production software, get review from an experienced engineer.
    ```bash
    ./init.sh
    ```
-   It asks a few questions (project slug, repo layout, **license**, solo or team, optional
-   remotes), then detaches this download from the template's git history, renames the
-   `{{PROJECT}}` placeholder everywhere to your slug, stamps your chosen open-source `LICENSE` when
+   It asks a few questions (project slug, repo layout, **license**, solo or team, optional remotes),
+   then detaches this download from the template's git history, renames the `{{PROJECT}}`
+   placeholder everywhere but `init.sh` to your slug, stamps your chosen open-source `LICENSE` when
    applicable, and initializes your repo(s). In mono-repo-for-now it reuses an existing root
    `origin` only when that origin appears empty; non-empty template-created origins are left
    unattached so setup does not lead you into a failed or destructive push. See
@@ -287,9 +287,9 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 understand how the project is organized.
 
 For day-to-day project health checks, `./doctor.sh status` reports the next action,
-`./doctor.sh check` runs the read-only structural checks, and `./doctor.sh links` checks
-durable docs for stale local Markdown links. It is only a root shortcut for the plain Bash
-helpers in `Code/{{PROJECT}}-docs/scripts/`.
+`./doctor.sh check` runs the read-only structural checks, and `./doctor.sh links` checks durable
+docs for stale local Markdown links. It is only a root shortcut for the Bash helpers in
+`Code/{{PROJECT}}-docs/scripts/`.
 
 ## Updating after setup
 
