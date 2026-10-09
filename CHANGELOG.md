@@ -231,7 +231,87 @@ any project built with it.
 
 ### The check-in
 
+- **New:** the check-in compares the CI gates the Test Strategy architecture doc names with the
+  gates actually running. It confirms that `method-check.yml` is in `.github/workflows/` at the
+  workspace root in mono-repo-for-now, or at the docs hub's root in multi-repo, and notes that a
+  mono-repo-for-now code folder's own `ci.yml` never runs.
+- **Changed:** the check-in is scheduled, not calculated: `overview.md`'s
+  `<!-- NEXT-CHECK-IN: … -->` line names the STEP or the date of the next one, which the planning
+  session writes and each check-in updates as it closes. `./doctor.sh status` reports it under
+  `Check-in:` as due, next or none scheduled, and while one is due or none is scheduled, proposes a
+  Check-in STEP as advice beside the next action. The line replaces 1.x's `CHECK-IN-CADENCE`
+  setting, which nothing reads now; the doctor's check 10, which checked that setting, is now the
+  registry check that `--check-in` runs. *(Upgrade steps 10 and 17.)*
+- **Changed:** a Check-in STEP may make a small code or test fix to clear a failure it finds, where
+  1.x's `runbooks/check-in.md` said it writes no application code. It still writes no new features,
+  and a larger fix becomes a bug STEP of its own.
+- **Changed:** the check-in fills in every section of its report, from
+  `templates/reports/check-in-report-template.md`, and says so where a sweep found nothing instead
+  of leaving the section out. The report's Repo READMEs row can now record a README as re-registered
+  or raised, as well as updated or followed up.
+- **Fixed:** a Check-in STEP runs whole: "run the check-in" runs both its substeps, end to end, as
+  `runbooks/check-in.md` and `METHOD.md` §10 now both say, and `./doctor.sh status` tells an
+  in-progress one to wait for that command. In 1.x, §10 let an in-progress STEP run only the substep
+  you named, and the helper told a check-in to wait for `run substep N.M`. The helper knows a
+  check-in by its row's title, `Check-in` or `Check-in: <scope>`, as `METHOD.md` §5 now says.
+- **Fixed:** the check-in runs every test suite in every repo or code folder you can reach,
+  `runbooks/dependency-supply-chain.md` audits every package manifest in every repo you can reach,
+  and `runbooks/incident-postmortem.md`'s hunt for similar issues covers every repo you can reach;
+  each names what it couldn't reach. 1.x asked for the full suite, the audit or the hunt across all
+  repos, so a run on a machine missing a repo, or one that ran only one of several suites, could
+  read as complete.
+
 ### Status and the doctor
+
+- **Changed:** `check.sh`, `status.sh`, `links.sh` and `setup-workspace.sh` stop with exit 2 on an
+  argument they don't take, naming it, and so does `./doctor.sh help` given anything after it. 1.x
+  ignored the argument and ran as usual, so `./doctor.sh status --check-in` printed an ordinary
+  report and exited 0. A bare `./doctor.sh` still prints its help. *(Upgrade step 17.)*
+- **Fixed:** checks 1, 2, 3 and 9 of `./doctor.sh check` warn, where 1.x passed, when they have
+  nothing, or not everything, to read: no STEP rows in `prompts/STEP-index.md`, neither an ADR row
+  nor the registry table in `adr/README.md`, STEP rows under no Status column, or no
+  `templates/architecture-sessions/` folder. Warnings don't change the exit code, and the pass lines
+  of checks 1 to 3 now end in the number of rows read. *(Upgrade steps 17 and 20.)*
+- **Fixed:** `./doctor.sh check` fails a STEP or substep row whose Status is blank or only dashes,
+  such as `-` or `:-:`. 1.x skipped such a row as the table's separator line and passed it, and
+  `./doctor.sh status`, which still skips it, answers as though the row weren't there.
+  *(Upgrade step 11.)*
+- **Fixed:** the workspace-root check (check 7, multi-repo only) allows a top-level folder that a
+  registry `location:` starts at, and compares whole names. 1.x warned on every run about a
+  top-level folder holding a registered repo, and let a stray `Upcoming` or `Prompts` through
+  because it split the allowed `Upcoming Prompts` at its space. Its fix line now offers registering
+  the repo, moving the entry into a repo, or, if it's yours alone, moving it out of the workspace.
+- **Fixed:** doctor messages say what the check found. Check 8's failure says a session template has
+  no line starting with "Write `architecture/NN-…`", where 1.x said its Output section lacked that
+  instruction, even when a bullet gave it. A check skipped for want of `prompts/STEP-index.md` or
+  `overview.md` names the missing file, where 1.x asked whether the project was initialized, and
+  under `layout: multi` adds that a checkout of the docs hub alone never carries `prompts/`.
+- **Fixed:** `./doctor.sh links` no longer reads `inputs/`, where the method keeps imported
+  documents as they arrived. In 1.x, a link in one to a path your workspace doesn't have failed the
+  check for good, since nothing the method allows could fix it. A link to an input from a doc the
+  check reads is still checked.
+- **Fixed:** once the STEP-1 row reads `Done`, `./doctor.sh status` no longer names an open STEP-1
+  substep as the next action; 1.x went on naming it whatever STEP was in flight, so the work in
+  progress never showed. While every substep is final but the row is still open, and no later STEP
+  is in the index yet, it names the close-out, archiving STEP-1 and then marking it `Done`, where
+  1.x sent you to the planning session.
+- **Fixed:** `./doctor.sh status` suggests a conditional session's by-name phrase, such as "run the
+  identity-auth session", only when the substep's label starts with that session's own name, and
+  otherwise says to invoke it by name. 1.x matched a keyword anywhere in the label, so a conditional
+  session called `Authoring conventions` got the identity-auth session's phrase.
+- **Fixed:** an HTML comment inside a row of `prompts/STEP-index.md` no longer hides the row from
+  `./doctor.sh status`, which now strips the comment and reads the row. 1.x dropped any line holding
+  a comment, so a note on the STEP in flight made it invisible, and one on the highest-numbered row
+  could report a phase with work left as complete.
+- **Fixed:** `./doctor.sh status` counts an `Abandoned` substep as final and reads a zero-padded
+  substep number such as `1.08`; 1.x stopped at the first, calling its status unrecognized, and
+  skipped the second. It now says to author a planned STEP's PLAN and any substep prompts, since a
+  thin STEP has none, and a new project's STEP index says a substep may be `N/A`.
+- **Fixed:** with `overview.md` there but no `prompts/STEP-index.md`, `./doctor.sh status` says to
+  restore the index from git history, or in multi-repo to clone `prompts/` with `setup-workspace.sh`
+  if the folder is missing. 1.x said to run `./init.sh`, and a 1.x `init.sh` run there deletes a
+  mono-repo-for-now project's repository history; the helper now says that only when `overview.md`
+  is missing too.
 
 ### Teams
 
@@ -266,6 +346,47 @@ any project built with it.
   repository of its own, which a mono project doesn't have.
 
 ### Sessions and STEPs
+
+- **New:** the planning session asks whether the phase builds on code the project didn't write that
+  no check-in has run over, and if so puts a `Check-in: baseline` STEP at the front of the phase, so
+  that code's tests run before anything is built on it.
+- **Changed:** the two local-profile settings each do one job (`METHOD.md` §4): the experience level
+  sets how much technical background an agent assumes, and the communication style how much
+  reasoning comes with a decision. In 1.x the level set both, so a saved profile now sounds
+  different: Level 3 is terse only with the style `Terse`, and Levels 1 and 2 are told why a
+  decision matters only at `Normal` or `Explanatory`. *(Upgrade step 19.)*
+- **Changed:** where code already exists, the Cross-Cutting Review settles a conflict between docs
+  by reading the code: the code says what the system does, and the docs what it's meant to do
+  (`METHOD.md` §3). A doc that misread the code is fixed, a real gap files a `registries/risks.yml`
+  row, and a choice made before the project kept ADRs, whose reasons nobody knows, is recorded in
+  its doc, never in an ADR written after the fact.
+- **Changed:** every architecture-session template heads its work list
+  `## Decisions to make (in order)`, where the Glossary and the Cross-Cutting Review had headings of
+  their own, and `METHOD.md` §4 makes that shared shape part of adding a session. Each template's
+  closing go-ahead now starts the session only for an agent sent to run it, and tells any other
+  reader to use the file as reference; 1.x's told any agent that read it to begin.
+- **Changed:** a later STEP's substep status lives in the `Status` column of its PLAN's Substeps
+  table, which `templates/step-plan-template.md` now has, and the recipe in `prompts/README.md` no
+  longer has you list a STEP's substeps in `prompts/STEP-index.md`. STEP-1's substeps stay in the
+  index, where `./doctor.sh status` reads them. *(Upgrade step 12.)*
+- **Changed:** which STEPs are thin is settled in one place, step 5 of the recipe in
+  `prompts/README.md`: runbook-driven ones, whose runbooks `runbooks/README.md` marks as
+  STEP-shaped, and session-driven ones. The note above the recipe points there instead of listing
+  kinds, the PLAN template points there too, and the recipe's steps run 1 to 7, where 1.x numbered
+  two of them 5.
+- **Changed:** the list of docs a substep keeps true, in `templates/substep-prompt-template.md`,
+  names any `ARCHITECTURE.md` beside a repo's or code folder's README, to update when the design it
+  describes changes.
+- **Fixed:** a STEP is archived before its row is marked `Done`. The Cross-Cutting Review archives
+  STEP-1 first, and the check-in its thin PLAN, where 1.x marked the row `Done` first, so a session
+  that stopped in between left the archive undone with nothing to say so; the incident runbook,
+  which never said to archive, now does. If a session stops in between, the row is still open, so
+  `./doctor.sh status` still says to archive.
+- **Fixed:** the templates say what is true in the project they make. A new project's
+  `prompts/STEP-index.md` writes the docs hub's files as `Code/<project>-docs/…`, the planning and
+  system-overview sessions say `init.sh` fills in their description, where 1.x said the kickoff did,
+  and `templates/ci/README.md` and `code-repo-ci.yml` drop the project's name, which read as "a acme
+  project".
 
 ### Architecture docs and inputs
 
