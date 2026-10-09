@@ -188,6 +188,47 @@ any project built with it.
 
 ### Adding and splitting repos
 
+- **New:** `runbooks/register-repo.md` brings a repo into a project, whether it's created, adopted
+  or split out of another. It writes the registry row and the Architecture Overview's Repos entry
+  together, and decides the repo's README by what is already in it; an adopted repo gets only the
+  Throughstone notice, `LICENSE-THROUGHSTONE`, never the project's licence. The docs that had you
+  add a row or stamp a README by hand, or said an open-source project's `LICENSE` goes into every
+  new repo, now point there, and `templates/repo-readme-template.md` no longer carries its stamping
+  instructions into the README.
+- **New:** `runbooks/splitting-repos.md` splits a code repo in two (Case 1) or converts a
+  mono-repo-for-now project to multi-repo (Case 2). It clones the whole repo and deletes forward, so
+  nothing is rewritten and both sides keep the full history, and a repo it creates keeps the
+  licensing that came with its code and gets the Throughstone notice. `METHOD.md` §7 and
+  `runbooks/README.md` point to it.
+- **Changed:** the check-in fixes a repo missing from the registry, or a row whose Architecture
+  Overview entry is missing or disagrees, by re-running `runbooks/register-repo.md`, and its README
+  sweep reviews a README with a `## Role in <project>` section only in that section, where 1.x
+  reviewed every code repo's README whole. A 1.x Architecture Overview has no Repos section, so your
+  first check-in after upgrading sends every repo back through registration, which may add a Role
+  section to a README Throughstone didn't stamp, such as the docs hub's and `prompts/`'s in a
+  multi-repo project.
+- **Changed:** a mono-repo-for-now project takes no separate repository in, where 1.x set no such
+  limit: `METHOD.md` §7 and `runbooks/register-repo.md` say to convert to multi-repo first, by
+  `runbooks/splitting-repos.md` Case 2. The check-in fails any row in a mono registry, other than
+  the workspace root's, that has a `remote:`. *(Upgrade step 4.)*
+- **Changed:** a remote created for a repo that has none is created private, and making any repo
+  public takes an explicit instruction from the user naming that repo. 1.x's planning session had
+  you choose private or public as each remote was added. `METHOD.md` §7 sets the rule, and the
+  planning session, `runbooks/register-repo.md` and the check-in repeat it.
+- **Changed:** STEP-1 work takes the `step-0001-architecture` branch in every repository it writes
+  into, an adopted repo included. 1.x's `METHOD.md` §7 named only the docs hub and `prompts/`, or
+  the root repo in mono-repo-for-now.
+- **Removed:** the rule that a mono-repo-for-now project must split before taking on a second
+  contributor. A team needs shared remotes, not several repos, so how many repos a project has
+  follows its architecture. `METHOD.md` §7 and `runbooks/collaboration.md` §9 no longer say to
+  split, and `init.sh` no longer tells a new mono-repo-for-now team to plan one.
+- **Fixed:** the planning session no longer plans a scaffold over a repo that already exists. 1.x
+  counted a repo as already there only when it had a registry row and a filled-in README, so for a
+  real repository missing either it planned a stack, CI, an `.env.example`, a `.gitignore` block and
+  a licence. `templates/planning-session.md` now asks whether a repository is at the location and,
+  if one is, plans its registration through `runbooks/register-repo.md`; a path holding files the
+  project didn't put there stops for you.
+
 ### The check-in
 
 ### Status and the doctor
@@ -228,6 +269,27 @@ any project built with it.
 
 ### Architecture docs and inputs
 
+- **Changed:** an append-only log, `registries/input-captures.yml`, replaces the
+  `inputs/inputs-index.md` ledger. A session adds an entry each time it takes something from an
+  input, saying what it took and where it went, and never edits an earlier one. The check-in no
+  longer sweeps inputs, and an input moves to `inputs/archive/` only when you say it's fully
+  captured. *(Upgrade steps 2 and 14.)*
+- **Changed:** deferred architecture work comes back through a `registries/risks.yml` row, which the
+  check-in reviews with every open row: `METHOD.md` says to file one for a core session deferred
+  wholesale, and for a doc whose `Coverage:` line isn't `full`. The check-in no longer sweeps
+  architecture docs for `Coverage:` lines, and a `Coverage:` line is now one sentence saying what is
+  missing, how big it is and what it means, where 1.x showed a bare `deferred`. *(Upgrade step 13.)*
+- **Removed:** the `Version` and `Status` columns of the index in `architecture/README.md`, and the
+  architecture-doc template's `**Last updated:**` line. Each copied what the doc's own header or
+  Version Log says, and nothing relied on them; the check-in and the Cross-Cutting Review now list
+  each doc by number and title only, so nothing keeps a 1.x index's two columns current.
+  *(Upgrade step 15.)*
+- **Fixed:** lifting a document from `inputs/` into `architecture/` as the docs describe no longer
+  fails `./doctor.sh check`. 1.x's `inputs/README.md` named only the `Version` and `Status` header
+  fields, and `AGENTS.md`'s copy of its guidance named none, but check 4 also requires a Version
+  Log. `inputs/README.md` now names all three and writes its paths from the docs hub, and
+  `AGENTS.md` points there. *(Upgrade step 20.)*
+
 ### Licensing
 
 - **New:** `apply-project-license.sh --notice-only <repo>`, for a repository your project didn't
@@ -251,6 +313,42 @@ any project built with it.
   never runs again.
 
 ### Paths and wording
+
+- **Changed:** the comments and wording in `init.sh`, the helper scripts, `AGENTS.md`, `METHOD.md`
+  and the runbooks describe the project as it is now, without asides about earlier versions.
+- **Removed:** `UPDATING-THROUGHSTONE.md`'s design for an updater tool Throughstone never shipped:
+  the project manifest, the release update catalog, the tool's check flow and command names, and the
+  root updater. The guide now describes only the update you do by hand, in sections renumbered
+  §1–§7, and its §2 counts the README, Role section and `LICENSE-THROUGHSTONE` that registration
+  writes into a repo as stamped files.
+- **Removed:** `ONBOARDING.md` §6, the rule for editing Throughstone's own files, which told a
+  project's contributors to keep a placeholder that setup had already replaced with the project's
+  name. Its opening note now says `<project>` stands for the project's slug.
+- **Fixed:** the commands the docs and helpers give you work from the workspace root, where agents
+  start, and so do the paths in `AGENTS.md` and in what the helpers print. 1.x's `METHOD.md` and
+  `runbooks/check-in.md` told you to run `scripts/check.sh` or `scripts/status.sh`, which aren't
+  there from the root; `AGENTS.md` wrote many paths from inside the docs hub despite promising the
+  root; and the helpers printed some hub paths the same way. Each command is now written from the
+  root, such as `./doctor.sh check`; `AGENTS.md` and the helpers write hub paths as
+  `Code/<project>-docs/…`; and `METHOD.md` §7's path convention turns on what a path is for.
+- **Fixed:** a saved S0, S1 or S2 security report no longer fails `./doctor.sh links`. 1.x's report
+  templates linked to their checklist by a path that worked only from the template's own folder, so
+  a report saved in `reports/security/` pointed outside the docs hub; the templates now name the
+  checklist as plain text, and their titles drop "Template". *(Upgrade step 20.)*
+- **Fixed:** `runbooks/README.md` lists the S0, S1 and S2 security-review checklists, which have
+  shipped unlisted since 1.6, and `METHOD.md` §3 and the docs hub's `README.md` point at it for the
+  runbooks that ship, where their own lists left some out. `runbooks/security-review.md` points at
+  the check-in's security-review gate in `runbooks/check-in.md` instead of keeping a copy of its own
+  that had drifted from it.
+- **Fixed:** the docs hub's `README.md` lists all four registries, including `security-reviews.yml`,
+  which 1.x's left out, and gives Throughstone's issue tracker for a problem in its own files and a
+  private link for a security problem.
+- **Fixed:** the coding standards' examples work for any project name. 1.x's `python.md` built a
+  package folder and an error class from the name, and `typescript.md` an error class, so a name
+  like `acme-scheduler` gave a folder Python can't import and class names that aren't valid; they
+  now say `src/<package>/` and `AppError`. `templates/env-example.txt` names its example database
+  `app_dev`, `python.md` no longer cites a strict type-checker config it never gives, and
+  `csharp.md`'s rule on catching everything reads correctly.
 
 ## [1.7.1] - 2026-08-10
 
