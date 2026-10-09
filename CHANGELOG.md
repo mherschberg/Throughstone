@@ -9,6 +9,37 @@ any project built with it.
 
 ## [Unreleased]
 
+A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
+supported layout, bringing a repo into a project and splitting one each get a runbook, and many
+problems that 1.x projects carry without knowing it are fixed. Have a 1.x project? Staying is fine;
+the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how.
+
+- **Setup runs only in a fresh template copy**, and checks its answers before it changes anything. A
+  script that pipes answers into it may need changes.
+- **Mono-repo-for-now is a full layout.** The registry says which layout a project is in, the CI
+  gate runs from the workspace root, and the prompts of the STEP in flight aren't committed.
+- **`setup-workspace.sh` no longer clones the wrong repo into a folder, or stops at the first clone
+  that fails.** It reports a row it can't read or a location it won't use, and counts the repos that
+  didn't arrive. A script that reads its exit status may need changes.
+- **Two new runbooks:** one brings a repo into a project, whether created, adopted or split out; the
+  other splits a repo and keeps its full history. The rule that a mono-repo-for-now project must
+  split before a second contributor joins is gone.
+- **The check-in is scheduled, not calculated:** `overview.md` names the STEP or date of the next
+  one. The check-in also runs every test suite it can reach, names any it can't, and checks the
+  registry.
+- **`./doctor.sh` gives fewer wrong answers**, several of them silent before, and refuses arguments
+  it doesn't know.
+- **Team rules switch on once the *Who accepts an ADR* line in `adr/README.md` names anyone but
+  `_solo author_`**, or when agents work in parallel, and in a team a STEP in progress records its
+  owner.
+- **The two local-profile settings each do one job:** the experience level sets how much technical
+  background an agent assumes, and the communication style how much reasoning comes with a decision.
+- **Deferred core sessions and partly covered docs come back through a `registries/risks.yml` row**,
+  and an append-only log, `registries/input-captures.yml`, replaces the inputs ledger.
+- **The commands the docs and helpers give you work from the workspace root**, where agents start,
+  and so do the paths in `AGENTS.md` and in what the helpers print. A command meant for another
+  folder says so.
+
 ### Setup
 
 - **New:** setting up a new mono-repo-for-now project, `init.sh` warns about each top-level file or
