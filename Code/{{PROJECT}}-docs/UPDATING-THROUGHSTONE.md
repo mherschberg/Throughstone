@@ -72,23 +72,23 @@ not fail the check.
 
 ### Next release migration
 
-This section says only what to do. What changed, and why, is in the summary at the top of this
-release's section of Throughstone's `CHANGELOG.md`.
+This section says only what to do. What changed, and why, is in this release's section of
+Throughstone's `CHANGELOG.md`.
 
 **Staying on 1.x is fine. Upgrade if any of these apply:**
 
 - **Your project is mono-repo-for-now.** Running `setup-workspace.sh` overwrites the root
   `CLAUDE.md`, `AGENTS.md` and `doctor.sh` your repository commits, and your CI gate may never have
   run.
-- **Your project is multi-repo.** Setting up a workspace from the registry can clone a repo into the
-  wrong place, or the wrong repo into a folder, and report success.
+- **You or a teammate run `setup-workspace.sh` in a multi-repo project.** It can clone a repo into
+  the wrong place, or the wrong repo into a folder, and report success.
 - **More than one person works on it.** Two ADRs can share a number without anyone being told.
 - **A planning session will name a repo that already exists.** It can plan a scaffold over that
   repo's existing work.
 - **`prompts/STEP-index.md` might go missing on a machine.** The status helper then says to run
   `./init.sh`, which deletes a mono project's repository history.
 - **You deferred architecture work**, such as a core session left `Deferred` or a `Coverage:` line
-  other than `full`. It can drop out of every check-in.
+  other than `full` or `deferred`. It can drop out of every check-in.
 - **Your check-ins run on a machine without every repo, or your project has several test suites.** A
   check-in can report a green suite, or a clean dependency audit, when some of it never ran.
 - **Your STEP index has an unusual row**: a blank or dashed Status, an HTML comment, a title
@@ -108,11 +108,11 @@ and skip any step they mark as superseded.
    - CI workflow: `.github/workflows/method-check.yml`.
    - Process docs: `AGENTS.md`, `BOOTSTRAP-PROMPT.md`, `METHOD.md`, `ONBOARDING.md`, `README.md`
      (the docs hub's own) and `UPDATING-THROUGHSTONE.md`; `coding-standards/csharp.md`, `go.md`,
-     `python.md` and `typescript.md`; `inputs/README.md`; `registries/README.md`;
-     `reports/README.md` and `reports/test-results/README.md`; `runbooks/README.md`, `check-in.md`,
-     `collaboration.md`, `dependency-supply-chain.md`, `incident-postmortem.md`, `register-repo.md`
-     (new), `release-deploy.md`, `secrets-rotation.md`, `security-review.md`,
-     `security-review-s0-checklist.md`, `security-review-s1-checklist.md`,
+     `python.md` and `typescript.md`, where you kept them; `inputs/README.md`;
+     `registries/README.md`; `reports/README.md` and `reports/test-results/README.md`;
+     `runbooks/README.md`, `check-in.md`, `collaboration.md`, `dependency-supply-chain.md`,
+     `incident-postmortem.md`, `register-repo.md` (new), `release-deploy.md`, `secrets-rotation.md`,
+     `security-review.md`, `security-review-s0-checklist.md`, `security-review-s1-checklist.md`,
      `security-review-s2-checklist.md` and `splitting-repos.md` (new); and `prompts/README.md`, at
      the workspace root.
    - Templates: `templates/architecture-doc-template.md`; all seventeen files in
@@ -135,15 +135,16 @@ and skip any step they mark as superseded.
    - Copy a file over yours only where yours still matches 1.7.1's, placeholders filled in; §4 calls
      that *upstream-only*, and a file you've edited *diverged*.
    - Gotcha: the six scripts must stay executable. If one isn't after the copy, `chmod +x` it.
-   - Check: each file matches the scaffold's apart from the placeholders and any edits of yours you
-     merged, and `./doctor.sh help` mentions `--check-in`.
+   - Check: each file on the list matches the scaffold's apart from the placeholders and any edits
+     of yours you merged (a coding standard you pruned stays absent), and `./doctor.sh help`
+     mentions `--check-in`.
 
 2. **Every project: add `registries/input-captures.yml`, and replace the comments in
    `registries/repos.yml` with the scaffold's; a mono-repo-for-now project with no
    `registries/repos.yml` copies in the scaffold's whole `registries/` folder.**
    - Copy in the scaffold's `registries/input-captures.yml`, which holds no captures yet. Sessions
-     add to it from now on; if you have `inputs/inputs-index.md`, step 14 carries that ledger's
-     `Superseded` rows into it.
+     add to it from now on; if you have `inputs/inputs-index.md`, step 14 carries its `Superseded`
+     rows for inputs still in `inputs/` into it.
    - In `registries/repos.yml`, replace two comment blocks with the scaffold's: the header above
      `repos:`, and the block holding the commented example row, which starts
      `# Service / app / library repos get added here`. Leave every row as it is, wherever that block
@@ -153,8 +154,8 @@ and skip any step they mark as superseded.
      and `prompts/` are folders inside your one repository, and the registry lists them anyway.
      Delete a row only if it names something your project doesn't have. Step 4 adds the third row,
      for the workspace root.
-   - Each file you copy, and each comment block you replace, holds the `PROJECT` placeholder (in
-     double braces): fill it in as step 1 says.
+   - Each `.yml` file you copy, and each comment block you replace, holds the `PROJECT` placeholder
+     (in double braces): fill it in as step 1 says.
    - Gotcha: a comment at the end of a row's line, like the one after the docs hub's `type:`, is
      part of that row. Leave it.
    - Check: run from the docs hub, `git diff registries/repos.yml` changes only comment and blank
@@ -174,7 +175,7 @@ and skip any step they mark as superseded.
    - Gotcha: values are taken literally, so `~/lib` and `$HOME/lib` are folder names, not paths into
      a home directory.
    - Check: `./doctor.sh check --check-in` reports no row it couldn't read and no row without a
-     `location:`.
+     `location:`, and each row, read against the rules above, breaks none of them.
 
 4. **Every project: declare the layout in `registries/repos.yml`, and, mono-repo-for-now only, add a
    row for the workspace root.**
@@ -211,7 +212,7 @@ and skip any step they mark as superseded.
      `git init` and never committed is reported too: move it aside, because the files in it are
      theirs.
    - Check: the run ends with "Done.", no `skipped:` or `Not cloning:` line, and no count of repos
-     that didn't arrive.
+     that didn't arrive. The root `AGENTS.md` has the paragraph that begins `**Agents:**`.
 
 6. **Multi-repo only: delete the `.gitignore` at the workspace root, on any machine that has one.**
    - It's the template's own, which 1.x's `init.sh` left there. The workspace root is in no
@@ -242,7 +243,7 @@ and skip any step they mark as superseded.
      method checks, not your tests. Leave them stamped and configured for a split. To gate tests
      before then, add a root copy with one job per code folder, as `templates/ci/README.md` §2 says.
    - Check: from the workspace root, `git ls-files .github/workflows` lists `method-check.yml`, and
-     once you push to GitHub, the commit shows a `method-check` run.
+     it matches the docs hub's copy; once you push to GitHub, the commit shows a `method-check` run.
 
 8. **Mono-repo-for-now only: add two lines to the `.gitignore` at the workspace root, and commit
    it.**
@@ -289,8 +290,8 @@ and skip any step they mark as superseded.
     - Ask the user when the next check-in should be, as a STEP number or a date; don't pick one for
       them. If they have no view, suggest the first `Planned` check-in row in
       `prompts/STEP-index.md`; with none, the last check-in's STEP number plus the cadence the old
-      line set (20 if there was none), which is about when 1.x would have said one was due; and with
-      no check-in run yet, the cadence alone, such as `STEP-20`.
+      line set (20 if there was none), which is about when 1.x's `METHOD.md` said to propose one;
+      and with no check-in run yet, the cadence alone, such as `STEP-20`.
     - In the docs hub's `overview.md`, replace the `CHECK-IN-CADENCE` line and the comment under it
       that starts `<!-- ^ Check-in cadence`, or whichever of the two is there, with the
       `NEXT-CHECK-IN` line and its comment from `templates/overview-template.md`, and write the
@@ -301,16 +302,16 @@ and skip any step they mark as superseded.
     - Gotcha: write the value in exactly one of those two shapes. Anything else, such as `step-50`
       or `15 Nov`, reads as none scheduled.
     - Check: `overview.md` has neither a `CHECK-IN-CADENCE` line nor a comment starting
-      `<!-- ^ Check-in cadence`, and under `Check-in:`, `./doctor.sh status` names a STEP or a date,
-      not "none scheduled".
+      `<!-- ^ Check-in cadence`, and, unless `./doctor.sh status` says the kickoff is not started,
+      under `Check-in:` it names a STEP or a date, not "none scheduled".
 
 11. **If a row of `prompts/STEP-index.md` has a Status that's blank or only dashes: write its real
     status.**
     - `./doctor.sh check` now fails such a row: check 3 lists it with the status it read, as in
       `STEP-7 -> "-"`. 1.x's doctor skipped a STEP or substep row whose Status was blank or only
-      dashes, such as `-`, `--` or `:-:`, as though it were the table's separator line.
-      `./doctor.sh status` still skips it, so until it's fixed the helper answers as if the row
-      weren't in the index, and can name a later STEP as next or pass over a substep.
+      dashes, such as `-`, `--` or `:-:`, as it did the table's separator line. `./doctor.sh status`
+      still skips it, so until it's fixed the helper answers as if the row weren't in the index, and
+      can name a later STEP as next or pass over a substep.
     - For each row listed that way, write its real status: `Planned`, `In progress`, `Done`,
       `Deferred` or `Abandoned`, or for a substep also `N/A`. A blank says nothing about where the
       work stands, so ask the user, or in a team the STEP's owner, rather than guess.
@@ -415,14 +416,14 @@ and skip any step they mark as superseded.
       runs from the workspace root; and the note under `## Registry`, which pointed at the old scan.
       Neither holds a placeholder.
     - In a team, check the *Who accepts an ADR* line. `AGENTS.md` now gives an agent the team rules
-      only when that line names someone other than `_solo author_`, or agents work in parallel. If
-      more than one person works on the project and the line still reads `_solo author_`, record
-      your rule there, as `runbooks/collaboration.md` §9 step 3 says.
+      only when that line names someone other than `_solo author_`, or the user has other agents
+      working STEPs in parallel. If more than one person works on the project and the line still
+      reads `_solo author_`, record your rule there, as `runbooks/collaboration.md` §9 step 3 says.
     - Gotcha: if you've reworded that bullet, keep your wording and fix only its command, naming the
       file as `Code/<project>-docs/adr/README.md`, as `runbooks/collaboration.md` §6 does.
-    - Check: the bullet in `adr/README.md` points at `runbooks/collaboration.md` §6 or, where you
-      kept your own wording, its scan command names `Code/<project>-docs/adr/README.md`; in a team,
-      the *Who accepts an ADR* line names your rule.
+    - Check: the bullet in `adr/README.md` points at `runbooks/collaboration.md` §6 with no scan
+      command of its own or, where you kept your own wording, its scan command names
+      `Code/<project>-docs/adr/README.md`; in a team, the *Who accepts an ADR* line names your rule.
 
 17. **If a script or CI job of yours runs a Throughstone helper: check the arguments it passes and
     the output it reads.**
@@ -435,9 +436,10 @@ and skip any step they mark as superseded.
       to `check`.
     - Exit status, multi-repo only: `setup-workspace.sh` no longer stops at the first clone that
       fails. It writes the root `AGENTS.md`, `CLAUDE.md` and `doctor.sh`, carries on, and ends with
-      exit 0, adding a line that counts any repos that didn't arrive,
-      `<N> repo(s) above did not arrive.` 1.x stopped with git's exit status. To tell whether every
-      repo arrived, look for that line and for a `Not cloning:` line, not at the exit status.
+      exit 0, adding a line that counts any repos with both a `location:` and a `remote:` that
+      didn't arrive, `<N> repo(s) above did not arrive.` 1.x stopped with git's exit status. To tell
+      whether every such repo arrived, look for that line, a `Not cloning:` line and a
+      `skipping clone step` line, not at the exit status.
     - Output: check 10 of `./doctor.sh check` is now the repo registry, which runs only with
       `--check-in` and otherwise passes as skipped, where 1.x's check 10 checked the
       `CHECK-IN-CADENCE` line. The pass lines of checks 1 to 3 end in a row count, as in
@@ -499,18 +501,20 @@ and skip any step they mark as superseded.
     `./doctor.sh check --check-in`, `./doctor.sh links` and `./doctor.sh status`.
     - A `[FAIL]` from check 5 because two ADR files share a number: do what its hint says,
       renumbering the file added later and giving it its own row in `adr/README.md`.
-    - A `[FAIL]` from check 4 naming a doc you lifted from `inputs/`: add the header field it lacks.
+    - A `[FAIL]` from check 4 naming a doc you lifted from `inputs/`: add the header field or the
+      Version Log table it lacks.
     - A `[WARN]` from check 1, 2, 3 or 9 that says it had nothing, or not everything, to read: no
       STEP rows, no ADR registry table, STEP rows under no Status column, or no session-template
-      folder. That was already wrong: restore the missing file, folder or table header from git
-      history.
+      folder. That was already wrong: restore the missing rows, file, folder or table header from
+      git history.
     - `--check-in` adds check 10, the registry. Its warnings about repos no recorded remote covers
       are the ones step 4 describes; a `[FAIL]` there goes back to step 3 or 4.
     - A `[FAIL]` from `links` on a saved S0, S1 or S2 security report: its link to its checklist
       came from a 1.x template. Write the checklist's path as plain text instead, as the new
       templates do. `links` no longer reads `inputs/`, so a link inside an input no longer fails it.
-    - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, and the line under
-      `Check-in:` from `status` names a STEP or a date, not "none scheduled".
+    - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, and, unless
+      `status` says the kickoff is not started, the line under `Check-in:` from `status` names a
+      STEP or a date, not "none scheduled".
 
 That's the whole upgrade.
 
