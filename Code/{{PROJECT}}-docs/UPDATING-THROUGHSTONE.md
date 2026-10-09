@@ -290,12 +290,67 @@ and skip any step they mark as superseded.
 
 13. **If you deferred architecture work: make sure a `registries/risks.yml` row covers each
     deferral.**
+    - The check-in no longer sweeps architecture docs for a `Coverage:` line, and a core session
+      deferred wholesale writes no doc for any sweep to find. What brings a deferral back now is a
+      risk row: the check-in reviews every open one.
+    - Core sessions: look in `prompts/STEP-index.md` for a numbered STEP-1 substep, `1.1` to `1.14`,
+      whose Status is `Deferred`: most often 1.6 Security, sometimes 1.7 UI. If no row in
+      `registries/risks.yml` covers it, add one with an owner, a severity and a revisit trigger,
+      which is whatever was said at the time, such as *"before we accept real user data"*; ask
+      rather than guess any of them. Its `refs:` can point at the STEP-1 PLAN that recorded the
+      decision. A lettered substep, such as `1.3a`, is a conditional session, which the check-in
+      reviews anyway.
+    - `Coverage:` lines: from the workspace root, run
+      `grep -n "Coverage:" Code/<project>-docs/architecture/*.md`. For each doc that isn't
+      `Deprecated` and whose `Coverage:` header field says anything but `full`, check that a risk
+      row covers it, with a revisit trigger saying what would end the deferral, and add one if not,
+      asking for its owner, severity and trigger rather than guessing them.
+    - If such a line is a bare word or phrase, such as `deferred` or `enumerated to depth 2`, expand
+      it into one sentence whether or not a row covers it: what is missing, how big it is, and what
+      it means for someone building on the doc, as `METHOD.md` §6 shows. Ask whoever deferred the
+      area if you don't know. Then record the edit in the doc's Version Log, as for any
+      clarification.
+    - Gotcha: the grep also finds the field's description in a template comment some docs keep, and
+      any prose that happens to say "Coverage:". Only the header field near the top counts.
+    - Gotcha: the first row replaces the `[]` after `risks:`. Copy the field names from the
+      commented example below it.
+    - Check: each numbered STEP-1 substep left `Deferred`, and each doc that isn't `Deprecated`
+      whose `Coverage:` header field says anything but `full`, has a `registries/risks.yml` row with
+      a revisit trigger, and none of those fields is a bare word or phrase.
 
 14. **If you have `inputs/inputs-index.md`: carry its `Superseded` rows into
     `registries/input-captures.yml`, then archive or delete it.**
+    - 1.7.1's ledger gave each part of each input a status, `Live` or `Superseded`, and the check-in
+      reconciled it. Nothing reads or keeps it now: `registries/input-captures.yml`, which step 2
+      copied in, is an append-only log of what sessions took from each input.
+    - Work from the docs hub. For each `Superseded` row of an input still in `inputs/`, not
+      `inputs/archive/`, add one entry to the log: `date` today's, `step` `"from inputs-index.md"`,
+      `input` the row's Input with `inputs/` in front, `taken` the row's Part (`whole file` for
+      `(whole)`), and `went_to` the doc its *Covered by / note* column names, as a path from the
+      docs hub. A `Live` row needs nothing: whatever no entry names is still only in the input.
+    - An input `Superseded` in every row was ready to archive, and no check-in will offer that now.
+      Ask whether it's fully captured, and only on a yes move it to `inputs/archive/` and add the
+      closing entry the log's header describes.
+    - Then move `inputs/inputs-index.md` itself into `inputs/archive/`, as a record, or delete it.
+      Left in `inputs/`, a session may follow its out-of-date instructions.
+    - Gotcha: the first entry replaces the `[]` after `captures:`, as the log's header says. Copy
+      the entry shape from its commented example.
+    - Gotcha: the ledger isn't an input, so moving it gets no entry.
+    - Check: `inputs/inputs-index.md` is gone, and the log has an entry for each `Superseded` row of
+      each input still in `inputs/`, not `inputs/archive/`.
 
 15. **Every project: delete the `Version` and `Status` columns from the index in
     `architecture/README.md`.**
+    - `architecture/README.md` is your project's own file, so step 1 doesn't replace it. Its index
+      copied each doc's version and status from the doc's own header, and the check-in and the
+      Cross-Cutting Review that step 1 brought no longer keep those copies current.
+    - Delete the two columns from the index's header row, the separator row below it, and every row.
+      In the same edit, take `Last updated` out of the Conventions list above the index: the
+      architecture-doc template no longer has that line.
+    - Gotcha: delete only those two columns. A column you added yourself stays.
+    - Gotcha: a doc's own `**Last updated:**` line is harmless. Keep it or delete it.
+    - Check: the index's header row in `architecture/README.md` names neither `Version` nor
+      `Status`, and its Conventions list doesn't mention `Last updated`.
 
 16. **Every project: update the ADR-number scan in `adr/README.md`, and, in a team, check its
     *Who accepts an ADR* line.**
