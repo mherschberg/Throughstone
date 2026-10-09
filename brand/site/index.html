@@ -114,8 +114,6 @@
   .video-card h3{font-size:18px;margin-bottom:8px;}
   .video-card p{color:var(--mortar);font-size:16px;line-height:1.48;margin:0 0 12px;}
   .video-card a{font-size:16px;font-weight:600;margin-top:auto;}
-  .video-note{margin-top:24px;color:var(--mortar);font-size:18px;max-width:760px;}
-  .video-note p{margin:0;}
 
   /* sessions */
   .sessions{background:var(--paper);}
@@ -222,7 +220,7 @@
     <div class="cards3">
       <div class="pcard"><div class="num">01</div><h3>Think before you code.</h3><p>Start with architecture docs and decision records, then code. You begin from a plan you can read and question.</p></div>
       <div class="pcard"><div class="num">02</div><h3>Decisions get recorded.</h3><p>Every meaningful choice is written down as a decision record, not buried in a chat log — so the “why” survives.</p></div>
-      <div class="pcard"><div class="num">03</div><h3>Work in runnable units.</h3><p>Build proceeds in phases → steps → substeps, each a runnable unit with check-ins, so progress stays reviewable.</p></div>
+      <div class="pcard"><div class="num">03</div><h3>Work in runnable units.</h3><p>Build proceeds in phases → STEPs → substeps, each a runnable unit with review points, so progress stays reviewable.</p></div>
     </div>
   </div>
 </section>
@@ -235,9 +233,9 @@
       <p>Throughstone keeps the agent from starting with code. It first turns the idea into durable project state, then builds against that state in reviewable units.</p>
     </div>
     <div class="flow">
-      <div class="flow-step"><div class="num">01</div><h3>Design first</h3><p>Point the agent at AGENTS.md to kick off: it interviews you, then the architecture sessions capture scope, data, security, interfaces, testing, deployment, and ADRs before any app code.</p></div>
-      <div class="flow-step"><div class="num">02</div><h3>Build in STEPs</h3><p>The planning session turns the locked architecture into implementation STEPs, each a focused substep prompt with verification, review, and archival.</p></div>
-      <div class="flow-step"><div class="num">03</div><h3>Check-ins</h3><p>At a STEP or date you schedule (new projects start at STEP-20), reconcile the docs against the code, re-check risks, and run the full suite so drift can't pile up.</p></div>
+      <div class="flow-step"><div class="num">01</div><h3>Design first</h3><p>Point the agent at AGENTS.md to kick off: it interviews you, then the architecture sessions capture scope, data, security, interfaces, testing, deployment, and decision records (ADRs) before any app code.</p></div>
+      <div class="flow-step"><div class="num">02</div><h3>Build in STEPs</h3><p>The planning session outlines implementation STEPs from the locked architecture. Each is planned when it starts and runs as focused substeps, with verification, review, and archival.</p></div>
+      <div class="flow-step"><div class="num">03</div><h3>Check-ins</h3><p>At a STEP or date you schedule (a new project's first check-in defaults to STEP-20), reconcile the docs against the code, re-check risks, and run every test suite so drift can't pile up.</p></div>
     </div>
     <div class="flow-note">
       <div class="eyebrow">Beyond the build</div>
@@ -280,7 +278,7 @@
       </div>
     </div>
     <div class="artifact-note">
-      <p>The docs hub records what the system is now; the prompts repo records how it got there.</p>
+      <p>The docs hub records what the system is now; the prompts folder records how it got there.</p>
       <a class="btn btn-secondary" href="https://github.com/mherschberg/Throughstone/blob/main/ARTIFACT-TRAIL.md">See the artifact trail</a>
     </div>
   </div>
@@ -298,15 +296,12 @@
       <div class="video-card"><div class="num">02</div><h3>Initial Setup</h3><p>How to install Throughstone to start your project.</p><a href="https://youtu.be/mSjY8XW9lUM">Watch video 2</a></div>
       <div class="video-card"><div class="num">03</div><h3>Business Overview Walkthrough</h3><p>An overview of the first interactive session, describing your project.</p><a href="https://youtu.be/JestTGLVMwA">Watch video 3</a></div>
       <div class="video-card"><div class="num">04</div><h3>Moving to the Next Sessions</h3><p>Shows how the system guides you automatically so you can focus on your product, not the process.</p><a href="https://youtu.be/16jq3MzZPvI">Watch video 4</a></div>
-      <div class="video-card"><div class="num">05</div><h3>Conditional Sessions</h3><p>An overview of how optional planning sessions work based on your needs.</p><a href="https://youtu.be/OS0p9Riy_28">Watch video 5</a></div>
+      <div class="video-card"><div class="num">05</div><h3>Conditional Sessions</h3><p>An overview of how optional architecture sessions work based on your needs.</p><a href="https://youtu.be/OS0p9Riy_28">Watch video 5</a></div>
       <div class="video-card"><div class="num">06</div><h3>Scaling Session Example</h3><p>Deep dive into an example session on scaling.</p><a href="https://youtu.be/dNaleBhDKe4">Watch video 6</a></div>
       <div class="video-card"><div class="num">07</div><h3>Observability Session Example</h3><p>Deep dive into an example session on observability.</p><a href="https://youtu.be/88a0TXvQAKs">Watch video 7</a></div>
       <div class="video-card"><div class="num">08</div><h3>Glossary Session Example</h3><p>The system glossary, what it is, and how it helps your project.</p><a href="https://youtu.be/RbsYeFkOgtQ">Watch video 8</a></div>
       <div class="video-card"><div class="num">09</div><h3>Post Architecture Session File Example</h3><p>Shows what files get created by the architecture sessions.</p><a href="https://youtu.be/hcX2-mw7Oj4">Watch video 9</a></div>
       <div class="video-card"><div class="num">10</div><h3>Creating Steps</h3><p>Shows how the development work gets broken down into smaller feature sets.</p><a href="https://youtu.be/bDjWrMow_Qk">Watch video 10</a></div>
-    </div>
-    <div class="video-note">
-      <p>For the full ordered list, including every AlignedDating session link, use the <a href="https://github.com/mherschberg/Throughstone#videos">README video section</a>.</p>
     </div>
   </div>
 </section>
@@ -356,10 +351,10 @@
       <p>Design isn't just architecture. Throughstone plans for the full lifecycle — deployment, releases, incidents, and dependencies — with runbooks and registers for the maintenance work that often gets skipped until production exposes it.</p>
     </div>
     <div class="ops-grid">
-      <div class="op-card"><h3>Check-ins</h3><p>At a STEP or date you schedule (new projects start at STEP-20), reconcile docs against code, re-check conditional sessions, review risks, and run every test suite.</p></div>
+      <div class="op-card"><h3>Check-ins</h3><p>At a STEP or date you schedule (a new project's first check-in defaults to STEP-20), reconcile docs against code, re-check conditional sessions, review risks, and run every test suite.</p></div>
       <div class="op-card"><h3>Release and rollback</h3><p>Prepare the rollback path before deploy, verify during a watch window, and make the return lever explicit.</p></div>
       <div class="op-card"><h3>Incidents</h3><p>Stabilize first, then run root-cause analysis, search for similar bugs, fix, harden, and write the postmortem.</p></div>
-      <div class="op-card"><h3>Dependencies</h3><p>Vet packages before adding them and audit installed dependencies for vulnerabilities, licenses, and provenance.</p></div>
+      <div class="op-card"><h3>Dependencies</h3><p>Vet packages for licenses and provenance before adding them, and audit installed dependencies for vulnerabilities.</p></div>
       <div class="op-card"><h3>Secrets and risks</h3><p>Rotate credentials deliberately and keep accepted risks or technical debt visible in a durable register.</p></div>
     </div>
   </div>
@@ -404,13 +399,14 @@
     <div class="codeblock">
 <span class="c"># 1 · Clone the latest release into a new folder named for your project</span><br>
 $ git <span class="p">clone</span> --branch v1.7.1 https://github.com/mherschberg/Throughstone.git my-project &amp;&amp; cd my-project<br>
-<span class="c">#     Or use GitHub "Use this template"; README explains how it affects remotes.</span><br><br>
+<span class="c">#     Or use GitHub "Use this template", which copies main, not a release;</span><br>
+<span class="c">#     README explains how that route affects remotes.</span><br><br>
 <span class="c"># 2 · Run the one-time setup wizard (asks a few questions)</span><br>
 $ ./init.sh<br><br>
 <span class="c"># 3 · Start your AI agent in that folder and send it one message:</span><br>
 <span class="p">&gt; Read AGENTS.md and follow it.</span><br><br>
 <span class="c"># It runs the kickoff, drafts your architecture docs + decision</span><br>
-<span class="c"># records (you review), then builds in phases → steps → substeps.</span>
+<span class="c"># records (you review), then builds in phases → STEPs → substeps.</span>
     </div>
     <div class="cta">
       <a class="btn btn-primary" href="https://github.com/mherschberg/Throughstone#quickstart">Read full Quickstart</a>
