@@ -281,12 +281,65 @@ and skip any step they mark as superseded.
 
 10. **Every project: put a `NEXT-CHECK-IN` line in `overview.md`, in place of any `CHECK-IN-CADENCE`
     line.**
+    - `overview.md` is your project's own file, so step 1 doesn't replace it. 1.x worked out when a
+      check-in was due from its `<!-- CHECK-IN-CADENCE: N -->` line, or 20 without one, counted from
+      the last STEP titled like a check-in. Nothing reads that line now: `./doctor.sh status` reads
+      one that says when the next check-in is, as a STEP or a date, and without it reports none
+      scheduled and proposes a check-in on every run.
+    - Ask the user when the next check-in should be, as a STEP number or a date; don't pick one for
+      them. If they have no view, suggest the first `Planned` check-in row in
+      `prompts/STEP-index.md`; with none, the last check-in's STEP number plus the cadence the old
+      line set (20 if there was none), which is about when 1.x would have said one was due; and with
+      no check-in run yet, the cadence alone, such as `STEP-20`.
+    - In the docs hub's `overview.md`, replace the `CHECK-IN-CADENCE` line and the comment under it
+      that starts `<!-- ^ Check-in cadence`, or whichever of the two is there, with the
+      `NEXT-CHECK-IN` line and its comment from `templates/overview-template.md`, and write the
+      answer into the line: `<!-- NEXT-CHECK-IN: STEP-50 -->` or
+      `<!-- NEXT-CHECK-IN: 2026-11-15 -->`. With neither, put them below the `PROJECT-STATUS`
+      marker's comment, where a new project has them. Move any note of your own out of the old
+      comment first.
+    - Gotcha: write the value in exactly one of those two shapes. Anything else, such as `step-50`
+      or `15 Nov`, reads as none scheduled.
+    - Check: `overview.md` has neither a `CHECK-IN-CADENCE` line nor a comment starting
+      `<!-- ^ Check-in cadence`, and under `Check-in:`, `./doctor.sh status` names a STEP or a date,
+      not "none scheduled".
 
 11. **If a row of `prompts/STEP-index.md` has a Status that's blank or only dashes: write its real
     status.**
+    - `./doctor.sh check` now fails such a row: check 3 lists it with the status it read, as in
+      `STEP-7 -> "-"`. 1.x's doctor skipped a STEP or substep row whose Status was blank or only
+      dashes, such as `-`, `--` or `:-:`, as though it were the table's separator line.
+      `./doctor.sh status` still skips it, so until it's fixed the helper answers as if the row
+      weren't in the index, and can name a later STEP as next or pass over a substep.
+    - For each row listed that way, write its real status: `Planned`, `In progress`, `Done`,
+      `Deferred` or `Abandoned`, or for a substep also `N/A`. A blank says nothing about where the
+      work stands, so ask the user, or in a team the STEP's owner, rather than guess.
+    - Gotcha: leave each table's separator line, the one under its header, as it is. Its first cell
+      is dashes too, which is how the doctor tells it apart.
+    - Check: under check 3, `./doctor.sh check` lists no row whose status shows as `""` or only
+      dashes.
 
 12. **If `prompts/STEP-index.md` lists the substeps of an in-flight STEP other than STEP-1: move
     that list into the STEP's PLAN.**
+    - 1.x's recipe in `prompts/README.md` had you list a STEP's substeps in the index. A later
+      STEP's substep status now lives in the `Status` column of its PLAN's Substeps table, as
+      `templates/step-plan-template.md` shows, and only STEP-1's substeps stay in the index. While
+      STEP-1's row is still open, `./doctor.sh status` reads every substep table in the index as
+      STEP-1's, so another STEP's open substep can come out as the next architecture session.
+    - A substep's number is its row's first cell: `7.1`, `7.2` and so on for STEP-7. For each STEP
+      other than STEP-1 whose row isn't `Done`, `Deferred` or `Abandoned` and whose substeps the
+      index lists, open its PLAN in `Upcoming Prompts/`. If its Substeps table has no `Status`
+      column, add one after `Title`, as the template has it. Copy each substep's status into that
+      column, with anything else its index row records that the PLAN doesn't, then delete those
+      substeps from the index.
+    - Leave the list of a STEP that's `Done`, `Deferred` or `Abandoned` where it is. A `Done` STEP's
+      PLAN is archived in `prompts/`, and an archived STEP folder is write-once
+      (`prompts/README.md`).
+    - Gotcha: in a team, a STEP's PLAN is by default only on its owner's machine, so its owner makes
+      the move, on that machine.
+    - Check: apart from STEPs whose PLAN is on another machine, `prompts/STEP-index.md` lists
+      substeps only for STEP-1 and for STEPs that are `Done`, `Deferred` or `Abandoned`, and each
+      PLAN you moved a list into has a `Status` column holding it.
 
 13. **If you deferred architecture work: make sure a `registries/risks.yml` row covers each
     deferral.**
@@ -373,6 +426,30 @@ and skip any step they mark as superseded.
 
 17. **If a script or CI job of yours runs a Throughstone helper: check the arguments it passes and
     the output it reads.**
+    - Arguments: each helper now stops with exit 2, naming what it didn't take. `check.sh` takes
+      only `--check-in`, and `status.sh`, `links.sh`, `setup-workspace.sh` and `./doctor.sh help`
+      take nothing, where 1.x ignored anything passed and ran as usual. `apply-project-license.sh`
+      takes `--notice-only` and one target, and stops on a second target or any other option, where
+      1.x ignored a second argument and took an unknown option for the target. Drop anything else a
+      call passes: `./doctor.sh status --check-in`, for one, now fails, since `--check-in` belongs
+      to `check`.
+    - Exit status, multi-repo only: `setup-workspace.sh` no longer stops at the first clone that
+      fails. It writes the root `AGENTS.md`, `CLAUDE.md` and `doctor.sh`, carries on, and ends with
+      exit 0, adding a line that counts any repos that didn't arrive,
+      `<N> repo(s) above did not arrive.` 1.x stopped with git's exit status. To tell whether every
+      repo arrived, look for that line and for a `Not cloning:` line, not at the exit status.
+    - Output: check 10 of `./doctor.sh check` is now the repo registry, which runs only with
+      `--check-in` and otherwise passes as skipped, where 1.x's check 10 checked the
+      `CHECK-IN-CADENCE` line. The pass lines of checks 1 to 3 end in a row count, as in
+      `all statuses valid (12 STEP row(s), 14 substep row(s))`, and checks 1, 2, 3 and 9 can warn
+      where 1.x passed. `./doctor.sh status` heads its last section `Check-in:`, not
+      `Check-in cadence:`.
+    - Gotcha: this release rewords many of the helpers' messages. From `check` and `links`, match on
+      `[PASS]`, `[WARN]` and `[FAIL]`, the closing `RESULT:` line and the exit status, not on a
+      message's words: both still exit 1 on a `[FAIL]`, and a warning never fails a run.
+    - Check: each such script or job runs to the end with no `unknown option`, `unknown command` or
+      `unexpected extra argument` from a helper, finds what it reads in the helper's output, and
+      none takes a `setup-workspace.sh` exit 0 to mean every repo arrived.
 
 18. **Optional, every project: widen the `.claude` line in each repo's `.gitignore`.**
     - Replace the line `.claude/settings.local.json` with the three lines a new project gets, and
@@ -401,6 +478,22 @@ and skip any step they mark as superseded.
 
 19. **Optional, each contributor: check the communication style in your root
     `.throughstone/local-user.md`.**
+    - The file's two settings now do one job each: the experience level sets how much technical
+      background an agent assumes, and the communication style how much reasoning comes with a
+      decision. In 1.x the level set both, Level 3 meaning terse and Levels 1 and 2 an explanation
+      of why, whatever the style said, so the same file now sounds different.
+    - Ask the contributor how much reasoning they want with each decision, and set
+      `Communication style:` to `Terse`, `Normal` or `Explanatory`; don't choose for them. To keep
+      how 1.x sounded, that's `Terse` at Level 3 and at least `Normal` at Level 1 or 2. Other 1.x
+      combinations have no exact match.
+    - Nothing else needs changing: both values are still valid. The words after the level's number
+      may be 1.x's label, such as `no coding experience`; keep them, or write the new label from
+      `BOOTSTRAP-PROMPT.md` Stage 0.
+    - Gotcha: the file is per-machine and never committed, so each contributor checks their own, on
+      each machine they work on. Where there's none, there's nothing to do: the next session asks
+      both questions and writes it.
+    - Check: where the file exists, its `Communication style:` is `Terse`, `Normal` or
+      `Explanatory`, as its owner chose, and its `Experience level:` is still 1, 2 or 3.
 
 20. **Every project: run the checks** from the workspace root: `./doctor.sh check`,
     `./doctor.sh check --check-in`, `./doctor.sh links` and `./doctor.sh status`.
