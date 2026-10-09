@@ -11,9 +11,10 @@ documented, well-architected project.
 It encodes a pattern proven across several real projects:
 - **Think before you code.** The first STEP produces architecture docs and decision
   records — *no application code* — so the foundation is deliberate.
-- **Decisions get recorded.** Architecture docs say *what* the system is; ADRs say *why*
-  it's that way. Both are versioned and maintained.
-- **Work is broken into runnable units.** Phases → STEPs → substeps, each small enough
+- **Decisions get recorded.** Architecture docs say *what* the system is; decision records
+  (ADRs) say *why* it's that way. The docs are versioned and kept current; an ADR is never
+  rewritten, only amended or superseded.
+- **Work is broken into runnable units.** Phases → STEPs → substeps, each substep small enough
   for an agent to execute cleanly in a fresh context.
 
 > **Just want to start?** Jump to the **[Quickstart](#quickstart)** or watch the
@@ -132,40 +133,40 @@ production software, get review from an experienced engineer.
      ```
      GitHub template repos already contain a template-created commit. Because `init.sh`
      creates fresh project history, it will not automatically reuse that non-empty `origin`
-     in **mono-repo** mode; otherwise a normal push to the generated trunk branch would fail. Use
-     the template path as a download vehicle, then add an empty remote later, delete/recreate
+     in **mono-repo-for-now**; if it did, a normal push to the generated trunk branch would fail.
+     Use the template path as a download vehicle, then add an empty remote later, delete
      the GitHub repo before using GitHub remote creation, or deliberately replace the
-     template-created remote yourself after reviewing the history. In the default
+     template-created remote yourself after reviewing the history. In a
      **multi-repo** setup, the root is only a workspace shell, so the template repo is just a
      download vehicle — use `--remotes=yes` or add remotes later for the docs and prompts
      repos. Once setup is done, delete the template repo unless you replace its history with
      your project's: it still holds Throughstone's files, including a CI workflow that runs
      Throughstone's tests, and issue templates that point to Throughstone.
 
-   Everything from here runs *inside* this folder. After setup it holds your repo(s); the
-   root folder itself is just the shell around them (see [Layout](#layout)), so its name is
+   Everything from here runs *inside* this folder. After setup it is just the shell around your
+   repos, or in mono-repo-for-now the one repo itself (see [Layout](#layout)), so its name is
    cosmetic — but matching it to your project keeps things clear.
 
 2. **Run the setup wizard** from inside that folder:
    ```bash
    ./init.sh
    ```
-   It asks a few questions (project slug, repo layout, **license**, optional pieces), then
-   detaches this download from the template's git history, renames the `{{PROJECT}}`
-   placeholder everywhere to your slug, stamps your chosen open-source `LICENSE` when
-   applicable, and initializes your repo(s). In mono-repo mode it reuses an existing root
+   It asks a few questions (project slug, repo layout, **license**, solo or team, optional
+   remotes), then detaches this download from the template's git history, renames the
+   `{{PROJECT}}` placeholder everywhere to your slug, stamps your chosen open-source `LICENSE` when
+   applicable, and initializes your repo(s). In mono-repo-for-now it reuses an existing root
    `origin` only when that origin appears empty; non-empty template-created origins are left
    unattached so setup does not lead you into a failed or destructive push. See
    [`init.sh`](init.sh).
 
-   Prefer to script it? Every question has a flag — run `./init.sh --help` or see
+   Prefer to script it? Flags answer its questions — run `./init.sh --help` or see
    [What `init.sh` flags are available?](#what-initsh-flags-are-available) for the full list.
    You can pre-answer non-interactively, e.g.:
    ```bash
    ./init.sh --non-interactive --slug=acme --desc="platform for roadrunner catching" \
              --license=mit --holder="Acme Inc." --layout=multi
    ```
-   Any flag you omit is still prompted (without `--non-interactive`); with it, a missing
+   Most flags you omit are still prompted (without `--non-interactive`); with it, a missing
    required value is an error. `init.sh` first checks that `git` and `perl` are present. When
    it finishes you can delete `init.sh` — it has done its job.
 
@@ -190,7 +191,7 @@ production software, get review from an experienced engineer.
              --docs-remote=git@bitbucket.org:your-team/acme-docs.git \
              --prompts-remote=git@bitbucket.org:your-team/acme-prompts.git
    ```
-   Mono-repo projects use `--remote-url=...` instead; if the checkout already has an empty
+   Mono-repo-for-now projects use `--remote-url=...` instead; if the checkout already has an empty
    non-Throughstone `origin`, `--remotes=yes` reuses and pushes it with plain Git.
 
 3. **Start your AI agent in the project folder, and send it one command.** Launch your
@@ -210,7 +211,7 @@ production software, get review from an experienced engineer.
    From there the agent proposes a roadmap and starts the architecture STEP; you work
    through the architecture sessions one at a time
    (*"Run STEP-1.1: System Overview, Requirements & Non-Goals"*), then move into
-   building. On any later session, the same **"Read AGENTS.md and follow it"** resumes where
+   building. In any later chat, the same **"Read AGENTS.md and follow it"** resumes where
    you left off (it reads the roadmap in `prompts/STEP-index.md`) rather than re-running the
    kickoff.
 
@@ -234,7 +235,7 @@ STEPs.
    Shows how the system guides you automatically so you can focus on your product, not the
    process.
 5. [Throughstone: Conditional Sessions](https://youtu.be/OS0p9Riy_28) —
-   An overview of how conditional sessions work (optional planning sessions based on your
+   An overview of how conditional sessions work (optional architecture sessions based on your
    needs).
 6. [Throughstone: Scaling Session Example](https://youtu.be/dNaleBhDKe4) —
    Deep dive into an example session (scaling).
@@ -251,9 +252,8 @@ STEPs.
 
 ## Layout
 
-After setup, the workspace is a multi-repo project. The **workspace root is not a repo** —
-it's a per-machine shell holding only pointers/config. Everything durable lives in sibling
-repos:
+In a multi-repo project, the **workspace root is not a repo** — it's a per-machine shell holding
+only pointers/config. Everything durable lives in sibling repos:
 
 ```
 your-project/                    ← workspace shell (per-machine, not a repo)
@@ -265,7 +265,7 @@ your-project/                    ← workspace shell (per-machine, not a repo)
 ├── prompts/                     ← [repo] prompts/STEP-index.md roadmap + archived STEP plans/prompts
 ├── Upcoming Prompts/            ← scratch for the in-flight STEP (not a repo)
 └── Code/
-    └── {{PROJECT}}-docs/         ← [repo] the docs hub — ALL durable content:
+    └── {{PROJECT}}-docs/         ← [repo] the docs hub — almost all durable content:
         ├── AGENTS.md            ← canonical agent context
         ├── METHOD.md            ← the methodology — read this
         ├── BOOTSTRAP-PROMPT.md  ← the kickoff prompt
@@ -276,11 +276,12 @@ your-project/                    ← workspace shell (per-machine, not a repo)
         └── scripts/             ← setup-workspace.sh (onboard a new developer's machine)
 ```
 
-> `{{PROJECT}}` is a placeholder the wizard replaces with your project's name.
+> `{{PROJECT}}` is a placeholder the wizard replaces with your project's slug.
 
 > *If you chose **mono-repo for now** in `init.sh`, the workspace root itself is the single
 > repo and `prompts/` / `Code/` are folders inside it — the multi-repo split above is the
-> target. See [`Code/{{PROJECT}}-docs/METHOD.md`](Code/{{PROJECT}}-docs/METHOD.md) §7.*
+> target, to move to when the architecture asks for it. See
+> [`Code/{{PROJECT}}-docs/METHOD.md`](Code/{{PROJECT}}-docs/METHOD.md) §7.*
 
 **Start with [`Code/{{PROJECT}}-docs/METHOD.md`](Code/{{PROJECT}}-docs/METHOD.md)** to
 understand how the project is organized.
@@ -327,8 +328,8 @@ brief. For setup, you need a POSIX shell, `git`, and `perl` as described in the
 
 ### What `init.sh` flags are available?
 
-`./init.sh` runs interactively by default. Flags pre-answer setup questions; any omitted
-answer is still prompted unless you pass `--non-interactive`. Flags take precedence over the
+`./init.sh` runs interactively by default. Flags pre-answer setup questions; most omitted
+answers are still prompted unless you pass `--non-interactive`. Flags take precedence over the
 matching environment variables.
 
 | Flag | Env var | Values | Purpose |
@@ -337,19 +338,19 @@ matching environment variables.
 | `--desc=TEXT` | `INIT_DESC` | one-line text | Seed project description. |
 | `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `proprietary` | Project license posture. Not repository visibility — see `--visibility`. |
 | `--holder=NAME` | `INIT_HOLDER` | text | Copyright holder for open-source licenses. |
-| `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; default is `multi`. |
+| `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; `--non-interactive` falls back to `multi`. |
 | `--registries=yes\|no` | `INIT_REGISTRIES` | `yes`, `no` | **Deprecated and ignored.** `registries/` always ships in both layouts; `no` keeps the directory and prints a deprecation notice. |
-| `--collab=MODE` | `INIT_COLLAB` | `solo`, `team` | Collaboration wording and ADR authority defaults; default is `solo`. |
+| `--collab=MODE` | `INIT_COLLAB` | `solo`, `team` | Collaboration wording and ADR authority defaults; `--non-interactive` falls back to `solo`. |
 | `--adr-authority=TEXT` | `INIT_ADR_AUTHORITY` | text | Who accepts ADRs in team mode. |
 | `--trunk-branch=NAME` | `INIT_TRUNK_BRANCH` | valid Git branch name | Generated repo trunk branch; default is `main`. |
 | `--remotes=yes\|no` | `INIT_REMOTES` | `yes`, `no` | Set up Git remotes during init; default is `no`. |
-| `--remote-provider=PROVIDER` | `INIT_REMOTE_PROVIDER` | `github`, `manual` | Use GitHub CLI or existing remote URLs; default is `github` when remotes are enabled. |
+| `--remote-provider=PROVIDER` | `INIT_REMOTE_PROVIDER` | `github`, `manual` | Use GitHub CLI or existing remote URLs; `--remotes=yes` without a remote URL falls back to `github`. |
 | `--owner=OWNER` | `INIT_OWNER` | GitHub user/org | GitHub owner/org for `--remote-provider=github`. |
 | `--remote-url=URL` | `INIT_REMOTE_URL` | Git URL | Existing mono-repo remote URL for manual setup. |
 | `--docs-remote=URL` | `INIT_DOCS_REMOTE` | Git URL | Existing docs repo remote URL for manual multi-repo setup. |
 | `--prompts-remote=URL` | `INIT_PROMPTS_REMOTE` | Git URL | Existing prompts repo remote URL for manual multi-repo setup. |
 | `--visibility=VALUE` | `INIT_VISIBILITY` | `private`, `public` | GitHub repo visibility; default is `private`. |
-| `-y`, `--yes`, `--non-interactive` | `INIT_NONINTERACTIVE` | none / truthy env value | Never prompt; error on missing required values. |
+| `-y`, `--yes`, `--non-interactive` | `INIT_NONINTERACTIVE` | none / `1`, `true`, `yes` or `y` | Never prompt; error on missing required values. |
 | `-h`, `--help` | | none | Show the help text and exit. |
 
 ### What documents does Throughstone create?
@@ -361,7 +362,8 @@ behind it.
 
 See [Throughstone Artifact Trail](ARTIFACT-TRAIL.md) for a guided tour with representative
 snippets. In short, Throughstone creates a project documentation hub under
-`Code/{{PROJECT}}-docs/` and a sibling `prompts/` history repo. The core files include:
+`Code/{{PROJECT}}-docs/` and a sibling `prompts/` history repo, which in mono-repo-for-now is a
+folder of the one repo. The core files include:
 
 - `overview.md` — the project brief.
 - `inputs/` — a drop point for documents you already have (product specs, prior
@@ -397,7 +399,7 @@ to handle this.)
 
 Throughstone's approach is to move as much project judgment as possible out of a long chat
 and into a durable process. Architecture comes first, decisions are recorded, work is split
-into small STEPs, each STEP has review criteria, and periodic check-ins reconcile code back
+into scoped STEPs, each STEP has review criteria, and periodic check-ins reconcile code back
 against the docs. The goal is not to make the AI incapable of being wrong; it is to make wrong
 turns smaller, easier to see, and less likely to compound into an unmaintainable project.
 
@@ -475,8 +477,8 @@ the same source of truth.
 You can change it. For a one-off exception, tell the AI agent what you want to do differently
 for that task.
 
-For a lasting change, update the Throughstone process files: `METHOD.md`, `AGENTS.md`,
-`CLAUDE.md`, templates, runbooks, coding standards, or related project docs. You can do this
+For a lasting change, update the Throughstone process files: `METHOD.md`, the docs hub's
+`AGENTS.md`, templates, runbooks, coding standards, or related project docs. You can do this
 by hand or by telling the agent to modify those files. Once changed, future agents can read
 and follow the updated process from disk instead of relying on chat memory.
 
@@ -567,8 +569,9 @@ Throughstone-authored scaffold material remains under BSD-3-Clause, so `init.sh`
 separate notice as `LICENSE-THROUGHSTONE` in each independently distributed repo that contains
 it, including the root of a mono-repo. Generated repos also include `LICENSING.md` to state that
 the Throughstone notice does not license proprietary application code. Your application code is
-therefore governed by the open-source license you chose or remains proprietary, while retained
-Throughstone material keeps its original license.
+therefore governed by the open-source license you chose or remains proprietary (an existing repo
+you bring into the project keeps its own licensing), while retained Throughstone material keeps
+its original license.
 
 > **A note on the name.** The BSD-3-Clause license covers the *code*, not the *name*.
 > "Throughstone" is a trademark of Mark A. Herschberg — you're welcome to say you *use*
