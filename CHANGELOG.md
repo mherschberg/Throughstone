@@ -14,13 +14,14 @@ supported layout, bringing a repo into a project and splitting one each get a ru
 problems that 1.x projects carry without knowing it are fixed. Have a 1.x project? Staying is fine;
 the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how.
 
-- **Setup runs only in a fresh template copy**, and checks its answers before it changes anything. A
-  script that pipes answers into it may need changes.
+- **Setup no longer runs over a project that's already set up, or a repository that isn't the
+  template's**, and checks its answers before it changes anything. A script that pipes answers into
+  it may need changes.
 - **Mono-repo-for-now is a full layout.** The registry says which layout a project is in, the CI
   gate runs from the workspace root, and the prompts of the STEP in flight aren't committed.
 - **`setup-workspace.sh` no longer clones the wrong repo into a folder, or stops at the first clone
-  that fails.** It reports a row it can't read or a location it won't use, and counts the repos that
-  didn't arrive. A script that reads its exit status may need changes.
+  that fails.** It reports a row it can't read or a location it won't use, and counts the repos it
+  reports as not arriving. A script that reads its exit status may need changes.
 - **Two new runbooks:** one brings a repo into a project, whether created, adopted or split out; the
   other splits a repo and keeps its full history. The rule that a mono-repo-for-now project must
   split before a second contributor joins is gone.
@@ -30,8 +31,8 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 - **`./doctor.sh` gives fewer wrong answers**, several of them silent before, and refuses arguments
   it doesn't know.
 - **Team rules switch on once the *Who accepts an ADR* line in `adr/README.md` names anyone but
-  `_solo author_`**, or when agents work in parallel, and in a team a STEP in progress records its
-  owner.
+  `_solo author_`**, or when agents work STEPs in parallel, and in a team a STEP in progress records
+  its owner.
 - **The two local-profile settings each do one job:** the experience level sets how much technical
   background an agent assumes, and the communication style how much reasoning comes with a decision.
 - **Deferred core sessions and partly covered docs come back through a `registries/risks.yml` row**,
@@ -43,24 +44,25 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 ### Setup
 
 - **New:** setting up a new mono-repo-for-now project, `init.sh` warns about each top-level file or
-  folder of yours that the first commit will take in, then carries on.
-- **Changed:** pressing Enter no longer settles the answers that shape a new project. At the
+  folder of yours that the first commit will take in, other than a `.gitattributes` or a `.claude/`
+  folder, then carries on.
+- **Changed:** pressing Enter settles fewer of the answers that shape a new project. At the
   open-source-or-proprietary question, Enter now means proprietary, which writes no `LICENSE`, where
   in 1.x two Enters chose open source and MIT. The open-source licence, layout, solo/team and
   remote-setup menus have no default, and ask again until they get an answer they know;
   `init.sh --help` marks the defaults `--non-interactive` falls back to.
-- **Changed:** `init.sh`'s questions say what each answer does to a new project. The layout menu,
-  the line before the remotes question and the closing note say what each layout commits: in
-  mono-repo-for-now, everything but the STEP in flight in `Upcoming Prompts/`; in multi-repo, its
-  two repositories, with nothing at the root tracked or backed up. The choice to use existing remote
-  URLs says each repository must already exist, be empty and be reachable, and that all three are
-  checked before anything changes.
+- **Changed:** more of `init.sh`'s questions say what each answer does to a new project. The layout
+  menu and the closing note say what each layout commits: in mono-repo-for-now, everything but the
+  STEP in flight in `Upcoming Prompts/`; in multi-repo, its two repositories, with nothing at the
+  root tracked or backed up. The remote-setup menu's choice to use existing remote URLs says each
+  repository must already exist, be empty and be reachable, and that all three are checked before
+  anything changes.
 - **Changed:** a new project's setup says more about what it did. Each `git repo:` line names the
   branch its initial commit is on, a repository created on GitHub is reported with its visibility
   and then the URL pushed to, and in mono-repo-for-now the two licence lines say which file is the
-  repository's licence. Its notes also say that `./doctor.sh links` needs `python3` and that the
-  kickoff drafts `overview.md`, and a multi-repo run mentions an origin already at the root only
-  when no remotes were asked for.
+  repository's licence. Its notes also say that the kickoff drafts `overview.md` and, when `python3`
+  is missing, that `./doctor.sh links` needs it, and a multi-repo run mentions an origin already at
+  the root only when no remotes were asked for.
 - **Changed:** in a new project, `BOOTSTRAP-PROMPT.md` opens by saying the agent follows it once the
   user says "Read `AGENTS.md` and follow it", instead of giving a second kickoff command, and
   `overview.md` opens as your project brief, which the kickoff drafts with you, instead of calling
@@ -68,12 +70,12 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 - **Changed:** when `init.sh` records a new project's remote on a registry row, it puts the
   `remote:` line right after `location:` instead of after `type:`, so the three values scripts read
   sit together.
-- **Fixed:** `init.sh` sets up a new project only in a fresh copy of the template, and no longer
-  destroys a repository it's run in. It checks before it changes anything, and stops with exit 2 in
-  any other folder, or when `prompts/` is already a repository; 1.x deleted the folder's `.git`,
-  every commit with it, or committed on top of the repository in `prompts/`, and exited 0.
+- **Fixed:** `init.sh` no longer destroys a repository that isn't the template's. It checks before
+  it changes anything, and stops with exit 2 in an already set-up project or a repository whose
+  history isn't the template's, or when `prompts/` is already a repository; 1.x deleted the folder's
+  `.git`, every commit with it, or committed on top of the repository in `prompts/`, and exited 0.
 - **Fixed:** a new project's setup stops when its input runs out. A question with a default takes
-  it, and one without stops `init.sh` with exit 2, naming the question; 1.x carried on with blank
+  it, and one without stops `init.sh` with exit 2, quoting its prompt; 1.x carried on with blank
   answers, or asked for the slug forever.
 - **Fixed:** setting up a new project, `init.sh` reads typed answers as meant. Yes/no questions take
   `y`, `yes`, `true` or `1` and their opposites, in any case, where 1.x read `YES` or `1` as no, and
@@ -81,38 +83,39 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   typed `mono` or `team` built the wrong project. Anything else is asked again, and so is a blank
   description or copyright holder, which 1.x wrote into the project's files.
 - **Fixed:** a flag written in the space form must have a value: `--desc ""`, or `--desc` followed
-  by another flag, now stops `init.sh` with exit 2, naming the flag. 1.x took the next flag as the
-  value, so `--desc --layout=mono` set up a new multi-repo project described as `--layout=mono`, and
-  exited 0.
+  by another `--` flag, now stops `init.sh` with exit 2, naming the flag. 1.x took the next flag as
+  the value, so `--desc --layout=mono --non-interactive` set up a new multi-repo project described
+  as `--layout=mono`, and exited 0.
 - **Fixed:** `init.sh` checks a new project's slug before it changes anything, stopping with exit 2,
   or asking again when it's typed, if the slug is over 64 characters or `Code/<slug>-docs` already
   exists. 1.x failed partway through on a slug over 250 characters, leaving a half-renamed tree, and
   nested the template inside an existing `Code/<slug>-docs`; a slug of 65 to 250 characters, which
   1.x took, is now refused. A slug that breaks the pattern is now told the rule in full, including
   that it starts with a letter.
-- **Fixed:** a description or copyright holder with a line break or a placeholder in double braces
-  is refused before anything changes, with exit 2 from a flag or environment variable and the
-  question again when typed; so is any flag value of only spaces. 1.x wrote them into the new
-  project's files, where a line break split the description across lines.
+- **Fixed:** a description or copyright holder with a line break or an upper-case placeholder in
+  double braces is refused before anything changes, with exit 2 from a flag or environment variable
+  and the question again when typed; so is one of only spaces. 1.x wrote them into the new project's
+  files, where a line break split the description across lines.
 - **Fixed:** a new project's remotes are checked before anything changes, and a problem stops
   `init.sh` with exit 2: on GitHub, a `gh` that isn't signed in or can't reach it, or a repository
   it would create that already exists; with URLs given, the same one for `--docs-remote` and
   `--prompts-remote`. 1.x found these only after building the project, and a multi-repo run still
   exited 0.
-- **Fixed:** a new project's setup says where it will push before it changes anything. In
-  mono-repo-for-now, an empty origin the folder already has is named on every path, with whether it
-  will be pushed to, and the GitHub path then creates nothing and needs no `gh`; 1.x named that
-  origin only after building the project. A proprietary project pushing to a URL it was given, or to
-  that origin, is warned that if it's public, pushing publishes the source, which 1.x said only of a
-  repository it created public.
-- **Fixed:** a flag that a new project's layout or mode can't use is named and ignored. The other
-  layout's remote-URL flags and their environment variables no longer switch on remote setup, and
-  `--adr-authority` in a solo project is no longer dropped without a word. Every team is now told
-  that team collaboration relies on shared remotes, not only one that typed its ADR authority.
+- **Fixed:** a new project's setup says more about where it will push before it changes anything. In
+  mono-repo-for-now, an empty origin the folder already has is named on every path that keeps it,
+  with whether it will be pushed to, and the GitHub path then creates nothing and needs no `gh`; 1.x
+  named that origin only after building the project. A proprietary project pushing to a URL it was
+  given, or to that origin, is warned that if it's public, pushing publishes the source, which 1.x
+  said only when public visibility was chosen.
+- **Fixed:** a flag that a new project's layout, or its solo/team choice, can't use is named and
+  ignored. The other layout's remote-URL flags and their environment variables no longer switch on
+  remote setup, and `--adr-authority` in a solo project is no longer dropped without a word. Every
+  team is now told that team collaboration relies on shared remotes, not only one that typed its ADR
+  authority.
 - **Fixed:** a remote backup that was asked for and didn't complete no longer cuts a new project's
-  setup short or goes unreported. `init.sh` prints its whole closing text under "Done — but the
-  backup did not complete.", reports on stderr which repositories to check and how, and exits 1; 1.x
-  exited 0, or in mono-repo-for-now stopped before the closing text.
+  setup short or goes unreported at the end. `init.sh` prints its whole closing text under "Done —
+  but the backup did not complete.", reports on stderr which repositories to check and how, and
+  exits 1; 1.x exited 0, or in mono-repo-for-now stopped before the closing text.
 - **Fixed:** a new project's closing report fits the run. Backup advice appears only when no remote
   was asked for, and fits the layout, where 1.x gave every project multi-repo advice even once its
   backup was done; the note on deleting `init.sh` no longer tells a mono-repo-for-now project that
@@ -142,35 +145,35 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   says `mono`. *(Upgrade step 4.)*
 - **New:** a mono-repo-for-now registry has a row for the workspace root (`location: "."`), the one
   repository that holds everything else. `init.sh` seeds it and records the root's remote on it once
-  something has been pushed. It is the only row whose remote a mono check-in asks about.
+  something has been pushed. It is the only row a mono check-in asks to carry a remote.
   *(Upgrade step 4.)*
 - **New:** the check-in checks the registry, through `./doctor.sh check --check-in`, which CI
   doesn't run. It fails a `layout:` line that's repeated, empty, unknown or below the rows, rows
   that disagree with the layout, a row it can't read, and a row with no `location:`. It warns when
-  the `layout:` line is missing, and about each repo no recorded remote covers.
-  *(Upgrade steps 3 and 4.)*
+  the `layout:` line is missing and, once that line says `mono` or `multi`, about each repo no
+  recorded remote covers. *(Upgrade steps 3 and 4.)*
 - **New:** a row can record how its repo arrived (`added_as: created` or `adopted`) and, for a repo
   split out of another, where it came from (`provenance:`). No script reads either, and existing
   rows don't need them.
 - **Changed:** a `location:` must be a path relative to the workspace root, where 1.x allowed any
   path: it never starts with `/` or `~`, and has no `..` segment. `setup-workspace.sh` skips and
-  reports any other shape instead of using it as written; a repo that can't move stays where it is,
-  behind a symlink. *(Upgrade steps 2 and 3.)*
+  reports any other shape on a row with a `remote:`, instead of using it as written; a repo that
+  can't move stays where it is, behind a symlink. *(Upgrade steps 2 and 3.)*
 - **Changed:** the `registries/repos.yml` header explains both layouts, and tells anything that
   rewrites a row to work on the whole row, from its `- name:` line to the next. In mono-repo-for-now
   it calls the registry an inventory of what was registered, where 1.x called it the target of a
   later split; `runbooks/splitting-repos.md` says how to work out what to split. *(Upgrade step 2.)*
 - **Removed:** the option to leave `registries/` out of a mono-repo-for-now project. Every project
-  gets the folder: `init.sh --registries=no` keeps it and prints a notice, and a value other than
-  `yes` or `no` stops setup with exit 2 in either layout. The interactive question about it is gone,
+  gets the folder: `init.sh --registries=no` keeps it and prints a notice, and a value it can't read
+  as yes or no stops setup with exit 2 in either layout. The interactive question about it is gone,
   so a script that pipes in answers must drop that one. *(Upgrade step 2.)*
 - **Fixed:** in a mono-repo-for-now project, `setup-workspace.sh` stops before writing anything once
   the registry says `layout: mono`; it used to overwrite the root `CLAUDE.md`, `AGENTS.md` and
   `doctor.sh` your repository commits with per-machine copies. It also stops, writing nothing, on a
   layout value it can't read or a registry it can't open. *(Upgrade step 4.)*
-- **Fixed:** `setup-workspace.sh` clones nothing, and says why, when a registry row doesn't start
-  with its `- name:` line. It used to pass over such a row without a word, so one repo never arrived
-  or another repo's remote was cloned into its folder. *(Upgrade step 3.)*
+- **Fixed:** `setup-workspace.sh` clones nothing, and says why, when a registry row opens with a `-`
+  line other than its `- name:` line. It used to pass over such a row without a word, so one repo
+  never arrived or another repo's remote was cloned into its folder. *(Upgrade step 3.)*
 - **Fixed:** a row copied from the registry's example no longer records a clone URL that doesn't
   exist. 1.x's example carried a note after its `remote:` value, and the scripts read a `#` there as
   part of the value. The file's header now states the rules its readers need: one line per value,
@@ -178,14 +181,14 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   *(Upgrade steps 2 and 3.)*
 - **Fixed:** one repo you can't clone no longer costs you the whole workspace. `setup-workspace.sh`
   used to stop at the first failed clone, before writing the root `AGENTS.md`, `CLAUDE.md` and
-  `doctor.sh`; now it writes those first, keeps going, and ends by counting the repos that didn't
-  arrive. A script that read its exit status now sees 0. *(Upgrade steps 5 and 17.)*
+  `doctor.sh`; now it writes those first, keeps going, and ends by counting the repos it reported as
+  not arriving. A script that read its exit status now sees 0. *(Upgrade steps 5 and 17.)*
 - **Fixed:** `setup-workspace.sh` counts a worktree or submodule checkout as present instead of
   trying to clone over it. It reports an empty clone, an uncommitted `git init` or an unreadable
   `.git` instead of counting it as arrived. *(Upgrade step 5.)*
-- **Fixed:** the root `AGENTS.md` and `CLAUDE.md` that `setup-workspace.sh` writes now match the
-  ones `init.sh` leaves, including the closing paragraph that makes "Read `AGENTS.md` and follow it"
-  an instruction. *(Upgrade step 5.)*
+- **Fixed:** the root `AGENTS.md` and `CLAUDE.md` that `setup-workspace.sh` writes now say the same
+  as the ones `init.sh` leaves, including the closing paragraph that makes "Read `AGENTS.md` and
+  follow it" an instruction. *(Upgrade step 5.)*
 
 ### Mono-repo-for-now and CI
 
@@ -205,10 +208,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   per-machine files that aren't versioned. They're committed in the project's one repository, and
   the text `init.sh` leaves says that only of a multi-repo project. *(Upgrade step 9.)*
 - **Fixed:** the docs no longer assume multi-repo. `AGENTS.md` reads the `layout:` line, and
-  `METHOD.md`, `ONBOARDING.md`, `prompts/README.md` and the docs hub's `README.md` say what the
-  workspace root, the docs hub and `prompts/` are in each layout: in mono-repo-for-now, the root is
-  the one repository, its pointers and `doctor.sh` are committed, and `setup-workspace.sh` doesn't
-  apply. A code folder gets its own README, and in Go its own module, as a repo does.
+  `METHOD.md`, `ONBOARDING.md` and `prompts/README.md` between them say what the workspace root, the
+  docs hub and `prompts/` are in each layout: in mono-repo-for-now, the root is the one repository,
+  its pointers and `doctor.sh` are committed, and `setup-workspace.sh` doesn't apply. A code folder
+  gets its own README, and in Go its own module, as a repo does.
 - **Fixed:** the session and report templates no longer assume one codebase per repository. The
   planning session reads `registries/repos.yml` in every project, the Test Strategy session plans a
   test workflow for each repo or code folder, a substep reads the README of each one it touches, and
@@ -274,8 +277,9 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   setting, which nothing reads now; the doctor's check 10, which checked that setting, is now the
   registry check that `--check-in` runs. *(Upgrade steps 10 and 17.)*
 - **Changed:** a Check-in STEP may make a small code or test fix to clear a failure it finds, where
-  1.x's `runbooks/check-in.md` said it writes no application code. It still writes no new features,
-  and a larger fix becomes a bug STEP of its own.
+  1.x's `runbooks/check-in.md` said it writes no application code, though its Part 2 also said to
+  fix a small test failure there. It still writes no new features, and a larger fix becomes a bug
+  STEP of its own.
 - **Changed:** the check-in fills in every section of its report, from
   `templates/reports/check-in-report-template.md`, and says so where a sweep found nothing instead
   of leaving the section out. The report's Repo READMEs row can now record a README as re-registered
@@ -304,8 +308,8 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   `templates/architecture-sessions/` folder. Warnings don't change the exit code, and the pass lines
   of checks 1 to 3 now end in the number of rows read. *(Upgrade steps 17 and 20.)*
 - **Fixed:** `./doctor.sh check` fails a STEP or substep row whose Status is blank or only dashes,
-  such as `-` or `:-:`. 1.x skipped such a row as the table's separator line and passed it, and
-  `./doctor.sh status`, which still skips it, answers as though the row weren't there.
+  such as `-` or `:-:`. 1.x skipped such a row, as it did the table's separator line, and passed it,
+  and `./doctor.sh status`, which still skips it, answers as though the row weren't there.
   *(Upgrade step 11.)*
 - **Fixed:** the workspace-root check (check 7, multi-repo only) allows a top-level folder that a
   registry `location:` starts at, and compares whole names. 1.x warned on every run about a
@@ -315,8 +319,9 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 - **Fixed:** doctor messages say what the check found. Check 8's failure says a session template has
   no line starting with "Write `architecture/NN-…`", where 1.x said its Output section lacked that
   instruction, even when a bullet gave it. A check skipped for want of `prompts/STEP-index.md` or
-  `overview.md` names the missing file, where 1.x asked whether the project was initialized, and
-  under `layout: multi` adds that a checkout of the docs hub alone never carries `prompts/`.
+  `overview.md` names the missing file and no longer asks, as 1.x did, whether the project was
+  initialized, and check 1, under `layout: multi`, adds that a checkout of the docs hub alone never
+  carries `prompts/`.
 - **Fixed:** `./doctor.sh links` no longer reads `inputs/`, where the method keeps imported
   documents as they arrived. In 1.x, a link in one to a path your workspace doesn't have failed the
   check for good, since nothing the method allows could fix it. A link to an input from a doc the
@@ -327,7 +332,7 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   is in the index yet, it names the close-out, archiving STEP-1 and then marking it `Done`, where
   1.x sent you to the planning session.
 - **Fixed:** `./doctor.sh status` suggests a conditional session's by-name phrase, such as "run the
-  identity-auth session", only when the substep's label starts with that session's own name, and
+  identity-auth session", only when the substep's label starts with that session's topic, and
   otherwise says to invoke it by name. 1.x matched a keyword anywhere in the label, so a conditional
   session called `Authoring conventions` got the identity-auth session's phrase.
 - **Fixed:** an HTML comment inside a row of `prompts/STEP-index.md` no longer hides the row from
@@ -346,14 +351,14 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 
 ### Teams
 
-- **New:** in a team, a STEP flipped to `In progress` records its owner, and before opening it,
-  `./doctor.sh status` and the agent ask whether it's yours: by default a STEP's PLAN is only on its
-  owner's machine.
+- **New:** in a team, a STEP flipped to `In progress` records its owner, and before opening an
+  implementation STEP, `./doctor.sh status` and the agent ask whether it's yours: by default a
+  STEP's PLAN is only on its owner's machine.
 - **Changed:** `AGENTS.md` keeps four coordination rules for everyone and sends a team to
   `runbooks/collaboration.md` §2–§6 for the rest. A project counts as a team once the
-  *Who accepts an ADR* line in `adr/README.md` names anyone but `_solo author_`, or agents work in
-  parallel, so a team whose line still says `_solo author_` gets only the solo rules.
-  *(Upgrade step 16.)*
+  *Who accepts an ADR* line in `adr/README.md` names anyone but `_solo author_`, or the user has
+  other agents working STEPs in parallel; otherwise a team whose line still says `_solo author_`
+  gets only the solo rules. *(Upgrade step 16.)*
 - **Changed:** the overlap warning compares in-flight STEPs' one-line Scope with your STEP's scope
   and PLAN, instead of the repos each expects to touch. The STEP index's `Repos (projection)` column
   and the rule to keep it up to date are gone; nothing reads the column, so an index that has one
@@ -365,13 +370,13 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   developer. `ONBOARDING.md` §3 sends them to `METHOD.md` §4 and then `BOOTSTRAP-PROMPT.md` Stage 0,
   instead of keeping a copy of its own.
 - **Fixed:** `./doctor.sh check` fails when two ADR files carry the same number, and its hint gives
-  the next free one. 1.x passed them as long as the registry and the files agreed.
+  the next free one. 1.x passed them as long as the registry listed that number once.
   *(Upgrade step 20.)*
 - **Fixed:** the ADR duplicate-number scan works from the workspace root, where agents start. 1.x's
   scan named the registry as `adr/README.md`, a path from inside the docs hub, so from the root it
   scanned nothing and reported no duplicate. The one scan now lives in `runbooks/collaboration.md`
-  §6, and the other docs that number a STEP or an ADR say only to take `max + 1` and add the row on
-  the trunk before branching. *(Upgrade step 16.)*
+  §6, and the other docs that number a STEP or an ADR carry no scan of their own.
+  *(Upgrade step 16.)*
 - **Fixed:** in mono-repo-for-now, the STEP-number reservation in `runbooks/collaboration.md` §2
   runs in the root repository, which holds `prompts/`. 1.x had a team pull and push `prompts/` as a
   repository of its own, which a mono project doesn't have.
@@ -385,12 +390,14 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   sets how much technical background an agent assumes, and the communication style how much
   reasoning comes with a decision. In 1.x the level set both, so a saved profile now sounds
   different: Level 3 is terse only with the style `Terse`, and Levels 1 and 2 are told why a
-  decision matters only at `Normal` or `Explanatory`. *(Upgrade step 19.)*
+  decision matters only at `Normal` or `Explanatory`; the UI / Design System session explains every
+  decision. *(Upgrade step 19.)*
 - **Changed:** where code already exists, the Cross-Cutting Review settles a conflict between docs
   by reading the code: the code says what the system does, and the docs what it's meant to do
   (`METHOD.md` §3). A doc that misread the code is fixed, a real gap files a `registries/risks.yml`
-  row, and a choice made before the project kept ADRs, whose reasons nobody knows, is recorded in
-  its doc, never in an ADR written after the fact.
+  row, or a bug where the code drifted from a decision the project took, and a choice made before
+  the project kept ADRs, whose reasons nobody knows, is recorded in its doc, never in an ADR written
+  after the fact.
 - **Changed:** every architecture-session template heads its work list
   `## Decisions to make (in order)`, where the Glossary and the Cross-Cutting Review had headings of
   their own, and `METHOD.md` §4 makes that shared shape part of adding a session. Each template's
@@ -412,12 +419,12 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   STEP-1 first, and the check-in its thin PLAN, where 1.x marked the row `Done` first, so a session
   that stopped in between left the archive undone with nothing to say so; the incident runbook,
   which never said to archive, now does. If a session stops in between, the row is still open, so
-  `./doctor.sh status` still says to archive.
+  `./doctor.sh status` still shows that STEP as unfinished.
 - **Fixed:** the templates say what is true in the project they make. A new project's
-  `prompts/STEP-index.md` writes the docs hub's files as `Code/<project>-docs/…`, the planning and
-  system-overview sessions say `init.sh` fills in their description, where 1.x said the kickoff did,
-  and `templates/ci/README.md` and `code-repo-ci.yml` drop the project's name, which read as "a acme
-  project".
+  `prompts/STEP-index.md` writes some of its docs-hub paths as `Code/<project>-docs/…`, the planning
+  and system-overview sessions say `init.sh` fills in their description, where 1.x said the kickoff
+  did, and `templates/ci/README.md` and `code-repo-ci.yml` drop the project's name, which read as "a
+  acme project".
 
 ### Architecture docs and inputs
 
@@ -455,11 +462,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   `--license=private` still works, with a deprecation notice. `METHOD.md`, the docs hub's
   `README.md` and `templates/licenses/README.md` use the two words the same way.
 - **Changed:** `apply-project-license.sh` stops with exit 2, naming the argument, on a second
-  positional argument or an option it doesn't know; 1.x ignored the extra argument, and took an
+  positional argument or a `--` option it doesn't know; 1.x ignored the extra argument, and took an
   unknown option for the target. *(Upgrade step 17.)*
 - **Fixed:** `apply-project-license.sh` prints one slash, not two, after a target ending in `/`, and
   says "target is not a directory" for any target that isn't one, where 1.x said it didn't exist.
-  Its comments now speak of Throughstone in the third person.
 - **Fixed:** `templates/licenses/README.md` says a licence other than the three it offers goes into
   the repo by hand. 1.x also suggested adding a template and a branch to `init.sh`, which a project
   never runs again.
@@ -477,12 +483,13 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   project's contributors to keep a placeholder that setup had already replaced with the project's
   name. Its opening note now says `<project>` stands for the project's slug.
 - **Fixed:** the commands the docs and helpers give you work from the workspace root, where agents
-  start, and so do the paths in `AGENTS.md` and in what the helpers print. 1.x's `METHOD.md` and
-  `runbooks/check-in.md` told you to run `scripts/check.sh` or `scripts/status.sh`, which aren't
-  there from the root; `AGENTS.md` wrote many paths from inside the docs hub despite promising the
-  root; and the helpers printed some hub paths the same way. Each command is now written from the
-  root, such as `./doctor.sh check`; `AGENTS.md` and the helpers write hub paths as
-  `Code/<project>-docs/…`; and `METHOD.md` §7's path convention turns on what a path is for.
+  start, unless a command names another folder, and so do the paths in `AGENTS.md` and in what the
+  helpers print. 1.x's `METHOD.md` and `runbooks/check-in.md` told you to run `scripts/check.sh` or
+  `scripts/status.sh`, which aren't there from the root; `AGENTS.md` wrote many paths from inside
+  the docs hub despite promising the root; and the helpers printed some hub paths the same way. Each
+  command is now written from the root, such as `./doctor.sh check`, or names its folder;
+  `AGENTS.md` and the helpers write hub paths as `Code/<project>-docs/…`; and `METHOD.md` §7's path
+  convention turns on what a path is for.
 - **Fixed:** a saved S0, S1 or S2 security report no longer fails `./doctor.sh links`. 1.x's report
   templates linked to their checklist by a path that worked only from the template's own folder, so
   a report saved in `reports/security/` pointed outside the docs hub; the templates now name the
