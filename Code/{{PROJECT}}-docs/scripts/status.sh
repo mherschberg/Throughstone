@@ -70,7 +70,7 @@ if [ ! -f "$INDEX" ]; then
   exit 0
 fi
 
-# --- Parse the index into STEP rows and STEP-1 substep rows --------------------
+# --- Parse the index into STEP rows and substep rows --------------------------
 # Locate each table's columns from its header, then emit normalized pipe-delimited records:
 #   STEP|STEP-N|Status|Owner|Title
 #   SUB|N.M[a]|Status|Session
@@ -150,10 +150,11 @@ subkey() {
   echo $(( 10#$maj * 100000 + 10#$num * 100 + lo ))
 }
 
-# --- STEP-1 substep state -----------------------------------------------------
-# Track the first runnable architecture substep. Final statuses count as complete; unknown
-# statuses stop normal resolution and point the maintainer back to validation.
-total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=0
+# --- Substep state ------------------------------------------------------------
+# Every Substep table in the index is counted, a later STEP's as well as STEP-1's. Final statuses
+# count as complete, the lowest open substep is the one the substep arm runs, and unknown statuses
+# stop normal resolution and point the maintainer back to validation.
+total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; unknown_ids=""; lowsub=""; lowsub_se=""; lowkey=0
 i=0
 while [ "$i" -lt "$total_sub" ]; do
   s="${sub_id[$i]}"
@@ -161,7 +162,7 @@ while [ "$i" -lt "$total_sub" ]; do
     Done|Deferred|Abandoned|N/A) done_sub=$((done_sub + 1)) ;;
     Planned|"In progress")
       k=$(subkey "$s"); if [ -z "$lowsub" ] || [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
-    *) unknown_sub=$((unknown_sub + 1)) ;;
+    *) unknown_sub=$((unknown_sub + 1)); unknown_ids="${unknown_ids:+$unknown_ids, }$s" ;;
   esac
   i=$((i + 1))
 done
@@ -169,14 +170,14 @@ done
 # --- Main STEP state ----------------------------------------------------------
 # Scan implementation STEPs once and retain the lowest-numbered candidate in each resolver
 # bucket: active STEP, planned conditional follow-up, and ordinary planned STEP.
-maxnum=0; have_impl=0; nonfinal=0; step1_st=""
+maxnum=0; have_impl=0; nonfinal=0; step1_st=""; step1_ow=""
 inprog=""; inprog_ti=""; inprog_ow=""; inprog_n=999999
 lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
 lowplanned=""; lowplanned_ti=""; lowplanned_n=999999
 n_steps=${#step_id[@]}; i=0
 while [ "$i" -lt "$n_steps" ]; do
   id="${step_id[$i]}"; st="${step_st[$i]}"; ti="${step_ti[$i]}"; n=${id#STEP-}
-  [ "$id" = "STEP-1" ] && step1_st="$st"
+  [ "$id" = "STEP-1" ] && { step1_st="$st"; step1_ow="${step_ow[$i]}"; }
   [ "$n" -gt "$maxnum" ] && maxnum=$n
   [ "$n" -ge 2 ] && have_impl=1
   if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; inprog_ow="${step_ow[$i]}"; fi
@@ -193,14 +194,16 @@ all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
 # First-match precedence is intentional:
-# - open STEP-1 substeps come before implementation planning, but only while the STEP-1 row is
-#   itself open;
+# - while the STEP-1 row is not Done, any open substep in the index comes first, and while the row
+#   is still open, STEP-1's close-out comes next, both before any later STEP row;
 # - active ordinary or conditional STEPs beat planned follow-up conditional STEPs;
 # - planned conditional follow-ups beat ordinary planned implementation STEPs.
 where=""; next=""
+# Any Substep table's row can carry the unknown status, so the message names the rows, whose
+# numbers say which STEP each belongs to.
 if [ "$unknown_sub" -gt 0 ]; then
-  where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
-  next="run ./doctor.sh check and fix any invalid STEP-1 substep statuses, then re-run ./doctor.sh status."
+  where="prompts/STEP-index.md has an unrecognized status on ${unknown_sub} substep row(s): ${unknown_ids}."
+  next="run ./doctor.sh check and fix the substep statuses it lists as invalid, then re-run ./doctor.sh status."
 # The substep arm is gated on the STEP-1 row: the row is what says whether architecture is
 # over, and it decides in both directions. The close-out arm below reads it from the other side —
 # substeps all final while the row is still open means the close-out is the work — so a Done
@@ -232,18 +235,29 @@ elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
   else
     next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
-elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
-  # §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what says so: the archive
-  # to prompts/ and the flip to Done both happen after the last substep, the Cross-Cutting Review,
-  # goes Done (templates/architecture-sessions/14-cross-cutting-review.md). While the row is still
-  # open that close-out is the work, so
-  # answering "run the planning session" skips it — and §10's closing rule makes the index
-  # authoritative for which STEP is next. A missing STEP-1 row leaves the answer to the substeps.
-  if [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&
+# STEP-1's close-out. §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what
+# says so: the archive to prompts/ and the flip to Done both happen after the last substep, the
+# Cross-Cutting Review, goes Done (templates/architecture-sessions/14-cross-cutting-review.md).
+# While the row is still open that close-out is the work, whatever later STEPs the index holds:
+# the review can record forward STEPs before STEP-1 closes, and an In-progress STEP-1 is itself
+# the lowest STEP in flight, which the In-progress arm would send looking for an open substep.
+# §10's closing rule makes the index authoritative for which STEP is next. A STEP-1 row that is
+# missing, Deferred or Abandoned, or an index with no substep row, leaves the answer to the rules
+# below.
+elif [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&        # §10.1, the close-out
      [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
-    where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
-    next="close out STEP-1 — archive it to the Phase-1 folder under prompts/ ($DOCS_REL/METHOD.md §5) and mark the STEP-1 row Done. If the Cross-Cutting Review left findings open, settle those first. The planning session comes after that."
-  elif [ "$total_sub" -gt 0 ]; then
+  where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
+  next="close out STEP-1 — archive it to the Phase-1 folder under prompts/ ($DOCS_REL/METHOD.md §5) and mark the STEP-1 row Done. If the Cross-Cutting Review left findings open, settle those first."
+  # §10.3 names the planning session only while STEP-1 is the index's only row, so this does too.
+  [ "$have_impl" -eq 0 ] && next="$next The planning session comes after that."
+  # In a team the close-out is STEP-1's owner's: it archives STEP-1's PLAN, which by default is only
+  # on the owner's machine (collaboration.md §3).
+  if [ -n "$step1_ow" ]; then
+    where="${where%.}, owned by ${step1_ow}."
+    next="in a team, ask the user whether STEP-1 is theirs: by default a STEP's PLAN is only on its owner's machine, and the close-out archives it. If not, the close-out is ${step1_ow}'s to do: ask which STEP is theirs, and if none is, wait for ${step1_ow} to close STEP-1 out. If it is, or the project is solo: ${next}"
+  fi
+elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
+  if [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
     next="run the planning session — it outlines the Phase-1 implementation STEPs ($DOCS_REL/templates/planning-session.md)."
   elif [ "$step1_st" = "Done" ]; then
