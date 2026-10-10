@@ -144,13 +144,13 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
   (This is why the `In progress` flip must be *pushed*, §2: an unpushed status makes a worked
   STEP invisible here.)
 - **Agents must do this check and warn the user** before starting work.
-- **Optional extra signal — only if your team pushes its `step-*` branches.** A *remote* scan
-  (`git ls-remote --heads origin 'step-*'`, or `git fetch` then `git branch -r --list '*step-*'`)
-  lists every live `step-*` branch, which shows the `Planned` rows already in flight and catches
-  a STEP whose row someone forgot to flip. But many contributors don't push a branch until PR
-  time, so it sees nothing for purely-local work — treat it as a bonus, not the primary check, and
-  never lean on a local `git branch --list` (it never sees a teammate's branch). Wire the remote
-  scan into CI if you want it.
+- **Optional extra signal — only if your team pushes its `step-*` branches.** A *remote* scan in
+  each repo (`git ls-remote --heads origin 'step-*'`, or `git fetch` then
+  `git branch -r --list '*step-*'`) lists every live `step-*` branch, which shows the `Planned` rows
+  already in flight and catches a STEP whose row someone forgot to flip. But many contributors don't
+  push a branch until PR time, so it sees nothing for purely-local work — treat it as a bonus, not
+  the primary check, and never lean on a local `git branch --list` (it never sees a teammate's
+  branch). Wire the remote scan into CI if you want it.
 
 > **A one-line scope is a rough signal — read the warning as a heads-up, not a verdict.** When
 > two scopes look close, a one-line "I'm editing X" to the other STEP's owner settles it.
@@ -175,8 +175,8 @@ concurrently with someone else editing the same doc.
 
 ### If your remote enforces file locks, use them on these files
 GitHub, Bitbucket, and GitLab all support **Git LFS file locks** (`git lfs lock <file>` /
-`git lfs unlock <file>`). On a supported remote, locking a shared file turns the
-edit-without-merge-pain problem into true mutual exclusion — like a table-level DB lock:
+`git lfs unlock <file>`, run in the file's repo). On a supported remote, locking a shared file
+turns the edit-without-merge-pain problem into true mutual exclusion — like a table-level DB lock:
 **lock → pull → edit your row (or the doc) → commit → push → unlock**, holding the lock *only*
 for that brief edit. It's most valuable on the **narrative files**, where a concurrent merge is
 the costliest case above — there the lock guards against a *prose merge*, not a number clash.
@@ -276,7 +276,7 @@ flow (§6). The transition is mostly mechanical:
    **Mono-repo-for-now** (`METHOD.md` §7) has one repo, the workspace root, so this is one
    remote rather than several: create it, push the root repo's existing history to it, and have
    each new contributor clone that single repo. Record it on the row whose `location` is `.`, the
-   same as any other repo — `init.sh` writes it when it made the remote itself, and until a row
+   same as any other repo — `init.sh` writes it when it pushed to the remote itself, and until a row
    has one the check-in flags it, because work with no remote lives on one laptop. A mono project
    may sit without a remote for a while; that warning is the reminder, not an error. But **don't
    run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`** — no row in that file is a repo to
