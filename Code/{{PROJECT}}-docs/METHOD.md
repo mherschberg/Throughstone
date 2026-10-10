@@ -4,9 +4,9 @@
 
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
-> retained as `LICENSE-THROUGHSTONE` in this docs hub. Your own application code is under the
-> open-source license you chose at setup or remains proprietary. When an application-code repo
-> is added, its licence files follow `runbooks/register-repo.md` step 3.
+> retained as `LICENSE-THROUGHSTONE` in this docs hub. By default, your own application code is
+> under the open-source license you chose at setup or remains proprietary. When an application-code
+> repo is added, its licence files follow `runbooks/register-repo.md` step 3.
 
 How projects built with this scaffold are structured. This is the canonical reference;
 the agent reads it to understand how to work. Read it once before you start.
@@ -496,8 +496,7 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
   is one. A project may rename the rungs, but only to *settledness synonyms* (e.g.
   WIP / Reviewed / Locked) — never a scope word (MVP) or a release-stage word (Beta / GA), which
   are different axes. A **`Deprecated` doc is excluded from the check-in's doc-drift sweep**
-  (`runbooks/check-in.md`): it is listed as retired for the record, not reconciled against
-  current code.
+  (`runbooks/check-in.md`): it is kept for the record, not reconciled against current code.
 - **`Coverage:`** *(optional)* — how completely the doc describes its area. Omit it (or `full`)
   when the doc fully covers the area; mark a deliberately fat or partial area `deferred` (or
   `enumerated to depth N`) so the gap is recorded rather than mistaken for drift. **Never leave it
@@ -556,7 +555,7 @@ and crawlers before anyone notices.
 `location:` is **a path relative to the workspace root, identical on every machine; it never
 begins with `/` or `~`, and no segment of it is `..`.** Usually that is a `Code/*`
 sibling — the layout `init.sh` and the scaffolding above assume — but any contained path works.
-The point is reproducibility: a contributor clones the docs hub, runs
+The point is reproducibility: in a multi-repo project a contributor clones the docs hub, runs
 `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, and assembles the whole workspace from the
 registry alone.
 `location:` says where the repo is; the optional `remote:` says where to clone it from.
@@ -664,7 +663,7 @@ itself is that one repo** (the lone exception to "the root is not a repo" above)
 **It does not take a separate repository in**: bringing in one with a history of its own means
 converting first (`runbooks/splitting-repos.md` Case 2). In this mode the root pointers
 (`CLAUDE.md` / `AGENTS.md`) and `doctor.sh` are just ordinary committed files, not per-machine
-artifacts, and the hygiene rule does not apply. It's a convenience for getting moving solo; the
+artifacts, and the hygiene rule does not apply. It's a convenience for getting moving; the
 multi-repo layout is the target — but move to it when the architecture asks for it. **How many
 repos a project has follows its architecture, not its headcount.** A
 mono-repo project that gains a second contributor needs **shared remotes** — so the push-reject
