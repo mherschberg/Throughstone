@@ -203,8 +203,8 @@ has "$padded" 'next at STEP-20 (the project is at STEP-12).'
 
 # --- It advises; it never becomes the next action (METHOD.md §10 rule 7) -------
 # A badly overdue project with a Planned STEP still resolves to planning that STEP. The check-in
-# is offered beside it, marked as advice: §10 takes the first rule that matches, except rule 7,
-# which is reported alongside the next action and never in place of it. The last assert keeps out
+# is offered beside it, marked as advice: §10 takes the first rule that matches, but rule 7 is
+# reported alongside the next action and never in place of it. The last assert keeps out
 # the imperative "insert a Check-in STEP now", and only as that exact, case-sensitive phrase.
 out="$(run '<!-- NEXT-CHECK-IN: STEP-2 -->' 41)"
 has "$out" 'due — scheduled for STEP-2'
