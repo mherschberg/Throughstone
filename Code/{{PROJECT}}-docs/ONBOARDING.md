@@ -27,7 +27,7 @@ Some early projects are **mono-repo-for-now**:
 - There is one repo.
 - `AGENTS.md`, `CLAUDE.md`, and `doctor.sh` are committed in that repo.
 - `setup-workspace.sh` is not needed. Clone the repo, open it, and continue at
-  [Read the project state](#4-read-the-project-state).
+  [Create your local user profile](#3-create-your-local-user-profile).
 
 ## 2. Set up a multi-repo workspace
 
@@ -52,9 +52,9 @@ workspace root:
 - `doctor.sh`
 
 If a repo did not arrive, `setup-workspace.sh` names it and says why as it runs, then closes
-with a count. The one case it stays quiet about is a repo with no `remote:` in
-`Code/<project>-docs/registries/repos.yml` — it was never going to be cloned. Read its registry
-entry and ask the maintainer how that repo is provided.
+with a count; if it skips cloning altogether, it says why instead. It stays quiet about a repo with
+no `remote:` or no `location:` in `Code/<project>-docs/registries/repos.yml` — it was never going to
+be cloned. Read its registry entry and ask the maintainer how that repo is provided.
 
 ## 3. Create your local user profile
 
