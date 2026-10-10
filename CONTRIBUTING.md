@@ -83,6 +83,15 @@ brand/publish-site.sh --check
 
 CI runs the same check, so a pull request fails if `brand/site/` and `docs/` drift.
 
+## Files in the folders setup deletes
+
+Setting up a project, `init.sh` deletes `.github/`, `tests/`, `brand/` and `docs/` whole, so it
+lists every file the template ships there in `TEMPLATE_FOLDER_FILES` and stops when one of those
+folders holds anything else. When you add, rename or remove a file there, a new test or a site asset
+that `brand/publish-site.sh` copies into `docs/` among them, update that list in the same change.
+Until you do, every test that runs `init.sh` fails, some without a word, and
+`tests/init-fresh-template-guard.sh` prints the lines to add or remove.
+
 ## A note on conduct
 
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold
