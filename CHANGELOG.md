@@ -14,9 +14,9 @@ supported layout, bringing a repo into a project and splitting one each get a ru
 problems that 1.x projects carry without knowing it are fixed. Have a 1.x project? Staying is fine;
 the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how.
 
-- **Setup no longer runs over a project that's already set up, or a repository that isn't the
-  template's**, and checks its answers before it changes anything. A script that pipes answers into
-  it may need changes.
+- **Setup no longer runs over a project that's already set up, a repository that isn't the
+  template's, or files of yours in the folders it deletes**, and checks its answers before it
+  changes anything. A script that pipes answers into it may need changes.
 - **Mono-repo-for-now is a full layout.** The registry says which layout a project is in, the CI
   gate runs from the workspace root, and the prompts of the STEP in flight aren't committed.
 - **`setup-workspace.sh` no longer clones the wrong repo into a folder, or stops at the first clone
@@ -74,6 +74,11 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   it changes anything, and stops with exit 2 in an already set-up project or a repository whose
   history isn't the template's, or when `prompts/` is already a repository; 1.x deleted the folder's
   `.git`, every commit with it, or committed on top of the repository in `prompts/`, and exited 0.
+- **Fixed:** `init.sh` stops with exit 2, before it changes anything, when `.github/`, `tests/`,
+  `brand/` or `docs/` holds a file the template doesn't ship, naming one and saying how many there
+  are; what macOS or Windows leaves there, such as a `.DS_Store`, doesn't count. Setup deletes those
+  folders whole, and 1.x deleted any file of yours in them, whether the template was unpacked over
+  your folder or the file was added to a clone, and exited 0.
 - **Fixed:** a new project's setup stops when its input runs out. A question with a default takes
   it, and one without stops `init.sh` with exit 2, quoting its prompt; 1.x carried on with blank
   answers, or asked for the slug forever.
@@ -96,6 +101,9 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   double braces is refused before anything changes, with exit 2 from a flag or environment variable
   and the question again when typed; so is one of only spaces. 1.x wrote them into the new project's
   files, where a line break split the description across lines.
+- **Fixed:** setting up a new team project, `init.sh` stops with exit 2 before anything changes when
+  the ADR authority from `--adr-authority` or `INIT_ADR_AUTHORITY` is only spaces. 1.x wrote it into
+  `adr/README.md`, leaving a *Who accepts an ADR* line that names no one.
 - **Fixed:** a new project's remotes are checked before anything changes, and a problem stops
   `init.sh` with exit 2: on GitHub, a `gh` that isn't signed in or can't reach it, or a repository
   it would create that already exists; with URLs given, the same one for `--docs-remote` and
@@ -136,6 +144,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   mono-repo-for-now code folder an agent was started in could commit its own, and the planning
   session gave a new code repo no such line. A shared `.claude/settings.json` still commits.
   *(Upgrade step 18.)*
+- **Fixed:** the `.gitignore` that `init.sh` writes, and the one `templates/planning-session.md`
+  asks for in a new code repo, keep a file named `.secrets` out of commits, not only a `.secrets/`
+  folder. 1.x's line matched only the folder, so a `.secrets` file was committed by the next
+  `git add -A`, including a new mono-repo-for-now project's first commit. *(Upgrade step 18.)*
 
 ### Registry and workspace
 
@@ -303,10 +315,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   ignored the argument and ran as usual, so `./doctor.sh status --check-in` printed an ordinary
   report and exited 0. A bare `./doctor.sh` still prints its help. *(Upgrade step 17.)*
 - **Fixed:** checks 1, 2, 3 and 9 of `./doctor.sh check` warn, where 1.x passed, when they have
-  nothing, or not everything, to read: no STEP rows in `prompts/STEP-index.md`, neither an ADR row
-  nor the registry table in `adr/README.md`, STEP rows under no Status column, or no
-  `templates/architecture-sessions/` folder. Warnings don't change the exit code, and the pass lines
-  of checks 1 to 3 now end in the number of rows read. *(Upgrade steps 17 and 20.)*
+  nothing, or not everything, to read: no STEP rows at the left margin of `prompts/STEP-index.md`,
+  neither an ADR row nor the registry table in `adr/README.md`, STEP rows under no Status column, or
+  no `templates/architecture-sessions/` folder. Warnings don't change the exit code, and the pass
+  lines of checks 1 to 3 now end in the number of rows read. *(Upgrade steps 17 and 20.)*
 - **Fixed:** `./doctor.sh check` fails a STEP or substep row whose Status is blank or only dashes,
   such as `-` or `:-:`. 1.x skipped such a row, as it did the table's separator line, and passed it,
   and `./doctor.sh status`, which still skips it, answers as though the row weren't there.
@@ -328,9 +340,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   check reads is still checked.
 - **Fixed:** once the STEP-1 row reads `Done`, `./doctor.sh status` no longer names an open STEP-1
   substep as the next action; 1.x went on naming it whatever STEP was in flight, so the work in
-  progress never showed. While every substep is final but the row is still open, and no later STEP
-  is in the index yet, it names the close-out, archiving STEP-1 and then marking it `Done`, where
-  1.x sent you to the planning session.
+  progress never showed. While every substep is final but the row is still open, it names the
+  close-out, archiving STEP-1 and then marking it `Done`, even with later STEPs in the index. 1.x
+  sent you to the planning session or, once a later STEP was in the index, on to later work or to a
+  STEP-1 substep that doesn't exist.
 - **Fixed:** `./doctor.sh status` suggests a conditional session's by-name phrase, such as "run the
   identity-auth session", only when the substep's label starts with that session's topic, and
   otherwise says to invoke it by name. 1.x matched a keyword anywhere in the label, so a conditional
@@ -343,6 +356,9 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   substep number such as `1.08`; 1.x stopped at the first, calling its status unrecognized, and
   skipped the second. It now says to author a planned STEP's PLAN and any substep prompts, since a
   thin STEP has none, and a new project's STEP index says a substep may be `N/A`.
+- **Fixed:** `./doctor.sh status` names, by number, each substep row of `prompts/STEP-index.md`
+  whose status it doesn't recognize, and says to fix the statuses `./doctor.sh check` lists as
+  invalid. 1.x called every such row a STEP-1 substep, even one in a later STEP's table.
 - **Fixed:** with `overview.md` there but no `prompts/STEP-index.md`, `./doctor.sh status` says to
   restore the index from git history, or in multi-repo to clone `prompts/` with `setup-workspace.sh`
   if the folder is missing. 1.x said to run `./init.sh`, and a 1.x `init.sh` run there deletes a
