@@ -83,6 +83,8 @@ Throughstone's `CHANGELOG.md`.
 - **You or a teammate run `setup-workspace.sh` in a multi-repo project.** It can clone a repo into
   the wrong place, or the wrong repo into a folder, and report success.
 - **More than one person works on it.** Two ADRs can share a number without anyone being told.
+- **Anyone keeps something in a file named `.secrets`**, not a `.secrets/` folder. 1.x's
+  `.gitignore` ignores only the folder, so `git add -A` commits the file.
 - **A planning session will name a repo that already exists.** It can plan a scaffold over that
   repo's existing work.
 - **`prompts/STEP-index.md` might go missing on a machine.** The status helper then says to run
@@ -453,30 +455,47 @@ and skip any step they mark as superseded.
       `unexpected extra argument` from a helper, finds what it reads in the helper's output, and
       none takes a `setup-workspace.sh` exit 0 to mean every repo arrived.
 
-18. **Optional, every project: widen the `.claude` line in each repo's `.gitignore`.**
-    - Replace the line `.claude/settings.local.json` with the three lines a new project gets, and
-      leave every other line as it is:
+18. **Every project: fix the `.secrets` line in each repo's `.gitignore`, and optionally widen the
+    `.claude` line.**
+    - Replace the line `.secrets/` with `.secrets`, and leave the other lines as they are, apart
+      from the optional `.claude` change below. The old line ignores only a folder of that name, so
+      a file named `.secrets` is committed by the next `git add -A`; the new one ignores the file
+      and the folder.
+    - Optional: replace the line `.claude/settings.local.json` with the three lines a new project
+      gets:
       ```gitignore
       **/.claude/*.local.json
       **/.claude/#*#
       **/.claude/*~
       ```
-    - The old line ignores that one file at the repo's top level. The new ones also ignore an
-      editor's lock or autosave copy of it, and any of these in a subfolder: in mono-repo-for-now,
-      an agent started inside a code folder writes its own `.claude/` there. A shared
-      `.claude/settings.json` still commits.
+    - The old `.claude` line ignores that one file at the repo's top level. The new ones also ignore
+      an editor's lock or autosave copy of it, and any of these in a subfolder: in
+      mono-repo-for-now, an agent started inside a code folder writes its own `.claude/` there. A
+      shared `.claude/settings.json` still commits.
     - In multi-repo, do this in the docs hub's, `prompts/`'s and each code repo's `.gitignore`; in
       mono-repo-for-now, only in the one at the workspace root, whose lines cover every folder below
       it. Leave a repo the project took in that already existed: its `.gitignore` is its own.
-    - Gotcha: a code repo a 1.x planning session made may have no `.claude` line to replace. Add the
-      three lines anyway.
-    - Gotcha: the lines untrack nothing. A per-machine file already committed, such as a code
-      folder's `.claude/settings.local.json` in mono-repo-for-now, stays tracked until you
+    - Then, from the top of each repo you changed, run
+      `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'`, and where you widened the
+      `.claude` line, `git ls-files -- ':(glob)**/.claude/*.local.json'` too. In a team, first have
+      the user tell their teammates about each file these list (see the second gotcha below). Then
+      `git rm --cached` each one and commit. Ask the user whether any of the `.secrets` files ever
+      held real values. `git rm --cached` leaves a file in the repository's history, so if one did
+      and that history has been pushed, or will be, treat those values as leaked: revoke and rotate
+      them, as `runbooks/secrets-rotation.md` Part 2 says.
+    - Gotcha: a code repo a 1.x planning session made usually has no `.claude` line to replace, and
+      may have no `.secrets` line either. Add `.secrets` anyway, and if you're widening the
+      `.claude` line, the three `.claude` lines too.
+    - Gotcha: the lines untrack nothing. A file already committed, such as a `.secrets` file or a
+      code folder's `.claude/settings.local.json` in mono-repo-for-now, stays tracked until you
       `git rm --cached` it and commit. Your copy stays on disk, but a teammate who pulls that commit
       loses theirs if they haven't edited it, so tell them first.
     - Check: from the top of each repo you changed,
+      `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'` prints nothing, and
+      `git check-ignore -v .secrets` prints the `.secrets` line. Where you widened the `.claude`
+      line, `git ls-files -- ':(glob)**/.claude/*.local.json'` prints nothing too, and
       `git check-ignore -v sub/.claude/settings.local.json` prints the `**/.claude/*.local.json`
-      line. The path needn't exist.
+      line. The paths given to `check-ignore` needn't exist.
 
 19. **Optional, each contributor: check the communication style in your root
     `.throughstone/local-user.md`.**
@@ -505,16 +524,17 @@ and skip any step they mark as superseded.
       Version Log table it lacks.
     - A `[WARN]` from check 1, 2, 3 or 9 that says it had nothing, or not everything, to read: no
       STEP rows, no ADR registry table, STEP rows under no Status column, or no session-template
-      folder. That was already wrong: restore the missing rows, file, folder or table header from
-      git history.
+      folder. That was already wrong. If check 1 says it found no STEP rows at the left margin and
+      the table is there but indented, move its rows to the left margin; otherwise restore the
+      missing rows, file, folder or table header from git history.
     - `--check-in` adds check 10, the registry. Its warnings about repos no recorded remote covers
       are the ones step 4 describes; a `[FAIL]` there goes back to step 3 or 4.
     - A `[FAIL]` from `links` on a saved S0, S1 or S2 security report: its link to its checklist
       came from a 1.x template. Write the checklist's path as plain text instead, as the new
       templates do. `links` no longer reads `inputs/`, so a link inside an input no longer fails it.
-    - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, and, unless
-      `status` says the kickoff is not started, the line under `Check-in:` from `status` names a
-      STEP or a date, not "none scheduled".
+    - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, checks 1, 2, 3 and
+      9 show no `[WARN]`, and, unless `status` says the kickoff is not started, the line under
+      `Check-in:` from `status` names a STEP or a date, not "none scheduled".
 
 That's the whole upgrade.
 
