@@ -170,7 +170,7 @@ done
 # --- Main STEP state ----------------------------------------------------------
 # Scan implementation STEPs once and retain the lowest-numbered candidate in each resolver
 # bucket: active STEP, planned conditional follow-up, and ordinary planned STEP.
-maxnum=0; have_impl=0; nonfinal=0; step1_st=""; step1_ow=""
+maxnum=0; have_impl=0; impl_started=0; nonfinal=0; step1_st=""; step1_ow=""
 inprog=""; inprog_ti=""; inprog_ow=""; inprog_n=999999
 lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
 lowplanned=""; lowplanned_ti=""; lowplanned_n=999999
@@ -180,6 +180,7 @@ while [ "$i" -lt "$n_steps" ]; do
   [ "$id" = "STEP-1" ] && { step1_st="$st"; step1_ow="${step_ow[$i]}"; }
   [ "$n" -gt "$maxnum" ] && maxnum=$n
   [ "$n" -ge 2 ] && have_impl=1
+  [ "$n" -ge 2 ] && case "$st" in Done|"In progress") impl_started=1 ;; esac
   if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; inprog_ow="${step_ow[$i]}"; fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] &&
      printf '%s' "$ti" | grep -qiE '^conditional session:' &&
@@ -238,9 +239,9 @@ elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
 # STEP-1's close-out. §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what
 # says so: the archive to prompts/ and the flip to Done both happen after the last substep, the
 # Cross-Cutting Review, goes Done (templates/architecture-sessions/14-cross-cutting-review.md).
-# While the row is still open that close-out is the work, whatever later STEPs the index holds:
-# the review can record forward STEPs before STEP-1 closes, and an In-progress STEP-1 is itself
-# the lowest STEP in flight, which the In-progress arm would send looking for an open substep.
+# While the row is still open that close-out is the work, whatever later STEPs the index holds: an
+# In-progress STEP-1 is itself the lowest STEP in flight, which the In-progress arm would send
+# looking for an open substep.
 # §10's closing rule makes the index authoritative for which STEP is next. A STEP-1 row that is
 # missing, Deferred or Abandoned, or an index with no substep row, leaves the answer to the rules
 # below.
@@ -248,7 +249,8 @@ elif [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&        # §10.1, the close-
      [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
   where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
   next="close out STEP-1 — archive it to the Phase-1 folder under prompts/ ($DOCS_REL/METHOD.md §5) and mark the STEP-1 row Done. If the Cross-Cutting Review left findings open, settle those first."
-  # §10.3 names the planning session only while STEP-1 is the index's only row, so this does too.
+  # §10.3 sends you to the planning session only while STEP-1 is the index's only row, so this does
+  # too. Its reminder for an index with later rows waits for STEP-1 to be Done (below).
   [ "$have_impl" -eq 0 ] && next="$next The planning session comes after that."
   # In a team the close-out is STEP-1's owner's: it archives STEP-1's PLAN, which by default is only
   # on the owner's machine (collaboration.md §3).
@@ -306,6 +308,13 @@ elif [ "$all_final" -eq 1 ]; then                           # §10.8
 else
   where="Indeterminate from the index alone."
   next="resolve by hand via the next-action resolver in $DOCS_REL/METHOD.md §10."
+fi
+# §10.3's reminder. Once the index holds a later row, nothing on disk says whether the planning
+# session ran, so until a STEP numbered 2 or higher is In progress or Done the answer above ends
+# with it. An unrecognized substep status is the exception: fixing that comes first.
+if [ "$unknown_sub" -eq 0 ] && [ "$step1_st" = "Done" ] && [ "$have_impl" -eq 1 ] &&
+   [ "$impl_started" -eq 0 ]; then
+  next="$next If the Phase-1 planning session hasn't run yet, run it first."
 fi
 
 # --- Next check-in (METHOD.md §10 rule 7) -------------------------------------
