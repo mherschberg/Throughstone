@@ -37,7 +37,7 @@
 > *on trunk* at step 4 (`METHOD.md` §7). And **tracking a split as a STEP is the method's
 > convention, not an obligation**: a project that would rather not track this one skips Case 2's
 > steps 4 and 13 together and loses nothing else. Case 1 needs no equivalent — `prompts/` is
-> untouched there, so the ordinary recipe in `prompts/README.md` applies unchanged.
+> untouched there, so the ordinary recipe in `prompts/README.md` applies.
 
 ## Why this runbook exists
 The published standard procedure — GitHub's, Atlassian's — makes the extracted repo **new**,
@@ -276,7 +276,11 @@ repo** is new. The docs hub and `prompts/` do not move.
 
 *Tracking this as a STEP?* Reserve the number, branch, and archive the PLAN exactly as
 `prompts/README.md` says — `prompts/` is untouched by this split, so none of that timing is
-special here, which is why it gets no steps of its own below.
+special here, which is why it gets no steps of its own below. Two things differ. Step 3 starts the
+extracted repo on trunk, with no STEP branch. And if the origin's STEP branch is ahead of trunk
+when step 3 clones it, close the STEP with a merge commit: the clone puts those commits on the new
+repo's trunk, and a squash or rebase merge rewrites them on their way into the origin's, so the two
+trunks would not share step 1's tip.
 
 > **Where abort gets expensive.** Up to step 6, abort is cheap: delete the new directory, and
 > delete the extracted repo's remote if you already created it. Nothing else has been touched, and
@@ -287,8 +291,8 @@ special here, which is why it gets no steps of its own below.
 > `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
 > step 9 has already pushed it — plus deleting the extracted repo and its remote, and reverting
 > the hub's step-7 and step-8 commits, pushed if step 9 pushed them: left standing, that registry
-> row sends everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a
-> re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
+> row will send everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach
+> for a re-clone: step 9 makes you push the prune, so the remote holds the split too, and on a
 > project with no remotes there is nothing to re-clone from. **Then put what you saved back**,
 > where it sat before step 6 moved it — the reset brings the origin's tracked files back from
 > git; these come back only from you.
@@ -296,20 +300,23 @@ special here, which is why it gets no steps of its own below.
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
    path being extracted, the new repo's name, and the origin's tip (`git rev-parse --short HEAD`,
    run in the origin): that is the last commit the two repos will share. **Re-read it once step 2
-   has committed your working tree** — that commit moves the tip, and step 3 clones what step 2
-   leaves. Record it here rather than at step 8, by which time the prune and the repoint have
+   is done** — a merge or a commit there moves the tip, and step 3 clones what step 2 leaves.
+   Record it here rather than at step 8, by which time the prune and the repoint have
    moved the origin past it. **Stop here, before step 3 builds anything** —
    show that written-out mapping and your answer to question 2. Deciding not to split is one of
    the answers, and this is the step where it gets made.
 2. **Pre-flight: the branches that won't survive.** Run `git branch -a` in the origin. A clone
-   carries every commit and every tag, but only the default branch arrives as a real branch — the
-   rest exist only as remote-tracking refs and die with `git remote remove origin`, silently. The
-   origin repo survives, so nothing is lost there; the risk is in-flight work on the *extracted*
-   files, which lands in a repo where those files no longer exist. Merge or close everything but
-   trunk before starting, or accept the loss knowingly. **Commit or stash your working tree too** —
-   the clone takes committed state, so an uncommitted edit never reaches the new repo. Edits to
-   tracked files, that is: anything untracked under the extracted path is what step 6 moves across
-   by hand.
+   carries every commit and every tag, but only the branch the origin has checked out arrives as a
+   real branch — the rest exist only as remote-tracking refs and die with
+   `git remote remove origin`, silently. The origin repo survives, so nothing is lost there; the
+   risk is in-flight work on the *extracted* files, which lands in a repo where those files no
+   longer exist. Merge or close everything but trunk before starting, or accept the loss knowingly.
+   On a STEP, keep this STEP's own branch as well, and merge trunk into it: step 3 makes that branch
+   the new repo's trunk. **Commit your working tree before those merges** (an edit outside the
+   extracted path can be stashed instead, except one to the root `.gitignore`, which the new repo
+   keeps) — the clone takes committed state, so an uncommitted edit never reaches the new repo.
+   Edits to tracked files, that is: anything untracked under the extracted path is what step 6
+   moves across by hand.
 3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted. The new repo
    belongs at `Code/<new-name>/`, a sibling of the origin — but **substitute `<new-repo>` as an
    absolute path**, `<workspace-root>/Code/<new-name>/`, for the reason the mechanic gives: blocks
@@ -319,6 +326,11 @@ special here, which is why it gets no steps of its own below.
    than cloning into. The row is what puts the repo at that path on everyone else's machine.
    When it prints `git ls-files`, read it: it should look like the repo you asked for, at the
    root, with nothing left nested.
+   **Tracking this as a STEP?** The origin is on this STEP's branch, so that is the one branch the
+   clone has, and the new repo has no trunk. Once block 1 has run, rename that branch to the
+   origin's trunk: `git -C <new-repo> branch -m step-NNNN-short-name <trunk>`. The new repo gets no
+   STEP branch: it did not exist before this STEP, so there is no earlier trunk for one to merge
+   into. If the rename fails, stop: the clone took some other branch, or the name is mistyped.
 4. **Make it a repo, not a folder.**
    - **Its licence is the origin's, not the project's.** Carving a folder out of a repo does not
      relicense the code in it, and the origin may be one this project **adopted**, where the
@@ -440,8 +452,8 @@ special here, which is why it gets no steps of its own below.
    - Both repos **build and test**.
    - `git status` shows nothing new in either repo — in the origin, only what was already
      untracked before you started; in the extracted repo, only what step 6 moved across — and each
-     local trunk matches its remote: that is the check that what you can see is what everyone else
-     receives.
+     local trunk matches its remote, and on a STEP so does this STEP's branch in the origin and the
+     hub: that is the check that what you can see is what everyone else receives.
    - The step-7 grep now returns only what you decided to leave: the historical mentions, and
      the method's own text in the hub.
    - `git log --follow` and `git blame` resolve across the un-nest in the extracted repo, and the
