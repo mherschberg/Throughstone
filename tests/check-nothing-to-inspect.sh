@@ -11,7 +11,8 @@
 # ADR registry, a STEP table whose Status header was renamed, a missing session-templates folder,
 # a second ADR file under a number already counted, or a data row skipped as a separator. So
 # every case that expects a WARN or FAIL also refutes its section's PASS: the finding could be
-# printed beside a PASS that still vouches for rows nobody read.
+# printed beside a PASS that still vouches for rows nobody read. The converse is covered too: a
+# check that read rows must not also report finding none.
 #
 # Half of the rule is staying quiet. Some zeros are how a project starts — no ADR yet — or a
 # choice a project may make — deleting the optional conditional templates — and a doctor that
@@ -188,7 +189,7 @@ refute "[PASS]" "renamed header in one phase table of two"
 no_step_row() {
   doctor "$c"
   look "Duplicate STEP numbers"
-  expect "[WARN] found no STEP rows in prompts/STEP-index.md" "$1"
+  expect "[WARN] found no STEP rows at the left margin of prompts/STEP-index.md" "$1"
   expect "a STEP row starts at the left margin" "$1 hint"
   refute "[PASS]" "$1"
   look "Statuses valid"
@@ -201,6 +202,31 @@ edit "$c/prompts/STEP-index.md" '$_ = "" if /^\| STEP-1 \|/' "deleting the STEP-
 no_step_row "STEP-1 row deleted"
 : > "$c/prompts/STEP-index.md"
 no_step_row "emptied STEP index"
+
+# An indented STEP row is not the shape the duplicate check reads, so that check finds no STEP row
+# at the left margin and says how to fix it. The status check reads the row under its table's
+# header, as status.sh does, and having read it must not also report finding none. An indented row
+# it does not read is not counted: the seed index holds one, an example inside an HTML comment, and
+# case 1 shows it stays quiet.
+c="$(fixture indented-step-row)"
+idx="$c/prompts/STEP-index.md"
+edit "$idx" 's/^(\| STEP-1 \| Architecture \| \| )Planned/  ${1}Bogus/' "indenting STEP-1 and setting it to Bogus"
+doctor "$c"
+look "Duplicate STEP numbers"
+expect "[WARN] found no STEP rows at the left margin of prompts/STEP-index.md" "indented STEP row"
+expect "move its rows to the left margin" "indented STEP row hint"
+refute "[PASS]" "indented STEP row"
+look "Statuses valid"
+expect 'STEP-1 -> "Bogus"' "indented STEP row with a bad status"
+refute "found no STEP rows" "indented STEP row with a bad status"
+refute "[PASS]" "indented STEP row with a bad status"
+[ "$DOC_STATUS" -eq 1 ] || bad "indented STEP row with a bad status — expected exit 1, got $DOC_STATUS"
+edit "$idx" 's/^(  \| STEP-1 \| Architecture \| \| )Bogus/${1}Planned/' "setting the indented STEP-1 to Planned"
+doctor "$c"
+look "Statuses valid"
+expect "[PASS] all statuses valid (1 STEP row(s)," "indented STEP row with a valid status"
+refute "[WARN]" "indented STEP row with a valid status"
+[ "$DOC_STATUS" -eq 0 ] || bad "indented STEP row with a valid status — expected exit 0, got $DOC_STATUS"
 
 # --- 4. An ADR registry with no table --------------------------------------------
 # No ADR row is also how every project starts (case 1), so the row count cannot tell the two
