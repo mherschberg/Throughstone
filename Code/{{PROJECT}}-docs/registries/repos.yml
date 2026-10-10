@@ -34,10 +34,11 @@
 # `location:` — where the repo lives, and it is always inside the workspace: **a path relative
 # to the workspace root, identical on every machine; never begins with `/` or `~`, and no
 # segment of it is `..`.** Usually a `Code/*` sibling (e.g. Code/{{PROJECT}}-api/), but any
-# contained path is fine. That shape is what makes this file reproducible: a teammate clones the
-# docs repo, runs scripts/setup-workspace.sh, and gets the whole workspace. That script reports
-# and skips any location breaking that shape rather than cloning into it — most often an absolute
-# path left over from one person's machine, which every other contributor then sets up by hand.
+# contained path is fine. That shape is what makes this file reproducible: in a multi-repo project a
+# teammate clones the docs repo, runs scripts/setup-workspace.sh, and gets the whole workspace. That
+# script reports and skips any location breaking that shape rather than cloning into it — most often
+# an absolute path left over from one person's machine, which every other contributor then sets up
+# by hand.
 # The value is passed literally: no shell expansion and no YAML interpretation happen, so `~/lib`
 # and `$HOME/lib` are directory names, not paths to a home directory.
 # A repo that genuinely cannot move stays where it is: put a symlink at its workspace-relative
