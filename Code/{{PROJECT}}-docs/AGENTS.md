@@ -68,9 +68,9 @@ interview the user one decision at a time, then write the output architecture do
 **"STEP-1.N", "Run STEP-1.N: <session label>", "session N.M", and "Run session N.M:
 <session label>" are all the user's go-ahead — begin in that same reply.** Don't
 acknowledge, summarize the file, restate the plan, or ask whether to start (no "Ready when
-you are"). Read root `.throughstone/local-user.md`, `Code/{{PROJECT}}-docs/overview.md`, anything relevant in `inputs/` (its live
-material, not `inputs/archive/`, and what `Code/{{PROJECT}}-docs/registries/input-captures.yml`
-says was already taken from it), and
+you are"). Read root `.throughstone/local-user.md`, `Code/{{PROJECT}}-docs/overview.md`, anything
+relevant in `Code/{{PROJECT}}-docs/inputs/` (its live material, not `inputs/archive/`, and what
+`Code/{{PROJECT}}-docs/registries/input-captures.yml` says was already taken from it), and
 any earlier architecture docs silently, then immediately **ask the session's first question**,
 calibrated to the local profile. The user types one short command and expects
 the first question back, not a confirmation prompt.
@@ -92,7 +92,7 @@ exact invocation and output-doc number instead of reopening STEP-1.
 Each session reads what it needs from disk (`Code/{{PROJECT}}-docs/overview.md`, anything
 relevant in `Code/{{PROJECT}}-docs/inputs/` excluding `inputs/archive/`, and earlier architecture
 docs), so context can be cleared between sessions — state lives in files. If the user provides a document in chat, save
-a copy into `inputs/` so later sessions and fresh chats can use it.
+a copy into `Code/{{PROJECT}}-docs/inputs/` so later sessions and fresh chats can use it.
 
 When STEP-1 is complete (the Cross-Cutting Review passed), the user moves into building by
 saying **"run the planning session"** — read
@@ -122,7 +122,7 @@ The `layout:` line in `Code/{{PROJECT}}-docs/registries/repos.yml` says which la
 project is in (`Code/{{PROJECT}}-docs/METHOD.md` §7). In **multi-repo** the workspace root is a
 per-machine shell and each entry below is its own repo; in **mono-repo-for-now** the root is
 itself a repo, the pointers are committed files, and these are folders inside it:
-- `Code/{{PROJECT}}-docs/` — the docs hub. All durable content lives here.
+- `Code/{{PROJECT}}-docs/` — the docs hub. Almost all durable content lives here.
 - `prompts/` — `prompts/STEP-index.md` roadmap + archived STEP plans/substep prompts.
 - `Code/{{PROJECT}}-*` — the codebases, created as the architecture names them.
 
@@ -178,16 +178,16 @@ is itself a repo, so this rule does not apply there.
 - **Inputs are point-in-time; `architecture/` is the living truth.** Treat anything in
   `Code/{{PROJECT}}-docs/inputs/` as a *starting point*, not a current source of truth: where a
   generated `architecture/` or `adr/` doc covers the same ground, the generated doc wins, and an
-  input's superseded parts must not be built on. **Read `inputs/` but not `inputs/archive/`**
-  (retired inputs, kept for history). An input may be captured over several sessions, so
-  `Code/{{PROJECT}}-docs/registries/input-captures.yml` logs what has been taken from each: read an
-  input's entries before building on it — whatever no entry names is still only in the input. When
-  a session takes something from an input, add an entry there in the same step, say what it took
-  and what later sessions may still need from it, then ask the user whether the input is now fully
-  captured; move it to `Code/{{PROJECT}}-docs/inputs/archive/` only on a yes, with an entry saying
-  so — a *not yet* leaves it where it is. **Lift architecture-grade inputs — a protocol/API spec, a
-  formal contract, a finished design doc — into `architecture/` promptly**, or reference one from
-  there when that fits better; `Code/{{PROJECT}}-docs/inputs/README.md` says how and when.
+  input's superseded parts must not be built on. **Read `Code/{{PROJECT}}-docs/inputs/` but not
+  `inputs/archive/`** (retired inputs, kept for history). An input may be captured over several
+  sessions, so `Code/{{PROJECT}}-docs/registries/input-captures.yml` logs what has been taken from
+  each: read an input's entries before building on it — whatever no entry names is still only in the
+  input. When a session takes something from an input, add an entry there in the same step, say what
+  it took and what later sessions may still need from it, then ask the user whether the input is now
+  fully captured; move it to `Code/{{PROJECT}}-docs/inputs/archive/` only on a yes, with an entry
+  saying so — a *not yet* leaves it where it is. **Lift architecture-grade inputs — a protocol/API
+  spec, a formal contract, a finished design doc — into `architecture/` promptly**, or reference one
+  from there when that fits better; `Code/{{PROJECT}}-docs/inputs/README.md` says how and when.
 - **Keep accepted risks visible.** Known, accepted risks and deferred technical debt live in
   `Code/{{PROJECT}}-docs/registries/risks.yml`. Add or update a row when security controls,
   dependency fixes, incident follow-ups, or tech debt are consciously deferred. The register is
