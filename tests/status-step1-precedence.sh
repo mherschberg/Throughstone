@@ -71,6 +71,7 @@ open_substeps='| 1.1 | System Overview | Done | architecture/01-system-overview.
 | 1.7 | Data Model | Planned | architecture/07-data-model.md |'
 final_substeps='| 1.1 | System Overview | Done | architecture/01-system-overview.md |
 | 1.7 | Data Model | Done | architecture/07-data-model.md |'
+reminder="If the Phase-1 planning session hasn't run yet, run it first."
 
 # A STEP-1 row marked Done closes architecture even with sessions left open — the state an
 # adopted codebase lands in, since its baseline marks STEP-1 Done and leaves the sessions it ran
@@ -82,19 +83,24 @@ write_index \
 output="$(run_status)"
 assert_contains "$output" 'implementation not yet outlined.'
 assert_contains "$output" 'run the planning session'
+assert_absent "$output" "$reminder"
 assert_absent "$output" 'Run STEP-1.7'
 assert_absent "$output" 'Architecture (STEP-1) in progress'
 
-# The same index once a later STEP is In progress: the resolver reaches it past the open substep.
+# The same index once a later STEP is In progress: the resolver reaches it past the open substep,
+# and with work begun it no longer reminds you of the planning session.
 write_index \
 '| STEP-1 | Architecture | | Done | | Fixture |
 | STEP-5 | Build the thing | | In progress | | Fixture |' \
 "$open_substeps"
 output="$(run_status)"
 assert_contains "$output" 'Building — STEP-5 (Build the thing) is In progress.'
+assert_absent "$output" "$reminder"
 assert_absent "$output" 'Run STEP-1.7'
 
-# Planned implementation work is likewise reachable underneath a Done STEP-1.
+# Planned implementation work is likewise reachable underneath a Done STEP-1. Nothing on disk says
+# whether the planning session ran, so until a later STEP is In progress or Done the answer ends
+# with a reminder of it (METHOD.md §10 rule 3).
 write_index \
 '| STEP-1 | Architecture | | Done | | Fixture |
 | STEP-2 | Ordinary implementation | | Planned | | Fixture |' \
@@ -102,7 +108,23 @@ write_index \
 output="$(run_status)"
 assert_contains "$output" 'next up is STEP-2 (Ordinary implementation).'
 assert_contains "$output" 'author its PLAN and any substep prompts'
+assert_contains "$output" "$reminder"
 assert_absent "$output" 'Run STEP-1.7'
+
+# Deferred and Abandoned don't say whether work began, so the reminder stays; Done does.
+for later in Deferred Abandoned Done; do
+  write_index \
+"| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | Ordinary implementation | | $later | | Fixture |" \
+"$final_substeps"
+  output="$(run_status)"
+  assert_contains "$output" 'phase looks complete'
+  if [ "$later" = Done ]; then
+    assert_absent "$output" "$reminder"
+  else
+    assert_contains "$output" "$reminder"
+  fi
+done
 
 # Control: while the STEP-1 row is open, an open substep is still the next action. The gate must
 # not cost the rule it guards.
@@ -123,12 +145,12 @@ assert_contains "$output" 'all 2 substeps are final, but the STEP-1 row is still
 assert_contains "$output" 'close out STEP-1'
 assert_contains "$output" 'The planning session comes after that.'
 
-# The close-out stays the work once the index holds a later STEP, since the Cross-Cutting Review
-# can record forward STEPs before STEP-1 closes. It has to come before every rule that reads a
-# later STEP: an In-progress STEP-1 is itself the lowest STEP in flight, so the In-progress rule
-# would send it looking for a substep it does not have, and a Planned one would leave the answer to
-# STEP-2. With a later STEP in the index the close-out does not name the planning session: §10.3
-# names it only while STEP-1 is the index's only row.
+# The close-out stays the work once the index holds a later STEP. It has to come before every rule
+# that reads a later STEP: an In-progress STEP-1 is itself the lowest STEP in flight, so the
+# In-progress rule would send it looking for a substep it does not have, and a Planned one would
+# leave the answer to STEP-2. With a later STEP in the index the close-out does not name the
+# planning session: §10.3 sends you to it only while STEP-1 is the index's only row, and its
+# reminder waits for STEP-1 to be Done.
 for step1 in 'In progress' 'Planned'; do
   for later in 'Rework the auth boundary | | Planned' \
                'Conditional session: AI feature | | Planned' 'Scaffold repos | | In progress'; do
@@ -140,6 +162,7 @@ for step1 in 'In progress' 'Planned'; do
     assert_contains "$output" "all 2 substeps are final, but the STEP-1 row is still \"$step1\"."
     assert_contains "$output" 'close out STEP-1'
     assert_absent "$output" 'The planning session comes after that.'
+    assert_absent "$output" "$reminder"
     assert_absent "$output" 'ask the user whether STEP-1 is theirs'
   done
 done
@@ -160,7 +183,8 @@ assert_contains "$output" 'close out STEP-1'
 assert_absent "$output" 'owned by bob'
 
 # Controls: a Deferred or Abandoned STEP-1 row is not open, and a missing one says nothing, so with
-# every substep final the answer passes to the later STEP.
+# every substep final the answer passes to the later STEP, and without the planning-session
+# reminder, which needs STEP-1 Done.
 for step1_row in '| STEP-1 | Architecture | | Deferred | | Fixture |
 ' '| STEP-1 | Architecture | | Abandoned | | Fixture |
 ' ''; do
@@ -170,6 +194,7 @@ for step1_row in '| STEP-1 | Architecture | | Deferred | | Fixture |
   output="$(run_status)"
   assert_contains "$output" 'next up is STEP-2 (Rework the auth boundary).'
   assert_absent "$output" 'close out STEP-1'
+  assert_absent "$output" "$reminder"
 done
 
 # Control: with no substep row there is nothing final to close out, so an open STEP-1 row passes
@@ -189,6 +214,15 @@ write_index \
 | 1.7 | Data Model | Blocked | architecture/07-data-model.md |'
 output="$(run_status)"
 assert_contains "$output" 'prompts/STEP-index.md has an unrecognized status on 1 substep row(s): 1.7.'
+
+# The planning-session reminder waits for that fix too, since it would say to run the session first.
+write_index \
+'| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-2 | Ordinary implementation | | Planned | | Fixture |' \
+'| 1.7 | Data Model | Blocked | architecture/07-data-model.md |'
+output="$(run_status)"
+assert_contains "$output" 'unrecognized status on 1 substep row(s): 1.7.'
+assert_absent "$output" "$reminder"
 
 # Every Substep table in the index is read, not only STEP-1's: an index brought up from 1.x keeps
 # the substep lists of its finished STEPs. An unrecognized status in one of those is named by its
