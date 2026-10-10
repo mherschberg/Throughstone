@@ -108,7 +108,8 @@ whole input, and everything else is derived from it. Before answering, **list th
 nothing invisible gets left behind:
 
 ```bash
-git ls-files | cut -d/ -f1-2 | sort -u      # or: ls Code/, plus prompts/ and the docs hub
+# Run in the repo you are splitting (the workspace root, in mono-repo-for-now).
+git ls-files | cut -d/ -f1-2 | sort -u      # or, in mono: ls Code/, plus prompts/ and the docs hub
 ```
 
 Every entry has to land in some repo's **keep-set** or be dropped on purpose. Work from this list,
@@ -209,7 +210,7 @@ into brace expansion, is a summary. Then start the next repo.
 `':!.gitignore'` the new repo inherits no ignore file, and nothing left inside it can regenerate
 one — the only thing that writes a `.gitignore` is `init.sh`, which the new repo doesn't have
 either way. The result is a repo that tracks `.env`. After the un-nest, confirm the
-exemption worked: `git check-ignore -v .env` should exit 0.
+exemption worked: `git -C <new-repo> check-ignore -v .env` should exit 0.
 
 **`.gitmodules` is not exempt, and a submodule inside the keep-set needs it.** That file lives at
 the origin's root, so the forward delete takes it while the keep-set's gitlink survives: the file
@@ -300,14 +301,15 @@ special here, which is why it gets no steps of its own below.
    moved the origin past it. **Stop here, before step 3 builds anything** —
    show that written-out mapping and your answer to question 2. Deciding not to split is one of
    the answers, and this is the step where it gets made.
-2. **Pre-flight: the branches that won't survive.** Run `git branch -a`. A clone carries every
-   commit and every tag, but only the default branch arrives as a real branch — the rest exist
-   only as remote-tracking refs and die with `git remote remove origin`, silently. The origin repo
-   survives, so nothing is lost there; the risk is in-flight work on the *extracted* files, which
-   lands in a repo where those files no longer exist. Merge or close everything but trunk before
-   starting, or accept the loss knowingly. **Commit or stash your working tree too** — the clone
-   takes committed state, so an uncommitted edit never reaches the new repo. Edits to tracked files,
-   that is: anything untracked under the extracted path is what step 6 moves across by hand.
+2. **Pre-flight: the branches that won't survive.** Run `git branch -a` in the origin. A clone
+   carries every commit and every tag, but only the default branch arrives as a real branch — the
+   rest exist only as remote-tracking refs and die with `git remote remove origin`, silently. The
+   origin repo survives, so nothing is lost there; the risk is in-flight work on the *extracted*
+   files, which lands in a repo where those files no longer exist. Merge or close everything but
+   trunk before starting, or accept the loss knowingly. **Commit or stash your working tree too** —
+   the clone takes committed state, so an uncommitted edit never reaches the new repo. Edits to
+   tracked files, that is: anything untracked under the extracted path is what step 6 moves across
+   by hand.
 3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted. The new repo
    belongs at `Code/<new-name>/`, a sibling of the origin — but **substitute `<new-repo>` as an
    absolute path**, `<workspace-root>/Code/<new-name>/`, for the reason the mechanic gives: blocks
@@ -642,12 +644,12 @@ before step 5 clones anything — and split two folders that sit beside each oth
       `node_modules/`, a `dist/` — means that repo's ignore file did not survive step 5's
       reconcile.
     - Each code repo **builds and tests**.
-    - `Code/<project>-docs/scripts/check.sh --check-in` at **0 fail(s), 0 warning(s)** — warnings
-      do not fail the run, so "green" is not the criterion. **Run it with that flag:** the
-      repo-registry check is the only check in `check.sh` that reads what step 7 just wrote, and
-      it runs only under `--check-in`. Without the flag, a registry whose rows lost a `location:`
-      still reports `RESULT: OK`.
-    - `Code/<project>-docs/scripts/links.sh` clean.
+    - `Code/<project>-docs/scripts/check.sh --check-in`, run from the build directory's root, at
+      **0 fail(s), 0 warning(s)** — warnings do not fail the run, so "green" is not the criterion.
+      **Run it with that flag:** the repo-registry check is the only check in `check.sh` that reads
+      what step 7 just wrote, and it runs only under `--check-in`. Without the flag, a registry
+      whose rows lost a `location:` still reports `RESULT: OK`.
+    - `Code/<project>-docs/scripts/links.sh`, run from there too, clean.
     - A **real teammate clone**: a fresh empty directory, clone the docs hub into
       `Code/<project>-docs/` inside it, run `Code/<project>-docs/scripts/setup-workspace.sh` from
       that new workspace root, and confirm every registered repo actually arrives.
@@ -688,6 +690,7 @@ control; the rewrite is cleanup.
 git clone --mirror --no-local <origin> ../purge-work.git   # work on a copy, never your only one
 git -C ../purge-work.git filter-repo --analyze             # path + rename reports (needs the tool below)
 git -C ../purge-work.git for-each-ref --format='%(objectname) %(refname)' > ../refs-before.txt
+git -C ../purge-work.git rev-list --count <trunk>..<branch>   # each branch; repeated afterwards
 ```
 
 The `--analyze` reports are how you build the path list. **Neither tool follows renames.** If the
@@ -717,10 +720,11 @@ diff ../refs-before.txt ../refs-after.txt
 ```
 
 Every SHA changes, so every line of that diff differs — read it for refs that *disappeared*, not
-for refs that moved. The collapse above needs a per-branch check instead: `git rev-list --count
-<trunk>..<branch>`, before and after. A branch that had commits of its own and now returns zero has
-been folded into another line of history, under a SHA that is not any other ref's tip, so the diff
-will not show it. Decide what each one should be before you push anything.
+for refs that moved. The collapse above needs a per-branch check instead:
+`git -C ../purge-work.git rev-list --count <trunk>..<branch>`, before and after. A branch that had
+commits of its own and now returns zero has been folded into another line of history, under a SHA
+that is not any other ref's tip, so the diff will not show it. Decide what each one should be
+before you push anything.
 
 **And confirm the purge itself.** Neither of those checks looks at the blob, and the failure this
 section opens with — a path you did not name, the tool reporting success — is invisible to both:
