@@ -396,6 +396,9 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 - **Fixed:** in mono-repo-for-now, the STEP-number reservation in `runbooks/collaboration.md` §2
   runs in the root repository, which holds `prompts/`. 1.x had a team pull and push `prompts/` as a
   repository of its own, which a mono project doesn't have.
+- **Fixed:** a contributor who joins a mono-repo-for-now project creates their local profile before
+  reading the project state. 1.x's `ONBOARDING.md` sent them straight past §3, so the profile waited
+  until an agent found it missing.
 
 ### Sessions and STEPs
 
