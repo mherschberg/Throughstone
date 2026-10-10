@@ -94,9 +94,9 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    Contracts architecture doc — including copying `templates/env-example.txt` into each new code
    repo as its `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
-   the `.env` / `.secrets/` secret-file block so local secrets never get committed, and the
-   `**/.claude/*.local.json`, `**/.claude/#*#` and `**/.claude/*~` lines so per-machine agent config
-   does not get committed either). Apply the project-license posture too: run
+   the `.env`, `.env.*`, `!.env.example` and `.secrets` lines so local secrets never get committed,
+   and the `**/.claude/*.local.json`, `**/.claude/#*#` and `**/.claude/*~` lines so per-machine
+   agent config does not get committed either). Apply the project-license posture too: run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` for every new code
    repo (`runbooks/register-repo.md` step 3). Repository visibility is decided on its own, not read
    off the license. Where a new code repo is given a remote, create it **private** — widening is a
