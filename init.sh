@@ -3,7 +3,7 @@
 # init.sh — one-time bootstrap wizard.
 #
 # Turns this downloaded template into your project: detaches it from the template's git
-# origin, renames the {{PROJECT}} placeholder everywhere, and sets up your repo(s).
+# origin, renames the {{PROJECT}} placeholder everywhere but init.sh, and sets up your repo(s).
 # Run it once, from the workspace root, right after downloading.
 #
 # Flow:
@@ -17,8 +17,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
-# Small UI helpers. They only print/prompt; all validation happens at the call sites so flags,
-# env vars, and interactive answers share the same checks.
+# Small UI helpers.
 say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
 # ask PROMPT [DEFAULT] — ask one question and print the answer. With a DEFAULT, a bare Enter takes
 # it. Without one, a blank answer is returned as the blank it is: every such call site loops until
@@ -77,7 +76,7 @@ yesno() {
 # missing value, not a description: without this the value silently becomes "--layout=mono" and
 # the swallowed flag falls back to its default, so the run builds something the caller did not
 # ask for and every later check passes. Refused here rather than per-flag, because only the
-# flags that happen to validate their value (--slug, --layout, --license) catch it by accident.
+# flags that happen to validate their value catch it by accident.
 # The `--flag=value` form is untouched, so a value that really does begin with `--` stays sayable.
 need_val() {
   case "${2-}" in
@@ -321,11 +320,11 @@ usage() {
 init.sh — one-time Throughstone setup wizard.
 
 Runs interactively by default. Pass flags (or set env vars) to pre-answer any
-question; whatever you leave out is still prompted — unless --non-interactive is
+question; most omitted answers are still prompted — unless --non-interactive is
 set, in which case a missing required value is an error (useful for scripts/CI).
 A "(default: …)" below is what --non-interactive falls back to. Most prompts offer
 no default at all: the structural answers have to be typed, so that pressing Enter
-cannot decide the repo layout, the licence, or whether repositories are created.
+cannot pick the repo layout or an open-source licence, or create GitHub repos.
 
 Usage: ./init.sh [options]
 
