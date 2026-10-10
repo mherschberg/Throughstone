@@ -19,9 +19,13 @@
 #   `git init` beside the template, empty      an unborn HEAD with commits on another branch
 #                                              an unborn HEAD with files staged, never committed
 #   the template's own plain prompts/          a repository of someone else's under prompts/
+#   what macOS or Windows leaves in the        a file of someone else's in .github/, tests/,
+#   folders setup deletes whole                brand/ or docs/, with or without a .git
 #
-# The last case pins the template's root-entry list, which the guard carries as a literal, to the
-# template itself so it cannot rot.
+# The guard carries two lists as literals: the template's root entries, and every file it ships in
+# those four folders. Case 12 and the check before case 1 pin them to the template itself so they
+# cannot rot. The file list is checked first because a file added to those folders and left off it
+# makes every case refuse, and that check is the one that names every such file.
 
 set -euo pipefail
 export LC_ALL=C
@@ -60,14 +64,17 @@ init_once() { # DIR SLUG EXTRA_ARGS...
       --license=private --collab=solo --remotes=no "$@" )
 }
 
-# assert_refused NAME DIR REASON_TEXT — init must exit non-zero and name the check that fired.
+# assert_refused NAME DIR REASON_TEXT — init must exit 2 and name the check that fired.
 assert_refused() {
-  local name="$1" dir="$2" reason="$3"
-  if init_once "$dir" "$name" --layout=multi >"$TMP_ROOT/$name.out" 2>&1; then
+  local name="$1" dir="$2" reason="$3" rc=0
+  init_once "$dir" "$name" --layout=multi >"$TMP_ROOT/$name.out" 2>&1 || rc=$?
+  if [ "$rc" -eq 0 ]; then
     echo "FAIL: $name — init.sh ran where it should have refused" >&2
     cat "$TMP_ROOT/$name.out" >&2
     exit 1
   fi
+  [ "$rc" -eq 2 ] \
+    || { echo "FAIL: $name — expected exit 2, got $rc" >&2; cat "$TMP_ROOT/$name.out" >&2; exit 1; }
   grep -Fq "does not look like a fresh Throughstone template checkout" "$TMP_ROOT/$name.out" \
     || { echo "FAIL: $name — refusal did not print the fresh-template message" >&2; cat "$TMP_ROOT/$name.out" >&2; exit 1; }
   grep -Fq "$reason" "$TMP_ROOT/$name.out" \
@@ -94,6 +101,19 @@ seed_user_repo() {
   ( cd "$dir" && git init -q && printf 'our source\n' > app.py && git add -A && seed_commit "five years of history" )
   git -C "$dir" rev-parse HEAD
 }
+
+# --- The guard's list of files in .github/, tests/, brand/ and docs/ matches the template. -------
+# Read from a fixture rather than from HEAD: copy_template carries a new, uncommitted file into
+# every init fixture, so the guard refuses it until the list names it.
+shipped="$TMP_ROOT/shipped"
+copy_template "$shipped"
+expected="$TMP_ROOT/folder-files-expected"
+actual="$TMP_ROOT/folder-files-actual"
+( cd "$shipped" && find .github tests brand docs ! -type d ) | LC_ALL=C sort > "$expected"
+sed -n "/^TEMPLATE_FOLDER_FILES='\$/,/^'\$/p" "$ROOT/init.sh" | sed '1d;$d' | LC_ALL=C sort > "$actual"
+[ -s "$actual" ] || { echo "FAIL: could not read TEMPLATE_FOLDER_FILES out of init.sh" >&2; exit 1; }
+diff -u "$expected" "$actual" \
+  || { echo "FAIL: init.sh's TEMPLATE_FOLDER_FILES has drifted from the files the template ships in .github/, tests/, brand/ and docs/ (- missing, + stale)" >&2; exit 1; }
 
 # --- 1. A fresh template initializes normally (the guard must not over-fire). -----------------
 fresh="$TMP_ROOT/fresh"
@@ -237,5 +257,56 @@ sed -n "s/^TEMPLATE_ROOT_ENTRIES='|\(.*\)|'$/\1/p" "$ROOT/init.sh" | tr '|' '\n'
 [ -s "$actual" ] || { echo "FAIL: could not read TEMPLATE_ROOT_ENTRIES out of init.sh" >&2; exit 1; }
 diff -u "$expected" "$actual" \
   || { echo "FAIL: init.sh's TEMPLATE_ROOT_ENTRIES has drifted from the template's root (- missing, + stale)" >&2; exit 1; }
+
+# --- 13. The template unpacked over a folder of someone else's is refused. ----------------------
+# There is no .git, so checks 1-5 pass it. Section 2 deletes .github/, tests/, brand/ and docs/
+# whole, and with them every file of the user's in a folder that shares a name with the template's.
+# The user's files sit in all four folders, two of them in a subfolder, and one is a dotfile, which
+# is the user's like any other.
+over_folder="$TMP_ROOT/over-folder"
+mkdir -p "$over_folder/.github/workflows" "$over_folder/brand" "$over_folder/docs/api" \
+  "$over_folder/tests"
+printf 'name: CI\n' > "$over_folder/.github/workflows/ci.yml"
+printf '<svg/>\n' > "$over_folder/brand/logo.svg"
+printf 'our design\n' > "$over_folder/docs/api/design.md"
+printf 'our notes\n' > "$over_folder/docs/.notes.md"
+printf 'def test_app(): pass\n' > "$over_folder/tests/test_app.py"
+copy_template "$over_folder"
+assert_refused "over-folder" "$over_folder" \
+  "5 files there are not ones the template ships, among them '.github/workflows/ci.yml'."
+[ -f "$over_folder/.github/workflows/ci.yml" ] && [ -f "$over_folder/brand/logo.svg" ] \
+  && [ -f "$over_folder/docs/api/design.md" ] && [ -f "$over_folder/docs/.notes.md" ] \
+  && [ -f "$over_folder/tests/test_app.py" ] \
+  || { echo "FAIL: over-folder — init.sh deleted the user's files before refusing" >&2; exit 1; }
+[ -d "$over_folder/Code/{{PROJECT}}-docs" ] \
+  || { echo "FAIL: over-folder — init.sh crossed the destructive boundary before refusing" >&2; exit 1; }
+
+# --- 14. …and so is a file someone added to a clone of the template. ---------------------------
+# Checks 2 and 3 read the clone's history, and an untracked file is in none of it. Its name,
+# tests/links, is a shipped file's (tests/links.sh) cut short, so a guard that matched the list by
+# prefix would let it through.
+clone_extra="$TMP_ROOT/clone-extra"
+git clone -q "$clone_seed" "$clone_extra"
+printf 'mine\n' > "$clone_extra/tests/links"
+assert_refused "clone-extra" "$clone_extra" "'tests/links' is not a file the template ships."
+[ -d "$clone_extra/.git" ] && [ -f "$clone_extra/tests/links" ] \
+  || { echo "FAIL: clone-extra — init.sh removed .git or the user's file before refusing" >&2; exit 1; }
+
+# --- 15. What macOS or Windows leaves in those folders still proceeds. -------------------------
+# Finder leaves .DS_Store in any folder it shows, macOS writes a ._ file beside each file on a
+# volume that cannot hold its extended attributes, Explorer leaves Thumbs.db and desktop.ini, and a
+# downloaded file copied from Windows into WSL arrives with a :Zone.Identifier file beside it. None
+# of it is the user's work, and refusing it would refuse a template someone only looked through.
+# An empty folder holds nothing to lose either.
+os_meta="$TMP_ROOT/os-meta"
+copy_template "$os_meta"
+: > "$os_meta/docs/.DS_Store"
+: > "$os_meta/docs/._index.html"
+: > "$os_meta/brand/logo/Thumbs.db"
+: > "$os_meta/.github/desktop.ini"
+: > "$os_meta/tests/links.sh:Zone.Identifier"
+mkdir -p "$os_meta/tests/empty"
+init_once "$os_meta" osmeta --layout=multi >"$TMP_ROOT/os-meta.out" 2>&1 \
+  || { echo "FAIL: guard blocked a template holding only what macOS or Windows leaves in the folders setup deletes" >&2; cat "$TMP_ROOT/os-meta.out" >&2; exit 1; }
 
 echo "init.sh fresh-template guard: PASS"
