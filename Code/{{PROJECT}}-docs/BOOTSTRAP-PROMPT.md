@@ -32,9 +32,9 @@ informs the design — a product spec or PRD, prior architecture or design docs,
 specification, UI designs or mockups, competitor and prior-art research — belongs in
 `Code/{{PROJECT}}-docs/inputs/`, and stays available to **every** architecture session from
 here on, not just this kickoff. If the user pastes a document or points you at one in chat,
-**save a copy into `inputs/`** (clear filename; original format is fine) so it persists for
-later sessions and fresh chats. The architecture sessions read the relevant inputs and build
-on them instead of re-deriving what the user already knows. See
+**save a copy into `Code/{{PROJECT}}-docs/inputs/`** (clear filename; original format is fine) so it
+persists for later sessions and fresh chats. The architecture sessions read the relevant inputs and
+build on them instead of re-deriving what the user already knows. See
 `Code/{{PROJECT}}-docs/inputs/README.md`.
 
 ## Work through these stages, pausing at each checkpoint
@@ -83,9 +83,9 @@ plainer vocabulary, a *"why does that matter?"* asks for more reasoning. **When 
 profile, tell the user in plain terms they can ask you to explain any question at any time** —
 don't make them discover it. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
-Then read `overview.md` and fill the gaps a brief usually misses. Ask about: who uses it and
-who else is affected; expected scale now vs. in a year; hard constraints (regulatory,
-budget, timeline, team, existing systems); data sensitivity; integrations; and — most
+Then read `Code/{{PROJECT}}-docs/overview.md` and fill the gaps a brief usually misses. Ask about:
+who uses it and who else is affected; expected scale now vs. in a year; hard constraints
+(regulatory, budget, timeline, team, existing systems); data sensitivity; integrations; and — most
 importantly — what's **explicitly out of scope**. Keep it conversational, a few questions
 at a time. When you have enough, summarize your understanding back and offer to write it
 into `Code/{{PROJECT}}-docs/overview.md`. **Wait for confirmation.**
