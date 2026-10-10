@@ -344,6 +344,11 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   close-out, archiving STEP-1 and then marking it `Done`, even with later STEPs in the index. 1.x
   sent you to the planning session or, once a later STEP was in the index, on to later work or to a
   STEP-1 substep that doesn't exist.
+- **Fixed:** once the STEP-1 row reads `Done` and the index holds a later STEP, until one is
+  `In progress` or `Done`, `./doctor.sh status` ends its next action with "If the Phase-1 planning
+  session hasn't run yet, run it first.", and `METHOD.md` §10 rule 3 says the same. 1.x sent you to
+  Phase 1's planning session only while STEP-1 was the index's only row, so a later row written
+  before it ran sent you past it, and Phase 1 could be left without its outline.
 - **Fixed:** `./doctor.sh status` suggests a conditional session's by-name phrase, such as "run the
   identity-auth session", only when the substep's label starts with that session's topic, and
   otherwise says to invoke it by name. 1.x matched a keyword anywhere in the label, so a conditional
@@ -416,7 +421,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   (`METHOD.md` §3). A doc that misread the code is fixed, a real gap files a `registries/risks.yml`
   row, or a bug where the code drifted from a decision the project took, and a choice made before
   the project kept ADRs, whose reasons nobody knows, is recorded in its doc, never in an ADR written
-  after the fact.
+  after the fact. Its foreclosure check also asks whether the architecture supports what the roadmap
+  commits to later phases, and records rework needed before one as a `registries/risks.yml` row or
+  in the Open Questions it carries forward. The planning session now reads both and plans that
+  rework as STEPs.
 - **Changed:** every architecture-session template heads its work list
   `## Decisions to make (in order)`, where the Glossary and the Cross-Cutting Review had headings of
   their own, and `METHOD.md` §4 makes that shared shape part of adding a session. Each template's
