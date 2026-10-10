@@ -7,11 +7,12 @@
 # Safe to run anytime — intended for the periodic check-in (runbooks/check-in.md) and for CI.
 #
 # Checks:
-#   1. No duplicate STEP numbers in prompts/STEP-index.md — warns when it has no STEP row
+#   1. No duplicate STEP numbers in prompts/STEP-index.md — warns when no STEP row is at the left
+#      margin
 #   2. No duplicate ADR numbers in adr/README.md — warns when it holds neither an ADR row nor a
 #      registry table
 #   3. STEP / substep statuses are from the allowed set — warns on no STEP row, or on a STEP
-#      row under no Status column
+#      row at the left margin under no Status column
 #   4. Every architecture/NN-*.md carries Version / Status / Version Log
 #   5. The ADR registry and the ADR files on disk match (both directions) — fails a number that
 #      more than one file carries
@@ -118,10 +119,11 @@ if [ -f "$INDEX" ]; then
     maxn="$(grep -oE '^\|[[:space:]]*STEP-[0-9]+' "$INDEX" | grep -oE '[0-9]+' | sort -n | tail -1)"
     hint "renumber the duplicate (the one reserved later) to STEP-$((maxn + 1)) — never reuse or delete a number; mark a row Abandoned if it won't be built. See $DOCS_REL/runbooks/collaboration.md §2."
   elif [ "$step_rows" -eq 0 ]; then
-    # init.sh reserves STEP-1 and a STEP number is never deleted, so an index with no STEP row
-    # has lost its table. A pass here would vouch for rows nobody read.
-    warn "found no STEP rows in prompts/STEP-index.md — nothing to check"
-    hint "a STEP row starts at the left margin with its number, as in | STEP-1 |. Restore the table from git history; a number is never deleted, only marked Abandoned."
+    # init.sh reserves STEP-1 and a STEP number is never deleted, so an index with no STEP row at
+    # the left margin has lost its table or indented it. A pass here would vouch for rows nobody
+    # read.
+    warn "found no STEP rows at the left margin of prompts/STEP-index.md — nothing to check"
+    hint "a STEP row starts at the left margin with its number, as in | STEP-1 |. If the STEP table is there but indented, move its rows to the left margin; otherwise restore it from git history. A number is never deleted, only marked Abandoned."
   else
     pass "no duplicate STEP numbers ($step_rows STEP row(s))"
   fi
@@ -175,14 +177,18 @@ if [ -f "$INDEX" ]; then
   # use N/A because only substeps can be structurally inapplicable.
   #
   # A STEP row under a header with no Status column is never validated, so STEP rows are also
-  # counted by their own shape — the one the duplicate-number check reads — and one that no
-  # Status column covers is a warning, not a pass.
+  # counted by their own shape — the one the duplicate-number check reads, at the left margin —
+  # and one that no Status column covers is a warning, not a pass. An indented row is counted only
+  # once its status is read. This check does not strip HTML comments, and the seed index keeps
+  # its example rows indented inside one, so an indented row outside a table with a Status column
+  # is taken for an example.
   scan="$(awk -F'|' '
     function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
     {
       if ($0 !~ /^[[:space:]]*\|/) { inrow = 0; statuscol = 0; next }   # left a table
-      steprow = ($0 ~ /^\|[[:space:]]*STEP-[0-9]+/)
-      steprows += steprow
+      steprow = ($0 ~ /^[[:space:]]*\|[[:space:]]*STEP-[0-9]+/)
+      indented = ($0 !~ /^\|/)
+      steprows += (steprow && !indented)
       ishdr = 0; isstep = 0; issub = 0
       for (i = 1; i <= NF; i++) {
         c = trim($i)
@@ -194,6 +200,7 @@ if [ -f "$INDEX" ]; then
       if (ishdr && issub)  tablekind = "SUB"
       if (ishdr) { inrow = 1; subtable = issub; next }
       if (!inrow || statuscol == 0) next
+      steprows += (steprow && indented)
       stepread += steprow
       sc = trim($statuscol)
       # The separator row is the one whose first cell is dashes too. A data row whose Status is
