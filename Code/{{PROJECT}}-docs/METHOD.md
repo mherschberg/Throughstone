@@ -756,10 +756,10 @@ lives in files (§4, §5).
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.
 
-Resolve the next action top-down against the index — the first rule that matches wins. **Rule 7
-is the one exception**: the scheduled check-in is *advice*, reported alongside the next action and
-never in place of it. It never blocks work, and no rule below it is skipped because a check-in is
-due.
+Resolve the next action top-down against the index — the first rule that matches wins. **Rule 3's
+reminder and rule 7 are the exceptions**: the reminder ends the answer a later rule gives, and the
+scheduled check-in is *advice*, reported alongside the next action and never in place of it. It
+never blocks work, and no rule below it is skipped because a check-in is due.
 
 1. **STEP-1's own row is not `Done`, and STEP-1 has a `Planned` / `In progress` substep?** →
    run the lowest-numbered open one
@@ -778,7 +778,10 @@ due.
 2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
    substep whose Session label is **Cross-Cutting Review**.
 3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
-   *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
+   *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2). Nothing on
+   disk records that it ran, so while STEP-1 is `Done` and no STEP numbered 2 or higher is
+   `In progress` or `Done`, end the answer a rule below gives with *"If the Phase-1 planning
+   session hasn't run yet, run it first."*
 4. **A `Conditional session: …` follow-up STEP is `Planned`, and no STEP is `In progress`?**
    → plan the lowest-numbered such follow-up before returning to implementation. Author its
    thin one-substep PLAN as described in §4, record the conditional's by-name invocation, then
