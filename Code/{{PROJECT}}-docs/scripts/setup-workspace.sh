@@ -164,9 +164,10 @@ mkdir -p "$ROOT/.throughstone"
 # --- 2. Clone sibling repos listed in the registry (if it has remotes) ------
 # Nothing in this step is allowed to be fatal. A contributor who cannot reach one repository —
 # or whose registry names a path this workspace has no business writing to — must still end up
-# with a usable workspace, so every repo that does not arrive is reported and counted rather
-# than aborting the run. A registry that is missing, has a row that cannot be read, or has no rows
-# at all is an exception to the count: each is reported once, and nothing is cloned.
+# with a usable workspace, so every repo with a location and a remote that does not arrive is
+# reported and counted rather than aborting the run. A registry that is missing, has a row that
+# cannot be read, or has no rows at all is an exception to the count: each is reported once, and
+# nothing is cloned.
 missing=0
 # A row is found by its `- name:` line, so a row written any other way is not read, and its fields
 # land on the row above it: that repo never arrives, or one repo's remote is cloned into another
