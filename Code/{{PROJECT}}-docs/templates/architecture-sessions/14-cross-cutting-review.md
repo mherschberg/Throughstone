@@ -102,7 +102,9 @@ between "we have a pile of docs" and "we have a coherent architecture."
    Phase-1 shortcut block a capability the Phasing & Roadmap architecture doc committed to a later phase? If so,
    flag it — it may need a cheaper approach now. Then ask the same question of the architecture
    as a whole: does it, as designed or as already built, support what that doc commits to later,
-   or is rework needed before that phase starts? Record required rework as forward STEPs or risks.
+   or is rework needed before that phase starts? Record required rework as a `registries/risks.yml`
+   row or in the consolidated Open Questions list (Output), not as a STEP row: the planning session
+   turns it into STEPs.
 5. **Decision coverage.** Are the significant, contested, or deferred decisions recorded as
    **ADRs**? Write any that are missing (`templates/adr-template.md`). A decision made *during*
    this review is contemporaneous — it gets an ordinary ADR like any other. **What you must not
@@ -123,7 +125,8 @@ between "we have a pile of docs" and "we have a coherent architecture."
 - **Populate `architecture/README.md`'s index** — one row per architecture doc produced
   (number and title). This is the first time every doc exists in one place, so it's where the
   index gets filled in.
-- A consolidated **Open Questions** list carried forward into the first implementation STEP.
+- A consolidated **Open Questions** list in the review summary, carried forward into the first
+  implementation STEP.
 - Update `prompts/STEP-index.md`: mark substep 1.14 `Done` once the review is clean. STEP-1 is
   now ready to be archived: take the phase-folder name from
   the `## Phase 1 — <name>` heading in `prompts/STEP-index.md` (kebab-case the name — e.g. `MVP`
