@@ -435,29 +435,123 @@ command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — './doc
 # template into a repository that already exists and running it here deletes that repository's
 # history outright, with no warning and no way back.
 #
-# Five checks, because no one of them covers the rest. The sentinel below travels with the files,
+# Six checks, because no one of them covers the rest. The sentinel below travels with the files,
 # so it cannot answer "whose repository is this?" — an extracted template brings AGENTS.md and
 # CLAUDE.md along with it. Git is asked separately, and only when there is a .git here to lose: a
 # checkout nested inside someone else's repository has nothing at $ROOT for section 2 to remove.
-# The fifth looks one directory down, at prompts/, which the multi layout makes a repository.
+# The fifth looks one directory down, at prompts/, which the multi layout makes a repository, and
+# the sixth inside the four folders section 2 deletes whole.
 #
 # Each check is paired with a case that must still proceed: a fresh unpacked template (no .git at
 # all), a clone of Throughstone or of a "Use this template" repo (history that is the template's
-# own), and `git init` beside an unpacked template to attach an empty origin (no commits, nothing
-# staged). tests/init-fresh-template-guard.sh holds both halves.
+# own), `git init` beside an unpacked template to attach an empty origin (no commits, nothing
+# staged), and a template carrying only what macOS or Windows leaves in those four folders.
+# tests/init-fresh-template-guard.sh holds both halves.
 
 # Every top-level entry Throughstone ships, pipe-delimited so entries with spaces stay intact. The
 # mono layout's stray-file warning in section 1 reads it too.
-# tests/init-fresh-template-guard.sh regenerates this from the template and fails if it drifts.
+# tests/init-fresh-template-guard.sh derives this from the template and fails if it drifts.
 TEMPLATE_ROOT_ENTRIES='|.github|.gitignore|AGENTS.md|ARTIFACT-TRAIL.md|CHANGELOG.md|CLAUDE.md|CODE_OF_CONDUCT.md|CONTRIBUTING.md|Code|LICENSE|README.md|SECURITY.md|TRADEMARK.md|Upcoming Prompts|brand|docs|doctor.sh|init.sh|prompts|tests|'
+
+# Every file Throughstone ships in the four folders section 2 deletes whole, .github/, tests/,
+# brand/ and docs/, one path per line. Check 6 reads it.
+# tests/init-fresh-template-guard.sh derives this from the template and fails if it drifts.
+TEMPLATE_FOLDER_FILES='
+.github/ISSUE_TEMPLATE/bug_report.md
+.github/ISSUE_TEMPLATE/config.yml
+.github/ISSUE_TEMPLATE/feature_request.md
+.github/pull_request_template.md
+.github/workflows/tests.yml
+brand/BRAND.md
+brand/logo/generate_logo.py
+brand/logo/throughstone-favicon.svg
+brand/logo/throughstone-icon-fullbleed.svg
+brand/logo/throughstone-lockup-mono.svg
+brand/logo/throughstone-lockup-ondark.svg
+brand/logo/throughstone-lockup-stacked.svg
+brand/logo/throughstone-lockup.svg
+brand/logo/throughstone-mark-mono.svg
+brand/logo/throughstone-mark-ondark.svg
+brand/logo/throughstone-mark.svg
+brand/logo/throughstone-wordmark.svg
+brand/publish-site.sh
+brand/site/assets/android-chrome-192x192.png
+brand/site/assets/android-chrome-512x512.png
+brand/site/assets/apple-touch-icon.png
+brand/site/assets/favicon-16x16.png
+brand/site/assets/favicon-32x32.png
+brand/site/assets/favicon-48x48.png
+brand/site/assets/favicon.ico
+brand/site/assets/fonts/Cinzel.ttf
+brand/site/assets/fonts/IBMPlexMono-400.ttf
+brand/site/assets/fonts/SourceSans3-400.ttf
+brand/site/assets/fonts/SourceSans3-600.ttf
+brand/site/assets/site.webmanifest
+brand/site/assets/throughstone-favicon.svg
+brand/site/assets/throughstone-lockup-ondark.svg
+brand/site/assets/throughstone-lockup.svg
+brand/site/assets/throughstone-mark.svg
+brand/site/assets/throughstone-social.png
+brand/site/assets/throughstone-social.svg
+brand/site/index.html
+brand/social/generate_social.py
+brand/social/throughstone-social.png
+brand/social/throughstone-social.svg
+docs/.nojekyll
+docs/CNAME
+docs/assets/android-chrome-192x192.png
+docs/assets/android-chrome-512x512.png
+docs/assets/apple-touch-icon.png
+docs/assets/favicon-16x16.png
+docs/assets/favicon-32x32.png
+docs/assets/favicon-48x48.png
+docs/assets/favicon.ico
+docs/assets/fonts/Cinzel.ttf
+docs/assets/fonts/IBMPlexMono-400.ttf
+docs/assets/fonts/SourceSans3-400.ttf
+docs/assets/fonts/SourceSans3-600.ttf
+docs/assets/site.webmanifest
+docs/assets/throughstone-favicon.svg
+docs/assets/throughstone-lockup-ondark.svg
+docs/assets/throughstone-lockup.svg
+docs/assets/throughstone-mark.svg
+docs/assets/throughstone-social.png
+docs/assets/throughstone-social.svg
+docs/index.html
+tests/check-nothing-to-inspect.sh
+tests/check-repo-registry.sh
+tests/check-root-hygiene.sh
+tests/doc-contract.sh
+tests/doctor-dispatcher.sh
+tests/fixtures/gh-stub.sh
+tests/init-adr-authority.sh
+tests/init-closing-report.sh
+tests/init-fresh-template-guard.sh
+tests/init-license-validation.sh
+tests/init-local-user-profile.sh
+tests/init-mono-origin-reuse.sh
+tests/init-pre-boundary-checks.sh
+tests/init-trunk-branch.sh
+tests/links.sh
+tests/method-check-workflow.sh
+tests/registry-reader-parity.sh
+tests/session-template-contract.sh
+tests/setup-workspace-resilience.sh
+tests/site-publish.sh
+tests/status-conditional-priority.sh
+tests/status-next-check-in.sh
+tests/status-no-roadmap.sh
+tests/status-step1-precedence.sh
+'
 
 # refuse_not_fresh REASON — stop before the destructive boundary, saying which check refused.
 refuse_not_fresh() {
   echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
   echo "  $1" >&2
-  echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
-  echo "  not run on an already-initialized project or on top of a repository that is not the" >&2
-  echo "  template — either would delete history it cannot give back." >&2
+  echo "  init.sh is one-time and destructive (it removes .git, root files named like the template's," >&2
+  echo "  such as README.md and .gitignore, and whole folders the template ships, with anything in" >&2
+  echo "  them), so it will not run on an already-initialized project or over anything that is not" >&2
+  echo "  the template's — either would delete what it cannot give back." >&2
   echo "  Download the template into a fresh, empty folder and run it there instead." >&2
   exit 2
 }
@@ -509,6 +603,27 @@ fi
 #    leaves a .git file, and committing into one of those is the same damage.
 if [ -e "$ROOT/prompts/.git" ]; then
   refuse_not_fresh "prompts/ is already a Git repository, and this would commit on top of it."
+fi
+
+# 6. Section 2 deletes .github/, tests/, brand/ and docs/ whole, and a template unpacked over a
+#    folder of the user's merges its own folders of those names into theirs. Checks 1-5 cannot see
+#    a file the user put there: there may be no .git at all, check 3 reads only the root entries
+#    git tracks, and a file nobody committed is in no history. So any file there that the template
+#    does not ship stops the run. What macOS and Windows leave in a folder (.DS_Store and ._* from
+#    macOS; Thumbs.db, desktop.ini and *:Zone.Identifier from Windows) holds none of the user's
+#    work and does not count. Sorted, so the file the refusal names is the same on every run.
+FOREIGN_FIRST=""; FOREIGN_COUNT=0
+while IFS= read -r -d '' path; do
+  case "${path##*/}" in .DS_Store|._*|Thumbs.db|desktop.ini|*:Zone.Identifier) continue ;; esac
+  case "$TEMPLATE_FOLDER_FILES" in *$'\n'"$path"$'\n'*) continue ;; esac
+  [ -n "$FOREIGN_FIRST" ] || FOREIGN_FIRST="$path"
+  FOREIGN_COUNT=$((FOREIGN_COUNT + 1))
+done < <(find .github tests brand docs ! -type d -print0 2>/dev/null | LC_ALL=C sort -z)
+FOREIGN_WHY="Setup deletes .github/, tests/, brand/ and docs/ whole, and"
+if [ "$FOREIGN_COUNT" -eq 1 ]; then
+  refuse_not_fresh "$FOREIGN_WHY '$FOREIGN_FIRST' is not a file the template ships."
+elif [ "$FOREIGN_COUNT" -gt 1 ]; then
+  refuse_not_fresh "$FOREIGN_WHY $FOREIGN_COUNT files there are not ones the template ships, among them '$FOREIGN_FIRST'."
 fi
 
 say "Throughstone — setup"
@@ -733,7 +848,8 @@ fi
 ADR_AUTHORITY=""
 if [ "$COLLAB" = "2" ]; then
   if [ -n "$ADR_AUTHORITY_IN" ]; then
-    ADR_AUTHORITY="$ADR_AUTHORITY_IN"
+    # want refuses a preset of only whitespace, which would stamp a line that names no one.
+    ADR_AUTHORITY="$(want "$ADR_AUTHORITY_IN" 'Who accepts ADRs')"
   elif [ "$NONINTERACTIVE" = "1" ]; then
     ADR_AUTHORITY="consensus of maintainers"
   else
@@ -1312,7 +1428,7 @@ write_gitignore() {
 .env
 .env.*
 !.env.example
-.secrets/
+.secrets
 GI
   if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
     cat >> "$1/.gitignore" <<'GI'
