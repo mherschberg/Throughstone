@@ -169,7 +169,8 @@ expect_refused "$W" "the docs and prompts repos need different remote URLs"
 
 # --- free text written into the generated files -----------------------------------------------
 
-# check_text_refused NAME TEXT FLAGS... - a bad value for --desc or --holder is refused.
+# check_text_refused NAME TEXT FLAGS... - a bad value for --desc or --holder, or a blank
+# --adr-authority, is refused.
 check_text_refused() {
   CASE="$1"; local text="$2"; shift 2
   W="$TMP_ROOT/$CASE"; copy_template "$W"
@@ -179,6 +180,9 @@ check_text_refused() {
 
 check_text_refused holder-spaces "a blank value is not an answer: Copyright holder" \
   --desc="Checks" --license=mit --holder='   '
+# --collab=team overrides BASE's --collab=solo: the last flag given wins.
+check_text_refused adr-authority-spaces "a blank value is not an answer: Who accepts ADRs" \
+  --desc="Checks" --license=proprietary --collab=team --adr-authority='   '
 check_text_refused desc-tab-space "a blank value is not an answer: One-line description" \
   --desc="$(printf '\t ')" --license=proprietary
 check_text_refused desc-newline "invalid --desc (or INIT_DESC): it must be a single line" \
@@ -322,8 +326,12 @@ expect_not_in "this project is proprietary" "$OUT"
 CASE=stray-mono
 W="$TMP_ROOT/$CASE"; copy_template "$W"
 printf 'notes\n' > "$W/notes.txt"; printf 'KEY=\n' > "$W/.env.example"
-for f in .DS_Store .gitattributes TODO.md .env .env.local x.swp; do printf 'x\n' > "$W/$f"; done
-for d in .claude .dev .throughstone .test-fixtures .secrets; do mkdir -p "$W/$d"; printf 'x\n' > "$W/$d/f"; done
+for f in .DS_Store .gitattributes TODO.md .env .env.local x.swp .secrets .secrets.baseline; do
+  printf 'x\n' > "$W/$f"
+done
+for d in .claude .dev .dev/.secrets .throughstone .test-fixtures; do
+  mkdir -p "$W/$d"; printf 'x\n' > "$W/$d/f"
+done
 # Not --non-interactive: the remotes question still follows the layout, and the warning has to
 # come before it, where stopping is still possible.
 set +e
@@ -335,7 +343,7 @@ OUT="$TMP_ROOT/$CASE.out"; PRE="$TMP_ROOT/$CASE.pre"
 sed -n '1,/Detaching from the template/p' "$OUT" > "$PRE"
 expect_finished
 expect_pre "which are not part of the template"
-for f in notes.txt .env.example TODO.md .dev .test-fixtures; do expect_pre "    $f"; done
+for f in notes.txt .env.example TODO.md .dev .test-fixtures .secrets.baseline; do expect_pre "    $f"; done
 for f in .DS_Store .gitattributes .env .env.local x.swp .claude .throughstone .secrets; do
   if grep -Fxq "    $f" "$PRE"; then fail "named $f, which the warning skips"; fi
 done
@@ -344,8 +352,13 @@ ask_line="$(grep -n -F "Online backup / sharing" "$OUT" | head -n 1 | cut -d: -f
 [ -n "$warn_line" ] && [ -n "$ask_line" ] && [ "$warn_line" -lt "$ask_line" ] \
   || fail "the warning did not come before the remotes question"
 # A warning, not a refusal: every named file is still committed.
-for f in notes.txt .env.example TODO.md .dev/f .test-fixtures/f; do
+for f in notes.txt .env.example TODO.md .dev/f .test-fixtures/f .secrets.baseline; do
   git -C "$W" cat-file -e "HEAD:$f" 2>/dev/null || fail "$f is not in the first commit"
+done
+# What the warning skips because the .gitignore excludes it stays out of the first commit:
+# .secrets as a file here, and as a folder inside .dev/.
+for f in .DS_Store .env .env.local x.swp .secrets .dev/.secrets/f; do
+  if git -C "$W" cat-file -e "HEAD:$f" 2>/dev/null; then fail "$f is in the first commit"; fi
 done
 
 # The multi root is not a repository, so nothing there is committed.
