@@ -219,6 +219,10 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 - **Fixed:** in mono-repo-for-now, the root `CLAUDE.md` and `AGENTS.md` no longer call themselves
   per-machine files that aren't versioned. They're committed in the project's one repository, and
   the text `init.sh` leaves says that only of a multi-repo project. *(Upgrade step 9.)*
+- **Fixed:** a mono-repo-for-now project set up before 1.7 now keeps the local profile out of
+  commits. 1.7's `init.sh` gave a new project's root `.gitignore` the line
+  `/.throughstone/local-user.md`, but no upgrade step added it to an older project's, so the next
+  `git add -A` committed the profile. *(Upgrade step 18.)*
 - **Fixed:** the docs no longer assume multi-repo. `AGENTS.md` reads the `layout:` line, and
   `METHOD.md`, `ONBOARDING.md` and `prompts/README.md` between them say what the workspace root, the
   docs hub and `prompts/` are in each layout: in mono-repo-for-now, the root is the one repository,
@@ -301,6 +305,7 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   in-progress one to wait for that command. In 1.x, §10 let an in-progress STEP run only the substep
   you named, and the helper told a check-in to wait for `run substep N.M`. The helper knows a
   check-in by its row's title, `Check-in` or `Check-in: <scope>`, as `METHOD.md` §5 now says.
+  *(Upgrade step 10.)*
 - **Fixed:** the check-in runs every test suite in every repo or code folder you can reach,
   `runbooks/dependency-supply-chain.md` audits every package manifest in every repo you can reach,
   and `runbooks/incident-postmortem.md`'s hunt for similar issues covers every repo you can reach;
@@ -452,6 +457,11 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   and system-overview sessions say `init.sh` fills in their description, where 1.x said the kickoff
   did, and `templates/ci/README.md` and `code-repo-ci.yml` drop the project's name, which read as "a
   acme project".
+- **Fixed:** a scaffold update made before the kickoff is no longer a tracked STEP:
+  `UPDATING-THROUGHSTONE.md` §7 now has it use §6's scaffold-update branch and add no row to
+  `prompts/STEP-index.md`, whatever it touches. 1.x made any update that changed `METHOD.md`,
+  `AGENTS.md` or `status.sh` a STEP, so a project not yet kicked off took STEP-2 ahead of its
+  planning session, and `./doctor.sh status` could later send you past that session.
 
 ### Architecture docs and inputs
 
