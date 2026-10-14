@@ -9,7 +9,7 @@
 # they arrived, so a broken link inside one is not something anyone may fix.
 #
 # Usage:  from anywhere — Code/<project>-docs/scripts/links.sh
-# Exit:   non-zero if any scoped Markdown file links to a missing local path or anchor.
+# Exit:   non-zero if any scoped Markdown link fails, such as one to a missing local path or anchor.
 
 set -uo pipefail
 
@@ -307,27 +307,30 @@ def normalize_target(source, target_path):
     return Path(os.path.normpath(str(source.parent / unquoted)))
 
 
-# case_sensitive_status PATH — verify that each filesystem component exists with exact case.
+# case_sensitive_status PATH — verify that each component below the root exists with exact case.
 def case_sensitive_status(path):
-    # Do not call resolve() here: on case-insensitive filesystems it can canonicalize a
-    # wrong-case input and hide the exact portability issue this check is meant to catch.
-    parts = path.parts
-    if not parts:
-        return "missing", None
+    # The walk starts at the workspace root, because folders above it are outside what this check
+    # covers and may not be listable. It follows the link's own spelling rather than resolve() it:
+    # resolve() replaces a symlink's name with its target, which would hide a wrong-case symlink
+    # name that a case-insensitive filesystem opens anyway. A link that leaves the workspace and
+    # comes back in under another name, such as through a symlink beside the workspace that points
+    # into it, has no spelling below the root, so it is walked resolved; check_link has already
+    # confirmed that it lands inside the workspace.
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:
+        parts = path.resolve().relative_to(root).parts
 
-    current = Path(parts[0])
+    current = root
     suggested = current
     case_wrong = False
-    for part in parts[1:]:
-        if part in ("", "."):
-            continue
-        if part == "..":
-            current = current.parent
-            suggested = suggested.parent
-            continue
+    for part in parts:
         if not current.is_dir():
             return "missing", None
-        names = {child.name: child.name for child in current.iterdir()}
+        try:
+            names = {child.name: child.name for child in current.iterdir()}
+        except OSError:
+            return "unlistable", current
         if part in names:
             current = current / part
             suggested = suggested / part
@@ -370,6 +373,14 @@ def check_link(source, line_no, raw_target):
     status, suggested = case_sensitive_status(target)
     if status == "missing":
         fail(source, line_no, f"links to missing file: {raw_target}")
+        return
+    if status == "unlistable":
+        fail(
+            source,
+            line_no,
+            f"links through a folder that cannot be listed: {raw_target}",
+            f"give read access to {rel(suggested)}",
+        )
         return
     if status == "case":
         fail(
