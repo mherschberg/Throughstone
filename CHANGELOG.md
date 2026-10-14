@@ -343,6 +343,13 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
   documents as they arrived. In 1.x, a link in one to a path your workspace doesn't have failed the
   check for good, since nothing the method allows could fix it. A link to an input from a doc the
   check reads is still checked.
+- **Fixed:** `./doctor.sh links` checks a link's letter case from the workspace root down instead of
+  from `/`, and it fails a link through a folder it can't list, naming the folder. 1.x listed every folder from `/` down to each link's
+  target. At the first one it couldn't list, in the workspace or above it, it stopped with a Python
+  traceback and printed no `[FAIL]` and no `RESULT:` line; an agent sandbox that lets you pass
+  through a parent folder but not list it was enough. On a disk that ignores letter case, such as
+  macOS's, 1.x also flagged every link to a file that exists as wrong case when you had reached the
+  workspace by a path in the wrong case, such as `cd ~/desktop/…` for `cd ~/Desktop/…`.
 - **Fixed:** once the STEP-1 row reads `Done`, `./doctor.sh status` no longer names an open STEP-1
   substep as the next action; 1.x went on naming it whatever STEP was in flight, so the work in
   progress never showed. While every substep is final but the row is still open, it names the
