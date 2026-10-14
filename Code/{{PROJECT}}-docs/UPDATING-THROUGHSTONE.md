@@ -11,7 +11,7 @@ Trigger phrases:
 This is **scaffold/method maintenance**, not a created-project runbook. Runbooks cover the
 project you are building; this file covers the Throughstone machinery copied into that
 project. If an update changes method rules, agent behavior, collaboration rules, CI, or
-multiple repos, turn it into a tracked STEP before applying it.
+multiple repos, turn it into a tracked STEP before applying it, once the kickoff has run (§7).
 
 ## 1. Principles
 
@@ -104,7 +104,10 @@ and skip any step they mark as superseded.
    scaffold over yours, or merge it by hand where you've edited yours. Paths are from the docs hub,
    except `prompts/README.md`.
    - Work as §6 says: from clean working trees, on a branch. This release changes `METHOD.md`,
-     `AGENTS.md` and `status.sh`, so §7 makes the upgrade a tracked STEP.
+     `AGENTS.md` and `status.sh`, so §7 makes the upgrade a tracked STEP if the kickoff has run.
+   - Multi-repo: merge the upgrade branches of `prompts/` and the code repos before the docs hub's,
+     or together with it. Where steps 11 or 17 change those repos, the docs hub's new helpers fail
+     their trunks until those changes land.
    - Scripts: `scripts/apply-project-license.sh`, `check.sh`, `doctor.sh`, `links.sh`,
      `setup-workspace.sh` and `status.sh`.
    - CI workflow: `.github/workflows/method-check.yml`.
@@ -134,8 +137,9 @@ and skip any step they mark as superseded.
      slug, its one-line description and its trunk branch. Your current copies show the values, so
      read them before you copy over them. Leave every other placeholder as it is:
      `templates/licenses/README.md` keeps `YEAR` and `HOLDER` on purpose.
-   - Copy a file over yours only where yours still matches 1.7.1's, placeholders filled in; §4 calls
-     that *upstream-only*, and a file you've edited *diverged*.
+   - Copy a file over yours only where yours still matches its *base* (the release copy it came
+     from, or one the user adopted as the base), placeholders filled in. §4 calls that
+     *upstream-only*, and a file you've edited *diverged*.
    - Gotcha: the six scripts must stay executable. If one isn't after the copy, `chmod +x` it.
    - Check: each file on the list matches the scaffold's apart from the placeholders and any edits
      of yours you merged (a coding standard you pruned stays absent), and `./doctor.sh help`
@@ -158,6 +162,9 @@ and skip any step they mark as superseded.
      for the workspace root.
    - Each `.yml` file you copy, and each comment block you replace, holds the `PROJECT` placeholder
      (in double braces): fill it in as step 1 says.
+   - Gotcha: the replacement also deletes any text of your own in those two blocks, such as a note
+     about one of your repos or a line you reworded. Copy it out first and keep it in the scaffold's
+     blocks, so it survives.
    - Gotcha: a comment at the end of a row's line, like the one after the docs hub's `type:`, is
      part of that row. Leave it.
    - Check: run from the docs hub, `git diff registries/repos.yml` changes only comment and blank
@@ -173,7 +180,9 @@ and skip any step they mark as superseded.
    - Each `location:` is a path relative to the workspace root: it never starts with `/` or `~`, and
      has no `..` segment. Move a repo that breaks this into the workspace and update its row. If it
      can't move, leave it where it is, put a symlink at a workspace-relative path pointing at it,
-     and register the symlink's path.
+     and register the symlink's path. If the user says the repo isn't on this machine, only on its
+     remote, point its row at a workspace-relative path. Then clone it there from the workspace
+     root: `git clone <remote> <location>`, using the row's `remote:` and `location:`.
    - Gotcha: values are taken literally, so `~/lib` and `$HOME/lib` are folder names, not paths into
      a home directory.
    - Check: `./doctor.sh check --check-in` reports no row it couldn't read and no row without a
@@ -194,9 +203,13 @@ and skip any step they mark as superseded.
          description: "The workspace root: the one repository this project lives in until it is split."
      ```
    - Gotcha (mono): with the line but not the row, the check-in fails, so make both edits together.
-   - Gotcha (mono): a row that already has a `remote:` of its own is a separate repository, so the
-     project isn't mono-repo-for-now in practice. Decide which layout you're in before declaring
-     one: `mono` fails on that row and points you to `runbooks/splitting-repos.md` Case 2.
+   - Gotcha (mono): only the workspace root's row may carry a `remote:`. `mono` fails any other row
+     that has one and points you to `runbooks/splitting-repos.md` Case 2, which converts the whole
+     project to multi-repo and fits only a separate repository. For each such row, ask the user
+     whose URL it is rather than guess. If it's the root repository's, move it to the root row. If
+     the row's folder is part of the root repository and also published on its own at that URL, move
+     the URL into that row's `description:`. If it's a separate repository's, the project isn't
+     mono-repo-for-now in practice: ask the user which layout it's in before declaring one.
    - Gotcha: once the line is there, the check-in warns about each repo no recorded remote covers,
      and a 1.x registry often has rows without one. For each, record the URL; or create a private
      remote, push to it, then record it; or decide local-only is fine. Nothing records that
@@ -259,8 +272,9 @@ and skip any step they mark as superseded.
      STEP until it's archived into `prompts/`.
    - Gotcha: the lines untrack nothing. From the workspace root, `git ls-files "Upcoming Prompts"`
      lists what's still tracked. To untrack a sheet, `git rm --cached` it and commit: your copy
-     stays on disk, but a teammate who pulls that commit loses their copy if they haven't edited it,
-     so leave each sheet to whoever owns its STEP.
+     stays on disk until you check out a branch that still tracks it (see step 18's second gotcha),
+     and a teammate who pulls that commit loses their copy if they haven't edited it, so leave each
+     sheet to whoever owns its STEP.
    - Check: `git ls-files "Upcoming Prompts"` lists only `.gitkeep` and any sheet you've left to its
      owner, and a new file in `Upcoming Prompts/` doesn't show in `git status`.
 
@@ -303,9 +317,15 @@ and skip any step they mark as superseded.
       comment first.
     - Gotcha: write the value in exactly one of those two shapes. Anything else, such as `step-50`
       or `15 Nov`, reads as none scheduled.
+    - Gotcha: a Check-in STEP, one that runs `runbooks/check-in.md`, now needs its row in
+      `prompts/STEP-index.md` titled `Check-in` or `Check-in: <scope>`. Under any other title, when
+      `./doctor.sh status` reports it `In progress`, the helper says to wait for a substep command,
+      not *"run the check-in"*. Retitle each such row that isn't `Done` or `Abandoned`, keeping its
+      words as the scope: `Check-in before launch` becomes `Check-in: before launch`.
     - Check: `overview.md` has neither a `CHECK-IN-CADENCE` line nor a comment starting
       `<!-- ^ Check-in cadence`, and, unless `./doctor.sh status` says the kickoff is not started,
-      under `Check-in:` it names a STEP or a date, not "none scheduled".
+      under `Check-in:` it names a STEP or a date, not "none scheduled". Each Check-in STEP's index
+      row that isn't `Done` or `Abandoned` is titled `Check-in` or `Check-in: <scope>`.
 
 11. **If a row of `prompts/STEP-index.md` has a Status that's blank or only dashes: write its real
     status.**
@@ -458,9 +478,8 @@ and skip any step they mark as superseded.
 18. **Every project: fix the `.secrets` line in each repo's `.gitignore`, and optionally widen the
     `.claude` line.**
     - Replace the line `.secrets/` with `.secrets`, and leave the other lines as they are, apart
-      from the optional `.claude` change below. The old line ignores only a folder of that name, so
-      a file named `.secrets` is committed by the next `git add -A`; the new one ignores the file
-      and the folder.
+      from the changes below. The old line ignores only a folder of that name, so a file named
+      `.secrets` is committed by the next `git add -A`; the new one ignores the file and the folder.
     - Optional: replace the line `.claude/settings.local.json` with the three lines a new project
       gets:
       ```gitignore
@@ -475,27 +494,39 @@ and skip any step they mark as superseded.
     - In multi-repo, do this in the docs hub's, `prompts/`'s and each code repo's `.gitignore`; in
       mono-repo-for-now, only in the one at the workspace root, whose lines cover every folder below
       it. Leave a repo the project took in that already existed: its `.gitignore` is its own.
+    - Mono-repo-for-now: if the root `.gitignore` lacks the line `/.throughstone/local-user.md`, add
+      it. The local profile is per-machine and never committed, but without that line the next
+      `git add -A` commits it. If `git ls-files .throughstone/local-user.md` already lists it,
+      `git rm --cached` it and commit.
     - Then, from the top of each repo you changed, run
       `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'`, and where you widened the
-      `.claude` line, `git ls-files -- ':(glob)**/.claude/*.local.json'` too. In a team, first have
-      the user tell their teammates about each file these list (see the second gotcha below). Then
-      `git rm --cached` each one and commit. Ask the user whether any of the `.secrets` files ever
-      held real values. `git rm --cached` leaves a file in the repository's history, so if one did
-      and that history has been pushed, or will be, treat those values as leaked: revoke and rotate
-      them, as `runbooks/secrets-rotation.md` Part 2 says.
+      `.claude` line, `git ls-files -- ':(glob)**/.claude/*.local.json'` too. Ask the user which of
+      the `.secrets` files these list, if any, they keep tracked on purpose, such as a template that
+      holds only placeholders, and leave those tracked; don't choose for them. In a team, first have
+      the user tell their teammates about each of the other files (see the second gotcha below).
+      Then `git rm --cached` each one and commit. Ask the user whether any of the `.secrets` files
+      ever held real values. `git rm --cached` leaves a file in the repository's history, so if one
+      did and that history has been pushed, or will be, treat those values as leaked: revoke and
+      rotate them, as `runbooks/secrets-rotation.md` Part 2 says.
     - Gotcha: a code repo a 1.x planning session made usually has no `.claude` line to replace, and
       may have no `.secrets` line either. Add `.secrets` anyway, and if you're widening the
       `.claude` line, the three `.claude` lines too.
     - Gotcha: the lines untrack nothing. A file already committed, such as a `.secrets` file or a
       code folder's `.claude/settings.local.json` in mono-repo-for-now, stays tracked until you
-      `git rm --cached` it and commit. Your copy stays on disk, but a teammate who pulls that commit
-      loses theirs if they haven't edited it, so tell them first.
+      `git rm --cached` it and commit. That leaves your copy on disk. But checking out a branch that
+      still tracks the file, such as your trunk branch before the upgrade merges or another STEP's
+      branch, silently writes the committed copy over yours. Switching back, or merging or pulling
+      the untracking commit into that branch, then deletes it. Keep a copy outside the repository,
+      and put it back once you're on a branch that no longer tracks the file. A teammate who pulls
+      that commit loses theirs if they haven't edited it, so tell them first.
     - Check: from the top of each repo you changed,
-      `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'` prints nothing, and
-      `git check-ignore -v .secrets` prints the `.secrets` line. Where you widened the `.claude`
-      line, `git ls-files -- ':(glob)**/.claude/*.local.json'` prints nothing too, and
+      `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'` prints nothing but the files
+      the user keeps tracked on purpose, and `git check-ignore -v .secrets` prints the `.secrets`
+      line. Where you widened the `.claude` line,
+      `git ls-files -- ':(glob)**/.claude/*.local.json'` prints nothing too, and
       `git check-ignore -v sub/.claude/settings.local.json` prints the `**/.claude/*.local.json`
-      line. The paths given to `check-ignore` needn't exist.
+      line. In mono-repo-for-now, `git check-ignore -v .throughstone/local-user.md` prints the
+      `/.throughstone/local-user.md` line. The paths given to `check-ignore` needn't exist.
 
 19. **Optional, each contributor: check the communication style in your root
     `.throughstone/local-user.md`.**
@@ -818,7 +849,10 @@ Only apply when all of these are true:
 
 - user explicitly requested apply
 - every affected repo has a clean working tree and index before any branch is created or switched
-  and before any file is written
+  and before any file is written. Untracked files the update won't commit don't count, such as a
+  STEP's PLAN and substep prompts in `Upcoming Prompts/`, or the root `.throughstone/local-user.md`.
+  Leave them where they are, and stage the update's files by path, not with `git add -A`, which
+  would commit them.
 - the upstream release or ref was chosen
 - file is not protected
 - file is either `upstream-only` with a verified baseline or the user selected a manual merge
@@ -848,6 +882,11 @@ Make a tracked STEP when the update:
 - requires manual merge decisions
 - changes how future architecture sessions or planning sessions behave
 - would affect an active team
+
+Before the kickoff, while `overview.md`'s `PROJECT-STATUS` marker says `not-started`, make no STEP,
+whatever the update touches. Use §6's scaffold-update branch and add no row to
+`prompts/STEP-index.md`: the kickoff leaves STEP-1 as the index's only row, and the planning session
+adds the STEPs after it.
 
 The STEP's PLAN can be thin: point to this guide, list the update groups under review, and
 define done as "report reviewed, selected updates applied, checks passed, and skipped/protected
