@@ -142,8 +142,9 @@ and skip any step they mark as superseded.
      *upstream-only*, and a file you've edited *diverged*.
    - Gotcha: the six scripts must stay executable. If one isn't after the copy, `chmod +x` it.
    - Check: each file on the list matches the scaffold's apart from the placeholders and any edits
-     of yours you merged (a coding standard you pruned stays absent), and `./doctor.sh help`
-     mentions `--check-in`.
+     of yours you merged (a coding standard you pruned stays absent); every way your copy differed
+     from its base before this step is still in it, unless the user agreed to drop it; and
+     `./doctor.sh help` mentions `--check-in`.
 
 2. **Every project: add `registries/input-captures.yml`, and replace the comments in
    `registries/repos.yml` with the scaffold's; a mono-repo-for-now project with no
@@ -251,6 +252,9 @@ and skip any step they mark as superseded.
      doctor, and from the root it reaches `prompts/` too, so the STEP-index checks run as well.
    - Leave the docs hub's copy where it is. It gives the docs hub CI of its own if the project is
      ever split.
+   - Gotcha: replacing the root copy also deletes any edit of yours that only it holds, such as a
+     job, a trigger, a permissions block or a pinned action. Carry each into the docs hub's copy
+     first, so it survives and the two still match as the Check says.
    - Gotcha: the first run checks work no gate has seen before, so it may fail. It runs the same
      checks as `./doctor.sh check`, so push once that ends with `RESULT: OK` in step 20.
    - Gotcha: the test workflows your code folders were stamped with, from
