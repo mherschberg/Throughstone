@@ -12,7 +12,10 @@ any project built with it.
 A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
 supported layout, bringing a repo into a project and splitting one each get a runbook, and many
 problems that 1.x projects carry without knowing it are fixed. Have a 1.x project? Staying is fine;
-the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how.
+the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how. This release
+rewrites much of `AGENTS.md`, `METHOD.md`, `check.sh` and `status.sh`, so an edit of yours to one of
+them means a hand merge, and the upgrade's step 1 checks that every edit survives it, unless you
+agree to drop one.
 
 - **Setup no longer runs over a project that's already set up, a repository that isn't the
   template's, or files of yours in the folders it deletes**, and checks its answers before it
@@ -207,7 +210,9 @@ the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and
 - **Fixed:** a mono-repo-for-now project's CI gate runs. `init.sh` now puts `method-check.yml` in
   `.github/workflows/` at the workspace root, because GitHub reads workflows only at a repository
   root and 1.x left it in the docs hub alone. The workflow also runs the docs hub's doctor rather
-  than a root `scripts/check.sh` of your own, which 1.x's copy ran in its place. *(Upgrade step 7.)*
+  than a root `scripts/check.sh` of your own, which 1.x's copy ran in its place. Upgrading replaces
+  any root copy you already have, so an edit of yours that only it holds, such as a job you added,
+  has to move into the docs hub's copy first. *(Upgrade step 7.)*
 - **Fixed:** in mono-repo-for-now, a test workflow stamped into a code folder never runs, and 1.x
   didn't say so. `templates/ci/README.md` now does, says to stamp and configure it anyway for a
   later split, and shows how to gate tests before then: a root copy with one job per code folder.
