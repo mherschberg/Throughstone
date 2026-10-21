@@ -147,4 +147,4 @@ Leaving the doc stale is a defect, not a follow-up.
 ## Next
 When this substep is done, update its status in the STEP PLAN, then tell the user the next
 action: the next open substep — *"run substep N.M"*, in a **fresh chat** — or, if this was
-the last substep, the STEP's review. (`METHOD.md` §10.)
+the last substep, the STEP's review: *"run the STEP N review"*. (`METHOD.md` §10.)
