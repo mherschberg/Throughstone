@@ -215,8 +215,9 @@ agree to drop one.
   has to move into the docs hub's copy first. *(Upgrade step 7.)*
 - **Fixed:** in mono-repo-for-now, a test workflow stamped into a code folder never runs, and 1.x
   didn't say so. `templates/ci/README.md` now does, says to stamp and configure it anyway for a
-  later split, and shows how to gate tests before then: a root copy with one job per code folder.
-  *(Upgrade step 7.)*
+  later split, even where the project's docs choose one root workflow, as
+  `runbooks/register-repo.md` says too, and shows how to gate tests before then: a root copy with
+  one job per code folder. *(Upgrade step 7.)*
 - **Fixed:** a mono-repo-for-now project no longer commits the STEP in flight. `init.sh` adds
   `/Upcoming Prompts/*` and `!/Upcoming Prompts/.gitkeep` to the root `.gitignore`, so a
   `git add -A` leaves out the STEP's PLAN and substep prompts until it is archived into `prompts/`.
@@ -447,6 +448,9 @@ agree to drop one.
   their own, and `METHOD.md` §4 makes that shared shape part of adding a session. Each template's
   closing go-ahead now starts the session only for an agent sent to run it, and tells any other
   reader to use the file as reference; 1.x's told any agent that read it to begin.
+- **Changed:** the UI / Design System session deletes its `ui-design/` comparison pages once its
+  architecture doc is written, unless you ask to keep them. 1.x said only that they need not be
+  kept, so the folder could sit untracked, for every later session to ask about.
 - **Changed:** a later STEP's substep status lives in the `Status` column of its PLAN's Substeps
   table, which `templates/step-plan-template.md` now has, and the recipe in `prompts/README.md` no
   longer has you list a STEP's substeps in `prompts/STEP-index.md`. STEP-1's substeps stay in the
@@ -487,6 +491,14 @@ agree to drop one.
   wholesale, and for a doc whose `Coverage:` line isn't `full`. The check-in no longer sweeps
   architecture docs for `Coverage:` lines, and a `Coverage:` line is now one sentence saying what is
   missing, how big it is and what it means, where 1.x showed a bare `deferred`. *(Upgrade step 13.)*
+- **Changed:** an accepted risk or deferral that still has a revisit trigger is `open` in
+  `registries/risks.yml`, which its header now says; `accepted-permanently` is for one accepted for
+  good. The check-in reviews only `open` and `monitoring` rows, so a row filed
+  `accepted-permanently`, the only 1.x status with "accepted" in its name, never came back while it
+  still had a trigger to watch. *(Upgrade step 2.)*
+- **Changed:** the Cross-Cutting Review sets every architecture doc still at `Draft` to `Current`
+  once the review is clean. 1.x never said when a doc leaves `Draft`, so every doc read "not yet
+  agreed" unless someone changed it by hand.
 - **Removed:** the `Version` and `Status` columns of the index in `architecture/README.md`, and the
   architecture-doc template's `**Last updated:**` line. Each copied what the doc's own header or
   Version Log says, and nothing relied on them; the check-in and the Cross-Cutting Review now list
