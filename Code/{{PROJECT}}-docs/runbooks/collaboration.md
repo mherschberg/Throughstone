@@ -12,8 +12,8 @@ already has tooling for, it leaves to that tooling.
   STEPs are isolated on branches, how the shared **`prompts/STEP-index.md`** is edited without merge
   pain, how decisions are socialized through **ADRs** (and their numbers reserved like STEP
   numbers), and how **`prompts/`** (shared history) is appended by many hands.
-- **Standard practice, not the method's job:** your branching model beyond the one naming
-  rule below, PR mechanics and review gates, code-review tooling, issue/bug tracking, CI/CD,
+- **Standard practice, not the method's job:** your branching model beyond the naming and merge
+  rules below, PR mechanics and review gates, code-review tooling, issue/bug tracking, CI/CD,
   and release versioning. Use whatever your team already uses.
 
 ## The model in one breath
@@ -37,8 +37,9 @@ step-NNNN-short-name        e.g. step-0042-payment-webhooks
   one logical STEP stays recognizable across repos.
 - This holds **even when you're solo.** It costs nothing alone and means the workflow is
   identical the day a second contributor arrives — no mode switch.
-- Branch lifetime, PR gates, and how the branch merges are **standard practice** — the method
-  only fixes the name and the cross-repo consistency.
+- PR gates, how the branch merges, and when it is deleted are **standard practice** — the method
+  only fixes the name, the cross-repo consistency, and that the branch merges into the trunk when
+  its STEP closes (`prompts/README.md`, step 7 of "Recipe: adding a new STEP").
 
 ## 2. Reserving a STEP number (the one hard rule)
 STEP numbers are **global and never reset** (`METHOD.md` §1, §8). `prompts/` is project-wide —
