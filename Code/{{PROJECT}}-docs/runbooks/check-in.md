@@ -177,10 +177,12 @@ Then apply the doc fixes (Version Logs bumped), add any new ADRs to `adr/README.
 conditional follow-up STEPs it spawned to `prompts/STEP-index.md`, archive the thin check-in PLAN
 under `prompts/` like any other completed STEP, and then mark the check-in STEP `Done` in the index.
 
-**Last, schedule the next one.** Ask the user when it should be. They answer in their own terms;
+**Then schedule the next one.** Ask the user when it should be. They answer in their own terms;
 turn that into a STEP number or a date and write it into `overview.md`'s
 `<!-- NEXT-CHECK-IN: … -->` line, replacing whatever is there, and write the same STEP number or
 date into the report's Summary. A check-in that closes without an answer leaves the **old** line
 in place and `./doctor.sh status` goes on reporting a check-in due — the one you just ran. That is
 not a reason to invent a date: leave the line alone, say in the report's Summary that the next one
-isn't scheduled yet, and tell the user it is still waiting on them.
+isn't scheduled yet, and tell the user it is still waiting on them. Then merge the check-in's branch
+into the trunk and check out the trunk, as every STEP's close does (`prompts/README.md`, recipe
+step 7).
