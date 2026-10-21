@@ -138,7 +138,8 @@ between "we have a pile of docs" and "we have a coherent architecture."
 ## Next
 Once the review is clean, the architecture STEP is done — archive it to the Phase-1 folder
 `prompts/001-<phase-name>/step-0001/` (created from the `## Phase 1 — <name>` index heading — see
-the Output section and `prompts/README.md`), then mark the STEP-1 row `Done`.
+the Output section and `prompts/README.md`), then mark the STEP-1 row `Done` and merge
+`step-0001-architecture` into the trunk (`prompts/README.md`, recipe step 7).
 The next action is to move into
 building: **start a fresh chat** and run the **implementation planning session**
 (`templates/planning-session.md`, *"Run planning session: Phase-1 implementation roadmap"*) — it outlines the Phase-1
