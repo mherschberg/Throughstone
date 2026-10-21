@@ -218,7 +218,9 @@ is itself a repo, so this rule does not apply there.
   kickoff creates the STEP-1 PLAN. When kickoff closes, flip `STEP-1` to `In progress` and use
   `step-0001-architecture` wherever branch-per-STEP applies.
 - **Always say what's next.** End every session/STEP by updating the index, then tell the
-  user the next action and to **start a fresh chat** for it. Answer *"what do I do next?"* by
+  user the next action and to **start a fresh chat** for it. Ask anything this chat must still act
+  on first, such as whether an input is fully captured or whether to keep some files, and wait for
+  the answer: a question asked beside the hand-off goes unanswered. Answer *"what do I do next?"* by
   running `./doctor.sh status` (or `Code/{{PROJECT}}-docs/scripts/status.sh`) — it runs the **next-action resolver**
   (`Code/{{PROJECT}}-docs/METHOD.md` §10) mechanically from disk (where you are · next action · next check-in) —
   then confirming against `prompts/STEP-index.md`. From disk, never from memory.
