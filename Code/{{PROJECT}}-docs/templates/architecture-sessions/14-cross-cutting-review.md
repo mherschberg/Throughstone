@@ -127,6 +127,8 @@ between "we have a pile of docs" and "we have a coherent architecture."
   index gets filled in.
 - A consolidated **Open Questions** list in the review summary, carried forward into the first
   implementation STEP.
+- Once the review is clean, set every architecture doc still at `Draft` to `Current`
+  (`METHOD.md` §6): they are now the agreed design the build STEPs depend on.
 - Update `prompts/STEP-index.md`: mark substep 1.14 `Done` once the review is clean. STEP-1 is
   now ready to be archived: take the phase-folder name from
   the `## Phase 1 — <name>` heading in `prompts/STEP-index.md` (kebab-case the name — e.g. `MVP`
