@@ -80,15 +80,20 @@ cat > "$fixture/Code/acme-docs/suppressed.md" <<'SUPPRESSED'
 A link written as `[inline code](never-written.md)` is an example, not a link.
 SUPPRESSED
 
+# A heading with a symbol between spaces gets one hyphen for each space, as on GitHub, so the link
+# to "Risks & mitigations" below must pass.
 cat > "$fixture/Code/acme-docs/README.md" <<'DOCS'
 # Docs Hub
 
-See [the runbook](runbooks/check-in.md#check-in) and [the root readme](../../README.md).
+See [the runbook](runbooks/check-in.md#check-in),
+[its risks](runbooks/check-in.md#risks--mitigations) and [the root readme](../../README.md).
 External links such as [example](https://example.com) are skipped.
 DOCS
 
 cat > "$fixture/Code/acme-docs/runbooks/check-in.md" <<'RUNBOOK'
 # Check In
+
+## Risks & mitigations
 RUNBOOK
 
 cat > "$fixture/Code/acme-docs/templates/generated.md" <<'TEMPLATE'
@@ -127,7 +132,8 @@ assert_contains "$output" "RESULT: OK"
 
 # Runbooks/ below has the wrong letter case, and so does MIRROR/, the name of a symlink to the hub.
 # A case-insensitive disk, such as macOS's, opens both anyway, so the links work there and break on
-# a case-sensitive one. Resolving the symlink would hide the second.
+# a case-sensitive one. Resolving the symlink would hide the second. The last link writes the
+# "Risks & mitigations" anchor with one hyphen, which is dead on GitHub, so it must fail.
 ln -s acme-docs "$fixture/Code/mirror"
 cat > "$fixture/Code/acme-docs/broken.md" <<'BROKEN'
 # Broken
@@ -137,6 +143,7 @@ cat > "$fixture/Code/acme-docs/broken.md" <<'BROKEN'
 [undefined reference][missing-ref]
 [wrong case](Runbooks/check-in.md)
 [wrong-case symlink](../MIRROR/runbooks/check-in.md)
+[collapsed anchor](runbooks/check-in.md#risks-mitigations)
 BROKEN
 
 # A broken link in a root pointer has to be reported too. The clean run is checked only for
@@ -159,6 +166,8 @@ set -e
 }
 assert_contains "$output" "links to missing file: missing.md"
 assert_contains "$output" "links to missing anchor: runbooks/check-in.md#missing-anchor"
+assert_contains "$output" \
+  "broken.md:8 links to missing anchor: runbooks/check-in.md#risks-mitigations"
 assert_contains "$output" "uses undefined reference link: [missing-ref]"
 assert_contains "$output" "broken.md:6 links to path with wrong case: Runbooks/check-in.md"
 assert_contains "$output" "→ fix: use Code/acme-docs/runbooks/check-in.md"
