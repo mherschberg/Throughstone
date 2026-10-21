@@ -146,9 +146,10 @@ and skip any step they mark as superseded.
      from its base before this step is still in it, unless the user agreed to drop it; and
      `./doctor.sh help` mentions `--check-in`.
 
-2. **Every project: add `registries/input-captures.yml`, and replace the comments in
-   `registries/repos.yml` with the scaffold's; a mono-repo-for-now project with no
-   `registries/repos.yml` copies in the scaffold's whole `registries/` folder.**
+2. **Every project: add `registries/input-captures.yml`, replace the comments in
+   `registries/repos.yml` with the scaffold's, and add a line to the header of
+   `registries/risks.yml`; a mono-repo-for-now project with no `registries/repos.yml` copies in the
+   scaffold's whole `registries/` folder.**
    - Copy in the scaffold's `registries/input-captures.yml`, which holds no captures yet. Sessions
      add to it from now on; if you have `inputs/inputs-index.md`, step 14 carries its `Superseded`
      rows for inputs still in `inputs/` into it.
@@ -156,6 +157,10 @@ and skip any step they mark as superseded.
      `repos:`, and the block holding the commented example row, which starts
      `# Service / app / library repos get added here`. Leave every row as it is, wherever that block
      sits among them; steps 3 and 4 edit the rows.
+   - In `registries/risks.yml`, add the scaffold's new line under `status:` in the header: an
+     accepted risk or deferral that still has a revisit trigger is `open`. Then set to `open` any
+     row that is `accepted-permanently` but still has a revisit trigger to watch. The check-in
+     reviews only `open` and `monitoring` rows, so such a row never comes back.
    - Mono-repo-for-now with no `registries/repos.yml`: 1.x let a mono project leave `registries/`
      out. Copy in the scaffold's whole `registries/` folder, and keep both seeded rows: the docs hub
      and `prompts/` are folders inside your one repository, and the registry lists them anyway.
@@ -169,8 +174,9 @@ and skip any step they mark as superseded.
    - Gotcha: a comment at the end of a row's line, like the one after the docs hub's `type:`, is
      part of that row. Leave it.
    - Check: run from the docs hub, `git diff registries/repos.yml` changes only comment and blank
-     lines (where you copied the folder in, `git status` shows it as new instead), and nothing in
-     `registries/` still holds the `PROJECT` placeholder.
+     lines (where you copied the folder in, `git status` shows it as new instead), nothing in
+     `registries/` still holds the `PROJECT` placeholder, and no `accepted-permanently` row in
+     `registries/risks.yml` still has a revisit trigger to watch.
 
 3. **Every project: check each row of `registries/repos.yml`.**
    - Each row starts with its `- name:` line, and every value is on one line: no lists.
