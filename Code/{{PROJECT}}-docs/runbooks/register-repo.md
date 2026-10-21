@@ -89,7 +89,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
      `README.md`. Keep its headings in order, so every repo's README reads the same way: a section
      that does not apply can go (no *API / interface* for a library), but never the role one-liner
      or the Overview — saying what the repo *is* is the one part that cannot be dropped. In a code
-     repo we created, also stamp the CI gate the Test Strategy architecture doc names:
+     repo we created, also stamp its own test gate, in a code folder under `layout: mono` too, even
+     where a root workflow already runs its tests:
      `Code/{{PROJECT}}-docs/templates/ci/code-repo-ci.yml` as the repo's `.github/workflows/ci.yml`,
      with its stack's test command filled in (`Code/{{PROJECT}}-docs/templates/ci/README.md`). In a
      repo we did not create, add no CI, and **cut `## Licensing` back to its `LICENSE-THROUGHSTONE`
