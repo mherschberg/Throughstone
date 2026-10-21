@@ -113,8 +113,8 @@ patterns branch from there.
 Use the generated `ui-design/*.html` pages as temporary working aids during the session. There
 should be one HTML page per visual decision or tightly coupled visual decision group after
 Decision 1 while the session is in progress, each showing the options being presented and the
-exact values under consideration. Do not treat these pages as durable output unless the user
-explicitly asks to keep them.
+exact values under consideration. Once the architecture doc below is written, delete the
+`ui-design/` folder unless the user explicitly asks to keep the pages.
 
 Write `architecture/07-ui-design-system.md` (use `templates/architecture-doc-template.md`). Body:
 - **Design principles**
