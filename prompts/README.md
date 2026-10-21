@@ -166,7 +166,9 @@ teammate will need later.
    first archived STEP the phase folder won't exist yet — create `001-<phase-name>/` and its
    `README.md` from `phase-readme-template.md` first, naming it for the chosen phase; see
    Conventions.)
-   (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.) Then tell the user
+   (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.)
+   Then merge the STEP's branch into the trunk in every repo it touched (by PR, if that is how
+   your project merges) and check out the trunk, where the next STEP starts. Then tell the user
    the next action via the next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10) — and
    say so as well if a **Check-in STEP** is due, which is a proposal beside the next action
    rather than the next action itself (§10 rule 7).
