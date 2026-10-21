@@ -355,6 +355,10 @@ agree to drop one.
   through a parent folder but not list it was enough. On a disk that ignores letter case, such as
   macOS's, 1.x also flagged every link to a file that exists as wrong case when you had reached the
   workspace by a path in the wrong case, such as `cd ~/desktop/…` for `cd ~/Desktop/…`.
+- **Fixed:** `./doctor.sh links` turns each space in a heading's anchor into its own hyphen, as
+  GitHub does, so `## Risks & mitigations` is `#risks--mitigations`. 1.x squeezed runs of spaces and
+  hyphens into one and trimmed them from the ends, so a link that works on GitHub failed the check,
+  and one the check passed was dead on GitHub. *(Upgrade step 20.)*
 - **Fixed:** once the STEP-1 row reads `Done`, `./doctor.sh status` no longer names an open STEP-1
   substep as the next action; 1.x went on naming it whatever STEP was in flight, so the work in
   progress never showed. While every substep is final but the row is still open, it names the
