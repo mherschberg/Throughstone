@@ -567,6 +567,10 @@ and skip any step they mark as superseded.
     - A `[FAIL]` from `links` on a saved S0, S1 or S2 security report: its link to its checklist
       came from a 1.x template. Write the checklist's path as plain text instead, as the new
       templates do. `links` no longer reads `inputs/`, so a link inside an input no longer fails it.
+    - A `[FAIL]` from `links` naming a missing anchor to a heading with a symbol beside a space,
+      such as ` & `, ` — ` or a closing emoji: write the anchor as GitHub does, one hyphen for each
+      space, so `## Risks & mitigations` is `#risks--mitigations`. The old check wanted one hyphen
+      there, and none at either end.
     - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, checks 1, 2, 3 and
       9 show no `[WARN]`, and, unless `status` says the kickoff is not started, the line under
       `Check-in:` from `status` names a STEP or a date, not "none scheduled".
