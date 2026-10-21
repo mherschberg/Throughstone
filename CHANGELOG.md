@@ -459,6 +459,19 @@ agree to drop one.
 - **Changed:** the list of docs a substep keeps true, in `templates/substep-prompt-template.md`,
   names any `ARCHITECTURE.md` beside a repo's or code folder's README, to update when the design it
   describes changes.
+- **Changed:** the last substep hands over the words that start the STEP's review,
+  *"run the STEP N review"* (`templates/substep-prompt-template.md`, `METHOD.md` §10). 1.x said only
+  to run the review, so the user had nothing to type.
+- **Changed:** before handing over to a fresh chat, an agent asks anything its chat must still act
+  on, such as whether an input is fully captured, and waits for the answer (`AGENTS.md`). A question
+  asked in the same message as the hand-off went unanswered when the user moved straight to the new
+  chat.
+- **Changed:** a STEP's close merges its branch into the trunk in every repo it touched, by PR where
+  that is how the project merges, and checks out the trunk (step 7 of the recipe in
+  `prompts/README.md`, which the Cross-Cutting Review, the check-in and the Incident STEP now point
+  to at their close; `runbooks/collaboration.md`). 1.x never said when a STEP branch reaches the
+  trunk, so STEP-1 could close on its branch, and the planning session after it had to stop and ask
+  before writing its rows on the trunk.
 - **Fixed:** a STEP is archived before its row is marked `Done`. The Cross-Cutting Review archives
   STEP-1 first, and the check-in its thin PLAN, where 1.x marked the row `Done` first, so a session
   that stopped in between left the archive undone with nothing to say so; the incident runbook,
