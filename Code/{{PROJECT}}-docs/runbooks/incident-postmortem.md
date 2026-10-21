@@ -102,5 +102,6 @@ the *next* one is caught sooner and cheaper:
   **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
   in `registries/risks.yml`.
 - Mark the Incident STEP's substeps **Done**, archive its thin PLAN under `prompts/` like any other
-  completed STEP, and then mark the STEP **Done**; note anything to watch at the next **check-in**
+  completed STEP, and then mark the STEP **Done** and merge its branch into the trunk
+  (`prompts/README.md`, recipe step 7); note anything to watch at the next **check-in**
   (`runbooks/check-in.md`).
