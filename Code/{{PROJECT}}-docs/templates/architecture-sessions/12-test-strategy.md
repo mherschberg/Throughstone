@@ -57,6 +57,9 @@ built in rather than bolted on — especially where separately built pieces have
    workflows ship: the method-integrity check (`.github/workflows/method-check.yml`, which runs
    `scripts/check.sh`), already live, and a test workflow to fill in for each codebase
    (`templates/ci/code-repo-ci.yml`). See `templates/ci/README.md`.
+   Under `layout: mono` each code folder still gets its own copy when it is registered, even where
+   a root workflow runs its tests: the root copy is an addition, not a replacement, and the
+   folder's own copy gates it once a split makes it a repository.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
 7. **Coverage tooling and reporting.** For each real implementation language, choose the
    coverage tool and where its report appears. Default durable coverage/test summaries to
