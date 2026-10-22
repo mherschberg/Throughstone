@@ -154,6 +154,10 @@ run_interactive_case() {
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE" \
     "$work/Code/$name-api/LICENSE-THROUGHSTONE"
   [ -f "$work/Code/$name-api/LICENSING.md" ]
+  # It is built in a temporary file, which mktemp makes owner-only; it lands with the mode of the
+  # licence files copied beside it.
+  [ "$(ls -l "$work/Code/$name-api/LICENSING.md" | cut -c1-10)" = \
+    "$(ls -l "$work/Code/$name-api/LICENSE-THROUGHSTONE" | cut -c1-10)" ]
   grep -Fq "does not replace or alter the project license" \
     "$work/Code/$name-api/LICENSING.md"
   "$work/Code/$name-docs/scripts/apply-project-license.sh" \
@@ -239,6 +243,8 @@ run_private_case() {
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE" \
     "$work/Code/$name-api/LICENSE-THROUGHSTONE"
   [ -f "$work/Code/$name-api/LICENSING.md" ]
+  [ "$(ls -l "$work/Code/$name-api/LICENSING.md" | cut -c1-10)" = \
+    "$(ls -l "$work/Code/$name-api/LICENSE-THROUGHSTONE" | cut -c1-10)" ]
   grep -Fq "Project-authored content in this repository is proprietary" \
     "$work/Code/$name-api/LICENSING.md"
   grep -Fq "does not grant permission" "$work/Code/$name-api/LICENSING.md"
@@ -1588,26 +1594,27 @@ run_slug_message_case() {
 # can be proprietary. A licence question that used `private` could be taken for the visibility
 # question, and a reader who wanted a private repo would get a project licensed to nobody.
 #
-# Three parts, because the rule is only true if all three hold: the prompted run never prints
-# "private", the deprecated `--license=private` builds a proprietary project and says it is
-# deprecated, and `--license=proprietary` builds one without that notice. The middle part is the
-# must-proceed case: a wrapper that passes --license=private must not break, and other test files
-# in this suite pass it too.
+# Three parts, because the rule is only true if all three hold: the prompted run prints
+# "private" only where its backup advice says to create a repository private, the deprecated
+# `--license=private` builds a proprietary project and says it is deprecated, and
+# `--license=proprietary` builds one without that notice. The middle part is the must-proceed
+# case: a wrapper that passes --license=private must not break, and other test files in this
+# suite pass it too.
 run_licence_vocabulary_case() {
   local name="licence-vocabulary" status
   local ask_work="$TMP_ROOT/$name-ask"
   local old_work="$TMP_ROOT/$name-old" new_work="$TMP_ROOT/$name-new"
 
-  # --- the licence question does not spend "private": the whole run never prints it ---
+  # --- the licence question does not spend "private": the run prints it only for a repository ---
   copy_template "$ask_work"
   (
     cd "$ask_work"
     printf '2\n' | ./init.sh --slug="$name-ask" --desc="Vocabulary test" \
       --layout=multi --collab=solo --remotes=no
   ) >"$TMP_ROOT/$name-ask.out" 2>&1
-  if grep -Fqi "private" "$TMP_ROOT/$name-ask.out"; then
+  if grep -Fi "private" "$TMP_ROOT/$name-ask.out" | grep -Fvq "on your host, private"; then
     echo "FAIL: $name — the licence question still spends the word 'private' on licensing" >&2
-    grep -Fi "private" "$TMP_ROOT/$name-ask.out" >&2
+    grep -Fi "private" "$TMP_ROOT/$name-ask.out" | grep -Fv "on your host, private" >&2
     return 1
   fi
   grep -Fq "2) Proprietary" "$TMP_ROOT/$name-ask.out" || {
