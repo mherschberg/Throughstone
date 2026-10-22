@@ -1743,8 +1743,9 @@ if [ "$MK_REMOTES" = "0" ] && [ "$LAYOUT" = "2" ]; then
     ${KEPT_ORIGIN}
   To back up, push the root repo's ${TRUNK_BRANCH} branch to it: git push -u origin ${TRUNK_BRANCH}"
   else
-    REMOTE_TIP="No remote is attached. To back up, create one empty repo on your host, attach it
-  with 'git remote add origin <url>', and push the root repo's ${TRUNK_BRANCH} branch to it."
+    REMOTE_TIP="No remote is attached. To back up, create one empty repo on your host, private
+  (making it public is a separate decision), attach it with 'git remote add origin <url>',
+  and push the root repo's ${TRUNK_BRANCH} branch to it."
   fi
   REMOTE_TIP="${REMOTE_TIP}
   Then record that URL on the row in Code/${SLUG}-docs/registries/repos.yml whose
@@ -1753,9 +1754,10 @@ if [ "$MK_REMOTES" = "0" ] && [ "$LAYOUT" = "2" ]; then
   repos to clone."
 elif [ "$MK_REMOTES" = "0" ]; then
   REMOTE_TIP="No remote was set up for either repo. To back up, do this for each of the two,
-  Code/${SLUG}-docs/ and prompts/: create an empty repo on your host, attach it from inside the
-  local one with 'git remote add origin <url>', push the ${TRUNK_BRANCH} branch to it, and only
-  then record that URL as remote: on that repo's row in Code/${SLUG}-docs/registries/repos.yml.
+  Code/${SLUG}-docs/ and prompts/: create an empty repo on your host, private (making it public
+  is a separate decision), attach it from inside the local one with 'git remote add origin <url>',
+  push the ${TRUNK_BRANCH} branch to it, and only then record that URL as remote: on that repo's
+  row in Code/${SLUG}-docs/registries/repos.yml.
   Recording last is the point — that row is what tells a teammate where to clone from, so it
   should never name a remote the branch has not reached."
 fi
