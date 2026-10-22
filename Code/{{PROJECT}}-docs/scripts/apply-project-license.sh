@@ -145,6 +145,9 @@ fi
 # project-authored content and retained Throughstone scaffold material.
 LICENSING_SOURCE="$(mktemp "${TMPDIR:-/tmp}/throughstone-licensing.XXXXXX")"
 trap 'rm -f "$LICENSING_SOURCE"' EXIT
+# mktemp makes the file readable by its owner alone, and cp gives a new file its source's mode,
+# so LICENSING.md would land owner-only beside licence files anyone can read.
+chmod 0644 "$LICENSING_SOURCE"
 if [ "$PROJECT_IS_OPEN_SOURCE" = "1" ]; then
   cat > "$LICENSING_SOURCE" <<EOF
 # Licensing
