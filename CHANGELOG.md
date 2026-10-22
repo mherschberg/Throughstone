@@ -216,8 +216,8 @@ agree to drop one.
 - **Fixed:** in mono-repo-for-now, a test workflow stamped into a code folder never runs, and 1.x
   didn't say so. `templates/ci/README.md` now does, says to stamp and configure it anyway for a
   later split, even where the project's docs choose one root workflow, as
-  `runbooks/register-repo.md` says too, and shows how to gate tests before then: a root copy with
-  one job per code folder. *(Upgrade step 7.)*
+  `runbooks/register-repo.md` and the Test Strategy session say too, and shows how to gate tests
+  before then: a root copy with one job per code folder. *(Upgrade step 7.)*
 - **Fixed:** a mono-repo-for-now project no longer commits the STEP in flight. `init.sh` adds
   `/Upcoming Prompts/*` and `!/Upcoming Prompts/.gitkeep` to the root `.gitignore`, so a
   `git add -A` leaves out the STEP's PLAN and substep prompts until it is archived into `prompts/`.
@@ -270,7 +270,8 @@ agree to drop one.
 - **Changed:** a remote created for a repo that has none is created private, and making any repo
   public takes an explicit instruction from the user naming that repo. 1.x's planning session had
   you choose private or public as each remote was added. `METHOD.md` §7 sets the rule, and the
-  planning session, `runbooks/register-repo.md` and the check-in repeat it.
+  planning session, `runbooks/register-repo.md`, the check-in and `init.sh`'s backup advice for a
+  project set up without remotes repeat it.
 - **Changed:** STEP-1 work takes the `step-0001-architecture` branch in every repository it writes
   into, an adopted repo included. 1.x's `METHOD.md` §7 named only the docs hub and `prompts/`, or
   the root repo in mono-repo-for-now.
@@ -544,6 +545,10 @@ agree to drop one.
   unknown option for the target. *(Upgrade step 17.)*
 - **Fixed:** `apply-project-license.sh` prints one slash, not two, after a target ending in `/`, and
   says "target is not a directory" for any target that isn't one, where 1.x said it didn't exist.
+- **Fixed:** the `LICENSING.md` that `apply-project-license.sh` writes into a repo has the same
+  permissions as the licence files beside it. 1.x left it readable by its owner alone (mode 0600),
+  as it was copied from a temporary file; git stores it as an ordinary file, so clones were never
+  affected.
 - **Fixed:** `templates/licenses/README.md` says a licence other than the three it offers goes into
   the repo by hand. 1.x also suggested adding a template and a branch to `init.sh`, which a project
   never runs again.
