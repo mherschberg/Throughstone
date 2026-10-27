@@ -226,7 +226,10 @@ reviewing, and recording it. The ADR template already carries the needed states
   row can merge **cleanly** into a silent duplicate, exactly as two `STEP-6` rows do (§2). A clean
   pull is not proof you're safe. Use the same protocol, on the docs hub's shared trunk: pull,
   take `max + 1` over the registry, add your row and create the `ADR-NNNN-*.md` file, then
-  **commit and push immediately** in a dedicated commit. Before every push, even on a clean
+  **commit and push immediately** in a dedicated commit. The file holds the whole ADR. Until your
+  STEP merges, write a link in it to a doc that exists only on your STEP branch as a plain path,
+  not a Markdown link, the form the *Related documents* section of `templates/adr-template.md`
+  uses, so the shared trunk keeps passing `./doctor.sh links`. Before every push, even on a clean
   merge, scan for a repeated number from the workspace root:
   ```
   grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d   # prints nothing when clean
