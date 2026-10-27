@@ -247,10 +247,12 @@ agree to drop one.
 - **New:** `runbooks/register-repo.md` brings a repo into a project, whether it's created, adopted
   or split out of another. It writes the registry row and the Architecture Overview's Repos entry
   together, and decides the repo's README by what is already in it; an adopted repo gets only the
-  Throughstone notice, `LICENSE-THROUGHSTONE`, never the project's licence. The docs that had you
-  add a row or stamp a README by hand, or said an open-source project's `LICENSE` goes into every
-  new repo, now point there, and `templates/repo-readme-template.md` no longer carries its stamping
-  instructions into the README.
+  Throughstone notice, `LICENSE-THROUGHSTONE`, never the project's licence. A code repo the method
+  creates also gets its own test gate and the `.env`, `.secrets` and `.claude` lines in its
+  `.gitignore` there, whatever README it already had, so a repo a later STEP makes gets them too.
+  The docs that had you add a row or stamp a README by hand, or said an open-source project's
+  `LICENSE` goes into every new repo, now point there, and `templates/repo-readme-template.md` no
+  longer carries its stamping instructions into the README.
 - **New:** `runbooks/splitting-repos.md` splits a code repo in two (Case 1) or converts a
   mono-repo-for-now project to multi-repo (Case 2). It clones the whole repo and deletes forward, so
   nothing is rewritten and both sides keep the full history, and a repo it creates keeps the
@@ -313,6 +315,12 @@ agree to drop one.
   you named, and the helper told a check-in to wait for `run substep N.M`. The helper knows a
   check-in by its row's title, `Check-in` or `Check-in: <scope>`, as `METHOD.md` §5 now says.
   *(Upgrade step 10.)*
+- **Fixed:** the check-in runs any periodic audit or rotation the project's docs attach to it,
+  such as the dependency audit or the secrets rotation, and records each one's result in its
+  report's new *Periodic Audits* section, or names it as not run. 1.x's
+  `runbooks/dependency-supply-chain.md` and `runbooks/secrets-rotation.md` said they ride on the
+  check-in, but `runbooks/check-in.md` never mentioned them, so a check-in followed end to end
+  skipped them.
 - **Fixed:** the check-in runs every test suite in every repo or code folder you can reach,
   `runbooks/dependency-supply-chain.md` audits every package manifest in every repo you can reach,
   and `runbooks/incident-postmortem.md`'s hunt for similar issues covers every repo you can reach;
@@ -421,6 +429,12 @@ agree to drop one.
   scanned nothing and reported no duplicate. The one scan now lives in `runbooks/collaboration.md`
   §6, and the other docs that number a STEP or an ADR carry no scan of their own.
   *(Upgrade step 16.)*
+- **Fixed:** in a team, an ADR reserved on the docs hub's trunk no longer leaves the trunk failing
+  `./doctor.sh links` while its STEP is open. `runbooks/collaboration.md` §6 now says the file
+  holds the whole ADR, and that a link in it to a doc that exists only on the STEP branch is
+  written as a plain path until the STEP merges, as the ADR template's *Related documents* section
+  does. 1.x didn't say, so an ADR linking an architecture doc still on `step-0001-architecture`
+  failed the links check for every teammate who pulled the trunk.
 - **Fixed:** in mono-repo-for-now, the STEP-number reservation in `runbooks/collaboration.md` §2
   runs in the root repository, which holds `prompts/`. 1.x had a team pull and push `prompts/` as a
   repository of its own, which a mono project doesn't have.
