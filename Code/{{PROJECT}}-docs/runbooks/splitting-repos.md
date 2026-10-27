@@ -379,7 +379,7 @@ trunks would not share step 1's tip.
      Decide what it runs, then stamp the gate the same way a repo the method creates gets one:
      `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml`, with its test
      command filled in — `templates/ci/README.md` says how, and `runbooks/register-repo.md` step 2
-     asks for it whenever it stamps a README into a code repo the method created. If the extracted
+     asks for it in every code repo the method created. If the extracted
      code also calls into code that stayed behind, decide that here too —
      the options are duplicate it, put it in a third shared repo, have one side own it and expose
      it as a service, or don't split at this boundary after all. There is no threshold that picks
