@@ -350,6 +350,15 @@ if   [ "$inprog_n"    -lt 999999 ]; then atstep=$inprog_n
 elif [ "$lowplanned_n" -lt 999999 ]; then atstep=$lowplanned_n
 else atstep=$maxnum
 fi
+# A STEP in progress past a scheduled check-in has not brought the project there while a Planned
+# STEP below the check-in is still open: the lowest Planned STEP is the position then. A STEP added
+# outside the plan takes the next free number (prompts/README.md), above the whole planned phase,
+# so working one says nothing about how far the phase has got. A STEP in progress at the scheduled
+# number itself is not past it, and stays the position.
+if [ -n "$nci_step" ] && [ "$inprog_n" -lt 999999 ] && [ "$inprog_n" -gt "$((10#$nci_step))" ] &&
+   [ "$lowplanned_n" -lt "$((10#$nci_step))" ]; then
+  atstep=$lowplanned_n
+fi
 
 ci_propose=""
 if [ -n "$nci_step" ]; then
