@@ -42,6 +42,12 @@
 |--------------|---------|--------|-------|
 | {{repo}} | `{{command}}` | {{passed/failed/skipped}} | {{counts, coverage, failures}} |
 
+## Periodic Audits
+
+| Audit or rotation | Runbook | Result | Action |
+|-------------------|---------|--------|--------|
+| {{dependency audit / secrets rotation / none attached}} | {{runbooks/...}} | {{clean / findings / not run: why}} | {{patched / risks.yml row / follow-up STEP / none}} |
+
 ## Carry-Forward
 
 | Item | Type | Owner | Next action |
