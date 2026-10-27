@@ -88,14 +88,10 @@ The goal is that the **result** is the same however a repo arrived, except for l
    - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md` as
      `README.md`. Keep its headings in order, so every repo's README reads the same way: a section
      that does not apply can go (no *API / interface* for a library), but never the role one-liner
-     or the Overview — saying what the repo *is* is the one part that cannot be dropped. In a code
-     repo we created, also stamp its own test gate, in a code folder under `layout: mono` too, even
-     where a root workflow already runs its tests:
-     `Code/{{PROJECT}}-docs/templates/ci/code-repo-ci.yml` as the repo's `.github/workflows/ci.yml`,
-     with its stack's test command filled in (`Code/{{PROJECT}}-docs/templates/ci/README.md`). In a
-     repo we did not create, add no CI, and **cut `## Licensing` back to its `LICENSE-THROUGHSTONE`
-     sentence**: step 3 writes no `LICENSING.md` there for its link to reach, and that sentence is
-     the only place the file says what the notice covers.
+     or the Overview — saying what the repo *is* is the one part that cannot be dropped. In a repo
+     we did not create, **cut `## Licensing` back to its `LICENSE-THROUGHSTONE` sentence**: step 3
+     writes no `LICENSING.md` there for its link to reach, and that sentence is the only place the
+     file says what the notice covers.
    - **A README this method stamped** — recognised by a `## Licensing` section of its own
      carrying the sentence that names `LICENSE-THROUGHSTONE`. Every path that stamps that template
      writes that sentence, including the cut-back form a repo with no `LICENSING.md` gets, and
@@ -127,6 +123,16 @@ The goal is that the **result** is the same however a repo arrived, except for l
    and that sweep changes too.
 
    A repo that already has an `ARCHITECTURE.md` keeps it, exactly as its README is kept.
+
+   **A code repo we created also gets its own test gate and `.gitignore` lines, whichever case its
+   README took.** If it has no `.github/workflows/ci.yml`, stamp
+   `Code/{{PROJECT}}-docs/templates/ci/code-repo-ci.yml` there, with its stack's test command filled
+   in (`Code/{{PROJECT}}-docs/templates/ci/README.md`), in a code folder under `layout: mono` too,
+   even where a root workflow already runs its tests. Under `layout: multi`, add to its `.gitignore`
+   whichever of the `.env`, `.secrets` and `.claude` lines it lacks, as item 1 of
+   `Code/{{PROJECT}}-docs/templates/planning-session.md` lists them; under `layout: mono`, the root
+   `.gitignore` already has them. A repo we did not create gets no CI, and its `.gitignore` is its
+   own.
 
 3. **Licensing — decided by whether we created the repo. Two separate artifacts, and they do not
    travel together.**
@@ -165,8 +171,8 @@ The goal is that the **result** is the same however a repo arrived, except for l
 
 5. **Commit — one commit per repository**, naming its paths explicitly, never `git add -A`.
    - **Docs hub** — the row and the Architecture Overview entry.
-   - **The repo itself** — its README, the CI gate if step 2 stamped one, and **every licensing
-     artifact step 3 wrote there**, not the notice alone.
+   - **The repo itself** — its README, the CI gate and `.gitignore` if step 2 wrote them, and
+     **every licensing artifact step 3 wrote there**, not the notice alone.
 
 ## When something does not work
 
