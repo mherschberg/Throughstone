@@ -298,9 +298,11 @@ agree to drop one.
   `<!-- NEXT-CHECK-IN: … -->` line names the STEP or the date of the next one, which the planning
   session writes and each check-in updates as it closes. `./doctor.sh status` reports it under
   `Check-in:` as due, next or none scheduled, and while one is due or none is scheduled, proposes a
-  Check-in STEP as advice beside the next action. The line replaces 1.x's `CHECK-IN-CADENCE`
-  setting, which nothing reads now; the doctor's check 10, which checked that setting, is now the
-  registry check that `--check-in` runs. *(Upgrade steps 10 and 17.)*
+  Check-in STEP as advice beside the next action. A STEP in progress past a check-in scheduled by
+  STEP number, such as one added outside the plan, numbered above the phase, doesn't make it due
+  while a STEP below it is still Planned. The line replaces 1.x's `CHECK-IN-CADENCE` setting, which
+  nothing reads now; the doctor's check 10, which checked that setting, is now the registry check
+  that `--check-in` runs. *(Upgrade steps 10 and 17.)*
 - **Changed:** a Check-in STEP may make a small code or test fix to clear a failure it finds, where
   1.x's `runbooks/check-in.md` said it writes no application code, though its Part 2 also said to
   fix a small test failure there. It still writes no new features, and a larger fix becomes a bug
