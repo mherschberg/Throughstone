@@ -166,6 +166,10 @@ Update `registries/security-reviews.yml` only when a review actually runs.
   important outcome in the check-in report.
 - Any failure is a finding for this check-in — fix it here if small, or file it as a bug
   STEP if not.
+- Run any periodic audit or rotation the project's docs attach to the check-in, such as the
+  dependency audit (`runbooks/dependency-supply-chain.md` Parts 2–3) or the secrets rotation
+  (`runbooks/secrets-rotation.md` Part 1), and record each one's result in the report, or name it
+  as not run.
 
 ## Output
 Write a short **check-in report** under `reports/` in the docs hub. Use
