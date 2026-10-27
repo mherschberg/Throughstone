@@ -197,6 +197,35 @@ ROWS
 has "$planned_only" 'plan STEP-21'
 has "$planned_only" 'due — scheduled for STEP-20, and the project is at STEP-21.'
 
+# A STEP added outside the plan takes the next free number, above the whole phase. Working it does
+# not reach a check-in scheduled inside the phase while STEPs below the check-in are still Planned:
+# the position is the lowest Planned STEP, though the next action is the STEP in progress.
+ad_hoc="$(run_rows STEP-25 <<'ROWS'
+| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-3 | Check-in: after setup | | Done | | Fixture |
+| STEP-4 | Phase work | | Planned | | Fixture |
+| STEP-25 | Check-in: phase 1 | | Planned | | Fixture |
+| STEP-28 | End of the phase | | Planned | | Fixture |
+| STEP-29 | Added outside the plan | | Done | | Fixture |
+| STEP-31 | Added outside the plan | | In progress | | Fixture |
+ROWS
+)"
+has "$ad_hoc" 'open STEP-31'
+has "$ad_hoc" 'next at STEP-25 (the project is at STEP-4).'
+hasnt "$ad_hoc" 'Also worth proposing'
+
+# Once nothing below the check-in is Planned, the STEP in progress past it counts again: a check-in
+# passed over for other work still reads due.
+passed_over="$(run_rows STEP-25 <<'ROWS'
+| STEP-1 | Architecture | | Done | | Fixture |
+| STEP-24 | Phase work | | Done | | Fixture |
+| STEP-25 | Check-in: phase 1 | | Planned | | Fixture |
+| STEP-28 | End of the phase | | Planned | | Fixture |
+| STEP-31 | Added outside the plan | | In progress | | Fixture |
+ROWS
+)"
+has "$passed_over" 'due — scheduled for STEP-25, and the project is at STEP-31.'
+
 # A padded number is read as base 10 and printed normalised, so the line says what was read.
 padded="$(run "<!-- NEXT-CHECK-IN: STEP-020 -->" 12)"
 has "$padded" 'next at STEP-20 (the project is at STEP-12).'
