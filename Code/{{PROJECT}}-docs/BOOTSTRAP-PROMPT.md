@@ -156,7 +156,10 @@ what tells future sessions to resume from `prompts/STEP-index.md` instead of re-
 kickoff. Then flip the `STEP-1` row in `prompts/STEP-index.md` from `Planned` to
 `In progress`; `init.sh` reserved `STEP-1`, and kickoff is the special setup that starts it.
 Use branch `step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies (and in a
-team/shared-remote project, push the `In progress` flip). **Then stop.**
+team/shared-remote project, push the `In progress` flip, and commit the brief and the marker on
+the trunk of the repository that holds the docs hub, its own repo in multi-repo or the root repo in
+mono-repo-for-now, and push them, so a teammate's agent doesn't read `not-started` and restart the
+kickoff). **Then stop.**
 
 ### Execution (after kickoff)
 The user drives from here, one session at a time:
