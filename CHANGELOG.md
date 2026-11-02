@@ -405,6 +405,10 @@ agree to drop one.
 
 ### Teams
 
+- **New:** closing the kickoff in a team or shared-remote project also commits the brief and the
+  `kickoff-complete` marker on the trunk of the repository that holds the docs hub and pushes them
+  (`BOOTSTRAP-PROMPT.md`), so a teammate's agent doesn't read `not-started` on the trunk and restart
+  the kickoff. 1.x named only the push of the `In progress` flip.
 - **New:** in a team, a STEP flipped to `In progress` records its owner, and before opening an
   implementation STEP, `./doctor.sh status` and the agent ask whether it's yours: by default a
   STEP's PLAN is only on its owner's machine.
@@ -446,6 +450,10 @@ agree to drop one.
 
 ### Sessions and STEPs
 
+- **New:** a substep that adds a dependency runs Part 1 of `runbooks/dependency-supply-chain.md`
+  first, when the project's Security & Threat Model doc asks for vetting, and records the result in
+  the STEP PLAN or the commit (`templates/substep-prompt-template.md`). In 1.x only the user's "vet
+  this dependency" started that runbook, and no template pointed a substep at it.
 - **New:** the planning session asks whether the phase builds on code the project didn't write that
   no check-in has run over, and if so puts a `Check-in: baseline` STEP at the front of the phase, so
   that code's tests run before anything is built on it.
