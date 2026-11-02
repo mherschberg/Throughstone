@@ -24,6 +24,7 @@ mkdir -p "$fixture/Code/acme-docs/scripts" \
   "$fixture/Code/acme-docs/runbooks" \
   "$fixture/Code/acme-docs/templates" \
   "$fixture/Code/acme-docs/inputs/archive" \
+  "$fixture/Code/acme-docs/adr" \
   "$fixture/prompts" \
   "$fixture/Upcoming Prompts"
 
@@ -81,12 +82,14 @@ A link written as `[inline code](never-written.md)` is an example, not a link.
 SUPPRESSED
 
 # A heading with a symbol between spaces gets one hyphen for each space, as on GitHub, so the link
-# to "Risks & mitigations" below must pass.
+# to "Risks & mitigations" below must pass. A heading that holds a Markdown link gets its anchor
+# from the link's text, so the link to "3.2 The rule" below must pass too.
 cat > "$fixture/Code/acme-docs/README.md" <<'DOCS'
 # Docs Hub
 
 See [the runbook](runbooks/check-in.md#check-in),
-[its risks](runbooks/check-in.md#risks--mitigations) and [the root readme](../../README.md).
+[its risks](runbooks/check-in.md#risks--mitigations), [its rule](runbooks/check-in.md#32-the-rule-adr-0006-decision-1)
+and [the root readme](../../README.md).
 External links such as [example](https://example.com) are skipped.
 DOCS
 
@@ -94,7 +97,13 @@ cat > "$fixture/Code/acme-docs/runbooks/check-in.md" <<'RUNBOOK'
 # Check In
 
 ## Risks & mitigations
+
+### 3.2 The rule ([ADR-0006](../adr/ADR-0006-forgetful-programs-start-small.md), decision 1)
 RUNBOOK
+
+cat > "$fixture/Code/acme-docs/adr/ADR-0006-forgetful-programs-start-small.md" <<'ADR'
+# ADR-0006: Forgetful programs start small
+ADR
 
 cat > "$fixture/Code/acme-docs/templates/generated.md" <<'TEMPLATE'
 # Generated Template
@@ -132,8 +141,9 @@ assert_contains "$output" "RESULT: OK"
 
 # Runbooks/ below has the wrong letter case, and so does MIRROR/, the name of a symlink to the hub.
 # A case-insensitive disk, such as macOS's, opens both anyway, so the links work there and break on
-# a case-sensitive one. Resolving the symlink would hide the second. The last link writes the
-# "Risks & mitigations" anchor with one hyphen, which is dead on GitHub, so it must fail.
+# a case-sensitive one. Resolving the symlink would hide the second. The next link writes the
+# "Risks & mitigations" anchor with one hyphen, which is dead on GitHub, so it must fail. The last
+# keeps the target of a heading's link in its anchor, which is dead on GitHub too.
 ln -s acme-docs "$fixture/Code/mirror"
 cat > "$fixture/Code/acme-docs/broken.md" <<'BROKEN'
 # Broken
@@ -144,6 +154,7 @@ cat > "$fixture/Code/acme-docs/broken.md" <<'BROKEN'
 [wrong case](Runbooks/check-in.md)
 [wrong-case symlink](../MIRROR/runbooks/check-in.md)
 [collapsed anchor](runbooks/check-in.md#risks-mitigations)
+[anchor with a target](runbooks/check-in.md#32-the-rule-adr-0006adradr-0006-forgetful-programs-start-smallmd-decision-1)
 BROKEN
 
 # A broken link in a root pointer has to be reported too. The clean run is checked only for
@@ -168,6 +179,8 @@ assert_contains "$output" "links to missing file: missing.md"
 assert_contains "$output" "links to missing anchor: runbooks/check-in.md#missing-anchor"
 assert_contains "$output" \
   "broken.md:8 links to missing anchor: runbooks/check-in.md#risks-mitigations"
+assert_contains "$output" \
+  "broken.md:9 links to missing anchor: runbooks/check-in.md#32-the-rule-adr-0006adradr-0006-forgetful-programs-start-smallmd-decision-1"
 assert_contains "$output" "uses undefined reference link: [missing-ref]"
 assert_contains "$output" "broken.md:6 links to path with wrong case: Runbooks/check-in.md"
 assert_contains "$output" "→ fix: use Code/acme-docs/runbooks/check-in.md"
