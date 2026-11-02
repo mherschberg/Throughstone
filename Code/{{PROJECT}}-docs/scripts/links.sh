@@ -111,9 +111,11 @@ def iter_content_lines(path, strip_code=True):
 
 # markdown_slug TITLE — approximate GitHub-style heading anchors for local Markdown checks.
 # Like GitHub, each space becomes its own hyphen: "Risks & mitigations" is risks--mitigations.
+# Like GitHub, a Markdown link in a heading counts as its text alone, without its target.
 def markdown_slug(title):
     title = re.sub(r"\{#[A-Za-z0-9_.:-]+\}\s*$", "", title).strip()
     title = re.sub(r"<[^>]+>", "", title)
+    title = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", title)
     title = re.sub(r"[`*_~\[\]()]|#+$", "", title)
     title = title.strip().lower()
     title = re.sub(r"[^\w -]", "", title, flags=re.UNICODE)
