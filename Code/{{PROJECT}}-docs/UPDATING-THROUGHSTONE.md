@@ -577,6 +577,9 @@ and skip any step they mark as superseded.
       such as ` & `, ` — ` or a closing emoji: write the anchor as GitHub does, one hyphen for each
       space, so `## Risks & mitigations` is `#risks--mitigations`. The old check wanted one hyphen
       there, and none at either end.
+    - A `[FAIL]` from `links` naming a missing anchor to a heading that holds a Markdown link: write
+      the anchor from the link's text alone, so `## The rule ([ADR-0006](../adr/ADR-0006-x.md))` is
+      `#the-rule-adr-0006`. The old check wanted the link's target in the anchor too.
     - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, checks 1, 2, 3 and
       9 show no `[WARN]`, and, unless `status` says the kickoff is not started, the line under
       `Check-in:` from `status` names a STEP or a date, not "none scheduled".
