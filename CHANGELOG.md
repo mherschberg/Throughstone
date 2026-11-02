@@ -371,6 +371,10 @@ agree to drop one.
   GitHub does, so `## Risks & mitigations` is `#risks--mitigations`. 1.x squeezed runs of spaces and
   hyphens into one and trimmed them from the ends, so a link that works on GitHub failed the check,
   and one the check passed was dead on GitHub. *(Upgrade step 20.)*
+- **Fixed:** `./doctor.sh links` builds the anchor of a heading that holds a Markdown link from the
+  link's text, as GitHub does, so `## The rule ([ADR-0006](../adr/ADR-0006-x.md))` is
+  `#the-rule-adr-0006`. 1.x kept the link's target in the anchor, so a link that works on GitHub
+  failed the check, and one the check passed was dead on GitHub. *(Upgrade step 20.)*
 - **Fixed:** once the STEP-1 row reads `Done`, `./doctor.sh status` no longer names an open STEP-1
   substep as the next action; 1.x went on naming it whatever STEP was in flight, so the work in
   progress never showed. While every substep is final but the row is still open, it names the
