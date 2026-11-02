@@ -45,6 +45,9 @@
      work — auth/AuthZ, secrets, sensitive data, public attack surface, dependency/security
      controls, or accepted security risk — include the Security & Threat Model architecture doc
      (`architecture/*-security-threat-model.md`) and relevant `registries/risks.yml` rows.
+     For any substep that adds a dependency, when that doc asks for vetting, include
+     `runbooks/dependency-supply-chain.md`: the substep runs its Part 1 before adding the
+     dependency and records the result in the STEP PLAN or the commit.
      For any substep that writes or changes code, include the Test Strategy architecture doc
      (`architecture/*-test-strategy.md`) so the Verification section uses the project's chosen
      test tiers, tools, coverage policy, and CI gates.
