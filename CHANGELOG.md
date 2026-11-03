@@ -15,7 +15,7 @@ problems that 1.x projects carry without knowing it are fixed. Have a 1.x projec
 the 2.0 section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how. This release
 rewrites much of `AGENTS.md`, `METHOD.md`, `check.sh` and `status.sh`, so an edit of yours to one of
 them means a hand merge, and the upgrade's step 1 checks that every edit survives it, unless you
-agree to drop one.
+agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
 
 - **Setup no longer runs over a project that's already set up, a repository that isn't the
   template's, or files of yours in the folders it deletes**, and checks its answers before it
