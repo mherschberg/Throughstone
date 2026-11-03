@@ -130,6 +130,9 @@ and skip any step they mark as superseded.
      `templates/reports/test-results/test-results-summary-template.md`;
      `templates/step-index-seed.md`; `templates/step-plan-template.md`; and
      `templates/substep-prompt-template.md`.
+   - The Throughstone notice: `LICENSE-THROUGHSTONE`. Its copies in `prompts/`, in each code repo
+     and, in mono-repo-for-now, at the workspace root are the same file. Replacing those too is
+     optional.
    - Bring the whole list. These files point at each other, so a partial set sends agents to text
      that isn't there.
    - Fill in the placeholders setup filled in when your project was made: `PROJECT`,

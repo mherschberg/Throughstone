@@ -571,6 +571,12 @@ agree to drop one.
 - **Changed:** `apply-project-license.sh` stops with exit 2, naming the argument, on a second
   positional argument or a `--` option it doesn't know; 1.x ignored the extra argument, and took an
   unknown option for the target. *(Upgrade step 17.)*
+- **Changed:** the Throughstone notice, `LICENSE-THROUGHSTONE`, opens by saying what it covers:
+  Throughstone's own material, not the repository it sits in, whose code stays under its owners'
+  terms. 1.x's notice was the scaffold's BSD-3 licence under another name, so at a repository's root
+  it could read as that repository's licence. It is now a file of its own in the docs hub, and
+  `init.sh` deletes the template's root `LICENSE` instead of renaming it. The BSD-3 text is the same,
+  and every repo still gets the notice.
 - **Fixed:** `apply-project-license.sh` prints one slash, not two, after a target ending in `/`, and
   says "target is not a directory" for any target that isn't one, where 1.x said it didn't exist.
 - **Fixed:** the `LICENSING.md` that `apply-project-license.sh` writes into a repo has the same

@@ -142,6 +142,13 @@ run_interactive_case() {
   cmp -s \
     "$work/Code/$name-docs/LICENSE-THROUGHSTONE" \
     "$work/prompts/LICENSE-THROUGHSTONE"
+  # The notice is the docs hub's shipped file, which opens by saying what it covers, not a copy of
+  # the template's root LICENSE.
+  cmp -s "$ROOT/Code/{{PROJECT}}-docs/LICENSE-THROUGHSTONE" \
+    "$work/Code/$name-docs/LICENSE-THROUGHSTONE" || {
+    echo "FAIL: $name's LICENSE-THROUGHSTONE is not the shipped notice" >&2
+    return 1
+  }
 
   # Future code repos inherit the docs hub's project posture plus the Throughstone notice.
   mkdir -p "$work/Code/$name-api"
