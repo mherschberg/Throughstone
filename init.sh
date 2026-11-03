@@ -1223,11 +1223,12 @@ say "Detaching from the template's git history..."
 # only the user's initialized project state, not Throughstone's development history.
 rm -rf "$ROOT/.git"
 # The root LICENSE is the Throughstone scaffold's own license (BSD-3-Clause, © Mark A.
-# Herschberg), not the generated project's license. Retained scaffold material (METHOD.md,
-# templates/, runbooks/, scripts/) stays under it, and BSD-3 clause 1 requires preserving the
-# notice. Relocate it as LICENSE-THROUGHSTONE below; open-source projects get their selected
-# project LICENSE separately, while proprietary projects intentionally do not.
-#
+# Herschberg) and covers the whole scaffold repository, so it must not travel into a generated
+# project where it would read as that project's license. Retained scaffold material (METHOD.md,
+# templates/, runbooks/, scripts/) needs its notice, and BSD-3 clause 1 requires preserving
+# it — that job belongs to Code/<project>-docs/LICENSE-THROUGHSTONE, which ships as
+# its own file and opens by saying what it does and does not cover. Drop the root LICENSE here.
+rm -f "$ROOT/LICENSE"
 # README/CHANGELOG/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
 # history, and public explanation of the scaffold's output. After bootstrap they are stale
 # project content, and in multi-repo mode they would be stray files at the non-repo workspace
@@ -1293,10 +1294,9 @@ grep -rlF '{{TRUNK_BRANCH}}' . --exclude-dir=.git 2>/dev/null | while read -r f;
   TRUNK_BRANCH="$TRUNK_BRANCH" perl -pi -e 's/\Q{{TRUNK_BRANCH}}\E/$ENV{TRUNK_BRANCH}/g' "$f"
 done
 
-# Relocate the scaffold's BSD license into the docs hub (retained as attribution per BSD-3,
-# next to the method files it covers — not deleted). Open-source project licenses are stamped
-# separately into each repo in step 6; proprietary projects get no project LICENSE.
-[ -f "$ROOT/LICENSE" ] && mv "$ROOT/LICENSE" "$DOCS/LICENSE-THROUGHSTONE"
+# The scaffold notice ships in the docs hub as Code/<project>-docs/LICENSE-THROUGHSTONE, so it is
+# already in place. Open-source project licenses are stamped separately into each repo in step 6;
+# proprietary projects get no project LICENSE.
 # LICENSE-THROUGHSTONE follows retained scaffold material. In multi-repo mode prompts/ is its
 # own repo and contains Throughstone-authored seed content, so retain the scaffold notice there
 # too; this is distinct from the project LICENSE stamped below for open-source projects. In
