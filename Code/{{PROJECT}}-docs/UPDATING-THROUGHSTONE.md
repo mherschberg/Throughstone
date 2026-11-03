@@ -70,7 +70,7 @@ During an update, treat those old `overview.md` sections as legacy project-state
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
 not fail the check.
 
-### Next release migration
+### 2.0 migration
 
 This section says only what to do. What changed, and why, is in this release's section of
 Throughstone's `CHANGELOG.md`.
@@ -599,9 +599,9 @@ cadence. Fast path:
    `runbooks/check-in.md`, `templates/planning-session.md`, `scripts/status.sh`, `scripts/check.sh`).
 2. Want the old check-in window (DUE 10 / OVERDUE 20)? Add `<!-- CHECK-IN-CADENCE: 15 -->` to
    `overview.md`; otherwise omit it to take the new default of 20 (DUE 15 / OVERDUE 25).
-   **Superseded in the next release** — the cadence setting is gone and `overview.md` records
-   when the next check-in is due instead. Going straight to the next release? Skip this step and
-   follow that release's section.
+   **Superseded in 2.0** — the cadence setting is gone and `overview.md` records
+   when the next check-in is due instead. Going straight to 2.0? Skip this step and
+   follow the 2.0 section.
 3. Optionally reinterpret old `Status: MVP` / `Status: Stable` architecture docs as
    `Status: Current` (no forced change; `check.sh` keeps passing either way).
 4. Create `inputs/` and copy its `README.md` if you want the bring-your-own-docs drop point.
@@ -628,8 +628,8 @@ apply each area as a coherent review-required group, as with the legacy migratio
   `Status: MVP → Current`, `Status: Stable → Current`. Adopt `Deprecated` / `Coverage` where useful.
   No forced change.
 
-**Deferred-coverage check-in sweep.** *(Superseded in the next release, which retires the sweep
-and brings a deferred area back through a `registries/risks.yml` row — read that release's section
+**Deferred-coverage check-in sweep.** *(Superseded in 2.0, which retires the sweep
+and brings a deferred area back through a `registries/risks.yml` row — read the 2.0 section
 instead if you are upgrading past 1.7.)*
 
 - *Process docs* (`runbooks/check-in.md`): the periodic check-in gains a deferred-coverage sweep. It
@@ -708,8 +708,8 @@ instead if you are upgrading past 1.7.)*
   next phase's scope and outlines its STEPs instead of being pointed back at Phase 1; a first run still
   targets Phase 1 with the same outline as before.
 
-**Project-selectable check-in cadence.** *(Superseded in the next release, which replaces the
-setting with a recorded `NEXT-CHECK-IN` line — read that release's section instead if you are
+**Project-selectable check-in cadence.** *(Superseded in 2.0, which replaces the
+setting with a recorded `NEXT-CHECK-IN` line — read the 2.0 section instead if you are
 upgrading past 1.7.)*
 
 - *Templates for future use* (`templates/overview-template.md`): new projects get the optional,
@@ -730,8 +730,8 @@ upgrading past 1.7.)*
   default of 20. The cadence stays a judgment-based guideline — you still place each check-in at a
   sensible breakpoint.
 
-**Workspace model accepts in-place repos.** *(Superseded in the next release, where a `location:`
-is always a path relative to the workspace root — read that release's section instead if you are
+**Workspace model accepts in-place repos.** *(Superseded in 2.0, where a `location:`
+is always a path relative to the workspace root — read the 2.0 section instead if you are
 upgrading past 1.7.)*
 
 - *Process docs* (`METHOD.md` §7, `registries/repos.yml` header): newly documented convention — a repo
@@ -771,9 +771,9 @@ no project files and is greenfield-inert — the new ledger simply starts empty.
    `templates/planning-session.md`, `templates/reports/check-in-report-template.md`).
 2. Add the ledger: copy the scaffold's empty `inputs/inputs-index.md` (and the updated
    `inputs/README.md` guidance with it), then list any inputs you already have as `Live`.
-   **Superseded in the next release** — the ledger is replaced by `registries/input-captures.yml`
-   and the check-in's inputs sweep is gone. Going straight to the next release? Skip this step and
-   follow that release's section.
+   **Superseded in 2.0** — the ledger is replaced by `registries/input-captures.yml`
+   and the check-in's inputs sweep is gone. Going straight to 2.0? Skip this step and
+   follow the 2.0 section.
 3. Nothing else now. `inputs/archive/` is created only when you first retire an input, and the next
    check-in's inputs sweep is what surfaces a superseded input for a retire/keep decision.
 
@@ -783,8 +783,8 @@ wins, and architecture-grade inputs are lifted into `architecture/` (a spec ofte
 or a light reformat). This is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
 rules apply unchanged.
 
-**Inputs lifecycle.** *(Superseded in the next release, which replaces the ledger with a capture
-log and retires the check-in's inputs sweep — read that release's section instead if you are
+**Inputs lifecycle.** *(Superseded in 2.0, which replaces the ledger with a capture
+log and retires the check-in's inputs sweep — read the 2.0 section instead if you are
 upgrading past 1.7.1.)*
 
 - *New project-state file* (`inputs/inputs-index.md`): copy the scaffold's empty ledger in; from
