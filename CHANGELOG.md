@@ -12,7 +12,7 @@ any project built with it.
 A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
 supported layout, bringing a repo into a project and splitting one each get a runbook, and many
 problems that 1.x projects carry without knowing it are fixed. Have a 1.x project? Staying is fine;
-the next-release section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how. This release
+the 2.0 section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how. This release
 rewrites much of `AGENTS.md`, `METHOD.md`, `check.sh` and `status.sh`, so an edit of yours to one of
 them means a hand merge, and the upgrade's step 1 checks that every edit survives it, unless you
 agree to drop one.
