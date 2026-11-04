@@ -70,8 +70,9 @@ an error/corruption path, not normal operation.
     design doc is **lifted** into `architecture/` as the living copy (the original stays as
     provenance), a PRD or research note is synthesized into the doc being written, decision records
     your team actually wrote are adopted into `adr/` with their original dates and registered there,
-    a still-accurate runbook lands in `runbooks/`, and the
-    `inputs-index.md` ledger records what has been superseded and what still holds. Where a document
+    a still-accurate runbook lands in `runbooks/`, and each session logs what it took in
+    `registries/input-captures.yml`, as 2.0's inputs lifecycle (`inputs/README.md`) has every session
+    do. Where a document
     disagrees with the code, the code wins and the disagreement is written down as staleness rather
     than averaged away. Nothing is retired without you — a fully-superseded input is offered for
     archiving, never moved automatically.
@@ -127,6 +128,13 @@ an error/corruption path, not normal operation.
   resource's row names the session it feeds; a doc-set that is not files is exported into
   `inputs/`; and an included conditional's output-doc number, the next free one above the core
   block, is recorded in the PLAN's conditional table.
+- **Adoption's documents now describe the 2.0 base they run on.** Each adopted repo is registered
+  by running `runbooks/register-repo.md` whole, which records it as `added_as: adopted` and writes
+  its README, instead of writing the repo row and README by hand. Found documents follow 2.0's
+  inputs lifecycle (`inputs/README.md`) and its capture log (`registries/input-captures.yml`), not
+  the deleted `inputs-index.md` ledger. The project brief keeps its `NEXT-CHECK-IN` marker, and the
+  adoption STEP-1 PLAN's Repos line drops the retired "(projection)" label. Nothing changes for an
+  existing project.
 
 ## [2.0.0]
 
