@@ -8,7 +8,10 @@
 #     fresh agent is routed to RETCON-PROMPT.md (status.sh).
 #   - New mode (explicit and default) is unchanged: PROJECT-STATUS: not-started, no stub PLAN,
 #     the greenfield kickoff message.
-#   - An invalid --mode fails before the destructive bootstrap boundary.
+#   - An invalid --mode fails before the destructive bootstrap boundary, and `--mode` written with a
+#     space needs a value, as every other space-form flag does.
+#   - Existing mode is multi-repo only: mono, by either flag form or INIT_LAYOUT, exits 2 with the
+#     reason on stderr and writes nothing, and typed answers are not asked the layout question.
 #   - Marker-loss recovery: with PROJECT-STATUS stripped mid-adoption, the shipped recovery rule
 #     tells the agent to ASK the project's human which mode this is, and neither AGENTS.md nor
 #     status.sh asks it to work that out from the files.
@@ -46,8 +49,27 @@ assert_file_contains() {
   grep -Fq "$2" "$1" || { echo "FAIL: '$2' not found in $1" >&2; return 1; }
 }
 
-# run_existing_case NAME LAYOUT — adopt an existing codebase in the given layout and assert the
-# retcon front-door state.
+# tree_state DIR — every path under DIR and every file's checksum, so a refused run can be shown to
+# have written nothing at all.
+tree_state() {
+  ( cd "$1" && find . -print | sort && find . -type f -exec cksum {} + | sort )
+}
+
+# expect_refused_unwritten WORK BEFORE LABEL TEXT ARGS... — init.sh, run in WORK with ARGS, exits 2
+# with TEXT on stderr and leaves WORK as BEFORE recorded it. INIT_* variables set on the call reach
+# init.sh.
+expect_refused_unwritten() {
+  local work="$1" before="$2" label="$3" text="$4" status=0
+  shift 4
+  ( cd "$work" && ./init.sh "$@" ) >"$TMP_ROOT/$label.out" 2>"$TMP_ROOT/$label.err" || status=$?
+  [ "$status" -eq 2 ] || { echo "FAIL: $label exited $status, not 2" >&2; return 1; }
+  grep -Fq -- "$text" "$TMP_ROOT/$label.err" \
+    || { echo "FAIL: $label did not say '$text' on stderr" >&2; cat "$TMP_ROOT/$label.err" >&2
+         return 1; }
+  [ "$(tree_state "$work")" = "$before" ] \
+    || { echo "FAIL: $label wrote to the template before refusing" >&2; return 1; }
+}
+
 # run_status_for WORK OVERVIEW INDEX — status.sh against one project's files, from its root.
 run_status_for() {
   ( cd "$1" && THROUGHSTONE_OVERVIEW="$2" THROUGHSTONE_STEP_INDEX="$3" \
@@ -70,8 +92,9 @@ assert_marker_ask() {
   done
 }
 
+# run_existing_case NAME — adopt an existing codebase and assert the retcon front-door state.
 run_existing_case() {
-  local name="$1" layout="$2"
+  local name="$1"
   local work="$TMP_ROOT/$name"
   local docs="$work/Code/$name-docs"
   local plan="$work/Upcoming Prompts/$name-STEP-1-PLAN.md"
@@ -85,7 +108,7 @@ run_existing_case() {
       --slug="$name" \
       --desc="Adopt an existing codebase" \
       --license=private \
-      --layout="$layout" \
+      --layout=multi \
       --collab=solo \
       --remotes=no
   ) >"$TMP_ROOT/$name.out" 2>&1
@@ -256,6 +279,69 @@ run_invalid_mode_case() {
   [ -f "$work/README.md" ] || { echo "FAIL: template files were removed on invalid --mode" >&2; return 1; }
 }
 
+# run_mode_needs_value_case — `--mode` written with a space takes the next argument as its value,
+# so a missing one is refused like every other space-form flag's rather than read as a mode, or
+# left empty so that the default replaces INIT_MODE.
+run_mode_needs_value_case() {
+  local name="retcon-mode-value"
+  local work="$TMP_ROOT/$name" before
+  local args=(--non-interactive --slug="$name" --desc="Mode value" --license=proprietary
+              --collab=solo --remotes=no)
+
+  copy_template "$work"
+  before="$(tree_state "$work")"
+  expect_refused_unwritten "$work" "$before" "$name-next-flag" \
+    "--mode needs a value, but the next argument is another flag ('--layout=multi')" \
+    "${args[@]}" --mode --layout=multi
+  INIT_MODE=existing expect_refused_unwritten "$work" "$before" "$name-last" \
+    "--mode needs a value" "${args[@]}" --mode
+}
+
+# run_mono_refused_case — adoption is multi-repo only. Mono asked for by either flag form or by
+# INIT_LAYOUT is refused before anything is written. The space-form run writes both flags that way.
+run_mono_refused_case() {
+  local name="retcon-mono"
+  local work="$TMP_ROOT/$name" before
+  local args=(--non-interactive --slug="$name" --desc="Mono adoption" --license=proprietary
+              --collab=solo --remotes=no)
+  local reason="is not offered for an existing codebase"
+
+  copy_template "$work"
+  before="$(tree_state "$work")"
+  expect_refused_unwritten "$work" "$before" "$name-equals" "$reason" \
+    "${args[@]}" --mode=existing --layout=mono
+  expect_refused_unwritten "$work" "$before" "$name-space" "$reason" \
+    "${args[@]}" --mode existing --layout mono
+  INIT_LAYOUT=mono expect_refused_unwritten "$work" "$before" "$name-env" "$reason" \
+    "${args[@]}" --mode=existing
+}
+
+# run_existing_typed_case — choosing an existing codebase at the mode question skips the layout
+# question, says why, and sets up a multi-repo workspace.
+run_existing_typed_case() {
+  local name="retcon-typed"
+  local work="$TMP_ROOT/$name"
+
+  copy_template "$work"
+  (
+    cd "$work"
+    printf '2\n' | ./init.sh \
+      --slug="$name" \
+      --desc="Adopt by typed answers" \
+      --license=proprietary \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$name.out" 2>&1
+
+  assert_file_contains "$TMP_ROOT/$name.out" "adoption sets up a multi-repo workspace"
+  if grep -Fq "mono-repo for now" "$TMP_ROOT/$name.out"; then
+    echo "FAIL: $name was asked the layout question" >&2
+    return 1
+  fi
+  assert_file_contains "$work/Code/$name-docs/registries/repos.yml" "layout: multi"
+  assert_file_contains "$work/Code/$name-docs/overview.md" "PROJECT-STATUS: retcon"
+}
+
 # run_marker_recovery_case — simulate marker loss/corruption mid-adoption and assert the shipped
 # recovery contract: the agent ASKS the project's human which mode this is. The recovery *decision*
 # is agent prose (AGENTS.md "First action"), so what a shell test can lock is the instruction the
@@ -410,12 +496,14 @@ run_missing_stub_case() {
   fi
 }
 
-run_existing_case "retcon-multi" multi
-run_existing_case "retcon-mono"  mono
+run_existing_case "retcon-multi"
 run_existing_env_case
+run_existing_typed_case
 run_new_case "green-explicit" --mode=new
 run_new_case "green-default"
 run_invalid_mode_case
+run_mode_needs_value_case
+run_mono_refused_case
 run_missing_stub_case
 run_marker_recovery_case
 run_marker_recovery_negative_case

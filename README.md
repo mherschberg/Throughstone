@@ -338,7 +338,7 @@ matching environment variables.
 | `--desc=TEXT` | `INIT_DESC` | one-line text | Seed project description. |
 | `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `proprietary` | Project license posture. Not repository visibility — see `--visibility`. |
 | `--holder=NAME` | `INIT_HOLDER` | text | Copyright holder for open-source licenses. |
-| `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; `--non-interactive` falls back to `multi`. |
+| `--layout=LAYOUT` | `INIT_LAYOUT` | `multi`, `mono` | Repo layout; `--non-interactive` falls back to `multi`. Adopting an existing codebase (`--mode=existing`) is `multi` only, and refuses `mono`. |
 | `--registries=yes\|no` | `INIT_REGISTRIES` | `yes`, `no` | **Deprecated and ignored.** `registries/` always ships in both layouts; `no` keeps the directory and prints a deprecation notice. |
 | `--collab=MODE` | `INIT_COLLAB` | `solo`, `team` | Collaboration wording and ADR authority defaults; `--non-interactive` falls back to `solo`. |
 | `--adr-authority=TEXT` | `INIT_ADR_AUTHORITY` | text | Who accepts ADRs in team mode. |
