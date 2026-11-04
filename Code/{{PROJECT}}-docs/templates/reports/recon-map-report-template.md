@@ -87,7 +87,7 @@ External and third-party services this system depends on or is called by.
 
 Every found doc: what it is, how far to trust it against the code, and its disposition. Found
 source docs land in `inputs/` and ride the base inputs lifecycle (point-in-time; the code wins on
-any conflict — see `Code/{{PROJECT}}-docs/inputs/inputs-index.md`).
+any conflict — see `Code/{{PROJECT}}-docs/inputs/README.md`).
 
 | Doc | Classification | Trust | Disposition |
 |-----|----------------|-------|-------------|

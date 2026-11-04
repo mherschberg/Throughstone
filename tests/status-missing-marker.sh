@@ -22,7 +22,8 @@ index="$TMP_ROOT/STEP-index.md"
 overview="$TMP_ROOT/overview.md"
 
 # A STEP-index with STEP-1 Planned and no implementation STEPs — the state a lost-marker project
-# sits over, and the one that used to misresolve to "Run STEP-1.1".
+# sits over, and the one that used to misresolve to "Run STEP-1.1". Its header keeps the retired
+# Repos (projection) column, as an existing project's index may.
 {
   printf '# idx\n\n'
   printf '| STEP | Title | Owner | Status | Repos (projection) | Scope (one line) |\n'

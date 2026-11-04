@@ -181,8 +181,8 @@ mark it bounded/deferred in Coverage & Confidence rather than guessing it into f
 confirmed and frozen, mark `inv-4` **Done**.
 
 **Scoping is not partial adoption.** An `excluded` row is a note in this map and nothing else. It
-gets no row in `Code/{{PROJECT}}-docs/registries/repos.yml` at all — so no field on such a row,
-`control:` included, ever describes it — no stub or boundary doc, and no ongoing state anywhere. The
+gets no row in `Code/{{PROJECT}}-docs/registries/repos.yml` at all, no stub or boundary doc, and no
+ongoing state anywhere. The
 project adopts its `adopt` rows; everything else is simply outside the project, exactly as any
 system the project doesn't own is outside it. The only record owed is the found-and-dismissed line
 already in this map's Inventory, which is why excluded rows stay rather than being deleted. Don't
@@ -303,19 +303,17 @@ session boundary. Stage 3's two-step rule governs from `1.1` onward.
 Resolve each in turn — the **lowest-open `asset-N`** (Status ≠ `Done`); mark its row `Done` once the
 asset is recorded. Reading one asset at a time keeps even a 20-repo system legible.
 
-- **Per repo** — register it in `Code/{{PROJECT}}-docs/registries/repos.yml` (a row:
-  `location`, `type`, and `control: managed`), stamp a Throughstone README from
-  `Code/{{PROJECT}}-docs/templates/repo-readme-template.md`, and record a short per-repo note
-  (stack, entry points, role) in that README — its living home, which the owning `architecture/`
-  docs deepen later (never back into the frozen recon map). Register each repo at a path **inside
-  the workspace** — moved there, or left where it is with a symlink standing in for it at that path.
-  Their code is never rewritten.
-- **Per doc-set** — copy the found source docs into `inputs/` and add each one's
-  `Code/{{PROJECT}}-docs/inputs/inputs-index.md` row(s) (`Live`), per the base inputs lifecycle
-  (point-in-time; the code wins on conflict). A doc-set that isn't files — a wiki space, a Drive
-  folder — is exported into `inputs/`; ask the user about any that can't or shouldn't be. The docs'
-  classification and trust already live in the frozen recon map — don't restate them. That is the
-  whole Stage-2 deliverable for a doc-set: **land and record, nothing more.** Architecture-grade docs
+- **Per repo** — run `Code/{{PROJECT}}-docs/runbooks/register-repo.md` for it, whole, as an
+  adopted repo: it records the row (`added_as: adopted`), writes the README by its own rules, and
+  says where in the workspace the repo has to sit. The README it leaves is the repo's living home
+  for its role, which the owning `architecture/` docs deepen later (never back into the frozen
+  recon map). Its code is never rewritten.
+- **Per doc-set** — copy the found source docs into `inputs/`, where the base inputs lifecycle in
+  `Code/{{PROJECT}}-docs/inputs/README.md` governs them (point-in-time; the code wins on conflict).
+  A doc-set that isn't files — a wiki space, a Drive folder — is exported into `inputs/`; ask the
+  user about any that can't or shouldn't be. The docs' classification and trust already live in the
+  frozen recon map — don't restate them. That is the whole Stage-2 deliverable for a doc-set:
+  **land them, nothing more.** Architecture-grade docs
   (a finished design doc, a protocol/API spec) get *lifted* into `architecture/` by their owning
   session in Stage 3 (*The existing docs this session owns*) — not here, because which session owns a
   document only becomes clear once that session is reading its area against the code.
@@ -580,8 +578,7 @@ session's row `Done` in the PLAN and resolve the next open row. Leave the sheet 
 transient scratch, discarded when STEP-1 lands, not archived as history.
 
 ### The existing docs this session owns
-Stage 2 copied every found document into `inputs/` and gave it an `inputs-index.md` row — *landed and
-recorded, nothing more*. Acting on one is this session's job, for the documents covering its area.
+Stage 2 copied every found document into `inputs/` — *landed, nothing more*. Acting on one is this session's job, for the documents covering its area.
 The base inputs lifecycle already says how (`Code/{{PROJECT}}-docs/inputs/README.md`); adoption only
 adds *when*, and one rule of precedence.
 
@@ -634,9 +631,9 @@ say what it means in practice.
   do, it belongs in `runbooks/`; if it doesn't, leave it in `inputs/` flagged stale and record the
   real procedure where the owning session's doc covers it. Don't fold a procedure into an
   `architecture/` doc to avoid deciding.
-- **Update the ledger either way.** Flip that input's `inputs-index.md` row to record what
-  `architecture/` has now superseded and what still holds, so a later session builds on current
-  material rather than re-reading a stale seed.
+- **Log the capture either way.** Add your entries to
+  `Code/{{PROJECT}}-docs/registries/input-captures.yml`, by the recording rule at its head, so a
+  later session builds on current material rather than re-reading a stale seed.
 - **Don't retire anything yourself.** A fully-superseded input is a *candidate* for `inputs/archive/`
   — say so and let the user decide, exactly as the periodic check-in does. Retiring is a move, never
   an edit or a delete, and never automatic.
@@ -659,7 +656,7 @@ you go. Where the brief asks something the doc genuinely doesn't answer yet, say
 rather than inventing it (*"~40 internal users today; growth expectations covered at 1.5"*) — later
 sessions deepen `architecture/`, and nothing comes back to rewrite this file.
 
-Three things to leave exactly as they are: the `PROJECT-STATUS` and `CHECK-IN-CADENCE` marker
+Three things to leave exactly as they are: the `PROJECT-STATUS` and `NEXT-CHECK-IN` marker
 comments (live machinery — `status.sh` and `AGENTS.md` read them), and the **Release stage / launch
 target** line, which Stage 1 already wrote from intake.
 

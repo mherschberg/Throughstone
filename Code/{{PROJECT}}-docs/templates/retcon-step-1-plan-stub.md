@@ -8,7 +8,7 @@
                                     retcon branch routes here and ignores the index during adoption. -->
 **Date:** {{DATE}}
 **Branch:** `step-0001-architecture`   <!-- same name in every repo this STEP touches -->
-**Repos (projection):** `{{PROJECT}}-docs`, `prompts`   <!-- STEP-1 is docs-only; adopted code repos are registered, not rebuilt -->
+**Repos:** `{{PROJECT}}-docs`, `prompts`   <!-- STEP-1 is docs-only; adopted code repos are registered, not rebuilt -->
 
 > **This is a STUB that `init.sh` dropped.** It is the in-flight STEP-1 PLAN for adopting an
 > existing codebase into {{PROJECT}} (**retcon**). Its substeps are the **inventory work** only.
@@ -59,9 +59,9 @@ the way — not a pretty description a mature team already knows.
 - **Do it right or defer it openly.** Every area is either fully harvested (yielding a doc as thin
   or as detailed as the reality it describes) or explicitly `Coverage: deferred` with a plain
   "what's missing and why it matters" warning — never shallow-but-asserted.
-- Found source docs land in `inputs/` and ride the base inputs lifecycle (point-in-time;
-  `Code/{{PROJECT}}-docs/inputs/inputs-index.md` tracks what still holds vs. what observed reality
-  has superseded).
+- Found source docs land in `inputs/` and ride the base inputs lifecycle
+  (`Code/{{PROJECT}}-docs/inputs/README.md`; point-in-time). What a session takes from one goes in
+  `Code/{{PROJECT}}-docs/registries/input-captures.yml`.
 
 ## Substeps — the inventory work
 > PLAN-local inventory substeps — tracked in the table below by Status, not the `1.1`–`1.14` session

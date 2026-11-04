@@ -1059,8 +1059,8 @@ run_manual_multi_remote_case() {
 # question list) that is out of input at a question with no default has to stop there with exit 2
 # and an error quoting that question's prompt, not read end of input as a blank answer. The slug
 # question re-asks until the answer is valid, and blank never is, so a run that took blanks would
-# loop on it forever. It is also the first question asked, so an empty input stream reaches it at
-# once.
+# loop on it forever. It is also the first question asked without a default, so an empty input
+# stream reaches it at once.
 run_end_of_input_case() {
   local name="end-of-input" work status
   work="$TMP_ROOT/$name"
