@@ -12,11 +12,11 @@
 #     (`## Decisions to make (in order)` — even where the items are checks or term batches,
 #     which those files explain in a note beneath the heading).
 #   - The closing go-ahead is conditional on having been sent to run the session, and says so
-#     with wording byte-identical across every file — no copy drifting into a weaker or
-#     contradictory promise.
+#     in the same words in every file — no copy drifting into a weaker or contradictory promise.
 #
-# This runs against the template repo, not a generated project: check.sh validates a project's
-# own docs, while this guards the templates Throughstone ships.
+# This runs against the template repo, not a generated project. check.sh reads these templates
+# too, but only for their numbering against the STEP-index seed and the conditional ones'
+# contract (checks 8 and 9); only this file checks the full skeleton and the go-ahead wording.
 
 set -euo pipefail
 export LC_ALL=C
@@ -34,7 +34,7 @@ shopt -s nullglob
 templates=("$SESSIONS"/*.md)
 [ ${#templates[@]} -gt 0 ] || fail "no session templates found under $SESSIONS"
 
-tail_sig=""
+tail_clause=""
 for f in "${templates[@]}"; do
   b="$(basename "$f")"
 
@@ -49,16 +49,19 @@ for f in "${templates[@]}"; do
   grep -qF "$OPENER" "$f" || fail "$b go-ahead is not conditional on having been sent to run it"
   grep -qF "$DISCLAIMER" "$f" || fail "$b go-ahead does not release a reader who was not sent here"
 
-  # 3. Both sentences byte-identical everywhere: presence alone would pass a file whose wording
-  #    had been weakened while its siblings kept the original.
-  sig="$(tr -s ' \n' ' ' <"$f" \
-    | grep -oE 'If you were not sent here to run it.*follow whatever sent you here\.' \
-    | cksum || true)"
-  [ -n "$sig" ] || fail "$b release clause is malformed (could not extract it)"
-  if [ -z "$tail_sig" ]; then
-    tail_sig="$sig"
-  elif [ "$sig" != "$tail_sig" ]; then
-    fail "$b release clause differs in wording from the other session templates"
+  # 3. Both sentences of the release clause in the same words everywhere: presence alone would
+  #    pass a file whose wording had been weakened while its siblings kept the original. A failed
+  #    extraction is reported as a malformed clause. Otherwise the clause must match the first
+  #    template's, once spaces and newlines are collapsed: the templates wrap it differently.
+  clause="$(tr -s ' \n' ' ' <"$f" \
+    | grep -oE 'If you were not sent here to run it.*follow whatever sent you here\.')" \
+    || fail "$b release clause is malformed (could not extract it)"
+  if [ -z "$tail_clause" ]; then
+    tail_clause="$clause"
+  elif [ "$clause" != "$tail_clause" ]; then
+    fail "$b release clause differs in wording from the other session templates:
+  expected: $tail_clause
+  actual:   $clause"
   fi
 done
 

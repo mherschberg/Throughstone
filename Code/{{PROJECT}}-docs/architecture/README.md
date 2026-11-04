@@ -5,24 +5,24 @@ truth for the current design — kept up to date as the system evolves (unlike A
 are point-in-time). See `METHOD.md` §3 and §6.
 
 Most of these are produced by the **architecture sessions** during STEP-1
-(`../templates/architecture-sessions/`). To create or revise one, run its session
+(`templates/architecture-sessions/`). To create or revise one, run its session
 (e.g. *"Run STEP-1.5: Scaling & Performance"*).
 
 ## Conventions
 - Filenames: `NN-kebab-title.md`, numbered in the order the sessions produce them.
 - Every doc carries: `Version` (major.minor.patch), `Status` (Draft → Current → Deprecated),
-  `Last updated`, `Audience`, a **Decision Summary**, **Open Questions**, and a
-  **Version Log**. Use `../templates/architecture-doc-template.md`.
+  `Audience`, a **Decision Summary**, **Open Questions**, and a **Version Log**. Use
+  `templates/architecture-doc-template.md`.
 
 ## Index
 
 > Filled in and reconciled by the **Cross-Cutting Review** once the docs exist, and kept
-> current at each **check-in** (`../runbooks/check-in.md`). Each doc's own
-> header is the authoritative Version/Status; this table is a convenience map. During STEP-1,
-> `prompts/STEP-index.md` is the live view of which sessions have produced their docs — except while
-> a project is adopting an existing codebase, where the index is held at its seed and the in-flight
-> STEP-1 PLAN carries that view instead (`RETCON-PROMPT.md`).
+> current at each **check-in** (`runbooks/check-in.md`). Each doc's Version and Status live
+> in its own header, not here. During STEP-1, `prompts/STEP-index.md` is the live view of which
+> sessions have produced their docs — except while a project is adopting an existing codebase,
+> where the index is held at its seed and the in-flight STEP-1 PLAN carries that view instead
+> (`RETCON-PROMPT.md`).
 
-| # | Doc | Version | Status |
-|---|-----|---------|--------|
-| _(filled in by the Cross-Cutting Review)_ | | | |
+| # | Doc |
+|---|-----|
+| _(filled in by the Cross-Cutting Review)_ | |

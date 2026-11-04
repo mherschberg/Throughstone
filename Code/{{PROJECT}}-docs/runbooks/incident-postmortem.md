@@ -15,7 +15,7 @@
 >   **Incident STEP** whose three substeps — RCA, find-similar, fix — *are* **Parts 2–4 below**.
 >   Its PLAN is thin and points here; you don't author substep prompts for it (the same special
 >   case as the check-in STEP — see `prompts/README.md`). Record the substeps' status in the
->   index/PLAN like any other STEP.
+>   PLAN like any other STEP.
 >
 > An "incident" is any unplanned production failure or near-miss worth not repeating — an
 > outage, data loss/corruption, a security event, a bad deploy. Small ones get a light touch;
@@ -69,10 +69,11 @@ doc was wrong, that's a fix for Part 4.
 ## Part 3 — Find similar issues  *(substep N.2)*
 The bug you saw is an *instance of a class*. Before fixing, **hunt the class**: search the
 codebase for the same pattern elsewhere — the same unchecked input, the same missing timeout,
-the same migration shape, the same assumption — across **all repos**, not just the file that
-broke. List every sibling you find. This is the step that turns one fix into "this whole
+the same migration shape, the same assumption — across **every repo you can reach**, not just
+the file that broke. List every sibling you find. This is the step that turns one fix into "this whole
 category can't bite us again," and it's the one most often skipped. Record what you searched for
-and what you found — including "searched X, found none," which is a real result, not a blank.
+and what you found — including "searched X, found none," which is a real result, not a blank —
+and name any repo you couldn't reach, so a partial sweep reads as partial rather than as clean.
 
 ## Part 4 — Fix & harden  *(substep N.3)*
 Fix the root cause **and** every sibling found in Part 3, in this STEP. Then close the loop so
@@ -100,5 +101,7 @@ the *next* one is caught sooner and cheaper:
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any
   **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
   in `registries/risks.yml`.
-- Mark the Incident STEP's substeps and the STEP **Done**; note anything to watch at the next
-  **check-in** (`runbooks/check-in.md`).
+- Mark the Incident STEP's substeps **Done**, archive its thin PLAN under `prompts/` like any other
+  completed STEP, and then mark the STEP **Done** and merge its branch into the trunk
+  (`prompts/README.md`, recipe step 7); note anything to watch at the next **check-in**
+  (`runbooks/check-in.md`).

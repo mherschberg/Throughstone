@@ -15,26 +15,29 @@
 ## Read these first
 <!-- Start from the main docs this substep depends on, then follow the indexes to find
      anything else relevant — don't try to read everything. The indexes point the way:
-       - root .throughstone/local-user.md — active user's experience level and
-                                      communication style; if missing, ask the two
-                                      local-profile questions from `BOOTSTRAP-PROMPT.md`
-                                      Stage 0, create it,
-                                      and calibrate explanations/questions to it
+       - root .throughstone/local-user.md — experience level (how much technical
+                                      background you can assume) and communication style
+                                      (how much reasoning comes with a decision); if
+                                      missing, or either value isn't one of the listed
+                                      answers, ask the two local-profile questions from
+                                      `BOOTSTRAP-PROMPT.md` Stage 0, write it, and
+                                      calibrate to both
        - overview.md                — project brief
        - inputs/                    — point-in-time specs & prior docs you provided (e.g. a
                                       protocol spec to build against); read the live ones, not
                                       inputs/archive/, and prefer an architecture/ doc where it
-                                      already covers the same ground (inputs/inputs-index.md tracks
-                                      what still holds vs. what's superseded)
+                                      already covers the same ground (registries/input-captures.yml
+                                      logs what earlier sessions took from each)
        - architecture/README.md     — the architecture docs (what the system is)
        - adr/README.md              — the decision records (why it's that way)
        - coding-standards/README.md — the per-language standards
-       - registries/repos.yml       — the repo inventory; each repo's own README is its "about"
+       - registries/repos.yml       — the repo inventory; each repo's or code folder's own README
+                                      is its "about"
        - registries/risks.yml       — accepted risks/debt with owners and revisit triggers
      List the specific files this substep depends on below — including the README of each
-     repo this substep touches, read before you work in it. For any substep that adds or
-     changes an API/interface surface (an endpoint, request/response shape, event, webhook,
-     CLI contract, library public API, or import/export format), include
+     repo or code folder this substep touches, read before you work in it. For any substep
+     that adds or changes an API/interface surface (an endpoint, request/response shape, event,
+     webhook, CLI contract, library public API, or import/export format), include
      the Interface Contracts architecture doc (`architecture/*-interface-contracts.md`) and any
      interface contract artifact it names; include
      coding-standards/api.md for HTTP/REST endpoints so the house style — timestamps,
@@ -42,6 +45,9 @@
      work — auth/AuthZ, secrets, sensitive data, public attack surface, dependency/security
      controls, or accepted security risk — include the Security & Threat Model architecture doc
      (`architecture/*-security-threat-model.md`) and relevant `registries/risks.yml` rows.
+     For any substep that adds a dependency, when that doc asks for vetting, include
+     `runbooks/dependency-supply-chain.md`: the substep runs its Part 1 before adding the
+     dependency and records the result in the STEP PLAN or the commit.
      For any substep that writes or changes code, include the Test Strategy architecture doc
      (`architecture/*-test-strategy.md`) so the Verification section uses the project's chosen
      test tiers, tools, coverage policy, and CI gates.
@@ -52,7 +58,7 @@
 - architecture/NN-…
 - ADR-XXXX-…
 - coding-standards/…  (include coding-standards/api.md for HTTP/REST API-touching substeps)
-- <repo>/README.md  (for each repo this substep touches)
+- <repo>/README.md  (for each repo or code folder this substep touches)
 
 ## Scope
 <!-- What this substep owns, and — just as important — what it does NOT touch. -->
@@ -105,13 +111,15 @@ just change the code:
   architecture session (`METHOD.md` §4).
 - **New code, even when it overturns nothing:** adding a component, repo, or public surface,
   or coining a domain term, can outdate a doc that's still "correct." Update whatever's now
-  stale: the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`) and `registries/repos.yml` for new
-  components/repos (a brand-new repo also gets a stamped **README whose Overview explains what
-  it is**); the **interface contract artifact** named in the Interface Contracts architecture doc
+  stale: the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`)
+  for a new component — a new **repo** is registered instead (`runbooks/register-repo.md`),
+  which maintains that entry and its inventory row together; the **interface contract artifact**
+  named in the Interface Contracts architecture doc
   (`architecture/*-interface-contracts.md`) when you add or
   change an endpoint, event, webhook, CLI contract, library public API, or import/export format;
-  the repo **README** when setup/run/test changes; the Glossary architecture doc
-  (`architecture/*-glossary.md`) for new domain terms.
+  the **README** of the repo or code folder when setup/run/test changes, and any
+  `ARCHITECTURE.md` beside it when the design it describes changes; the Glossary architecture
+  doc (`architecture/*-glossary.md`) for new domain terms.
 - **Accepted risk or debt:** if this substep consciously defers a security control,
   dependency fix, incident follow-up, operational weakness, or other tech debt, add or update
   `registries/risks.yml` with severity, owner, and revisit trigger. The register is an index:
@@ -133,12 +141,13 @@ Leaving the doc stale is a defect, not a follow-up.
 - [ ] New/changed classes, functions, and methods carry docstrings (see
       `coding-standards/README.md`).
 - [ ] Any architecture decision this substep changed is reflected in the docs (Version Log
-      bumped) or recorded in an ADR — and any new component, repo, or domain term is reflected
-      in the relevant doc (overview / `repos.yml` / Glossary architecture doc).
+      bumped) or recorded in an ADR — any new component or domain term in the relevant doc
+      (overview / Glossary architecture doc), and any new repo **registered**
+      (`runbooks/register-repo.md`).
 - [ ] Any accepted risk or deferred technical debt created or changed by this substep is
       recorded in `registries/risks.yml` or explicitly marked not applicable.
 
 ## Next
 When this substep is done, update its status in the STEP PLAN, then tell the user the next
 action: the next open substep — *"run substep N.M"*, in a **fresh chat** — or, if this was
-the last substep, the STEP's review. (`METHOD.md` §10.)
+the last substep, the STEP's review: *"run the STEP N review"*. (`METHOD.md` §10.)

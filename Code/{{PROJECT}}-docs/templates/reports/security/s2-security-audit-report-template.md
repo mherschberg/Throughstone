@@ -1,4 +1,4 @@
-# S2 Security Audit Report Template — {{PROJECT}}
+# S2 Security Audit Report — {{PROJECT}}
 
 **Review level:** S2 - Security Audit
 **Review date:** YYYY-MM-DD
@@ -164,7 +164,7 @@ security training/process, vulnerability response process, and governance docs: 
 ## Module Selection
 
 Use dispositions and outcomes exactly as defined by
-[`runbooks/security-review-s2-checklist.md`](../../../runbooks/security-review-s2-checklist.md).
+`runbooks/security-review-s2-checklist.md`.
 
 | Module | Applies? | Disposition | Reason | Depth / framework target | Owner | Follow-up STEP / issue |
 |--------|----------|-------------|--------|--------------------------|-------|------------------------|

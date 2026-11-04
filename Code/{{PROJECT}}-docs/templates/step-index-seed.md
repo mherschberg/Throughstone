@@ -9,21 +9,17 @@ worked, and completed.
 > **Abandoned** (reserved but won't be built — keep the row so the number is never reused).
 > Those five are the STEP states. A **substep** row uses the same values plus **N/A** (this area
 > structurally doesn't apply — an API-only system's UI session, say); keep the row either way, since
-> the next-action resolver skips `Deferred` and `N/A` rather than reading an absence (`METHOD.md` §10).
-> Flip a STEP to **In progress** when you start it, so the overlap warning can see it.
-> STEP numbers are global and never reset (see `METHOD.md` §1, §8).
+> the next-action resolver skips `Deferred`, `Abandoned` and `N/A` rather than reading an absence
+> (`Code/{{PROJECT}}-docs/METHOD.md` §10).
+> Flip a STEP to **In progress** when you start it — the next-action resolver reads it.
+> STEP numbers are global and never reset (see `Code/{{PROJECT}}-docs/METHOD.md` §1, §8).
 > **What to do next** is always derivable from this index — see the next-action resolver in
-> `METHOD.md` §10.
+> `Code/{{PROJECT}}-docs/METHOD.md` §10.
 >
-> **Reserving a number (teams):** adding a STEP row *is* reserving its number, on `prompts/`'s
-> shared trunk (not a `step-NNNN` branch). Pull `prompts/`, take `max + 1`, add the row, then
-> **commit and push immediately** — before branching or working. If the push is rejected, pull,
-> renumber, push again. Before every push, even a clean merge, scan for duplicates
-> (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`)
-> — two appended rows merge with no
-> conflict into a silent duplicate. See `runbooks/collaboration.md`.
-> **Owner** = who's on it; **Repos** = the repos it expects to touch (a *projection* that may
-> change — it powers the overlap warning, it doesn't reserve anything). Solo, leave them blank.
+> **Reserving a number:** adding a STEP row *is* reserving its number — take `max + 1` and add the
+> row on the trunk, never a `step-NNNN` branch, before you branch or write. In a team, follow
+> `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §2.
+> **Owner** = who's on it; solo, leave it blank.
 
 ## Phase 1 — {{PHASE_1_NAME}}
 <!-- {{PHASE_1_NAME}}: filled with the chosen phase name — MVP (the default) / POC / prototype /
@@ -31,27 +27,28 @@ worked, and completed.
      for a new project, or the Phasing session (RETCON-PROMPT.md Stage 3) when adopting an existing
      codebase, where it is the one edit made to this file before the baseline lands. Its kebab-case
      form later names the 001-<phase-name>/ archive folder, created when STEP-1 is archived.
-     init.sh leaves the placeholder as-is; Check 8 parses the table rows below, not this heading. -->
+     init.sh leaves the placeholder as-is. -->
 
-| STEP | Title | Owner | Status | Repos (projection) | Scope (one line) |
-|------|-------|-------|--------|--------------------|------------------|
-| STEP-1 | Architecture | | Planned | `{{PROJECT}}-docs`, `prompts` | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
+| STEP | Title | Owner | Status | Scope (one line) |
+|------|-------|-------|--------|------------------|
+| STEP-1 | Architecture | | Planned | Architecture-first: design docs + ADRs, no code. Substeps = the sessions in `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. `init.sh` reserves this row; kickoff flips it to `In progress` and uses branch `step-0001-architecture` where branch-per-STEP applies. |
 
 <!-- STEP-1 is the ONLY row at bootstrap. STEP-2 onward are the implementation STEPs — don't
      add them by hand: after STEP-1's review passes, run the planning session
-     (templates/planning-session.md) and it outlines all the Phase-1 implementation STEPs
-     here (a couple of sentences each), in dependency order after STEP-1. Each STEP's detailed
-     PLAN and substeps are written later, when you start that STEP. Starting a STEP means
-     planning it and stopping for approval before any substep runs. Example row shape:
-     | STEP-2 | Scaffold repos & skeleton | | Planned | `{{PROJECT}}-api` | … | -->
+     (Code/{{PROJECT}}-docs/templates/planning-session.md) and it outlines all the Phase-1
+     implementation STEPs here (a couple of sentences each), in dependency order after STEP-1.
+     Each STEP's detailed PLAN and substeps are written later, when you start that STEP.
+     Starting a STEP means planning it and stopping for approval before any substep runs.
+     Example row shape:
+     | STEP-2 | Scaffold repos & skeleton | | Planned | … | -->
 
 
 ### STEP-1 substeps (architecture sessions)
 
-> Like every STEP, STEP-1 has **one owner**, run on one machine — substeps aren't split
-> across people (see `runbooks/collaboration.md` §3). But architecture is a shared
-> foundation, so **decide it as a group**: the best setup is the whole team in a room walking
-> the sessions together while one person drives the keyboard and commits the docs.
+> Like every STEP, STEP-1 has **one owner**, run on one machine — substeps aren't split across
+> people (see `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §3). But architecture is a
+> shared foundation, so **decide it as a group**: the best setup is the whole team in a room
+> walking the sessions together while one person drives the keyboard and commits the docs.
 
 | Substep | Session | Status | Output doc |
 |---------|---------|--------|------------|

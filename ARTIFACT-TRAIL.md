@@ -12,8 +12,8 @@ shape is stable.
 | Artifact | Where it lives | What it gives you |
 |----------|----------------|-------------------|
 | Project brief | `Code/<project>-docs/overview.md` | The seed: users, scope, constraints, and risks. |
-| Local user profile | `.throughstone/local-user.md` | Per-machine communication preferences: experience level and communication style for the active contributor. |
-| STEP roadmap | `prompts/STEP-index.md` | The project plan: every STEP, status, owner, touched repos, and one-line scope. |
+| Local user profile | `.throughstone/local-user.md` | Per-machine settings for the active contributor: experience level sets the background assumed, communication style sets how much reasoning comes with a decision. |
+| STEP roadmap | `prompts/STEP-index.md` | The project plan: every STEP, status, owner, and one-line scope. |
 | Architecture docs | `Code/<project>-docs/architecture/NN-*.md` | Current design: the system as it is supposed to work now. |
 | ADRs | `Code/<project>-docs/adr/ADR-NNNN-*.md` | Decision history: why important choices were made. |
 | STEP plans | `Upcoming Prompts/` while active, then `prompts/<phase>/step-NNNN/` | The work contract for a STEP: scope, substeps, ground rules, and done criteria. |
@@ -65,12 +65,12 @@ agent what exists, what is active, and what comes next.
 Representative excerpt:
 
 ```md
-| STEP | Title | Owner | Status | Repos (projection) | Scope |
-|------|-------|-------|--------|--------------------|-------|
-| STEP-1 | Architecture | Sam | Done | `acme-docs`, `prompts` | Architecture docs + ADRs, no app code. |
-| STEP-2 | Scaffold API service | Sam | Done | `acme-api` | Create service skeleton, CI, health endpoint. |
-| STEP-3 | Calendar OAuth | Priya | In progress | `acme-api`, `acme-web` | Connect Google Calendar account flow. |
-| STEP-4 | Check-in |  | Planned | all | Reconcile docs/code drift and run full tests. |
+| STEP | Title | Owner | Status | Scope |
+|------|-------|-------|--------|-------|
+| STEP-1 | Architecture | Sam | Done | Architecture docs + ADRs, no app code. |
+| STEP-2 | Scaffold API service | Sam | Done | Create service skeleton, CI, health endpoint. |
+| STEP-3 | Calendar OAuth | Priya | In progress | Connect Google Calendar account flow. |
+| STEP-4 | Check-in |  | Planned | Reconcile docs/code drift and run full tests. |
 ```
 
 The seed file is
@@ -88,7 +88,6 @@ Representative excerpt:
 
 **Version:** v0.2.0
 **Status:** Draft
-**Last updated:** 2026-06-23 (STEP-3)
 **Audience:** Builders, reviewers, future agents
 
 ## Decision Summary
@@ -150,10 +149,10 @@ Representative STEP-plan excerpt:
 
 ## Substeps
 
-| # | Title | Produces | Depends on | Open questions |
-|---|-------|----------|------------|----------------|
-| 3.1 | OAuth callback endpoint | API route + tests | ADR-0002 | None |
-| 3.2 | Connect-calendar UI | Settings flow + tests | 3.1 | Button copy |
+| # | Title | Status | Produces | Depends on | Open questions |
+|---|-------|--------|----------|------------|----------------|
+| 3.1 | OAuth callback endpoint | Done | API route + tests | ADR-0002 | None |
+| 3.2 | Connect-calendar UI | In progress | Settings flow + tests | 3.1 | Button copy |
 ```
 
 Representative substep excerpt:
@@ -180,9 +179,10 @@ and
 
 ## 6. Check-In Reports
 
-Every 10-20 STEPs, a check-in STEP runs a deliberate sweep. It compares architecture docs
-against code in both directions, re-evaluates conditional architecture sessions, reviews
-accepted risks and debt, and runs the full test suite.
+When the check-in scheduled in `Code/<project>-docs/overview.md` — the `NEXT-CHECK-IN` line,
+a STEP number or a date — comes up, a check-in STEP runs a deliberate
+sweep. It compares architecture docs against code in both directions, re-evaluates conditional
+architecture sessions, reviews accepted risks and debt, and runs every test suite.
 
 Completed check-in reports live directly under `Code/<project>-docs/reports/`. The STEP folder
 in `prompts/` keeps the thin PLAN and any execution notes.
@@ -196,11 +196,11 @@ Representative report excerpt:
 - Updated architecture/03-architecture-overview.md for the new worker repo.
 - Filed STEP-13 for API pagination drift; the doc was still correct.
 
-## Conditional coverage
+## Conditional Coverage
 - Identity & auth: still included and current.
 - Privacy/compliance: trigger fired after calendar metadata retention changed; opened STEP-14.
 
-## Risks/debt
+## Risks And Debt
 - Closed RISK-002 after token-rotation automation shipped.
 
 ## Tests

@@ -6,7 +6,7 @@
 >   `npm install` / `pip install` / `go get` / `cargo add` — tell your agent *"vet this
 >   dependency."*
 > - **Periodic audit** → run **Parts 2–3** on a cadence: it rides naturally on the **check-in**
->   (`runbooks/check-in.md`, at the project's cadence), and you also run it whenever a vulnerability
+>   (`runbooks/check-in.md`, whenever the next one is scheduled), and you also run it whenever a vulnerability
 >   advisory lands for something you use.
 >
 > **Optional and yours to customize.** Like the release runbook, this leaves the specific tools
@@ -44,8 +44,10 @@ liability you're taking on — and the cheapest one is the one you don't add.
 - [ ] **Pin it.** Add it with a version constraint and **commit the lockfile**, so builds are
       reproducible and an upstream change can't silently alter what you ship.
 
-## Part 2 — Periodic audit (on the check-in cadence)
-- [ ] **Scan for known vulnerabilities.** Run your ecosystem's audit across **all repos**.
+## Part 2 — Periodic audit (rides the check-in)
+- [ ] **Scan for known vulnerabilities.** Run the matching audit on **every package manifest in
+      every repo you can reach** — and name any you can't, so a partial sweep reads as partial
+      rather than as clean.
       Triage the findings: patch the exploitable ones now; for any you consciously defer, record
       an **accepted-risk** row in `registries/risks.yml` with the trigger to revisit — the same
       discipline as a deferred threat in `architecture/*-security-threat-model.md` (a standing

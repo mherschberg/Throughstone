@@ -1,70 +1,110 @@
-# Canonical repo inventory for {{PROJECT}} (multi-repo projects).
-# The source of truth for which repos exist and what each is — and the index to their docs:
-# each entry's `location` points to a repo whose own README.md (plus an optional
-# ARCHITECTURE.md) is the detailed "about". To orient in a multi-repo project, read this map
-# first, then read the README of each repo you'll touch — the same way you read the
-# architecture docs before a design change. Update this whenever a repo is created. Tooling/CI
-# can read it to stay in sync. See METHOD.md §7.
+# Canonical repo inventory for {{PROJECT}}.
+# Which repos exist, where they are, and what each one is — and the index to their docs: each
+# entry's `location` points to a repo or folder whose own README.md (plus an optional
+# ARCHITECTURE.md) is the detailed "about". To orient, read this map first, then read the README
+# of each repo or folder you will touch. Add a row whenever a repo is created or adopted, using
+# `runbooks/register-repo.md`. See METHOD.md §7.
 #
-# `location:` is where the repo lives — by default a `Code/*` sibling under the workspace root,
-# written workspace-root-relative (e.g. Code/{{PROJECT}}-api/). It MAY instead point OUTSIDE the
-# `Code/*` shell — an absolute path or any other arbitrary path — for a repo referenced in place
-# where it lives, rather than created as a sibling. setup-workspace.sh uses `location`
-# verbatim (clones from `remote` into it, or references it in place when there's no remote), so
-# keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
+# `layout:` — `mono` or `multi`: which of METHOD.md §7's two layouts this project is in, stated
+# here rather than worked out from the rows, which cannot be done. Counting rows says the wrong
+# thing — a mono project starts with three and a multi one with two — and the `.` row described
+# below exists only in mono, so its absence means multi, or a mono project without one, and no
+# reader can tell those apart. Scripts read it: `scripts/check.sh --check-in`, to know whether
+# a row is a folder inside one repository or a repository of its own, and
+# `scripts/setup-workspace.sh`, which stops in a mono project because there is nothing there to
+# assemble. `init.sh` writes the line when it creates the project. **An absent `layout:` is not a
+# third value**: nothing guesses one, and the check-in asks for it. `runbooks/splitting-repos.md`
+# Case 2 is the one procedure that changes the value, from `mono` to `multi`; nothing else does,
+# because a mono-repo-for-now project is one repository and cannot take a separate one in — it
+# converts first.
+# **It is the only key outside a row, and it belongs at column 0 above `repos:`.** Rule 2 below
+# scans a row block forward from its `- name:` to the next one, and nothing bounds that scan at the
+# end of the list: a top-level key written below the rows sits inside the last row's block, where
+# a rewriter written to that rule reaches it and writes it back as one of that row's fields. The
+# check-in fails a declaration written there, so the rule is not left to the next person to
+# remember.
 #
-# Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
-# yet — this inventory describes the post-split (multi-repo) target. When you do split them
-# apart, follow `runbooks/splitting-repos.md`, and delete this note once the repos are real.
+# Mono-repo-for-now: the row whose `location` is `.` is the workspace root — the one repository
+# the project actually has. The rows below it are folders inside that repository, not separate
+# repos yet. This is still an inventory of what was registered rather than a plan for a split — a
+# folder nobody registered is simply absent from it — so when you do split them apart, follow
+# `runbooks/splitting-repos.md` and derive the units the way it tells you to, not from here.
+# Delete this note once the repos are real.
 #
-# Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
-# it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
-# for prompts/ + this docs hub. Solo with no remotes, it's optional.
+# `location:` — where the repo lives, and it is always inside the workspace: **a path relative
+# to the workspace root, identical on every machine; never begins with `/` or `~`, and no
+# segment of it is `..`.** Usually a `Code/*` sibling (e.g. Code/{{PROJECT}}-api/), but any
+# contained path is fine. That shape is what makes this file reproducible: in a multi-repo project a
+# teammate clones the docs repo, runs scripts/setup-workspace.sh, and gets the whole workspace. That
+# script reports and skips any location breaking that shape rather than cloning into it — most often
+# an absolute path left over from one person's machine, which every other contributor then sets up
+# by hand.
+# The value is passed literally: no shell expansion and no YAML interpretation happen, so `~/lib`
+# and `$HOME/lib` are directory names, not paths to a home directory.
+# A repo that genuinely cannot move stays where it is: put a symlink at its workspace-relative
+# location pointing at the real checkout, and register the symlink's path — see
+# runbooks/register-repo.md. Keep `location` and `remote` distinct — a clone URL goes in
+# `remote`, never folded into `location`.
 #
-# `provenance:` records that a repo was **split out** of another one — where it came from, and
-# where the two histories part company. Only a split-out repo carries it, and it is written at
-# the split (`runbooks/splitting-repos.md`); nothing maintains it afterwards. The shape is in
-# the commented example below. `from:` is a historical name and may have no row of its own —
-# after a mono-repo-for-now split it never does, because the repo it names was retired; that is
-# what `archive_remote:` is for.
+# `remote:` — any cloneable git URL, **recorded** if the repo has one; never created, never
+# repointed. scripts/setup-workspace.sh clones from it. A repo with no remote yet is fine: a
+# project may start local. The periodic check-in flags it, because work that lives on one laptop
+# is a bus factor of one. In the mono-repo-for-now layout above, only the root row is ever
+# flagged: the folder rows live inside that one repository, so whatever backs the root up backs
+# them up too.
 #
-# `control:` (per row) records whether Throughstone **controls** a repo — whether it may write what
-# its needs require into it. `managed` means yes, asked once per repository and never per file;
-# `external` means the repo is recorded and referenced but never written into. Control is a state
-# that changes over time, not a fact about who created the repo — a repo Throughstone created can be
-# handed over, and a repo it never created can be placed under its care.
+# `added_as:` — `created` if Throughstone made this repo, `adopted` if it already existed. It
+# records how the **repository** was formed, not where its contents came from: a repo split out
+# of another one is `created`, and the history it carries is recorded in `provenance:`. A
+# stamp, written once, never changing, so a person can later tell why a repo looks the way it
+# does. **No script reads it, and the STEP process must not branch on how a repo arrived.** When
+# a repo is registered, its licensing depends on how it arrived (`runbooks/register-repo.md`
+# step 3); a case that step does not cover is a decision taken deliberately, not a pattern to
+# reach for.
 #
-# **A missing value reads as `external`**, because control is a permission and an unanswered
-# permission is not granted: the method records the repo and writes nothing into it until someone
-# answers. A defaulted row is surfaced rather than silently accepted.
+# `type:` — documentation for a human reader. No script reads it either.
 #
-# The field is **inert today** — nothing reads it yet. The readers arrive with the repo-control work,
-# which adds the ladder that decides what is written into each repo and the checks that enforce it.
-# It is written now so the distinction is expressible without reshaping the inventory later.
-# (Unrelated to the top-level `throughstone:` key in `.throughstone/manifest.yml`, which versions the
-# method itself — different file, different scope.)
+# `provenance:` — records that a repo was **split out** of another one: where it came from and
+# where the two histories part company. Only a split-out repo carries it, it is written at the
+# split (`runbooks/splitting-repos.md`), and nothing maintains it afterwards. Shape in the
+# example row below. `from:` is a historical name and may have no row of its own.
+#
+# Three rules for anything that reads or rewrites this file, because the scripts that read it
+# match line prefixes rather than parsing YAML:
+#
+# 1. **Every value is a single-line scalar.** Nothing spans lines.
+# 2. **Anything that rewrites a row anchors on the row block** — from a `- name:` to the next
+#    `- name:`, respecting indentation — never on a bare line prefix.
+# 3. **A `#` on a value line is part of the value, not a comment.** These readers skip only a line
+#    whose first non-blank character is `#`, so the fields they actually read — `layout:`,
+#    `- name:`, `location:` and `remote:` — must carry nothing after the value, and are quoted
+#    with double quotes or not at all: a single quote is read as part of the value too.
+#    (`type:` below carries an annotation, and so do some fields in the example block; no script
+#    reads any of them.)
 
 repos:
   - name: "{{PROJECT}}-docs"
     location: "Code/{{PROJECT}}-docs/"
-    type: docs            # docs | service | library | app | infra | tests
-    control: managed
+    type: docs            # docs | service | library | app | infra | tests | mono
+    added_as: created
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
-    control: managed
+    added_as: created
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
-  # Service / app / library repos get added here as the architecture names them and they
-  # are stamped from templates/repo-readme-template.md. Give each new repo `control: managed`
-  # like the rows above. Example:
+  # Service / app / library repos get added here as the architecture names them, whether created
+  # here or adopted. A repo with no README is stamped from templates/repo-readme-template.md; one
+  # that arrived with a README of its own keeps it and gains a `## Role in <project>` section
+  # instead — what is in the repo decides, not how it arrived. See runbooks/register-repo.md.
+  # Example (`remote:` is recorded only if the repo has one):
   # - name: "{{PROJECT}}-api"
   #   location: "Code/{{PROJECT}}-api/"
   #   type: service
-  #   control: managed
-  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"   # team mode: setup-workspace.sh clones this
+  #   added_as: created                                    # created | adopted — written once
+  #   remote: "git@example.com:TEAM/{{PROJECT}}-api.git"
   #   description: "..."
   #   provenance:                                          # only on a repo that was split out
   #     from: "{{PROJECT}}-web"                            # the repo this used to be part of

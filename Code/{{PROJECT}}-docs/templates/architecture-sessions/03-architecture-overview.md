@@ -7,7 +7,7 @@
 > (`architecture/*-system-overview.md`), and
 > the Phasing & Roadmap architecture doc (`architecture/*-phasing-roadmap.md`) first.
 > **Have existing architecture docs, system diagrams, or a protocol/API spec?** Put them in `inputs/` (or share them in chat and I'll save copies there); I'll design from them rather than starting cold. These are point-in-time inputs: I read the live ones (not `inputs/archive/`), and where an `architecture/` doc already covers the same ground, that doc wins.
-> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default level of detail; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+> **Calibrate to the local user profile.** Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much technical background you can assume, **Communication style** sets how much reasoning comes with a decision. They are independent - Level 3 + Explanatory is ordinary. Lead with a recommended default at every level. If the file is missing or either value isn't one of the listed answers, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write it, then continue; an explicit chat instruction overrides the profile for this session only. Treat any confusion or request to clarify - in any words, not just those - as a cue, answer in kind, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
@@ -69,12 +69,18 @@ UI / Design System session and the conditional Native-app session apply.
 Write `architecture/03-architecture-overview.md` (use `templates/architecture-doc-template.md`). Body:
 - **Client surfaces** (the recorded answer + what it gates)
 - **Component diagram** (ASCII) + a **component table**: name | responsibility | tech
+- **Repos** — one entry per `registries/repos.yml` row: its role, the slice it owns, and where its
+  detail lives (its own README). `runbooks/register-repo.md` maintains the entry and the row
+  together rather than either being written by hand.
 - **Boundaries & contract candidates** table — boundary | what crosses it | sync/async |
   data owner | likely contract style | notes for the Interface Contracts session
 - **Key flows** (numbered walk-throughs)
 - **Build vs. buy** notes
 
-Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
+Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. **If this
+document already exists, complete it rather than overwrite it** — registering a repository creates
+it, with its Repos section, when nothing else has yet — so keep the Repos entries already recorded
+and *add* a Version Log line rather than starting one. Update
 `prompts/STEP-index.md`: mark 1.3 done; then, **based on the client-surfaces answer** — if
 there's no styled UI, **mark the UI / Design System row `Deferred` or `N/A`** (keep the row, per
 the resolver's "skip any `Deferred`/`N/A`" rule in `METHOD.md` §10; use `Deferred` when a UI may
@@ -92,4 +98,4 @@ a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for
 conditional's template. This session may have marked the UI / Design System row `N/A` or
 added a Native-app row, so trust the index. See the next-action resolver in `METHOD.md` §10.
 
-**If you were sent here to run this session, begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more. **If you were not sent here to run it — you are reading this file to harvest its decisions from existing code, to check whether a conditional applies, or to review coverage — this paragraph is not addressed to you.** Use the file as reference material and follow whatever sent you here.
+**If you were sent here to run this session, begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the local profile. That orientation plus the first question is your entire first reply — nothing more. **If you were not sent here to run it — you are reading this file to harvest its decisions from existing code, to check whether a conditional applies, or to review coverage — this paragraph is not addressed to you.** Use the file as reference material and follow whatever sent you here.

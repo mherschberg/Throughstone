@@ -7,16 +7,16 @@
 **Run by:** {{person / agent / CI workflow}}
 **Run source:** {{local command / CI run URL / PR URL / release job / other}}
 **Environment:** {{local / CI / staging / production-like / other}}
-**Architecture source:** `architecture/12-test-strategy.md`
+**Architecture source:** `architecture/*-test-strategy.md`
 
 ## Scope
 
 | Repo | Branch | Commit | Suites / gates covered | Notes |
 |------|--------|--------|------------------------|-------|
-| {{repo}} | `{{branch}}` | `{{sha}}` | {{unit / integration / e2e / lint / typecheck / build / coverage}} | {{single-repo or multi-repo notes}} |
+| {{repo}} | `{{branch}}` | `{{sha}}` | {{unit / integration / e2e / lint / typecheck / build / coverage}} | {{notes}} |
 
-For a single-repo project, keep one row. For a multi-repo project, add one row for each repo whose
-code, contracts, tests, or quality gates were part of this run.
+Add one row for each `registries/repos.yml` entry whose code, contracts, tests, or quality gates
+were part of this run.
 
 ## Result Summary
 
