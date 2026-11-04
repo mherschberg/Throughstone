@@ -179,14 +179,15 @@ case "$m1" in
 esac
 
 # --- 4. The kickoff gate marker -----------------------------------------------
-# status.sh greps overview.md for one literal string and treats its absence as "kickoff already
-# happened". Three documents have to agree with that literal: the template a new project's
-# overview.md is copied from (or the gate never arms), AGENTS.md (which decides kickoff vs.
-# resume from it), and BOOTSTRAP-PROMPT.md (which flips it at the end of the kickoff).
-gate="$(awk -F"'" '/grep -q .PROJECT-STATUS/ { print $2 }' "$STATUS_SH")"
+# status.sh's kickoff gate greps overview.md for one literal string, and only that string starts
+# the kickoff. It is read from the block headed "Kickoff gate", because status.sh tests other
+# PROJECT-STATUS values after it. Three documents have to agree with that literal: the template
+# a new project's overview.md is copied from (or the gate never arms), AGENTS.md (which decides
+# kickoff vs. resume from it), and BOOTSTRAP-PROMPT.md (which flips it at the end of the kickoff).
+gate="$(awk -F"'" '/^# --- Kickoff gate/ { k = 1 } k && /grep -q .PROJECT-STATUS/ { print $2; exit }' "$STATUS_SH")"
 [ -n "$gate" ] || fail "could not read the PROJECT-STATUS marker status.sh gates on"
 gate_name="${gate%%:*}"
-contains "$OVERVIEW_TPL" "<!-- $gate -->" || fail "templates/overview-template.md does not carry '<!-- $gate -->' — a project created from it would skip the kickoff entirely, because status.sh reads the gate as already cleared"
+contains "$OVERVIEW_TPL" "<!-- $gate -->" || fail "templates/overview-template.md does not carry '<!-- $gate -->' — the kickoff gate would never fire for a project created from it"
 contains "$AGENTS" "$gate_name" || fail "AGENTS.md no longer names the $gate_name marker it decides kickoff-vs-resume from"
 contains "$BOOT" "<!-- $gate -->" || fail "BOOTSTRAP-PROMPT.md no longer names '<!-- $gate -->' as the line the kickoff flips"
 # The value the kickoff writes has no reader in code — status.sh only tests for the gate value

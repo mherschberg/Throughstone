@@ -294,6 +294,7 @@ note "mono:  $MONO_DOCS"
 RETAINED_PLACEHOLDERS="$TMP_ROOT/placeholders-retained"
 cat > "$RETAINED_PLACEHOLDERS" <<'EOF'
 Code/DOCS/BOOTSTRAP-PROMPT.md
+Code/DOCS/RETCON-PROMPT.md
 Code/DOCS/UPDATING-THROUGHSTONE.md
 Code/DOCS/templates/adr-template.md
 Code/DOCS/templates/architecture-doc-template.md
@@ -306,7 +307,10 @@ Code/DOCS/templates/release-notes-template.md
 Code/DOCS/templates/repo-readme-template.md
 Code/DOCS/templates/reports/check-in-report-template.md
 Code/DOCS/templates/reports/incidents/incident-postmortem-report-template.md
+Code/DOCS/templates/reports/recon-map-report-template.md
 Code/DOCS/templates/reports/test-results/test-results-summary-template.md
+Code/DOCS/templates/retcon-preanswer-sheet.md
+Code/DOCS/templates/retcon-step-1-plan-stub.md
 Code/DOCS/templates/step-index-seed.md
 Code/DOCS/templates/step-plan-template.md
 Code/DOCS/templates/substep-prompt-template.md
