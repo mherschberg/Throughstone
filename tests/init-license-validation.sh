@@ -506,6 +506,7 @@ run_typed_layout_collab_case() {
     # status alone cannot tell those apart, so the value has to decide, and this is where that is
     # measured: if it did not, the run would stop here instead of recording a team project.
     printf 'bogus\n\nmono\nnope\n \nteam' | ./init.sh \
+      --mode=new \
       --slug="$name" \
       --desc="Typed answer test" \
       --license=mit \
@@ -1131,6 +1132,7 @@ run_remote_menu_case() {
       GH_LOG="$gh_log" \
       GH_REMOTE_ROOT="$remote_root" \
       ./init.sh \
+        --mode=new \
         --slug="$name" \
         --desc="Remote menu test" \
         --license=mit \
@@ -1453,7 +1455,7 @@ run_github_choice_discarded_case() {
     # since no repository is created.
     printf 'y\n1\n' | \
       PATH="$stub_bin:$PATH" GH_LOG="$gh_log" GH_REMOTE_ROOT="$remote_root" \
-      ./init.sh --slug="$name" --desc="Discarded choice test" --license=private \
+      ./init.sh --mode=new --slug="$name" --desc="Discarded choice test" --license=private \
         --layout=mono --collab=solo
   ) >"$TMP_ROOT/$name.out" 2>&1
   status=$?
@@ -1503,7 +1505,7 @@ run_github_choice_discarded_case() {
     cd "$plain"
     printf 'y\n1\n\n' | \
       PATH="$stub_bin:$PATH" GH_LOG="$gh_log" GH_REMOTE_ROOT="$remote_root" \
-      ./init.sh --slug="$name-plain" --desc="Discarded choice control" --license=private \
+      ./init.sh --mode=new --slug="$name-plain" --desc="Discarded choice control" --license=private \
         --layout=mono --collab=solo --owner=throughstone-test
   ) >"$TMP_ROOT/$name-plain.out" 2>&1
   if grep -Fq "note: not creating a repository on GitHub" "$TMP_ROOT/$name-plain.out"; then
@@ -1571,7 +1573,7 @@ run_slug_message_case() {
   set +e
   (
     cd "$prompt_work"
-    printf '3d-printer\nprinter-3d\n' | ./init.sh --desc="Slug message test" \
+    printf '3d-printer\nprinter-3d\n' | ./init.sh --mode=new --desc="Slug message test" \
       --license=private --layout=multi --collab=solo --remotes=no
   ) >"$TMP_ROOT/$name-prompt.out" 2>&1
   status=$?
@@ -1618,7 +1620,7 @@ run_licence_vocabulary_case() {
   copy_template "$ask_work"
   (
     cd "$ask_work"
-    printf '2\n' | ./init.sh --slug="$name-ask" --desc="Vocabulary test" \
+    printf '2\n' | ./init.sh --mode=new --slug="$name-ask" --desc="Vocabulary test" \
       --layout=multi --collab=solo --remotes=no
   ) >"$TMP_ROOT/$name-ask.out" 2>&1
   if grep -Fi "private" "$TMP_ROOT/$name-ask.out" | grep -Fvq "on your host, private"; then
@@ -1707,9 +1709,9 @@ run_team_headsup_case() {
     (
       cd "$TMP_ROOT/$name-$n"
       case "$n" in
-        typed) printf '2\n2\ntech lead\n' | ./init.sh --slug="$name-$n" \
+        typed) printf '2\n2\ntech lead\n' | ./init.sh --mode=new --slug="$name-$n" \
                  --desc="Heads-up test" --license=proprietary --remotes=no ;;
-        flag)  printf '2\n2\n' | ./init.sh --slug="$name-$n" \
+        flag)  printf '2\n2\n' | ./init.sh --mode=new --slug="$name-$n" \
                  --desc="Heads-up test" --license=proprietary --remotes=no \
                  --adr-authority="tech lead" ;;
         *)     ./init.sh --non-interactive --slug="$name-$n" --desc="Heads-up test" \
@@ -1910,7 +1912,7 @@ run_private_case \
 run_private_case \
   "license-bare-enter" \
   bash -c \
-  "printf '\n' | ./init.sh --slug=license-bare-enter --desc='License validation test' --layout=multi --collab=solo --remotes=no"
+  "printf '\n' | ./init.sh --mode=new --slug=license-bare-enter --desc='License validation test' --layout=multi --collab=solo --remotes=no"
 
 run_private_case \
   "license-private-flag" \

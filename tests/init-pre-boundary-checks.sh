@@ -210,7 +210,7 @@ CASE=desc-typed-again
 W="$TMP_ROOT/$CASE"; copy_template "$W"
 set +e
 ( cd "$W" && printf 'Has {{PROJECT}} in it\nPlain description\n' | \
-    ./init.sh --slug="$CASE" --license=proprietary --layout=multi --collab=solo --remotes=no ) \
+    ./init.sh --mode=new --slug="$CASE" --license=proprietary --layout=multi --collab=solo --remotes=no ) \
   >"$TMP_ROOT/$CASE.out" 2>&1
 STATUS=$?
 set -e
@@ -335,7 +335,7 @@ done
 # Not --non-interactive: the remotes question still follows the layout, and the warning has to
 # come before it, where stopping is still possible.
 set +e
-( cd "$W" && printf 'n\n' | ./init.sh --slug="$CASE" --desc="Checks" --license=proprietary \
+( cd "$W" && printf 'n\n' | ./init.sh --mode=new --slug="$CASE" --desc="Checks" --license=proprietary \
     --layout=mono --collab=solo ) >"$TMP_ROOT/$CASE.out" 2>&1
 STATUS=$?
 set -e
