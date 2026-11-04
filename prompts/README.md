@@ -6,15 +6,18 @@ full method; this README covers the conventions here and the recipe for adding a
 
 **Licensing:** project-authored roadmap and prompt content follows the posture recorded in the
 docs hub's `.throughstone/project-license`. Open-source projects carry that selected project
-license in the root `LICENSE`; proprietary projects intentionally do not. A missing
+license in this repository's root `LICENSE`; proprietary projects intentionally do not. A missing
 open-source `LICENSE` is an error, not a change of posture. Retained Throughstone-authored seed
-content and conventions remain under BSD-3-Clause; see `LICENSE-THROUGHSTONE`. The two scopes
-describe different material and neither replaces the other.
+content and conventions remain under BSD-3-Clause; see `LICENSE-THROUGHSTONE` at this repository's
+root. The two scopes describe different material and neither replaces the other.
 
-**`prompts/` is its own repo** — project-wide, spanning all the code repos. It is
-**history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`) is **state** (kept
-current). `Upcoming Prompts/` is a workspace folder for the in-flight STEP, not generally a
-repo (see `METHOD.md` §5).
+**`prompts/` is project-wide** — every STEP is recorded here once, wherever the code it
+touches lives. It is **history** (never rewritten); the docs hub (`Code/{{PROJECT}}-docs/`)
+is **state** (kept current). Where `prompts/` sits follows the layout: in a multi-repo
+project it is its own repo at the workspace root; in mono-repo-for-now it is a folder inside
+the root repo (`Code/{{PROJECT}}-docs/METHOD.md` §7). `Upcoming Prompts/` is a workspace
+folder for the in-flight STEP, not generally a repo (see
+`Code/{{PROJECT}}-docs/METHOD.md` §5).
 
 ## Layout
 
@@ -30,7 +33,7 @@ prompts/
 The STEP you're *currently* working on lives in `Upcoming Prompts/` (at the workspace root) as
 **loose files** — the PLAN, its substep prompts, and any review doc, named per the conventions
 below. There's no `step-NNNN/` subfolder while it's in flight; on completion you **gather those
-files into a new `step-NNNN/` folder** in the right phase here (see the recipe, step 6).
+files into a new `step-NNNN/` folder** in the right phase here (see the recipe, step 7).
 
 ## Conventions
 
@@ -54,16 +57,19 @@ Cross-Cutting Review passes, run the **implementation planning session**
 reads the locked architecture and **outlines all the Phase-1 implementation STEPs** into
 `STEP-index.md` — a short (2–3 sentence) scope each, in dependency order. It stops there: no
 PLANs, no substep prompts. From then on you build the STEPs one at a time, authoring each
-STEP's PLAN + substep prompts with the recipe below **when you start that STEP**. Starting a
+STEP's PLAN and any substep prompts with the recipe below **when you start that STEP**. Starting a
 STEP means planning it, then stopping for approval before any substep runs.
 
-The outline also interleaves a **Check-in STEP** at the project's cadence — a full STEP that runs
+The outline also interleaves **Check-in STEPs** — asked for, not calculated: the planning
+session asks where they belong and records the first one in `Code/{{PROJECT}}-docs/overview.md`'s
+`<!-- NEXT-CHECK-IN: … -->` line. Each is titled `Check-in` in the index (a scope may follow,
+e.g. `Check-in: phase 1`) and is a full STEP that runs
 `Code/{{PROJECT}}-docs/runbooks/check-in.md` (reconcile docs vs. code both ways, re-check
 conditional-session coverage, review accepted risks/debt in
-`Code/{{PROJECT}}-docs/registries/risks.yml`, and run the full test suite). Its completed
+`Code/{{PROJECT}}-docs/registries/risks.yml`, and run every test suite). Its completed
 report is written under `Code/{{PROJECT}}-docs/reports/`; the archived STEP folder here keeps
-the thin PLAN. The agent suggests one at a sensible breakpoint if it's been about that long
-since the last (see `METHOD.md` §5).
+the thin PLAN. The agent proposes one when the scheduled point is reached
+(see `Code/{{PROJECT}}-docs/METHOD.md` §5).
 
 ## When not to add a STEP
 
@@ -87,35 +93,32 @@ teammate will need later.
 >
 > STEP planning is an interactive discussion. Confirm the scope before drafting, ask for
 > clarification whenever the work is ambiguous, and when a decision is needed offer
-> appropriate options with brief pros and cons rather than forcing the user to start from a
+> appropriate options with pros and cons rather than forcing the user to start from a
 > blank page.
 > A whole-STEP command such as **"run STEP 6"**, **"run STEP-6"**, **"start STEP 6"**,
 > **"kick off STEP 6"**, or **"do STEP 6"** means **write or revise this STEP plan and its
 > substep prompts, then stop for approval**. It is not permission to execute the substeps.
-> For thin STEPs (Check-in, Incident, late conditional-session follow-up, or an explicit
-> Security Baseline/Review/Audit STEP), write the thin PLAN and record the runbook/session
+> For thin STEPs (step 5 below says which), write the thin PLAN and record the runbook/session
 > substeps instead of authoring normal substep prompts; still stop for approval before running
 > the runbook or session.
-> Substep execution requires an explicit substep command such as **"run substep 6.1"**.
-> Read the saved **Communication style** in root `.throughstone/local-user.md` and use it as
-> the default verbosity. If the file or value is missing, ask the two local-profile
+> Substep execution requires an explicit substep command such as **"run substep 6.1"** — or, for
+> a Check-in STEP, *"run the check-in"* (`Code/{{PROJECT}}-docs/METHOD.md` §10 rule 6).
+> Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much
+> technical background you can assume, **Communication style** sets how much reasoning comes
+> with a decision. If the file is missing or either value isn't one of the listed answers,
+> ask the two local-profile
 > questions from `Code/{{PROJECT}}-docs/BOOTSTRAP-PROMPT.md` Stage 0, create/update the file,
 > and continue.
-> An explicit style request in chat overrides the profile for the current session only.
+> An explicit chat instruction overrides the profile for the current session only.
 
 1. **Reserve the number in the index.** Look up the STEP in `prompts/STEP-index.md`. If it's
-   not there, add a row — and that row *is* the number reservation. **Pull first**, take the
-   next number (`max + 1`), add the row **on `prompts/`'s shared trunk** (not a `step-NNNN`
-   branch), then **commit and push immediately** in a dedicated `reserve STEP-N` commit,
-   **before** branching or writing. If the push is rejected, someone reserved concurrently —
-   pull, renumber, push again. Before every push, even on a clean merge, scan for a duplicate
-   (`grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d`); two appended rows merge
-   with no conflict into a silent duplicate. (Solo with no remote, this is just a local edit.)
-   See `Code/{{PROJECT}}-docs/runbooks/collaboration.md`.
+   not there, add a row — and that row *is* the number reservation: take `max + 1` and add the
+   row on the trunk, never a `step-NNNN` branch, **before** branching or writing. In a team,
+   follow `Code/{{PROJECT}}-docs/runbooks/collaboration.md` §2.
 2. **Confirm scope** with the user before writing anything — a STEP is a real commitment.
    Ask clarifying questions where the planned work, dependencies, repo ownership, or order
-   are uncertain. When there are real alternatives, present appropriate options with short
-   pros and cons and let the user choose or adjust. Work the STEP on a branch named
+   are uncertain. When there are real alternatives, present appropriate options with pros
+   and cons and let the user choose or adjust. Work the STEP on a branch named
    `step-NNNN-short-name` (the same name in every repo it touches).
 3. **Plan the tests before finalizing the substeps.** Read the Test Strategy architecture doc
    (`Code/{{PROJECT}}-docs/architecture/*-test-strategy.md`) and decide which test tiers this
@@ -137,7 +140,7 @@ teammate will need later.
    closes.
    **Thin STEPs are the exception — you author no substep prompts for them.** A STEP is thin
    when its substeps are already defined by a file the method ships: the PLAN points at that
-   file and names them, and their status is recorded in the index like any other substep. Two
+   file and names them, and their status is recorded in the PLAN like any other substep. Two
    families, rather than a list to keep up to date:
    - **Runbook-driven.** `Code/{{PROJECT}}-docs/runbooks/README.md` marks which runbooks are
      STEP-shaped — that list is the one to check. The runbook defines the substeps, including
@@ -145,26 +148,30 @@ teammate will need later.
      shape needs.
    - **Session-driven**, where the substeps are architecture sessions in
      `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. The architecture STEP-1 is the
-     large case — its substeps are the interview sessions chosen at kickoff. A **late
+     large case — its substeps are the interview sessions chosen at kickoff, and their status
+     stays in `prompts/STEP-index.md`, where the resolver reads it. A **late
      conditional-session follow-up** is the small one: a single substep pointing at the
      applicable `conditional-*.md` file, recording its exact by-name invocation and the assigned
      output-doc number. Don't copy a session into a new prompt. Give that STEP's index row the
      title `Conditional session: <topic>` so the resolver runs it before ordinary planned
      implementation work.
-6. **Update `prompts/STEP-index.md`**: set the STEP's status and list its substeps. Then
-   present the PLAN and substep list to the user and **stop for approval** before running any
-   substep. Do not continue from planning into execution unless the user explicitly asks for a
-   specific substep, e.g. `run substep N.1`.
+6. **Update `prompts/STEP-index.md`**: set the STEP's status. Then present the PLAN and
+   substep list to the user and **stop for approval** before running any substep. Do not
+   continue from planning into execution unless the user explicitly asks for a specific
+   substep, e.g. `run substep N.1`.
 7. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
    method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
-   in the phase folder in this repo and mark it **Done** in the index. (If this is the phase's
+   in the phase folder here and mark it **Done** in the index. (If this is the phase's
    first archived STEP the phase folder won't exist yet — create `001-<phase-name>/` and its
    `README.md` from `phase-readme-template.md` first, naming it for the chosen phase; see
    Conventions.)
-   (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.) Then tell the user
-   the next action — the next `Planned` STEP, or a **Check-in STEP** if one is due — via the
-   next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10).
+   (STEP-1's review is the Cross-Cutting Review; a Check-in STEP is its own review.)
+   Then merge the STEP's branch into the trunk in every repo it touched (by PR, if that is how
+   your project merges) and check out the trunk, where the next STEP starts. Then tell the user
+   the next action via the next-action resolver (`Code/{{PROJECT}}-docs/METHOD.md` §10) — and
+   say so as well if a **Check-in STEP** is due, which is a proposal beside the next action
+   rather than the next action itself (§10 rule 7).
 
 > **Multiple contributors** all append to `prompts/` (it's shared history, never rewritten).
 > Archived `step-NNNN/` folders are write-once, so they don't conflict; the only shared files

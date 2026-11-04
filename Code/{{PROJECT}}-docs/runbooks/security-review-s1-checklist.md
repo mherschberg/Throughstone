@@ -42,7 +42,7 @@ Use exactly one outcome for every applicable row:
 
 ## Advisory Sources
 
-Use this as a scaffold starter set, then customize it for the project's actual stack. Do not
+Use this as a starter set, then customize it for the project's actual stack. Do not
 turn S1 into a broad threat-intelligence exercise; record the sources that apply, the date
 checked, the result, and any follow-up. If a project has configured alerting or scanner
 dashboards, those project-specific sources are usually more important than manually browsing a

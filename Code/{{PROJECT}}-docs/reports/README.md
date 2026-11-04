@@ -6,9 +6,8 @@ Reports are factual artifacts produced by runbooks, audits, reviews, and inciden
 not plans and they are not architecture docs: a report records what was checked, what was found,
 what changed, what was accepted as risk, and what follow-up work was created.
 
-In a multi-repo project this folder lives in the documentation repo. In a mono-repo project it
-lives under the scaffolded docs folder for that repo. Either way, keep reports out of STEP
-folders; STEPs may create reports, but the reports themselves live here.
+This folder lives in the docs hub in either layout. Keep reports out of STEP folders; STEPs may
+create reports, but the reports themselves live here.
 
 ## Index
 

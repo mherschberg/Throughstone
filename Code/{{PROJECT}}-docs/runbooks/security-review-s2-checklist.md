@@ -72,7 +72,7 @@ impact, or customer impact fields, but keep this minimum vocabulary stable:
 
 ## Framework Reference Set
 
-Verify current versions when the audit runs. This scaffold starts from the following public
+Verify current versions when the audit runs. This checklist starts from the following public
 frameworks and guidance. Use only the references that match the project and add project-specific
 standards when needed.
 

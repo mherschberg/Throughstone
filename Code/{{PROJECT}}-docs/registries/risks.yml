@@ -26,6 +26,8 @@
 #
 # Lifecycle:
 # - `status`: open | monitoring | mitigated | accepted-permanently | closed
+# - An accepted risk or deferral that still has a revisit trigger is `open`; `accepted-permanently`
+#   is for one accepted for good, with no trigger left to watch.
 # - Keep open/monitoring items in front of every check-in (`runbooks/check-in.md`).
 # - When an item closes, keep the row for history and set `closed` with the date and reason.
 #

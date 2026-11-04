@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
 # status.sh — mechanically run the next-action helper for METHOD.md §10 and print where the
-# project is, what to do next, and the check-in cadence. Read-only. It reads the kickoff marker
-# in overview.md and the roadmap in prompts/STEP-index.md — the same disk state the resolver
-# uses — so a fresh chat (or a new teammate) can answer "what do I do next?" without guessing.
+# project is, what to do next, and when the next check-in is due. Read-only. It reads the kickoff
+# marker and the scheduled check-in in overview.md and the roadmap in prompts/STEP-index.md — the
+# same disk state the resolver uses — so a fresh chat (or a new teammate) can answer "what do I do
+# next?" without guessing.
 #
 # This is a *helper*: METHOD.md §10 remains authoritative. When the index can't determine the
 # answer, the script says so and points there.
@@ -12,14 +13,30 @@
 
 set -uo pipefail
 
+# This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
+# flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
+# same contract check.sh keeps. The message stays bare rather than naming a help command,
+# because the helper can be reached both through ./doctor.sh and directly.
+if [ "$#" -gt 0 ]; then
+  echo "status.sh: unknown option: $1" >&2
+  exit 2
+fi
+
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 
-# File assumptions: the generated docs repo sits at Code/<project>-docs/, while the runtime
+# What this script prints is read from wherever it was run, and it never changes the caller's
+# directory — normally that is the workspace root. So every path it names is written from there,
+# the same base check.sh uses for the same reason (METHOD.md §7, "a path a tool prints follows
+# the reader, not the tool"). Paths already at the workspace root — prompts/, Upcoming Prompts/ —
+# are written bare; anything inside the docs hub carries this prefix.
+DOCS_REL="Code/$(basename "$DOCS_DIR")"
+
+# File assumptions: the docs hub sits at Code/<project>-docs/, while the runtime
 # STEP index lives at the project root in prompts/STEP-index.md.
 #
-# THROUGHSTONE_STEP_INDEX and THROUGHSTONE_OVERVIEW are maintainer-test seams for fixtures.
-# Generated projects should leave them unset and read the canonical prompts index and overview.
+# THROUGHSTONE_STEP_INDEX and THROUGHSTONE_OVERVIEW, when set, name the files read in place of
+# the STEP index and overview.md. Leave them unset to read the project's own.
 INDEX="${THROUGHSTONE_STEP_INDEX:-$ROOT/prompts/STEP-index.md}"
 OVERVIEW="${THROUGHSTONE_OVERVIEW:-$DOCS_DIR/overview.md}"
 
@@ -28,11 +45,11 @@ echo
 
 # --- Kickoff gate (AGENTS.md "First action") ----------------------------------
 if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: not-started' "$OVERVIEW"; then
-  echo "Where you are:  kickoff not started (overview.md marker: not-started)."
+  echo "Where you are:  kickoff not started ($DOCS_REL/overview.md marker: not-started)."
   echo
   echo "Next action:"
   echo "  → start the kickoff — open the project and say:  \"Read AGENTS.md and follow it.\""
-  echo "    It runs BOOTSTRAP-PROMPT.md from Stage 0 (no command to paste)."
+  echo "    It runs $DOCS_REL/BOOTSTRAP-PROMPT.md from Stage 0 (no command to paste)."
   exit 0
 fi
 
@@ -43,10 +60,10 @@ fi
 # don't try to resolve. The terminal `Done STEP-1` baseline that retcon eventually lands needs no
 # special case here; it resolves exactly like a greenfield baseline.
 if [ -f "$OVERVIEW" ] && grep -q 'PROJECT-STATUS: retcon' "$OVERVIEW"; then
-  echo "Where you are:  adopting an existing codebase (overview.md marker: retcon)."
+  echo "Where you are:  adopting an existing codebase ($DOCS_REL/overview.md marker: retcon)."
   echo
   echo "Next action:"
-  echo "  → retcon in progress — follow Code/<project>-docs/RETCON-PROMPT.md. It resolves the"
+  echo "  → retcon in progress — follow $DOCS_REL/RETCON-PROMPT.md. It resolves the"
   echo "    lowest open substep in the in-flight STEP-1 PLAN (\"Upcoming Prompts/<project>-STEP-1-PLAN.md\")."
   echo "    Open the project and say:  \"Read AGENTS.md and follow it.\""
   exit 0
@@ -62,7 +79,7 @@ fi
 # reading it off the files (status.sh stays a helper; the agent does the recovery).
 if [ -f "$OVERVIEW" ] \
   && ! grep -qE 'PROJECT-STATUS: (not-started|retcon|kickoff-complete)' "$OVERVIEW"; then
-  echo "Where you are:  indeterminate — overview.md has no recognized PROJECT-STATUS marker"
+  echo "Where you are:  indeterminate — $DOCS_REL/overview.md has no recognized PROJECT-STATUS marker"
   echo "                (expected one of: not-started, retcon, kickoff-complete)."
   echo
   echo "Next action:"
@@ -71,41 +88,64 @@ if [ -f "$OVERVIEW" ] \
   echo "    the three it is, by which door it came through rather than how far along it feels:"
   echo "      not-started       a new project whose kickoff has not run yet"
   echo "      retcon            adopting an existing codebase, at any stage before its baseline"
-  echo "                        lands (even if no session has started) — follow RETCON-PROMPT.md"
+  echo "                        lands (even if no session has started) — follow $DOCS_REL/RETCON-PROMPT.md"
   echo "      kickoff-complete  past that point: its kickoff ran, or an adoption landed"
-  echo "    Restore that line in overview.md from the answer — the AGENTS.md \"First action —"
-  echo "    kickoff or resume?\" decision states it — then re-run status.sh."
+  echo "    Restore that line in $DOCS_REL/overview.md from the answer — the AGENTS.md \"First action —"
+  echo "    kickoff or resume?\" decision states it — then re-run ./doctor.sh status."
   exit 0
 fi
 
+# No STEP index. Before setup there is no overview.md either, and init.sh is the answer. A project
+# keeps overview.md, and init.sh refuses to run there, so it is told to get the index back.
 if [ ! -f "$INDEX" ]; then
-  echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
+  if [ ! -f "$OVERVIEW" ]; then
+    echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
+    echo
+    echo "Next action:"
+    echo "  → run ./init.sh, then \"Read AGENTS.md and follow it\" to begin the kickoff."
+    exit 0
+  fi
+  echo "Where you are:  no roadmap (no prompts/STEP-index.md in this workspace)."
   echo
   echo "Next action:"
-  echo "  → run ./init.sh, then \"Read AGENTS.md and follow it\" to begin the kickoff."
+  echo "  → restore prompts/STEP-index.md from git history: it holds every STEP number the project has issued. In a multi-repo project prompts/ is its own repository: restore the file inside it, or, if prompts/ is not here at all, run $DOCS_REL/scripts/setup-workspace.sh to clone it from the remote recorded on its row in $DOCS_REL/registries/repos.yml."
   exit 0
 fi
 
-# --- Parse the index into STEP rows and STEP-1 substep rows --------------------
+# --- Parse the index into STEP rows and substep rows --------------------------
 # Locate each table's columns from its header, then emit normalized pipe-delimited records:
-#   STEP|STEP-N|Status|Title
+#   STEP|STEP-N|Status|Owner|Title
 #   SUB|N.M[a]|Status|Session
-# The parser depends on Markdown table headers, not fixed column positions, and ignores comments
-# so dormant scaffold examples do not affect generated-project status.
+# The parser depends on Markdown table headers, not fixed column positions, and ignores commented
+# content so dormant scaffold examples do not affect generated-project status.
+#
+# Comments are STRIPPED, not skipped by line. Dropping the whole line would delete any row carrying
+# an inline note — `| STEP-2 | Build | | In progress | <!-- waiting on design --> |` — hiding the
+# STEP in flight, and a note on the highest-numbered row would lose the project's high-water mark
+# and make a live phase report as complete. The seeded index is full of instructional comments and
+# invites annotation, so that is reachable without anyone intending a marker. Removing only the
+# commented spans keeps the row and still discards example rows wholly inside a comment block.
 parsed="$(awk -F'|' '
   function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
   {
-    if (in_comment) {
-      if ($0 ~ /-->/) in_comment = 0
-      next
+    line = $0; kept = ""
+    while (length(line) > 0) {
+      if (in_comment) {
+        p = index(line, "-->")
+        if (p == 0) { line = ""; break }
+        line = substr(line, p + 3); in_comment = 0
+      } else {
+        p = index(line, "<!--")
+        if (p == 0) { kept = kept line; line = ""; break }
+        kept = kept substr(line, 1, p - 1)
+        line = substr(line, p + 4); in_comment = 1
+      }
     }
-    if ($0 ~ /<!--/) {
-      if ($0 !~ /-->/) in_comment = 1
-      next
-    }
+    $0 = kept
+    if ($0 ~ /^[[:space:]]*$/) next
   }
   /^[[:space:]]*\|/ {
-    isstep = 0; issub = 0
+    isstep = 0; issub = 0; oc = 0
     for (i = 1; i <= NF; i++) {
       c = trim($i)
       if (c == "STEP")    { isstep = 1; stepcol = i }
@@ -113,14 +153,15 @@ parsed="$(awk -F'|' '
       if (c == "Title")   { titlecol   = i }
       if (c == "Session") { sessioncol = i }
       if (c == "Status")  { scol = i }
+      if (c == "Owner")   { oc = i }
     }
-    if (isstep) { mode = "step"; statuscol = scol; next }
+    if (isstep) { mode = "step"; statuscol = scol; ownercol = oc; next }
     if (issub)  { mode = "sub";  statuscol = scol; next }
     if (mode == "" || statuscol == 0) next
     st = trim($statuscol)
     if (st == "" || st ~ /^:?-+:?$/) next
     if (mode == "step") {
-      id = trim($stepcol);    if (id ~ /^STEP-[0-9]+$/)            print "STEP|" id "|" st "|" trim($titlecol)
+      id = trim($stepcol);    if (id ~ /^STEP-[0-9]+$/)            print "STEP|" id "|" st "|" (ownercol ? trim($ownercol) : "") "|" trim($titlecol)
     } else {
       id = trim($subcol);     if (id ~ /^[0-9]+\.[0-9]+[a-z]?$/)   print "SUB|"  id "|" st "|" trim($sessioncol)
     }
@@ -128,40 +169,42 @@ parsed="$(awk -F'|' '
 ' "$INDEX")"
 
 # Parallel indexed arrays preserve row shape while staying compatible with bash 3.2 (stock
-# macOS has no associative arrays). For each i, step_id/st/ti or sub_id/st/se is one record.
-step_id=(); step_st=(); step_ti=()
+# macOS has no associative arrays). For each i, step_id/st/ow/ti or sub_id/st/se is one record.
+step_id=(); step_st=(); step_ti=(); step_ow=()
 sub_id=(); sub_st=(); sub_se=()
-while IFS='|' read -r kind id st extra; do
+while IFS='|' read -r kind id st f4 f5; do
   [ -z "${kind:-}" ] && continue
   if [ "$kind" = "STEP" ]; then
-    step_id+=("$id"); step_st+=("$st"); step_ti+=("$extra")
+    step_id+=("$id"); step_st+=("$st"); step_ow+=("$f4"); step_ti+=("$f5")
   elif [ "$kind" = "SUB" ]; then
-    sub_id+=("$id"); sub_st+=("$st"); sub_se+=("$extra")
+    sub_id+=("$id"); sub_st+=("$st"); sub_se+=("$f4")
   fi
 done <<< "$parsed"
 
 # Sortable key for a substep id: 1.6a -> 100600+ord('a'); 1.14 -> 101400.
 # Lettered conditional substeps therefore sort after their base numeric slot and before later
 # numeric sessions, matching the STEP-1 table order.
+# 10# forces base 10: a zero-padded id such as 1.08 is octal to $(( )) and would abort.
 subkey() {
   local maj="${1%%.*}" rest="${1#*.}" num suffix lo=0
   num="${rest%%[a-z]*}"; suffix="${rest#"$num"}"
   [ -n "$suffix" ] && lo=$(printf '%d' "'$suffix")
-  echo $(( maj * 100000 + num * 100 + lo ))
+  echo $(( 10#$maj * 100000 + 10#$num * 100 + lo ))
 }
 
-# --- STEP-1 substep state -----------------------------------------------------
-# Track the first runnable architecture substep. Final statuses count as complete; unknown
-# statuses stop normal resolution and point the maintainer back to validation.
-total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; lowsub=""; lowsub_se=""; lowkey=99999999
+# --- Substep state ------------------------------------------------------------
+# Every Substep table in the index is counted, a later STEP's as well as STEP-1's. Final statuses
+# count as complete, the lowest open substep is the one the substep arm runs, and unknown statuses
+# stop normal resolution and point the maintainer back to validation.
+total_sub=${#sub_id[@]}; done_sub=0; unknown_sub=0; unknown_ids=""; lowsub=""; lowsub_se=""; lowkey=0
 i=0
 while [ "$i" -lt "$total_sub" ]; do
   s="${sub_id[$i]}"
   case "${sub_st[$i]}" in
-    Done|Deferred|N/A) done_sub=$((done_sub + 1)) ;;
+    Done|Deferred|Abandoned|N/A) done_sub=$((done_sub + 1)) ;;
     Planned|"In progress")
-      k=$(subkey "$s"); if [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
-    *) unknown_sub=$((unknown_sub + 1)) ;;
+      k=$(subkey "$s"); if [ -z "$lowsub" ] || [ "$k" -lt "$lowkey" ]; then lowkey=$k; lowsub=$s; lowsub_se="${sub_se[$i]}"; fi ;;
+    *) unknown_sub=$((unknown_sub + 1)); unknown_ids="${unknown_ids:+$unknown_ids, }$s" ;;
   esac
   i=$((i + 1))
 done
@@ -169,17 +212,18 @@ done
 # --- Main STEP state ----------------------------------------------------------
 # Scan implementation STEPs once and retain the lowest-numbered candidate in each resolver
 # bucket: active STEP, planned conditional follow-up, and ordinary planned STEP.
-maxnum=0; have_impl=0; nonfinal=0; last_ci=0; step1_st=""
-inprog=""; inprog_ti=""; inprog_n=999999
+maxnum=0; have_impl=0; impl_started=0; nonfinal=0; step1_st=""; step1_ow=""
+inprog=""; inprog_ti=""; inprog_ow=""; inprog_n=999999
 lowplanned_cond=""; lowplanned_cond_ti=""; lowplanned_cond_n=999999
 lowplanned=""; lowplanned_ti=""; lowplanned_n=999999
 n_steps=${#step_id[@]}; i=0
 while [ "$i" -lt "$n_steps" ]; do
   id="${step_id[$i]}"; st="${step_st[$i]}"; ti="${step_ti[$i]}"; n=${id#STEP-}
-  [ "$id" = "STEP-1" ] && step1_st="$st"
+  [ "$id" = "STEP-1" ] && { step1_st="$st"; step1_ow="${step_ow[$i]}"; }
   [ "$n" -gt "$maxnum" ] && maxnum=$n
   [ "$n" -ge 2 ] && have_impl=1
-  if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; fi
+  [ "$n" -ge 2 ] && case "$st" in Done|"In progress") impl_started=1 ;; esac
+  if [ "$st" = "In progress" ] && [ "$n" -lt "$inprog_n" ]; then inprog_n=$n; inprog=$id; inprog_ti="$ti"; inprog_ow="${step_ow[$i]}"; fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] &&
      printf '%s' "$ti" | grep -qiE '^conditional session:' &&
      [ "$n" -lt "$lowplanned_cond_n" ]; then
@@ -187,47 +231,79 @@ while [ "$i" -lt "$n_steps" ]; do
   fi
   if [ "$n" -ge 2 ] && [ "$st" = "Planned" ] && [ "$n" -lt "$lowplanned_n" ]; then lowplanned_n=$n; lowplanned=$id; lowplanned_ti="$ti"; fi
   case "$st" in Done|Deferred|Abandoned) ;; *) nonfinal=1 ;; esac
-  if printf '%s' "$ti" | grep -qiE 'check.?in'; then [ "$n" -gt "$last_ci" ] && last_ci=$n; fi
   i=$((i + 1))
 done
 all_final=0; [ "$nonfinal" -eq 0 ] && [ "$n_steps" -gt 0 ] && all_final=1
 
 # --- Resolve (METHOD.md §10, first match wins) --------------------------------
 # First-match precedence is intentional:
-# - open STEP-1 substeps come before implementation planning;
+# - while the STEP-1 row is not Done, any open substep in the index comes first, and while the row
+#   is still open, STEP-1's close-out comes next, both before any later STEP row;
 # - active ordinary or conditional STEPs beat planned follow-up conditional STEPs;
 # - planned conditional follow-ups beat ordinary planned implementation STEPs.
 where=""; next=""
+# Any Substep table's row can carry the unknown status, so the message names the rows, whose
+# numbers say which STEP each belongs to.
 if [ "$unknown_sub" -gt 0 ]; then
-  where="Architecture (STEP-1) has ${unknown_sub} substep(s) with an unrecognized status."
-  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
-elif [ -n "$lowsub" ]; then                                 # §10.1 / §10.2
+  where="prompts/STEP-index.md has an unrecognized status on ${unknown_sub} substep row(s): ${unknown_ids}."
+  next="run ./doctor.sh check and fix the substep statuses it lists as invalid, then re-run ./doctor.sh status."
+# The substep arm is gated on the STEP-1 row: the row is what says whether architecture is
+# over, and it decides in both directions. The close-out arm below reads it from the other side —
+# substeps all final while the row is still open means the close-out is the work — so a Done
+# STEP-1 falls through to the rules below, the planning session or the STEP in flight
+# (METHOD.md §10, whose closing rule makes the index authoritative for which STEP is next).
+elif [ -n "$lowsub" ] && [ "$step1_st" != "Done" ]; then    # §10.1 / §10.2
   where="Architecture (STEP-1) in progress — ${done_sub}/${total_sub} substeps complete."
   # Identify the Cross-Cutting Review by its Session-column label, not a hardcoded number.
   # Adding a standard session shifts the review. Check the lettered-conditional case
   # first so a conditional is never mistaken for the review.
+  #
+  # Each pattern is anchored to the START of the Session label and matches the session's own
+  # name as whole words, not a loose keyword. Looser matching reads a substep's topic as a
+  # conditional it has nothing to do with: "Authoring conventions & style guide" contains auth,
+  # and "Desktop publishing pipeline" begins with desktop. A label that matches nothing gets the
+  # generic wording, which is still correct advice.
   if [[ "$lowsub" =~ [a-z]$ ]]; then
     cond_example="run the conditional session by name"
-    if printf '%s' "$lowsub_se" | grep -qiE 'identity|auth'; then
+    if printf '%s' "$lowsub_se" | grep -qiE '^(identity|auth)\b'; then
       cond_example="run the identity-auth session"
-    elif printf '%s' "$lowsub_se" | grep -qiE 'native|mobile|desktop'; then
+    elif printf '%s' "$lowsub_se" | grep -qiE '^native\b|^(mobile|desktop) app\b'; then
       cond_example="run the native-app session"
-    elif printf '%s' "$lowsub_se" | grep -qiE 'privacy|compliance|data governance'; then
+    elif printf '%s' "$lowsub_se" | grep -qiE '^privacy\b|^data governance\b'; then
       cond_example="run the privacy session"
     fi
     next="Run STEP-${lowsub}: ${lowsub_se} — invoke it BY NAME (e.g. \"${cond_example}\"), not by number."
-  elif printf '%s' "$lowsub_se" | grep -qiE 'cross.?cutting'; then
+  elif printf '%s' "$lowsub_se" | grep -qiE '^cross.?cutting\b'; then
     next="Run STEP-${lowsub}: Cross-Cutting Review."
   else
     next="Run STEP-${lowsub}: ${lowsub_se}."
   fi
-elif [ "$total_sub" -gt 0 ] && [ "$done_sub" -lt "$total_sub" ]; then
-  where="Architecture (STEP-1) has ${done_sub}/${total_sub} substeps final, but no runnable open substep could be resolved."
-  next="run scripts/check.sh and fix any invalid STEP-1 substep statuses, then re-run status.sh."
+# STEP-1's close-out. §10.3's precondition is "STEP-1 complete", and the STEP-1 *row* is what
+# says so: the archive to prompts/ and the flip to Done both happen after the last substep, the
+# Cross-Cutting Review, goes Done (templates/architecture-sessions/14-cross-cutting-review.md).
+# While the row is still open that close-out is the work, whatever later STEPs the index holds: an
+# In-progress STEP-1 is itself the lowest STEP in flight, which the In-progress arm would send
+# looking for an open substep.
+# §10's closing rule makes the index authoritative for which STEP is next. A STEP-1 row that is
+# missing, Deferred or Abandoned, or an index with no substep row, leaves the answer to the rules
+# below.
+elif [ "$total_sub" -gt 0 ] && [ -n "$step1_st" ] &&        # §10.1, the close-out
+     [ "$step1_st" != "Done" ] && [ "$step1_st" != "Deferred" ] && [ "$step1_st" != "Abandoned" ]; then
+  where="Architecture (STEP-1) — all ${total_sub} substeps are final, but the STEP-1 row is still \"${step1_st}\"."
+  next="close out STEP-1 — archive it to the Phase-1 folder under prompts/ ($DOCS_REL/METHOD.md §5) and mark the STEP-1 row Done. If the Cross-Cutting Review left findings open, settle those first."
+  # §10.3 sends you to the planning session only while STEP-1 is the index's only row, so this does
+  # too. Its reminder for an index with later rows waits for STEP-1 to be Done (below).
+  [ "$have_impl" -eq 0 ] && next="$next The planning session comes after that."
+  # In a team the close-out is STEP-1's owner's: it archives STEP-1's PLAN, which by default is only
+  # on the owner's machine (collaboration.md §3).
+  if [ -n "$step1_ow" ]; then
+    where="${where%.}, owned by ${step1_ow}."
+    next="in a team, ask the user whether STEP-1 is theirs: by default a STEP's PLAN is only on its owner's machine, and the close-out archives it. If not, the close-out is ${step1_ow}'s to do: ask which STEP is theirs, and if none is, wait for ${step1_ow} to close STEP-1 out. If it is, or the project is solo: ${next}"
+  fi
 elif [ "$have_impl" -eq 0 ]; then                           # §10.3 (or STEP-1 not yet run)
   if [ "$total_sub" -gt 0 ]; then
     where="Architecture (STEP-1) complete (${done_sub}/${total_sub} substeps); implementation not yet outlined."
-    next="run the planning session — it outlines the Phase-1 implementation STEPs (templates/planning-session.md)."
+    next="run the planning session — it outlines the Phase-1 implementation STEPs ($DOCS_REL/templates/planning-session.md)."
   elif [ "$step1_st" = "Done" ]; then
     where="STEP-1 done; implementation not yet outlined."
     next="run the planning session — it outlines the Phase-1 implementation STEPs."
@@ -239,45 +315,117 @@ elif [ -n "$inprog" ]; then                                 # §10.6
   where="Building — ${inprog} (${inprog_ti}) is In progress."
   if printf '%s' "$inprog_ti" | grep -qiE '^conditional session:'; then
     next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\", identify its conditional template invocation BY NAME, and wait for that explicit by-name command. Then run its architecture-consistency review, archive it, and mark ${inprog} Done."
+  # A Check-in STEP is invoked whole (METHOD.md §10 rule 6): its two substeps are fixed and
+  # runbooks/check-in.md is their prompt, so no substep prompts are ever authored for it and the
+  # generic advice below waits on a "run substep N.M" nobody will ever write. The wait itself is
+  # right — a thin STEP stops for approval like any other (prompts/README.md) — the command is not.
+  #
+  # Anchored, and ending at the title's end or its scope colon: the documented row title and
+  # nothing wider ("Check-in", "Check-in: phase 1"). Both directions cost something. Too loose
+  # routes a product STEP into the doc-drift runbook — a hotel or airline project really does
+  # build a "Check-in flow" — and sending feature work to the wrong prompt is the more expensive
+  # way to be wrong; a real check-in titled outside the form falls to the generic answer, which is
+  # the state this arm exists to end. Both arms anchor at ^, so no title can match both and their
+  # order is free; loosening either ends that.
+  elif printf '%s' "$inprog_ti" | grep -qiE '^check-in(:|$)'; then
+    next="open ${inprog}'s thin PLAN in \"Upcoming Prompts/\" and wait for \"run the check-in\" — its two substeps are fixed and $DOCS_REL/runbooks/check-in.md is their prompt, so that one command runs both, end to end. Then: report under $DOCS_REL/reports/, archive the thin PLAN to prompts/, mark ${inprog} Done, and schedule the next check-in in $DOCS_REL/overview.md's NEXT-CHECK-IN line."
   else
     next="open ${inprog}'s PLAN in \"Upcoming Prompts/\", identify its lowest open substep, and wait for an explicit substep command (\"run substep N.M\"). When the last is done: review, archive to prompts/, mark ${inprog} Done."
   fi
+  # In a team the STEP may be a teammate's, whose PLAN is by default only on their machine
+  # (collaboration.md §3).
+  if [ -n "$inprog_ow" ]; then
+    where="${where%.}, owned by ${inprog_ow}."
+    next="in a team, ask the user whether ${inprog} is theirs: by default a STEP's PLAN is only on its owner's machine. If not, ask which STEP is (if none is, plan the lowest-numbered Planned STEP no one owns). If it is, or the project is solo: ${next}"
+  fi
 elif [ -n "$lowplanned_cond" ]; then                        # §10.4
   where="Architecture follow-up required — ${lowplanned_cond} (${lowplanned_cond_ti}) is Planned."
-  next="plan ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching conditional-*.md template, record the exact by-name invocation and output-doc number, then stop for approval before invoking it."
+  next="plan ${lowplanned_cond} before ordinary implementation work — author its thin one-substep PLAN pointing to the matching $DOCS_REL/templates/architecture-sessions/conditional-*.md template, record the exact by-name invocation and output-doc number, then stop for approval before invoking it."
 elif [ -n "$lowplanned" ]; then                             # §10.5
   where="Building — no STEP In progress; next up is ${lowplanned} (${lowplanned_ti})."
-  next="plan ${lowplanned} — confirm scope, author its PLAN + substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
+  next="plan ${lowplanned} — confirm scope, author its PLAN and any substep prompts (prompts/README.md recipe) in a fresh chat, then stop for approval before running any substep."
 elif [ "$all_final" -eq 1 ]; then                           # §10.8
   where="Every STEP in the index is final (Done, Deferred, or Abandoned)."
-  next="phase looks complete — it's a milestone: prompt release notes (templates/release-notes-template.md if yes) + user-facing doc updates (METHOD §5), then open the next phase and run the planning session for it."
+  next="phase looks complete — it's a milestone: prompt release notes ($DOCS_REL/templates/release-notes-template.md if yes) + user-facing doc updates ($DOCS_REL/METHOD.md §5), then open the next phase and run the planning session for it."
 else
   where="Indeterminate from the index alone."
-  next="resolve by hand via the next-action resolver in METHOD.md §10."
+  next="resolve by hand via the next-action resolver in $DOCS_REL/METHOD.md §10."
+fi
+# §10.3's reminder. Once the index holds a later row, nothing on disk says whether the planning
+# session ran, so until a STEP numbered 2 or higher is In progress or Done the answer above ends
+# with it. An unrecognized substep status is the exception: fixing that comes first.
+if [ "$unknown_sub" -eq 0 ] && [ "$step1_st" = "Done" ] && [ "$have_impl" -eq 1 ] &&
+   [ "$impl_started" -eq 0 ]; then
+  next="$next If the Phase-1 planning session hasn't run yet, run it first."
 fi
 
-# --- Check-in cadence (METHOD.md §10.7) ---------------------------------------
-# Cadence is measured by highest indexed STEP minus the latest STEP whose title looks like a
-# check-in. The target cadence N is the project's `CHECK-IN-CADENCE` (overview.md), defaulting to 20
-# when the line is absent — see METHOD.md §5 for the setting. The helper flags DUE at N-5 and OVERDUE
-# at N+5; METHOD.md §10 remains authoritative for the resolver.
-cadence=20
+# --- Next check-in (METHOD.md §10 rule 7) -------------------------------------
+# overview.md carries `<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or an
+# ISO date (`2026-11-15`). Whoever last scheduled a check-in wrote it: the check-in itself, the
+# planning session, or the user saying when. Nothing validates it — an unreadable or missing value
+# reads as "none scheduled", which is an actionable state rather than an error, and is the floor
+# this advice can never fall below.
+#
+# METHOD.md §10 rule 7 is deliberately not a resolver branch: this advises and proposes, and never
+# becomes the next action, because a gate would fire mid-feature — the one place §5 says not to
+# put a check-in. So it prints beside the next action, never instead of it.
+nci=""
 if [ -f "$OVERVIEW" ]; then
-  n="$(grep -oE 'CHECK-IN-CADENCE:[[:space:]]*[0-9]+' "$OVERVIEW" | head -1 | grep -oE '[0-9]+')"
-  if [ -n "$n" ] && [ "$n" -gt 0 ]; then cadence="$n"; fi
+  nci="$(sed -n 's/.*NEXT-CHECK-IN:[[:space:]]*\(.*\)/\1/p' "$OVERVIEW" | head -1 \
+         | sed 's/-->.*//; s/[[:space:]]*$//')"
 fi
-due=$(( cadence - 5 ))
-over=$(( cadence + 5 ))
-if [ "$last_ci" -gt 0 ]; then
-  since=$(( maxnum - last_ci ))
-  if   [ "$since" -ge "$over" ]; then ci="last at STEP-${last_ci}, ${since} STEPs ago — OVERDUE (>${over}); insert a Check-in STEP now."
-  elif [ "$since" -ge "$due" ];  then ci="last at STEP-${last_ci}, ${since} STEPs ago — DUE (you're in the ${due}–${over} window)."
-  else ci="last at STEP-${last_ci}, ${since} STEPs ago — ~$(( due - since )) STEPs of headroom."
+# Both forms are matched strictly, so anything else falls through to "none scheduled" instead of
+# reaching the comparisons below as a fragment.
+nci_step="$(printf '%s' "$nci" | grep -oE '^STEP-[0-9]+$' | grep -oE '[0-9]+$')"
+nci_date="$(printf '%s' "$nci" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"
+
+# The project's position is what a scheduled STEP is measured against. It is the lowest
+# In-progress STEP, else the lowest Planned STEP after STEP-1, else the highest row, as when every
+# row is final and the phase is over (rule 8). It is not simply the highest row: the planning
+# session writes a whole phase of Planned rows at once, so the highest row is where the phase
+# ends. Measuring against it would report every freshly-planned phase as due on its first day.
+#
+# The position is usually the STEP the next action above names, but not always. For example,
+# rule 4 plans a Planned conditional follow-up ahead of a lower Planned STEP, and the position
+# stays at the lower one.
+if   [ "$inprog_n"    -lt 999999 ]; then atstep=$inprog_n
+elif [ "$lowplanned_n" -lt 999999 ]; then atstep=$lowplanned_n
+else atstep=$maxnum
+fi
+# A STEP in progress past a scheduled check-in has not brought the project there while a Planned
+# STEP below the check-in is still open: the lowest Planned STEP is the position then. A STEP added
+# outside the plan takes the next free number (prompts/README.md), above the whole planned phase,
+# so working one says nothing about how far the phase has got. A STEP in progress at the scheduled
+# number itself is not past it, and stays the position.
+if [ -n "$nci_step" ] && [ "$inprog_n" -lt 999999 ] && [ "$inprog_n" -gt "$((10#$nci_step))" ] &&
+   [ "$lowplanned_n" -lt "$((10#$nci_step))" ]; then
+  atstep=$lowplanned_n
+fi
+
+ci_propose=""
+if [ -n "$nci_step" ]; then
+  # 10# forces base 10: a hand-written `STEP-08` is octal to $(( )). The normalised number is
+  # what gets printed, so the line says what was read rather than what was typed.
+  nci_n=$((10#$nci_step))
+  if [ "$nci_n" -le "$atstep" ]; then
+    ci="due — scheduled for STEP-${nci_n}, and the project is at STEP-${atstep}."; ci_propose=1
+  else
+    ci="next at STEP-${nci_n} (the project is at STEP-${atstep})."
   fi
-elif [ "$maxnum" -ge "$due" ]; then
-  ci="no Check-in STEP yet — consider one (${maxnum} STEPs in; cadence is ~${due}–${over})."
+elif [ -n "$nci_date" ]; then
+  # ISO dates sort lexically, so this needs no date arithmetic.
+  today="$(date +%F)"
+  if [[ "$nci_date" > "$today" ]]; then
+    ci="next on ${nci_date} (today is ${today})."
+  else
+    ci="due — scheduled for ${nci_date}."; ci_propose=1
+  fi
+elif [ -n "$nci" ]; then
+  # A value that is present but unreadable is reported as itself. Nothing validates the line, so
+  # this message is the only place a typo surfaces.
+  ci="none scheduled — $DOCS_REL/overview.md's NEXT-CHECK-IN reads \"$nci\", which is neither a STEP number (STEP-45) nor a date (2026-11-15)."; ci_propose=1
 else
-  ci="no Check-in STEP yet — fine (${maxnum} STEP(s) in; first due ~STEP-${due}–${over})."
+  ci="none scheduled — add a NEXT-CHECK-IN line to $DOCS_REL/overview.md: a STEP number (STEP-45) or a date (2026-11-15)."; ci_propose=1
 fi
 
 # --- Output -------------------------------------------------------------------
@@ -287,6 +435,12 @@ echo
 echo "Next action:"
 echo "  → $next"
 echo "  (start a fresh chat for it — state lives on disk, not in this conversation.)"
+if [ -n "$ci_propose" ]; then
+  echo
+  echo "  Also worth proposing: a Check-in STEP, at the next sensible breakpoint — after a"
+  echo "  capability lands, not mid-feature. Advice, not a gate ($DOCS_REL/METHOD.md §10 rule 7): it does"
+  echo "  not replace the action above, and a scheduled check-in never blocks work."
+fi
 echo
-echo "Check-in cadence:"
+echo "Check-in:"
 echo "  $ci"

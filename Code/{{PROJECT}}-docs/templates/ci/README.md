@@ -1,6 +1,6 @@
 # CI starter (GitHub Actions)
 
-Two workflows so a {{PROJECT}} project has continuous integration **from day one** — the method
+Two workflows so the project has continuous integration **from day one** — the method
 checks and the test gate the Test Strategy architecture doc calls for
 (`architecture/*-test-strategy.md`, "CI gates"). They're GitHub Actions, but the *shape*
 (check on push/PR, fail on red) ports to any CI.
@@ -8,8 +8,8 @@ checks and the test gate the Test Strategy architecture doc calls for
 ## 1. Method integrity — `method-check.yml`  *(ships live; no template step)*
 
 Runs the project "doctor" (`scripts/check.sh` in the docs hub): duplicate STEP/ADR numbers,
-invalid statuses, architecture-doc frontmatter, ADR registry vs. files on disk, root hygiene,
-numbered-session/seed alignment, and the conditional-session template contract required by
+invalid statuses, architecture-doc frontmatter, ADR registry vs. files on disk,
+numbered-session/seed alignment, the conditional-session template contract required by
 the Cross-Cutting Review and periodic check-in. It is **already installed** in the docs hub
 at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-repo** project
 (the hub is its own repo) it's active the moment you push the hub — nothing to place.
@@ -18,11 +18,12 @@ at `Code/{{PROJECT}}-docs/.github/workflows/method-check.yml`, so in a **multi-r
   docs); the `STEP-index` lives in the `prompts/` repo, so those checks skip here and run in full
   when the whole workspace is checked out (locally and at each check-in).
 - **Mono-repo-for-now:** the workspace root is the single repo, and a workflow nested under
-  `Code/<project>-docs/` does **not** trigger there — **copy** `method-check.yml` to the **root**
-  `.github/workflows/`. The workflow auto-detects `Code/<project>-docs/scripts/check.sh`;
-  from the root, that script sees `prompts/` too, so the STEP-index checks run as well.
+  `Code/<project>-docs/` does **not** trigger there — so `method-check.yml` also belongs at the
+  **root** `.github/workflows/`. `init.sh` puts it there when it creates the project. The
+  workflow auto-detects `Code/<project>-docs/scripts/check.sh`; from the root, that script sees
+  `prompts/` too, so the STEP-index checks run as well.
 
-## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per repo)*
+## 2. Code-repo tests — `code-repo-ci.yml`  *(template; stamp per codebase)*
 
 The test gate for a code repo. When you scaffold a code repo (stamping its README from
 `templates/repo-readme-template.md`), also drop this into that repo's `.github/workflows/ci.yml` and fill in
@@ -30,6 +31,16 @@ the toolchain + test command for its stack — examples for Node / Python / Go /
 
 It **fails until configured** on purpose: an unconfigured gate that silently passes is worse than
 none. Replace the `Configure me` step (which `exit 1`s) with your real setup + test command.
+
+- **Mono-repo-for-now:** a code repo is still a folder in the single root repo, and GitHub reads
+  workflows only at a repository root — so a `ci.yml` stamped there never triggers, and the
+  `exit 1` above goes unseen. Stamp it anyway and configure it: it starts gating the moment a
+  split makes that folder a repository root (`runbooks/splitting-repos.md`). Until then the root's
+  `method-check.yml` (§1) is the only gate that runs by default, and it checks the method, not
+  your tests. To gate tests before a split, also put a copy in the root's `.github/workflows/`
+  with one job per code folder, each setting `defaults.run.working-directory` to that folder.
+  That reaches only `run:` steps: leave `actions/checkout` as it is, and point a setup action at
+  the folder's files itself, such as with `cache-dependency-path`.
 
 ## Keeping it honest
 

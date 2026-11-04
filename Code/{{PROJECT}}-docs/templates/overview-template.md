@@ -11,17 +11,16 @@
                             prompts/STEP-index.md. Both the bootstrap and a completed retcon
                             adoption flip the marker to this path-agnostic terminal value. -->
 
-<!-- CHECK-IN-CADENCE: 20 -->
-<!-- ^ Check-in cadence (optional): aim for a Check-in STEP about every this-many STEPs. 20 is the
-     recommended default — edit it for a tighter (e.g. 15) or looser (e.g. 50) rhythm, or delete the
-     line to accept 20. It stays a judgment-based guideline. See METHOD.md §5 for how status.sh uses
-     it (a heads-up 5 STEPs before the target, overdue 5 after). -->
+<!-- NEXT-CHECK-IN: STEP-20 -->
+<!-- ^ When the next Check-in STEP is due: a STEP number (STEP-45) or a date (2026-11-15).
+     Whoever schedules a check-in writes it here, and each check-in sets the next one as it
+     closes. `status.sh` reports it as due once it is reached, and keeps saying so until you move
+     it. Move it whenever you like — it is a plan, not a rule. See METHOD.md §5. -->
 
-> This is the template for your project brief. `init.sh` creates
-> `Code/{{PROJECT}}-docs/overview.md` from it — **open that copy and fill it in** (1–2
-> pages). It's the seed your agent uses to kick off the project. You don't need every
-> answer — the architecture sessions draw the rest out of you. Write what you know; leave a
-> `?` where you're unsure.
+> This is your project brief (1–2 pages), the seed your agent uses to kick off the project.
+> The kickoff drafts it with you in chat, or you can write it yourself first. You don't need
+> every answer — the architecture sessions draw the rest out of you. Write what you know;
+> leave a `?` where you're unsure.
 >
 > **Already have design material** — a product spec, prior architecture or protocol docs, UI
 > designs? Put the actual documents in `inputs/` (see `inputs/README.md`); the sessions read

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for the root doctor.sh dispatcher.
+# Regression coverage for the root doctor.sh wrapper and the docs-hub dispatcher it execs.
 
 set -euo pipefail
 export LC_ALL=C
@@ -9,8 +9,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-doctor-test.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
-# assert_contains OUTPUT EXPECTED — preserve only the dispatch contract sentence so helper
-# output can evolve independently.
+# assert_contains OUTPUT EXPECTED — a fixed-string substring test, so the rest of OUTPUT can
+# change without failing it.
 assert_contains() {
   local output="$1" expected="$2"
   if ! printf '%s\n' "$output" | grep -Fq "$expected"; then
@@ -20,12 +20,14 @@ assert_contains() {
   fi
 }
 
-# Build a minimal generated-workspace shape with fake helper scripts. The dispatcher test
-# cares that doctor.sh finds and execs the right helper while forwarding any extra arguments;
-# status.sh/check.sh behavior is covered by their own tests.
+# Build a minimal generated-workspace shape with fake helper scripts, and stamp the root wrapper's
+# docs-hub path the way init.sh does. The dispatcher test cares that doctor.sh finds and execs the
+# right helper, forwarding any extra arguments and handing back its exit code; the helpers'
+# behavior is covered by their own tests (tests/status-*.sh, tests/check-*.sh, tests/links.sh).
 fixture="$TMP_ROOT/workspace"
 mkdir -p "$fixture/Code/acme-docs/scripts"
 cp -p "$ROOT/doctor.sh" "$fixture/doctor.sh"
+perl -pi -e 's/\Q{{PROJECT}}\E/acme/g' "$fixture/doctor.sh"
 cp -p "$ROOT/Code/{{PROJECT}}-docs/scripts/doctor.sh" \
   "$fixture/Code/acme-docs/scripts/doctor.sh"
 
@@ -38,6 +40,7 @@ chmod +x "$fixture/Code/acme-docs/scripts/status.sh"
 cat > "$fixture/Code/acme-docs/scripts/check.sh" <<'CHECK'
 #!/usr/bin/env bash
 printf 'check helper: %s\n' "$*"
+exit "${FAKE_CHECK_EXIT:-0}"
 CHECK
 chmod +x "$fixture/Code/acme-docs/scripts/check.sh"
 
@@ -47,12 +50,30 @@ printf 'links helper: %s\n' "$*"
 LINKS
 chmod +x "$fixture/Code/acme-docs/scripts/links.sh"
 
-# Help output is the user-facing command list; keep it explicit so new commands are deliberate.
+# Help output is the user-facing command list. These checks look only for the usage line and for
+# each helper command's name anywhere in it.
 help_output="$("$ROOT/doctor.sh" --help)"
 assert_contains "$help_output" "Usage: ./doctor.sh <command> [args]"
 assert_contains "$help_output" "status"
 assert_contains "$help_output" "check"
 assert_contains "$help_output" "links"
+
+# A bare call is help: the same text on stdout, and exit 0. Check it at the root wrapper and at
+# the hub dispatcher itself, which the root wrapper setup-workspace.sh writes also execs.
+for entry in doctor.sh Code/acme-docs/scripts/doctor.sh; do
+  set +e
+  bare_output="$("$fixture/$entry" 2>/dev/null)"
+  bare_status=$?
+  set -e
+  [ "$bare_status" -eq 0 ] || {
+    printf 'FAIL: expected bare %s to exit 0, got %s\n' "$entry" "$bare_status" >&2
+    exit 1
+  }
+  [ "$bare_output" = "$help_output" ] || {
+    printf 'FAIL: expected bare %s to print the help text on stdout, got:\n%s\n' "$entry" "$bare_output" >&2
+    exit 1
+  }
+done
 
 # The implemented commands should be thin pass-throughs to the docs-hub helpers.
 output="$("$fixture/doctor.sh" status alpha beta)"
@@ -64,8 +85,19 @@ assert_contains "$output" "check helper: --verbose"
 output="$("$fixture/doctor.sh" links --sample)"
 assert_contains "$output" "links helper: --sample"
 
+# A helper's exit code is the caller's verdict — check.sh exits non-zero on a FAIL — so the
+# dispatcher must hand it back unchanged.
+set +e
+FAKE_CHECK_EXIT=3 "$fixture/doctor.sh" check > /dev/null
+check_status=$?
+set -e
+[ "$check_status" -eq 3 ] || {
+  printf 'FAIL: expected doctor.sh check to return the helper exit code 3, got %s\n' "$check_status" >&2
+  exit 1
+}
+
 # Multi-repo workspace roots are per-machine and not committed, so setup-workspace.sh must
-# regenerate the root dispatcher for later developers' machines.
+# regenerate the root wrapper for later developers' machines.
 setup_fixture="$TMP_ROOT/setup-workspace"
 mkdir -p "$setup_fixture/Code"
 cp -R "$ROOT/Code/{{PROJECT}}-docs" "$setup_fixture/Code/acme-docs"
@@ -88,5 +120,16 @@ set -e
   exit 1
 }
 assert_contains "$unknown_output" "unknown command: nope"
+
+# Help takes no arguments; a trailing one is the same usage error as an unknown command.
+set +e
+help_extra_output="$("$fixture/doctor.sh" help extra 2>&1)"
+help_extra_status=$?
+set -e
+[ "$help_extra_status" -eq 2 ] || {
+  printf 'FAIL: expected help with a trailing argument to exit 2, got %s\n' "$help_extra_status" >&2
+  exit 1
+}
+assert_contains "$help_extra_output" "doctor.sh: unknown command: extra"
 
 echo "doctor.sh dispatcher: PASS"

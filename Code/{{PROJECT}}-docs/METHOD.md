@@ -1,14 +1,12 @@
 # The Method
 
-**Method version: 1.0** — the core method is stable; expect continued refinement, especially in the collaboration and scaffold-update layers.
+**Method version: 1.1** — the core method is stable; expect continued refinement, especially in the collaboration and scaffold-update layers.
 
 > Built with **Throughstone** — this file and the other scaffold files (`templates/`,
 > `runbooks/`, `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause; the full text is
-> retained as `LICENSE-THROUGHSTONE` in this docs hub. Your own application code is under the
-> open-source license you chose at setup or remains private/proprietary. For open-source
-> projects, the docs hub's `LICENSE` is the canonical project-license file copied into each
-> application-code repo when that repo is created. The durable selection is recorded separately
-> in `.throughstone/project-license`, so a missing license file cannot silently change it.
+> retained as `LICENSE-THROUGHSTONE` in this docs hub. By default, your own application code is
+> under the open-source license you chose at setup or remains proprietary. When an application-code
+> repo is added, its licence files follow `runbooks/register-repo.md` step 3.
 
 How projects built with this scaffold are structured. This is the canonical reference;
 the agent reads it to understand how to work. Read it once before you start.
@@ -71,15 +69,19 @@ written later, when you start it.
 
 ## 3. The two durable doc genres
 
-Everything lives in the docs hub: `Code/{{PROJECT}}-docs/`.
+**The docs hub** is `Code/{{PROJECT}}-docs/`. Both genres live in it, with the registries,
+reports, and the method's own text and scripts. In a multi-repo project it is its own repo; in
+mono-repo-for-now it is a folder inside the root repo (§7).
 
 | Genre | Location | Answers | Lifecycle |
 |-------|----------|---------|-----------|
 | **Architecture docs** | `architecture/NN-*.md` | *What is the system?* | Living. Versioned (see §6), maintained as reality changes. |
 | **ADRs** | `adr/ADR-NNNN-*.md` | *Why is it this way?* | Point-in-time. Never rewritten — superseded or amended. |
 
-- **Architecture docs** are the single source of truth for the current design. When
-  something changes, you update the doc and bump its version log.
+- **Architecture docs** are the single source of truth for the intended design. When
+  something changes, you update the doc and bump its version log. Where a doc and the code
+  disagree, the code is authoritative for what the system *does* and the doc for what it is
+  *meant* to do — reconcile the two rather than leaving them apart (`runbooks/check-in.md`).
 - **ADRs** capture a decision at the moment it's made — context, the choice, alternatives
   rejected, consequences. You don't edit an ADR's decision later; you write a new ADR that
   supersedes it, or append a dated amendment. There's an index at `adr/README.md`.
@@ -88,19 +90,15 @@ Other folders in the hub: `coding-standards/` (per-language plus cross-cutting �
 `shell.md`, `api.md`; defaults ship for common languages, and the Test Strategy session
 reconciles them to the stack you pick and records the result in the Test Strategy architecture
 doc — review what's there, add what's missing, prune the rest), `runbooks/`
-(repeatable procedures — ships with
-`check-in.md`, `collaboration.md`, `release-deploy.md` (an optional, customizable
-deploy/rollback checklist), `incident-postmortem.md` (respond to a production incident, then
-spin up an Incident STEP to RCA → find similar → fix, with a postmortem report from
-`templates/reports/incidents/incident-postmortem-report-template.md`), and `dependency-supply-chain.md` (vet a new dependency;
-audit dependencies for vulns/licenses on a cadence); add your own operational ones),
+(repeatable procedures — `runbooks/README.md` lists the ones that ship; add your own
+operational ones),
 `reports/` (durable review and operational reports, kept in the docs hub rather than inside
 STEP folders — check-in reports live directly in `reports/`, `reports/incidents/` holds
 incident postmortem reports, `reports/security/` holds security baseline, sweep, and audit
 reports, and `reports/test-results/` holds durable test, coverage, and quality-gate result
 reports),
 `registries/`
-(e.g. `repos.yml`, the repo inventory for multi-repo projects, and `risks.yml`, the accepted
+(e.g. `repos.yml`, the repo inventory, and `risks.yml`, the accepted
 risk / tech-debt register).
 
 ## 4. Architecture sessions
@@ -127,6 +125,16 @@ set lives in `templates/architecture-sessions/`.
 | 1.12 | Test Strategy | `architecture/12-*` |
 | 1.13 | Glossary | `architecture/13-*` |
 | 1.14 | Cross-Cutting Review | review doc |
+
+**A core session deferred wholesale files a risk row.** Leaving a core session unrun is a
+conscious, dated decision — the Security session says so outright, and the UI session when a UI
+may arrive later. If it writes no `architecture/NN-*.md`, no sweep can see it: the check-in
+enumerates the `conditional-*.md` templates and the architecture docs that exist.
+So mark the substep `Deferred` rather than `Done` in `prompts/STEP-index.md` **and record the
+deferral in `registries/risks.yml`** with owner, severity and the trigger that revisits it, like
+any other consciously deferred item (§7) — the check-in reviews every open row, and that is what
+brings the session back. A session marked `N/A`, one this project will never need, is not a
+deferral and files nothing.
 
 **Conditional sessions** are included only when relevant and are owned by the session that has
 enough information to decide them: **Native app architecture** is decided by Session 1.3's
@@ -190,10 +198,9 @@ way.
 These documents are **point-in-time**: a starting point, not the living source of truth. As the
 sessions capture an input's content into `architecture/` — synthesized for a PRD, or lifted as a
 near-verbatim copy for a spec or other finished doc — that generated doc becomes the truth and the
-captured parts go stale, so `inputs/` carries a small ledger (`inputs/inputs-index.md`) of what each
-input still holds vs. what's been superseded, and a fully-superseded input is retired to
-`inputs/archive/`, which sessions don't read. The periodic check-in reconciles this (§5). See
-`inputs/README.md`.
+captured parts go stale. Each session logs what it took, and where it went, in
+`registries/input-captures.yml`; once you say an input is fully captured, it moves to
+`inputs/archive/`, which sessions don't read. See `inputs/README.md`.
 
 ### Sessions are re-runnable
 A session isn't a one-time gate. If an assumption changes later — scaling needs grow, the
@@ -256,7 +263,7 @@ anything after the insertion point — up by one. To add one:
    session's invocation/output contract. Use a broad audit such as
    `rg '1\.14|14-cross|architecture/14-'` to find leftovers, but keep dynamic prose dynamic:
    prefer session labels and topic globs outside invocation/output contracts. Run
-   `scripts/check.sh` afterward; it is the mechanical backstop for heading/seed/output drift
+   `./doctor.sh check` afterward; it is the mechanical backstop for heading/seed/output drift
    and for keeping the Cross-Cutting Review last.
 3. Add its row to the §4 table and `templates/step-index-seed.md`.
 
@@ -266,68 +273,113 @@ When in doubt, prefer a conditional: it carries the same interview-and-document 
 the renumber.
 
 ### Calibrating to the user's experience level
-The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the active user how much experience they
-have building a project like this and records it in root `.throughstone/local-user.md`:
-**Level 1** (no coding experience), **Level 2** (basic coding experience), **Level 3**
-(senior developer or above). This is a **personal, per-machine local profile**, not a
-project fact. Each additional contributor creates their own profile during onboarding.
-Every session reads this profile first, so each one sees it and **adjusts how it asks** —
-the decisions reached are the same; only the explaining changes:
+The kickoff (`BOOTSTRAP-PROMPT.md`, Stage 0) asks the active user two questions and records the
+answers in root `.throughstone/local-user.md`. Stage 0 owns the question wording, the answer
+labels and the file shape. The answers set two **independent** dials:
+
+- **Experience level** — **1**, **2**, or **3**. This governs **how much technical background
+  you can assume** — which terms, concepts and options need explaining — and nothing else.
+- **Communication style** — **Terse**, **Normal**, or **Explanatory**. This governs **how much
+  reasoning comes with a decision**, and nothing else.
+
+Never infer one from the other. *Level 3 + Explanatory* — an expert who wants the reasoning
+spelled out — is as ordinary as *Level 1 + Terse*.
+
+This is a **personal, per-machine local profile**, not a project fact. Each additional
+contributor creates their own profile during onboarding. Every session reads it first, so each
+one sees it and **adjusts how it asks** — the decisions reached are the same; only the
+explaining changes.
 
 At any agent entry point — kickoff, resume, an architecture session, the planning session,
 STEP planning, substep execution, or contributor onboarding — if root
-`.throughstone/local-user.md` is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0,
-create the file, and then continue. If the user gives an explicit style instruction in chat,
+`.throughstone/local-user.md` is missing or either value isn't one of the listed answers, ask
+the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write the file, and then
+continue. If the user gives an explicit instruction in chat,
 honor it for the current session; otherwise use `.throughstone/local-user.md`. To change the
 default for future sessions, edit that file.
 
-- **Level 1–2** — before each question, say in plain language *what* it's asking and *why* it
-  matters, and lead with a recommended default. Don't assume jargon: concepts like scaling,
-  security, threat model, infrastructure, and environments get a one-line "here's what this
-  means for you" framing rather than being named and left bare.
-- **Level 3** — assume fluency; keep it terse and decision-focused.
-- **At any level**, the user can ask for a question to be unpacked — and they won't use a
-  set phrase. Treat *any* sign of confusion or request to clarify as the cue: "what do you
-  mean?", "why does that matter?", "huh?", a hesitation, a guess that misreads the question,
-  or a literal *"explain what you're asking and why it matters."* Give the Level-1/2
-  explanation on the spot, then re-ask. **Say so up front** — when you set the level (or at
-  the first session), tell the user in plain terms that they can ask you to explain any
-  question at any time; don't make them discover the affordance.
+**Experience level — the background you may assume:**
 
-The level is advisory, not a gate: if the conversation shows the user is more or less
-comfortable than they marked, adjust on the fly and correct the value in
-`.throughstone/local-user.md`.
+- **Level 1** — don't assume the concept itself. Name it in non-technical terms, and frame the
+  options the same way. Concepts like scaling, security, threat model, infrastructure and
+  environments get said in ordinary words rather than being named and left bare. Whether you
+  also say why the choice matters is the style dial, not this one.
+- **Level 2** — the concept is known; the options may not be. Use the real terms and gloss each
+  *option* in a clause the first time.
+- **Level 3** — assume fluency. Use the real terms bare and don't re-explain the mechanics.
 
-The same profile also records the user's default **Communication style**:
-**Terse**, **Normal**, or **Explanatory**. Read it before user-facing project discussions,
-especially STEP planning, and treat it as the saved default so the user is not asked the
-same verbosity question repeatedly. Override precedence is: **explicit chat instruction for
-this session** → **`.throughstone/local-user.md` default** → **ask and create the missing
-profile**.
+The level is a default, not a fact about the person: someone fluent in one area can be new to
+another. When a user is plainly out of their depth on one topic, explain that one and carry on.
 
-**Worked examples** — the *same* canonical question, rendered at each level. The substance is
-identical; only the framing changes. Notice the recurring moves: Level 1 names the failure it
-prevents and ends with a yes/no default so the user is never facing a blank prompt; Level 2
-keeps the term but defines it inline the first time; Level 3 is terse and surfaces the
-interesting trade-off, not the basics.
+> *For example* — one caching question at each level, style held at Terse. Same ask, same recommendation; only the assumed background moves. **L1:** "Caching means keeping a copy of an answer so the app doesn't work it out again every time. I'd save the copy as you write. That, save it in the background, or skip it on writes?" **L2:** "Caching — I'd take write-through. Write-through (store and cache together), write-behind (queue the store), or write-around (skip the cache on writes)?" **L3:** "Caching — I'd take write-through. Write-through, write-behind, or write-around?"
+
+**Communication style — how much reasoning comes with a decision:**
+
+- **Terse** — a sentence, sometimes a fragment: the recommendation and the question.
+- **Normal** — a few sentences: why this matters here, and what the options cost where that
+  isn't obvious.
+- **Explanatory** — the detail: why it matters, why your recommendation fits, and what the
+  alternatives cost.
+
+That's a rough guide, not a word count, and *what* the reasoning is about — the decision, the
+recommendation, the options — is whatever the question needs. The dial sets how much of it you
+give. Use judgment; approximately right is the goal.
+
+**When a project question has a defensible default — at every level and every style** — lead
+with it rather than a blank prompt. Pure elicitation has no default to recommend: which
+non-goals are yours, which assets are your crown jewels. There, give the shape of the answer
+instead. Neither is a calibration; both are how every question is asked.
+
+**When the user pushes back**, they won't use a set phrase. Treat *any* sign of confusion or
+request to clarify as the cue: "what do you mean?", "why does that matter?", "huh?", a
+hesitation, a guess that misreads the question, or a literal *"explain what you're asking and
+why it matters."* Answer in kind, whatever the level or style — a *"what do you mean?"* asks for
+plainer vocabulary, a *"why does that matter?"* asks for more reasoning. Don't answer a
+why-question by dropping to Level-1 vocabulary. Then re-ask. **Say so up front** — when you set
+the profile (or at the first session), tell the user in plain terms that they can ask you to
+explain any question at any time; don't make them discover the affordance.
+
+The level is advisory, not a gate: if the conversation shows the user is more or less fluent
+than they marked, adjust on the fly. If the mismatch holds across topics rather than one
+unfamiliar area, ask whether they want the stored value changed — don't rewrite it silently. The
+style is a stated preference, not an inference: never adjust it from how the conversation is
+going. A chat instruction changes it for the session; only the user edits the stored value.
+
+Read **both** values at every entry point listed above, and treat them as saved defaults so
+the user is not asked the same question repeatedly. Override precedence is:
+**explicit chat instruction for this session** → **`.throughstone/local-user.md` default** →
+**ask, and write the profile**.
+
+**Worked examples** — all of these are illustrations, not text to reuse. Each set renders the
+*same* canonical question against one dial: the ask, the recommendation and the reasoning stay
+put, and only the named thing moves. The first three hold the style at **Normal** and move the
+level, so the background axis shows on its own: Level 1 names the concept in non-technical
+terms, Level 2 keeps the real term and glosses each option inline, Level 3 uses it bare. The
+last set takes the observability question again, holds the level at **3**, and moves the style
+instead.
 
 > *Non-goals (Session 1.1):*
-> - **L1:** "Now the most important — and strangest — question: what are you deliberately **not** building, at least for now? Naming what you skip is the #1 thing that stops a project ballooning forever and never shipping. Two buckets: 'not yet' (good for later) and 'never' (just not what this is). One feature you'd firmly set aside for v1?"
-> - **L2:** "Let's pin down non-goals — what you're deliberately leaving out, since that's what stops scope creep. Split 'not now' (deferred) vs. 'not ever' (out of scope by design). What's on each list?"
-> - **L3:** "Non-goals — split 'not now' vs. 'not ever'. What are you explicitly excluding from v1?"
+> - **L1:** "Now the strangest question: what are you deliberately **not** building, at least for now? Naming what you skip is what stops a project growing forever and never shipping. Two lists — 'not yet' (good idea, later) and 'never' (just not what this is). What goes on each?"
+> - **L2:** "Non-goals — what you're deliberately leaving out, since that's what stops scope creep. Split 'not now' (deferred) from 'not ever' (out of scope by design). What's on each list?"
+> - **L3:** "Non-goals — 'not now' vs. 'not ever'; it's the lever against scope creep. What's on each list?"
 
 > *Threat model (Session 1.6):*
-> - **L1:** "Now security. The common mistake is 'we're too small for anyone to attack us' — but most attacks are automated bots probing *everything*, not personal. So: if someone broke in, what would hurt most — leaking users' info, tampering with data, or the site going down? You don't need to know how to defend it, just what matters most."
-> - **L2:** "A lightweight threat model. Skip the 'too small to be a target' instinct — anything public gets probed automatically. Name the assets worth protecting and the top threats: what would do the most damage if it leaked, got tampered with, or went down?"
-> - **L3:** "Threat model — assets, trust boundaries, threats you actually care about. Crown-jewel data, and your stance on authn/authz, secrets, tenant isolation?"
+> - **L1:** "Now security. The common mistake is 'we're too small for anyone to attack us' — but most attacks are automated bots probing *everything*, not someone choosing you. So: which of the things you're storing would hurt most if they leaked, got changed, or went offline? You don't need to know how to defend them, just which ones matter."
+> - **L2:** "A lightweight threat model. Skip the 'too small to be a target' instinct — anything public gets probed automatically. Which assets are worth protecting, and what would do the most damage if it leaked, got tampered with, or went down?"
+> - **L3:** "Threat model — anything public gets probed automatically. Which assets are worth protecting, and which threats do you actually care about: disclosure, tampering, availability?"
 
 > *Observability (Session 1.10):*
-> - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is angry users — and even then you can't tell why. The fix is leaving yourself a trail of breadcrumbs to answer 'what happened?'. For v1 I'd suggest just good logs plus an alert if the site goes down. Enough to start?"
-> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' Logs (what happened), metrics (is it healthy), alerts (tell me when it's not). For a first release I'd default to structured logs + an error/uptime alert and add dashboards later. Start there?"
-> - **L3:** "Observability — logs/metrics/traces and alerting. SLOs now or later? I'd default to structured logging + error tracking + an uptime alert for a first release and defer tracing/SLOs unless you're latency-sensitive."
+> - **L1:** "How will you *know* the app is healthy once people use it? The trap: it breaks, and the only signal is annoyed users — and even then you can't tell why. For a first release I'd suggest good notes of what happened, something watching for errors, and an alert when the site goes down. Enough to start, or do you want more?"
+> - **L2:** "Observability — how you'll see what the system is doing in production; the failure mode is 'users told us it broke and we can't tell why.' For a first release I'd default to structured logs, error tracking and an uptime alert. Start there, or do you want more?"
+> - **L3:** "Observability — the failure mode is finding out from users and not being able to say why. I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
+
+> *Observability again (Session 1.10) — level held at 3, style moved:*
+> - **Terse:** "Observability — I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
+> - **Normal:** "Observability — the failure mode is finding out from users and not being able to say why. I'd default to structured logging, error tracking and an uptime alert for a first release. Start there, or do you want more?"
+> - **Explanatory:** "Observability — I'd default to structured logging, error tracking and an uptime alert for a first release. The failure mode it prevents is finding out from users and not being able to say why: unstructured logs tell you a request failed but not which one or in what state, and without error tracking one recurring exception arrives as a stream of unrelated reports. Tracing and SLOs answer questions you don't have yet at this size and cost you instrumentation on every call path, so I'd defer them unless you're latency-sensitive. Start there, or do you want more?"
 
 ### Calibrating defaults to the project's facts
-Experience level (above) changes *how* a session asks; the project's own recorded facts change
+The local profile (above) changes *how* a session asks; the project's own recorded facts change
 *what* it recommends. A session's default is **never** keyed to an assumed "MVP" — it reads the
 facts the brief and earlier sessions captured, and it **splits breadth from rigor**:
 
@@ -356,13 +408,15 @@ prompts/001-<phase-name>/step-NNNN/ ← archived: STEP PLAN + all substep prompt
   scope. It's the first place to look to understand where the project is.
 - `prompts/README.md` holds the **conventions + the recipe for authoring a new STEP**.
 
-**Apart from `prompts/README.md`, `prompts/` is history; the docs repo is state.** That's
-why they're separate repos. `prompts/README.md` is process guidance; the rest of `prompts/`
-records *how* the project was built, STEP by STEP — it spans all the code repos in the
-project and is never rewritten. `Code/{{PROJECT}}-docs/` describes *what the system is now*
-— it's kept current. Don't fold one into the other.
+**Apart from `prompts/README.md`, `prompts/` is history; the docs hub is state.** That's
+why they stay separate. `prompts/README.md` is process guidance; the rest of `prompts/`
+records *how* the project was built, STEP by STEP, and is never rewritten.
+`Code/{{PROJECT}}-docs/` describes *what the system is now* — it's kept current. Don't fold
+one into the other.
 
-- **`prompts/` is its own repo** (project-wide; it cuts across the code repos).
+- **`prompts/` is project-wide** — every STEP recorded once, wherever the code it touches
+  lives. Where it sits follows the layout: its own repo at the workspace root in a multi-repo
+  project, a folder inside the root repo in mono-repo-for-now (§7).
 - **`Upcoming Prompts/` is a workspace folder, not generally a repo** — it's scratch space
   for the STEP in flight, un-versioned until the STEP completes and is moved into
   `prompts/`. (You *can* make it a repo if you want in-flight work versioned; most don't.)
@@ -377,16 +431,16 @@ go — the prompts should reflect the current intent, not the original guess.
 
 Authoring a STEP is a planning action, not execution approval. If the user's command names a
 whole implementation STEP (`run STEP N`, `start STEP N`, `kick off STEP N`, or similar),
-write or revise the PLAN and substep prompts, present them, and wait. Actual work begins only
-after an explicit substep command (or, for a thin conditional follow-up STEP, an explicit
-by-name conditional-session invocation).
+write or revise the PLAN and any substep prompts, present them, and wait. Actual work begins
+only after an explicit substep command (or, for a thin conditional follow-up STEP, an explicit
+by-name conditional-session invocation; for a Check-in STEP, *"run the check-in"*, §10 rule 6).
 
 Treat STEP planning as an interactive discussion, not a silent document-generation task.
 Before writing the PLAN, confirm the scope with the user and ask for clarification when
 requirements, sequencing, dependencies, or ownership are unclear. When the user needs to
-make a planning choice, offer plausible options with brief pros and cons, then wait for
-direction. Use the saved **Communication style** in `.throughstone/local-user.md` as the
-default level of detail while still asking the questions needed to make the STEP coherent.
+make a planning choice, offer plausible options with pros and cons, then wait for
+direction. Use both saved values in `.throughstone/local-user.md` while still asking the
+questions needed to make the STEP coherent.
 For any code-changing STEP, read the Test Strategy architecture doc during planning, assign
 the relevant test tiers (unit, integration, API/contract, end-to-end, security/authorization,
 migration/data, performance, or project-specific) to the substeps that introduce the behavior,
@@ -395,22 +449,26 @@ dedicated final verification substep; choose deliberately in the PLAN. A code-ch
 without tests needs a stated reason, not silence.
 
 ### Check-in STEPs
-About **every 20 STEPs** (the project's cadence, adjustable), the roadmap includes a **Check-in STEP** — a full STEP whose
-job is to run `runbooks/check-in.md`: reconcile the architecture docs against the code in
-**both directions** (stale doc → fix the doc/write an ADR; code drifted from a still-correct
-doc → file a bug), re-evaluate every available conditional architecture session, review the
-accepted risks/debt in `registries/risks.yml`, and **run the full test suite**. The
-implementation planning session
+Periodically the roadmap includes a **Check-in STEP** — a full STEP whose job is to run
+`runbooks/check-in.md`: reconcile the architecture docs against the code in **both directions**
+(stale doc → fix the doc/write an ADR; code drifted from a still-correct doc → file a bug),
+re-evaluate every available conditional architecture session, review the accepted risks/debt in
+`registries/risks.yml`, and **run every test suite**. The implementation planning session
 interleaves these when it outlines a phase, placing each at a sensible breakpoint (after a
-capability lands, not mid-feature). Treat the cadence as a guideline — pick the breakpoint by
-judgment. **The cadence is a per-project setting** (recommended **20**): the target is recorded as
-`<!-- CHECK-IN-CADENCE: N -->` in `overview.md`, and any project can change it at any time — including
-one that pulls this scaffold into an existing codebase and wants a different rhythm. `status.sh` reads
-that value (defaulting to **20** when the line is absent) and flags a heads-up **5 STEPs before** the
-target and overdue **5 after** — so the default 20 gives a heads-up at 15 and overdue at 25. The agent
-should also **proactively suggest** inserting a check-in when about that
-many STEPs have passed since the last one. This is the periodic safety net; it's separate
-from the continuous rule that every substep updates the doc it changes.
+capability lands, not mid-feature). Title its index row `Check-in` — a scope may follow
+(`Check-in: phase 1`) — so the roadmap reads clearly and `status.sh` knows it is a check-in.
+
+**When the next one is due is recorded, not calculated.** `overview.md` carries
+`<!-- NEXT-CHECK-IN: … -->`, holding either a STEP number (`STEP-45`) or a date (`2026-11-15`).
+`scripts/status.sh` reports it as due once that point is reached, and keeps saying so until
+someone moves it. Whoever schedules a check-in writes the line — the planning session as it lays
+out a phase, the check-in itself as it closes, or the user at any time. **The user answers in
+whatever terms suit them** (*"in about three STEPs"*, *"after the launch"*, *"remind me in
+November"*); the agent turns that into a STEP number or a date and writes it. A missing or
+unreadable value reads as *none scheduled*, which is the nudge to set one. Nothing validates the
+line and nothing enforces it: it is a plan, moving it is free, and a new project starts on the
+seeded **STEP-20** as a suggestion rather than a rule. This is the periodic safety net; it's
+separate from the continuous rule that every substep updates the doc it changes.
 The completed check-in report is written to `reports/YYYY-MM-DD-step-NNNN-check-in-report.md`;
 the archived STEP folder in `prompts/` keeps the thin PLAN, not the durable report.
 
@@ -436,9 +494,8 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
 - **`Version:`** — identity / number, `major.minor.patch`. Bump *patch* for
   fixes/clarifications, *minor* for added sections/decisions, *major* for a **breaking
   architectural change** (a decision that supersedes a prior one). The number is **decoupled
-  from maturity**: `major` no longer marks a maturity "era," so a project already on its own
-  house convention (a calendar date, a `v16`-style line) may keep it — the lifecycle lives in
-  `Status`, not in the digits.
+  from maturity**: a project already on its own house convention (a calendar date, a
+  `v16`-style line) may keep it — the lifecycle lives in `Status`, not in the digits.
 - **`Status:`** — the doc's **maturity lifecycle**, the authoritative *"is this doc the current
   agreed truth?"* signal, independent of the number: **Draft** (not yet — `v0.x`, pre-release,
   shape still unstable) → **Current** (yes — the live, agreed description you can depend on) →
@@ -447,9 +504,8 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
   kept for history, not deleted, with a short note on why — and a pointer to its replacement when there
   is one. A project may rename the rungs, but only to *settledness synonyms* (e.g.
   WIP / Reviewed / Locked) — never a scope word (MVP) or a release-stage word (Beta / GA), which
-  are different axes. A **`Deprecated` doc is excluded from the check-in's doc-drift and
-  deferred-coverage sweeps** (`runbooks/check-in.md`): it is listed as retired for the record,
-  not reconciled against current code or backfilled.
+  are different axes. A **`Deprecated` doc is excluded from the check-in's doc-drift sweep**
+  (`runbooks/check-in.md`): it is kept for the record, not reconciled against current code.
 - **`Coverage:`** *(optional)* — how completely the doc describes its area. Omit it (or `full`)
   when the doc fully covers the area; mark a deliberately fat or partial area `deferred` (or
   `enumerated to depth N`) so the gap is recorded rather than mistaken for drift. **Never leave it
@@ -460,9 +516,9 @@ maturity **status**, and (optionally) a **coverage** note — plus a change log:
   relations are unread, so anything designed against them needs checking first.`
 
   A reader meeting that line months later can tell whether it blocks them; a bare token tells them
-  nothing and gets ignored. Because the value is a sentence, anything looking for deferred coverage
-  **reads the field and compares it to `full`** rather than searching for a fixed phrase — that is
-  how the check-in's deferred-coverage sweep resurfaces these docs (`runbooks/check-in.md`).
+  nothing and gets ignored. In the same edit, file a `registries/risks.yml` row whose revisit
+  trigger says what would end the deferral — the check-in reviews every open row, and that is what
+  brings the area back (§7).
 - A **Version Log** table at the bottom: one row per change (version, date, STEP, what).
 
 ADRs are *not* versioned this way — they're dated, carry a Status (Accepted / Superseded /
@@ -474,76 +530,158 @@ Projects are typically **multi-repo**: the workspace folder is *not* itself a re
 inside it, `prompts/` is one repo and each thing under `Code/` (including
 `{{PROJECT}}-docs`) is its own **sibling** repo. Nothing sits "above" those repos except a
 per-machine shell. The `init.sh` wizard sets this up for the first developer; service repos
-aren't created at bootstrap — they're stamped from
-`Code/{{PROJECT}}-docs/templates/repo-readme-template.md` once the architecture names them. (Or choose
-mono-repo-for-now in the wizard — see *Mono-repo for now* below.) For multi-repo projects,
-`registries/repos.yml` is the canonical inventory. `registries/risks.yml` is the canonical
+aren't created at bootstrap — once the architecture names a repo it is either **created** here,
+stamped from `Code/{{PROJECT}}-docs/templates/repo-readme-template.md`, or **adopted**: one that
+already exists, registered where it sits (`runbooks/register-repo.md`). (Or choose
+mono-repo-for-now in the wizard — see *Mono-repo for now* below.) `registries/repos.yml` is the
+canonical inventory in either layout. `registries/risks.yml` is the canonical
 accepted risk / tech-debt register: when a risk or debt item is consciously deferred, record it
 there with owner, severity, revisit trigger, and a reference to the durable source artifact
 that explains it. If no source exists yet, create the right one first — an architecture
 decision/section, ADR, issue/follow-up STEP, incident report under `reports/incidents/`, or
 check-in report under `reports/` — then add the register row. **Every repo carries a README explaining
-what it is** — its role and the slice of the system it owns — stamped from that template and
-filled in when the repo is scaffolded (with a matching one-line `description` in
-`registries/repos.yml`); a repo with real internal complexity adds an `ARCHITECTURE.md` at
-its root for its internal design. **Every new application-code repo also inherits the
-project-license posture established by `init.sh`:** read the authoritative selection from the
-docs hub's `.throughstone/project-license`. For an open-source selection, the docs hub must have
-a matching canonical `LICENSE`, which is copied unchanged to the new repo root. For
-`Proprietary`, the new repo gets no project `LICENSE`. Do not copy `LICENSE-THROUGHSTONE` into
-application-code repos that contain no Throughstone-authored material. Repos scaffolded through
-this method do contain the Throughstone-authored README and CI starter, so
-`scripts/apply-project-license.sh` copies `LICENSE-THROUGHSTONE` and writes a visible
-`LICENSING.md` that distinguishes retained scaffold material from project-authored code.
+what it is** — its role and the slice of the system it owns, with a matching one-line
+`description` in `registries/repos.yml`; **which README it gets is decided by what is in the repo,
+not by how the repo arrived** (`runbooks/register-repo.md`). A repo or code folder with real
+internal complexity adds an `ARCHITECTURE.md` beside its README for its internal design.
+**Licensing starts from the posture `init.sh` established** — one selection for the whole project,
+recorded in the docs hub's `.throughstone/project-license`.
+
+**Making a repo public takes an explicit instruction from the user naming that repo** — a license,
+a public sibling repo, a remote, or a project that calls itself open source is not that
+instruction, and neither is silence. It reads the same for every repo in the project, whatever its
+history, and an instruction naming one repo does not carry to the next. It governs the act of
+publishing, not the visibility a repo already carries: a license says what may be done with the
+code, never who may read it. Where a repo is being stood up for the first time, create it
+**private** — widening is a separate decision, made deliberately later.
+
+The rule takes no exceptions because publishing cannot be taken back. Most of what goes wrong in
+this section ends in a file, and a file can be corrected; a repository that goes public hands its
+whole history — every commit, every key committed once and removed a week later — to forks, caches
+and crawlers before anyone notices.
 
 **Where a repo lives — always inside the workspace.** A repo's `registries/repos.yml`
 `location:` is **a path relative to the workspace root, identical on every machine; it never
 begins with `/` or `~`, and no segment of it is `..`.** Usually that is a `Code/*`
 sibling — the layout `init.sh` and the scaffolding above assume — but any contained path works.
-The point is reproducibility: a contributor clones the docs hub, runs
-`scripts/setup-workspace.sh`, and assembles the whole workspace from the registry alone.
+The point is reproducibility: in a multi-repo project a contributor clones the docs hub, runs
+`Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, and assembles the whole workspace from the
+registry alone.
 `location:` says where the repo is; the optional `remote:` says where to clone it from.
 **No repo's code is rewritten, and none is forced to move.** A repo that already exists is
 adopted either by moving into the workspace or, when it genuinely cannot move, by staying
 exactly where it is with a **symlink** at its registered location pointing at the real
 checkout — the row stays portable and the repo's contents are untouched
 (`runbooks/register-repo.md`).
-`scripts/setup-workspace.sh` clones each row that has a `remote:` into its `location:`, and
-leaves a location that already holds a checkout alone, including one reached through a symlink.
+`scripts/setup-workspace.sh` clones each row that has a `remote:` into its `location:`, leaves a
+location that already holds a checkout alone (including one reached through a symlink), and
+reports and skips any location breaking that shape rather than cloning into it — an absolute path
+from someone else's machine must not be written to here even when it happens to be writable.
+
+**What a row records, and what it does not.** A row is an inventory entry, never a status board;
+`registries/repos.yml` documents its fields. Two of them are **stamps for a reader** — `added_as`
+and `type`: no script reads either, and the STEP process must not branch on how a repo arrived.
+When a repo is registered, its licensing depends on how it arrived (`runbooks/register-repo.md`
+step 3); a case that step does not cover is a decision taken deliberately, not a pattern to reach
+for. **Nothing else
+is tracked per repo.** The work of bringing a repo in is *done* at the time, never recorded as a
+status, and anything missed is found later by looking at the repo.
+
+**The registry is checked at the check-in, not on the common path.** The set of repos changes only
+when one is created, adopted or split out, so `scripts/check.sh` checks it under `--check-in` alone,
+and only mechanically: that the file declares which layout the project is in and that its rows
+agree with that, that every row has a `location:`, and that no repo's work is left uncovered
+by any remote, because work that lives on one laptop is a bus factor of one. Everything else is the
+by-hand comparison in `runbooks/check-in.md`. **A case the registry does not cover is raised to a
+person in the chat**, never answered by inventing a field or a check.
+
+Registering a repo makes it **known and connected — never good.** A repo whose README is thin is
+registered as it stands; improving it is forward work, and only a genuinely risky shortfall becomes
+a `registries/risks.yml` row.
+
+**Registering a repo is its own procedure:** `runbooks/register-repo.md`. It maintains the row and
+the repo's entry in the Architecture Overview architecture doc — **always attempting both, rolling
+back neither, and reporting whatever did not land** — and everything that changes the set of
+repositories goes through it, the split included: `runbooks/splitting-repos.md` runs it as one of
+its own steps.
 
 **All durable content lives in a repo** — almost always `Code/{{PROJECT}}-docs/`. The
 workspace root holds only **per-machine** files: the pointer `CLAUDE.md` / `AGENTS.md`
-(which redirect to the canonical `Code/{{PROJECT}}-docs/AGENTS.md`) and `.claude/` config.
-These are not versioned (the root is not a repo) and are regenerated on each developer's
-machine by `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`.
+(which redirect to the canonical `Code/{{PROJECT}}-docs/AGENTS.md`), the `doctor.sh` shortcut,
+`.claude/` config, and `.throughstone/`, which holds the local user profile. These are not
+versioned (the root is not a repo). `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh` writes the
+pointers and `doctor.sh` on each developer's machine, and each developer sets up their own
+profile (`ONBOARDING.md` §3).
 
-**Workspace-root hygiene:** besides the per-machine pointers/config, the repo folders, and
+**Workspace-root hygiene:** besides the per-machine files above, the repo folders, and
 the `Upcoming Prompts/` working folder, no other file should sit at the workspace root (the
 one-time `init.sh` may linger there until you delete it post-bootstrap — that's expected). If
 any *other* file appears, ask whether it belongs in a repo (usually the docs hub) and move it.
 
-**Path conventions in docs.** Top-level agent-facing docs (`AGENTS.md`, `BOOTSTRAP-PROMPT.md`,
-this file) write paths **relative to the workspace root** — `Code/{{PROJECT}}-docs/architecture/…`,
-`prompts/STEP-index.md`. The exception is the **session and template files** under
-`templates/`: because they live and operate inside the docs hub, they write hub-local paths
-(`architecture/*-data-model.md`, `adr/`, `overview.md`) relative to the hub. Either way, a reference
-that **crosses into another repo is always written in full** — most notably
-`prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written bare.
+**Path conventions in docs.** A shell command and a path you merely name are written
+differently. Writing one as the other is how an instruction becomes a dead end.
+
+**A shell command is written from where the text has the reader standing.** Unless the text says
+otherwise that is the **workspace root** — the folder a contributor opens and an agent is pointed
+at: `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`,
+`Code/{{PROJECT}}-docs/scripts/check.sh --check-in`. This holds in **every** document, the
+hub-local ones below included, and it holds whether the reader is being told to run the command or
+warned off it — a warning has to name the program unambiguously too. Anything that works from
+somewhere else **names that directory in the same breath**: Case 2 step 8 of
+`runbooks/splitting-repos.md` says to run `scripts/setup-workspace.sh` *from the new hub*.
+
+**Everything else follows the file it is written in.** A document inside the docs hub names the
+hub's own contents **hub-local** — `registries/repos.yml`, `runbooks/check-in.md`,
+`architecture/*-data-model.md`, `adr/`, `overview.md` — and **hub-local is measured from the hub's
+root, not from the file**, so `runbooks/check-in.md` writes `registries/repos.yml`, never
+`../registries/repos.yml`. The exception is a document that **declares it stands its reader at the
+workspace root**: `AGENTS.md`, `BOOTSTRAP-PROMPT.md` and `ONBOARDING.md` say so in their opening
+lines, and `runbooks/register-repo.md` before its first step. Those write **every** path from the
+workspace root, references included; that is the point of declaring it. A document that lives in
+neither the hub nor a declaring file — `prompts/README.md` is the one the scaffold ships — reads
+"the file it is written in" the same way: **from the root of its own repository**, so
+`prompts/README.md` names its sibling as `STEP-index.md`. Crossing out of that repo is covered by
+the next rule.
+
+**Either way, a reference that crosses into another repo is always written in full** — most
+notably `prompts/STEP-index.md`, which lives in `prompts/`, never the hub, so it is never written
+bare.
+
+**A bare name is a name, not a path.** `status.sh` names the tool where the sentence is about what
+it does; `architecture/` and `inputs/` name areas of the hub where the sentence is about the area.
+Write the path out when the reader has to reach the thing. (`init.sh` and `doctor.sh` sit at the
+workspace root, so a bare mention of them is already root-relative.)
+
+**A path a tool prints follows the reader, not the tool.** None of the helpers changes the
+caller's directory, so whatever any of them prints is read from the workspace root and is written
+from there — a heading naming the file a check reads, and the fix beside it, must not answer in
+two different bases. That is a property of the reader's position, not a list of scripts: it holds
+for every script here and for any added later. A command a tool tells you to run is a shell
+command like any other, so it too is written from the workspace root — `./doctor.sh check`
+rather than the helper's own hub-local path.
+
+**A Markdown link target is none of the above.** The `](…)` half of a link resolves against the
+file that contains it — that is Markdown, not a convention of ours. So `ONBOARDING.md` links to
+the collaboration runbook as `runbooks/collaboration.md` even though its prose writes that path
+in full, and a link out of a hub subdirectory still needs the `../` a hub-local reference does
+not. Adjust a link's display text if it needs it; never its target.
 
 **Mono-repo for now:** the wizard offers a single-repo start — then the **workspace root
 itself is that one repo** (the lone exception to "the root is not a repo" above), with
-`prompts/` and `Code/{{PROJECT}}-docs/` as folders inside it rather than sibling repos. In
-this mode the root pointers (`CLAUDE.md` / `AGENTS.md`) are just ordinary committed files, not
-per-machine artifacts, and the hygiene rule relaxes to match. It's a convenience for getting
-moving solo; the multi-repo layout is the target — but move to it when the architecture asks
-for it. **How many repos a project has follows its architecture, not its headcount.** A
+`prompts/`, `Code/{{PROJECT}}-docs/` and each code folder inside it rather than as sibling repos.
+**It does not take a separate repository in**: bringing in one with a history of its own means
+converting first (`runbooks/splitting-repos.md` Case 2). In this mode the root pointers
+(`CLAUDE.md` / `AGENTS.md`) and `doctor.sh` are just ordinary committed files, not per-machine
+artifacts, and the hygiene rule does not apply. It's a convenience for getting moving; the
+multi-repo layout is the target — but move to it when the architecture asks for it. **How many
+repos a project has follows its architecture, not its headcount.** A
 mono-repo project that gains a second contributor needs **shared remotes** — so the push-reject
 that referees STEP-number reservation can fire (`runbooks/collaboration.md` §2, whose solo→team
 section carries the mono path) — not a split.
 
 **Splitting is its own procedure:** `runbooks/splitting-repos.md`, covering both leaving mono
-and dividing a code repo in two later on — deliberately not "standard git", because the published
-recipe rewrites history with a tool the method can't require.
+and dividing a code repo in two later on — deliberately not the commonly published recipe,
+which rewrites history with a tool the method can't require.
 
 **Working with others:** every STEP is worked on its own branch (`step-NNNN-short-name`, same
 name in every repo it touches) — **solo too**, so the workflow doesn't change the day a second
@@ -552,7 +690,7 @@ concurrent STEPs are the normal case — git keeps them isolated. The main thing
 the **global STEP number**: adding a STEP row to `prompts/STEP-index.md` *is* reserving its
 number, so it's committed and pushed **before** branching, and the loser of a race renumbers.
 **ADR numbers are reserved the same way** — the registry in `adr/README.md` is shared, so two
-authors appending the same number merge into a silent duplicate unless they renumber.
+authors appending the same number can merge into a silent duplicate unless they renumber.
 Decisions are socialized through ADRs (`Proposed` → `Accepted` in a team). Full conventions —
 shared-file editing, the overlap warning, ADR authority, solo→team onboarding — are in
 `runbooks/collaboration.md`.
@@ -560,15 +698,16 @@ shared-file editing, the overlap warning, ADR authority, solo→team onboarding 
 **STEP-1 special case:** `init.sh` seeds `STEP-1` as `Planned`; the kickoff is the project
 setup that creates the STEP-1 PLAN and records which architecture sessions will be run. When
 kickoff closes, flip the `STEP-1` row to `In progress`. Use the branch name
-`step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies (docs hub and
-`prompts/` in multi-repo projects; the root repo in mono-repo-for-now). In a team/shared-remote
-project, push the `In progress` flip so others can see that the architecture STEP is active.
+`step-0001-architecture` for STEP-1 work wherever branch-per-STEP applies — the docs hub and
+`prompts/` in multi-repo projects, the root repo in mono-repo-for-now, **and every other repository
+STEP-1 writes into, an adopted repo included**. In a team/shared-remote project, push the
+`In progress` flip so others can see that the architecture STEP is active.
 
 **Mono→multi split special case:** converting a mono-repo-for-now workspace to multi-repo is
 **branchless** — there is no `step-NNNN` branch, because the repos that branch would live in are
 the ones being created. Its STEP number is reserved in `prompts/STEP-index.md` and committed on
 the mono repo's trunk — the workspace root, the project's only repo at that point — before the
-split starts (`runbooks/splitting-repos.md`, Part 2). Splitting a code repo later is ordinary
+split starts (`runbooks/splitting-repos.md`, Case 2). Splitting a code repo later is ordinary
 branch-per-STEP work like anything else.
 
 ## 8. Naming conventions
@@ -577,8 +716,8 @@ branch-per-STEP work like anything else.
 |-------|---------|---------|
 | Phase folder | `NNN-kebab-name/` | `001-mvp/` |
 | STEP folder (archived) | `step-NNNN/` | `step-0001/`, `step-0087/` |
-| STEP plan | `{{PROJECT}}-STEP-N-PLAN.md` | `acme-STEP-1-PLAN.md` |
-| Substep prompt | `{{PROJECT}}-STEP-N.M-PROMPT.md` | `acme-STEP-1.5a-PROMPT.md` |
+| STEP plan | `{{PROJECT}}-STEP-N-PLAN.md` | `{{PROJECT}}-STEP-1-PLAN.md` |
+| Substep prompt | `{{PROJECT}}-STEP-N.M-PROMPT.md` | `{{PROJECT}}-STEP-1.5a-PROMPT.md` |
 | Architecture doc | `NN-kebab-title.md` | `06-security-model.md` |
 | ADR | `ADR-NNNN-kebab-title.md` | `ADR-0004-pick-postgres.md` |
 | STEP branch | `step-NNNN-short-name` | `step-0042-payment-webhooks` |
@@ -621,29 +760,25 @@ granularity). Every session and STEP also **ends by stating the next action** an
 to start a fresh chat for it — clearing context between units is the norm, since the state
 lives in files (§4, §5).
 
-> **Shortcut:** `scripts/status.sh` runs this resolver mechanically — it prints where you
-> are, the next action, and the check-in cadence straight from the index. It's the mechanism a
+> **Shortcut:** `./doctor.sh status` runs this resolver mechanically — it prints where you
+> are, the next action, and when the next check-in is due, straight from disk. It's the mechanism a
 > resuming agent runs first (see `AGENTS.md`, "First action"); the rules below remain
 > authoritative when a case is ambiguous or the script isn't available.
 
-Quick resolver:
+Resolve the next action top-down against the index — the first rule that matches wins. **Rule 3's
+reminder and rule 7 are the exceptions**: the reminder ends the answer a later rule gives, and the
+scheduled check-in is *advice*, reported alongside the next action and never in place of it. It
+never blocks work, and no rule below it is skipped because a check-in is due.
 
-| First matching state in `prompts/STEP-index.md` | Next action |
-| --- | --- |
-| STEP-1 has an open design substep | Run the lowest-numbered open session |
-| STEP-1 design is done, Cross-Cutting Review open | Run Cross-Cutting Review |
-| STEP-1 complete and no implementation STEPs exist yet | Run the planning session |
-| Conditional-session follow-up STEP planned and none in progress | Plan that conditional follow-up, then wait for approval |
-| Planned implementation STEPs exist and none in progress | Plan the lowest-numbered planned STEP, then wait for approval |
-| A STEP is in progress | Open its PLAN, identify the lowest open substep, and wait for an explicit substep command |
-| Check-in cadence is due | Propose a Check-in STEP |
-| Phase is complete | Do milestone doc review, then plan the next phase |
-
-Resolve the next action top-down against the index — the first rule that matches wins:
-
-1. **STEP-1 has a `Planned` / `In progress` substep?** → run the lowest-numbered open one
+1. **STEP-1's own row is not `Done`, and STEP-1 has a `Planned` / `In progress` substep?** →
+   run the lowest-numbered open one
    in a fresh chat using `Run STEP-1.N: <Session label from the index>`; the label is
-   optional but preferred because it gives the chat/task a clearer title. Skip any substep marked `N/A` or `Deferred`. A substep with a
+   optional but preferred because it gives the chat/task a clearer title. Skip any substep
+   marked `N/A`, `Deferred` or `Abandoned`.
+   **The row is what says whether architecture is over.** Once STEP-1 reads `Done` an open substep
+   is no longer the next action, and the rules below answer instead. The mirror holds as well —
+   substeps all final while the row is still open means the close-out is the work (§5), not the
+   planning session. A substep with a
    **letter suffix** (e.g. `1.6a`, `1.7a`) is a **conditional session** the kickoff slotted
    in — use `Run STEP-1.Xa: <Conditional session label>` plus the invocation **by name**
    (*"run the identity-auth session"* / *"run the native-app session"* / *"run the privacy
@@ -652,24 +787,37 @@ Resolve the next action top-down against the index — the first rule that match
 2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
    substep whose Session label is **Cross-Cutting Review**.
 3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
-   *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2).
+   *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2). Nothing on
+   disk records that it ran, so while STEP-1 is `Done` and no STEP numbered 2 or higher is
+   `In progress` or `Done`, end the answer a rule below gives with *"If the Phase-1 planning
+   session hasn't run yet, run it first."*
 4. **A `Conditional session: …` follow-up STEP is `Planned`, and no STEP is `In progress`?**
    → plan the lowest-numbered such follow-up before returning to implementation. Author its
    thin one-substep PLAN as described in §4, record the conditional's by-name invocation, then
    stop for approval. Run the conditional only when the user explicitly invokes it by name.
 5. **Implementation STEPs outlined (`Planned`) but none `In progress`?** → plan the
-   lowest-numbered `Planned` STEP: in a fresh chat, confirm scope, author its PLAN + substep
-   prompts (`prompts/README.md` → "Recipe: adding a new STEP"), update the index, then stop
+   lowest-numbered `Planned` STEP: in a fresh chat, confirm scope, author its PLAN and any
+   substep prompts (`prompts/README.md` → "Recipe: adding a new STEP"), update the index, then stop
    for user approval. A whole-STEP command such as *"run STEP 6"*, *"run STEP-6"*,
    *"start STEP 6"*, or *"kick off STEP 6"* means **plan the STEP and wait**; it is not
    approval to execute the substeps you just created.
-6. **A STEP is `In progress`?** → open its PLAN in `Upcoming Prompts/` and run only the
-   explicitly requested substep: *"run substep N.M"*. If the user says only *"run STEP N"*,
-   identify the lowest open substep and wait for that explicit substep command. When the last
-   substep is done, run the STEP's review,
-   then archive it (§5) and mark it `Done`.
-7. **~20 STEPs (the project's cadence) since the last check-in?** → propose a **Check-in STEP** at the next
-   sensible breakpoint (§5; `runbooks/check-in.md`).
+6. **A STEP is `In progress`?** → in a team, first ask the user which In-progress STEP is theirs
+   — by default a STEP's PLAN is only on its owner's machine — and if none is, plan the
+   lowest-numbered `Planned` STEP no one owns, as in rule 5. Then open its PLAN in
+   `Upcoming Prompts/` and run only the explicitly requested substep: *"run substep N.M"*. If the
+   user says only *"run STEP N"*, identify the lowest open substep and wait for that explicit
+   substep command. When the last substep is done, run the STEP's review
+   (*"run the STEP N review"*), then archive it (§5) and mark it `Done`.
+   **A Check-in STEP is the exception**: its two substeps are fixed and `runbooks/check-in.md` is
+   their prompt, so *"run the check-in"* runs both, end to end. Nothing else is invoked whole.
+7. **The scheduled check-in reached, or none scheduled at all (§5 — the `NEXT-CHECK-IN` line
+   in `overview.md`)?** → **propose** a **Check-in STEP** at the next sensible breakpoint
+   (§5; `runbooks/check-in.md`) — and then go on with whatever the rules above answered. **This
+   rule never becomes the next action**, and it is deliberately not a gate: the check-in belongs
+   at a breakpoint, and a rule that fired the moment the date passed would fire mid-feature,
+   which is the one place §5 says not to put it. The user decides whether to take the proposal,
+   and either takes it or moves the line. `scripts/status.sh` prints it this way — the check-in
+   line advises, the next action is whatever rules 1-6 or 8 produced.
 8. **The phase is complete?** → it's a **milestone**: first prompt the user about **release
    notes** (use `templates/release-notes-template.md` if yes) and **any user-facing doc updates** (§5,
    *Milestone doc review*), then open the next phase and re-run the planning session for it.

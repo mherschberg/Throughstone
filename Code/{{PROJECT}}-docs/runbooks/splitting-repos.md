@@ -1,12 +1,12 @@
 # Runbook — Splitting a Repository
 
 > **How to run:** Two cases behind one procedure. Answer the three questions in **Before you
-> start**, then go to your part — you run one of them, never both, and you don't pick which: it
-> falls out of the first answer.
+> start**, then go to your case — you don't pick which, it falls out of the first answer, and a
+> mono-repo-for-now project that wants one repo out runs Case 2 first and then Case 1.
 > Tell your agent *"run the split"* and it follows this file.
-> - **Part 1 — Splitting a code repo in two.** The ordinary one: a repo grew two things that
+> - **Case 1 — Splitting a code repo in two.** The ordinary one: a repo grew two things that
 >   should ship separately. Any number of times.
-> - **Part 2 — Converting mono-repo-for-now to multi-repo.** At most once per project, and only
+> - **Case 2 — Converting mono-repo-for-now to multi-repo.** At most once per project, and only
 >   if you started mono (`METHOD.md` §7). The workspace root stops being a repo.
 >
 > **Do the whole split on one machine, in one go.** It turns on local state no repo carries — the
@@ -32,19 +32,18 @@
 > substep prompts for it — this runbook *is* the substeps (the same special case as the check-in,
 > see `prompts/README.md`). *Substeps*, below, names the usual breakpoints.
 >
-> **Two special cases.** **Part 2 is branchless** — there is no `step-NNNN` branch, because the
+> **Two exceptions.** **Case 2 is branchless** — there is no `step-NNNN` branch, because the
 > repos that branch would live in are the ones being created. Its STEP number is reserved
 > *on trunk* at step 4 (`METHOD.md` §7). And **tracking a split as a STEP is the method's
-> convention, not an obligation**: a project that would rather not track this one skips Part 2's
-> steps 4 and 13 together and loses nothing else. Part 1 needs no equivalent — `prompts/` is
-> untouched there, so the ordinary recipe in `prompts/README.md` applies unchanged.
+> convention, not an obligation**: a project that would rather not track this one skips Case 2's
+> steps 4 and 13 together and loses nothing else. Case 1 needs no equivalent — `prompts/` is
+> untouched there, so the ordinary recipe in `prompts/README.md` applies.
 
 ## Why this runbook exists
-"Splitting later is standard git" is not an answer you can act on. The published standard
-procedure — GitHub's, Atlassian's — makes the extracted repo **new**, with its history rewritten
-by `git filter-repo`: a tool that never ships with git, needs Python on every install route, and
-behaves differently version to version, so the method cannot require you to have it. A rewrite
-also truncates history at every historical path you forget to name, silently.
+The published standard procedure — GitHub's, Atlassian's — makes the extracted repo **new**,
+with its history rewritten by `git filter-repo`: a tool that never ships with git, needs Python on
+every install route, and behaves differently version to version, so the method cannot require you
+to have it. A rewrite also truncates history at every historical path you forget to name, silently.
 
 So this runbook does something else, and it is deliberately **not** the recipe you will find
 elsewhere: it clones the whole repo and **deletes forward**. Nothing is rewritten. Both sides keep
@@ -58,21 +57,49 @@ including files deleted long ago. If a secret was ever committed, the split copi
 second repo. The third question below is where that gets decided, and the appendix is where it
 gets handled.
 
+## What this runbook decides — and what you decide
+
+Three different things happen here, and two of them look like the same kind of decision without
+being one.
+
+- **It decides the method's own artifacts**, and they are the minority of what happens here. Where
+  `prompts/` and the docs hub end up, what the registry row and its `provenance:` block say, which
+  licensing artifacts a new repo carries, what its README gains — those pieces exist because the
+  method put them there, so the rules for them are this file's to state.
+- **It drives plain git over your repositories, and the Stops are where you stand in front of it.**
+  The clone, the forward delete, the prune, the swap and the retirement all run against code this
+  runbook did not write and cannot check; the opening block lists the points it will not pass
+  without a go-ahead. That is also why the confirmation points print a file list and wait rather
+  than summarising: the mechanic can succeed and still produce the wrong repo, and somebody reading
+  that list is the only thing between the two.
+- **It decides nothing about how your code divides.** Which folders belong together is question 1
+  below; whether the boundary is in the right place at all is question 2; what to do about code
+  both sides call is Case 1 step 4 — three answers this file asks you for and derives everything
+  else from. Nothing in it reads an import, a call graph or a build file; the only thing that reads
+  the contents of your code at all is Case 1 step 7's literal `git grep` for the old path, which is
+  why it cannot see a package reference that carries no path.
+
+So where the two things you want apart are interleaved, untangling them is ordinary code work, and
+it belongs on a STEP of its own, committed before the split runs. Signalling that you are at that
+boundary is the method's part; doing it is yours. This runbook starts from your answer — it does
+not go looking for one.
+
 ## Substeps
 
 There is no fixed number of them, because the shape of a split follows the shape of your repos.
 The usual breakpoints:
 
-- *Part 1, typically three:* **N.1** pre-flight, extract and stand the new repo up (steps 1–5) ·
+- *Case 1, typically three:* **N.1** pre-flight, extract and stand the new repo up (steps 1–5) ·
   **N.2** prune and repoint (steps 6–8) · **N.3** verify (step 9).
-- *Part 2, typically four:* **N.1** pre-flight and backup (steps 1–3) · **N.2** build the new repos
+- *Case 2, typically four:* **N.1** pre-flight and backup (steps 1–3) · **N.2** build the new repos
   beside (steps 5–7) · **N.3** assemble and verify the workspace (steps 8–10) · **N.4** swap and
   retire (steps 11–12). Steps 4 and 13 are the STEP's own bookkeeping rather than work inside it,
   which is also why they are the pair a project skips together.
 
 A split that extracts several repos at once, or that stops at a boundary these don't anticipate,
-names its own. The point of naming them is that the index should show where a half-finished split
-stopped, not that every split has the same joints.
+names its own. The point of naming them is that the PLAN should show where a half-finished split
+stopped, not that every split has the same joints. (Case 2 writes its PLAN only at step 13, so it
+records them then.)
 
 ## Before you start — three questions
 
@@ -81,7 +108,8 @@ whole input, and everything else is derived from it. Before answering, **list th
 nothing invisible gets left behind:
 
 ```bash
-git ls-files | cut -d/ -f1-2 | sort -u      # or: ls Code/, plus prompts/ and the docs hub
+# Run in the repo you are splitting (the workspace root, in mono-repo-for-now).
+git ls-files | cut -d/ -f1-2 | sort -u      # or, in mono: ls Code/, plus prompts/ and the docs hub
 ```
 
 Every entry has to land in some repo's **keep-set** or be dropped on purpose. Work from this list,
@@ -89,18 +117,19 @@ not from `registries/repos.yml` — a folder that was never registered (a vendor
 tools directory, a repo somebody scaffolded and forgot to add) is invisible to every check in this
 runbook and disappears at the split without a word.
 
-If the answer is *"the workspace root stops being a repo"*, you are in **Part 2**. Otherwise
-**Part 1**.
+If the answer is *"the workspace root stops being a repo"*, you are in **Case 2**. Otherwise
+**Case 1**.
 
-**Part 1 assumes the workspace root is not a repo.** In mono-repo-for-now it is, so extracting a
+**Case 1 assumes the workspace root is not a repo.** In mono-repo-for-now it is, so extracting a
 folder there leaves the new repo *nested inside* the origin — the root reports it as an untracked
 directory, and step 9's `git status` check fails on it. It also strands the repo you just made:
-`collaboration.md` §9 tells a mono project not to put `remote:` fields in `registries/repos.yml`
-and not to run `scripts/setup-workspace.sh`, so nothing on the mono onboarding path would ever
-clone it onto a teammate's machine. **Run Part 2 first**, then Part 1 as often as you like on the
-repos it leaves you.
+a mono project's contributors clone the one root repository and are told not to run
+`Code/<project>-docs/scripts/setup-workspace.sh`, which stops there anyway once the registry
+declares `layout: mono` (`collaboration.md` §9) — so
+nothing on the mono onboarding path would ever bring your new repo onto a teammate's machine.
+**Run Case 2 first**, then Case 1 as often as you like on the repos it leaves you.
 
-**2. Should you split at all?** *(Part 1 only — for Part 2 the layout decision was made at
+**2. Should you split at all?** *(Case 1 only — for Case 2 the layout decision was made at
 `init.sh` time.) Default: proceed.* One exchange, and the two questions worth asking are: would
 the two halves be **chatty** with each other, and would an ordinary change require **deploying
 both together**? Either one means the boundary is in the wrong place. Splitting a repo is
@@ -114,7 +143,7 @@ and it has to happen first.
 
 ## The mechanic
 
-Both parts build every new repo the same way, in bash, one repo at a time. `<keep>` is that
+Both cases build every new repo the same way, in bash, one repo at a time. `<keep>` is that
 repo's keep-set — the path or paths from question 1 that this repo is meant to be. `<scope>` is
 what you would call that out loud (`billing`, `the docs hub`); it appears only in the two commit
 messages, which every repo the split produces then carries permanently.
@@ -180,8 +209,8 @@ into brace expansion, is a summary. Then start the next repo.
 **`.gitignore` is exempt from the delete, and that exemption is load-bearing.** Without
 `':!.gitignore'` the new repo inherits no ignore file, and nothing left inside it can regenerate
 one — the only thing that writes a `.gitignore` is `init.sh`, which the new repo doesn't have
-either way. The measured result is a repo that tracks `.env`. After the un-nest, confirm the
-exemption worked: `git check-ignore -v .env` should exit 0.
+either way. The result is a repo that tracks `.env`. After the un-nest, confirm the
+exemption worked: `git -C <new-repo> check-ignore -v .env` should exit 0.
 
 **`.gitmodules` is not exempt, and a submodule inside the keep-set needs it.** That file lives at
 the origin's root, so the forward delete takes it while the keep-set's gitlink survives: the file
@@ -194,17 +223,17 @@ that moment: the origin's, which the exemption above left at the root, and the k
 still nested — and the move will stop on the collision. Read both, reconcile them into one file at
 the repo root, `git rm` the nested one, and `git add` the reconciled one — nothing further down
 stages that edit for you. *Default: the union of the two.* Re-anchor any rule written against the
-old path (`/Code/<name>/dist/` becomes `/dist/`); it matches nothing after the move. In Part 2 this
+old path (`/Code/<name>/dist/` becomes `/dist/`); it matches nothing after the move. In Case 2 this
 fires for every code folder, and never for `prompts/` or the docs hub, which have no ignore file of
-their own. In Part 1 it usually does not fire at all, because the extracted directory is a
+their own. In Case 1 it usually does not fire at all, because the extracted directory is a
 subdirectory of a code repo — the dead path-anchored rules it would have caught are what step 7's
 repointing grep is for instead.
 
 **The two checks do different jobs, and both are needed.**
 
 - **The guard, before the move**, catches a keep-set that matched nothing. If the path is
-  mistyped — or just the wrong case, since macOS treats `code/` and `Code/` as the same folder
-  and git's pathspecs do not — the forward delete removes *everything*, the move loop iterates
+  mistyped — or just the wrong letter case, since macOS treats `code/` and `Code/` as the same
+  folder and git's pathspecs do not — the forward delete removes *everything*, the move loop iterates
   zero times, and the check after it passes vacuously, because "the old path is empty" is also
   true when it never held anything. The only signal is `nothing to commit, working tree clean`,
   which reads like success. The guard fires at the one moment the mistake is still free.
@@ -237,58 +266,121 @@ thing you split away from. `git push` does not send them, so they stay local unt
 for them. Keep, retag or delete is your call: nothing in the method reads tags.
 
 **The origin side needs none of this.** Its paths are already correct, so it gets no clone, no
-exemption and no un-nest — just a forward `git rm` of what left (Part 1 step 6). In Part 2 there
+exemption and no un-nest — just a forward `git rm` of what left (Case 1 step 6). In Case 2 there
 is no surviving origin; every unit gets the mechanic above.
 
-## Part 1 — Splitting a code repo in two
+## Case 1 — Splitting a code repo in two
 
 The **origin repo** survives and keeps its identity, its remote and its history. The **extracted
 repo** is new. The docs hub and `prompts/` do not move.
 
 *Tracking this as a STEP?* Reserve the number, branch, and archive the PLAN exactly as
 `prompts/README.md` says — `prompts/` is untouched by this split, so none of that timing is
-special here, which is why it gets no steps of its own below.
+special here, which is why it gets no steps of its own below. Two things differ. Step 3 starts the
+extracted repo on trunk, with no STEP branch. And if the origin's STEP branch is ahead of trunk
+when step 3 clones it, close the STEP with a merge commit: the clone puts those commits on the new
+repo's trunk, and a squash or rebase merge rewrites them on their way into the origin's, so the two
+trunks would not share step 1's tip.
 
 > **Where abort gets expensive.** Up to step 6, abort is cheap: delete the new directory, and
 > delete the extracted repo's remote if you already created it. Nothing else has been touched, and
-> neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned, so
-> abort is `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
-> step 9 has already pushed it — plus deleting the extracted repo and its remote, and reverting the
-> hub's step-7 repoint and step-8 registry row, pushed if step 9 pushed them: left standing, that
-> row sends everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach for a
-> re-clone: step 9 makes you push the prune, so re-cloning hands the split state back, and on a
-> project with no remotes there is nothing to re-clone from. **Save anything untracked or ignored
-> first** — `.env`, `.secrets/`, in-flight work. Nothing carries it.
+> neither the origin nor the hub has been pushed. From step 6 on the origin has been pruned.
+> **Save anything untracked or ignored first** — `.env`, `.secrets/`, in-flight work. Nothing
+> carries it. What step 6 moved across into the extracted repo needs saving most: that repo holds
+> the only copy of it, and deleting it below destroys it. Then abort is
+> `git reset --hard <the tip you wrote down at step 1>` in the origin — force-pushed if
+> step 9 has already pushed it — plus deleting the extracted repo and its remote, and reverting
+> the hub's step-7 and step-8 commits, pushed if step 9 pushed them: left standing, that registry
+> row will send everyone else's `setup-workspace.sh` at a remote you just deleted. Do not reach
+> for a re-clone: step 9 makes you push the prune, so the remote holds the split too, and on a
+> project with no remotes there is nothing to re-clone from. **Then put what you saved back**,
+> where it sat before step 6 moved it — the reset brings the origin's tracked files back from
+> git; these come back only from you.
 
 1. **Confirm the mapping and the boundary** (questions 1 and 2). Write down the origin repo, the
    path being extracted, the new repo's name, and the origin's tip (`git rev-parse --short HEAD`,
    run in the origin): that is the last commit the two repos will share. **Re-read it once step 2
-   has committed your working tree** — that commit moves the tip, and step 3 clones what step 2
-   leaves. Record it here rather than at step 8, by which time the prune and the repoint have
+   is done** — a merge or a commit there moves the tip, and step 3 clones what step 2 leaves.
+   Record it here rather than at step 8, by which time the prune and the repoint have
    moved the origin past it. **Stop here, before step 3 builds anything** —
    show that written-out mapping and your answer to question 2. Deciding not to split is one of
    the answers, and this is the step where it gets made.
-2. **Pre-flight: the branches that won't survive.** Run `git branch -a`. A clone carries every
-   commit and every tag, but only the default branch arrives as a real branch — the rest exist
-   only as remote-tracking refs and die with `git remote remove origin`, silently. The origin repo
-   survives, so nothing is lost there; the risk is in-flight work on the *extracted* files, which
-   lands in a repo where those files no longer exist. Merge or close everything but trunk before
-   starting, or accept the loss knowingly. **Commit or stash your working tree too** — the clone
-   takes committed state, so an uncommitted edit never reaches the new repo. Edits to tracked files,
-   that is: anything untracked under the extracted path is what step 6 moves across by hand.
-3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted and
-   `<new-repo>` set to `Code/<new-name>/`, a sibling of the origin: step 8 writes that path into
-   the registry row's `location:`, and it is where `scripts/setup-workspace.sh` puts the repo on
-   everyone else's machine. When it prints `git ls-files`, read it: it should look like the repo
-   you asked for, at the root, with nothing left nested.
+2. **Pre-flight: the branches that won't survive.** Run `git branch -a` in the origin. A clone
+   carries every commit and every tag, but only the branch the origin has checked out arrives as a
+   real branch — the rest exist only as remote-tracking refs and die with
+   `git remote remove origin`, silently. The origin repo survives, so nothing is lost there; the
+   risk is in-flight work on the *extracted* files, which lands in a repo where those files no
+   longer exist. Merge or close everything but trunk before starting, or accept the loss knowingly.
+   On a STEP, keep this STEP's own branch as well, and merge trunk into it: step 3 makes that branch
+   the new repo's trunk. **Commit your working tree before those merges** (an edit outside the
+   extracted path can be stashed instead, except one to the root `.gitignore`, which the new repo
+   keeps) — the clone takes committed state, so an uncommitted edit never reaches the new repo.
+   Edits to tracked files, that is: anything untracked under the extracted path is what step 6
+   moves across by hand.
+3. **Extract.** Run the mechanic above with `<keep>` set to the path being extracted. The new repo
+   belongs at `Code/<new-name>/`, a sibling of the origin — but **substitute `<new-repo>` as an
+   absolute path**, `<workspace-root>/Code/<new-name>/`, for the reason the mechanic gives: blocks
+   2 and 3 re-enter the repo on their own first line. Step 8 records that same place in the
+   registry row's `location:`, in the **workspace-relative** spelling `Code/<new-name>/` and never
+   the absolute one you typed here, which `scripts/setup-workspace.sh` reports and skips rather
+   than cloning into. The row is what puts the repo at that path on everyone else's machine.
+   When it prints `git ls-files`, read it: it should look like the repo you asked for, at the
+   root, with nothing left nested.
+   **Tracking this as a STEP?** The origin is on this STEP's branch, so that is the one branch the
+   clone has, and the new repo has no trunk. Once block 1 has run, rename that branch to the
+   origin's trunk: `git -C <new-repo> branch -m step-NNNN-short-name <trunk>`. The new repo gets no
+   STEP branch: it did not exist before this STEP, so there is no earlier trunk for one to merge
+   into. If the rename fails, stop: the clone took some other branch, or the name is mistyped.
 4. **Make it a repo, not a folder.**
-   - `scripts/apply-project-license.sh <new-repo-path>` from the docs hub.
-   - A `README.md` stamped from `templates/repo-readme-template.md`, with its role one-liner and
-     Overview actually filled in.
+   - **Its licence is the origin's, not the project's.** Carving a folder out of a repo does not
+     relicense the code in it, and the origin may be one this project **adopted**, where the
+     default command would state our posture over somebody else's code. The forward delete took
+     the origin's root licence files along with everything else outside the keep-set, and the
+     clone still holds them. List the origin's root, from the tip you wrote down at step 1:
+
+     ```bash
+     cd <new-repo>
+     git ls-tree --name-only <tip>
+     ```
+
+     **Stop, show that list, and say which of those names are licensing.** No pattern picks them
+     out reliably — `LICENSING.md`, `COPYING`, `COPYRIGHT`, `NOTICE`, `PATENTS` and a bare
+     `UNLICENSE` all count — and nothing below re-derives the answer. An origin that carried none
+     is a real answer.
+     **Before restoring anything, look at this repo's own root**: if the extracted directory
+     carried a licence, the un-nest already moved it up, and that one is the extracted code's own.
+     Leave it, skip the restore for that name, and raise it in the chat — the command below
+     overwrites without a word. Then restore the rest, a line per name, **except
+     `LICENSE-THROUGHSTONE`**, which is the Throughstone notice and comes fresh below:
+
+     ```bash
+     cd <new-repo>
+     git checkout <tip> -- LICENSE        # one line per name; substitute them, don't loop
+     ```
+
+     Then the notice, **from the workspace root** — `cd` back first, the script resolves its
+     target against where you are standing:
+     `Code/<project>-docs/scripts/apply-project-license.sh --notice-only Code/<new-name>/`. It
+     refuses nothing over a licence already in the repo, so nothing about this repo's licensing
+     can stop the split. **Where the origin is a repo the method created this changes nothing** —
+     its licence files are the project's own. Where it carried no licence at all, nothing is
+     restored and this repo carries the Throughstone notice alone.
+   - Its README, per `runbooks/register-repo.md` step 2 — **the extracted folder's own README came
+     up in the un-nest** (step 2 says which file counts: a regular root file whose name starts
+     with `readme`, in any capitalisation, and ask if there is more than one), so if there is one,
+     leave it and add a `## Role in <project>` section. Only a repo with no README gets
+     `templates/repo-readme-template.md` stamped, with its role one-liner and Overview actually
+     filled in. **If no `LICENSING.md` came across above, cut its `## Licensing` section back to
+     the `LICENSE-THROUGHSTONE` sentence** — the link would dangle, and a root `LICENSE` here is
+     the origin's rather than the project's, which is the opposite of what that section says.
    - `templates/env-example.txt` copied in as `.env.example` if it needs one.
-   - **Its build and test entry point.** The forward delete removed the origin's `Makefile`, CI
-     config and test harness, so right now this repo has no way to build itself. Decide what it
-     runs. If the extracted code also calls into code that stayed behind, decide that here too —
+   - **Its build and test entry point, and its CI gate.** The forward delete removed the origin's
+     `Makefile`, CI config and test harness, so right now this repo has no way to build itself.
+     Decide what it runs, then stamp the gate the same way a repo the method creates gets one:
+     `templates/ci/code-repo-ci.yml` into this repo's `.github/workflows/ci.yml`, with its test
+     command filled in — `templates/ci/README.md` says how, and `runbooks/register-repo.md` step 2
+     asks for it in every code repo the method created. If the extracted
+     code also calls into code that stayed behind, decide that here too —
      the options are duplicate it, put it in a third shared repo, have one side own it and expose
      it as a service, or don't split at this boundary after all. There is no threshold that picks
      for you; the one thing every source agrees on is not to share domain logic.
@@ -319,34 +411,77 @@ special here, which is why it gets no steps of its own below.
    remote, no mirror and no clone holds these files.
 7. **Repoint everything that knew the old path.** `git grep -n -F "<old path>"` in the origin, in
    the extracted repo, **and in the docs hub** — including each `.gitignore`, where a rule anchored
-   at the old path is now dead. Every hit is either a repoint or a mention of history you keep on
-   purpose. Stage the files you repointed, not `git add -A` — this commit goes to a shared remote,
+   at the old path is now dead. Every hit is a repoint, a mention of history you keep on purpose,
+   or a line of the method's own text that happens to use your path as an example — the hub carries
+   the method's whole text, and a hit under `runbooks/` or `templates/` is usually that third kind.
+   Leave the method's own text; anything your project wrote is a repoint wherever it sits.
+   Stage the files you repointed, not `git add -A` — this commit goes to a shared remote,
    and the origin's working tree still holds whatever was untracked there before you started. Note
    what the grep does not find: an `import` or package reference to what left carries
    no path, so it never appears. Whether the two sides still call into each other is step 4's
    boundary decision, and step 9's build-and-test is what fails if it was not made.
-   **This step is not optional and is the easiest one to skip:** the hub's link checker
-   resolves link targets into the code repos, so a *correct* split makes hub links dangle —
-   `scripts/links.sh` fails on a finished split and passes on an unfinished one. Step 7 is what
+   **This step is not optional and is the easiest one to skip:** the hub's link checker resolves
+   link targets into the code repos, so a *correct* split makes hub links dangle —
+   `Code/<project>-docs/scripts/links.sh` passes right up to step 6 and fails from there until
+   this step repoints them. It does not check the hub's `inputs/`, whose imported documents are
+   kept as they arrived: a hit in one of them is history you keep, not a repoint. Step 7 is what
    makes step 9 satisfiable.
-8. **Register it.** Add the new repo's row to `registries/repos.yml` with its `provenance:` block:
-   the repo it came from, today's date, and the last commit the two repos share — the tip you
-   wrote down at step 1, which resolves in both. Your-row-only, per `collaboration.md` §5.
-9. **Verify.**
+8. **Register it** — run the register action (`runbooks/register-repo.md`), which writes the row
+   and the Architecture Overview entry. **Read that row's `location:` against where the repo
+   actually is, before the action commits** — the absolute `<new-repo>` you typed at step 3 and
+   the row have to name the same directory, the first spelled from `/` and the second
+   workspace-relative (`Code/<new-name>/`). This is the one moment both are in front of you — the
+   absolute path lives only in the command you typed — and check 10 of `check.sh --check-in` reads
+   the rows and never the paths, so a row pointing where the repo is not passes the check-in and
+   fails on everyone else's `setup-workspace.sh`.
+   **Add a `provenance:` block to that row before the action reaches its step 3**, which reads it;
+   putting it in alongside step 1's row also keeps the registration to one commit. It names the
+   repo this one came from, today's date, and the last commit the two repos share — the tip you
+   wrote down at step 1, which resolves in both. Nothing else writes that block. Your-row-only, per `collaboration.md` §5.
+   The action re-does step 4's licence and README on its way through and finds them already
+   done — it reports those `✓`, and the repo commit `n/a` if step 4 left nothing new to commit.
+   That is the expected result here, not a sign you missed something. **The licence step is the
+   one to watch**: the row reads `added_as: created`, so the action reaches for the project
+   posture and meets the licence step 4 left. Where the two match it reports them already current;
+   where they differ the script stops, which is `register-repo.md` step 3's own case — run its
+   `--notice-only` command instead and say in the chat which licence this repo carries. **Where
+   step 4 restored nothing**, there is nothing to meet and nothing stops it: that is the same
+   step's empty-root case, so ask before the posture is stamped.
+9. **Verify.** **Push the origin, the extracted repo and the hub first** — step 5's push came
+   before the prune, the repoint and the registration, and nothing since has sent anything.
    - Both repos **build and test**.
    - `git status` shows nothing new in either repo — in the origin, only what was already
      untracked before you started; in the extracted repo, only what step 6 moved across — and each
-     local trunk matches its remote: that is the check that what you can see is what everyone else
-     receives.
-   - The step-7 grep now returns only the historical mentions you decided to keep.
+     local trunk matches its remote, and on a STEP so does this STEP's branch in the origin and the
+     hub: that is the check that what you can see is what everyone else receives.
+   - The step-7 grep now returns only what you decided to leave: the historical mentions, and
+     the method's own text in the hub.
    - `git log --follow` and `git blame` resolve across the un-nest in the extracted repo, and the
      pre-split commit exists in both.
-   - `scripts/links.sh` is clean.
+   - The extracted repo's root holds the licences step 4 settled on — the ones you restored, any
+     the un-nest brought up, and the Throughstone notice — and nothing else. Nothing further
+     checks: `check.sh` has no licensing check and `links.sh` skips app repos, so a restore that
+     was skipped shows up here or nowhere.
+   - `Code/<project>-docs/scripts/links.sh` is clean.
 
-## Part 2 — Converting mono-repo-for-now to multi-repo
+## Case 2 — Converting mono-repo-for-now to multi-repo
 
 The workspace root stops being a repository. `prompts/`, the docs hub and each code folder become
 repos of their own. This happens at most once per project.
+
+**Every unit is a whole folder, and no unit sits inside another.** Naming `Code/shop/billing` as a
+unit alongside `Code/shop` is what you reach for when you want the split itself to do the dividing,
+and it is the one shape this case cannot survive: `billing/` comes out at the root of its own repo
+*and* stays tracked and live inside the storefront's. Case 1 pairs every extraction with a prune of
+the origin and says why (its step 6); here there is no surviving origin, so nothing subtracts the
+nested unit from the repo that also carries it. **No check in this case catches it** — `git status`
+is clean in every repo, step 10's *"nothing left under the path it was moved out of"* is true in
+every repo, and `check.sh --check-in` reads rows, not contents. It surfaces after the swap, with
+the old remote already read-only. A scattered keep-set naming the storefront's other folders is not
+the way out either: two or more keep paths buy no un-nest and no post-condition (see the mechanic),
+so that repo's files stay at `Code/shop/web/…` instead of at its root. **If `billing` should be its
+own repo, move it out from under `Code/shop` first** — a plain `git mv` in the mono repo, committed
+before step 5 clones anything — and split two folders that sit beside each other.
 
 > **You build the new workspace beside the old one and swap at the end.** Everything up to step 11
 > happens in `../<project>-split/`, and until step 4 the live workspace is untouched, so abort is
@@ -363,11 +498,22 @@ repos of their own. This happens at most once per project.
    git ls-files -- . ':!Code/' ':!prompts/'    # everything tracked that no keep-set claims
    ```
 
-   Nine entries on a stock mono root. *Default disposition:* the licence files are stamped into
-   each new repo by `scripts/apply-project-license.sh` (step 6); `CLAUDE.md`, `AGENTS.md` and
+   Ten entries on a stock mono root, or nine on a proprietary one, which has no `LICENSE` — but
+   read the list the command printed rather than the count: it moves whenever the generator does.
+   *Default disposition:* the licence files are stamped into each new repo by
+   `scripts/apply-project-license.sh` (step 6); `CLAUDE.md`, `AGENTS.md` and
    `doctor.sh` change kind at this split — they stop being committed files and become per-machine
-   pointers regenerated by `scripts/setup-workspace.sh` (step 8); and `init.sh` has done its job
-   and is dropped. Anything your project added to the root is yours to place.
+   pointers regenerated by `scripts/setup-workspace.sh` (step 8); `init.sh` has done its job
+   and is dropped; and the root `.github/workflows/`, which `init.sh` placed for a mono project, is
+   dropped too — the docs hub carries its own copy, which becomes that repo's own CI when the hub
+   becomes a repo here; if the hub has no `.github/workflows/method-check.yml`, copy the root's
+   into the new hub when you stamp it at step 6. **Do not carry it to the new workspace root:**
+   that root stops being a repository, nothing would run it there, and `scripts/check.sh` check 7
+   warns on a root entry it does not expect, which step 10 reads as a failure. The last two need
+   no decision of their own: the root `.gitignore` is the one path the mechanic exempts from every
+   forward delete, so each new repo starts from a copy and reconciles it at step 5, and
+   `Upcoming Prompts/.gitkeep` crosses with its folder at step 9. Anything your project added to
+   the root is yours to place.
 2. **Pre-flight.**
    - **What git won't carry.** The swap replaces the workspace, so anything untracked or ignored
      has to be carried across on purpose. Derive both lists; never hand-write them:
@@ -411,34 +557,83 @@ repos of their own. This happens at most once per project.
    the mechanic into its place in the new workspace:
 
    ```bash
-   # Where each unit lands. Substitute <new-repo> absolute — a relative one breaks blocks 2 and 3.
-   git clone --no-local . ../<project>-split/prompts        # <keep> = prompts
-   git clone --no-local . ../<project>-split/Code/<name>    # <keep> = Code/<name>
+   # <build-dir> is the ABSOLUTE path of ../<project>-split/, where the new workspace is assembled.
+   # A relative <new-repo> breaks blocks 2 and 3, which cd back in on their own first line.
+   git clone --no-local . <build-dir>/prompts        # <keep> = prompts
+   git clone --no-local . <build-dir>/Code/<name>    # <keep> = Code/<name>
    ```
 
    Reconcile the ignore file, un-nest, and read the file list each time. The reconcile fires for
    every code folder: the file the clone left at the root is the *workspace* root's, which carries
    none of that code repo's build ignores, and the folder's own is still nested.
-6. **Stamp each new repo, and commit it.** Run `scripts/apply-project-license.sh` once per repo
-   from the new hub, then **commit the result in that repo**. The script writes new, untracked
-   files, step 7 pushes, and nothing else in this procedure commits them — skip this and a repo
-   reaches its host with no `LICENSE`, no `LICENSE-THROUGHSTONE` and no `LICENSING.md` while your
-   own copy on disk still shows all three.
+6. **Stamp each new repo, and commit it.** Run
+   `Code/<project>-docs/scripts/apply-project-license.sh <repo-path>/` once per repo **from the
+   build directory's root** — that root is the new workspace root, so every path is written
+   relative to it exactly as the registry writes it. **A repo whose registry row reads
+   `added_as: adopted` takes `--notice-only`**, exactly as `runbooks/register-repo.md` step 3 says,
+   and **no row's `added_as:` changes here** — it is written once, and the rule that a split-out
+   repo is `created` is about the row Case 1 writes for a repo it carves out, not about a folder
+   that already had one. This split makes that folder a repository, but it does not make its code
+   ours to license, and the default command would state our posture over their code: a project
+   `LICENSE` and a `LICENSING.md` where that folder carries no licence of its own, and — where it
+   carries one — a refusal that stops the split in the middle of this step.
+   For a repo we did create, if the script stops because a licence is already there, run
+   `--notice-only` for it so the notice still lands and raise the licence with the person running
+   the split — again step 3's rule, and it holds here. Then **commit the result in that repo**. The
+   script writes new, untracked files, step 7 pushes, and nothing else in this procedure commits
+   them — skip this and a repo reaches its host with none of the licensing artifacts its posture
+   requires, while your own copy on disk shows them.
+
+   **The test gate a code folder already carries starts running at step 7.** A code repo is
+   stamped with `templates/ci/code-repo-ci.yml` when it is scaffolded, and in a mono project that
+   workflow has never run once — GitHub reads workflows only at a repository root
+   (`templates/ci/README.md` §2). The un-nest at step 5 carries `.github/` up with everything
+   else, so from step 7's push it sits at a repository root with a remote behind it and gates
+   every push and pull request. **If its `Configure me` step was never replaced it `exit 1`s, and
+   the repo's first push is red** — the gate doing exactly what it was stamped to do, on a repo
+   you created a moment ago. Open each code repo's `.github/workflows/ci.yml` before you push and
+   fill in its toolchain and test command — **and commit that edit with the rest of this step**,
+   since `ci.yml` is a tracked file the clone brought across and step 7 pushes only what is
+   committed — or go in knowing the gate stays red until somebody does. A folder that was never
+   stamped has nothing to go live, and this case does not stamp one: each repo brings across the
+   gate it already had. Step 1's CI decision is a different one — the root workflows the new
+   workspace root must not carry — and step 10's *builds and tests* is your machine rather than
+   the gate.
 7. **Remotes.** Create each **private** — every one of them now carries the whole mono repo's
    history, and widening any of them is a separate decision to make deliberately later, not a
-   side effect of the split. Push trunk, then record `remote:` in
-   `registries/repos.yml`. **If that file carries a row for the workspace root** — `location: "."` —
-   **delete it first.** The root stops being a repository at this step, so the row describes nothing
-   afterwards; what replaces it is the folder rows already in the file, which become real repos here.
-   A registry written before the root row existed has none, in which case there is nothing to delete
-   and nothing else about this step changes. Every **remaining** row is now a split-out repo, so each
-   also gets a `provenance:` block — naming the mono repo, today's date, the last commit they all share (the
-   mono tip the clones were taken from at step 5; that workspace is on disk until step 11, so read
-   it there), and
-   the `origin` URL you wrote down at step 2 as `archive_remote:`. **That commit has to exist on
-   the archive too** — if the mono trunk you cloned at step 5 was ahead of its remote, push it
-   there before you record these, because step 12 makes that host read-only. **Delete the
-   mono-repo-for-now note** above the rows; it stops being true the moment this step runs.
+   side effect of the split. Push trunk, then record each repo in `registries/repos.yml`.
+   **If that file carries a row for the workspace root** — `location: "."` — **delete it first.**
+   The root stops being a repository at this step, so the row describes nothing afterwards; what
+   replaces it is the folder rows already in the file, which become real repos here.
+   **And change that file's `layout: mono` line to `layout: multi`** — the line at the left margin
+   above `repos:`. This is the one procedure that changes it, and this is the step: from here the
+   rows are repositories rather than folders, and the layout is what every reader takes that from.
+   The check-in reads it to decide whether a row's work is covered by the root repository's remote
+   or only by its own, and `scripts/setup-workspace.sh` refuses to run while it says `mono` — which
+   is what step 8 is about to do, so a registry left saying `mono` stops the split here. If the
+   file has no `layout:` line, add one saying `multi`.
+   **Run the register action** (`runbooks/register-repo.md`) **once per code repo, from the build
+   directory's root** — that is the workspace root it means here; run it from the live one and the
+   row and the entry land in the hub step 11 renames aside. It records that repo's `remote:` and
+   writes its Architecture Overview entry alongside the row. This step is what makes that possible:
+   until now those rows pointed at folders inside one repository, and from here they are
+   repositories of their own. **The docs hub and `prompts/` are the exception** — the action runs
+   once per *code* repo, and `init.sh` wrote those two rows already, so write their `remote:` fields
+   by hand.
+   The action also writes that repo's README — a `## Role in <project>` section, or a refresh of
+   one it stamped, whichever `register-repo.md` step 2 decides — and commits it
+   **in that repo** (`register-repo.md` step 5), so **push each code repo again once the action has
+   run** — that commit lands after the push above and nothing else sends it, and left behind it
+   fails step 10's local-trunk-matches-remote check.
+   Every **remaining** row is now a split-out repo, so each also gets a `provenance:` block, which
+   the action does not write. **Add it to the row while you are there** — for a code repo that
+   means before the action's commit, so its registration stays one commit. It names the mono repo,
+   today's date, the last commit they all share (the mono tip the clones were taken from at step 5;
+   that workspace is on disk until step 11, so read it there), and the `origin` URL you wrote down
+   at step 2 as `archive_remote:`. **That commit has to exist on the archive too** — if the mono
+   trunk you cloned at step 5 was ahead of its remote, push it there before you record these,
+   because step 12 makes that host read-only. **Delete the mono-repo-for-now note** — the paragraph
+   opening `Mono-repo-for-now:` — which stops being true the moment this step runs.
    **Push the hub last**, after its registry commit, or none of these rows reaches a teammate.
    **Stop before the first create and push** — this is where the whole mono history leaves your
    machine, once per repo, and where private-or-not stops being a local decision.
@@ -461,12 +656,15 @@ repos of their own. This happens at most once per project.
       `node_modules/`, a `dist/` — means that repo's ignore file did not survive step 5's
       reconcile.
     - Each code repo **builds and tests**.
-    - `scripts/check.sh` at **0 fail(s), 0 warning(s)** — warnings do not fail the run, so "green"
-      is not the criterion.
-    - `scripts/links.sh` clean.
+    - `Code/<project>-docs/scripts/check.sh --check-in`, run from the build directory's root, at
+      **0 fail(s), 0 warning(s)** — warnings do not fail the run, so "green" is not the criterion.
+      **Run it with that flag:** the repo-registry check is the only check in `check.sh` that reads
+      what step 7 just wrote, and it runs only under `--check-in`. Without the flag, a registry
+      whose rows lost a `location:` still reports `RESULT: OK`.
+    - `Code/<project>-docs/scripts/links.sh`, run from there too, clean.
     - A **real teammate clone**: a fresh empty directory, clone the docs hub into
-      `Code/<project>-docs/` inside it, run `scripts/setup-workspace.sh` there, and confirm every
-      registered repo actually arrives.
+      `Code/<project>-docs/` inside it, run `Code/<project>-docs/scripts/setup-workspace.sh` from
+      that new workspace root, and confirm every registered repo actually arrives.
     - The pre-split commit resolves in every new repo.
 11. **Swap.** **Stop before the rename** — show which directory becomes which. Then **rename** the
     old workspace aside — do not delete it — and move the build directory into its place. Abort is
@@ -479,10 +677,10 @@ repos of their own. This happens at most once per project.
     clone of the host, not in your live workspace. Do this **after the swap is verified, never
     before** — a complete pushed copy stays on the host through the whole destructive window. That README needs
     one sentence for anyone else holding a clone: *start a fresh empty folder, clone the docs hub
-    into `Code/<project>-docs/` inside it, and run `scripts/setup-workspace.sh` there — do not
-    reuse your old project folder.* Re-onboarding in place leaves the new repos nested inside the
-    retired one, and every check passes. **Stop before you push that commit** — show the README and
-    the tree it leaves behind.
+    into `Code/<project>-docs/` inside it, and from that folder run
+    `Code/<project>-docs/scripts/setup-workspace.sh` — do not reuse your old project folder.*
+    Re-onboarding in place leaves the new repos nested inside the retired one, and every check
+    passes. **Stop before you push that commit** — show the README and the tree it leaves behind.
 13. **Write the STEP's PLAN** and archive it into the new `prompts/` repo — at `<phase>/step-NNNN/`
     and `STEP-index.md` from that repo's root, since the un-nest at step 5 moved `prompts/`'s
     contents up to it. Then mark the STEP done. Written now rather than at step 4, it never has to
@@ -492,7 +690,7 @@ repos of their own. This happens at most once per project.
 
 You are here because a credential or a large binary is in the history and you do not want it copied
 into a second repo. This is the **purge** procedure, not an escape hatch from the default: it
-rewrites history, so it happens *before* either part, on a mirror, once.
+rewrites history, so it happens *before* either case, on a mirror, once.
 
 **Rotate the credential first.** A rewrite does not reach the clones your teammates already have,
 or the copies on the host until it garbage-collects, or anything a CI log captured. Rotation is the
@@ -504,6 +702,7 @@ control; the rewrite is cleanup.
 git clone --mirror --no-local <origin> ../purge-work.git   # work on a copy, never your only one
 git -C ../purge-work.git filter-repo --analyze             # path + rename reports (needs the tool below)
 git -C ../purge-work.git for-each-ref --format='%(objectname) %(refname)' > ../refs-before.txt
+git -C ../purge-work.git rev-list --count <trunk>..<branch>   # each branch; repeated afterwards
 ```
 
 The `--analyze` reports are how you build the path list. **Neither tool follows renames.** If the
@@ -533,10 +732,11 @@ diff ../refs-before.txt ../refs-after.txt
 ```
 
 Every SHA changes, so every line of that diff differs — read it for refs that *disappeared*, not
-for refs that moved. The collapse above needs a per-branch check instead: `git rev-list --count
-<trunk>..<branch>`, before and after. A branch that had commits of its own and now returns zero has
-been folded into another line of history, under a SHA that is not any other ref's tip, so the diff
-will not show it. Decide what each one should be before you push anything.
+for refs that moved. The collapse above needs a per-branch check instead:
+`git -C ../purge-work.git rev-list --count <trunk>..<branch>`, before and after. A branch that had
+commits of its own and now returns zero has been folded into another line of history, under a SHA
+that is not any other ref's tip, so the diff will not show it. Decide what each one should be
+before you push anything.
 
 **And confirm the purge itself.** Neither of those checks looks at the blob, and the failure this
 section opens with — a path you did not name, the tool reporting success — is invisible to both:
@@ -548,10 +748,10 @@ recorded anywhere — `reviewed_commit:` in `registries/security-reviews.yml`, S
 ADRs, links in issues — stops resolving, and everyone re-clones. That is the trade for not carrying
 the blob.
 
-**Then hand back.** The purged mirror is what the split reads, not a side artifact: Part 1 clones
-the origin you are standing in and Part 2 step 5 clones `.`, so a split run beside a purge copies
+**Then hand back.** The purged mirror is what the split reads, not a side artifact: Case 1 clones
+the origin you are standing in and Case 2 step 5 clones `.`, so a split run beside a purge copies
 the blob into every new repo instead. Copy your untracked and ignored files aside first — a fresh
-clone has none, and Part 2 step 2's two lists come back empty once you re-clone. Then force-push
+clone has none, and Case 2 step 2's two lists come back empty once you re-clone. Then force-push
 the mirror over the origin host, re-clone your workspace from it, and start the split there.
 
 **If the motive is purely size**, there is a cheaper answer that rewrites nothing: let one new repo
@@ -559,8 +759,8 @@ inherit the origin's identity outright rather than cloning it. Move the `.git` d
 folder that is becoming a repo, then inside it `git rm -r --cached .`, `git add -A`, and commit. It
 comes out with the complete un-rewritten history and `--follow` and `blame` resolving through the
 path change — but only one repo can inherit it, and the workspace root stops being a repo the
-moment you move `.git`, so this only makes sense as part of Part 2. **Do it last**, after every
-other unit has been cloned at step 5, not here before Part 2 starts: the move drops those units
+moment you move `.git`, so this only makes sense as part of Case 2. **Do it last**, after every
+other unit has been cloned at step 5, not here before Case 2 starts: the move drops those units
 from HEAD, so their forward delete keeps nothing and the guard fires on a path you typed
 correctly. **Push the mono trunk to its remote before you move `.git`** — step 7 records a commit
 that has to exist on the archive, and after the move nothing on disk can put it there: the
