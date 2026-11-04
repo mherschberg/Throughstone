@@ -135,6 +135,12 @@ an error/corruption path, not normal operation.
   the deleted `inputs-index.md` ledger. The project brief keeps its `NEXT-CHECK-IN` marker, and the
   adoption STEP-1 PLAN's Repos line drops the retired "(projection)" label. Nothing changes for an
   existing project.
+- **Adoption sets up a multi-repo workspace only.** `init.sh --mode=existing` no longer offers the
+  mono-repo-for-now layout: asked interactively, it skips the layout question and says why, and
+  `--layout=mono` or `INIT_LAYOUT=mono` exits 2 with a one-line reason before anything is written. A
+  mono-repo-for-now project cannot hold a separate repository and every adopted repo is one, so a
+  mono adoption stopped at its first repo. An existing monorepo is still adopted, as one repo in a
+  multi-repo workspace. `--mode` written with a space now needs a value, as every other flag does.
 
 ## [2.0.0]
 

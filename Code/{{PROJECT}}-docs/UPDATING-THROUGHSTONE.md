@@ -106,6 +106,13 @@ an ordinary Throughstone baseline rather than an adoption-shaped one. **Adoption
 greenfield-inert:** a project already built with Throughstone ran those sessions as interviews and has
 nothing to migrate.
 
+**Adoption is multi-repo only.** Adopting an existing codebase *into* a mono-repo-for-now project is
+not offered: on *existing*, `init.sh` sets up a multi-repo workspace without asking the layout
+question, and refuses `--layout=mono`. A mono-repo-for-now project cannot hold a separate
+repository, and every adopted repo is one. An existing monorepo is still adopted, as one adopted
+repo in a multi-repo workspace. **No action:** this changes only what `init.sh` sets up for a new
+adoption. A project already built with Throughstone is unchanged, in either layout.
+
 **`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
 picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or
 corrupted), the helper now reports the status as *indeterminate* and points at the `AGENTS.md` "First

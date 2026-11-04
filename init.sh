@@ -337,6 +337,7 @@ Options:
   --license=NAME        mit | bsd-3 | apache-2.0 | proprietary
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
+                         mono is not offered with --mode=existing.
   --registries=yes|no   Deprecated and ignored; registries/ always ships
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
@@ -378,7 +379,7 @@ NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --mode=*)          MODE_IN="${1#*=}" ;;
-    --mode)            MODE_IN="${2:-}"; shift ;;
+    --mode)            need_val "$1" "${2-}"; MODE_IN="$2"; shift ;;
     --slug=*)          SLUG_IN="${1#*=}" ;;
     --slug)            need_val "$1" "${2-}"; SLUG_IN="$2"; shift ;;
     --desc=*)          DESC_IN="${1#*=}" ;;
@@ -645,10 +646,10 @@ say "Throughstone — setup"
 
 # New project vs. existing codebase. This is the one fork the installer makes: "new" is the
 # greenfield kickoff; "existing" adopts a codebase that already exists (retcon). Both set up the
-# same mechanical scaffold below — the only differences land at the end (section 5c): "existing"
-# sets PROJECT-STATUS to `retcon` and drops a stub STEP-1 PLAN, then stops so an agent can
-# reverse-engineer the baseline from the running code. It is asked, never auto-detected, because
-# repo discovery is the agent's job, not the installer's.
+# same mechanical scaffold below, "existing" always in the multi layout; the other differences land
+# at the end (section 5c): "existing" sets PROJECT-STATUS to `retcon` and drops a stub STEP-1 PLAN,
+# then stops so an agent can reverse-engineer the baseline from the running code. It is asked,
+# never auto-detected, because repo discovery is the agent's job, not the installer's.
 if [ -n "$MODE_IN" ]; then
   case "$(printf '%s' "$MODE_IN" | tr '[:upper:]' '[:lower:]')" in
     new|greenfield|1)          MODE=new ;;
@@ -674,6 +675,17 @@ else
       *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
     esac
   done
+fi
+
+# Adoption is multi-repo only. Every adopted repo is a repository of its own, and a
+# mono-repo-for-now project cannot hold one (runbooks/register-repo.md refuses it), so a mono
+# adoption would stop at its first repo. An existing monorepo is adopted as one repo in a
+# multi-repo workspace. Refused here rather than at the layout question, so no answer is asked for
+# that the run then discards.
+if [ "$MODE" = "existing" ] && [ -n "$LAYOUT_IN" ] && normalize_layout "$LAYOUT_IN" \
+  && [ "$NORMALIZED_LAYOUT" = "2" ]; then
+  echo "init.sh: layout '$LAYOUT_IN' is not offered for an existing codebase (from --layout or INIT_LAYOUT): adoption sets up a multi-repo workspace, where an existing monorepo is one adopted repo." >&2
+  exit 2
 fi
 
 # Project slug — validated kebab-case whether supplied or prompted.
@@ -781,13 +793,17 @@ fi
 # shell with separate durable repos under prompts/ and Code/<project>-docs/. Mono keeps a single
 # repo at the root for projects that are not ready to split yet.
 # An unrecognised flag is fatal; an unrecognised typed answer is re-asked, the way the slug
-# question above works. Both go through normalize_layout, so the two paths cannot drift.
+# question above works. Both go through normalize_layout, so the two paths cannot drift. Adoption
+# has one answer (see the refusal after the mode question), so it is said rather than asked.
 if [ -n "$LAYOUT_IN" ]; then
   normalize_layout "$LAYOUT_IN" \
     || { echo "init.sh: invalid layout '$LAYOUT_IN' (multi | mono) — from --layout or INIT_LAYOUT." >&2; exit 2; }
   LAYOUT="$NORMALIZED_LAYOUT"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
+elif [ "$MODE" = "existing" ]; then
+  LAYOUT=1
+  echo "Repo layout: multi-repo — adoption sets up a multi-repo workspace."
 else
   # The menu names what each layout does to this folder, because that is the half a first-time
   # reader cannot infer and the half that costs them something later. Multi leaves the root a
