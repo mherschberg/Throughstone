@@ -62,7 +62,9 @@ resume from `prompts/STEP-index.md` via `status.sh`. That row's Scope cell, whic
 Calibrate every interaction to the active user's local profile in root `.throughstone/local-user.md`
 (**Experience level**, **Communication style**; `METHOD.md` §4). If the file is missing, ask the two
 local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. Retcon is
-**single-owner / one-machine** — do not set up multi-contributor state.
+**single-owner / one-machine** — do not set up multi-contributor state. Work STEP-1 on branch
+`step-0001-architecture` wherever branch-per-STEP applies (`METHOD.md` §7): in the docs hub and
+`prompts/` from the start, and in each adopted repo before you write into it.
 
 ## Stage 1 — Intake  (resolves `inv-1`)  ▸ checkpoint
 
@@ -691,9 +693,9 @@ different job. Nothing about their templates changes — these are the notes the
   — that one is forward-intent, and only they can answer it.
 - **`1.13` Glossary** canonically reads *all* the architecture docs produced so far, and under the
   float that set excludes Phasing. That's fine and deliberate: the Glossary's job here is the
-  **as-built vocabulary**, which is complete without it. Phasing's forward-milestone terms fold in at
-  `1.14`, whose Consistency check already flags Glossary drift — so no term is lost, and the Glossary
-  isn't blocked waiting on a doc about the future.
+  **as-built vocabulary**, which is complete without it. Phasing's forward-milestone terms fold in
+  when `1.2` runs (below) — so no term is lost, and the Glossary isn't blocked waiting on a doc
+  about the future.
 - **`1.2` Phasing itself** runs last, on the finished descriptive set, and is a **forward-intent
   session end to end** — there is no as-built half to harvest, so run it as a near-normal interview
   (step 2) with **no pre-answer sheet**. An interrupted `1.2` therefore has no sheet to resume from:
@@ -706,7 +708,8 @@ different job. Nothing about their templates changes — these are the notes the
   Leaving the placeholder unresolved would strand the baseline at archive time. Do it exactly as the
   kickoff does at the same heading (`BOOTSTRAP-PROMPT.md`): set the name **and delete the
   explanatory comment beneath it**, so an adopted index and a greenfield one of the same age read
-  the same.
+  the same. And because the Glossary ran before it, add any term the Phasing doc introduces to the
+  Glossary doc as you write, with a Version Log entry, the way the Glossary grows in later STEPs.
 
 > `1.14`'s side of this — reconciling Phasing against `1.3`/`1.5` once all three exist, and turning
 > foreclosure into gap analysis — is the Cross-Cutting Review's Foreclosure check (Stage 4), which

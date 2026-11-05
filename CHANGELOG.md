@@ -146,6 +146,10 @@ an error/corruption path, not normal operation.
   mono-repo-for-now project cannot hold a separate repository and every adopted repo is one, so a
   mono adoption stopped at its first repo. An existing monorepo is still adopted, as one repo in a
   multi-repo workspace. `--mode` written with a space now needs a value, as every other flag does.
+- **Adoption works STEP-1 on its branch and keeps the Glossary whole.** It uses
+  `step-0001-architecture` wherever branch-per-STEP applies, as a new project does. Phasing, which an
+  adoption runs after the Glossary, adds the terms it introduces to the Glossary itself. And
+  `prompts/README.md` says an adoption keeps its session statuses in its STEP-1 PLAN until it lands.
 
 ## [2.0.0]
 
