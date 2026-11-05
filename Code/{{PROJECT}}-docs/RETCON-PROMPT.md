@@ -529,10 +529,10 @@ an honest record of where it stopped. Never leave a row unwalked. Once every row
 **stamp the sheet `Status: Confirmed`**.
 
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
-user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
-risky rather than merely incomplete — a `Code/{{PROJECT}}-docs/registries/risks.yml` row with a
-revisit trigger, so the periodic check-in re-surfaces it (in that file's documented row shape, and
-pointing at the artifacts named at `inv-5`).
+user chooses, then carry the warning into the doc's `Coverage:` line and file a
+`Code/{{PROJECT}}-docs/registries/risks.yml` row whose revisit trigger says what would end the
+deferral, so the periodic check-in re-surfaces it (`METHOD.md` §6; in that file's documented row
+shape, and pointing at the artifacts named at `inv-5`).
 
 **A deferral taken here is not a harvested decision, and it is not automatically an ADR.** It is a
 live choice the user makes during adoption, so the no-reconstructed-ADRs rule doesn't apply to it —

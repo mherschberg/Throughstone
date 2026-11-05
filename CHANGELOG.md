@@ -156,6 +156,12 @@ an error/corruption path, not normal operation, and two wording fixes a new proj
   missed a STEP-1 marked `Done` over sessions still `Planned`, the state an adoption lands in. The
   phase README template's STEP-1 row takes the real substep count instead of a fixed 14, which a
   STEP-1 with a conditional session never had, and the template says what that count includes.
+- **An adoption files a risk row for every deferral.** Deferring part of an area at a session's
+  confirm pass now always files a `registries/risks.yml` row whose revisit trigger says what would
+  end the deferral, as `METHOD.md` §6 asks of any `Coverage:` line. The adoption prompt asked for
+  one only when the gap looked genuinely risky, while its PLAN stub and pre-answer sheet asked every
+  time. The stub's ground rule keeps the "genuinely risky" test for unknowns only, as the rest of
+  the PLAN does.
 
 ## [2.0.0]
 

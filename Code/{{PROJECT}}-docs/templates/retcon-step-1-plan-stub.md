@@ -147,9 +147,9 @@ the way — not a pretty description a mature team already knows.
   symlink standing in for them at that path; their code is never rewritten.
 - **Confirm every decision** proportionate to confidence × consequence — a `from-code` answer gets
   a fast "right?"; a low-confidence, load-bearing one gets a real discussion.
-- **Accepted risks / deferrals stay visible.** Push unknowns and `Coverage: deferred` areas to
-  `Code/{{PROJECT}}-docs/registries/risks.yml` with a revisit trigger; the check-in re-surfaces
-  them.
+- **Accepted risks / deferrals stay visible.** Push genuinely-risky unknowns and every
+  `Coverage: deferred` area to `Code/{{PROJECT}}-docs/registries/risks.yml` with a revisit
+  trigger; the check-in re-surfaces them.
 
 ## Definition of done (inventory phase)
 - [ ] inv-1–inv-4 complete: intake recorded, everything inventoried, the recon map drafted and
