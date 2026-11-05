@@ -166,6 +166,12 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   said licensing was the only difference between a repo the project created and one it adopted;
   step 2 also gives only a code repo we created its test gate and `.gitignore` lines, and the
   opening now says so.
+- **A repo an adoption finds late is registered like the rest.** When a session's harvest turns up
+  a repo the recon map missed and the user adopts it, the adoption now runs
+  `runbooks/register-repo.md` whole for it, as for every other adopted repo, so it gets the
+  Throughstone notice and its Architecture Overview entry too. The prompt listed only the registry
+  row and a README note, and a "ledger row" for a found doc that 2.0's inputs lifecycle no longer
+  has.
 
 ## [2.0.0]
 

@@ -408,8 +408,9 @@ is missing from the baseline itself. So:
   correction to the birth certificate they signed, and it is their call whether it is in scope at all
   (an abandoned service in the same account may not be).
 - **If they adopt it, append an `asset-N` row** to the per-asset table — continuing the numbering,
-  never renumbering — and do that asset's ordinary per-asset work: the `repos.yml` row and README
-  note for a repo, the `inputs/` copy and ledger row for a doc, the Kind cell's session for a resource. **If
+  never renumbering — and do that asset's ordinary per-asset work: for a repo,
+  `Code/{{PROJECT}}-docs/runbooks/register-repo.md` run whole; the `inputs/` copy for a doc; the Kind
+  cell's session for a resource. **If
   they exclude it**, it gets no row and no work; record it as a one-line note beside the per-asset
   table (*"found at `1.8`: staging-2 deploy target, excluded — decommissioned"*), the same
   found-and-dismissed record an `excluded` Inventory row carries, since the frozen map can't take it.
