@@ -174,9 +174,14 @@ session interviews you only when an agent was **sent to run that session** *and*
 mid-adoption (that is, `overview.md` does **not** show `PROJECT-STATUS: retcon`). Every other
 reading takes the file as reference material. That covers the Cross-Cutting Review enumerating each
 conditional, the periodic check-in re-evaluating them, and adoption harvesting a session's decisions
-from existing code — none of which should trigger an interview. The rule is enforced in two places: each session file's closing
-paragraph (which fires only for an agent sent to run it) and `AGENTS.md`'s session runner (which
-holds the adoption half, since an adopting project *is* being asked to run the session).
+from existing code — none of which should trigger an interview. Nor does a conditional session an
+adoption discovers late, mid-harvest or at the Cross-Cutting Review's gate: it goes through the
+same harvest, drafted from the code and confirmed, not run as a fresh interview. The rule is
+enforced in two places: each session file's closing paragraph (which fires only for an agent sent
+to run it) and `AGENTS.md`'s session runner (which holds the adoption half, since an adopting
+project *is* being asked to run the session). Once an adoption lands, the marker reads
+`kickoff-complete`, and a `Done` STEP-1 whose Scope opens *"Retcon baseline —"* is an ordinary
+baseline.
 
 Each session reads what it needs (`overview.md`, anything relevant in `inputs/`, and earlier
 architecture docs) from disk, so **you can clear the chat / start fresh between sessions** —

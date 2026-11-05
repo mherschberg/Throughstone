@@ -25,16 +25,18 @@ When adoption lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary
 `prompts/STEP-index.md` with the scope *"Retcon baseline — reverse-engineered from existing code;
 adopted {{DATE}}; forward work starts at STEP-2."* That Scope cell, which opens
 *"Retcon baseline —"*, is the row's RETCON mark; there is no separate one. STEP-1 archives greenfield-style
-into `prompts/001-<milestone>/step-0001/` (the folder name converges with greenfield), and a
+into `prompts/001-<phase-name>/step-0001/` (the folder name converges with greenfield), and a
 one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}"*). Landing also
 reconciles the STEP index against this PLAN, in one pass. A session this PLAN ends at **`N/A`** or
 **`Deferred`** is carried across unchanged — the status only, since its one-line reason stays on
 the PLAN row — and every lettered conditional row this PLAN added (`1.6a`, `1.7b`, …) is written
-in beside the core session that owns it, since the seed carries no lettered rows. The rest of the
+in beside the core session that owns it, with its PLAN status and output doc, since the seed
+carries no lettered rows. The rest of the
 `1.1`–`1.14` rows keep the greenfield `Planned` seed they sat at while session progress lived here:
 the `Done` STEP-1 row above them is what says the architecture STEP is over, so nothing has to flip
 them, and a leftover `Planned` row is not a defect to fix. The landed project resolves like a
-greenfield baseline instead of re-running the sessions.
+greenfield baseline instead of re-running the sessions. `RETCON-PROMPT.md` Stage 4 does the land,
+in order, and flips `PROJECT-STATUS` to `kickoff-complete` last.
 To the resolver it is an ordinary architecture baseline needing no new logic: forward
 implementation starts at **STEP-2**, and the first forward planning session inserts a **baseline
 check-in** as STEP-2 — the full test suite this docs-only STEP-1 deliberately skips.
@@ -128,7 +130,8 @@ the way — not a pretty description a mature team already knows.
          Confidence & Unknowns / Coverage & Confidence (genuinely-risky items only;
          STEP-index stays at its seed).
      That upgraded PLAN — at this same path, Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md —
-     is the STEP-1 PLAN the Cross-Cutting Review's Check 1 and every future check-in read.
+     is the STEP-1 PLAN the Cross-Cutting Review's Check 1 reads, and every future check-in
+     reads once the land archives it.
      See RETCON-PROMPT.md.
      ═══════════════════════════════════════════════════════════════════════════════ -->
 

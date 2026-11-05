@@ -26,9 +26,9 @@ an error/corruption path, not normal operation.
   status and route a fresh agent to a new **`RETCON-PROMPT.md`** resolver, which reverse-engineers the
   architecture baseline from the running code instead of interviewing it from scratch — running the
   intake, inventorying every repo/doc/resource, drafting a recon map you confirm, and writing the real
-  STEP-1 plan, then harvesting each architecture session from the code. The land at a `Done STEP-1`
-  baseline (equivalent to a greenfield one, from which the ordinary forward flow continues) arrives in
-  a remaining 2.1 increment. **Default mode is `new`**; a project stood up from scratch never enters this path and is
+  STEP-1 plan, then harvesting each architecture session from the code and landing a `Done STEP-1`
+  baseline equivalent to a greenfield one, from which the ordinary forward flow continues.
+  **Default mode is `new`**; a project stood up from scratch never enters this path and is
   unchanged.
 - **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
   `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
@@ -92,6 +92,15 @@ an error/corruption path, not normal operation.
     warning then follows the gap: the doc's `Coverage:` line says what is missing, how big it is, and
     what it means for someone building on it (never a bare "deferred"), and a genuinely risky gap gets
     a `risks.yml` row the periodic check-in re-surfaces.
+- **An adoption finishes as an ordinary project** (`RETCON-PROMPT.md` Stage 4). Its last session runs
+  the same Cross-Cutting Review a new project closes its architecture with, then lands the baseline:
+  STEP-1 becomes a `Done` row whose Scope opens *Retcon baseline —*, the STEP index is brought in
+  line with the adoption's plan in one pass, STEP-1 is archived the way a new project's is,
+  `overview.md` gets a one-line note that the project was adopted, and `PROJECT-STATUS` flips to
+  `kickoff-complete`. The flip comes last, so a land interrupted partway resumes where it stopped.
+  From there the next action is the Phase-1 planning session, as for any project whose architecture
+  STEP is done. A conditional session found late in an adoption is drafted from the code and
+  confirmed like the rest, not interviewed (`METHOD.md` §4).
 
 ### Changed
 
@@ -108,10 +117,6 @@ an error/corruption path, not normal operation.
   routes every later agent out of the adoption and into ordinary forward work — leaving the project
   being told to start its architecture over, with nothing on disk looking wrong. Nothing routes off file shape now, on either path.
   Normal operation, with a valid marker, is unchanged.
-- **Adoption now says up front where this release stops.** The intake checkpoint that opens an
-  adoption tells you plainly that this version carries the work through the architecture sessions
-  only — the cross-cutting review and the baseline land are still being built — so you see that
-  boundary before you invest the sessions rather than when you reach the last one.
 - **Leaving something out of an adoption is just leaving it out.** The scope call at the recon-map
   checkpoint now says so outright: an `excluded` row is a note in that map and nothing else — no
   registry row, no stub or boundary doc, and no ongoing state of any kind. A neighbouring system

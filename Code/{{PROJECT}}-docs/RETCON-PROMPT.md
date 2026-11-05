@@ -27,7 +27,8 @@ PLAN-driven resolver** — this prompt — reading the in-flight **STEP-1 PLAN**
 inventory work). **Resolve the lowest open substep** and do it — that is your next action, mid-inventory
 included, in a fresh chat or a resumed one. **Mark each substep `Done` in the PLAN the moment its work
 completes, before resolving the next** — that as-you-go marking is what makes "the lowest open substep"
-land on the right next action after any interruption.
+land on the right next action after any interruption. When no substep is left open, or the PLAN has
+already been archived out of `Upcoming Prompts/`, the next action is to land the baseline (Stage 4).
 
 The work runs in stages, each a set of PLAN substeps:
 
@@ -38,8 +39,7 @@ The work runs in stages, each a set of PLAN substeps:
   template as reference data, draft an answer to every decision **from the running code**, confirm
   those answers with the user, and write the clean `architecture/` doc. Below.
 - **Stage 4 — Cross-Cutting Review + land** (`1.14`) — reconcile everything against the code, then
-  land the baseline. *Forthcoming in the next build increment; until it lands, Stages 1–3 are the
-  resolvable work.*
+  land the baseline. Below.
 
 When the baseline lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary `Done` row,
 `PROJECT-STATUS` flips to `kickoff-complete`, and from that instant this is ordinary {{PROJECT}} —
@@ -127,11 +127,7 @@ note in the PLAN, so Stage 2 reads one working note instead of three files. Two 
 permanent home: write the release-stage descriptor into `overview.md` now, and the depth-dial posture
 seeds the recon map's Coverage & Confidence at `inv-3`. Mark `inv-1` **Done** in the PLAN's substep
 table, then resolve the next open substep. **Checkpoint:** play the intake back to the user before
-moving on. **And while Stage 4 is not present in this prompt, say so here**: this version carries
-the adoption through Stage 3 only — the Cross-Cutting Review and the baseline land are still being
-built — so the work they are about to invest in ends at a complete, resumable set of `architecture/`
-docs rather than a landed baseline. They are committing their time at this checkpoint, so they
-should know that boundary before they spend it, not when they reach `1.14`.
+moving on.
 
 ## Stage 2 — Map + plan  (`inv-2`…`inv-5`, then the per-asset substeps)
 
@@ -426,7 +422,7 @@ is missing from the baseline itself. So:
 Where the discovery changes what the doc you are writing says, that is ordinary content: record the
 reality, and flag the gap.
 
-`1.14` is the Cross-Cutting Review + land, not a harvest — see the note at the end of this stage.
+`1.14` is the Cross-Cutting Review + land, not a harvest — Stage 4, below.
 
 **Some sessions carry an extra note.** The loop below is the same for every session, but a few need
 something it alone doesn't give them — a brief to fill, a session whose procedure assumes nothing
@@ -713,10 +709,55 @@ different job. Nothing about their templates changes — these are the notes the
   the same.
 
 > `1.14`'s side of this — reconciling Phasing against `1.3`/`1.5` once all three exist, and turning
-> foreclosure into gap analysis — belongs to the Cross-Cutting Review, in the increment below.
+> foreclosure into gap analysis — is the Cross-Cutting Review's Foreclosure check (Stage 4), which
+> asks whether what is already built supports what the Phasing doc commits to.
 
-> **When you reach `1.14` and Stage 4 is not present in this prompt, STOP.** Report that the
-> architecture baseline (Stages 1–3) is complete — every in-scope session harvested, confirmed, and
-> written — and that the Cross-Cutting Review and the baseline land are pending a future build
-> increment, then wait. Do **not** improvise the land: leaving `PROJECT-STATUS: retcon` in place and
-> the STEP index at its seed is the correct, resumable state.
+## Stage 4 — Cross-Cutting Review + land  (`1.14`)
+
+`1.14` is a review, not a harvest. Run
+`Code/{{PROJECT}}-docs/templates/architecture-sessions/14-cross-cutting-review.md` as written: it is
+the review every greenfield STEP-1 closes with, and its checks apply unchanged. Its Consistency
+check settles a conflict between docs against the code wherever code exists, and its Foreclosure
+check asks whether what is built supports the roadmap Phasing just wrote. Flip `1.14` to
+`In progress` in the session table when you start it, as for any session. It has no sheet, so an
+interrupted review runs again from the beginning.
+
+What does change is where it writes. The index stays at its seed until the land below, so every
+index instruction the review gives goes to the PLAN instead, as for every session (Stage 3, step 1):
+
+- **The conditional-session gate** adds or reactivates a conditional's lettered row in the PLAN's
+  session table, beside the core session that owns it, and records it in *Conditional sessions
+  considered*. When the gate stops the review, set `1.14` back to `Planned`: an `In progress` row
+  would outrank the lettered row above it, and that row runs first. It goes through Stage 3's
+  harvest, drafted from the code and confirmed, not run as a fresh interview. Once it is `Done`,
+  `1.14` is the first open row again, and the review restarts from the beginning, as its gate
+  requires.
+- **Index accuracy** checks the PLAN where it names `prompts/STEP-index.md`. The land reconciles the
+  index.
+- **The review's last Output bullet and its `## Next`** — marking `1.14` and STEP-1 `Done` and
+  archiving STEP-1 — become this: once the review is clean, mark `1.14` `Done` in the PLAN, then
+  land.
+
+### Land the baseline
+The PLAN's *The retcon baseline* section says what the land writes. Do it in this order:
+
+1. **Reconcile `prompts/STEP-index.md` against the PLAN, in one pass**, as that section says: the
+   STEP-1 row goes `Done` with the Scope it gives, `N/A` and `Deferred` sessions carry across, the
+   lettered rows are written in, and every other session row stays `Planned`.
+2. **Add the provenance line** that section gives to `Code/{{PROJECT}}-docs/overview.md`.
+3. **Archive STEP-1 greenfield-style**, as the review's last Output bullet describes: create
+   `prompts/001-<phase-name>/` and its `README.md`, named from the `## Phase 1 — …` heading Phasing
+   filled, and move the PLAN and the review summary into its `step-0001/`. Delete the
+   `Upcoming Prompts/retcon/` folder rather than archiving it: its pre-answer sheets are scratch
+   (Stage 3, step 5).
+4. **Flip `PROJECT-STATUS: retcon` to `kickoff-complete`** in `overview.md`. This is always the
+   land's last edit.
+
+From the flip the project is ordinary {{PROJECT}}: `status.sh` resolves it from the index like any
+greenfield project whose STEP-1 is `Done`. Finish as the review's `## Next` does: merge the STEP-1
+branch wherever branch-per-STEP applies, and send the user to a fresh chat for the planning session.
+
+**An interrupted land resumes here.** Until the flip, the marker still reads `retcon`, so the next
+chat comes back to this prompt and finds no open substep, or finds the PLAN already moved to
+`prompts/001-<phase-name>/step-0001/`. Either way, check each step above against the disk, do the
+ones not yet done, and flip the marker last.
