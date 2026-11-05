@@ -13,8 +13,8 @@ Work toward the **2.1** line, which adds **existing-codebase adoption** ("retcon
 be stood up by reverse-engineering a running system instead of interviewing its architecture from
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
-**Changed** also carries one fix that is not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation.
+**Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
+an error/corruption path, not normal operation, and two wording fixes a new project reads too.
 
 ### Added
 
@@ -150,6 +150,12 @@ an error/corruption path, not normal operation.
   `step-0001-architecture` wherever branch-per-STEP applies, as a new project does. Phasing, which an
   adoption runs after the Glossary, adds the terms it introduces to the Glossary itself. And
   `prompts/README.md` says an adoption keeps its session statuses in its STEP-1 PLAN until it lands.
+- **`METHOD.md` §10 and the phase README template read right for any STEP-1.** The resolver's rule
+  for when the planning session comes next asks only whether STEP-1 is complete, which its row says,
+  and no longer also whether the Cross-Cutting Review row is done; read by hand, the old wording
+  missed a STEP-1 marked `Done` over sessions still `Planned`, the state an adoption lands in. The
+  phase README template's STEP-1 row takes the real substep count instead of a fixed 14, which a
+  STEP-1 with a conditional session never had.
 
 ## [2.0.0]
 

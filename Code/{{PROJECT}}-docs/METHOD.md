@@ -791,7 +791,7 @@ never blocks work, and no rule below it is skipped because a check-in is due.
    topic, not by number (see §4).
 2. **All STEP-1 design sessions done but the Cross-Cutting Review is still open?** → run the
    substep whose Session label is **Cross-Cutting Review**.
-3. **Cross-Cutting Review done and STEP-1 complete, but only the STEP-1 row exists?** →
+3. **STEP-1 complete, but only the STEP-1 row exists?** →
    *"run the planning session"* — it outlines the Phase-1 implementation STEPs (§2). Nothing on
    disk records that it ran, so while STEP-1 is `Done` and no STEP numbered 2 or higher is
    `In progress` or `Done`, end the answer a rule below gives with *"If the Phase-1 planning
