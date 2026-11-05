@@ -3,7 +3,8 @@
 Bring a repository into the project: record it, give it a README, and put the Throughstone notice
 (`LICENSE-THROUGHSTONE`) in it. Run this when a repo is created, adopted, or split out of another.
 
-The goal is that the **result** is the same however a repo arrived, except for licensing (step 3).
+The goal is that the **result** is the same however a repo arrived, except for two things: the test
+gate and `.gitignore` lines only a code repo we created gets (step 2), and licensing (step 3).
 
 ## Before you start
 

@@ -14,7 +14,7 @@ be stood up by reverse-engineering a running system instead of interviewing its 
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
 **Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, and two wording fixes a new project reads too.
+an error/corruption path, not normal operation, and three wording fixes a new project reads too.
 
 ### Added
 
@@ -162,6 +162,10 @@ an error/corruption path, not normal operation, and two wording fixes a new proj
   one only when the gap looked genuinely risky, while its PLAN stub and pre-answer sheet asked every
   time. The stub's ground rule keeps the "genuinely risky" test for unknowns only, as the rest of
   the PLAN does.
+- **`runbooks/register-repo.md` names both things that depend on how a repo arrived.** Its opening
+  said licensing was the only difference between a repo the project created and one it adopted;
+  step 2 also gives only a code repo we created its test gate and `.gitignore` lines, and the
+  opening now says so.
 
 ## [2.0.0]
 
