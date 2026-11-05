@@ -149,7 +149,8 @@ teammate will need later.
    - **Session-driven**, where the substeps are architecture sessions in
      `Code/{{PROJECT}}-docs/templates/architecture-sessions/`. The architecture STEP-1 is the
      large case — its substeps are the interview sessions chosen at kickoff, and their status
-     stays in `prompts/STEP-index.md`, where the resolver reads it. A **late
+     stays in `prompts/STEP-index.md`, where the resolver reads it. An adoption keeps that status
+     in its STEP-1 PLAN until it lands (`Code/{{PROJECT}}-docs/RETCON-PROMPT.md`). A **late
      conditional-session follow-up** is the small one: a single substep pointing at the
      applicable `conditional-*.md` file, recording its exact by-name invocation and the assigned
      output-doc number. Don't copy a session into a new prompt. Give that STEP's index row the

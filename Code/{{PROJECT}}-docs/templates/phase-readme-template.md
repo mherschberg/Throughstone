@@ -9,6 +9,7 @@ here. STEP numbers are global (they don't reset per phase).
 
 | STEP | Title | Substeps | Archived |
 |------|-------|----------|----------|
-| [STEP-1](step-0001/) | Architecture | 14 | {{DATE}} |
+| [STEP-1](step-0001/) | Architecture | {{SUBSTEP COUNT}} | {{DATE}} |
 
-<!-- Add a row when a STEP's folder is moved into this phase on completion. -->
+<!-- Add a row when a STEP's folder is moved into this phase on completion. Substeps is the
+     number of rows in that STEP's substep table, N/A and Deferred rows included. -->

@@ -545,6 +545,7 @@ tests/registry-reader-parity.sh
 tests/session-template-contract.sh
 tests/setup-workspace-resilience.sh
 tests/site-publish.sh
+tests/status-adoption-land.sh
 tests/status-conditional-priority.sh
 tests/status-missing-marker.sh
 tests/status-next-check-in.sh
