@@ -14,7 +14,7 @@ be stood up by reverse-engineering a running system instead of interviewing its 
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
 **Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, and two wording fixes a new project reads too.
+an error/corruption path, not normal operation, and three wording fixes a new project reads too.
 
 ### Added
 
@@ -156,6 +156,22 @@ an error/corruption path, not normal operation, and two wording fixes a new proj
   missed a STEP-1 marked `Done` over sessions still `Planned`, the state an adoption lands in. The
   phase README template's STEP-1 row takes the real substep count instead of a fixed 14, which a
   STEP-1 with a conditional session never had, and the template says what that count includes.
+- **An adoption files a risk row for every deferral.** Deferring part of an area at a session's
+  confirm pass now always files a `registries/risks.yml` row whose revisit trigger says what would
+  end the deferral, as `METHOD.md` §6 asks of any `Coverage:` line. The adoption prompt asked for
+  one only when the gap looked genuinely risky, while its PLAN stub and pre-answer sheet asked every
+  time. The stub's ground rule keeps the "genuinely risky" test for unknowns only, as the rest of
+  the PLAN does.
+- **`runbooks/register-repo.md` names both things that depend on how a repo arrived.** Its opening
+  said licensing was the only difference between a repo the project created and one it adopted;
+  step 2 also gives only a code repo we created its test gate and `.gitignore` lines, and the
+  opening now says so.
+- **A repo an adoption finds late is registered like the rest.** When a session's harvest turns up
+  a repo the recon map missed and the user adopts it, the adoption now runs
+  `runbooks/register-repo.md` whole for it, as for every other adopted repo, so it gets the
+  Throughstone notice and its Architecture Overview entry too. The prompt listed only the registry
+  row and a README note, and a "ledger row" for a found doc that 2.0's inputs lifecycle no longer
+  has.
 
 ## [2.0.0]
 

@@ -408,8 +408,9 @@ is missing from the baseline itself. So:
   correction to the birth certificate they signed, and it is their call whether it is in scope at all
   (an abandoned service in the same account may not be).
 - **If they adopt it, append an `asset-N` row** to the per-asset table — continuing the numbering,
-  never renumbering — and do that asset's ordinary per-asset work: the `repos.yml` row and README
-  note for a repo, the `inputs/` copy and ledger row for a doc, the Kind cell's session for a resource. **If
+  never renumbering — and do that asset's ordinary per-asset work: for a repo,
+  `Code/{{PROJECT}}-docs/runbooks/register-repo.md` run whole; the `inputs/` copy for a doc; the Kind
+  cell's session for a resource. **If
   they exclude it**, it gets no row and no work; record it as a one-line note beside the per-asset
   table (*"found at `1.8`: staging-2 deploy target, excluded — decommissioned"*), the same
   found-and-dismissed record an `excluded` Inventory row carries, since the frozen map can't take it.
@@ -529,10 +530,10 @@ an honest record of where it stopped. Never leave a row unwalked. Once every row
 **stamp the sheet `Status: Confirmed`**.
 
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
-user chooses, then carry the warning into the doc's `Coverage:` line and — when the gap is genuinely
-risky rather than merely incomplete — a `Code/{{PROJECT}}-docs/registries/risks.yml` row with a
-revisit trigger, so the periodic check-in re-surfaces it (in that file's documented row shape, and
-pointing at the artifacts named at `inv-5`).
+user chooses, then carry the warning into the doc's `Coverage:` line and file a
+`Code/{{PROJECT}}-docs/registries/risks.yml` row whose revisit trigger says what would end the
+deferral, so the periodic check-in re-surfaces it (`METHOD.md` §6; in that file's documented row
+shape, and pointing at the artifacts named at `inv-5`).
 
 **A deferral taken here is not a harvested decision, and it is not automatically an ADR.** It is a
 live choice the user makes during adoption, so the no-reconstructed-ADRs rule doesn't apply to it —
