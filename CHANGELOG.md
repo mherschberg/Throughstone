@@ -155,7 +155,7 @@ an error/corruption path, not normal operation, and two wording fixes a new proj
   and no longer also whether the Cross-Cutting Review row is done; read by hand, the old wording
   missed a STEP-1 marked `Done` over sessions still `Planned`, the state an adoption lands in. The
   phase README template's STEP-1 row takes the real substep count instead of a fixed 14, which a
-  STEP-1 with a conditional session never had.
+  STEP-1 with a conditional session never had, and the template says what that count includes.
 
 ## [2.0.0]
 
