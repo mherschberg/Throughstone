@@ -14,7 +14,7 @@ be stood up by reverse-engineering a running system instead of interviewing its 
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
 **Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, and four wording fixes a new project reads too.
+an error/corruption path, not normal operation, and five wording fixes a new project reads too.
 
 ### Added
 
@@ -206,6 +206,10 @@ an error/corruption path, not normal operation, and four wording fixes a new pro
 - **`registries/risks.yml`'s example row points at its ADR by path.** The commented example gave
   an ADR ref as a bare filename beside an architecture ref written from the docs hub's root; it now
   reads `adr/ADR-0000-example.md`, so a row copied from it names a file the check-in can find.
+- **`runbooks/register-repo.md` accepts a repo whose remote isn't called `origin`.** Its check
+  that a row's `remote:` matches the checkout read only `remote.origin.url`, so a repo whose only
+  remote is named something else, such as a fork's `upstream`, failed it with nowhere to go. Any of
+  the checkout's remotes may now name the repository.
 
 ## [2.0.0]
 
