@@ -170,7 +170,10 @@ turns up things that shouldn't be adopted — an abandoned service, a dead proto
 team owns. Walk the Inventory with the user and set each row's **Scope**: `adopt`, or
 `excluded — <reason>`. Excluded rows stay in the map (found-and-dismissed is a finding, and it stops
 the next scan from re-raising them); only `adopt` rows become work at `inv-5`. Ask rather than
-assume — "still in use?" is a question the code often can't answer. On sign-off, stamp `Status: Confirmed on <date>`: the **confirmed
+assume — "still in use?" is a question the code often can't answer. A repo that holds only docs is
+still a repo, and so is one with no remote or with a name the docs hub already uses:
+`Code/{{PROJECT}}-docs/runbooks/register-repo.md` handles each, so none of those is a reason to
+exclude it or to take its files in as a doc-set instead. On sign-off, stamp `Status: Confirmed on <date>`: the **confirmed
 Inventory is frozen — never rewritten** (an asset discovered later is a recorded finding, not a silent
 edit). The per-asset **detail is not frozen** — it deepens later in the living docs (repo READMEs,
 `architecture/`), and some exploration is deliberately deferred for weeks or months via the depth dial

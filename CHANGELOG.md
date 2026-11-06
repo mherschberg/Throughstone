@@ -175,12 +175,19 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
 - **An adoption's PLAN no longer answers the planning session's question for it.** The STEP-1 PLAN
   stub said the first planning session inserts a baseline check-in as STEP-2. It now says that
   session asks whether the code it builds on is inherited and unchecked, and inserts the check-in
-  when the owner says yes, as the planning session itself does.
+  on a yes, as the planning session itself does. Until planning has asked, no doc, risk row or
+  hand-off names the answer.
 - **An adoption asks before designing an area the code doesn't have yet.** Where a session's area is
   only a future need (no hosting, no logging, no tests yet), the adoption prompt now asks whether to
   settle its design now or leave it to the STEP that will build it, so a large system can be
   brought under the method a piece at a time. Left for later, it is an ordinary deferral: the doc
   describes what exists, its `Coverage:` line names what was left, and a risk row brings it back.
+  The pre-answer sheet template puts that choice in such a session's first row, so the confirm
+  pass asks it before any forward decision.
+- **An adoption registers a repo that holds only docs as a repo.** When the recon map is confirmed,
+  the adoption prompt now says a docs-only repo, a repo with no remote and one whose name the docs
+  hub already uses are all still repos: `runbooks/register-repo.md` handles each, so none is a
+  reason to exclude the repo or to take its files in as a doc-set instead.
 
 ## [2.0.0]
 
