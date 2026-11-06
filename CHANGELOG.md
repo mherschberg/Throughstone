@@ -184,6 +184,10 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   describes what exists, its `Coverage:` line names what was left, and a risk row brings it back.
   The pre-answer sheet template puts that choice in such a session's first row, so the confirm
   pass asks it before any forward decision.
+- **An adoption registers a repo that holds only docs as a repo.** When the recon map is confirmed,
+  the adoption prompt now says a docs-only repo, a repo with no remote and one whose name the docs
+  hub already uses are all still repos: `runbooks/register-repo.md` handles each, so none is a
+  reason to exclude the repo or to take its files in as a doc-set instead.
 
 ## [2.0.0]
 
