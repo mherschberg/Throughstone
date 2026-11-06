@@ -476,6 +476,15 @@ what the system should become, what is deliberately out of scope, what the next 
 get a **near-normal interview**: ask the user directly, exactly as greenfield would, and record the
 answer as a forward decision.
 
+**An area the code has nothing in yet is the owner's to design now or later.** Where a session's
+area is only a future need — no hosting, no logging, no tests yet — ask the user whether to settle
+its forward decisions now or leave them to the STEP that will build it: a large system is often
+brought under the method a piece at a time. Settled now, they get the interview above. Left for
+later, that is a deferral like any other (step 4): say what leaving it costs, describe what exists
+today with a `Coverage:` line naming what was left, and file the `risks.yml` row that brings it
+back. A session with nothing at all to describe goes `Deferred` instead (*A session whose area
+doesn't exist*).
+
 **ADRs: never assumed, sometimes asked for.** Several session templates tell a greenfield run to
 write an ADR for a significant or contested choice. Do **not** follow that for anything you harvested:
 the choice was made long before adoption, and writing it up now would fabricate a decision record
