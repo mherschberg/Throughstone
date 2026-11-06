@@ -172,6 +172,15 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   Throughstone notice and its Architecture Overview entry too. The prompt listed only the registry
   row and a README note, and a "ledger row" for a found doc that 2.0's inputs lifecycle no longer
   has.
+- **An adoption's PLAN no longer answers the planning session's question for it.** The STEP-1 PLAN
+  stub said the first planning session inserts a baseline check-in as STEP-2. It now says that
+  session asks whether the code it builds on is inherited and unchecked, and inserts the check-in
+  when the owner says yes, as the planning session itself does.
+- **An adoption asks before designing an area the code doesn't have yet.** Where a session's area is
+  only a future need (no hosting, no logging, no tests yet), the adoption prompt now asks whether to
+  settle its design now or leave it to the STEP that will build it, so a large system can be
+  brought under the method a piece at a time. Left for later, it is an ordinary deferral: the doc
+  describes what exists, its `Coverage:` line names what was left, and a risk row brings it back.
 
 ## [2.0.0]
 
