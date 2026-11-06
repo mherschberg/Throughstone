@@ -188,6 +188,12 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   the adoption prompt now says a docs-only repo, a repo with no remote and one whose name the docs
   hub already uses are all still repos: `runbooks/register-repo.md` handles each, so none is a
   reason to exclude the repo or to take its files in as a doc-set instead.
+- **An adoption knows what to do with an answer the owner can't check.** At a session's confirm
+  pass, a row the owner can't judge is still decided by the code: an answer read from the code is
+  confirmed as-is, noting that the owner couldn't check it, and one the agent inferred is deferred,
+  never written into the doc as fact. The prompt listed only confirmed, corrected and deferred, which
+  left an owner of inherited code, who often can't judge the code's reading, with no outcome that
+  fit.
 
 ## [2.0.0]
 

@@ -538,8 +538,10 @@ picking a side.
 
 Record each outcome in the sheet's **Confirm** column: *confirmed as-is*, *corrected: …*, or
 *deferred* — as you walk each row, not in a batch afterwards, so an interrupted confirm pass leaves
-an honest record of where it stopped. Never leave a row unwalked. Once every row has an outcome,
-**stamp the sheet `Status: Confirmed`**.
+an honest record of where it stopped. Never leave a row unwalked. When the user can't judge a row,
+the code still decides what it shows: a from-code answer is *confirmed as-is*, noting the user
+couldn't check it, and an inferred one is *deferred*, never written into the doc as fact. Once every
+row has an outcome, **stamp the sheet `Status: Confirmed`**.
 
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
 user chooses, then carry the warning into the doc's `Coverage:` line and file a
