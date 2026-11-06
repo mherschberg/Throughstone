@@ -38,8 +38,10 @@ them, and a leftover `Planned` row is not a defect to fix. The landed project re
 greenfield baseline instead of re-running the sessions. `RETCON-PROMPT.md` Stage 4 does the land,
 in order, and flips `PROJECT-STATUS` to `kickoff-complete` last.
 To the resolver it is an ordinary architecture baseline needing no new logic: forward
-implementation starts at **STEP-2**, and the first forward planning session inserts a **baseline
-check-in** as STEP-2 — the full test suite this docs-only STEP-1 deliberately skips.
+implementation starts at **STEP-2**. The first forward planning session **asks** whether the code
+it builds on is inherited and unchecked; when the owner says yes, as they normally will for adopted
+code, it inserts a **baseline check-in** as STEP-2 — the full test suite this docs-only STEP-1
+deliberately skips.
 
 ## Motivation
 Bring an existing system under {{PROJECT}} so the team works the STEP method **from here on**,
