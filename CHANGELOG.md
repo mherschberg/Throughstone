@@ -14,7 +14,7 @@ be stood up by reverse-engineering a running system instead of interviewing its 
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
 **Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, and three wording fixes a new project reads too.
+an error/corruption path, not normal operation, and four wording fixes a new project reads too.
 
 ### Added
 
@@ -203,6 +203,9 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   session records the gap and now leaves it to you whether its design starts now or at the STEP that
   builds it, as for any area the code has nothing in yet. It said not to design it now, which
   contradicted that rule.
+- **`registries/risks.yml`'s example row points at its ADR by path.** The commented example gave
+  an ADR ref as a bare filename beside an architecture ref written from the docs hub's root; it now
+  reads `adr/ADR-0000-example.md`, so a row copied from it names a file the check-in can find.
 
 ## [2.0.0]
 
