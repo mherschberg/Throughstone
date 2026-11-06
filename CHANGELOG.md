@@ -181,6 +181,8 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   settle its design now or leave it to the STEP that will build it, so a large system can be
   brought under the method a piece at a time. Left for later, it is an ordinary deferral: the doc
   describes what exists, its `Coverage:` line names what was left, and a risk row brings it back.
+  The pre-answer sheet template puts that choice in such a session's first row, so the confirm
+  pass asks it before any forward decision.
 
 ## [2.0.0]
 
