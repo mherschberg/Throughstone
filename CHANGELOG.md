@@ -198,6 +198,11 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   baseline lands with STEP-1 `Done` and its session rows still `Planned`, by design. The planning
   session's Inherited code step now says so, since nothing else it reads does, and planning sessions
   had rewritten those rows or given a later STEP the job of changing them.
+- **An adoption's UI session leaves a missing area to the owner.** Where the code has no
+  accessibility story, no localization or no documented component set, the UI / Design System
+  session records the gap and now leaves it to you whether its design starts now or at the STEP that
+  builds it, as for any area the code has nothing in yet. It said not to design it now, which
+  contradicted that rule.
 
 ## [2.0.0]
 

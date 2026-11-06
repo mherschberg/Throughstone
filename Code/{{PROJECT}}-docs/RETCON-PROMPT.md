@@ -693,7 +693,8 @@ harvested the same way: record what the code actually does, not what it should d
 
 Where the code genuinely has no answer — no accessibility story, no localization, no documented
 component set — that is a **gap to record**, exactly like any other as-built gap: state the reality,
-flag it, and let the forward work decide. Don't design it now; a baseline describes.
+flag it, and let the forward work decide. Whether that work starts now or at the STEP that builds it
+is the user's choice, as for any area the code has nothing in yet (Stage 3, step 2).
 
 ### The sessions that need a word about the float
 Floating Phasing changes what the earlier sessions that read it can read, and gives Phasing itself a
