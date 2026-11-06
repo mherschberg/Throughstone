@@ -39,9 +39,9 @@ greenfield baseline instead of re-running the sessions. `RETCON-PROMPT.md` Stage
 in order, and flips `PROJECT-STATUS` to `kickoff-complete` last.
 To the resolver it is an ordinary architecture baseline needing no new logic: forward
 implementation starts at **STEP-2**. The first forward planning session **asks** whether the code
-it builds on is inherited and unchecked; when the owner says yes, as they normally will for adopted
-code, it inserts a **baseline check-in** as STEP-2 — the full test suite this docs-only STEP-1
-deliberately skips.
+it builds on is inherited and unchecked, and on a yes inserts a **baseline check-in** as STEP-2 —
+the full test suite this docs-only STEP-1 deliberately skips. Until planning has asked, no doc,
+risk row or hand-off states the answer: write "the first check-in", not STEP-2.
 
 ## Motivation
 Bring an existing system under {{PROJECT}} so the team works the STEP method **from here on**,
