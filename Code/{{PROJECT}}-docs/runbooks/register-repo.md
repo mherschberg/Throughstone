@@ -27,8 +27,8 @@ gate and `.gitignore` lines only a code repo we created gets (step 2), and licen
   `git -C <location> rev-parse --show-prefix` has to **exit 0 and print nothing**, and printing
   nothing is not the test on its own: a path with no checkout at it prints nothing too, and exits
   128. Where the row carries a `remote:` — it may legitimately carry none yet —
-  `git -C <location> config --get remote.origin.url` has to name that same repository, allowing for
-  the row and the checkout spelling one host two ways. Looking for a `.git` instead is what passes
+  one of the checkout's remotes (`git -C <location> remote -v`; usually `origin`) has to name that
+  same repository, allowing for the row and the checkout spelling one host two ways. Looking for a `.git` instead is what passes
   wrongly: a plain directory inside another repo's work tree answers every `git` command with the
   **outer** repo, so steps 2 and 3 would write a README and a licence into a repository this row
   does not describe. Both commands hold for a checkout reached through a symlink, which is the

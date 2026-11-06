@@ -14,7 +14,7 @@ be stood up by reverse-engineering a running system instead of interviewing its 
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
 **Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, and three wording fixes a new project reads too.
+an error/corruption path, not normal operation, and five wording fixes a new project reads too.
 
 ### Added
 
@@ -188,6 +188,28 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   the adoption prompt now says a docs-only repo, a repo with no remote and one whose name the docs
   hub already uses are all still repos: `runbooks/register-repo.md` handles each, so none is a
   reason to exclude the repo or to take its files in as a doc-set instead.
+- **An adoption knows what to do with an answer the owner can't check.** At a session's confirm
+  pass, a row the owner can't judge is still decided by the code: an answer read from the code is
+  confirmed as-is, noting that the owner couldn't check it, and one the agent inferred is deferred,
+  never written into the doc as fact. The prompt listed only confirmed, corrected and deferred, which
+  left an owner of inherited code, who often can't judge the code's reading, with no outcome that
+  fit.
+- **The planning session after an adoption leaves STEP-1's session rows as they are.** An adopted
+  baseline lands with STEP-1 `Done` and its session rows still `Planned`, by design. The planning
+  session's Inherited code step now says so, since nothing else it reads does, and planning sessions
+  had rewritten those rows or given a later STEP the job of changing them.
+- **An adoption's UI session leaves a missing area to the owner.** Where the code has no
+  accessibility story, no localization or no documented component set, the UI / Design System
+  session records the gap and now leaves it to you whether its design starts now or at the STEP that
+  builds it, as for any area the code has nothing in yet. It said not to design it now, which
+  contradicted that rule.
+- **`registries/risks.yml`'s example row points at its ADR by path.** The commented example gave
+  an ADR ref as a bare filename beside an architecture ref written from the docs hub's root; it now
+  reads `adr/ADR-0000-example.md`, so a row copied from it names a file the check-in can find.
+- **`runbooks/register-repo.md` accepts a repo whose remote isn't called `origin`.** Its check
+  that a row's `remote:` matches the checkout read only `remote.origin.url`, so a repo whose only
+  remote is named something else, such as a fork's `upstream`, failed it with nowhere to go. Any of
+  the checkout's remotes may now name the repository.
 
 ## [2.0.0]
 

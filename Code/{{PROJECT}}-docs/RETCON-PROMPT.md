@@ -538,8 +538,10 @@ picking a side.
 
 Record each outcome in the sheet's **Confirm** column: *confirmed as-is*, *corrected: …*, or
 *deferred* — as you walk each row, not in a batch afterwards, so an interrupted confirm pass leaves
-an honest record of where it stopped. Never leave a row unwalked. Once every row has an outcome,
-**stamp the sheet `Status: Confirmed`**.
+an honest record of where it stopped. Never leave a row unwalked. When the user can't judge a row,
+the code still decides what it shows: a from-code answer is *confirmed as-is*, noting the user
+couldn't check it, and an inferred one is *deferred*, never written into the doc as fact. Once every
+row has an outcome, **stamp the sheet `Status: Confirmed`**.
 
 **Deferring here works like deferring at the depth dial** (Stage 1): say what it costs before the
 user chooses, then carry the warning into the doc's `Coverage:` line and file a
@@ -691,7 +693,8 @@ harvested the same way: record what the code actually does, not what it should d
 
 Where the code genuinely has no answer — no accessibility story, no localization, no documented
 component set — that is a **gap to record**, exactly like any other as-built gap: state the reality,
-flag it, and let the forward work decide. Don't design it now; a baseline describes.
+flag it, and let the forward work decide. Whether that work starts now or at the STEP that builds it
+is the user's choice, as for any area the code has nothing in yet (Stage 3, step 2).
 
 ### The sessions that need a word about the float
 Floating Phasing changes what the earlier sessions that read it can read, and gives Phasing itself a

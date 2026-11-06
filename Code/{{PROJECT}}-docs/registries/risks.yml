@@ -56,7 +56,7 @@ risks: []
 #     revisit_trigger: "Before public beta or before accepting untrusted user traffic."
 #     refs:
 #       - "architecture/06-security-threat-model.md#threats--mitigations"
-#       - "ADR-0000-example.md"
+#       - "adr/ADR-0000-example.md"
 #     closed:
 #       date:
 #       reason:
