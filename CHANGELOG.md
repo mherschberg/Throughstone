@@ -194,6 +194,10 @@ an error/corruption path, not normal operation, and three wording fixes a new pr
   never written into the doc as fact. The prompt listed only confirmed, corrected and deferred, which
   left an owner of inherited code, who often can't judge the code's reading, with no outcome that
   fit.
+- **The planning session after an adoption leaves STEP-1's session rows as they are.** An adopted
+  baseline lands with STEP-1 `Done` and its session rows still `Planned`, by design. The planning
+  session's Inherited code step now says so, since nothing else it reads does, and planning sessions
+  had rewritten those rows or given a later STEP the job of changing them.
 
 ## [2.0.0]
 

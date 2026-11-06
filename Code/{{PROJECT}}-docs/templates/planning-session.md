@@ -137,7 +137,9 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    was already there, and what has been run over it since. Don't reach for
    `registries/repos.yml` to answer it; how a repo arrived is not what decides this, and on the
    path where this session is what takes a repo on, nothing has been recorded yet anyway. On an
-   ordinary first run nothing is built and the answer is no; ask anyway.
+   ordinary first run nothing is built and the answer is no; ask anyway. After an adopted baseline,
+   STEP-1's session rows in the index stay `Planned` by design (`RETCON-PROMPT.md`, the land): leave
+   them, and give no STEP the job of changing them.
 
    **If the answer is yes, that code gets a baseline check-in before anything is built on it.**
    STEP-1 writes documents and runs nothing, so the architecture describes a baseline nobody has
