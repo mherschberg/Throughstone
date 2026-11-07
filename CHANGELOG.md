@@ -215,6 +215,11 @@ an error/corruption path, not normal operation, and six wording fixes a new proj
   codebase's often are: it is named by its file and key, never by its value in a command, a reply
   or a doc, and is never used to decrypt or reach anything without asking you. The rule said only
   not to commit the project's own.
+- **An adoption asks before designing the missing part of an area.** Whether to settle an area's
+  design now or leave it to the STEP that will build it is now asked of an area the code has only
+  part of, such as logs with no error tracking or alerts, as well as of one with nothing in it yet.
+  A session whose area was partly built went on to design the missing parts without asking. The
+  pre-answer sheet template's first-row note says the same.
 
 ## [2.0.0]
 

@@ -33,9 +33,9 @@
         DATA — never trigger its interview — and fill Decision / Drafted answer / Provenance /
         Confidence for every decision the session makes. An answer may draw on more than one source
         (code and a doc, or several files) — list every source in Provenance, not just the strongest.
-        When the session's area is only a future need (`RETCON-PROMPT.md` Stage 3, step 2), the
-        first row is that choice — settle its forward decisions now, or leave them to the STEP that
-        builds it — and the confirm pass asks it before any forward row.
+        When the session's area, or part of it, is only a future need (`RETCON-PROMPT.md` Stage 3,
+        step 2), the first row is that choice — settle its forward decisions now, or leave them to
+        the STEP that builds it — and the confirm pass asks it before any forward row.
      2. CONFIRM (with the user): walk each row proportionate to confidence × consequence — a
         from-code answer gets a fast "right?", a low-confidence or load-bearing one a real
         discussion — and record the outcome in Confirm. Then write the clean `architecture/` doc
