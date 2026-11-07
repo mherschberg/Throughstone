@@ -236,7 +236,9 @@ is itself a repo, so this rule does not apply there.
   `Code/{{PROJECT}}-docs/templates/release-notes-template.md`; end-user docs are otherwise outside this
   method's scope (see `Code/{{PROJECT}}-docs/METHOD.md` §5, *Milestone doc review*).
 - **Never commit secrets.** Local dev values live in a gitignored `.env` / `.secrets/`;
-  commit only a `.env.example` that documents the required keys.
+  commit only a `.env.example` that documents the required keys. A secret already committed in
+  code you read is named by its file and key, never by its value (not in a command, a reply or a
+  doc), and is never used to decrypt or reach anything without asking the user.
 - Keep **`prompts/STEP-index.md`** current — it's the source of truth for status.
 - **Treat STEP-1 as the bootstrap special case.** `init.sh` seeds `STEP-1` as `Planned`; the
   kickoff creates the STEP-1 PLAN. When kickoff closes, flip `STEP-1` to `In progress` and use
