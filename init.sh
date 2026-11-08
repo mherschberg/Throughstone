@@ -1950,6 +1950,8 @@ else
 fi
 # The handoff command is identical in both modes ("Read AGENTS.md and follow it"); only what the
 # agent does next differs — greenfield kickoff interview vs. retcon adoption of existing code.
+# Each branch prints its closing text and the backup section in one write: a reader that stops
+# inside it, such as `| head`, would otherwise fail the next write and end init.sh with 141.
 if [ "$MODE" = "existing" ]; then
   cat <<EOF
 
@@ -1969,6 +1971,8 @@ The agent builds a recon map of what you already have, then Throughstone-shaped 
 docs describing it; forward work starts at STEP-2 once that baseline lands. It creates your
 local communication profile in .throughstone/local-user.md along the way.
 ${INIT_SH_TIP}
+
+${BACKUP_SECTION}
 EOF
 else
   cat <<EOF
@@ -1986,12 +1990,10 @@ Next step:
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
 ${INIT_SH_TIP}
-EOF
-fi
-cat <<EOF
 
 ${BACKUP_SECTION}
 EOF
+fi
 
 # A remote the user asked for and did not get is a failure, and the exit status has to say so —
 # --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would

@@ -7,9 +7,9 @@
        • retcon           → `init.sh --mode=existing` seeds this when adopting an existing
                             codebase; agents follow RETCON-PROMPT.md (reverse-engineer the
                             baseline from the running code) instead of the kickoff interview.
-       • kickoff-complete → the architecture baseline exists; agents resume from
-                            prompts/STEP-index.md. Both the bootstrap and a completed retcon
-                            adoption flip the marker to this path-agnostic terminal value. -->
+       • kickoff-complete → the kickoff, or a completed retcon adoption, is done; agents
+                            resume from prompts/STEP-index.md. Either one flips the marker to
+                            this path-agnostic terminal value. -->
 
 <!-- NEXT-CHECK-IN: STEP-20 -->
 <!-- ^ When the next Check-in STEP is due: a STEP number (STEP-45) or a date (2026-11-15).
