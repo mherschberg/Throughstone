@@ -14,7 +14,8 @@ be stood up by reverse-engineering a running system instead of interviewing its 
 scratch. Entries accumulate here as the capability lands. The adoption capability is
 **greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
 **Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, and seven wording fixes a new project reads too.
+an error/corruption path, not normal operation, seven wording fixes a new project reads too, and
+one to how `init.sh` prints its closing message.
 
 ### Added
 
@@ -225,6 +226,11 @@ an error/corruption path, not normal operation, and seven wording fixes a new pr
   baseline exists, but a new project's kickoff sets it as it starts STEP-1, before any
   architecture session has run, so it read wrong for the whole of STEP-1. It now says the kickoff,
   or a completed adoption, is done. The marker line and its three values are unchanged.
+- **`init.sh` prints its closing message in one write again.** Adding the existing-codebase mode
+  split the message into two writes: the mode's own text, then the backup section. When whatever
+  read the output stopped partway through the first, as `./init.sh … | head -20` does, the second
+  write failed and `init.sh` exited 141 with all its work done, where 2.0 exited 0. Each mode now
+  prints its text and the backup section together. The output is unchanged.
 
 ## [2.0.0]
 
