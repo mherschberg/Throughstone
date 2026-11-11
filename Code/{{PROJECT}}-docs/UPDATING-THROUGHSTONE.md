@@ -70,59 +70,6 @@ During an update, treat those old `overview.md` sections as legacy project-state
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
 not fail the check.
 
-### 2.1 migration
-
-**Upgrading to 2.1?** 2.1 adds **existing-codebase adoption** — `init.sh` now asks new-vs-existing at
-the start, and on *existing* stands up the scaffold in an adoption ("retcon") mode that
-reverse-engineers the architecture baseline from a running system (via the new `RETCON-PROMPT.md`
-resolver) instead of interviewing it from scratch. Most of it — the front door, the resolver, and the
-adoption-only templates — is new machinery a project already built with Throughstone never touches;
-you get it automatically when you pull 2.1 and re-run `init.sh` to adopt a new codebase, with nothing
-to migrate. This section collects the few things an *existing* project picks up on upgrade, added as
-each 2.1 change lands. Nothing here rewrites project files. The adoption machinery is
-greenfield-inert; the one general robustness fix at the end changes only an error/corruption
-path, never normal operation.
-
-**Recon-map report template.** A new `templates/reports/recon-map-report-template.md` (plus a short
-"Recon Map Report" section in `reports/README.md`) ships for existing-codebase adoption — the
-point-in-time map an adoption produces at STEP-1. It is **future-only and greenfield-inert**: a
-project already built with Throughstone produces no recon map and needs to do nothing. Pull the new
-template and the `reports/README.md` addition if you want them available for adopting another
-codebase later; otherwise there is no action.
-
-**Pre-answer-sheet convention.** A new `templates/retcon-preanswer-sheet.md` ships, and `init.sh`
-now scaffolds an `Upcoming Prompts/retcon/` scratch folder when it adopts an existing codebase — the
-home for the transient per-session sheets the harvest writes. Both are **adoption-only and
-greenfield-inert**: an existing project generated no such folder and needs none. Pull the new
-template if you may adopt another codebase later; otherwise there is no action.
-
-**Session harvest (adoption only).** `RETCON-PROMPT.md` gains its per-session half: an adoption now
-reads each architecture-session template as reference data, drafts every decision from the running
-code, confirms them with you, and writes the clean `architecture/` doc. It reuses what your project
-already has — the session templates unchanged, `templates/architecture-doc-template.md` for the
-output, `registries/risks.yml` for anything deferred, and the method's own substep statuses
-(`In progress`, `Deferred`, `N/A`) for tracking — and adds no new machinery, so what it produces is
-an ordinary Throughstone baseline rather than an adoption-shaped one. **Adoption-only and
-greenfield-inert:** a project already built with Throughstone ran those sessions as interviews and has
-nothing to migrate.
-
-**Adoption is multi-repo only.** Adopting an existing codebase *into* a mono-repo-for-now project is
-not offered: on *existing*, `init.sh` sets up a multi-repo workspace without asking the layout
-question, and refuses `--layout=mono`. A mono-repo-for-now project cannot hold a separate
-repository, and every adopted repo is one. An existing monorepo is still adopted, as one adopted
-repo in a multi-repo workspace. **No action:** this changes only what `init.sh` sets up for a new
-adoption. A project already built with Throughstone is unchanged, in either layout.
-
-**`status.sh` marker-loss handling (general robustness, not adoption-specific).** `scripts/status.sh`
-picks up a small hardening: when `overview.md` has no recognized `PROJECT-STATUS` marker (lost or
-corrupted), the helper now reports the status as *indeterminate* and points at the `AGENTS.md` "First
-action" decision, rather than falling through and possibly misreporting "Run STEP-1.1". That decision
-in turn now **asks you** which mode the project is in and restores the marker from your answer,
-instead of working it out from the project's own files. **No action, and no change in normal
-operation** — a project with a valid marker (every healthy project) sees identical output. Pull the
-updated `scripts/status.sh` **and `AGENTS.md`** together to get it: the helper only points at the
-decision, so taking one without the other leaves the recovery half-updated.
-
 ### 2.0 migration
 
 This section says only what to do. What changed, and why, is in this release's section of
@@ -165,22 +112,25 @@ and skip any step they mark as superseded.
      `setup-workspace.sh` and `status.sh`.
    - CI workflow: `.github/workflows/method-check.yml`.
    - Process docs: `AGENTS.md`, `BOOTSTRAP-PROMPT.md`, `METHOD.md`, `ONBOARDING.md`, `README.md`
-     (the docs hub's own) and `UPDATING-THROUGHSTONE.md`; `coding-standards/csharp.md`, `go.md`,
-     `python.md` and `typescript.md`, where you kept them; `inputs/README.md`;
-     `registries/README.md`; `reports/README.md` and `reports/test-results/README.md`;
-     `runbooks/README.md`, `check-in.md`, `collaboration.md`, `dependency-supply-chain.md`,
-     `incident-postmortem.md`, `register-repo.md` (new), `release-deploy.md`, `secrets-rotation.md`,
-     `security-review.md`, `security-review-s0-checklist.md`, `security-review-s1-checklist.md`,
+     (the docs hub's own), `RETCON-PROMPT.md` (new) and `UPDATING-THROUGHSTONE.md`;
+     `coding-standards/csharp.md`, `go.md`, `python.md` and `typescript.md`, where you kept them;
+     `inputs/README.md`; `registries/README.md`; `reports/README.md` and
+     `reports/test-results/README.md`; `runbooks/README.md`, `check-in.md`, `collaboration.md`,
+     `dependency-supply-chain.md`, `incident-postmortem.md`, `register-repo.md` (new),
+     `release-deploy.md`, `secrets-rotation.md`, `security-review.md`,
+     `security-review-s0-checklist.md`, `security-review-s1-checklist.md`,
      `security-review-s2-checklist.md` and `splitting-repos.md` (new); and `prompts/README.md`, at
      the workspace root.
    - Templates: `templates/architecture-doc-template.md`; all seventeen files in
      `templates/architecture-sessions/`; `templates/ci/README.md` and `code-repo-ci.yml`;
      `templates/env-example.txt`; `templates/licenses/README.md`; `templates/overview-template.md`;
-     `templates/planning-session.md`; `templates/repo-readme-template.md`;
-     `templates/reports/check-in-report-template.md`;
+     `templates/phase-readme-template.md`; `templates/planning-session.md`;
+     `templates/repo-readme-template.md`; `templates/reports/check-in-report-template.md`;
+     `templates/reports/recon-map-report-template.md` (new);
      `templates/reports/security/s0-security-baseline-report-template.md`,
      `s1-security-sweep-report-template.md` and `s2-security-audit-report-template.md`;
      `templates/reports/test-results/test-results-summary-template.md`;
+     `templates/retcon-preanswer-sheet.md` (new); `templates/retcon-step-1-plan-stub.md` (new);
      `templates/step-index-seed.md`; `templates/step-plan-template.md`; and
      `templates/substep-prompt-template.md`.
    - The Throughstone notice: `LICENSE-THROUGHSTONE`. Its copies in `prompts/`, in each code repo

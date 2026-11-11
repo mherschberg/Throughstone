@@ -9,229 +9,6 @@ any project built with it.
 
 ## [Unreleased]
 
-Work toward the **2.1** line, which adds **existing-codebase adoption** ("retcon"): a new project can
-be stood up by reverse-engineering a running system instead of interviewing its architecture from
-scratch. Entries accumulate here as the capability lands. The adoption capability is
-**greenfield-inert** — a project stood up from scratch never enters it and behaves exactly as before.
-**Changed** also carries fixes that are not adoption-specific: a robustness fix that touches only
-an error/corruption path, not normal operation, seven wording fixes a new project reads too, and
-one to how `init.sh` prints its closing message.
-
-### Added
-
-- **Existing-codebase adoption front door** (`init.sh` → `RETCON-PROMPT.md`) — `init.sh` now opens with
-  a new-vs-existing question (`--mode=new|existing`, or `INIT_MODE`; default `new`). On **existing**, it
-  stands up the same scaffold as a greenfield project but in **adoption ("retcon") mode**: it sets
-  `PROJECT-STATUS: retcon`, seeds the greenfield-identical STEP index, and drops a stub **STEP-1 PLAN**
-  whose substeps are the inventory work. `scripts/status.sh` and `AGENTS.md` recognize the `retcon`
-  status and route a fresh agent to a new **`RETCON-PROMPT.md`** resolver, which reverse-engineers the
-  architecture baseline from the running code instead of interviewing it from scratch — running the
-  intake, inventorying every repo/doc/resource, drafting a recon map you confirm, and writing the real
-  STEP-1 plan, then harvesting each architecture session from the code and landing a `Done STEP-1`
-  baseline equivalent to a greenfield one, from which the ordinary forward flow continues.
-  **Default mode is `new`**; a project stood up from scratch never enters this path and is
-  unchanged.
-- **Recon-map report template** (`templates/reports/recon-map-report-template.md`, indexed in
-  `reports/README.md`) — the point-in-time "birth certificate" an adoption produces at STEP-1:
-  inventory, stack per repo, services, data stores, integrations, existing-docs classification,
-  tests/CI, and a Coverage & Confidence ledger. The user confirms it before anything is built on it,
-  and its confirmed inventory is frozen afterward. A greenfield project never produces one.
-- **Pre-answer-sheet convention** (`templates/retcon-preanswer-sheet.md`) — the per-session working
-  sheet an adoption's harvest writes: a drafted answer to each session decision, read from the running
-  code and provenance-tagged, confirmed with the user before the clean `architecture/` doc is written.
-  `init.sh` scaffolds an `Upcoming Prompts/retcon/` scratch home for these when adopting an existing
-  codebase.
-- **Adoption harvests the architecture sessions instead of interviewing them** (`RETCON-PROMPT.md`
-  Stage 3). For each in-scope session, adoption reads the session template as reference data, drafts
-  an answer to every decision **from the running code** into that session's pre-answer sheet, confirms
-  each answer with you proportionate to confidence and consequence, then writes the clean
-  `architecture/` doc from the shared doc template. Decisions the code cannot answer — intent, scope,
-  what comes next — are asked directly, as greenfield would. Anything left unconfirmed is recorded as
-  `Coverage: deferred` with a tracked risk rather than guessed into fact, and provenance stays in the
-  working sheet, never in the architecture doc. Also true of the harvest:
-  - **It never invents decision records.** A decision the harvest read out of your code is described
-    in the doc's Decision Summary, never written up as an ADR — that would date and rationalize a
-    choice nobody stated. If *you* make a decision during adoption, or tell it that one was made and
-    what drove it, it says so and asks before recording an ADR.
-  - **Sessions run one at a time and survive interruption.** Each session is harvested, confirmed, and
-    written before the next begins, so every harvest reads its predecessors' confirmed docs instead of
-    drafts. A session in progress resumes from its sheet — the confirmations you already gave are
-    never re-asked or overwritten.
-  - **Nothing is skipped silently.** A conditional session the map includes is tracked and harvested
-    like any other, and a session whose area your system doesn't have (a UI session on an API-only
-    service) is recorded `N/A` or `Deferred` with a reason read from the code.
-  - **You decide what's in scope, and a UI that exists is described, not re-chosen.** A scan of a
-    real system turns up things you don't want adopted — an abandoned service, a dead prototype —
-    so the confirm gate settles each asset as adopted or excluded, and only the adopted ones become
-    work; an excluded one stays recorded as found-and-dismissed. And where a new project's UI
-    session offers you palettes and type scales to choose from, an adoption reads the ones your
-    product already ships and writes them down.
-  - **Your existing documents get used, not just filed.** Adoption copies every document it finds
-    into `inputs/`, then the session covering that area acts on it: a finished spec or still-true
-    design doc is **lifted** into `architecture/` as the living copy (the original stays as
-    provenance), a PRD or research note is synthesized into the doc being written, decision records
-    your team actually wrote are adopted into `adr/` with their original dates and registered there,
-    a still-accurate runbook lands in `runbooks/`, and each session logs what it took in
-    `registries/input-captures.yml`, as 2.0's inputs lifecycle (`inputs/README.md`) has every session
-    do. Where a document
-    disagrees with the code, the code wins and the disagreement is written down as staleness rather
-    than averaged away. Nothing is retired without you — a fully-superseded input is offered for
-    archiving, never moved automatically.
-  - **You still end up with a project brief.** A new project writes `overview.md` during the kickoff
-    interview; an adopted one skips that interview, so the System Overview session writes the brief
-    instead — from the answers it just confirmed with you, once its architecture doc is written. It is
-    the file every later session, the planning session, and every check-in opens first.
-  - **Roadmap planning runs last.** Every session but one has an as-built half to read; Phasing is
-    purely forward, so adoption floats it to the end, after the rest of the baseline exists. It plans
-    on the finished description of your system rather than ahead of it, names your next milestone, and
-    fills the Phase-1 name the STEP index needs before the baseline can be archived. The sessions that
-    normally read Phasing harvest from the code instead and carry the "does this still fit the
-    roadmap?" question to the Cross-Cutting Review.
-  - **A deferral is presented as a trade, not a checkbox.** When an area is too large to read
-    exhaustively, adoption stops and tells you what deferring costs — this part of the baseline stays
-    incomplete, and work leaning on it is less reliable until backfilled — before you choose. The
-    warning then follows the gap: the doc's `Coverage:` line says what is missing, how big it is, and
-    what it means for someone building on it (never a bare "deferred"), and a genuinely risky gap gets
-    a `risks.yml` row the periodic check-in re-surfaces.
-- **An adoption finishes as an ordinary project** (`RETCON-PROMPT.md` Stage 4). Its last session runs
-  the same Cross-Cutting Review a new project closes its architecture with, then lands the baseline:
-  STEP-1 becomes a `Done` row whose Scope opens *Retcon baseline —*, the STEP index is brought in
-  line with the adoption's plan in one pass, STEP-1 is archived the way a new project's is,
-  `overview.md` gets a one-line note that the project was adopted, and `PROJECT-STATUS` flips to
-  `kickoff-complete`. The flip comes last, so a land interrupted partway resumes where it stopped.
-  From there the next action is the Phase-1 planning session, as for any project whose architecture
-  STEP is done. A conditional session found late in an adoption is drafted from the code and
-  confirmed like the rest, not interviewed (`METHOD.md` §4).
-
-### Changed
-
-- **A lost `PROJECT-STATUS` marker is now a question, not a guess.** If `overview.md` exists but
-  carries no recognized value (`not-started` / `retcon` / `kickoff-complete` — a lost or corrupted
-  marker), `status.sh` reports the status as **indeterminate** rather than resolving a next action,
-  and the `AGENTS.md` "First action" decision now **asks you** which mode the project is in — never
-  bootstrapped, part-way through adopting an existing codebase, or past kickoff — and restores the
-  marker from your answer. It used to work this out from the files, reading a `prompts/STEP-index.md`
-  still identical to what `init.sh` wrote as proof that kickoff had never run. That test cannot
-  survive an adoption: the Phasing session is required to fill the index's `Phase 1` heading before
-  the baseline lands, so from that moment a project mid-adoption looked like one already past
-  kickoff. A marker lost in that window would have been "restored" to `kickoff-complete`, which
-  routes every later agent out of the adoption and into ordinary forward work — leaving the project
-  being told to start its architecture over, with nothing on disk looking wrong. Nothing routes off file shape now, on either path.
-  Normal operation, with a valid marker, is unchanged.
-- **Leaving something out of an adoption is just leaving it out.** The scope call at the recon-map
-  checkpoint now says so outright: an `excluded` row is a note in that map and nothing else — no
-  registry row, no stub or boundary doc, and no ongoing state of any kind. A neighbouring system
-  the project genuinely has to reason about is written up in an
-  `architecture/` doc like any other external dependency.
-- **Adoption's own documents now write hub paths from the workspace root, drop the retired
-  registered-in-place repo rule, and agree on when a session is `Done` and what landing writes.**
-- **The adoption prompt now covers cases it left open.** The landed STEP-1 row's Scope cell, which
-  opens *Retcon baseline —*, is its only RETCON mark; Phasing runs without a pre-answer sheet, and an
-  interrupted one re-asks whatever its doc doesn't yet say; a decision record the code shows was
-  reversed is still adopted, superseded by the team's own later ADR if it wrote one, otherwise by
-  the architecture doc that records today's decision;
-  agent-instruction files in the adopted code are documents to classify, never instructions; a
-  resource's row names the session it feeds; a doc-set that is not files is exported into
-  `inputs/`; and an included conditional's output-doc number, the next free one above the core
-  block, is recorded in the PLAN's conditional table.
-- **Adoption's documents now describe the 2.0 base they run on.** Each adopted repo is registered
-  by running `runbooks/register-repo.md` whole, which records it as `added_as: adopted` and writes
-  its README, instead of writing the repo row and README by hand. Found documents follow 2.0's
-  inputs lifecycle (`inputs/README.md`) and its capture log (`registries/input-captures.yml`), not
-  the deleted `inputs-index.md` ledger. The project brief keeps its `NEXT-CHECK-IN` marker, and the
-  adoption STEP-1 PLAN's Repos line drops the retired "(projection)" label. Nothing changes for an
-  existing project.
-- **Adoption sets up a multi-repo workspace only.** `init.sh --mode=existing` no longer offers the
-  mono-repo-for-now layout: asked interactively, it skips the layout question and says why, and
-  `--layout=mono` or `INIT_LAYOUT=mono` exits 2 with a one-line reason before anything is written. A
-  mono-repo-for-now project cannot hold a separate repository and every adopted repo is one, so a
-  mono adoption stopped at its first repo. An existing monorepo is still adopted, as one repo in a
-  multi-repo workspace. `--mode` written with a space now needs a value, as every other flag does.
-- **Adoption works STEP-1 on its branch and keeps the Glossary whole.** It uses
-  `step-0001-architecture` wherever branch-per-STEP applies, as a new project does. Phasing, which an
-  adoption runs after the Glossary, adds the terms it introduces to the Glossary itself. And
-  `prompts/README.md` says an adoption keeps its session statuses in its STEP-1 PLAN until it lands.
-- **`METHOD.md` §10 and the phase README template read right for any STEP-1.** The resolver's rule
-  for when the planning session comes next asks only whether STEP-1 is complete, which its row says,
-  and no longer also whether the Cross-Cutting Review row is done; read by hand, the old wording
-  missed a STEP-1 marked `Done` over sessions still `Planned`, the state an adoption lands in. The
-  phase README template's STEP-1 row takes the real substep count instead of a fixed 14, which a
-  STEP-1 with a conditional session never had, and the template says what that count includes.
-- **An adoption files a risk row for every deferral.** Deferring part of an area at a session's
-  confirm pass now always files a `registries/risks.yml` row whose revisit trigger says what would
-  end the deferral, as `METHOD.md` §6 asks of any `Coverage:` line. The adoption prompt asked for
-  one only when the gap looked genuinely risky, while its PLAN stub and pre-answer sheet asked every
-  time. The stub's ground rule keeps the "genuinely risky" test for unknowns only, as the rest of
-  the PLAN does.
-- **`runbooks/register-repo.md` names both things that depend on how a repo arrived.** Its opening
-  said licensing was the only difference between a repo the project created and one it adopted;
-  step 2 also gives only a code repo we created its test gate and `.gitignore` lines, and the
-  opening now says so.
-- **A repo an adoption finds late is registered like the rest.** When a session's harvest turns up
-  a repo the recon map missed and the user adopts it, the adoption now runs
-  `runbooks/register-repo.md` whole for it, as for every other adopted repo, so it gets the
-  Throughstone notice and its Architecture Overview entry too. The prompt listed only the registry
-  row and a README note, and a "ledger row" for a found doc that 2.0's inputs lifecycle no longer
-  has.
-- **An adoption's PLAN no longer answers the planning session's question for it.** The STEP-1 PLAN
-  stub said the first planning session inserts a baseline check-in as STEP-2. It now says that
-  session asks whether the code it builds on is inherited and unchecked, and inserts the check-in
-  on a yes, as the planning session itself does. Until planning has asked, no doc, risk row or
-  hand-off names the answer.
-- **An adoption asks before designing an area the code doesn't have yet.** Where a session's area is
-  only a future need (no hosting, no logging, no tests yet), the adoption prompt now asks whether to
-  settle its design now or leave it to the STEP that will build it, so a large system can be
-  brought under the method a piece at a time. Left for later, it is an ordinary deferral: the doc
-  describes what exists, its `Coverage:` line names what was left, and a risk row brings it back.
-  The pre-answer sheet template puts that choice in such a session's first row, so the confirm
-  pass asks it before any forward decision.
-- **An adoption registers a repo that holds only docs as a repo.** When the recon map is confirmed,
-  the adoption prompt now says a docs-only repo, a repo with no remote and one whose name the docs
-  hub already uses are all still repos: `runbooks/register-repo.md` handles each, so none is a
-  reason to exclude the repo or to take its files in as a doc-set instead.
-- **An adoption knows what to do with an answer the owner can't check.** At a session's confirm
-  pass, a row the owner can't judge is still decided by the code: an answer read from the code is
-  confirmed as-is, noting that the owner couldn't check it, and one the agent inferred is deferred,
-  never written into the doc as fact. The prompt listed only confirmed, corrected and deferred, which
-  left an owner of inherited code, who often can't judge the code's reading, with no outcome that
-  fit.
-- **The planning session after an adoption leaves STEP-1's session rows as they are.** An adopted
-  baseline lands with STEP-1 `Done` and its session rows still `Planned`, by design. The planning
-  session's Inherited code step now says so, since nothing else it reads does, and planning sessions
-  had rewritten those rows or given a later STEP the job of changing them.
-- **An adoption's UI session leaves a missing area to the owner.** Where the code has no
-  accessibility story, no localization or no documented component set, the UI / Design System
-  session records the gap and now leaves it to you whether its design starts now or at the STEP that
-  builds it, as for any area the code has nothing in yet. It said not to design it now, which
-  contradicted that rule.
-- **`registries/risks.yml`'s example row points at its ADR by path.** The commented example gave
-  an ADR ref as a bare filename beside an architecture ref written from the docs hub's root; it now
-  reads `adr/ADR-0000-example.md`, so a row copied from it names a file the check-in can find.
-- **`runbooks/register-repo.md` accepts a repo whose remote isn't called `origin`.** Its check
-  that a row's `remote:` matches the checkout read only `remote.origin.url`, so a repo whose only
-  remote is named something else, such as a fork's `upstream`, failed it with nowhere to go. Any of
-  the checkout's remotes may now name the repository.
-- **An agent names a secret it finds committed in the code, never its value.** `AGENTS.md`'s
-  secrets rule now also covers a secret already committed in code the agent reads, as an adopted
-  codebase's often are: it is named by its file and key, never by its value in a command, a reply
-  or a doc, and is never used to decrypt or reach anything without asking you. The rule said only
-  not to commit the project's own.
-- **An adoption asks before designing the missing part of an area.** Whether to settle an area's
-  design now or leave it to the STEP that will build it is now asked of an area the code has only
-  part of, such as logs with no error tracking or alerts, as well as of one with nothing in it yet.
-  A session whose area was partly built went on to design the missing parts without asking. The
-  pre-answer sheet template's first-row note says the same.
-- **The project brief's marker comment says when `kickoff-complete` is set.** The comment beside
-  `PROJECT-STATUS` in `templates/overview-template.md` said the value means the architecture
-  baseline exists, but a new project's kickoff sets it as it starts STEP-1, before any
-  architecture session has run, so it read wrong for the whole of STEP-1. It now says the kickoff,
-  or a completed adoption, is done. The marker line and its three values are unchanged.
-- **`init.sh` prints its closing message in one write again.** Adding the existing-codebase mode
-  split the message into two writes: the mode's own text, then the backup section. When whatever
-  read the output stopped partway through the first, as `./init.sh … | head -20` does, the second
-  write failed and `init.sh` exited 141 with all its work done, where 2.0 exited 0. Each mode now
-  prints its text and the backup section together. The output is unchanged.
-
 ## [2.0.0]
 
 A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
@@ -242,6 +19,10 @@ rewrites much of `AGENTS.md`, `METHOD.md`, `check.sh` and `status.sh`, so an edi
 them means a hand merge, and the upgrade's step 1 checks that every edit survives it, unless you
 agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
 
+- **Throughstone can adopt an existing codebase.** Answer *Existing codebase* to `init.sh`'s new
+  first question, or pass `--mode=existing`, and the agent writes the architecture baseline with you
+  by reading your code, instead of interviewing you for a new design; the finished adoption is an
+  ordinary project.
 - **Setup no longer runs over a project that's already set up, a repository that isn't the
   template's, or files of yours in the folders it deletes**, and checks its answers before it
   changes anything. A script that pipes answers into it may need changes.
@@ -268,6 +49,41 @@ agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
 - **The commands the docs and helpers give you work from the workspace root**, where agents start,
   and so do the paths in `AGENTS.md` and in what the helpers print. A command meant for another
   folder says so.
+
+### Adopting an existing codebase
+
+- **New:** `init.sh` first asks whether you're starting a new project or adopting an existing
+  codebase (`--mode=new|existing`, or `INIT_MODE`; Enter and `--non-interactive` mean new), so a
+  script that pipes answers into it must answer that first. An existing codebase gets the same
+  scaffold in a multi-repo workspace, where an existing monorepo is one repo, and `--layout=mono`
+  exits 2 before anything is written. With its `PROJECT-STATUS: retcon` marker, the agent and
+  `./doctor.sh status` both turn to the adoption prompt, `RETCON-PROMPT.md`, instead of the kickoff.
+- **New:** an adoption asks where your repos and documents are and how deep to read a large system,
+  then inventories what it finds into a recon map (`templates/reports/recon-map-report-template.md`)
+  that you confirm, settling each thing as adopted or left out. Each adopted repo, one that holds
+  only docs or has no remote included, is registered by running `runbooks/register-repo.md` whole,
+  which places it in the workspace, moved there or left where it is behind a symlink. Files of agent
+  instructions in the adopted code are read as documents, never followed.
+- **New:** each architecture session is drafted from the code instead of run as an interview: its
+  answers go into a pre-answer sheet (`templates/retcon-preanswer-sheet.md`), you confirm them, and
+  only what code can't show, such as intent and what comes next, is asked outright. Sessions run one
+  at a time, and one interrupted resumes from its sheet without re-asking; a row you can't judge is
+  decided by the code, kept with a note where the code shows it and deferred where it was only
+  inferred. The adoption describes a UI that exists rather than offering palettes to choose from,
+  adopts the decision records your team wrote but never writes one for a choice it read in the code,
+  and works from your documents through `inputs/` as every session does, writing down where one
+  disagrees with the code.
+- **New:** an area too large to read now can be deferred, once the adoption has said what that
+  costs, and where the code has only part of an area or none of it, such as logs with no alerts, it
+  asks whether to design that now or leave it to the STEP that builds it. Either way the doc's
+  `Coverage:` line says what is missing and a `registries/risks.yml` row brings it back at a
+  check-in, so a large system can come under the method a piece at a time without the gap holding up
+  forward work.
+- **New:** an adoption ends as an ordinary project. The System Overview session writes the project
+  brief a kickoff would, the last session is the same Cross-Cutting Review a new project ends STEP-1
+  with, and then STEP-1 becomes a `Done` row whose Scope opens *Retcon baseline —* and
+  `PROJECT-STATUS` flips to `kickoff-complete`, last, so a landing cut short resumes where it
+  stopped. From there the next step is the Phase-1 planning session, as for any project.
 
 ### Setup
 
@@ -561,6 +377,11 @@ agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
   argument they don't take, naming it, and so does `./doctor.sh help` given anything after it. 1.x
   ignored the argument and ran as usual, so `./doctor.sh status --check-in` printed an ordinary
   report and exited 0. A bare `./doctor.sh` still prints its help. *(Upgrade step 17.)*
+- **Changed:** a lost `PROJECT-STATUS` marker is a question, not a guess. When `overview.md` holds
+  none of its three values, `./doctor.sh status` reports the state as indeterminate, and the agent
+  asks whether the project is new, being adopted or past its kickoff, then restores the marker from
+  your answer. 1.x worked it out from the files, as past the kickoff unless `prompts/STEP-index.md`
+  still matched what `init.sh` wrote, a guess an adoption in progress would fail.
 - **Fixed:** checks 1, 2, 3 and 9 of `./doctor.sh check` warn, where 1.x passed, when they have
   nothing, or not everything, to read: no STEP rows at the left margin of `prompts/STEP-index.md`,
   neither an ADR row nor the registry table in `adr/README.md`, STEP rows under no Status column, or
@@ -734,6 +555,10 @@ agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
   to at their close; `runbooks/collaboration.md`). 1.x never said when a STEP branch reaches the
   trunk, so STEP-1 could close on its branch, and the planning session after it had to stop and ask
   before writing its rows on the trunk.
+- **Changed:** `AGENTS.md`'s secrets rule also covers a secret already committed in code the agent
+  reads, as an adopted codebase's often are: the agent names it by its file and key, never by its
+  value in a command, a reply or a doc, and never uses it to decrypt or reach anything without
+  asking you. 1.x said only not to commit the project's own.
 - **Fixed:** a STEP is archived before its row is marked `Done`. The Cross-Cutting Review archives
   STEP-1 first, and the check-in its thin PLAN, where 1.x marked the row `Done` first, so a session
   that stopped in between left the archive undone with nothing to say so; the incident runbook,
@@ -749,6 +574,9 @@ agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
   `prompts/STEP-index.md`, whatever it touches. 1.x made any update that changed `METHOD.md`,
   `AGENTS.md` or `status.sh` a STEP, so a project not yet kicked off took STEP-2 ahead of its
   planning session, and `./doctor.sh status` could later send you past that session.
+- **Fixed:** the phase README template's STEP-1 row takes STEP-1's real substep count, `N/A` and
+  `Deferred` rows included, as the template now says. 1.x always wrote 14, which a STEP-1 with a
+  conditional session never had.
 
 ### Architecture docs and inputs
 
@@ -780,6 +608,9 @@ agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
   fields, and `AGENTS.md`'s copy of its guidance named none, but check 4 also requires a Version
   Log. `inputs/README.md` now names all three and writes its paths from the docs hub, and
   `AGENTS.md` points there. *(Upgrade step 20.)*
+- **Fixed:** the commented example row in `registries/risks.yml` gives its ADR ref as
+  `adr/ADR-0000-example.md`, from the docs hub's root like its architecture ref, so a row copied
+  from it names a file the check-in can find. 1.x gave a bare filename.
 
 ### Licensing
 
