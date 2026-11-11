@@ -151,13 +151,13 @@ production software, get review from an experienced engineer.
    ```bash
    ./init.sh
    ```
-   It asks a few questions (project slug, repo layout, **license**, solo or team, optional remotes),
-   then detaches this download from the template's git history, renames the `{{PROJECT}}`
-   placeholder everywhere but `init.sh` to your slug, stamps your chosen open-source `LICENSE` when
-   applicable, and initializes your repo(s). In mono-repo-for-now it reuses an existing root
-   `origin` only when that origin appears empty; non-empty template-created origins are left
-   unattached so setup does not lead you into a failed or destructive push. See
-   [`init.sh`](init.sh).
+   It asks a few questions (new project or existing codebase, project slug, repo layout,
+   **license**, solo or team, optional remotes), then detaches this download from the
+   template's git history, renames the `{{PROJECT}}` placeholder everywhere but `init.sh` to
+   your slug, stamps your chosen open-source `LICENSE` when applicable, and initializes your
+   repo(s). In mono-repo-for-now it reuses an existing root `origin` only when that origin
+   appears empty; non-empty template-created origins are left unattached so setup does not lead
+   you into a failed or destructive push. See [`init.sh`](init.sh).
 
    Prefer to script it? Flags answer its questions — run `./init.sh --help` or see
    [What `init.sh` flags are available?](#what-initsh-flags-are-available) for the full list.
@@ -217,6 +217,10 @@ production software, get review from an experienced engineer.
 
    > *Prefer to write the brief yourself first?* You can — fill in
    > `Code/{{PROJECT}}-docs/overview.md` before sending the command.
+
+   > *Adopting an existing codebase?* The same command starts the adoption instead of the
+   > kickoff: see [Can I use this with an existing
+   > project?](#can-i-use-this-with-an-existing-project).
 
 ## Videos
 
@@ -334,6 +338,7 @@ matching environment variables.
 
 | Flag | Env var | Values | Purpose |
 |------|---------|--------|---------|
+| `--mode=MODE` | `INIT_MODE` | `new`, `existing` | New project, or adopt an existing codebase; `--non-interactive` falls back to `new`. |
 | `--slug=SLUG` | `INIT_SLUG` | lowercase kebab-case | Project slug used for generated paths and placeholders. |
 | `--desc=TEXT` | `INIT_DESC` | one-line text | Seed project description. |
 | `--license=NAME` | `INIT_LICENSE` | `mit`, `bsd-3`, `apache-2.0`, `proprietary` | Project license posture. Not repository visibility — see `--visibility`. |
@@ -432,18 +437,25 @@ docs, ADRs, scoped STEPs, tests, and a roadmap instead of a mystery pile of gene
 
 ### Can I use this with an existing project?
 
-Increasingly, yes. Throughstone began greenfield-first, and the assumptions that got in the
-way of existing code have been coming out: planning scaffolds only repos that aren't already
-registered, plans against what's already built instead of rebuilding from scratch, targets
-the first unfinished phase rather than always Phase 1, and can register a repo that already
-lives outside the workspace. You can also drop your current design docs into `inputs/` and
-have the architecture sessions build on them.
+Yes. Run setup from a fresh download, not from inside your existing repo, and answer
+*Existing codebase* to its first question (or pass `--mode=existing`). Then send your agent the
+same *"Read AGENTS.md and follow it."* Instead of the kickoff interview, it:
 
-It is not yet a one-click import — there's no wizard that ingests an existing codebase for you.
-The practical path: run setup, create architecture docs and a roadmap for what you already have
-(leaning on `inputs/`), then adopt the STEP process going forward. Keep your code in git so
-changes are reversible, and tell the agent it's working on an existing project and must not
-delete or rewrite existing code without review.
+- asks where your repos and documents are, and how deep to read a large system;
+- inventories what it finds into a recon map you confirm, including what to leave out;
+- runs the architecture sessions by reading your code: it drafts each answer from what the code
+  does, confirms it with you, and asks you directly only what code can't show, such as intent
+  and what comes next;
+- takes in your existing design docs, keeping what's still true and noting where the code has
+  moved on;
+- finishes STEP-1 as a new project does, so what comes next is the same Phase-1 planning.
+
+Your code is not rewritten. Each repo is registered in the workspace, moved there or left in
+place behind a symlink, and gets only a README (or a section in yours) and the Throughstone
+notice, in one commit. A part too big to read now can be deferred: it is logged as a risk and
+comes back at a check-in, so a large system can come under the method a piece at a time.
+Adoption sets up a multi-repo workspace: an existing monorepo comes in as one of its repos,
+beside the two setup creates, one for documentation and one for prompts.
 
 ### Can I change decisions later?
 
