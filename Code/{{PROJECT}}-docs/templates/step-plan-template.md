@@ -126,6 +126,8 @@
 - [ ] All tests named in the STEP test plan pass at the end of this STEP — ideally the full
       suite (unit + integration/API/e2e/security as applicable). <!-- the default bar; narrow
       or widen with a stated reason -->
+- [ ] Each substep's status matches what's on disk: no test is reported as passed that wasn't
+      run, and the commits, branches and files this PLAN cites exist.
 - [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
       <!-- For a Check-in STEP, the completed report is saved under reports/, not in the
            archived STEP folder. -->
