@@ -2106,7 +2106,7 @@ ${SUMMARY_NOTE}
 
 ${BOLD}NEXT STEP${PLAIN}
 ${BOLD}---------${PLAIN}
-  Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory here, the way you normally launch it. Then send it one message, the same for every project and every agent:
+Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory here, the way you normally launch it. Then send it one message, the same for every project and every agent:
 
       Read AGENTS.md and follow it.
 EOF
