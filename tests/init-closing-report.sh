@@ -120,8 +120,8 @@ run_init "$W" "${BASE[@]}" --slug="$CASE" --license=mit --holder="Closing Test" 
   --layout=mono --remotes=no --trunk-branch=trunk
 expect_status 0
 expect_line "  git repo: . (initial commit on trunk)" "$OUT"
-expect_summary done "Project files: $CASE (mono-repo-for-now)"
-expect_summary done "Git repo: the workspace root (initial commit on trunk)"
+expect_summary "done" "Project files: $CASE (mono-repo-for-now)"
+expect_summary "done" "Git repo: the workspace root (initial commit on trunk)"
 expect_summary skipped "Remote backup: not asked for"
 expect_in "Everything you asked for worked." "$END"
 expect_handoff_last
@@ -241,9 +241,9 @@ expect_status 0
 for repo in "$CASE-docs" "$CASE-prompts"; do
   expect_line "  remote: created closing-test/$repo on GitHub (public)" "$OUT"
   expect_line "  pushed: $GH_REMOTE_ROOT/$repo.git" "$OUT"
-  expect_summary done "GitHub: created and pushed closing-test/$repo (public)"
+  expect_summary "done" "GitHub: created and pushed closing-test/$repo (public)"
 done
-expect_summary done "Registry: that commit pushed to $CASE-docs"
+expect_summary "done" "Registry: that commit pushed to $CASE-docs"
 expect_in "Everything you asked for worked." "$END"
 expect_not_in "FAILED" "$END"
 expect_handoff_last
@@ -274,7 +274,7 @@ expect_in "both repositories here are committed locally with Git" "$END"
 expect_not_in "also pushed" "$END"
 expect_no_setup_advice
 expect_in "The remote backup did not complete for: $CASE-prompts" "$END"
-expect_summary done "Remote: $CASE-docs pushed to $TMP_ROOT/$CASE-docs.git"
+expect_summary "done" "Remote: $CASE-docs pushed to $TMP_ROOT/$CASE-docs.git"
 expect_summary FAILED "Remote: attach and push $CASE-prompts to $TMP_ROOT/$CASE-prompts.git"
 expect_in "Everything except the remote backup worked." "$END"
 expect_in "    Connect this project to its remote." "$END"
@@ -291,8 +291,8 @@ expect_status 1
 for repo in "$CASE-docs" "$CASE-prompts"; do
   expect_summary FAILED "GitHub: create and push closing-test/$repo"
 done
-expect_summary done "Git repo: Code/$CASE-docs (initial commit on main)"
-expect_summary done "Git repo: prompts (initial commit on main)"
+expect_summary "done" "Git repo: Code/$CASE-docs (initial commit on main)"
+expect_summary "done" "Git repo: prompts (initial commit on main)"
 expect_in "Everything except the GitHub backup worked." "$END"
 expect_in "    Connect this project to GitHub." "$END"
 expect_handoff_last
