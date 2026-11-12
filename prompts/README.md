@@ -160,8 +160,9 @@ teammate will need later.
    substep list to the user and **stop for approval** before running any substep. Do not
    continue from planning into execution unless the user explicitly asks for a specific
    substep, e.g. `run substep N.1`.
-7. **On completion:** run the STEP's review — your team's standard **PR / code review** (the
-   method doesn't redefine it), plus the doc-drift check — then **gather the STEP's files
+7. **On completion:** commit any of the STEP's work not yet committed, then run the STEP's
+   review — your team's standard **PR / code review** (the method doesn't redefine it), plus
+   the doc-drift check — then **gather the STEP's files
    (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
    in the phase folder here and mark it **Done** in the index. (If this is the phase's
    first archived STEP the phase folder won't exist yet — create `001-<phase-name>/` and its
