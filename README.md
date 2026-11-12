@@ -117,16 +117,16 @@ production software, get review from an experienced engineer.
      git clone --branch v1.7.1 https://github.com/mherschberg/Throughstone.git acme
      cd acme
      ```
-     `--branch` takes a tag here, so this gives you the **1.7 release** rather than whatever
-     `main` happens to hold. `main` is where Throughstone itself is built; it can carry
-     unfinished work. Drop the flag only if you specifically want that. Releases are listed
-     under [Releases](https://github.com/mherschberg/Throughstone/releases). Git will note a
+     `--branch` takes a tag here, so this pins the **1.7 release**. Without the flag you get
+     `main`, which holds the latest release: Throughstone is built on other branches and
+     reaches `main` only when a release ships. Releases are listed under
+     [Releases](https://github.com/mherschberg/Throughstone/releases). Git will note a
      *detached HEAD* — that is expected when cloning a tag, and harmless here, because step 2
      removes the template's git history anyway.
    - **Or use GitHub "Use this template" ▸ Create a new repository.** Name the new repo for
-     your project, then clone it into a folder of that name (e.g. `acme`). Note this path always
-     copies the **default branch** and cannot be pinned to a release — use the clone above if you
-     want a specific version:
+     your project, then clone it into a folder of that name (e.g. `acme`). This path copies the
+     **default branch**, `main`, which holds the latest release; use the clone above if you want
+     a specific version:
      ```bash
      git clone <your-new-repo-url> acme
      cd acme
@@ -442,7 +442,8 @@ Yes. Run setup from a fresh download, not from inside your existing repo, and an
 same *"Read AGENTS.md and follow it."* Instead of the kickoff interview, it:
 
 - asks where your repos and documents are, and how deep to read a large system;
-- inventories what it finds into a recon map you confirm, including what to leave out;
+- inventories what it finds into a map of your code and documents you confirm, including what
+  to leave out;
 - runs the architecture sessions by reading your code: it drafts each answer from what the code
   does, confirms it with you, and asks you directly only what code can't show, such as intent
   and what comes next;

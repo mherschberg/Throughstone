@@ -59,11 +59,12 @@ agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
   exits 2 before anything is written. With its `PROJECT-STATUS: retcon` marker, the agent and
   `./doctor.sh status` both turn to the adoption prompt, `RETCON-PROMPT.md`, instead of the kickoff.
 - **New:** an adoption asks where your repos and documents are and how deep to read a large system,
-  then inventories what it finds into a recon map (`templates/reports/recon-map-report-template.md`)
-  that you confirm, settling each thing as adopted or left out. Each adopted repo, one that holds
-  only docs or has no remote included, is registered by running `runbooks/register-repo.md` whole,
-  which places it in the workspace, moved there or left where it is behind a symlink. Files of agent
-  instructions in the adopted code are read as documents, never followed.
+  then inventories what it finds into a map of your code and documents
+  (`templates/reports/recon-map-report-template.md`) that you confirm, settling each thing as
+  adopted or left out. Each adopted repo, one that holds only docs or has no remote included, is
+  registered by running `runbooks/register-repo.md` whole, which places it in the workspace, moved
+  there or left where it is behind a symlink. Files of agent instructions in the adopted code are
+  read as documents, never followed.
 - **New:** each architecture session is drafted from the code instead of run as an interview: its
   answers go into a pre-answer sheet (`templates/retcon-preanswer-sheet.md`), you confirm them, and
   only what code can't show, such as intent and what comes next, is asked outright. Sessions run one
