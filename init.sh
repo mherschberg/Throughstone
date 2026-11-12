@@ -157,6 +157,42 @@ want_text() {
   printf '%s' "$val"
 }
 
+# normalize_owner INPUT — print the GitHub owner name inside INPUT. People often paste their
+# profile address or handle instead of the bare name, so a leading http(s)://, www., github.com/
+# or @ is dropped, along with surrounding whitespace and trailing slashes.
+normalize_owner() {
+  local v="$1"
+  v="${v#"${v%%[![:space:]]*}"}"; v="${v%"${v##*[![:space:]]}"}"
+  case "$v" in [Hh][Tt][Tt][Pp]://*|[Hh][Tt][Tt][Pp][Ss]://*) v="${v#*://}" ;; esac
+  case "$v" in [Ww][Ww][Ww].*) v="${v#*.}" ;; esac
+  case "$v" in [Gg][Ii][Tt][Hh][Uu][Bb].[Cc][Oo][Mm]/*) v="${v#*/}" ;; esac
+  v="${v#@}"
+  while [ "${v%/}" != "$v" ]; do v="${v%/}"; done
+  printf '%s' "$v"
+}
+
+# want_owner PRESET PROMPT — want, for the GitHub owner: the answer is normalized, then checked
+# against GitHub's rule for user and organization names (letters, digits and hyphens, not starting
+# or ending with a hyphen). A preset that fails stops the run; a typed answer that fails is asked
+# again.
+want_owner() {
+  local raw val
+  raw="$(want "$1" "$2")" || exit
+  while :; do
+    val="$(normalize_owner "$raw")"
+    case "$val" in
+      ''|-*|*-|*[!A-Za-z0-9-]*) ;;
+      *) printf '%s' "$val"; return ;;
+    esac
+    if [ -n "$1" ]; then
+      echo "init.sh: invalid --owner '$1': give a GitHub user or organization name; for https://github.com/alice/ write \"alice\"." >&2
+      exit 2
+    fi
+    echo "  -> '$raw' is not a GitHub user or organization name; for https://github.com/alice/ write \"alice\"." >&2
+    raw="$(want "" "$2")" || exit
+  done
+}
+
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
 # The rest of the script branches on small stable IDs, while the public interface accepts the
 # friendly spellings users are likely to type in flags, env vars, or prompts.
@@ -1160,7 +1196,7 @@ if [ "$MK_REMOTES" = "1" ]; then
         echo "  For Bitbucket, GitLab, or another Git host, pre-create empty repos and pass --remote-provider=manual with remote URL flags." >&2
         exit 2
       fi
-      OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+      OWNER="$(want_owner "$OWNER_IN" 'GitHub owner/org (for https://github.com/alice/ write "alice")')" || exit
       # The names setup_remote creates, checked by check_github_ready before the boundary.
       if [ "$LAYOUT" = "2" ]; then
         GH_NEW_REPOS="$SLUG"
@@ -1655,6 +1691,11 @@ init_repo() {
   ( cd "$1" && git init -q && git add -A && git commit -qm "Initial commit (bootstrapped)" \
     && git branch -M "$TRUNK_BRANCH"; )
   echo "  git repo: $1 (initial commit on $TRUNK_BRANCH)"
+  if [ "$1" = "." ]; then
+    summary_line "done" "Git repo: the workspace root (initial commit on $TRUNK_BRANCH)"
+  else
+    summary_line "done" "Git repo: $1 (initial commit on $TRUNK_BRANCH)"
+  fi
 }
 
 # record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
@@ -1695,6 +1736,7 @@ commit_registry_remotes() {
   fi
   ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
   echo "  registry: recorded bootstrap remotes"
+  summary_line "done" "Registry: the remote URLs recorded in registries/repos.yml"
   if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
     # The repository this commit has to leave is the one that holds the registry: $DOCS in multi,
     # the workspace root in mono, where $DOCS is a folder inside it and cannot be pushed. A failure
@@ -1706,9 +1748,14 @@ commit_registry_remotes() {
     else
       reg_dir="$DOCS"; reg_name="${SLUG}-docs"
     fi
-    ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" && echo "  registry: pushed remote updates" ) \
-      || { echo "  (could not push the registry commit; it is committed in ${reg_dir} and not yet sent)"
-           note_remote_failure "$reg_name"; }
+    if ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" ); then
+      echo "  registry: pushed remote updates"
+      summary_line "done" "Registry: that commit pushed to $reg_name"
+    else
+      echo "  (could not push the registry commit; it is committed in ${reg_dir} and not yet sent)"
+      summary_line FAILED "Registry: push that commit to $reg_name"
+      note_remote_failure "$reg_name"
+    fi
   fi
 }
 
@@ -1734,6 +1781,17 @@ note_remote_failure() {
   REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"
 }
 
+# SUMMARY — one line for each thing the run did, tried, or left out, in the order it happened. The
+# closing report prints it as a checklist, so a reader whose backup failed sees that the backup is
+# the only thing that did.
+SUMMARY=""
+
+# summary_line STATUS TEXT — add a line to SUMMARY. STATUS is done, FAILED or skipped.
+summary_line() {
+  SUMMARY="${SUMMARY}$(printf '  %-8s %s' "$1" "$2")
+"
+}
+
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
 # host and pushes the initialized trunk branch. Either way MADE_REMOTE_URL is set only inside the
@@ -1747,15 +1805,17 @@ setup_remote() {
     # demands --remote-url when the root origin cannot be reused, so a run that expected to reuse
     # one and then could not attach it arrives here with nothing to fall back to. That is a
     # requested backup that did not happen, so it is recorded like any other.
-    [ -n "${3:-}" ] || { note_remote_failure "$2"; return 1; }
+    [ -n "${3:-}" ] || { summary_line FAILED "Remote: $2 (no remote URL to attach)"; note_remote_failure "$2"; return 1; }
     if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
+      summary_line "done" "Remote: $2 pushed to $3"
       return 0
     fi
     echo "  (could not complete the remote for $2 — the command stopped partway, so whether"
     echo "   origin is attached and whether the branch reached it are both unconfirmed. Check that"
     echo "   the remote exists, is empty, and accepts your credentials.)"
+    summary_line FAILED "Remote: attach and push $2 to $3"
     note_remote_failure "$2"
     return 1
   fi
@@ -1763,20 +1823,23 @@ setup_remote() {
     # Like a missing URL above, a missing owner is not a caller error: the GitHub path asks for none
     # when the folder's origin is kept, so a kept origin that could not be attached arrives here
     # with nothing to create.
-    [ -n "$OWNER" ] || { note_remote_failure "$2"; return 1; }
+    [ -n "$OWNER" ] || { summary_line FAILED "Remote: $2 (no origin attached)"; note_remote_failure "$2"; return 1; }
     if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
       MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
       echo "  remote: created $OWNER/$2 on GitHub ($REMOTE_VISIBILITY)"
       echo "  pushed: ${MADE_REMOTE_URL:-$OWNER/$2}"
+      summary_line "done" "GitHub: created and pushed $OWNER/$2 ($REMOTE_VISIBILITY)"
       return 0
     fi
     # gh creates and pushes in one command, so a failure here says nothing about which half ran:
     # the repository may well exist on the host.
     echo "  (could not create and push $OWNER/$2 — it may have been created; check your host)"
+    summary_line FAILED "GitHub: create and push $OWNER/$2"
     note_remote_failure "$2"
     return 1
   fi
   echo "  (no remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  summary_line FAILED "Remote: $2 (unknown provider '$REMOTE_PROVIDER')"
   note_remote_failure "$2"
   return 1
 }
@@ -1811,13 +1874,21 @@ reuse_root_origin() {
     if ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$ROOT_ORIGIN"
       echo "  pushed: $ROOT_ORIGIN"
+      summary_line "done" "Remote: pushed to this folder's existing origin ($ROOT_ORIGIN)"
     else
       echo "  (origin is attached, but the push did not complete; check it and push later)"
+      summary_line FAILED "Remote: push to this folder's existing origin ($ROOT_ORIGIN)"
       note_remote_failure "$SLUG"
     fi
   fi
   return 0
 }
+
+if [ "$LAYOUT" = "2" ]; then
+  summary_line "done" "Project files: $SLUG (mono-repo-for-now)"
+else
+  summary_line "done" "Project files: $SLUG (multi-repo)"
+fi
 
 say "Initialising git..."
 if [ "$LAYOUT" = "2" ]; then
@@ -1864,7 +1935,7 @@ fi
 # --- 7. Done ----------------------------------------------------------------
 # The ending reports what this run did and gives only the next action that applies. How to set up
 # a backup is for a run that asked for none. A run that asked for one either completed it, and the
-# remote lines above say where it went, or did not, and the report after this one says what to do.
+# remote lines above say where it went, or did not, and the failure report says what to do.
 #
 # Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
@@ -1943,64 +2014,11 @@ else
   ${SAVED_TIP}
   ${PUSHED_TIP}"
 fi
+# The ending, in order: the report on a failed backup, if any; what the agent does once started;
+# the init.sh and backup notes; the checklist of what this run did; and last the handoff, so the
+# one thing left to do is what is on screen when the run ends.
 if [ -n "$REMOTE_FAILED_REPOS" ]; then
   say "Done — but the backup did not complete."
-else
-  say "Done."
-fi
-# The handoff command is identical in both modes ("Read AGENTS.md and follow it"); only what the
-# agent does next differs — greenfield kickoff interview vs. retcon adoption of existing code.
-# Each branch prints its closing text and the backup section in one write: a reader that stops
-# inside it, such as `| head`, would otherwise fail the next write and end init.sh with 141.
-if [ "$MODE" = "existing" ]; then
-  cat <<EOF
-
-Next step:
-  Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory
-  here, the way you normally launch it. Then send it one message:
-
-      Read AGENTS.md and follow it.
-
-  That's the whole handoff (same command for every project, every agent). This project is set
-  up to ADOPT your existing codebase (retcon): the agent reads the retcon front door
-  (RETCON-PROMPT.md), asks a few intake questions (where your repos/docs are, how deep to go),
-  then inventories your system and reverse-engineers the architecture baseline WITH you —
-  confirming what it finds rather than interviewing from a blank page.
-
-The agent builds a recon map of what you already have, then Throughstone-shaped architecture
-docs describing it; forward work starts at STEP-2 once that baseline lands. It creates your
-local communication profile in .throughstone/local-user.md along the way.
-${INIT_SH_TIP}
-
-${BACKUP_SECTION}
-EOF
-else
-  cat <<EOF
-
-Next step:
-  Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory
-  here, the way you normally launch it. Then send it one message:
-
-      Read AGENTS.md and follow it.
-
-  That's the whole handoff (same command for every project, every agent). It begins the
-  kickoff on its own — greets you, creates your local communication profile in
-  .throughstone/local-user.md, and helps you write the project brief ($DOCS/overview.md)
-  right in the chat. Just describe your idea when it asks.
-
-The agent will interview you, propose a roadmap, and start the architecture STEP.
-${INIT_SH_TIP}
-
-${BACKUP_SECTION}
-EOF
-fi
-
-# A remote the user asked for and did not get is a failure, and the exit status has to say so —
-# --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would
-# be told the backup exists. The closing instructions above are printed first regardless, because
-# the project itself is complete and usable — this report is about the one thing that is not.
-# Both layouts behave identically here.
-if [ -n "$REMOTE_FAILED_REPOS" ]; then
   # Which names can appear here is decided by the layout, and so is where each one lives. Mono
   # only ever records the bare slug, and its one repository is the workspace root; prompts/ and
   # Code/<slug>-docs/ are folders inside it, not repos to stand in. Multi only ever records the
@@ -2017,7 +2035,8 @@ if [ -n "$REMOTE_FAILED_REPOS" ]; then
 The remote backup did not complete for:$REMOTE_FAILED_REPOS
 
   Your project is complete and committed locally — nothing is missing from it and you can
-  start work now.
+  start work now. Your agent can finish the backup for you (see the summary below), or you
+  can do it by hand.
 
   A failed command tells you it did not finish, not how far it got — so find out before you
   retry. The names above are the repositories on your host, not folders here.
@@ -2034,7 +2053,66 @@ The remote backup did not complete for:$REMOTE_FAILED_REPOS
   push to it. Once the branch is there and the commits match, record that URL as remote: on this
   repo's row in Code/${SLUG}-docs/registries/repos.yml if it is not already there — while that
   field is missing, every check-in reports this repo as backed up nowhere.
-
 EOF
-  exit 1
+  if [ "$REMOTE_PROVIDER" = "github" ] && [ -n "$OWNER" ]; then
+    BACKUP_WHAT="the GitHub backup"; BACKUP_HOST="GitHub"
+  else
+    BACKUP_WHAT="the remote backup"; BACKUP_HOST="its remote"
+  fi
+  SUMMARY_NOTE="Everything except ${BACKUP_WHAT} worked. Your project is complete and committed locally, and you can start now. To finish the backup, start your agent as below and ask it:
+
+    Connect this project to ${BACKUP_HOST}."
+else
+  say "Done."
+  SUMMARY_NOTE="Everything you asked for worked."
 fi
+if [ "$MK_REMOTES" = "0" ]; then
+  if [ -n "${KEPT_ORIGIN:-}" ]; then
+    summary_line skipped "Remote backup: not asked for (this folder's origin is kept; nothing was pushed)"
+  else
+    summary_line skipped "Remote backup: not asked for"
+  fi
+fi
+# The agent's first move differs by mode, a greenfield kickoff interview or a retcon adoption of
+# existing code; the handoff command is the same for both.
+if [ "$MODE" = "existing" ]; then
+  AGENT_TIP="This project is set up to ADOPT your existing codebase (retcon). Once started, your agent
+reads the retcon front door (RETCON-PROMPT.md), asks a few intake questions (where your repos and
+docs are, how deep to go), then inventories your system and reverse-engineers the architecture
+baseline WITH you — confirming what it finds rather than interviewing you from a blank page. It
+builds a recon map of what you already have, then Throughstone-shaped architecture docs describing
+it; forward work starts at STEP-2 once that baseline lands. It creates your local communication
+profile in .throughstone/local-user.md along the way."
+else
+  AGENT_TIP="Once started, your agent begins the kickoff on its own — it greets you, creates your local
+communication profile in .throughstone/local-user.md, and helps you write the project brief
+($DOCS/overview.md) right in the chat. Just describe your idea when it asks.
+Then the agent will interview you, propose a roadmap, and start the architecture STEP."
+fi
+BOLD=$'\033[1m'; PLAIN=$'\033[0m'
+# One write for all of it: a reader that stops partway, such as `| head`, would otherwise fail the
+# next write and end init.sh with 141.
+cat <<EOF
+
+${AGENT_TIP}
+
+${INIT_SH_TIP}
+
+${BACKUP_SECTION}
+
+${BOLD}Summary${PLAIN}
+${SUMMARY}
+${SUMMARY_NOTE}
+
+${BOLD}NEXT STEP${PLAIN}
+${BOLD}---------${PLAIN}
+Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory here, the way you normally launch it. Then send it one message, the same for every project and every agent:
+
+      Read AGENTS.md and follow it.
+EOF
+
+# A remote the user asked for and did not get is a failure, and the exit status has to say so —
+# --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would
+# be told the backup exists. The closing instructions are printed regardless, because the project
+# itself is complete and usable. Both layouts behave identically here.
+[ -z "$REMOTE_FAILED_REPOS" ] || exit 1

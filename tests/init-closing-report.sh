@@ -3,7 +3,7 @@
 # Regression coverage for what init.sh reports about the repositories it made: the per-repo lines,
 # and an ending chosen by what the run did — the general backup-setup section only when no remote
 # was asked for, a statement that the project was pushed when a backup completed, and neither when
-# one failed.
+# one failed. Every ending has a summary of what the run did, and closes on the handoff command.
 
 set -euo pipefail
 export LC_ALL=C
@@ -57,6 +57,7 @@ fail() {
 
 # run_init WORK ARGS... - run init.sh inside WORK with the gh stub on PATH, capturing both streams
 # in $OUT and the exit status in $STATUS. Everything from the "Done" line on goes to $END.
+# CREATE_FAILS=1 before the call makes the stub's `gh repo create` fail.
 run_init() {
   local work="$1"; shift
   OUT="$TMP_ROOT/$CASE.out"; END="$TMP_ROOT/$CASE.end"
@@ -64,7 +65,8 @@ run_init() {
   mkdir -p "$GH_REMOTE_ROOT"
   set +e
   ( cd "$work" && PATH="$STUB_BIN:$PATH" GH_LOG="$TMP_ROOT/$CASE-gh.log" \
-      GH_REMOTE_ROOT="$GH_REMOTE_ROOT" ./init.sh "$@" ) >"$OUT" 2>&1 </dev/null
+      GH_REMOTE_ROOT="$GH_REMOTE_ROOT" GH_STUB_CREATE_FAILS="${CREATE_FAILS:-}" ./init.sh "$@" ) \
+      >"$OUT" 2>&1 </dev/null
   STATUS=$?
   set -e
   awk '/Done\.|Done — / { f = 1 } f' "$OUT" > "$END"
@@ -88,6 +90,17 @@ expect_not_in() {
   if grep -Fq -- "$1" "$2"; then fail "did not expect '$1' in $(basename "$2")"; fi
 }
 
+# expect_summary STATUS TEXT - the summary has a line with STATUS and TEXT.
+expect_summary() {
+  expect_line "$(printf '  %-8s %s' "$1" "$2")" "$END"
+}
+
+# expect_handoff_last - the run's last line is the handoff command.
+expect_handoff_last() {
+  [ "$(tail -n 1 "$OUT")" = "      Read AGENTS.md and follow it." ] \
+    || fail "the output does not end with the handoff command"
+}
+
 # expect_no_setup_advice - the ending does not include the general backup-setup section.
 expect_no_setup_advice() {
   expect_not_in "Recommended optional backup" "$END"
@@ -107,6 +120,11 @@ run_init "$W" "${BASE[@]}" --slug="$CASE" --license=mit --holder="Closing Test" 
   --layout=mono --remotes=no --trunk-branch=trunk
 expect_status 0
 expect_line "  git repo: . (initial commit on trunk)" "$OUT"
+expect_summary "done" "Project files: $CASE (mono-repo-for-now)"
+expect_summary "done" "Git repo: the workspace root (initial commit on trunk)"
+expect_summary skipped "Remote backup: not asked for"
+expect_in "Everything you asked for worked." "$END"
+expect_handoff_last
 [ "$(git -C "$W" rev-list --count trunk 2>/dev/null)" = "1" ] || fail "the reported commit is not on trunk"
 expect_line "  license: ./LICENSE (this repository's license)" "$OUT"
 expect_line "  license: Code/$CASE-docs/LICENSE (the canonical copy, same text, which apply-project-license.sh copies from)" "$OUT"
@@ -137,6 +155,7 @@ expect_line "Recommended optional backup:" "$END"
 expect_line "  This folder's existing origin is kept as the project's remote, and nothing was" "$END"
 expect_line "    $REMOTE" "$END"
 expect_line "  To back up, push the root repo's release branch to it: git push -u origin release" "$END"
+expect_summary skipped "Remote backup: not asked for (this folder's origin is kept; nothing was pushed)"
 expect_line "  Then record that URL on the row in Code/$CASE-docs/registries/repos.yml whose" "$END"
 expect_not_in "No remote is attached" "$END"
 expect_not_in "also pushed" "$END"
@@ -222,7 +241,12 @@ expect_status 0
 for repo in "$CASE-docs" "$CASE-prompts"; do
   expect_line "  remote: created closing-test/$repo on GitHub (public)" "$OUT"
   expect_line "  pushed: $GH_REMOTE_ROOT/$repo.git" "$OUT"
+  expect_summary "done" "GitHub: created and pushed closing-test/$repo (public)"
 done
+expect_summary "done" "Registry: that commit pushed to $CASE-docs"
+expect_in "Everything you asked for worked." "$END"
+expect_not_in "FAILED" "$END"
+expect_handoff_last
 # Each multi repo's LICENSE is its own; the mono two-copy explanation does not apply.
 expect_line "  license: Code/$CASE-docs/LICENSE" "$OUT"
 expect_line "  license: prompts/LICENSE" "$OUT"
@@ -234,8 +258,9 @@ expect_no_setup_advice
 
 # --- Backup asked for and not completed ---------------------------------------------------------
 
-# The docs push succeeds and the prompts push is refused: the report after the ending is the next
-# action, so the ending neither prints the general setup section nor says the backup happened.
+# The docs push succeeds and the prompts push is refused: the failure report is the next action,
+# so the ending neither prints the general setup section nor says the backup happened, and the
+# summary shows the backup as the one thing that failed.
 CASE=multi-failed
 W="$TMP_ROOT/$CASE"; copy_template "$W"
 bare_remote "$TMP_ROOT/$CASE-docs.git"
@@ -249,6 +274,28 @@ expect_in "both repositories here are committed locally with Git" "$END"
 expect_not_in "also pushed" "$END"
 expect_no_setup_advice
 expect_in "The remote backup did not complete for: $CASE-prompts" "$END"
+expect_summary "done" "Remote: $CASE-docs pushed to $TMP_ROOT/$CASE-docs.git"
+expect_summary FAILED "Remote: attach and push $CASE-prompts to $TMP_ROOT/$CASE-prompts.git"
+expect_in "Everything except the remote backup worked." "$END"
+expect_in "    Connect this project to its remote." "$END"
+expect_not_in "Everything you asked for worked." "$END"
+expect_handoff_last
+
+# GitHub creation fails for both repos after the boundary: the summary marks each one, and the
+# note sends the reader to the agent to connect the project to GitHub.
+CASE=multi-github-failed
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+CREATE_FAILS=1 run_init "$W" "${BASE[@]}" --slug="$CASE" --license=proprietary --layout=multi \
+  --remotes=yes --remote-provider=github --owner=closing-test
+expect_status 1
+for repo in "$CASE-docs" "$CASE-prompts"; do
+  expect_summary FAILED "GitHub: create and push closing-test/$repo"
+done
+expect_summary "done" "Git repo: Code/$CASE-docs (initial commit on main)"
+expect_summary "done" "Git repo: prompts (initial commit on main)"
+expect_in "Everything except the GitHub backup worked." "$END"
+expect_in "    Connect this project to GitHub." "$END"
+expect_handoff_last
 
 # The same through the mono layout: the folder's empty origin is kept and refuses the push.
 CASE=mono-failed
@@ -263,6 +310,9 @@ expect_not_in "also pushed" "$END"
 expect_not_in "existing origin is kept" "$END"
 expect_no_setup_advice
 expect_in "The remote backup did not complete for: $CASE" "$END"
+expect_summary FAILED "Remote: push to this folder's existing origin ($REMOTE)"
+expect_in "Everything except" "$END"
+expect_handoff_last
 
 if [ "$FAILED" != "0" ]; then
   exit 1

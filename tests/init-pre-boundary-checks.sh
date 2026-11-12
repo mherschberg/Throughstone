@@ -156,6 +156,25 @@ head -n 3 "$GH_LOG" | cmp -s - "$TMP_ROOT/$CASE-gh.expected" \
 # The run creates these repositories and knows their visibility, so there is nothing to caution.
 expect_not_in "this project is proprietary" "$OUT"
 
+# --- the GitHub owner ------------------------------------------------------------------------
+
+# A pasted profile address is reduced to the owner name before any repository is named.
+CASE=gh-owner-url
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+run_init "$W" "${BASE[@]}" --slug="$CASE" --desc="Checks" \
+  --license=proprietary --layout=mono --remotes=yes --owner=https://github.com/throughstone-test/
+expect_finished
+grep -Fxq "repo view throughstone-test/$CASE --json name" "$GH_LOG" \
+  || { fail "the owner was not taken from the URL"; cat "$GH_LOG" >&2; }
+
+# Anything still not a bare name, such as a repository path, is refused before the boundary.
+CASE=gh-owner-invalid
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+run_init "$W" "${BASE[@]}" --slug="$CASE" --desc="Checks" \
+  --license=proprietary --layout=mono --remotes=yes --owner=github.com/throughstone-test/repo
+expect_refused "$W" "invalid --owner 'github.com/throughstone-test/repo'"
+[ ! -s "$GH_LOG" ] || { fail "gh was called with an invalid owner"; cat "$GH_LOG" >&2; }
+
 # --- the same URL for both repos --------------------------------------------------------------
 
 CASE=duplicate-url
