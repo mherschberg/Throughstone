@@ -70,6 +70,17 @@ During an update, treat those old `overview.md` sections as legacy project-state
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
 not fail the check.
 
+### 2.1 migration
+
+This section says only what to do. What changed, and why, is in this release's section of
+Throughstone's `CHANGELOG.md`. It starts from 2.0.
+
+Nothing in your project needs migrating. To get the new checklists and the choice of when a
+substep's work is committed, pull these as one review-required group: `BOOTSTRAP-PROMPT.md`,
+`prompts/README.md`, `templates/substep-prompt-template.md` and `templates/step-plan-template.md`.
+Leave your `.throughstone/local-user.md` alone: the first substep written from the new template
+asks for the **Commits** value and adds it.
+
 ### 2.0 migration
 
 This section says only what to do. What changed, and why, is in this release's section of
