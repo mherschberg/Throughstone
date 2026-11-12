@@ -1,0 +1,354 @@
+#!/usr/bin/env bash
+#
+# Regression coverage for every-run doctor checks that read rows out of a table, templates out of
+# a folder, or sections out of overview.md, when there is nothing there to read: scripts/check.sh's
+# duplicate-STEP, duplicate-ADR, status, legacy-profile and conditional-template checks. It also
+# covers the ADR registry-against-files check when two ADR files carry one number, and the one row
+# the status check skips on purpose, a table's separator, which a data row with a Status of only
+# dashes, or none, must not pass for.
+#
+# The defect under test is a clean PASS over rows the check never read — an emptied STEP index or
+# ADR registry, a STEP table whose Status header was renamed, a missing session-templates folder,
+# a second ADR file under a number already counted, or a data row skipped as a separator. So
+# every case that expects a WARN or FAIL also refutes its section's PASS: the finding could be
+# printed beside a PASS that still vouches for rows nobody read. The converse is covered too: a
+# check that read rows must not also report finding none.
+#
+# Half of the rule is staying quiet. Some zeros are how a project starts — no ADR yet — or a
+# choice a project may make — deleting the optional conditional templates — and a doctor that
+# warned on those would teach people to ignore it. So the fresh project is asserted clean, with
+# the row counts its pass lines print, and the deliberate deletion is asserted to pass.
+#
+# A file that is not in the checkout at all is the third shape. A doctor run does not always see
+# the whole workspace — in a multi-repo project, the STEP index lives in the prompts/ repo and the
+# generated project's CI checks out the docs hub on its own — so the line about the absence is the
+# whole of what its reader gets, and it has to name what is missing rather than guess that the
+# project was never set up.
+#
+# Findings are read out of each check's own section, found by its title rather than its number,
+# with their severity marker. Case 1 runs the doctor on the generated project as it is; every
+# later case changes copies of its own.
+
+set -uo pipefail
+export LC_ALL=C
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/throughstone-check-nothing-test.XXXXXX")"
+trap 'rm -rf "$TMP_ROOT"' EXIT
+
+SLUG="inspect"
+failures=0
+bad() { printf 'FAIL: %s\n' "$1" >&2; failures=$((failures + 1)); }
+
+# copy_template DEST — build a template fixture from HEAD, then overlay current worktree
+# changes. Archiving rather than copying the live tree leaves ignored maintainer files behind,
+# so the fixture is the shape a user downloads; the overlay keeps uncommitted edits under test.
+copy_template() {
+  local dest="$1" file
+  mkdir -p "$dest"
+  git -C "$ROOT" archive HEAD | tar -x -C "$dest"
+  while IFS= read -r -d '' file; do
+    if [ -e "$ROOT/$file" ]; then
+      mkdir -p "$dest/$(dirname "$file")"
+      cp -p "$ROOT/$file" "$dest/$file"
+    else
+      rm -f "$dest/$file"
+    fi
+  done < <(
+    {
+      git -C "$ROOT" diff --name-only -z HEAD
+      git -C "$ROOT" ls-files --others --exclude-standard -z
+    }
+  )
+}
+
+# bootstrap — generate the project the cases run on, and echo its workspace root. It is
+# multi-repo because case 7 expects a clause that check 1 prints only in that layout; case 7
+# also declares one copy mono to test the other layout.
+bootstrap() {
+  local work="$TMP_ROOT/$SLUG"
+  copy_template "$work"
+  (
+    cd "$work"
+    ./init.sh \
+      --non-interactive \
+      --slug="$SLUG" \
+      --desc="Nothing-to-inspect check test" \
+      --license=mit \
+      --holder="Throughstone Test" \
+      --layout=multi \
+      --collab=solo \
+      --remotes=no
+  ) >"$TMP_ROOT/$SLUG.init.out" 2>&1 || {
+    bad "init.sh failed"
+    sed -n '1,40p' "$TMP_ROOT/$SLUG.init.out" >&2
+    return 1
+  }
+  printf '%s\n' "$work"
+}
+
+# fixture LABEL — a fresh copy of the generated project for one case to change. The doctor finds
+# its root from its own path, so the copy is a project in its own right.
+fixture() {
+  cp -R "$base" "$TMP_ROOT/case-$1"
+  printf '%s\n' "$TMP_ROOT/case-$1"
+}
+
+# doctor WORK — run the project's doctor. DOC_OUT is the whole run and DOC_STATUS its exit status.
+doctor() {
+  DOC_OUT="$(bash "$1/Code/$SLUG-docs/scripts/check.sh" 2>&1)"
+  DOC_STATUS=$?
+}
+
+# look TITLE — select one check's section of the last run, from its heading to the next one, so
+# a finding another check printed cannot satisfy an assertion about this one.
+look() {
+  SEC_TITLE="$1"
+  SEC="$(printf '%s\n' "$DOC_OUT" | awk -v t="$1" '/^[0-9]+\. / || /^Summary$/ { f = (index($0, t) > 0); next } f')"
+  [ -n "$SEC" ] || bad "the doctor printed no \"$1\" section, or an empty one"
+}
+
+has()    { case "$SEC" in *"$1"*) return 0 ;; *) return 1 ;; esac; }
+expect() { has "$1" || bad "$2 — expected \"$SEC_TITLE\" to report: $1"; }
+refute() { has "$1" && bad "$2 — \"$SEC_TITLE\" should NOT report: $1"; return 0; }
+
+# edit FILE PERL WHAT — apply a perl substitution and require that it changed the file. A pattern
+# that stopped matching the generated file would leave it as it was, and the case would pass for
+# the wrong reason.
+edit() {
+  cp "$1" "$TMP_ROOT/before"
+  perl -pi -e "$2" "$1"
+  cmp -s "$TMP_ROOT/before" "$1" && bad "fixture: $3 changed nothing"
+  return 0
+}
+
+base="$(bootstrap)" || exit 1
+
+# --- 1. A fresh project ---------------------------------------------------------
+# Nothing is wrong, so nothing warns: one STEP row, no ADR yet, and a substep row per numbered
+# session. The counts are asserted because a count is what shows a zero in a pass line, and a
+# check that had stopped reading would print one. The substep count is taken from the index by
+# row number rather than written down, so adding a session template does not break this case.
+doctor "$base"
+look "Duplicate STEP numbers"
+expect "[PASS] no duplicate STEP numbers (1 STEP row(s))" "fresh project"
+look "Duplicate ADR numbers"
+expect "[PASS] no duplicate ADR numbers (0 ADR row(s))" "fresh project: no ADR yet passes"
+subs="$(grep -cE '^\| 1\.[0-9]+ \|' "$base/prompts/STEP-index.md")"
+[ "$subs" -gt 0 ] || bad "fixture: the generated index has no STEP-1 substep rows to count"
+look "Statuses valid"
+expect "[PASS] all statuses valid (1 STEP row(s), $subs substep row(s))" "fresh project"
+case "$DOC_OUT" in
+  *"0 fail(s), 0 warning(s)"*) ;;
+  *) bad "fresh project — expected 0 fail(s), 0 warning(s)" ;;
+esac
+
+# --- 2. A STEP row under no Status column ---------------------------------------
+# A status is found by its column header's name, so a STEP row under a header that lost it is
+# never read. STEP-1 carries a bad status throughout: with the header intact the check fails on
+# it, which is what shows it is the rows under a renamed header that go unread.
+c="$(fixture renamed-header)"
+idx="$c/prompts/STEP-index.md"
+edit "$idx" 's/^(\| STEP-1 \| Architecture \| \| )Planned/${1}Bogus/' "setting STEP-1 to Bogus"
+doctor "$c"
+look "Statuses valid"
+expect "[FAIL] invalid status value(s):" "bad status, header intact"
+expect 'STEP-1 -> "Bogus"' "bad status, header intact"
+refute "[PASS]" "bad status, header intact"
+[ "$DOC_STATUS" -eq 1 ] || bad "bad status, header intact — expected exit 1, got $DOC_STATUS"
+
+edit "$idx" 's/^(\| STEP \| Title \| Owner \| )Status( \|)/${1}State$2/' "renaming the STEP table's Status header"
+doctor "$c"
+look "Statuses valid"
+expect "[WARN] read the status of 0 of 1 STEP row(s)" "renamed Status header"
+expect "templates/step-index-seed.md" "renamed Status header hint"
+refute "[PASS]" "renamed Status header"
+
+# A project grows a table per phase, and a header renamed in one of them leaves the rest read. A
+# count of statuses read against STEP rows present sees that; a check for zero does not.
+c="$(fixture second-phase)"
+cat >> "$c/prompts/STEP-index.md" <<'MD'
+
+## Phase 2 — Later
+
+| STEP | Title | Owner | State | Repos (projection) | Scope (one line) |
+|------|-------|-------|-------|--------------------|------------------|
+| STEP-2 | Later work | | Planned | | Fixture |
+MD
+doctor "$c"
+look "Statuses valid"
+expect "[WARN] read the status of 1 of 2 STEP row(s)" "renamed header in one phase table of two"
+refute "[PASS]" "renamed header in one phase table of two"
+
+# --- 3. An index with no STEP row ------------------------------------------------
+# init.sh reserves STEP-1 and a STEP number is never deleted, so an index with no STEP row has
+# lost it. Both checks that read the index warn, as both do when the file is deleted, and a
+# warning leaves the exit code alone. The row goes first, with the rest of the file kept — its
+# header, prose and substep table — so the warning is shown to key on the row and not on an
+# empty file; then the file is emptied outright.
+no_step_row() {
+  doctor "$c"
+  look "Duplicate STEP numbers"
+  expect "[WARN] found no STEP rows at the left margin of prompts/STEP-index.md" "$1"
+  expect "a STEP row starts at the left margin" "$1 hint"
+  refute "[PASS]" "$1"
+  look "Statuses valid"
+  expect "[WARN] found no STEP rows in prompts/STEP-index.md" "$1"
+  refute "[PASS]" "$1"
+  [ "$DOC_STATUS" -eq 0 ] || bad "$1 — a WARN must not change the exit code, got $DOC_STATUS"
+}
+c="$(fixture no-step-row)"
+edit "$c/prompts/STEP-index.md" '$_ = "" if /^\| STEP-1 \|/' "deleting the STEP-1 row"
+no_step_row "STEP-1 row deleted"
+: > "$c/prompts/STEP-index.md"
+no_step_row "emptied STEP index"
+
+# An indented STEP row is not the shape the duplicate check reads, so that check finds no STEP row
+# at the left margin and says how to fix it. The status check reads the row under its table's
+# header, as status.sh does, and having read it must not also report finding none. An indented row
+# it does not read is not counted: the seed index holds one, an example inside an HTML comment, and
+# case 1 shows it stays quiet.
+c="$(fixture indented-step-row)"
+idx="$c/prompts/STEP-index.md"
+edit "$idx" 's/^(\| STEP-1 \| Architecture \| \| )Planned/  ${1}Bogus/' "indenting STEP-1 and setting it to Bogus"
+doctor "$c"
+look "Duplicate STEP numbers"
+expect "[WARN] found no STEP rows at the left margin of prompts/STEP-index.md" "indented STEP row"
+expect "move its rows to the left margin" "indented STEP row hint"
+refute "[PASS]" "indented STEP row"
+look "Statuses valid"
+expect 'STEP-1 -> "Bogus"' "indented STEP row with a bad status"
+refute "found no STEP rows" "indented STEP row with a bad status"
+refute "[PASS]" "indented STEP row with a bad status"
+[ "$DOC_STATUS" -eq 1 ] || bad "indented STEP row with a bad status — expected exit 1, got $DOC_STATUS"
+edit "$idx" 's/^(  \| STEP-1 \| Architecture \| \| )Bogus/${1}Planned/' "setting the indented STEP-1 to Planned"
+doctor "$c"
+look "Statuses valid"
+expect "[PASS] all statuses valid (1 STEP row(s)," "indented STEP row with a valid status"
+refute "[WARN]" "indented STEP row with a valid status"
+[ "$DOC_STATUS" -eq 0 ] || bad "indented STEP row with a valid status — expected exit 0, got $DOC_STATUS"
+
+# --- 4. An ADR registry with no table --------------------------------------------
+# No ADR row is also how every project starts (case 1), so the row count cannot tell the two
+# apart. The registry table can: it ships with the file and stays while it is empty. The table
+# goes first, with the prose around it kept, then the file is emptied outright. The control is a
+# registry that lost its table but still holds a row — the check read that row, so it passes.
+no_adr_table() {
+  doctor "$c"
+  look "Duplicate ADR numbers"
+  expect "[WARN] found no ADR rows and no registry table" "$1"
+  expect "| ADR | Title | Status | Date |" "$1 hint"
+  refute "[PASS]" "$1"
+}
+c="$(fixture no-adr-table)"
+adr="$c/Code/$SLUG-docs/adr/README.md"
+edit "$adr" '$_ = "" if /^\|/' "deleting the ADR registry table"
+no_adr_table "ADR registry table deleted"
+: > "$adr"
+no_adr_table "emptied ADR registry"
+
+printf '| ADR-0001 | A decision | Accepted | 2026-01-15 |\n' > "$adr"
+doctor "$c"
+look "Duplicate ADR numbers"
+expect "[PASS] no duplicate ADR numbers (1 ADR row(s))" "an ADR row with no table header"
+refute "[WARN]" "an ADR row with no table header"
+
+# --- 5. The session-templates folder ----------------------------------------------
+# Conditional templates are optional, and a project may delete them on purpose: that passes. The
+# folder they live in holds the numbered sessions too, so a missing folder warns.
+sessions="Code/$SLUG-docs/templates/architecture-sessions"
+c="$(fixture no-conditionals)"
+rm -f "$c/$sessions"/conditional-*.md
+doctor "$c"
+look "Conditional-session template contract"
+expect "[PASS] no conditional-session templates found (nothing to check)" "conditional templates deleted on purpose"
+refute "[WARN]" "conditional templates deleted on purpose"
+
+c="$(fixture no-sessions)"
+rm -rf "${c:?}/$sessions"
+doctor "$c"
+look "Conditional-session template contract"
+expect "[WARN] no $sessions/ folder — skipping conditional-session check" "missing session-templates folder"
+refute "[PASS]" "missing session-templates folder"
+
+# --- 6. A Status of only dashes, or none ------------------------------------------
+# The status check skips a table's separator row, whose cells are all dashes. A data row keeps its
+# id in the first cell, so a Status of `-`, or a blank one, on a STEP or substep row is read like
+# any other value and fails the run. A separator written with spaces and alignment colons is still
+# skipped.
+c="$(fixture dash-status)"
+idx="$c/prompts/STEP-index.md"
+edit "$idx" 's/^(\| STEP-1 \| Architecture \| \| )Planned/${1}-/' "setting STEP-1 to -"
+edit "$idx" 's/^(\| 1\.1 \| [^|]*\| )Planned/${1}-/' "setting substep 1.1 to -"
+edit "$idx" 's/^(\| 1\.2 \| [^|]*\| )Planned/${1}/' "blanking substep 1.2"
+edit "$idx" 's/^\|-+\|-+\|-+\|-+\|$/| :------ | ------- | :----: | ---------- |/' "spacing and aligning the substep separator"
+doctor "$c"
+look "Statuses valid"
+expect "[FAIL] invalid status value(s):" "dash or blank status"
+expect 'STEP-1 -> "-"' "a STEP row whose Status is -"
+expect '1.1 -> "-"' "a substep row whose Status is -"
+expect '1.2 -> ""' "a substep row with a blank Status"
+refute ':----:' "a separator written with spaces and colons"
+refute "[PASS]" "dash or blank status"
+[ "$DOC_STATUS" -eq 1 ] || bad "dash or blank status — expected exit 1, got $DOC_STATUS"
+
+# --- 7. The file a check reads is not in this checkout ----------------------------
+# The STEP index is in the prompts/ repo, so a checkout of the docs hub alone never has it and
+# nothing is wrong: the generated project's own CI runs exactly that way. A message reading the
+# absence as an uninitialized project sends whoever is looking to go and fix a project that is
+# fine, so the warning names the file, says which repo it is in and why a docs-hub checkout
+# lacks it, and stops there.
+c="$(fixture no-prompts-repo)"
+rm -rf "${c:?}/prompts"
+doctor "$c"
+look "Duplicate STEP numbers"
+expect "[WARN] no prompts/STEP-index.md at the workspace root — skipping the STEP checks" "a checkout without the prompts repo"
+expect "in a multi-repo project the roadmap is the prompts/ repo" "a checkout without the prompts repo"
+refute "not initialized" "a checkout without the prompts repo"
+refute "[PASS]" "a checkout without the prompts repo"
+[ "$DOC_STATUS" -eq 0 ] || bad "a checkout without the prompts repo — a WARN must not change the exit code, got $DOC_STATUS"
+
+# The second clause is an explanation, and it is true in one layout only: in mono-repo-for-now
+# prompts/ is a folder inside the workspace root, which IS the repository, so there is no checkout
+# of part of the project to explain the absence away. The fixture is the same one with its registry
+# saying mono — the layout comes from what the project declares, never from the shape of the tree —
+# and the paired case above is what keeps this from passing on a clause that had simply gone.
+c="$(fixture no-prompts-repo-mono)"
+rm -rf "${c:?}/prompts"
+edit "$c/Code/$SLUG-docs/registries/repos.yml" 's/^layout: multi$/layout: mono/' "declaring the fixture mono"
+doctor "$c"
+look "Duplicate STEP numbers"
+expect "[WARN] no prompts/STEP-index.md at the workspace root — skipping the STEP checks" "a mono project with no STEP index"
+refute "in a multi-repo project the roadmap is the prompts/ repo" "a mono project is not told the roadmap is another repo"
+refute "[PASS]" "a mono project with no STEP index"
+[ "$DOC_STATUS" -eq 0 ] || bad "a mono project with no STEP index — a WARN must not change the exit code, got $DOC_STATUS"
+
+# overview.md is the docs hub's own file, and check.sh is itself a file in that hub, so a missing
+# overview.md says nothing about how much of the workspace is here — only that there is nothing
+# to read the legacy sections out of.
+c="$(fixture no-overview)"
+rm -f "$c/Code/$SLUG-docs/overview.md"
+doctor "$c"
+look "Legacy local user profile fields"
+expect "[PASS] no Code/$SLUG-docs/overview.md in the docs hub — nothing to read" "a docs hub with no overview.md"
+refute "not initialized" "a docs hub with no overview.md"
+refute "[WARN]" "a docs hub with no overview.md"
+
+# --- 8. Two ADR files on one number ----------------------------------------------
+# One registry row, two ADR-0001 files. The registry check counts each file's number, so the
+# second file fails the section instead of disappearing into a set of numbers.
+c="$(fixture shared-adr-number)"
+adr="$c/Code/$SLUG-docs/adr"
+printf '| ADR-0001 | A decision | Accepted | 2026-01-15 |\n' >> "$adr/README.md"
+printf '# ADR-0001: A decision\n' > "$adr/ADR-0001-a-decision.md"
+printf '# ADR-0001: Another decision\n' > "$adr/ADR-0001-another-decision.md"
+doctor "$c"
+look "ADR registry matches ADR files on disk"
+expect "[FAIL] more than one file per ADR number: ADR-0001" "two ADR files sharing a number"
+refute "[PASS]" "two ADR files sharing a number"
+
+if [ "$failures" -ne 0 ]; then
+  printf 'check.sh nothing-to-inspect checks: %d FAILURE(S)\n' "$failures" >&2
+  exit 1
+fi
+echo "check.sh nothing-to-inspect checks: PASS"

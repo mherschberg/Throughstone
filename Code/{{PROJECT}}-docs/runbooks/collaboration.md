@@ -12,8 +12,8 @@ already has tooling for, it leaves to that tooling.
   STEPs are isolated on branches, how the shared **`prompts/STEP-index.md`** is edited without merge
   pain, how decisions are socialized through **ADRs** (and their numbers reserved like STEP
   numbers), and how **`prompts/`** (shared history) is appended by many hands.
-- **Standard practice, not the method's job:** your branching model beyond the one naming
-  rule below, PR mechanics and review gates, code-review tooling, issue/bug tracking, CI/CD,
+- **Standard practice, not the method's job:** your branching model beyond the naming and merge
+  rules below, PR mechanics and review gates, code-review tooling, issue/bug tracking, CI/CD,
   and release versioning. Use whatever your team already uses.
 
 ## The model in one breath
@@ -37,22 +37,25 @@ step-NNNN-short-name        e.g. step-0042-payment-webhooks
   one logical STEP stays recognizable across repos.
 - This holds **even when you're solo.** It costs nothing alone and means the workflow is
   identical the day a second contributor arrives — no mode switch.
-- Branch lifetime, PR gates, and how the branch merges are **standard practice** — the method
-  only fixes the name and the cross-repo consistency.
+- PR gates, how the branch merges, and when it is deleted are **standard practice** — the method
+  only fixes the name, the cross-repo consistency, and that the branch merges into the trunk when
+  its STEP closes (`prompts/README.md`, step 7 of "Recipe: adding a new STEP").
 
 ## 2. Reserving a STEP number (the one hard rule)
-STEP numbers are **global and never reset** (`METHOD.md` §1, §8). `prompts/` is the one repo
-every contributor shares, so the index in it is the registry of record. Reserving a number
-and proposing the STEP are the **same atomic act**, and it happens **before** you branch or
-write anything.
+STEP numbers are **global and never reset** (`METHOD.md` §1, §8). `prompts/` is project-wide —
+every STEP recorded once, wherever the code it touches lives — so the index in it is the
+registry of record. Reserving a number and proposing the STEP are the **same atomic act**, and
+it happens **before** you branch or write anything.
 
-**Protocol — identical for humans and agents:**
+**Protocol — identical for humans and agents.** Run it in the repository `prompts/` sits in —
+its own repo at the workspace root in a multi-repo project, the root repo in mono-repo-for-now
+(`METHOD.md` §7). Every pull, commit and push below is in that repository.
 
-1. **Pull `prompts/`.** Get the current `prompts/STEP-index.md`.
+1. **Pull.** Get the current `prompts/STEP-index.md`.
 2. **Allocate** the next number: `max(existing STEP numbers) + 1`.
-3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, one-line scope,
-   and the repos you expect to touch).
-4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on `prompts/`'s
+3. **Add the row** to `prompts/STEP-index.md` (number, title, owner = you, status, and a one-line
+   scope).
+4. **Commit small and push immediately** — a dedicated `reserve STEP-N` commit on the
    **shared trunk** (`{{TRUNK_BRANCH}}`), separate from any other change. `prompts/STEP-index.md` is a shared
    registry: the reserve commit *and every later edit to it* (status flips, archival rows) land
    on the trunk, **never on a `step-NNNN` branch** — the push-reject that referees the race only
@@ -66,16 +69,17 @@ write anything.
      (`templates/planning-session.md`) lays down many STEPs in one commit and loses a push
      race, move the **whole batch** above the new `max` — not just one row — then push again.
 6. **Scan for a duplicate before every push — even on a clean merge.** A rejected push is *not*
-   the only way a duplicate appears: two contributors who each *append* a row merge with **no
+   the only way a duplicate appears: two contributors who each *append* a row can merge with **no
    conflict** (see the note below), so git won't flag it. After any pull/merge and before you
-   push, scan the index for a repeated number:
+   push, scan the index for a repeated number from the workspace root:
    ```
    grep -oE '^\|[[:space:]]*STEP-[0-9]+' prompts/STEP-index.md | grep -oE 'STEP-[0-9]+' | sort | uniq -d   # prints nothing when clean
    ```
    If it prints anything, recompute `max + 1`, renumber your row, and re-scan until it's empty.
 
-> **Renumber even when the pull merges cleanly.** Two contributors each *append* a new row,
-> so the edits land on different lines and git merges them **without a conflict** — leaving
+> **Renumber even when the pull merges cleanly.** Two contributors each add a new row, and when
+> the rows land in different places — different phase tables, or after different rows — git
+> merges them **without a conflict** — leaving
 > two `STEP-6` rows that no merge flags. A clean pull is *not* proof you're safe: the duplicate
 > scan (step 6) is what catches it, so run it after any pull/merge, recompute `max + 1`, and
 > renumber your row; never just re-push the merge commit. (This is also why reserving happens
@@ -92,7 +96,8 @@ After that the number is yours; everyone who pulls sees it.
 **Flip the row to `In progress` when you start — and push the flip.** Reservation leaves the
 row `Planned`; the overlap warning (§4) reads in-flight STEPs *from the shared index*, so the
 moment you cut the `step-NNNN` branch and begin work, set the row's **Status** to `In progress`
-in a small commit pushed to `prompts/`'s trunk (the same your-row-only edit as reserve, §5).
+and its **Owner** to you, in a small commit pushed to the trunk (the same your-row-only edit as
+reserve, §5).
 The later `Done` / `Abandoned` transitions are pushed the same way. A STEP being worked must
 never be left at `Planned` on the shared branch — or have its flip sitting unpushed locally —
 or it's invisible to everyone else's overlap check.
@@ -120,13 +125,8 @@ to coordinate must therefore be *in that row*:
   won't be built is marked **Abandoned** — its row **stays** (never delete it) so its number is
   never reused (`METHOD.md` §8). `max + 1` always counts deferred and abandoned numbers; don't
   reissue them.
-- **Repos (projection)** — the repos you *expect* to touch. This is a **projection, not a
-  guarantee** — scope shifts as a STEP is worked, and that's fine. It exists to power the
-  overlap warning below, not to reserve anything. The PLAN carries the same field
-  (`templates/step-plan-template.md`), but **the index row is the authoritative copy for coordination** —
-  it's what teammates read. **If a STEP grows to touch a repo not in its projection, update the
-  row** (and keep the PLAN's copy in sync) — the projection only protects others if it's roughly
-  current, and a stale one makes the overlap warning miss real collisions.
+- **Scope** — one line on what the STEP changes. The overlap warning (§4) compares it, so name
+  the part of the system it touches.
 
 The full PLAN stays private in `Upcoming Prompts/` by default (the lean choice). A team that
 wants in-flight PLANs visible can opt in: make `Upcoming Prompts/` a repo (`METHOD.md` §5
@@ -140,54 +140,50 @@ merge can hurt). So the method surfaces likely overlap and lets you decide:
 - **The shared index row is the coordination surface** (§3) — it's the only thing others can
   see of your in-flight work, so it's the primary check. **When you start a STEP**, read the
   **in-flight** rows in `prompts/STEP-index.md` — `In progress`, plus any `Planned` row that already has
-  a `step-*` branch — and compare their **Repos (projection)** against your STEP's scope. If
-  they overlap, **say so** — then proceed. It's a heads-up, not a gate. (This is why the
-  `In progress` flip must be *pushed*, §2: an unpushed status makes a worked STEP invisible here.)
-- **Agents must do this check and warn the user** before starting work (see `AGENTS.md`).
-- **Optional extra signal — only if your team pushes its `step-*` branches.** A *remote* scan
-  (`git ls-remote --heads origin 'step-*'`, or `git fetch` then `git branch -r --list '*step-*'`)
-  flags any repo carrying more than one live `step-*` branch, and catches a STEP whose row
-  someone forgot to flip. But many contributors don't push a branch until PR time, so it sees
-  nothing for purely-local work — treat it as a bonus, not the primary check, and never lean on
-  a local `git branch --list` (it never sees a teammate's branch). Wire the remote scan into CI
-  if you want it.
+  a `step-*` branch — and compare their **Scope** against your STEP's scope and what its PLAN
+  says it will touch. If they overlap, **say so** — then proceed. It's a heads-up, not a gate.
+  (This is why the `In progress` flip must be *pushed*, §2: an unpushed status makes a worked
+  STEP invisible here.)
+- **Agents must do this check and warn the user** before starting work.
+- **Optional extra signal — only if your team pushes its `step-*` branches.** A *remote* scan in
+  each repo (`git ls-remote --heads origin 'step-*'`, or `git fetch` then
+  `git branch -r --list '*step-*'`) lists every live `step-*` branch, which shows the `Planned` rows
+  already in flight and catches a STEP whose row someone forgot to flip. But many contributors don't
+  push a branch until PR time, so it sees nothing for purely-local work — treat it as a bonus, not
+  the primary check, and never lean on a local `git branch --list` (it never sees a teammate's
+  branch). Wire the remote scan into CI if you want it.
 
-> **The warning is repo-granular — read it as a heads-up, not a verdict.** It fires whenever
-> two STEPs name the same repo, even if they touch unrelated files (expect over-warning in a
-> multi-repo project), and it is **meaningless in a mono-repo**, where every STEP touches the
-> one repo so it would fire for every pair. In mono-repo mode, fall back to the PLAN's
-> file/area notes or a one-line "I'm editing X" to teammates. If a repo is large, putting a
-> subsystem or path hint next to it in the projection makes the signal sharper.
+> **A one-line scope is a rough signal — read the warning as a heads-up, not a verdict.** When
+> two scopes look close, a one-line "I'm editing X" to the other STEP's owner settles it.
 
 ## 5. Editing shared files without merge pain
 A few files are global and edited by everyone. They fall into two kinds:
 
 **Table files** — `prompts/STEP-index.md`, `adr/README.md` (the registry), each phase `README.md`,
-and `registries/repos.yml`. These conflict only when people reflow them:
+and `registries/repos.yml`. These merge best when nobody reflows them:
 - Edit **only your own row(s)**; never re-sort or reformat the whole table.
 - Land index/registry edits in **small, dedicated commits** and push promptly.
 - A conflict here is almost always two edits on **different rows** — keep both.
 
 **Narrative files** — `architecture/NN-*.md`. Prose does **not** merge cleanly, and an
 architecture-doc collision is the costliest merge there is, so these are serialized by *not
-having two STEPs edit the same doc at once*. The overlap warning (§4) is the catch — and
-although a docs-hub hit over-warns in general (§4 note), **for narrative files treat it as a
-real prompt to serialize, not noise**: when two STEPs both touch the docs hub, confirm you're
-not both editing the same doc before proceeding. A doc/subsystem hint in the **Repos
-(projection)** sharpens it. For a small team, a one-line "I'm re-running session 1.5" is
-enough. Re-running a session later (`METHOD.md` §4) is fine — just not concurrently with
-someone else editing the same doc.
+having two STEPs edit the same doc at once*. The overlap warning (§4) is the catch — **for
+narrative files treat it as a real prompt to serialize, not noise**: when two in-flight STEPs
+both touch architecture docs, confirm you're not both editing the same doc before proceeding.
+Naming the doc in the row's Scope sharpens it. For a small team, a one-line "I'm re-running
+session 1.5" is enough. Re-running a session later (`METHOD.md` §4) is fine — just not
+concurrently with someone else editing the same doc.
 
 ### If your remote enforces file locks, use them on these files
 GitHub, Bitbucket, and GitLab all support **Git LFS file locks** (`git lfs lock <file>` /
-`git lfs unlock <file>`). On a supported remote, locking a shared file turns the
-edit-without-merge-pain problem into true mutual exclusion — like a table-level DB lock:
+`git lfs unlock <file>`, run in the file's repo). On a supported remote, locking a shared file
+turns the edit-without-merge-pain problem into true mutual exclusion — like a table-level DB lock:
 **lock → pull → edit your row (or the doc) → commit → push → unlock**, holding the lock *only*
 for that brief edit. It's most valuable on the **narrative files**, where a concurrent merge is
 the costliest case above — there the lock guards against a *prose merge*, not a number clash.
 (Architecture-doc numbers need no reservation ceremony at all: the docs are separate files with
 descriptive names — `06-security-model.md`, not just `06` — so a duplicate number shows up
-visibly in `git status` rather than merging into a silent duplicate the way two index rows do,
+visibly in `git status` rather than merging into a silent duplicate the way two index rows can,
 and it's fixed by renaming one file. The reserve-and-scan protocol is only for the shared
 *append-into-one-file* registries: STEP numbers and ADR numbers.) Mark the files lockable once,
 in each repo's `.gitattributes`:
@@ -227,13 +223,16 @@ reviewing, and recording it. The ADR template already carries the needed states
   the superseding ADR in the registry is how dependents find out.
 - **Reserve the ADR number like a STEP number.** ADR numbers are sequential and never reused,
   and the registry in `adr/README.md` is shared — so two authors each appending an `ADR-0005`
-  row merge **cleanly** into a silent duplicate, exactly as two `STEP-6` rows do (§2). A clean
+  row can merge **cleanly** into a silent duplicate, exactly as two `STEP-6` rows do (§2). A clean
   pull is not proof you're safe. Use the same protocol, on the docs hub's shared trunk: pull,
   take `max + 1` over the registry, add your row and create the `ADR-NNNN-*.md` file, then
-  **commit and push immediately** in a dedicated commit. Before every push, even on a clean
-  merge, scan for a repeated number:
+  **commit and push immediately** in a dedicated commit. The file holds the whole ADR. Until your
+  STEP merges, write a link in it to a doc that exists only on your STEP branch as a plain path,
+  not a Markdown link, the form the *Related documents* section of `templates/adr-template.md`
+  uses, so the shared trunk keeps passing `./doctor.sh links`. Before every push, even on a clean
+  merge, scan for a repeated number from the workspace root:
   ```
-  grep -oE '^\|[[:space:]]*ADR-[0-9]+' adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d   # prints nothing when clean
+  grep -oE '^\|[[:space:]]*ADR-[0-9]+' Code/{{PROJECT}}-docs/adr/README.md | grep -oE 'ADR-[0-9]+' | sort | uniq -d   # prints nothing when clean
   ```
   **If it prints anything — or the push is rejected — recompute `max + 1`, renumber your ADR
   (file + row), and push again;** never re-push the merge as-is. Solo with no remote, this is
@@ -244,8 +243,8 @@ reviewing, and recording it. The ADR template already carries the needed states
   rather than assuming it's been done.
 
 ## 7. `prompts/` is shared history, appended by everyone
-`prompts/` spans all the code repos and is **never rewritten** (`METHOD.md` §5). Many
-contributors append to it:
+`prompts/` records every STEP once, wherever the code it touches lives, and is **never
+rewritten** (`METHOD.md` §5). Many contributors append to it:
 - On completion, each gathers their STEP's loose files from `Upcoming Prompts/` into a new
   `step-NNNN/` folder in the phase folder (`prompts/001-<phase-name>/step-NNNN/`, created when
   the phase's first STEP is archived) and adds a row to that phase's `README.md`.
@@ -259,7 +258,7 @@ repos it touches — that single record is what keeps the history coherent acros
 - Its **PLAN lists the repos it touches and the order they merge in** (cross-repo
   sequencing). Reference commits / PRs / tags where ordering matters.
 - It uses the **same `step-NNNN` branch name in each repo** (§1).
-- If it creates a new repo, **register it** (`register-repo.md`) — your row only (§5).
+- If it creates a new repo, **register it** (`runbooks/register-repo.md`) — your row only (§5).
 
 ## 9. Going from solo to team
 The *structural* habits above you already practice solo — branch-per-STEP (§1) and allocating
@@ -270,29 +269,36 @@ flow (§6). The transition is mostly mechanical:
 
 1. **Stand up the shared remotes — and push your existing history to them first.** A solo
    dev has been committing locally with no remote, so the order matters: (a) create the remote
-   for `prompts/`, the docs hub, and each code repo **Throughstone created**, then **`git push`
-   your existing history to each** — otherwise newcomers clone empty repos and the STEP-number
-   registry of record is gone. **A repo Throughstone did not create gets neither** — never
-   create a remote for it and never push its history (`register-repo.md`); (b) add the
+   for `prompts/`, the docs hub, and every code repo **that has no remote yet**, then
+   **`git push` your existing history to each** — otherwise newcomers clone empty repos and the
+   STEP-number registry of record is gone. **A repo that already has a remote keeps the one it
+   has** — never create a second and never repoint it (`runbooks/register-repo.md`); (b) add the
    `remote:` fields in `registries/repos.yml`, for every repo that has one; (c) have each new
-   contributor run `scripts/setup-workspace.sh` to clone them. Number reservation (§2) relies
-   on this shared `prompts/` remote.
+   contributor run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`, from the workspace root,
+   to clone them. Number reservation (§2) relies on this shared `prompts/` remote.
 
    **Mono-repo-for-now** (`METHOD.md` §7) has one repo, the workspace root, so this is one
    remote rather than several: create it, push the root repo's existing history to it, and have
-   each new contributor clone that single repo. Don't add `remote:` fields to
-   `registries/repos.yml` and **don't run `scripts/setup-workspace.sh`** — no row in that file is
-   a repo to clone (one *is* the repository you already have; the rest are folders inside it),
-   and the script is for multi-repo workspaces: run in a mono clone it overwrites the committed
-   root `CLAUDE.md`, `AGENTS.md` and `doctor.sh` with per-machine pointers asserting the root is
-   not a repo. Everything else is the same, including number reservation, which needs a shared
-   remote and not a particular number of them. Whether to split is a separate question, answered
-   by the architecture rather than by the size of the team — see `splitting-repos.md`.
+   each new contributor clone that single repo. Record it on the row whose `location` is `.`, the
+   same as any other repo — `init.sh` writes it when it pushed to the remote itself, and until a row
+   has one the check-in flags it, because work with no remote lives on one laptop. A mono project
+   may sit without a remote for a while; that warning is the reminder, not an error. But **don't
+   run `Code/{{PROJECT}}-docs/scripts/setup-workspace.sh`** — no row in that file is a repo to
+   clone (one *is* the repository you already have; the rest are folders inside it), and the
+   script is for multi-repo workspaces. It reads the `layout:` line in that file and stops when it
+   says `mono`, writing nothing — but **a registry with no `layout:` line does not stop it**, and
+   run in a mono clone it then overwrites the committed root `CLAUDE.md`, `AGENTS.md` and
+   `doctor.sh` with per-machine copies. Declare the layout (`UPDATING-THROUGHSTONE.md`) before a
+   new contributor has the chance. Everything else is the same, including number reservation,
+   which needs a shared remote and not a particular number of them. Whether to split is a
+   separate question, answered by the architecture rather than by the size of the team — see
+   `runbooks/splitting-repos.md`.
 2. **Have each contributor create their local profile** (`.throughstone/local-user.md`) during
    onboarding. This records their own Experience level and Communication style; do not copy
    the original solo maintainer's preferences into project docs.
 3. **Record the ADR authority rule** in `adr/README.md` (§6) — decide once who can Accept a
-   decision.
+   decision. Agents read that line to know the coordination layer is on (`AGENTS.md`), so
+   replace `_solo author_` before the second contributor's first STEP.
 4. **Point everyone here.** New contributors read this runbook (and `AGENTS.md`) before their
    first STEP.
 
@@ -313,9 +319,9 @@ the ADRs), not in any one tool's memory or conversation. In particular an agent 
 > **Worktrees isolate code, not the number reservation.** The reservation race (§2) is
 > refereed by `git push` being rejected, which only happens between **independent clones
 > sharing a remote**. Git worktrees share one clone (one `.git`, one set of refs) and can't
-> both check out `prompts/`'s shared branch (where the reserve commit lands) at once, so
+> both check out the shared trunk (where the reserve commit lands) at once, so
 > there's no push/reject between them. Worktree
 > agents get working-tree isolation for *code*, but to reserve a STEP number an agent should
-> work from its **own clone of `prompts/`** with the shared remote.
+> work from its **own clone of the repository §2 names**, with the shared remote.
 
 A fresh agent picks up wherever the files are; no shared conversation is needed.

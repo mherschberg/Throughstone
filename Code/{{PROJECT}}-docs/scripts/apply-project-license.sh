@@ -9,15 +9,14 @@
 # Throughstone-authored README / CI material.
 #
 # --notice-only writes only LICENSE-THROUGHSTONE and reads no posture. It is for a repository
-# Throughstone did not create: our material there needs a notice, but the project's own
-# licensing is not ours to state, so no LICENSE and no LICENSING.md are written and an existing
-# notice is left alone. It warns rather than failing, so a caller is never stopped by it.
+# Throughstone did not create: Throughstone's material there needs a notice, but the repository's
+# licensing is not the project's to state, so no LICENSE and no LICENSING.md are written and an
+# existing notice is left alone. A notice it cannot write is a warning, not a failure; it still
+# stops with exit 2 on a usage error or a target that is not a directory.
 
 set -euo pipefail
 
-# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
-# Code/<project>-docs/scripts/ after initialization; derive the docs hub without resolving
-# the placeholder in this template checkout.
+# The docs hub is found from this script's own location, never from its name.
 DOCS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NOTICE_ONLY=0
 TARGET=""
@@ -42,9 +41,11 @@ if [ -z "$TARGET" ]; then
   exit 2
 fi
 if [ ! -d "$TARGET" ]; then
-  echo "apply-project-license.sh: target directory does not exist: $TARGET" >&2
+  echo "apply-project-license.sh: target is not a directory: $TARGET" >&2
   exit 2
 fi
+# A registry location ends in "/"; drop it so the paths printed below carry one slash, not two.
+TARGET="${TARGET%/}"
 
 # verify_compatible SOURCE TARGET LABEL — reject an existing target with different content.
 # Reads: SOURCE and TARGET, if TARGET exists.
@@ -78,8 +79,8 @@ copy_if_missing() {
 # touches the target's LICENSE. It deliberately does not use verify_compatible: a notice that is
 # already there is left exactly as it is, whatever it says, because a differing notice is the
 # ordinary state an idempotent re-run meets after the notice text changes, not a conflict to
-# resolve. Every way this can fall short is a warning and a zero exit — a caller registering a
-# repository must not be stopped by the notice.
+# resolve. Past the argument checks above, every way this can fall short is a warning and a zero
+# exit — a caller registering a repository must not be stopped by the notice.
 if [ "$NOTICE_ONLY" = "1" ]; then
   if [ -e "$TARGET/LICENSE-THROUGHSTONE" ]; then
     echo "Throughstone license: $TARGET/LICENSE-THROUGHSTONE (already present, left as it is)"
@@ -144,6 +145,9 @@ fi
 # project-authored content and retained Throughstone scaffold material.
 LICENSING_SOURCE="$(mktemp "${TMPDIR:-/tmp}/throughstone-licensing.XXXXXX")"
 trap 'rm -f "$LICENSING_SOURCE"' EXIT
+# mktemp makes the file readable by its owner alone, and cp gives a new file its source's mode,
+# so LICENSING.md would land owner-only beside licence files anyone can read.
+chmod 0644 "$LICENSING_SOURCE"
 if [ "$PROJECT_IS_OPEN_SOURCE" = "1" ]; then
   cat > "$LICENSING_SOURCE" <<EOF
 # Licensing

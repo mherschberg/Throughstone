@@ -1,0 +1,166 @@
+# {{PROJECT}} — STEP-1 PLAN: Retcon baseline (reverse-engineered architecture)
+
+**Phase:** Phase 1 — (forward milestone; named at Phasing/1.2, near the end of adoption)
+**Owner:** {{who is running this — retcon is single-owner / one-machine}}   <!-- solo: optional -->
+**Status:** In progress        <!-- adoption is underway the moment you open the agent; the STEP-1
+                                    row in prompts/STEP-index.md stays Planned (the greenfield-identical
+                                    seed) until landing — that's expected, don't "fix" it: status.sh's
+                                    retcon branch routes here and ignores the index during adoption. -->
+**Date:** {{DATE}}
+**Branch:** `step-0001-architecture`   <!-- same name in every repo this STEP touches -->
+**Repos:** `{{PROJECT}}-docs`, `prompts`   <!-- STEP-1 is docs-only; adopted code repos are registered, not rebuilt -->
+
+> **This is a STUB that `init.sh` dropped.** It is the in-flight STEP-1 PLAN for adopting an
+> existing codebase into {{PROJECT}} (**retcon**). Its substeps are the **inventory work** only.
+> Once the inventory is confirmed, `RETCON-PROMPT.md` **upgrades this PLAN by addition** (see the
+> marker further down) — it never rewrites what is above. A single PLAN-driven resolver runs
+> throughout: resolve the lowest open substep below.
+
+## The retcon baseline (what STEP-1 produces here)
+This STEP-1 is the **reverse-engineered architecture baseline** — *descriptive* (read from the
+running code), not *prescriptive* (decided, then built). The running code is the source of truth;
+existing docs, memory, and original intent are secondary evidence that may be stale or wrong.
+
+When adoption lands (after the Cross-Cutting Review), STEP-1 becomes an ordinary **`Done`** row in
+`prompts/STEP-index.md` with the scope *"Retcon baseline — reverse-engineered from existing code;
+adopted {{DATE}}; forward work starts at STEP-2."* That Scope cell, which opens
+*"Retcon baseline —"*, is the row's RETCON mark; there is no separate one. STEP-1 archives greenfield-style
+into `prompts/001-<phase-name>/step-0001/` (the folder name converges with greenfield), and a
+one-line provenance note goes in `overview.md` (*"Adopted via retcon on {{DATE}}"*). Landing also
+reconciles the STEP index against this PLAN, in one pass. A session this PLAN ends at **`N/A`** or
+**`Deferred`** is carried across unchanged — the status only, since its one-line reason stays on
+the PLAN row — and every lettered conditional row this PLAN added (`1.6a`, `1.7b`, …) is written
+in beside the core session that owns it, with its PLAN status and output doc, since the seed
+carries no lettered rows. The rest of the
+`1.1`–`1.14` rows keep the greenfield `Planned` seed they sat at while session progress lived here:
+the `Done` STEP-1 row above them is what says the architecture STEP is over, so nothing has to flip
+them, and a leftover `Planned` row is not a defect to fix. The landed project resolves like a
+greenfield baseline instead of re-running the sessions. `RETCON-PROMPT.md` Stage 4 does the land,
+in order, and flips `PROJECT-STATUS` to `kickoff-complete` last.
+To the resolver it is an ordinary architecture baseline needing no new logic: forward
+implementation starts at **STEP-2**. The first forward planning session **asks** whether the code
+it builds on is inherited and unchecked, and on a yes inserts a **baseline check-in** as STEP-2 —
+the full test suite this docs-only STEP-1 deliberately skips. Until planning has asked, no doc,
+risk row or hand-off states the answer: write "the first check-in", not STEP-2.
+
+## Motivation
+Bring an existing system under {{PROJECT}} so the team works the STEP method **from here on**,
+without rebuilding. The deliverables are a set of {{PROJECT}}-shaped architecture docs describing
+what already exists, plus the STEP process (index, registries) stood up so the next unit of work is
+ordinary {{PROJECT}}. The value is a clean go-forward baseline plus the gaps/drift surfaced along
+the way — not a pretty description a mature team already knows.
+
+## Decisions already locked
+- root `.throughstone/local-user.md` — read **Experience level** before user-facing questions or
+  explanations, and **Communication style** before planning discussions; keep that file as the
+  personal local source of truth for both values.
+- **Reality is the code.** The baseline documents what the code *is*. Any divergence
+  (code-internal, or code-vs-goal) is recorded as reality **plus** flagged drift/debt, settled by
+  re-reading the code — not re-decided, not blanket-logged.
+- **No fabricated history, no reconstructed ADRs.** Everything before adoption is prehistory: we do
+  not reconstruct a STEP log or dated decision records for choices made long ago. A *forward*
+  decision made **during** adoption is contemporaneous and may be a normal ADR.
+- **Do it right or defer it openly.** Every area is either fully harvested (yielding a doc as thin
+  or as detailed as the reality it describes) or explicitly `Coverage: deferred` with a plain
+  "what's missing and why it matters" warning — never shallow-but-asserted.
+- Found source docs land in `inputs/` and ride the base inputs lifecycle
+  (`Code/{{PROJECT}}-docs/inputs/README.md`; point-in-time). What a session takes from one goes in
+  `Code/{{PROJECT}}-docs/registries/input-captures.yml`.
+
+## Substeps — the inventory work
+> PLAN-local inventory substeps — tracked in the table below by Status, not the `1.1`–`1.14` session
+> mirror, and not parsed by `status.sh` (real progress lives here in the PLAN). Resolve the **lowest
+> open** one, and mark it `Done` the moment
+> its work completes (before resolving the next) so a resumed chat lands right. `RETCON-PROMPT.md`
+> drives each; see it for the detail.
+
+| # | Title | Produces | Status |
+|---|-------|----------|--------|
+| inv-1 | Intake | Depth dial set; rough repo/doc/resource locations, the project's lifecycle stage, and any house version convention recorded (RETCON-PROMPT.md Stage 1). | Planned |
+| inv-2 | Scan & inventory | A list of every repo, doc, and resource (data stores, services, integrations, CI, deploy surfaces, environments, observability); each existing doc classified with a trust level. | Planned |
+| inv-3 | Recon-map skeleton | A draft `Code/{{PROJECT}}-docs/reports/<date>-step-0001-recon-map.md` — inventory, stack per repo, entry points/services, data stores, integrations, existing-docs classification, test/CI presence, confidence/unknowns, and a **Coverage & Confidence** section. | Planned |
+| inv-4 | Confirm the inventory ▸ checkpoint | The **user-corrected** recon map — the birth-certificate checkpoint, before anything is built on it; each asset also marked `adopt` or `excluded — reason`. | Planned |
+| inv-5 | Upgrade this PLAN | **Append** (never rewrite) the per-asset substeps (`asset-N` id + Status) + the in-scope `1.1`–`1.14` sessions (`1.N` id + Status) + the `Conditional sessions considered` table; seed `Code/{{PROJECT}}-docs/registries/risks.yml` from the confirmed map's unknowns/coverage; then mark `inv-5` `Done` last (inv-1–inv-4 already `Done` from as-you-go marking). | Planned |
+
+### Intake results (inv-1)
+<!-- WHAT THIS IS. The record of the four framing answers RETCON-PROMPT.md's Stage 1 (Intake)
+     collects before any scanning. Stage 1 fills these in place (replacing the {{placeholders}});
+     Stage 2 reads them — the locations tell it where to scan, the version convention tells it how to
+     stamp each doc's Version, and the depth posture is its default when it meets a fat payload.
+
+     Leave the placeholders until inv-1 runs. Two of the four are ALSO written to their permanent
+     homes — release stage to overview.md, the depth posture to the recon map's Coverage & Confidence
+     section — but they are echoed here so Stage 2 reads one working note instead of three files. This
+     block is the only free-text the agent fills in the seed; everything else here is init.sh's
+     seed, and the upgrade (inv-5) only appends at the end of the PLAN (after Definition of done). -->
+- **Locations:** {{repos / docs / resources — rough paths, URLs, hosts; and who can answer questions
+  about each}}
+- **Lifecycle / release stage:** {{pre-launch / shipped / mature — a short prose descriptor, e.g.
+  "public GA" or "internal alpha, ~20 users"; also written to `overview.md`}}
+- **House version convention:** {{the scheme docs should respect — calendar / product-line / semantic
+  / none; note per-repo if the repos differ}}
+- **Depth-dial posture:** {{the default for how hard to push fat payloads — Full (enumerate & confirm
+  everything) or economical when payloads are enormous; refined per fat payload in Stage 2/3, with the
+  human escalation as the real control}}
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     Everything in this stub — substeps, Intake results, Ground rules, Definition of done — is
+     the seed init.sh dropped. Once the inventory is CONFIRMED (substep inv-4), RETCON-PROMPT.md
+     UPGRADES this PLAN BY ADDITION — it does not rewrite any of it (the only in-place fill-ins are
+     Stage 1's Intake-results values and flipping a substep's Status to Done — done as each substep
+     completes, inv-5 marked last). It APPENDS, at the END of this PLAN (after Definition of done):
+       • the per-asset substeps — one row per ADOPTED repo/doc-set/resource (the Inventory
+         rows the user marked `adopt` at inv-4; an `excluded` one stays recorded in the map
+         and gets no substep) in their own
+         `# | Asset | Kind | Status` table (`asset-N` ids; same Status tracking as the inv-N
+         table above), each documenting one asset so nothing is lost (a repo is not a 1.N
+         session); resolve the lowest-open `asset-N` before 1.1;
+       • the in-scope architecture sessions 1.1–1.14 in their own table carrying the same
+         Planned/In progress/Done Status column as the inv-N/asset-N tables (session progress
+         lives here in the PLAN while STEP-index stays at its greenfield seed); 1.1–1.13
+         harvest→confirm; 1.14 is the Cross-Cutting Review + land, not a harvest. Rows go in
+         RUN order, which floats Phasing (1.2) to the end, after 1.13 — it is the one purely
+         forward session, so it runs on the finished descriptive set and names the forward
+         milestone (it also fills {{PHASE_1_NAME}} in prompts/STEP-index.md, the single edit
+         adoption makes to that file before landing);
+       • the `Conditional sessions considered` table — seeded from code-visible surfaces
+         (client surfaces, PII, auth) and refined as sessions harvest, exactly as
+         greenfield seeds-then-refines it; every `Include` ALSO gets a lettered row
+         (1.6a, 1.7b, …) in the session table above, since that table is what the harvest
+         resolves while STEP-index is held at its seed;
+       • `Code/{{PROJECT}}-docs/registries/risks.yml` rows seeded from the confirmed map's
+         Confidence & Unknowns / Coverage & Confidence (genuinely-risky items only;
+         STEP-index stays at its seed).
+     That upgraded PLAN — at this same path, Upcoming Prompts/{{PROJECT}}-STEP-1-PLAN.md —
+     is the STEP-1 PLAN the Cross-Cutting Review's Check 1 reads, and every future check-in
+     reads once the land archives it.
+     See RETCON-PROMPT.md.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+## Ground rules
+- **Calibrate communication from root `.throughstone/local-user.md`.** If it's missing, ask the two
+  local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. Don't copy
+  either value into this PLAN.
+- **STEP-1 is docs-only — no application code.** Retcon may create Markdown and scaffolding
+  (a Throughstone-shaped README per adopted repo, `registries/` rows, `architecture/` docs), but never
+  rewrites the user's codebase. It adopts the existing one.
+- **Detect-then-confirm.** Propose an inventory; let the user correct it. Existing repos are
+  registered at a path **inside the workspace** — moved there, or left where they are with a
+  symlink standing in for them at that path; their code is never rewritten.
+- **Confirm every decision** proportionate to confidence × consequence — a `from-code` answer gets
+  a fast "right?"; a low-confidence, load-bearing one gets a real discussion.
+- **Accepted risks / deferrals stay visible.** Push genuinely-risky unknowns and every
+  `Coverage: deferred` area to `Code/{{PROJECT}}-docs/registries/risks.yml` with a revisit
+  trigger; the check-in re-surfaces them.
+
+## Definition of done (inventory phase)
+- [ ] inv-1–inv-4 complete: intake recorded, everything inventoried, the recon map drafted and
+      **confirmed by the user** — including each asset's scope (`adopt` / `excluded — reason`).
+- [ ] inv-5 complete: this PLAN upgraded by addition — per-asset substeps (`asset-N` id + Status) + the
+      in-scope 1.1–1.14 sessions (`1.N` id + Status) + the `Conditional sessions considered` table appended; `inv-5` marked
+      `Done` last (inv-1–inv-4 already `Done` from as-you-go marking);
+      `Code/{{PROJECT}}-docs/registries/risks.yml` seeded from the confirmed map (STEP-index
+      untouched).
+- [ ] Next action is the lowest open **appended** substep — the first per-asset substep (`asset-1`),
+      then the `1.1`–`1.13` harvest→confirm sessions. The overall STEP-1 baseline lands later, after
+      the Cross-Cutting Review (see the retcon baseline note above).

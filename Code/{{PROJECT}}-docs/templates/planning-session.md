@@ -13,13 +13,15 @@
 > `architecture/*-interface-contracts.md`), `adr/*`, anything still live in `inputs/` (point-in-time
 > specs or prior docs you provided — e.g. a protocol spec the build must satisfy; skip
 > `inputs/archive/`, and where an `architecture/` doc already covers an input, that doc wins),
-> `prompts/STEP-index.md`, and — for multi-repo
-> projects — `registries/repos.yml`.
-> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1–2 (no/basic coding background) explain each question's *what* and *why* in plain language — leading with a recommended default — before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default verbosity for this planning session; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify — in any words, not just those — as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+> `prompts/STEP-index.md`, `registries/repos.yml`, `registries/risks.yml`, and the Open Questions in
+> STEP-1's review summary (`prompts/001-<phase-name>/step-0001/{{PROJECT}}-STEP-1-REVIEW.md`, if
+> there is one). Plan any rework the Cross-Cutting Review recorded in those last two as STEPs.
+> **Calibrate to the local user profile.** Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much technical background you can assume, **Communication style** sets how much reasoning comes with a decision. They are independent — Level 3 + Explanatory is ordinary. Lead with a recommended default at every level. If the file is missing or either value isn't one of the listed answers, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write it, then continue; an explicit chat instruction overrides the profile for this session only. Treat any confusion or request to clarify — in any words, not just those — as a cue, answer in kind, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
-<!-- The kickoff fills this from overview.md. Running standalone? Read overview.md first. -->
+<!-- init.sh fills this from the one-line description given at setup. Running standalone? Read
+     overview.md first. -->
 
 ## Why this session matters
 STEP-1 leaves you with a coherent architecture but no path into code. The instinct is to
@@ -41,10 +43,10 @@ STEP's PLAN with its owner rather than silently replacing its index row.
 
 ## How this session works
 - One decision at a time; show options where useful; **wait** for the answer.
-- When a decision is not obvious, offer plausible options with brief pros and cons.
-  Ask clarifying questions instead of guessing, and use the saved communication style in
-  root `.throughstone/local-user.md` unless the user gives an explicit style instruction for
-  this session.
+- When a decision is not obvious, offer plausible options with pros and cons.
+  Ask clarifying questions instead of guessing, and use both saved values in root
+  `.throughstone/local-user.md` unless the user gives an explicit instruction for this
+  session.
 - **Target the first uncompleted phase** — the lowest-numbered roadmap phase whose STEPs
   aren't all complete (from `prompts/STEP-index.md` and the Phasing & Roadmap doc),
   **defaulting to Phase 1 on the first run**. A re-run after that phase is done targets the
@@ -69,8 +71,8 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    order.
 
    **Is it already registered?** A `registries/repos.yml` row naming that repo means it is
-   already recorded — the row and its Architecture Overview entry are one unit, maintained
-   together — so there is nothing to do here, whether or not it is cloned on this machine. On an
+   already recorded — `runbooks/register-repo.md` maintains that row and its Architecture Overview
+   entry — so there is nothing to do here, whether or not it is cloned on this machine. On an
    ordinary greenfield first run nothing is registered and every repo falls through to the next
    question; on a **re-run**, this is what stops a repo an earlier run created or took on from
    being proposed again.
@@ -86,23 +88,23 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    **No — create it.** The usual case on a first run. **If the path already holds files this
    project did not put there, stop and settle that with the user rather than scaffolding into
    it.** Otherwise the first implementation STEP is almost always *"scaffold the repos and the
-   skeleton"*: create each new code repo from
-   `templates/repo-readme-template.md`, wire up the chosen stack, CI, and the environment/secrets
-   baseline from the Environments architecture doc, plus any interface contract artifact placeholders or repo-local contract files
-   named in the Interface Contracts architecture doc — including copying `templates/env-example.txt` into each repo as its
-   `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
+   skeleton"*. Where **Inherited code** below has put a baseline check-in ahead of it, that
+   check-in goes first and this STEP follows it. Scaffolding means: create each new code repo with
+   its README stamped as `runbooks/register-repo.md` step 2 says, wire up the chosen stack, CI,
+   and the environment/secrets baseline from the Environments architecture doc, plus any
+   interface contract artifact placeholders or repo-local contract files named in the Interface
+   Contracts architecture doc — including copying `templates/env-example.txt` into each new code
+   repo as its `.env.example`, and adding a **stack-appropriate `.gitignore`** to each new code repo
    (language/build artifacts — `node_modules/`, `__pycache__/`, `target/`, `dist/`, … — plus
-   the `.env` / `.secrets/` secret-file block so local secrets never get committed). Apply the
-   project-license posture too: run
+   the `.env`, `.env.*`, `!.env.example` and `.secrets` lines so local secrets never get committed,
+   and the `**/.claude/*.local.json`, `**/.claude/#*#` and `**/.claude/*~` lines so per-machine
+   agent config does not get committed either). Apply the project-license posture too: run
    `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <new-repo-path>` for every new code
-   repo. It reads `.throughstone/project-license`, requires the canonical docs-hub `LICENSE`
-   for an open-source selection, and copies that file unchanged. For `Proprietary`, no project
-   `LICENSE` is created. It also copies `LICENSE-THROUGHSTONE`, because the standard repo README
-   and CI starter are retained Throughstone-authored scaffold material, and writes
-   `LICENSING.md` to make clear that notice is not the application-code license. Repository
-   visibility is separate: when adding a remote for each code repo, choose private or public
-   deliberately rather than inferring it from the license. Publishing a proprietary repo makes
-   its source visible without granting open-source reuse rights, so call that out explicitly.
+   repo (`runbooks/register-repo.md` step 3). Repository visibility is decided on its own, not read
+   off the license. Where a new code repo is given a remote, create it **private** — widening is a
+   separate decision, made deliberately later under the rule at the end of this item, and when it
+   comes up, say plainly that publishing a proprietary repo makes its source visible without
+   granting open-source reuse rights.
    **Each repo's README isn't just stamped — its role one-liner and Overview get filled in**
    (what the repo is and the slice of the system it owns); a repo isn't scaffolded until it can
    explain itself.
@@ -113,18 +115,45 @@ STEP's PLAN with its owner rather than silently replacing its index row.
    step's.
 
    **Both branches end at the one register action** (`runbooks/register-repo.md`), which writes
-   the row and the Architecture Overview entry together, never one without the other, and is safe
-   to re-run. **That is a STEP's work, not this session's** — the action writes on that STEP's
-   branch, and this session writes nothing but the STEP-index rows. Here you decide which repos
-   are on which branch and say so in the outline of the STEP that takes them on; **if any repo
-   needs creating or registering, make sure this phase has a STEP that does it** — a later phase
-   that only extends what already exists may have no scaffolding STEP to inherit the work.
+   the row and the Architecture Overview entry — attempting both, rolling back neither, reporting
+   whatever did not land — and is safe to re-run. **That is a STEP's work, not this session's** —
+   the action writes on that STEP's branch, and this session writes nothing but the STEP-index
+   rows and `overview.md`'s `NEXT-CHECK-IN` line. Here you decide which repos are on which branch
+   and say so in the outline of the STEP
+   that takes them on; **if any repo needs creating or registering, make sure this phase has a
+   STEP that does it** — a later phase that only extends what already exists may have no
+   scaffolding STEP to inherit the work.
    Confirm the repo list with the user: which are new, which already exist, and name any you
    could not reach.
-2. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
-   **build or extend what this milestone needs, given what already exists.** On a first run
-   nothing is built yet, so scaffolding and the core data layer come first and you build
-   outward from there; that's the usual case, and the typical shape is:
+   The rule works the same for every repo on that list, new or already there.
+   **Making a repo public takes an explicit instruction from the user naming that repo** — a
+   license, a public sibling repo, a remote, or a project that calls itself open source is not
+   that instruction, and neither is silence. Publishing cannot be taken back: a later
+   visibility change does not recall what was already copied.
+2. **Inherited code.** Item 1 has established which repos already existed. Settle the part it does
+   not answer, by asking rather than working it out: **is any of the code this phase builds on
+   code this project did not write, that no check-in has yet run over?** The user knows — whether
+   a repo was taken on rather than created, whether the project was set up around a codebase that
+   was already there, and what has been run over it since. Don't reach for
+   `registries/repos.yml` to answer it; how a repo arrived is not what decides this, and on the
+   path where this session is what takes a repo on, nothing has been recorded yet anyway. On an
+   ordinary first run nothing is built and the answer is no; ask anyway. After an adopted baseline,
+   STEP-1's session rows in the index stay `Planned` by design (`RETCON-PROMPT.md`, the land): leave
+   them, and give no STEP the job of changing them.
+
+   **If the answer is yes, that code gets a baseline check-in before anything is built on it.**
+   STEP-1 writes documents and runs nothing, so the architecture describes a baseline nobody has
+   checked. Title the row `Check-in: baseline` — the same `Check-in` prefix the periodic check-ins
+   below use — and give it the ordinary job: `runbooks/check-in.md`, once, end to end, **both**
+   substeps. Nothing about that runbook changes here, a failing inherited suite included.
+
+   Place it at the **front** of this phase's STEPs — ahead of the scaffold STEP, so the suite is
+   measured on the code as you took it on.
+3. **The implementation STEP sequence.** Propose all the target phase's STEPs in dependency order —
+   **build or extend what this milestone needs, given what already exists.** On an ordinary first
+   run nothing is built yet, so scaffolding and the core data layer come first and you build
+   outward from there; that's the usual case, and the typical shape is (a baseline check-in from
+   **Inherited code**, where there is one, slots in at the front):
    - **Scaffold** — repos, skeleton, CI, local run + the env/secrets baseline.
    - **Core data layer** — the data model from `architecture/*-data-model.md` made real (schema,
      migrations, access layer).
@@ -132,17 +161,25 @@ STEP's PLAN with its owner rather than silently replacing its index row.
      against the data layer and component boundaries.
    - **Integration / end-to-end** — wire the capabilities together; the launch-criteria
      path from the phase plan works end to end.
-   On a **re-run**, or a later phase whose scaffold and core data layer already exist, start
+   On a **re-run**, a later phase whose scaffold and core data layer already exist, or a first run
+   against a codebase that was already there, start
    from what's built and plan the STEPs that **extend** it, rather than re-scaffolding or
    rebuilding what's already there. Adjust to the actual project. Each STEP gets a
    global STEP number (continuing from STEP-1).
-3. **Interleave check-in STEPs.** About **every 20 STEPs** (the project's cadence, adjustable), add a **Check-in STEP**
-   that runs `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage,
-   accepted-risk review, and a full test run). Place each at a sensible breakpoint — after a
-   capability lands, not mid-feature — rather than mechanically on a fixed count. For a
-   target phase with only a handful of STEPs, one check-in near the end (or none) is fine; use
-   judgment.
-4. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
+4. **Interleave check-in STEPs.** Ask the user directly, with the STEP list in front of them:
+   *"after which of these should we stop and do a health check?"* Recommend one about every
+   20 STEPs if they have no view, and place each at a sensible breakpoint — after a capability
+   lands, not mid-feature — rather than mechanically on a count. A check-in STEP runs
+   `runbooks/check-in.md` (doc-drift reconciliation, conditional-session coverage, accepted-risk
+   review, and a full test run). Title each row `Check-in` (a scope may follow, e.g.
+   `Check-in: phase 1`). For a target phase with only a handful of STEPs, one check-in near the
+   end (or none) is fine; use judgment.
+
+   **Then write the first one into `overview.md`'s `<!-- NEXT-CHECK-IN: … -->` line** — the STEP
+   number you just placed it at. That line is the record of when a check-in is due
+   (`METHOD.md` §5). It matters most on a **re-run**: a line still naming a check-in the project
+   has already worked past reads as due on every run until someone moves it.
+5. **Outline each STEP — briefly.** For each STEP (including the check-ins), a short outline:
    what it delivers and how it depends on the others. Roughly **2–3 sentences each** — a
    guideline, not a rule. Don't write the detailed plan, the substeps, or the definition of
    done here; those come when the STEP is started.
@@ -155,14 +192,15 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
 ## Output
 - **Update `prompts/STEP-index.md`:** add a row for every implementation STEP of the target phase —
   global STEP number, title, status `Planned`, and the short (2–3 sentence) outline as its
-  scope — in dependency order after STEP-1. **That list is the whole deliverable.** On a
+  scope — in dependency order after STEP-1. **That list, and the `NEXT-CHECK-IN` line item 4
+  writes into `overview.md`, are the whole deliverable.** On a
   re-run, follow the history-preserving rules above instead of adding duplicate rows.
   - *In a team:* this batch is a number reservation like any other
-    (`runbooks/collaboration.md` §2) — commit it to `prompts/`'s shared trunk and push. If the
+    (`runbooks/collaboration.md` §2) — commit it on the shared trunk and push. If the
     push is rejected, move the **whole block** above the new `max` (not just one row), re-scan
     for duplicate numbers, and push again.
 - **Then stop.** Don't create any PLAN or substep-prompt files. When the user is ready to
-  build, they start the first STEP — and *that* is when its PLAN and substep prompts get
+  build, they start the first STEP — and *that* is when its PLAN and any substep prompts get
   authored, per `prompts/README.md`. Starting that STEP still stops after planning; substeps
   run only after explicit approval. Re-run this session if the outline needs revising as the
   project learns.
@@ -170,7 +208,7 @@ detailed test plan belongs in the STEP PLAN when that STEP starts.
 ## Next
 The outline **is** the deliverable — author no PLANs here. Once the rows are in
 `prompts/STEP-index.md`, tell the user the next action: **start a fresh chat** and start the
-lowest-numbered `Planned` implementation STEP, authoring its PLAN + substep prompts via
+lowest-numbered `Planned` implementation STEP, authoring its PLAN and any substep prompts via
 `prompts/README.md` ("Recipe: adding a new STEP"), then stopping for approval before any
 substep runs. See the next-action resolver
 (`METHOD.md` §10).

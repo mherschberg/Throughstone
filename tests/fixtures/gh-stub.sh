@@ -1,23 +1,89 @@
 #!/usr/bin/env bash
 #
-# Minimal gh repo create stub for local init.sh integration tests.
+# Minimal gh stub for local init.sh integration tests.
 #
 # Required env:
 #   GH_LOG          append-only command log inspected by tests
 #   GH_REMOTE_ROOT  directory where local bare remotes are created
+# Optional env:
+#   GH_STUB_UNREACHABLE=1  every command fails the way gh does with no connection
 
 set -euo pipefail
 
 printf '%s\n' "$*" >> "$GH_LOG"
 
-# Only `gh repo create OWNER/NAME ...` is modeled. The stub creates a local bare repository
-# and adds it as origin in the current checkout, matching the init.sh side effects under test.
+if [ "${GH_STUB_UNREACHABLE:-}" = "1" ]; then
+  echo "error connecting to api.github.com" >&2
+  exit 1
+fi
+
+# init.sh's readiness check before the destructive boundary: `gh api user` succeeds for a signed-in
+# user, and `gh repo view OWNER/NAME` succeeds only for a repository that exists. A repository
+# exists here when a bare remote of that name does.
+case "${1:-} ${2:-}" in
+  "api user")
+    exit 0
+    ;;
+  "repo view")
+    [ -n "${3:-}" ] && [ -d "$GH_REMOTE_ROOT/${3##*/}.git" ] && exit 0
+    echo "GraphQL: Could not resolve to a Repository with the name '${3:-}'. (repository)" >&2
+    exit 1
+    ;;
+esac
+
+# Otherwise only `gh repo create OWNER/NAME ...` is modeled. The stub creates a local bare
+# repository and, when the options ask for it, attaches it in the current checkout and pushes --
+# the side effects init.sh relies on.
+#
+# The push is the point, not a detail. init.sh invokes this with --push and treats a zero exit
+# as proof that the branch is on the remote: on that basis it records the remote's URL in
+# registries/repos.yml. A stub that created and attached the repository but did not push would
+# report success for an upload that never happened, and the tests would model init.sh recording
+# a remote the branch never reached, which the registry must never name.
 if [ "${1:-}" != "repo" ] || [ "${2:-}" != "create" ] || [ -z "${3:-}" ]; then
   echo "gh-stub.sh: unsupported command: $*" >&2
   exit 2
 fi
 
+# The side effects are driven by the options, not assumed. `gh repo create` attaches a remote only
+# when told which local checkout to use (--source), naming it origin unless --remote names another,
+# and uploads only when told to (--push) -- so a stub that always did both would keep reporting
+# success after --source or --push was dropped from init.sh, and the tests would not notice. Model
+# the contract; do not stand in for it.
+want_source=0; want_remote=""; want_push=0
+for arg in "$@"; do
+  case "$arg" in
+    --source=.)   want_source=1 ;;
+    --remote=*)   want_remote="${arg#--remote=}" ;;
+    --push)       want_push=1 ;;
+  esac
+done
+# Like gh, refuse --remote or --push without --source, before anything is created.
+if [ "$want_source" != "1" ]; then
+  [ -z "$want_remote" ] \
+    || { echo 'the `--remote` option can only be used with `--source`' >&2; exit 1; }
+  [ "$want_push" != "1" ] \
+    || { echo 'the `--push` option can only be used with `--source`' >&2; exit 1; }
+fi
+
 repo_name="${3##*/}"
 remote="$GH_REMOTE_ROOT/$repo_name.git"
-git init --bare -q "$remote"
-git remote add origin "$remote"
+# `main` is the branch a real `gh repo create` starts a repository on unless the account sets
+# another. Without a branch here the repo is born pointing at `init.defaultBranch` --
+# `refs/heads/master` wherever that is unset -- and while the `symbolic-ref` after the push below
+# repoints HEAD on the path that pushes, the path that does not leaves a repository whose HEAD
+# names a branch anything pushed to it later will not be on.
+git init --bare -q -b main "$remote"
+
+# --source tells gh which checkout to attach; without it there is nothing to attach or upload.
+[ "$want_source" = "1" ] || exit 0
+remote_name="${want_remote:-origin}"
+git remote add "$remote_name" "$remote"
+if [ "$want_push" = "1" ]; then
+  branch="$(git symbolic-ref --short HEAD)"
+  git push -q -u "$remote_name" "$branch"
+  # A real host leaves the created repository pointing at the branch it received. Without this the
+  # bare repo's HEAD stays at main, so when the trunk has another name a later clone of it checks
+  # nothing out.
+  git --git-dir="$remote" symbolic-ref HEAD "refs/heads/$branch"
+fi

@@ -58,7 +58,7 @@ treated as errors in CI so the standard is enforced, not just documented.
   collection transforms.
 
 ## Error handling
-- Catch the **most specific** exception type; **never catch `Exception` (or `Catch`-all)
+- Catch the **most specific** exception type; **never catch `Exception`, or use a bare `catch`,
   without a filter** you can actually handle. An empty `catch` needs a comment justifying it.
 - **Rethrow with bare `throw;`**, never `throw ex;` — the latter resets the stack trace. Use
   exception filters (`catch (… ex) when (…)`) instead of catch-and-rethrow where possible.

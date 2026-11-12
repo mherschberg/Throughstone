@@ -3,7 +3,7 @@
 # init.sh — one-time bootstrap wizard.
 #
 # Turns this downloaded template into your project: detaches it from the template's git
-# origin, renames the {{PROJECT}} placeholder everywhere, and sets up your repo(s).
+# origin, renames the {{PROJECT}} placeholder everywhere but init.sh, and sets up your repo(s).
 # Run it once, from the workspace root, right after downloading.
 #
 # Flow:
@@ -17,24 +17,144 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
-# Small UI helpers. They only print/prompt; all validation happens at the call sites so flags,
-# env vars, and interactive answers share the same checks.
+# Small UI helpers.
 say()  { printf '\n\033[1m%s\033[0m\n' "$*"; }
-ask()  { local p="$1" d="${2:-}" a; if [ -n "$d" ]; then read -r -p "$p [$d]: " a; echo "${a:-$d}"; else read -r -p "$p: " a; echo "$a"; fi; }
-yesno(){ local a; read -r -p "$1 [y/N]: " a; case "$a" in y|Y|yes) return 0;; *) return 1;; esac; }
+# ask PROMPT [DEFAULT] — ask one question and print the answer. With a DEFAULT, a bare Enter takes
+# it. Without one, a blank answer is returned as the blank it is: every such call site loops until
+# the answer is one of its valid options, and blank is never one of them.
+#
+# End of input is not an answer. When input runs out, a question with a default takes its default,
+# and a question without one stops the run with an error that quotes its prompt. Otherwise an
+# unattended run (an agent, a script, `< /dev/null`) would get blank answers forever, so a question
+# that re-asks until the answer is valid, like the slug question, would never end. The yesno and
+# want helpers follow the same rule.
+#
+# Callers must take the answer through an assignment — `answer="$(ask …)"` — because that is the
+# one position where errexit sees the exit status of a command substitution. Used as a bare
+# argument or a `case` word, `$(ask …)` throws the status away and the caller loops on the empty
+# string instead of stopping. Every call site below is an assignment for that reason, including
+# the ones whose default means they cannot exit today.
+ask() {
+  local p="$1" d="${2:-}" a="" rc=0
+  if [ -n "$d" ]; then
+    read -r -p "$p [$d]: " a || rc=$?
+    [ -n "$a" ] || a="$d"
+  else
+    read -r -p "$p: " a || rc=$?
+  fi
+  # A final line with no trailing newline still fails the read while delivering the answer, so the
+  # value decides, not the status alone.
+  if [ "$rc" -ne 0 ] && [ -z "$a" ]; then
+    echo "init.sh: missing required value (input ended): $p" >&2
+    exit 2
+  fi
+  printf '%s\n' "$a"
+}
 
-# want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty; otherwise prompt for it.
+# yesno PROMPT — ask a yes/no question that defaults to no. It re-asks on an answer it does not
+# recognise, the way every other question in the wizard does; a misread answer matters most at
+# "Set up online Git remotes now?", the one question here whose wrong answer is unrecoverable
+# later. The accepted words are normalize_yesno's, so a typed answer and a --remotes= or
+# --registries= value cannot drift apart. A bare Enter takes the advertised default, and so does
+# end of input, which is what stops a short answer stream spinning here forever.
+yesno() {
+  local a rc
+  while :; do
+    a=""; rc=0
+    read -r -p "$1 [y/N]: " a || rc=$?
+    if [ -z "$a" ]; then return 1; fi
+    if normalize_yesno "$a"; then
+      [ "$NORMALIZED_YESNO" = "1" ] && return 0
+      return 1
+    fi
+    [ "$rc" -eq 0 ] || return 1
+    echo "  -> answer y or n (Enter alone means no)."
+  done
+}
+
+# need_val FLAG VALUE — guard the space-separated form of a flag. `--desc --layout=mono` is a
+# missing value, not a description: without this the value silently becomes "--layout=mono" and
+# the swallowed flag falls back to its default, so the run builds something the caller did not
+# ask for and every later check passes. Refused here rather than per-flag, because only the
+# flags that happen to validate their value catch it by accident.
+# The `--flag=value` form is untouched, so a value that really does begin with `--` stays sayable.
+need_val() {
+  case "${2-}" in
+    "")  echo "init.sh: $1 needs a value (try './init.sh --help')" >&2; exit 2 ;;
+    --*) echo "init.sh: $1 needs a value, but the next argument is another flag ('$2')." >&2
+         echo "  If that was meant as the value, write it as '$1=$2'." >&2; exit 2 ;;
+  esac
+}
+
+# want VALUE PROMPT [DEFAULT] — echo a preset VALUE if non-empty, refusing one that is only
+# whitespace; otherwise prompt for it.
 # In --non-interactive mode, fall back to DEFAULT, or exit with an error if there is none.
 # This is the flag/env bridge: callers pass the already-parsed preset first, so command-line
 # values win over env vars and both bypass prompting.
 want() {
-  local val="$1" prompt="$2" def="${3:-}"
-  if [ -n "$val" ]; then printf '%s' "$val"; return; fi
+  local val="$1" prompt="$2" def="${3:-}" rc
+  if [ -n "$val" ]; then
+    is_blank "$val" || { printf '%s' "$val"; return; }
+    echo "init.sh: a blank value is not an answer: $prompt" >&2; exit 2
+  fi
   if [ "$NONINTERACTIVE" = "1" ]; then
     [ -n "$def" ] && { printf '%s' "$def"; return; }
     echo "init.sh: missing required value (--non-interactive): $prompt" >&2; exit 2
   fi
-  ask "$prompt" "$def"
+  # A blank answer is re-asked rather than accepted, as --non-interactive refuses the same
+  # omission; an empty description or copyright holder would otherwise reach AGENTS.md, the session
+  # templates, and a LICENSE reading "Copyright (c) YYYY " with nothing after it. read is inlined
+  # instead of reusing ask so that end of input can be told apart from a bare Enter; without that
+  # the loop would spin on a short answer stream. Both notices go to stderr because want is always
+  # called inside a command substitution.
+  while :; do
+    val=""; rc=0
+    if [ -n "$def" ]; then
+      read -r -p "$prompt [$def]: " val || rc=$?
+      [ -n "$val" ] || val="$def"
+    else
+      read -r -p "$prompt: " val || rc=$?
+    fi
+    [ -n "$val" ] && { printf '%s' "$val"; return; }
+    [ "$rc" -eq 0 ] || { echo "init.sh: missing required value (input ended): $prompt" >&2; exit 2; }
+    echo "  -> $prompt is required." >&2
+  done
+}
+
+# is_blank VALUE — true when VALUE is empty or only whitespace.
+is_blank() {
+  case "$1" in
+    *[![:space:]]*) return 1 ;;
+  esac
+}
+
+# text_problem VALUE — say why VALUE cannot be written into the generated files, or print nothing.
+# The description and holder are substituted into Markdown and LICENSE text, where a line break
+# starts a new line of the document, and setup fills its own {{NAME}} placeholders in those same
+# files, so one inside a value would be rewritten or left unresolved.
+text_problem() {
+  case "$1" in
+    *$'\n'*|*$'\r'*) echo "it must be a single line (no line breaks or carriage returns)"; return ;;
+  esac
+  if printf '%s' "$1" | LC_ALL=C grep -Eq '\{\{[A-Z0-9_]+\}\}'; then
+    echo "it must not contain a {{NAME}} placeholder, the form setup uses for its own"
+  fi
+}
+
+# want_text PRESET FLAG PROMPT — want, for free text that setup writes into generated files. A
+# preset that text_problem refuses stops the run; a typed answer it refuses is asked again.
+want_text() {
+  local val why
+  val="$(want "$1" "$3")" || exit
+  while why="$(text_problem "$val")"; [ -n "$why" ]; do
+    if [ -n "$1" ]; then
+      echo "init.sh: invalid $2: $why." >&2
+      exit 2
+    fi
+    echo "  -> $why." >&2
+    val="$(want "" "$3")" || exit
+  done
+  printf '%s' "$val"
 }
 
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
@@ -47,8 +167,40 @@ normalize_license_choice() {
     mit|1)                       NORMALIZED_LICENSE_CHOICE=1 ;;
     bsd|bsd-3|bsd-3-clause|2)   NORMALIZED_LICENSE_CHOICE=2 ;;
     apache|apache-2|apache-2.0|3) NORMALIZED_LICENSE_CHOICE=3 ;;
-    proprietary|private)        NORMALIZED_LICENSE_CHOICE=private ;;
+    proprietary|private)        NORMALIZED_LICENSE_CHOICE=proprietary ;;
     *)                          return 1 ;;
+  esac
+}
+
+# normalize_layout INPUT — set NORMALIZED_LAYOUT to 1 (multi) or 2 (mono).
+# Same shape and the same reason as normalize_license_choice above: one vocabulary, whichever way
+# the answer arrives. LAYOUT can only be 1 or 2.
+normalize_layout() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    multi|multi-repo|1) NORMALIZED_LAYOUT=1 ;;
+    mono|mono-repo|2)   NORMALIZED_LAYOUT=2 ;;
+    *)                  return 1 ;;
+  esac
+}
+
+# normalize_collab INPUT — set NORMALIZED_COLLAB to 1 (solo) or 2 (team). See normalize_layout.
+normalize_collab() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    solo|1) NORMALIZED_COLLAB=1 ;;
+    team|2) NORMALIZED_COLLAB=2 ;;
+    *)      return 1 ;;
+  esac
+}
+
+# normalize_yesno INPUT — set NORMALIZED_YESNO to 1 (yes) or 0 (no). The third of the same
+# shape: one vocabulary for a yes/no answer however it arrives, so the --remotes= flag, the
+# --registries= flag and the typed answer cannot accept different words. Blank is not a value
+# here — the callers decide what an unanswered question means.
+normalize_yesno() {
+  case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+    y|yes|true|1) NORMALIZED_YESNO=1 ;;
+    n|no|false|0) NORMALIZED_YESNO=0 ;;
+    *)            return 1 ;;
   esac
 }
 
@@ -64,31 +216,44 @@ validate_trunk_branch() {
 }
 
 # choose_license_interactively — prompt until the project type and license are valid.
-# Proprietary is a project-license posture, not a GitHub visibility setting. Open-source
+# Proprietary is a project-license posture, not a repository visibility setting. Open-source
 # projects choose a concrete permissive license template; proprietary projects intentionally
 # skip project LICENSE creation later.
 #
-# The project-type question defaults to private/proprietary because that is the recoverable
-# answer. Accepting it writes no project LICENSE at all, which anyone can change later by
-# choosing a license deliberately; accepting an open-source default would grant everyone an
-# irrevocable license to the project's code without the user ever having named one. The
-# open-source sub-question keeps its MIT default — by the time it is asked, open source is an
-# explicit choice and MIT is a reasonable one.
+# One word, one meaning, throughout: `proprietary` is the licence posture and `private` is who can
+# see the repository, the visibility a later question offers as "1) Private". Both are legitimate
+# settings and they are independent: a private repo can carry MIT, and a public repo can be
+# proprietary. The internal token, the flag value and the label all say `proprietary`;
+# `--license=private` is accepted with a deprecation notice so a wrapper that passes it keeps
+# working.
+#
+# The project-type question defaults to proprietary because that is the recoverable answer.
+# Accepting it writes no project LICENSE at all, which anyone can change later by choosing a
+# license deliberately; accepting an open-source default would grant everyone an irrevocable
+# license to the project's code without the user ever having named one. A default is affordable
+# exactly when accepting it by accident is cheap to reverse, and this one is the cheapest answer
+# on the page.
+#
+# The open-source sub-question has no default, and that is the same test read the other way. It is
+# only reached once open source is chosen, so the question is which licence — and MIT arriving
+# because a key was leaned on is an irrevocable grant nobody named. Blank is not an answer to it;
+# it asks again.
 choose_license_interactively() {
   local project_type license_input
 
   while :; do
-    echo "Is this project open source or private/proprietary?"
-    echo "  1) Open source"
-    echo "  2) Private / proprietary"
+    echo "How should this project's code be licensed?"
+    echo "  1) Open source  (a LICENSE file is created and anyone may reuse the code)"
+    echo "  2) Proprietary  (no LICENSE file is created; nobody is granted reuse rights)"
+    echo "  Not the same as who can see the repository — that is asked separately, later."
     project_type="$(ask 'Choose 1 or 2' '2')"
     case "$project_type" in
       1) break ;;
       2)
-        LICENSE_CHOICE="private"
+        LICENSE_CHOICE="proprietary"
         return 0
         ;;
-      *) echo "  -> choose 1 for open source or 2 for private / proprietary." ;;
+      *) echo "  -> choose 1 for open source or 2 for proprietary." ;;
     esac
   done
 
@@ -97,9 +262,9 @@ choose_license_interactively() {
     echo "  1) MIT           (permissive, simplest)"
     echo "  2) BSD-3-Clause  (permissive + name-endorsement protection)"
     echo "  3) Apache-2.0    (permissive, with patent grant)"
-    license_input="$(ask 'Choose 1, 2, or 3' '1')"
+    license_input="$(ask 'Choose 1, 2, or 3')"
     if normalize_license_choice "$license_input" \
-      && [ "$NORMALIZED_LICENSE_CHOICE" != "private" ]; then
+      && [ "$NORMALIZED_LICENSE_CHOICE" != "proprietary" ]; then
       LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
       return 0
     fi
@@ -155,17 +320,24 @@ usage() {
 init.sh — one-time Throughstone setup wizard.
 
 Runs interactively by default. Pass flags (or set env vars) to pre-answer any
-question; whatever you leave out is still prompted — unless --non-interactive is
+question; most omitted answers are still prompted — unless --non-interactive is
 set, in which case a missing required value is an error (useful for scripts/CI).
+A "(default: …)" below is what --non-interactive falls back to. Most prompts offer
+no default at all: the structural answers have to be typed, so that pressing Enter
+cannot pick the repo layout or an open-source licence, or create GitHub repos.
 
 Usage: ./init.sh [options]
 
 Options:
+  --mode=MODE           new | existing                 (default: new)
+                         "existing" adopts an existing codebase (retcon): same scaffold,
+                         but the agent reverse-engineers the baseline instead of interviewing it.
   --slug=SLUG            Project slug (lowercase kebab-case, e.g. acme-scheduler)
   --desc=TEXT           One-line description
-  --license=NAME        mit | bsd-3 | apache-2.0 | private
+  --license=NAME        mit | bsd-3 | apache-2.0 | proprietary
   --holder=NAME         Copyright holder (required for open-source licenses)
   --layout=LAYOUT       multi | mono                    (default: multi)
+                         mono is not offered with --mode=existing.
   --registries=yes|no   Deprecated and ignored; registries/ always ships
   --collab=MODE         solo | team                     (default: solo)
   --adr-authority=TEXT  Who accepts ADRs (team only; default: consensus of maintainers)
@@ -181,7 +353,7 @@ Options:
   -y, --non-interactive Never prompt; error on any missing required value
   -h, --help            Show this help and exit
 
-Env vars (flags take precedence): INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
+Env vars (flags take precedence): INIT_MODE, INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
   INIT_LAYOUT, INIT_REGISTRIES, INIT_COLLAB, INIT_ADR_AUTHORITY, INIT_REMOTES,
   INIT_REMOTE_PROVIDER, INIT_OWNER, INIT_REMOTE_URL, INIT_DOCS_REMOTE,
   INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_TRUNK_BRANCH, INIT_NONINTERACTIVE.
@@ -192,6 +364,7 @@ USAGE
 # Every input starts as an env-supplied preset and may be overwritten by a flag below. Empty
 # means "not answered yet"; the question phase either prompts, applies a default, or errors in
 # --non-interactive mode.
+MODE_IN="${INIT_MODE:-}"
 SLUG_IN="${INIT_SLUG:-}";       DESC_IN="${INIT_DESC:-}"
 LICENSE_IN="${INIT_LICENSE:-}"; HOLDER_IN="${INIT_HOLDER:-}"
 LAYOUT_IN="${INIT_LAYOUT:-}";   REGISTRIES_IN="${INIT_REGISTRIES:-}"
@@ -205,38 +378,40 @@ NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --mode=*)          MODE_IN="${1#*=}" ;;
+    --mode)            need_val "$1" "${2-}"; MODE_IN="$2"; shift ;;
     --slug=*)          SLUG_IN="${1#*=}" ;;
-    --slug)            SLUG_IN="${2:-}"; shift ;;
+    --slug)            need_val "$1" "${2-}"; SLUG_IN="$2"; shift ;;
     --desc=*)          DESC_IN="${1#*=}" ;;
-    --desc)            DESC_IN="${2:-}"; shift ;;
+    --desc)            need_val "$1" "${2-}"; DESC_IN="$2"; shift ;;
     --license=*)       LICENSE_IN="${1#*=}" ;;
-    --license)         LICENSE_IN="${2:-}"; shift ;;
+    --license)         need_val "$1" "${2-}"; LICENSE_IN="$2"; shift ;;
     --holder=*)        HOLDER_IN="${1#*=}" ;;
-    --holder)          HOLDER_IN="${2:-}"; shift ;;
+    --holder)          need_val "$1" "${2-}"; HOLDER_IN="$2"; shift ;;
     --layout=*)        LAYOUT_IN="${1#*=}" ;;
-    --layout)          LAYOUT_IN="${2:-}"; shift ;;
+    --layout)          need_val "$1" "${2-}"; LAYOUT_IN="$2"; shift ;;
     --registries=*)    REGISTRIES_IN="${1#*=}" ;;
-    --registries)      REGISTRIES_IN="${2:-}"; shift ;;
+    --registries)      need_val "$1" "${2-}"; REGISTRIES_IN="$2"; shift ;;
     --collab=*)        COLLAB_IN="${1#*=}" ;;
-    --collab)          COLLAB_IN="${2:-}"; shift ;;
+    --collab)          need_val "$1" "${2-}"; COLLAB_IN="$2"; shift ;;
     --adr-authority=*) ADR_AUTHORITY_IN="${1#*=}" ;;
-    --adr-authority)   ADR_AUTHORITY_IN="${2:-}"; shift ;;
+    --adr-authority)   need_val "$1" "${2-}"; ADR_AUTHORITY_IN="$2"; shift ;;
     --trunk-branch=*)  TRUNK_BRANCH_IN="${1#*=}"; TRUNK_BRANCH_FLAG_SET=1 ;;
-    --trunk-branch)    TRUNK_BRANCH_IN="${2:-}"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
+    --trunk-branch)    need_val "$1" "${2-}"; TRUNK_BRANCH_IN="$2"; TRUNK_BRANCH_FLAG_SET=1; shift ;;
     --remotes=*)       REMOTES_IN="${1#*=}" ;;
-    --remotes)         REMOTES_IN="${2:-}"; shift ;;
+    --remotes)         need_val "$1" "${2-}"; REMOTES_IN="$2"; shift ;;
     --remote-provider=*) REMOTE_PROVIDER_IN="${1#*=}" ;;
-    --remote-provider) REMOTE_PROVIDER_IN="${2:-}"; shift ;;
+    --remote-provider) need_val "$1" "${2-}"; REMOTE_PROVIDER_IN="$2"; shift ;;
     --owner=*)         OWNER_IN="${1#*=}" ;;
-    --owner)           OWNER_IN="${2:-}"; shift ;;
+    --owner)           need_val "$1" "${2-}"; OWNER_IN="$2"; shift ;;
     --remote-url=*)    REMOTE_URL_IN="${1#*=}" ;;
-    --remote-url)      REMOTE_URL_IN="${2:-}"; shift ;;
+    --remote-url)      need_val "$1" "${2-}"; REMOTE_URL_IN="$2"; shift ;;
     --docs-remote=*)   DOCS_REMOTE_IN="${1#*=}" ;;
-    --docs-remote)     DOCS_REMOTE_IN="${2:-}"; shift ;;
+    --docs-remote)     need_val "$1" "${2-}"; DOCS_REMOTE_IN="$2"; shift ;;
     --prompts-remote=*) PROMPTS_REMOTE_IN="${1#*=}" ;;
-    --prompts-remote)  PROMPTS_REMOTE_IN="${2:-}"; shift ;;
+    --prompts-remote)  need_val "$1" "${2-}"; PROMPTS_REMOTE_IN="$2"; shift ;;
     --visibility=*)    VISIBILITY_IN="${1#*=}" ;;
-    --visibility)      VISIBILITY_IN="${2:-}"; shift ;;
+    --visibility)      need_val "$1" "${2-}"; VISIBILITY_IN="$2"; shift ;;
     -y|--yes|--non-interactive) NONINTERACTIVE=1 ;;
     -h|--help)         usage; exit 0 ;;
     *) echo "init.sh: unknown option: $1 (try './init.sh --help')" >&2; exit 2 ;;
@@ -258,7 +433,7 @@ if [ -n "$missing" ]; then
 fi
 preflight_git_commit
 command -v gh      >/dev/null 2>&1 || echo "Note: 'gh' not found — GitHub repo creation is unavailable, but manual remote URLs still work."
-command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the later setup-workspace.sh will use its plain-shell fallback."
+command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — './doctor.sh links' needs it; setup-workspace.sh will use its plain-shell fallback."
 
 # --- 0c. Fresh-template guard -----------------------------------------------
 # init.sh is one-time and destructive: section 2 removes .git and every template-only file. That
@@ -266,27 +441,126 @@ command -v python3 >/dev/null 2>&1 || echo "Note: 'python3' not found — the la
 # template into a repository that already exists and running it here deletes that repository's
 # history outright, with no warning and no way back.
 #
-# Four checks, because no one of them covers the rest. The sentinel below travels with the files,
+# Six checks, because no one of them covers the rest. The sentinel below travels with the files,
 # so it cannot answer "whose repository is this?" — an extracted template brings AGENTS.md and
 # CLAUDE.md along with it. Git is asked separately, and only when there is a .git here to lose: a
 # checkout nested inside someone else's repository has nothing at $ROOT for section 2 to remove.
+# The fifth looks one directory down, at prompts/, which the multi layout makes a repository, and
+# the sixth inside the four folders section 2 deletes whole.
 #
 # Each check is paired with a case that must still proceed: a fresh unpacked template (no .git at
 # all), a clone of Throughstone or of a "Use this template" repo (history that is the template's
-# own), and `git init` beside an unpacked template to attach an empty origin (no commits, nothing
-# staged). tests/init-fresh-template-guard.sh holds both halves.
+# own), `git init` beside an unpacked template to attach an empty origin (no commits, nothing
+# staged), and a template carrying only what macOS or Windows leaves in those four folders.
+# tests/init-fresh-template-guard.sh holds both halves.
 
-# Every top-level entry Throughstone ships, pipe-delimited so entries with spaces stay intact.
-# tests/init-fresh-template-guard.sh regenerates this from the template and fails if it drifts.
+# Every top-level entry Throughstone ships, pipe-delimited so entries with spaces stay intact. The
+# mono layout's stray-file warning in section 1 reads it too.
+# tests/init-fresh-template-guard.sh derives this from the template and fails if it drifts.
 TEMPLATE_ROOT_ENTRIES='|.github|.gitignore|AGENTS.md|ARTIFACT-TRAIL.md|CHANGELOG.md|CLAUDE.md|CODE_OF_CONDUCT.md|CONTRIBUTING.md|Code|LICENSE|README.md|SECURITY.md|TRADEMARK.md|Upcoming Prompts|brand|docs|doctor.sh|init.sh|prompts|tests|'
+
+# Every file Throughstone ships in the four folders section 2 deletes whole, .github/, tests/,
+# brand/ and docs/, one path per line. Check 6 reads it.
+# tests/init-fresh-template-guard.sh derives this from the template and fails if it drifts.
+TEMPLATE_FOLDER_FILES='
+.github/ISSUE_TEMPLATE/bug_report.md
+.github/ISSUE_TEMPLATE/config.yml
+.github/ISSUE_TEMPLATE/feature_request.md
+.github/pull_request_template.md
+.github/workflows/tests.yml
+brand/BRAND.md
+brand/logo/generate_logo.py
+brand/logo/throughstone-favicon.svg
+brand/logo/throughstone-icon-fullbleed.svg
+brand/logo/throughstone-lockup-mono.svg
+brand/logo/throughstone-lockup-ondark.svg
+brand/logo/throughstone-lockup-stacked.svg
+brand/logo/throughstone-lockup.svg
+brand/logo/throughstone-mark-mono.svg
+brand/logo/throughstone-mark-ondark.svg
+brand/logo/throughstone-mark.svg
+brand/logo/throughstone-wordmark.svg
+brand/publish-site.sh
+brand/site/assets/android-chrome-192x192.png
+brand/site/assets/android-chrome-512x512.png
+brand/site/assets/apple-touch-icon.png
+brand/site/assets/favicon-16x16.png
+brand/site/assets/favicon-32x32.png
+brand/site/assets/favicon-48x48.png
+brand/site/assets/favicon.ico
+brand/site/assets/fonts/Cinzel.ttf
+brand/site/assets/fonts/IBMPlexMono-400.ttf
+brand/site/assets/fonts/SourceSans3-400.ttf
+brand/site/assets/fonts/SourceSans3-600.ttf
+brand/site/assets/site.webmanifest
+brand/site/assets/throughstone-favicon.svg
+brand/site/assets/throughstone-lockup-ondark.svg
+brand/site/assets/throughstone-lockup.svg
+brand/site/assets/throughstone-mark.svg
+brand/site/assets/throughstone-social.png
+brand/site/assets/throughstone-social.svg
+brand/site/index.html
+brand/social/generate_social.py
+brand/social/throughstone-social.png
+brand/social/throughstone-social.svg
+docs/.nojekyll
+docs/CNAME
+docs/assets/android-chrome-192x192.png
+docs/assets/android-chrome-512x512.png
+docs/assets/apple-touch-icon.png
+docs/assets/favicon-16x16.png
+docs/assets/favicon-32x32.png
+docs/assets/favicon-48x48.png
+docs/assets/favicon.ico
+docs/assets/fonts/Cinzel.ttf
+docs/assets/fonts/IBMPlexMono-400.ttf
+docs/assets/fonts/SourceSans3-400.ttf
+docs/assets/fonts/SourceSans3-600.ttf
+docs/assets/site.webmanifest
+docs/assets/throughstone-favicon.svg
+docs/assets/throughstone-lockup-ondark.svg
+docs/assets/throughstone-lockup.svg
+docs/assets/throughstone-mark.svg
+docs/assets/throughstone-social.png
+docs/assets/throughstone-social.svg
+docs/index.html
+tests/check-nothing-to-inspect.sh
+tests/check-repo-registry.sh
+tests/check-root-hygiene.sh
+tests/doc-contract.sh
+tests/doctor-dispatcher.sh
+tests/fixtures/gh-stub.sh
+tests/init-adr-authority.sh
+tests/init-closing-report.sh
+tests/init-fresh-template-guard.sh
+tests/init-license-validation.sh
+tests/init-local-user-profile.sh
+tests/init-mono-origin-reuse.sh
+tests/init-pre-boundary-checks.sh
+tests/init-retcon-mode.sh
+tests/init-trunk-branch.sh
+tests/links.sh
+tests/method-check-workflow.sh
+tests/registry-reader-parity.sh
+tests/session-template-contract.sh
+tests/setup-workspace-resilience.sh
+tests/site-publish.sh
+tests/status-adoption-land.sh
+tests/status-conditional-priority.sh
+tests/status-missing-marker.sh
+tests/status-next-check-in.sh
+tests/status-no-roadmap.sh
+tests/status-step1-precedence.sh
+'
 
 # refuse_not_fresh REASON — stop before the destructive boundary, saying which check refused.
 refuse_not_fresh() {
   echo "init.sh: this does not look like a fresh Throughstone template checkout." >&2
   echo "  $1" >&2
-  echo "  init.sh is one-time and destructive (it removes .git and template-only files), so it will" >&2
-  echo "  not run on an already-initialized project or on top of a repository that is not the" >&2
-  echo "  template — either would delete history it cannot give back." >&2
+  echo "  init.sh is one-time and destructive (it removes .git, root files named like the template's," >&2
+  echo "  such as README.md and .gitignore, and whole folders the template ships, with anything in" >&2
+  echo "  them), so it will not run on an already-initialized project or over anything that is not" >&2
+  echo "  the template's — either would delete what it cannot give back." >&2
   echo "  Download the template into a fresh, empty folder and run it there instead." >&2
   exit 2
 }
@@ -330,6 +604,37 @@ if [ -e "$ROOT/.git" ]; then
   fi
 fi
 
+# 5. Checks 1-4 only ever read the workspace root, and the multi layout initializes a second
+#    durable repo one directory down. The template ships prompts/ as plain files, so a repository
+#    there is someone else's: init_repo runs `git init && git add -A && git commit && git branch
+#    -M` inside it, which adds a commit to their history and renames the branch it was on, and the
+#    run exits 0 having said nothing. `-e` rather than `-d` because a linked worktree or submodule
+#    leaves a .git file, and committing into one of those is the same damage.
+if [ -e "$ROOT/prompts/.git" ]; then
+  refuse_not_fresh "prompts/ is already a Git repository, and this would commit on top of it."
+fi
+
+# 6. Section 2 deletes .github/, tests/, brand/ and docs/ whole, and a template unpacked over a
+#    folder of the user's merges its own folders of those names into theirs. Checks 1-5 cannot see
+#    a file the user put there: there may be no .git at all, check 3 reads only the root entries
+#    git tracks, and a file nobody committed is in no history. So any file there that the template
+#    does not ship stops the run. What macOS and Windows leave in a folder (.DS_Store and ._* from
+#    macOS; Thumbs.db, desktop.ini and *:Zone.Identifier from Windows) holds none of the user's
+#    work and does not count. Sorted, so the file the refusal names is the same on every run.
+FOREIGN_FIRST=""; FOREIGN_COUNT=0
+while IFS= read -r -d '' path; do
+  case "${path##*/}" in .DS_Store|._*|Thumbs.db|desktop.ini|*:Zone.Identifier) continue ;; esac
+  case "$TEMPLATE_FOLDER_FILES" in *$'\n'"$path"$'\n'*) continue ;; esac
+  [ -n "$FOREIGN_FIRST" ] || FOREIGN_FIRST="$path"
+  FOREIGN_COUNT=$((FOREIGN_COUNT + 1))
+done < <(find .github tests brand docs ! -type d -print0 2>/dev/null | LC_ALL=C sort -z)
+FOREIGN_WHY="Setup deletes .github/, tests/, brand/ and docs/ whole, and"
+if [ "$FOREIGN_COUNT" -eq 1 ]; then
+  refuse_not_fresh "$FOREIGN_WHY '$FOREIGN_FIRST' is not a file the template ships."
+elif [ "$FOREIGN_COUNT" -gt 1 ]; then
+  refuse_not_fresh "$FOREIGN_WHY $FOREIGN_COUNT files there are not ones the template ships, among them '$FOREIGN_FIRST'."
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
@@ -339,20 +644,92 @@ say "Throughstone — setup"
 #
 # Defaults are conservative for automation: multi-repo, solo, private GitHub visibility, and
 # no remote creation unless requested.
+
+# New project vs. existing codebase. This is the one fork the installer makes: "new" is the
+# greenfield kickoff; "existing" adopts a codebase that already exists (retcon). Both set up the
+# same mechanical scaffold below, "existing" always in the multi layout; the other differences land
+# at the end (section 5c): "existing" sets PROJECT-STATUS to `retcon` and drops a stub STEP-1 PLAN,
+# then stops so an agent can reverse-engineer the baseline from the running code. It is asked,
+# never auto-detected, because repo discovery is the agent's job, not the installer's.
+if [ -n "$MODE_IN" ]; then
+  case "$(printf '%s' "$MODE_IN" | tr '[:upper:]' '[:lower:]')" in
+    new|greenfield|1)          MODE=new ;;
+    existing|retcon|adopt|2)   MODE=existing ;;
+    *) echo "init.sh: invalid --mode '$MODE_IN' (new | existing)." >&2; exit 2 ;;
+  esac
+elif [ "$NONINTERACTIVE" = "1" ]; then
+  MODE=new
+else
+  echo "Is this a new project, or are you adopting Throughstone into an existing codebase?"
+  echo "  1) New project        (greenfield — the agent interviews you to design it)"
+  echo "  2) Existing codebase  (retcon — the agent reads your code and reverse-engineers the baseline)"
+  while :; do
+    case "$(ask 'Choose 1 or 2' '1')" in
+      1) MODE=new; break ;;
+      2) MODE=existing
+         echo
+         echo "  Adopting an existing codebase: keep running this from the downloaded Throughstone"
+         echo "  folder (a fresh directory), NOT from inside your existing repo. Your code is never"
+         echo "  rewritten. Each repo gets registered at a path inside this workspace later — moved"
+         echo "  there, or left exactly where it is with a symlink standing in for it."
+         break ;;
+      *) echo "  -> choose 1 for a new project or 2 for an existing codebase." ;;
+    esac
+  done
+fi
+
+# Adoption is multi-repo only. Every adopted repo is a repository of its own, and a
+# mono-repo-for-now project cannot hold one (runbooks/register-repo.md refuses it), so a mono
+# adoption would stop at its first repo. An existing monorepo is adopted as one repo in a
+# multi-repo workspace. Refused here rather than at the layout question, so no answer is asked for
+# that the run then discards.
+if [ "$MODE" = "existing" ] && [ -n "$LAYOUT_IN" ] && normalize_layout "$LAYOUT_IN" \
+  && [ "$NORMALIZED_LAYOUT" = "2" ]; then
+  echo "init.sh: layout '$LAYOUT_IN' is not offered for an existing codebase (from --layout or INIT_LAYOUT): adoption sets up a multi-repo workspace, where an existing monorepo is one adopted repo." >&2
+  exit 2
+fi
+
 # Project slug — validated kebab-case whether supplied or prompted.
+#
+# Every check lives in one function because the run is destructive from "Detaching" onward: a slug
+# problem found after that point leaves .git removed, the rename half-done and no STEP index, and
+# the doctor still reports RESULT: OK. Anything that can reject a slug has to reject it here.
+# One function also stops the flag path and the interactive re-ask loop drifting apart.
+#
+# 64 is a practical ceiling, not a filesystem one — the hard limit is 250 (255 minus "-docs" for
+# the directory component), which no project name should approach and every git host is stricter
+# than anyway. Raise it here if a real project ever needs to.
+SLUG_MAX=64
+slug_problem() {
+  local s="$1"
+  # The message has to name the whole pattern, including the first character: a slug like
+  # 3d-printer is only lowercase letters, digits and hyphens, and the pattern still rejects it. A
+  # message naming less costs a minute on the flag path; at the prompt the loop re-asks with
+  # nothing in the message leading to an answer that works. One string, both call sites.
+  printf '%s' "$s" | grep -Eq '^[a-z][a-z0-9-]*$' \
+    || { echo "must start with a lowercase letter, then lowercase letters, digits and hyphens"; return; }
+  [ "${#s}" -le "$SLUG_MAX" ] \
+    || { echo "${#s} characters is too long — keep it to $SLUG_MAX"; return; }
+  [ ! -e "Code/${s}-docs" ] \
+    || { echo "Code/${s}-docs already exists here — pick another slug, or start from a clean copy of the template"; return; }
+}
+
 SLUG="$SLUG_IN"
 if [ -n "$SLUG" ]; then
-  printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$' \
-    || { echo "init.sh: invalid --slug '$SLUG' (lowercase letters, digits, hyphens only)." >&2; exit 2; }
+  SLUG_WHY="$(slug_problem "$SLUG")"
+  [ -z "$SLUG_WHY" ] \
+    || { echo "init.sh: invalid --slug '$SLUG' ($SLUG_WHY)." >&2; exit 2; }
 elif [ "$NONINTERACTIVE" = "1" ]; then
   echo "init.sh: --slug is required in --non-interactive mode." >&2; exit 2
 else
-  while ! printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$'; do
+  SLUG_WHY="start"
+  while [ -n "$SLUG_WHY" ]; do
     SLUG="$(ask 'Project slug (lowercase, kebab-case, e.g. acme-scheduler)')"
-    printf '%s' "$SLUG" | grep -Eq '^[a-z][a-z0-9-]*$' || echo "  -> must be lowercase letters, digits, hyphens."
+    SLUG_WHY="$(slug_problem "$SLUG")"
+    [ -z "$SLUG_WHY" ] || echo "  -> $SLUG_WHY."
   done
 fi
-DESC="$(want "$DESC_IN" 'One-line description')"
+DESC="$(want_text "$DESC_IN" '--desc (or INIT_DESC)' 'One-line description')"
 
 # License — accept a friendly token from --license, else ask the two-part question. The durable
 # result is PROJECT_LICENSE_ID, written later to .throughstone/project-license so generated
@@ -360,16 +737,27 @@ DESC="$(want "$DESC_IN" 'One-line description')"
 LICENSE_CHOICE=""
 if [ -n "$LICENSE_IN" ]; then
   normalize_license_choice "$LICENSE_IN" \
-    || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2; }
+    || { echo "init.sh: invalid --license '$LICENSE_IN' (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2; }
   LICENSE_CHOICE="$NORMALIZED_LICENSE_CHOICE"
+  # `private` means one thing in this wizard and one only: who can see the repository on a host.
+  # As a licence value it is accepted and read as proprietary (no LICENSE file at all), so a
+  # wrapper that passes it does not break; said once, so the wrapper can be corrected. Deprecate
+  # rather than refuse for the same reason the ignored flags are named rather than refused.
+  case "$(printf '%s' "$LICENSE_IN" | tr '[:upper:]' '[:lower:]')" in
+    private)
+      echo "init.sh: --license=private is deprecated; write --license=proprietary instead." >&2
+      echo "         'private' refers only to repository visibility (--visibility=private)." >&2
+      echo "         The spelling still works and will be removed in a future release." >&2
+      ;;
+  esac
 elif [ "$NONINTERACTIVE" = "1" ]; then
-  echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | private)." >&2; exit 2
+  echo "init.sh: --license is required in --non-interactive mode (mit | bsd-3 | apache-2.0 | proprietary)." >&2; exit 2
 else
   choose_license_interactively
 fi
 HOLDER=""
-if [ "$LICENSE_CHOICE" != "private" ]; then
-  HOLDER="$(want "$HOLDER_IN" 'Copyright holder (name or org)')"
+if [ "$LICENSE_CHOICE" != "proprietary" ]; then
+  HOLDER="$(want_text "$HOLDER_IN" '--holder (or INIT_HOLDER)' 'Copyright holder (name or org)')"
 fi
 LICENSE_TEMPLATE_NAME=""
 PROJECT_LICENSE_ID=""
@@ -386,7 +774,7 @@ case "$LICENSE_CHOICE" in
     LICENSE_TEMPLATE_NAME="Apache-2.0.txt"
     PROJECT_LICENSE_ID="Apache-2.0"
     ;;
-  private)
+  proprietary)
     PROJECT_LICENSE_ID="Proprietary"
     ;;
   *)
@@ -405,73 +793,143 @@ fi
 # Repo layout — multi (default) or mono. Multi-repo turns the root into a per-machine workspace
 # shell with separate durable repos under prompts/ and Code/<project>-docs/. Mono keeps a single
 # repo at the root for projects that are not ready to split yet.
+# An unrecognised flag is fatal; an unrecognised typed answer is re-asked, the way the slug
+# question above works. Both go through normalize_layout, so the two paths cannot drift. Adoption
+# has one answer (see the refusal after the mode question), so it is said rather than asked.
 if [ -n "$LAYOUT_IN" ]; then
-  case "$(printf '%s' "$LAYOUT_IN" | tr '[:upper:]' '[:lower:]')" in
-    multi|multi-repo|1) LAYOUT=1 ;;
-    mono|mono-repo|2)   LAYOUT=2 ;;
-    *) echo "init.sh: invalid --layout '$LAYOUT_IN' (multi | mono)." >&2; exit 2 ;;
-  esac
+  normalize_layout "$LAYOUT_IN" \
+    || { echo "init.sh: invalid layout '$LAYOUT_IN' (multi | mono) — from --layout or INIT_LAYOUT." >&2; exit 2; }
+  LAYOUT="$NORMALIZED_LAYOUT"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   LAYOUT=1
+elif [ "$MODE" = "existing" ]; then
+  LAYOUT=1
+  echo "Repo layout: multi-repo — adoption sets up a multi-repo workspace."
 else
+  # The menu names what each layout does to this folder, because that is the half a first-time
+  # reader cannot infer and the half that costs them something later. Multi leaves the root a
+  # workspace shell with no repository at all, so a file left there afterwards is tracked by
+  # nothing and backed up by nowhere. The README says this twice, but the wizard is where the
+  # choice is made.
   echo "Repo layout:"
-  echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ become separate repos)"
-  echo "  2) mono-repo for now  (one repo at the workspace root; split later)"
-  LAYOUT="$(ask 'Choose 1 or 2' '1')"
+  echo "  1) multi-repo now  (prompts/ and Code/${SLUG}-docs/ each become their own repo;"
+  echo "                      this folder is not itself a repo, so anything left here is"
+  echo "                      not tracked or backed up)"
+  echo "  2) mono-repo for now  (one repo at this folder, so everything here is tracked"
+  echo "                         except the STEP in flight in Upcoming Prompts/;"
+  echo "                         split into separate repos later)"
+  # No default: the layout is structural and fixed at creation, so Enter cannot be allowed to
+  # pick it. The answer is taken through an assignment rather than passed straight to
+  # normalize_layout, because a `$(ask …)` used as an argument discards the exit status ask
+  # stops the run with — see ask above.
+  LAYOUT=""
+  while [ -z "$LAYOUT" ]; do
+    LAYOUT_ANSWER="$(ask 'Choose 1 or 2')"
+    if normalize_layout "$LAYOUT_ANSWER"; then
+      LAYOUT="$NORMALIZED_LAYOUT"
+    else
+      echo "  -> answer 1 or 2 (the words multi and mono work too)."
+    fi
+  done
 fi
 
-# registries/ always ships, in both layouts. It carries the repo inventory that
-# setup-workspace.sh and remote recording read, plus the accepted-risk and security-review
-# registers — and the docs hub, METHOD.md and several runbooks reference all three
-# unconditionally, so a project without the directory cites files it does not have. The flag is
-# still parsed so existing automation keeps working, and its value is still validated: an
+# A mono project's first commit takes in everything in this folder that its .gitignore does not
+# exclude, so any top-level entry that is not the template's is named as soon as the layout is
+# known, while later questions may still give the reader a chance to stop. Not named: git's own
+# files (.git, .gitattributes), .DS_Store, agent folders (.claude), what the run creates
+# (.throughstone), and what write_gitignore excludes. The run carries on either way.
+if [ "$LAYOUT" = "2" ]; then
+  STRAY_FOUND=0
+  for entry in .[!.]* ..?* *; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    case "|.git|.gitattributes|.DS_Store|.claude|.throughstone$TEMPLATE_ROOT_ENTRIES" in
+      *"|$entry|"*) continue ;;
+    esac
+    case "$entry" in
+      .env.example) ;;
+      .env|.env.*|.secrets|*.swp) continue ;;
+    esac
+    if [ "$STRAY_FOUND" = "0" ]; then
+      echo "init.sh: warning: the mono-repo layout will commit these, which are not part of the template:" >&2
+      STRAY_FOUND=1
+    fi
+    echo "    $entry" >&2
+  done
+  if [ "$STRAY_FOUND" = "1" ]; then
+    echo "  The run carries on. To keep any of them out of the project's history, press Ctrl-C at the" >&2
+    echo "  next question if there is one, move them out of this folder, and run init.sh again;" >&2
+    echo "  otherwise start again from a fresh copy of the template without them." >&2
+  fi
+fi
+
+# registries/ always ships, in both layouts. It carries the repo inventory that setup-workspace.sh
+# and remote recording read, plus the other registers — and the generated docs reference every one
+# unconditionally, so a project without the directory cites files it does not have. --registries
+# is parsed so automation that passes it keeps working, and its value is validated: an
 # unrecognized one is an error in either layout, and `no` is ignored with a deprecation notice.
 if [ -n "$REGISTRIES_IN" ]; then
-  case "$(printf '%s' "$REGISTRIES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1) : ;;
-    n|no|false|0)
-      echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
-      echo "         The flag is deprecated and will be removed in a future release." >&2 ;;
-    *) echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
+  normalize_yesno "$REGISTRIES_IN" \
+    || { echo "init.sh: invalid --registries '$REGISTRIES_IN' (yes | no)." >&2; exit 2; }
+  if [ "$NORMALIZED_YESNO" = "0" ]; then
+    echo "init.sh: --registries=no is ignored; registries/ always ships and is kept." >&2
+    echo "         The flag is deprecated and will be removed in a future release." >&2
+  fi
 fi
 
-# Solo vs. team. This does NOT create a behavioral mode: branch-per-STEP, STEP-number
-# reservation, and overlap checks are practiced solo too (see runbooks/collaboration.md). The
-# answer only affects prompt wording, remote guidance, and the ADR acceptance authority stamped
-# into adr/README.md.
+# Solo vs. team. Branch-per-STEP and STEP-number reservation are practiced solo too (see
+# runbooks/collaboration.md). The answer sets prompt wording, remote guidance, and the ADR
+# acceptance authority stamped into adr/README.md — and that stamp is what AGENTS.md reads to
+# turn the team rules on, so a team must never be stamped _solo author_.
 if [ -n "$COLLAB_IN" ]; then
-  case "$(printf '%s' "$COLLAB_IN" | tr '[:upper:]' '[:lower:]')" in
-    solo|1) COLLAB=1 ;;
-    team|2) COLLAB=2 ;;
-    *) echo "init.sh: invalid --collab '$COLLAB_IN' (solo | team)." >&2; exit 2 ;;
-  esac
+  normalize_collab "$COLLAB_IN" \
+    || { echo "init.sh: invalid collab '$COLLAB_IN' (solo | team) — from --collab or INIT_COLLAB." >&2; exit 2; }
+  COLLAB="$NORMALIZED_COLLAB"
 elif [ "$NONINTERACTIVE" = "1" ]; then
   COLLAB=1
 else
   echo "Working solo for now, or collaborating with others from day one?"
   echo "  1) Solo for now  (team conventions switch on later; nothing here locks you in)"
   echo "  2) Team from day one"
-  COLLAB="$(ask 'Choose 1 or 2' '1')"
+  # No default, for the same reason as the layout question above: solo is not the safer of the two
+  # answers, it is one of them, and the one it picks by accident writes the ADR register's
+  # acceptance authority as the reader themselves.
+  COLLAB=""
+  while [ -z "$COLLAB" ]; do
+    COLLAB_ANSWER="$(ask 'Choose 1 or 2')"
+    if normalize_collab "$COLLAB_ANSWER"; then
+      COLLAB="$NORMALIZED_COLLAB"
+    else
+      echo "  -> answer 1 or 2 (the words solo and team work too)."
+    fi
+  done
 fi
 ADR_AUTHORITY=""
 if [ "$COLLAB" = "2" ]; then
   if [ -n "$ADR_AUTHORITY_IN" ]; then
-    ADR_AUTHORITY="$ADR_AUTHORITY_IN"
+    # want refuses a preset of only whitespace, which would stamp a line that names no one.
+    ADR_AUTHORITY="$(want "$ADR_AUTHORITY_IN" 'Who accepts ADRs')"
   elif [ "$NONINTERACTIVE" = "1" ]; then
     ADR_AUTHORITY="consensus of maintainers"
   else
     echo "  In a team, significant ADRs land as Proposed and are flipped to Accepted by a"
-    echo "  designated authority (recorded in adr/README.md so it's on disk, not folklore)."
+    echo "  designated authority (recorded in Code/${SLUG}-docs/adr/README.md so it's on"
+    echo "  disk, not folklore)."
     ADR_AUTHORITY="$(ask 'Who accepts ADRs? e.g. tech lead / consensus of maintainers / ADR review on PR' 'consensus of maintainers')"
-    echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
-    echo "  from the same place. You can still skip that now and add remotes later."
-    if [ "$LAYOUT" = "2" ]; then
-      echo "  NOTE: you picked mono-repo + team. That works — what a team needs is shared"
-      echo "  remotes, not several repos. One thing to know: the overlap warning is"
-      echo "  repo-granular, so it is meaningless when every STEP touches the one repo."
-      echo "  Fall back to the PLAN's file/area notes — see runbooks/collaboration.md §4."
-    fi
+  fi
+  # Said to every team, however the ADR authority arrived: the branch above asks for that one
+  # value, and it is not the condition for advice about something else. The closing instructions
+  # tell a project that set up no remote how to attach one later; this is the half that says why a
+  # team needs one at all, and it belongs where the reader has just said they are a team.
+  echo "  Heads-up: team collaboration relies on shared Git remotes so everyone clones"
+  echo "  from the same place. You can still skip that now and add remotes later."
+else
+  # A solo project records the author as the authority — the register is stamped `_solo author_`
+  # and the question is never asked — so a supplied authority has nothing to attach to. Named
+  # rather than refused, for the reason the unusable remote-URL flags are named: a wrapper that
+  # passes one uniform flag set to every project it creates should not fail over a value that
+  # costs nothing to drop.
+  if [ -n "$ADR_AUTHORITY_IN" ]; then
+    echo "  note: ignoring --adr-authority — a solo project records you as the authority"
   fi
 fi
 
@@ -523,6 +981,11 @@ fi
 root_origin_can_be_reused() {
   [ "$ROOT_ORIGIN_REUSABLE" = "1" ]
 }
+# The mono layout keeps an empty origin this folder already has, unless --remote-url names another.
+REUSE_ROOT_ORIGIN=0
+if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused && [ -z "$REMOTE_URL_IN" ]; then
+  REUSE_ROOT_ORIGIN=1
+fi
 
 # validate_empty_remote_url LABEL URL — fail before bootstrap mutates the checkout if a manual
 # remote URL is unreachable or already has history. Manual remotes must be pre-created empty repos.
@@ -543,6 +1006,27 @@ validate_empty_remote_url() {
   exit 2
 }
 
+# check_github_ready NAME... — the gh path's counterpart to validate_empty_remote_url: fail before
+# bootstrap mutates the checkout unless gh can reach GitHub as a signed-in user and none of the
+# repositories this run would create under $OWNER exists yet.
+check_github_ready() {
+  local name
+  if ! gh api user --silent >/dev/null 2>&1; then
+    echo "init.sh: the gh CLI could not reach GitHub as a signed-in user." >&2
+    echo "  Run 'gh auth status' to see why, fix that, then rerun init.sh." >&2
+    exit 2
+  fi
+  for name in "$@"; do
+    # Only a lookup that succeeds refuses. gh exits non-zero for a missing repository and for any
+    # other failure alike, and missing is what a new project expects.
+    if gh repo view "$OWNER/$name" --json name >/dev/null 2>&1; then
+      echo "init.sh: $OWNER/$name already exists on GitHub, and this run would create it." >&2
+      echo "  Choose another slug or owner, or rename or delete that repository, then rerun init.sh." >&2
+      exit 2
+    fi
+  done
+}
+
 # Remotes. GitHub automation creates repositories with `gh`; manual mode attaches and pushes to
 # existing, empty/pushable Git URLs from any provider. Visibility is independent of the project
 # license: private repos may use open-source licenses, and public repos still need an explicit
@@ -550,32 +1034,65 @@ validate_empty_remote_url() {
 # because it publishes source without granting open-source reuse rights.
 MK_REMOTES=0; REMOTE_PROVIDER=""; OWNER=""; REMOTE_URL=""; DOCS_REMOTE=""; PROMPTS_REMOTE=""
 REMOTE_VISIBILITY=private
+GH_NEW_REPOS=""
+# Each layout reads only the URL flags that match its shape. The other layout's flags are dropped
+# and do not count as asking for remotes. Say so rather than refuse: a wrapper that passes the same
+# flag set to every project would break on a refusal, and an unusable URL is harmless. Say so rather
+# than stay silent: the alternative is a project whose remotes contradict the command that created
+# it, with nothing in the run admitting the difference.
 HAS_MANUAL_REMOTE_INPUT=0
-[ -n "$REMOTE_URL_IN$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] && HAS_MANUAL_REMOTE_INPUT=1
+if [ "$LAYOUT" = "2" ]; then
+  # One repository, so the two multi-repo URL flags have nothing to attach to.
+  [ -z "$DOCS_REMOTE_IN" ] || echo "  note: ignoring --docs-remote — mono layout has one repo"
+  [ -z "$PROMPTS_REMOTE_IN" ] || echo "  note: ignoring --prompts-remote — mono layout has one repo"
+  [ -z "$REMOTE_URL_IN" ] || HAS_MANUAL_REMOTE_INPUT=1
+else
+  # Two repositories and no single one, so --remote-url has nothing to attach to.
+  [ -z "$REMOTE_URL_IN" ] || echo "  note: ignoring --remote-url — multi layout has two repos"
+  [ -z "$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN" ] || HAS_MANUAL_REMOTE_INPUT=1
+fi
 if [ -n "$REMOTES_IN" ]; then
-  case "$(printf '%s' "$REMOTES_IN" | tr '[:upper:]' '[:lower:]')" in
-    y|yes|true|1) MK_REMOTES=1 ;;
-    n|no|false|0) MK_REMOTES=0 ;;
-    *) echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2 ;;
-  esac
+  normalize_yesno "$REMOTES_IN" \
+    || { echo "init.sh: invalid --remotes '$REMOTES_IN' (yes | no)." >&2; exit 2; }
+  MK_REMOTES="$NORMALIZED_YESNO"
 elif [ "$HAS_MANUAL_REMOTE_INPUT" = "1" ]; then
   MK_REMOTES=1
 elif [ "$NONINTERACTIVE" != "1" ]; then
   echo "Online backup / sharing (optional):"
-  echo "  Your project will be saved locally with Git."
+  if [ "$LAYOUT" = "2" ]; then
+    echo "  Your project will be saved locally with Git."
+  else
+    echo "  Your project's two repositories, Code/${SLUG}-docs/ and prompts/,"
+    echo "  will be saved locally with Git."
+  fi
   echo "  A Git remote is an online copy on GitHub, Bitbucket, GitLab, or another Git host."
   echo "  You can skip this now and add one later."
   if ! yesno "Set up online Git remotes now?"; then
     MK_REMOTES=0
   elif command -v gh >/dev/null 2>&1; then
+    # Option 2's requirements are stated with the option, not discovered by refusal after both URLs
+    # have been typed. Nothing is lost by finding out late, since the check runs before the
+    # boundary; what is lost is the whole interview, because there is no resume and one pasted
+    # string sends you back to the project name.
     echo "Remote setup:"
     echo "  1) Create GitHub remotes now (via gh)"
     echo "  2) Use existing remote URLs (Bitbucket, GitLab, or another Git host)"
-    case "$(ask 'Choose 1 or 2' '1')" in
-      1) MK_REMOTES=1; REMOTE_PROVIDER_IN=github ;;
-      2) MK_REMOTES=1; REMOTE_PROVIDER_IN=manual ;;
-      *) echo "init.sh: invalid remote setup choice." >&2; exit 2 ;;
-    esac
+    echo "     Each repo must already exist, be empty, and be reachable with your"
+    echo "     credentials. All three are checked before anything here changes."
+    # No default, because answer 1 can create repositories on GitHub, which you would have to
+    # delete if you chose it by accident. An unrecognised answer is re-asked rather than fatal, the
+    # way every other menu in the wizard behaves; the question is cheap to repeat and there is
+    # nothing here worth ending a run over.
+    REMOTE_SETUP_CHOICE=""
+    while [ -z "$REMOTE_SETUP_CHOICE" ]; do
+      REMOTE_SETUP_CHOICE="$(ask 'Choose 1 or 2')"
+      case "$REMOTE_SETUP_CHOICE" in
+        1) MK_REMOTES=1; REMOTE_PROVIDER_IN=github ;;
+        2) MK_REMOTES=1; REMOTE_PROVIDER_IN=manual ;;
+        *) echo "  -> choose 1 to create GitHub remotes, or 2 to use remote URLs you already have."
+           REMOTE_SETUP_CHOICE="" ;;
+      esac
+    done
   else
     echo "  GitHub auto-creation needs the 'gh' CLI, which is not installed."
     echo "  If you already created empty repos online, you can paste their URLs now."
@@ -609,12 +1126,20 @@ if [ "$MK_REMOTES" = "1" ]; then
       public|2)  REMOTE_VISIBILITY=public ;;
       *) echo "init.sh: invalid --visibility '$VISIBILITY_IN' (private | public)." >&2; exit 2 ;;
     esac
-  elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ]; then
+  elif [ "$REMOTE_PROVIDER" = "github" ] && [ "$NONINTERACTIVE" != "1" ] \
+    && [ "$REUSE_ROOT_ORIGIN" = "0" ]; then
+    # Not asked when the folder's own origin is reused, since no repository is created to set it on.
+    # This default is deliberate: accepting Private by accident creates a
+    # repository nobody else can read, which is one setting away from fixing, while the other
+    # answer publishes source. The answer is still taken through an assignment so that every
+    # ask call site obeys the same contract — see ask above — and removing this default later
+    # cannot silently reintroduce the loop that contract exists to stop.
     echo "GitHub repository visibility:"
     echo "  1) Private"
     echo "  2) Public"
     while :; do
-      case "$(ask 'Choose 1 or 2' '1')" in
+      VISIBILITY_ANSWER="$(ask 'Choose 1 or 2' '1')"
+      case "$VISIBILITY_ANSWER" in
         1) REMOTE_VISIBILITY=private; break ;;
         2) REMOTE_VISIBILITY=public; break ;;
         *) echo "  -> choose 1 for private or 2 for public." ;;
@@ -622,29 +1147,36 @@ if [ "$MK_REMOTES" = "1" ]; then
     done
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
-    if ! command -v gh >/dev/null 2>&1; then
-      if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
-        REMOTE_PROVIDER=manual
-      else
+    if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
+      # Creating a repository on GitHub cannot apply here: a mono project's one repository is this
+      # folder, and this folder already has an empty origin. Reusing it is the right outcome —
+      # replacing a remote the user attached themselves would be the real surprise. Nothing is
+      # created, so neither gh nor an owner is needed; the note before the boundary names the origin
+      # that is used instead.
+      OWNER=""
+    else
+      if ! command -v gh >/dev/null 2>&1; then
         echo "init.sh: --remotes=yes with --remote-provider=github needs the 'gh' CLI, which isn't installed." >&2
         echo "  For Bitbucket, GitLab, or another Git host, pre-create empty repos and pass --remote-provider=manual with remote URL flags." >&2
         exit 2
       fi
-    fi
-  fi
-  if [ "$REMOTE_PROVIDER" = "github" ]; then
-    if [ "$LAYOUT" = "2" ] && root_origin_can_be_reused; then
-      OWNER=""
-    else
       OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+      # The names setup_remote creates, checked by check_github_ready before the boundary.
+      if [ "$LAYOUT" = "2" ]; then
+        GH_NEW_REPOS="$SLUG"
+      else
+        GH_NEW_REPOS="${SLUG}-docs ${SLUG}-prompts"
+      fi
     fi
   else
     if [ -n "$OWNER_IN" ]; then
       echo "init.sh: --owner is only used with --remote-provider=github." >&2
       exit 2
     fi
+    # Only the layout's own URL flags are read here; the others were named and dropped where
+    # HAS_MANUAL_REMOTE_INPUT is set.
     if [ "$LAYOUT" = "2" ]; then
-      if root_origin_can_be_reused && [ -z "$REMOTE_URL_IN" ]; then
+      if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
         REMOTE_URL=""
       else
         REMOTE_URL="$(want "$REMOTE_URL_IN" 'Project repo remote URL')"
@@ -652,6 +1184,13 @@ if [ "$MK_REMOTES" = "1" ]; then
     else
       DOCS_REMOTE="$(want "$DOCS_REMOTE_IN" 'Docs repo remote URL')"
       PROMPTS_REMOTE="$(want "$PROMPTS_REMOTE_IN" 'Prompts repo remote URL')"
+      # Each URL passes the emptiness check below on its own, so the same one given twice would
+      # take the docs push and then reject the prompts push, after the boundary.
+      if [ "$DOCS_REMOTE" = "$PROMPTS_REMOTE" ]; then
+        echo "init.sh: the docs and prompts repos need different remote URLs, and both were:" >&2
+        echo "  $DOCS_REMOTE" >&2
+        exit 2
+      fi
     fi
     validate_empty_remote_url "project" "$REMOTE_URL"
     validate_empty_remote_url "docs" "$DOCS_REMOTE"
@@ -685,27 +1224,32 @@ if [ "$MK_REMOTES" = "1" ]; then
     echo "  note: --visibility records your intent only; manual remotes must already have the desired host visibility."
   fi
 fi
-if [ "$MK_REMOTES" = "1" ]; then
-  if [ "$REMOTE_PROVIDER" = "github" ] && [ -n "$DOCS_REMOTE_IN$PROMPTS_REMOTE_IN$REMOTE_URL_IN" ]; then
-    echo "init.sh: remote URL flags are not used with --remote-provider=github." >&2
-    exit 2
+# The folder's own empty origin decides where the project ends up, and nothing earlier shows it, so
+# it is named on every path that keeps it.
+if [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    echo "  note: not creating a repository on GitHub — this folder already has an empty origin"
+  else
+    echo "  note: this folder already has an empty origin"
+  fi
+  echo "        $ROOT_ORIGIN"
+  if [ "$MK_REMOTES" = "1" ]; then
+    echo "        It is reused as the project's remote, and the project will be pushed to it."
+  else
+    echo "        It is kept as the project's remote. Nothing will be pushed to it."
+  fi
+  echo "        To use a different remote, point origin at it afterwards: git remote set-url origin <url>"
+  if [ "$REMOTE_PROVIDER" = "github" ]; then
+    [ -z "$OWNER_IN" ] || echo "  note: ignoring --owner — no repository is created"
+    [ -z "$VISIBILITY_IN" ] || echo "  note: ignoring --visibility — no repository is created"
   fi
 fi
-if [ "$MK_REMOTES" = "1" ]; then
-  if [ "$REMOTE_PROVIDER" = "manual" ]; then
-    if [ "$LAYOUT" = "1" ] && { [ -z "$DOCS_REMOTE" ] || [ -z "$PROMPTS_REMOTE" ]; }; then
-      echo "init.sh: manual multi-repo remotes need --docs-remote and --prompts-remote." >&2
-      exit 2
-    fi
-    if [ "$LAYOUT" = "2" ] && ! root_origin_can_be_reused && [ -z "$REMOTE_URL" ]; then
-      echo "init.sh: manual mono-repo remotes need --remote-url unless an empty root origin can be reused." >&2
-      exit 2
-    fi
-  fi
-fi
+# A declared visibility describes a repository this run creates or was given, not a reused origin,
+# so a reused one gets the note in the second branch instead.
 if [ "$MK_REMOTES" = "1" ] \
   && [ "$REMOTE_VISIBILITY" = "public" ] \
-  && [ "$LICENSE_CHOICE" = "private" ]; then
+  && [ "$REUSE_ROOT_ORIGIN" = "0" ] \
+  && [ "$LICENSE_CHOICE" = "proprietary" ]; then
   cat >&2 <<'WARNING'
 WARNING: public visibility with a proprietary license publishes the source code but grants
 no open-source reuse rights. LICENSE-THROUGHSTONE covers only retained Throughstone scaffold
@@ -716,7 +1260,18 @@ WARNING
     echo "init.sh: public proprietary repository creation cancelled." >&2
     exit 2
   fi
+elif [ "$MK_REMOTES" = "1" ] \
+  && [ "$LICENSE_CHOICE" = "proprietary" ] \
+  && { [ "$REMOTE_PROVIDER" = "manual" ] || [ "$REUSE_ROOT_ORIGIN" = "1" ]; }; then
+  # Setup cannot see the visibility of a repository it does not create, so it asks for a check.
+  echo "  note: this project is proprietary; check these are private, or pushing publishes its source:"
+  [ "$REUSE_ROOT_ORIGIN" = "0" ] || echo "        $ROOT_ORIGIN"
+  for url in "$REMOTE_URL" "$DOCS_REMOTE" "$PROMPTS_REMOTE"; do
+    [ -z "$url" ] || echo "        $url"
+  done
 fi
+# Last, so that a run stopped by any question above never calls gh.
+[ -z "$GH_NEW_REPOS" ] || check_github_ready $GH_NEW_REPOS
 
 # --- 2. Untether from the template origin -----------------------------------
 # Destructive bootstrap boundary. Everything above this line is validation and choice
@@ -729,17 +1284,19 @@ rm -rf "$ROOT/.git"
 # The root LICENSE is the Throughstone scaffold's own license (BSD-3-Clause, © Mark A.
 # Herschberg) and covers the whole scaffold repository, so it must not travel into a generated
 # project where it would read as that project's license. Retained scaffold material (METHOD.md,
-# templates/, runbooks/, scripts/) still needs its notice, and BSD-3 clause 1 still requires
-# preserving it -- that job belongs to Code/<project>-docs/LICENSE-THROUGHSTONE, which ships as
+# templates/, runbooks/, scripts/) needs its notice, and BSD-3 clause 1 requires preserving
+# it — that job belongs to Code/<project>-docs/LICENSE-THROUGHSTONE, which ships as
 # its own file and opens by saying what it does and does not cover. Drop the root LICENSE here.
-#
-# README/CHANGELOG/TODO/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
-# history, maintainer backlog, and public explanation of the scaffold's output. After bootstrap
-# they are stale project content, and in multi-repo mode they would be stray files at the non-repo
-# workspace root. Drop them; generated-project context starts in the docs hub. Mono-repo projects
-# can add their own versions later.
-rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/TODO.md" "$ROOT/ARTIFACT-TRAIL.md"
 rm -f "$ROOT/LICENSE"
+# README/CHANGELOG/ARTIFACT-TRAIL are Throughstone-template files: the front door, release
+# history, and public explanation of the scaffold's output. After bootstrap they are stale
+# project content, and in multi-repo mode they would be stray files at the non-repo workspace
+# root. Drop them; generated-project context starts in the docs hub. Mono-repo projects can add
+# their own versions later.
+# The root .gitignore is the template maintainer's own. In multi-repo mode it belongs to no
+# repository, yet a search that honours ignore files, run from the workspace root, applies it to
+# every repo below. A mono root gets its own from write_gitignore.
+rm -f "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/ARTIFACT-TRAIL.md" "$ROOT/.gitignore"
 # Community/health files describe the Throughstone template itself: contribution policy,
 # security contact, code of conduct, and trademark posture. Carrying them forward would leak the
 # template maintainer's contacts and assert Throughstone governance inside the user's project.
@@ -748,13 +1305,9 @@ rm -f "$ROOT/CONTRIBUTING.md" "$ROOT/CODE_OF_CONDUCT.md" "$ROOT/SECURITY.md" "$R
 # They point at the template repo's issues/discussions/security pages, not the generated
 # project. Drop them so projects can add their own repository health files deliberately.
 rm -rf "$ROOT/.github"
-# .dev/ holds template-maintainer-only notes such as handoffs and design memos. It is not part
-# of the generated project and should not leak into bootstrapped repos.
-rm -rf "$ROOT/.dev"
-# tests/ and .test-fixtures/ validate the scaffold and carry scaffold-maintainer test data.
-# They are useful here, but not part of a user's project and would trip root-hygiene warnings in
-# multi-repo workspaces.
-rm -rf "$ROOT/tests" "$ROOT/.test-fixtures"
+# tests/ validates the scaffold. It is useful here, but not part of a user's project and would
+# trip root-hygiene warnings in multi-repo workspaces.
+rm -rf "$ROOT/tests"
 # brand/ (brief, logo, social card, landing-page source) and docs/ (the built GitHub Pages
 # site) are Throughstone marketing assets. Drop them so generated repos do not inherit the
 # template's trademark, public site, or branding.
@@ -762,16 +1315,18 @@ rm -rf "$ROOT/brand" "$ROOT/docs"
 
 # --- 3. Replace the {{PROJECT}} token + description -------------------------
 say "Renaming {{PROJECT}} -> ${SLUG} ..."
-# Replace placeholder contents before repo initialization so generated commits never contain
-# unresolved scaffold tokens.
+# Replace placeholder contents before repo initialization, so no generated file holds an
+# unresolved scaffold token. Skip init.sh, here and in the two passes below: it is the generator,
+# not a generated file, and the copy a project keeps is the one the template shipped.
 grep -rlF '{{PROJECT}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  [ "$f" = ./init.sh ] && continue
   SLUG="$SLUG" perl -pi -e 's/\Q{{PROJECT}}\E/$ENV{SLUG}/g' "$f"
 done
 # Rename the docs hub before filling descriptions so later scans walk the generated path.
 [ -d "Code/{{PROJECT}}-docs" ] && mv "Code/{{PROJECT}}-docs" "Code/${SLUG}-docs"
 
-# Root pointers include a scaffold-only guard that tells agents not to start kickoff while
-# {{PROJECT}} is unresolved. Generated projects remove that guard and keep only the handoff.
+# Root pointers include a scaffold-only guard for Throughstone's own authors. Generated projects
+# remove that guard and keep only the handoff.
 for f in AGENTS.md CLAUDE.md; do
   [ -f "$f" ] || continue
   perl -0pi -e 's/<!-- THROUGHSTONE-TEMPLATE-GUARD:BEGIN -->\n.*?<!-- THROUGHSTONE-TEMPLATE-GUARD:END -->\n\n//s' "$f"
@@ -784,22 +1339,23 @@ mkdir -p "$ROOT/.throughstone"
 # even when proprietary projects intentionally have no project LICENSE.
 printf '%s\n' "$PROJECT_LICENSE_ID" > "$DOCS/.throughstone/project-license"
 
-# description: fill {{PROJECT_DESCRIPTION}} EVERYWHERE it appears (AGENTS.md + every
+# description: fill {{PROJECT_DESCRIPTION}} everywhere but init.sh (AGENTS.md + every
 # architecture/planning-session "About" blurb) so no literal placeholder is left dangling.
 # The one-liner is just a seed — the kickoff can later expand any of these from overview.md.
 grep -rlF '{{PROJECT_DESCRIPTION}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  [ "$f" = ./init.sh ] && continue
   DESC="$DESC" perl -pi -e 's/\Q{{PROJECT_DESCRIPTION}}\E/$ENV{DESC}/g' "$f"
 done
 # Fill generated collaboration docs with the actual initialized trunk branch. The scaffold
 # keeps the placeholder only where generated-project text should name the branch.
 grep -rlF '{{TRUNK_BRANCH}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
+  [ "$f" = ./init.sh ] && continue
   TRUNK_BRANCH="$TRUNK_BRANCH" perl -pi -e 's/\Q{{TRUNK_BRANCH}}\E/$ENV{TRUNK_BRANCH}/g' "$f"
 done
 
-# The scaffold notice ships as Code/<project>-docs/LICENSE-THROUGHSTONE and is already in
-# place by now — it is a real file with its own scope preamble, not this root LICENSE renamed.
-# The root LICENSE is dropped with the other template files above. Open-source project licenses
-# are stamped separately into each repo in step 6; private projects get no project LICENSE.
+# The scaffold notice ships in the docs hub as Code/<project>-docs/LICENSE-THROUGHSTONE, so it is
+# already in place. Open-source project licenses are stamped separately into each repo in step 6;
+# proprietary projects get no project LICENSE.
 # LICENSE-THROUGHSTONE follows retained scaffold material. In multi-repo mode prompts/ is its
 # own repo and contains Throughstone-authored seed content, so retain the scaffold notice there
 # too; this is distinct from the project LICENSE stamped below for open-source projects. In
@@ -814,15 +1370,15 @@ fi
 
 # --- 4. Stamp per-project options -------------------------------------------
 # Nothing is pruned here. runbooks/ ships method-level runbooks (check-in, collaboration) that
-# AGENTS.md and METHOD.md reference, and registries/ ships the repo inventory and the risk and
-# security-review registers that the docs hub and those same runbooks cite unconditionally.
+# AGENTS.md and METHOD.md reference, and registries/ ships the registers that the docs hub and
+# those same runbooks cite unconditionally.
 
 # Replace the visible ADR authority marker, not arbitrary prose. Solo records the default
 # single-author posture; team records the selected acceptance authority for future handoffs.
 if [ -f "$DOCS/adr/README.md" ]; then
   ADR_AUTHORITY_TEXT="_solo author_"
-  if [ "$COLLAB" = "2" ] && [ -n "$ADR_AUTHORITY" ]; then
-    ADR_AUTHORITY_TEXT="$ADR_AUTHORITY"
+  if [ "$COLLAB" = "2" ]; then
+    ADR_AUTHORITY_TEXT="${ADR_AUTHORITY:-consensus of maintainers}"
   fi
   ADR_AUTHORITY="$ADR_AUTHORITY_TEXT" perl -0pi -e \
     's/<!-- ADR-AUTHORITY -->.*?<!-- \/ADR-AUTHORITY -->/$ENV{ADR_AUTHORITY}/s' \
@@ -837,7 +1393,18 @@ fi
 # the kickoff interview before ordinary STEP resolution.
 if [ ! -f "$DOCS/overview.md" ]; then
   cp "$DOCS/templates/overview-template.md" "$DOCS/overview.md"
-  echo "  created $DOCS/overview.md (fill it in)"
+  if [ "$MODE" = "existing" ]; then
+    echo "  created $DOCS/overview.md (the adoption drafts it with you, in session 1.1)"
+  else
+    echo "  created $DOCS/overview.md (the kickoff drafts it with you)"
+  fi
+  # The seeded PROJECT-STATUS marker is what AGENTS.md/status.sh route on — and the literal that
+  # retcon's §5d flips. If the template's marker text ever drifts, that routing silently breaks
+  # (and §5d's substitution would no-op), so verify the seed took before anything depends on it.
+  grep -q '<!-- PROJECT-STATUS: not-started -->' "$DOCS/overview.md" || {
+    echo "init.sh: overview.md is missing the seeded '<!-- PROJECT-STATUS: not-started -->' marker" >&2
+    echo "        (overview-template.md may have drifted). Aborting before the project ships mis-routed." >&2
+    exit 1; }
 fi
 
 # --- 5b. Seed the STEP index ------------------------------------------------
@@ -850,29 +1417,50 @@ if [ ! -f "prompts/STEP-index.md" ]; then
   echo "  created prompts/STEP-index.md (seeded from template)"
 fi
 
+# --- 5b2. Declare the layout in the registry --------------------------------
+# registries/repos.yml states which layout the project is in, and both layouts write it: a reader
+# cannot work the layout out from the rows. Counting them says the wrong thing — the mono seeding
+# below adds a third row, so at bootstrap mono has more rows than multi — and the row whose
+# location is "." exists only in mono, so a multi project can never be required to carry one and
+# its absence means multi, or a mono project without one. If multi did not declare itself,
+# `multi` would never be written down anywhere and an absent key would stay ambiguous forever.
+#
+# It goes at column 0 above `repos:`, which is outside every row block. That is the placement rule
+# and not a preference: repos.yml's rule 2 has anything that rewrites a row scan forward from its
+# `- name:`, and nothing bounds that scan at the end of the list, so a top-level key written below
+# the rows sits inside the last row's block. record_registry_remote below survives either
+# placement today — both of its arms look for a field the key is not — but that is this one
+# rewriter's luck, not a property of the file.
+if [ -f "$DOCS/registries/repos.yml" ]; then
+  if [ "$LAYOUT" = "2" ]; then LAYOUT_NAME=mono; else LAYOUT_NAME=multi; fi
+  LAYOUT_NAME="$LAYOUT_NAME" perl -0pi -e \
+    's{^repos:\n}{layout: $ENV{LAYOUT_NAME}\n\nrepos:\n}m;' \
+    "$DOCS/registries/repos.yml"
+  echo "  registry: declared the $LAYOUT_NAME layout"
+fi
+
 # --- 5c. Mono-repo-for-now layout files -------------------------------------
 # In this layout the workspace root is the project's one repository, so two things multi-repo
 # gets for free have to be placed here before the initial commit.
 if [ "$LAYOUT" = "2" ]; then
-  # The registry calls itself the source of truth for which repos exist, and until now it
-  # omitted the only repository a mono project has. A seeded row carries no `provides:` — a
-  # status written before anyone has looked at a repo is a guess, not a record.
+  # The registry is the source of truth for which repos exist, and the only repository a mono
+  # project has is the workspace root — so its row is seeded here. `added_as: created` is a
+  # stamp for a human reader; no script reads it.
   if [ -f "$DOCS/registries/repos.yml" ]; then
     SLUG="$SLUG" perl -0pi -e '
       my $row = qq{  - name: "$ENV{SLUG}"\n}
               . qq{    location: "."\n}
               . qq{    type: mono\n}
-              . qq{    origin: created\n}
-              . qq{    control: managed\n}
+              . qq{    added_as: created\n}
               . qq{    description: "The workspace root: the one repository this project lives in until it is split."\n\n};
       s{^repos:\n}{repos:\n$row}m;
     ' "$DOCS/registries/repos.yml"
     echo "  registry: recorded the workspace root repo"
   fi
   # GitHub reads workflows only at a repository root, and step 2 removed .github along with the
-  # template's own health files — so the method-check gate has never actually run in a mono
-  # project. The docs hub keeps its own copy, which is what gives it CI after a split; the
-  # workflow's run step finds the doctor in either layout.
+  # template's own health files — so in a mono project the method-check gate runs from this copy.
+  # The docs hub keeps its own copy, which is what gives it CI after a split; the workflow's run
+  # step finds the doctor in either layout.
   if [ -f "$DOCS/.github/workflows/method-check.yml" ]; then
     mkdir -p "$ROOT/.github/workflows"
     cp "$DOCS/.github/workflows/method-check.yml" "$ROOT/.github/workflows/method-check.yml"
@@ -880,10 +1468,79 @@ if [ "$LAYOUT" = "2" ]; then
   fi
 fi
 
+# --- 5d. Existing-codebase adoption (retcon) --------------------------------
+# "existing" mode reuses the whole scaffold above (the STEP index stays the greenfield-identical
+# seed — STEP-1 + 1.1–1.14, all Planned — so check.sh stays clean and status.sh's `retcon` branch
+# is the only new resolver logic). It adds just two things, then stops: flip the status marker to
+# `retcon`, and drop a stub STEP-1 PLAN whose substeps are the inventory work. All discovery — find
+# & register repos, classify docs, build the recon map, harvest the sessions — is agent-driven
+# behind RETCON-PROMPT.md, routed by the `retcon` status.
+if [ "$MODE" = "existing" ]; then
+  # Order matters here: seed the stub STEP-1 PLAN FIRST, then flip the status marker. The `retcon`
+  # marker is a promise that the resolver (RETCON-PROMPT.md) has an in-flight PLAN to resolve —
+  # RETCON-PROMPT.md reads that PLAN as a precondition and cannot rebuild it — so the marker must
+  # never be set unless the PLAN it points at exists.
+  #
+  # Seed the stub STEP-1 PLAN at the SAME in-flight path greenfield uses, so the Cross-Cutting
+  # Review and later check-ins find it where they look. Its substeps are the inventory work;
+  # RETCON-PROMPT.md upgrades it by addition once the inventory is confirmed. {{PROJECT}} was
+  # already substituted in step 3; fill {{DATE}} with the adoption date here.
+  mkdir -p "$ROOT/Upcoming Prompts"
+  # The stub template ships with the scaffold and no step above removes it, so a missing one means
+  # the download is incomplete or corrupt. Abort loudly BEFORE flipping the marker rather than
+  # shipping a `retcon` project with no PLAN — that state would route every agent to
+  # RETCON-PROMPT.md and then dead-end it (nothing to resolve, and no way to regenerate the stub).
+  if [ ! -f "$DOCS/templates/retcon-step-1-plan-stub.md" ]; then
+    echo "init.sh: the retcon stub STEP-1 PLAN template is missing:" >&2
+    echo "        $DOCS/templates/retcon-step-1-plan-stub.md" >&2
+    echo "        Your scaffold download looks incomplete — re-download the Throughstone template" >&2
+    echo "        and rerun ./init.sh. (The marker was not flipped; nothing routes to retcon yet.)" >&2
+    exit 1
+  fi
+  TODAY="$(date +%Y-%m-%d)" perl -pe 's/\Q{{DATE}}\E/$ENV{TODAY}/g' \
+    "$DOCS/templates/retcon-step-1-plan-stub.md" > "$ROOT/Upcoming Prompts/${SLUG}-STEP-1-PLAN.md"
+  echo "  retcon: seeded stub STEP-1 PLAN (Upcoming Prompts/${SLUG}-STEP-1-PLAN.md)"
+  # With the PLAN in place, flip the kickoff gate from the seeded `not-started` to `retcon` (see
+  # overview-template.md). This flip is the single most load-bearing line in retcon: it is what
+  # routes every agent and status.sh into adoption. A silent no-op (marker text drifted, so the
+  # substitution matched nothing) would ship `not-started` and run the greenfield kickoff against
+  # existing code — so verify it took, mirroring the precondition guard on the seeded overview
+  # marker in §5.
+  perl -pi -e 's/<!-- PROJECT-STATUS: not-started -->/<!-- PROJECT-STATUS: retcon -->/' "$DOCS/overview.md"
+  grep -q '<!-- PROJECT-STATUS: retcon -->' "$DOCS/overview.md" || {
+    echo "init.sh: failed to set the retcon PROJECT-STATUS marker in overview.md" >&2
+    echo "        (overview-template.md may have drifted). Aborting so the project does not ship" >&2
+    echo "        routed to the greenfield kickoff instead of retcon adoption." >&2
+    exit 1; }
+  echo "  retcon: PROJECT-STATUS set to 'retcon' (adopting an existing codebase)"
+  # Scaffold the pre-answer-sheet scratch folder. RETCON-PROMPT.md's per-session harvest (Stage 3)
+  # drops one transient sheet per harvested session here; seeding it now gives that a home from
+  # adoption start rather than having the first session create it.
+  mkdir -p "$ROOT/Upcoming Prompts/retcon"
+  cat > "$ROOT/Upcoming Prompts/retcon/README.md" <<'RETCON_SCRATCH_README'
+# Retcon scratch — pre-answer sheets
+
+Transient working folder for **retcon adoption** (see `RETCON-PROMPT.md`). During the per-session
+harvest, each harvested architecture session gets a **pre-answer sheet** here — one drafted answer per
+decision, with provenance tags — which the confirm pass consumes before the clean `architecture/`
+doc is written. Start each sheet from your docs hub's `templates/retcon-preanswer-sheet.md`.
+
+Scratch, not project history: these sheets are not committed, and they are discarded when STEP-1
+lands. What mode a project is in is the `PROJECT-STATUS` marker in `overview.md`, never the presence
+of this folder — and if that marker is ever lost the method asks you rather than reading it off the
+files.
+RETCON_SCRATCH_README
+  echo "  retcon: scaffolded pre-answer-sheet scratch (Upcoming Prompts/retcon/)"
+fi
+
 # --- 6. Initialise repo(s) --------------------------------------------------
 # write_gitignore DIR — write the shared baseline ignore file for each generated repo.
 # The contents are intentionally small: editor cruft, per-machine agent config, and local
 # secrets. Project-specific ignores can be added after bootstrap.
+# A mono root also ignores the in-flight STEP's sheets in Upcoming Prompts/ (METHOD.md §5), since
+# there the workspace root is the repository. A multi root is not a repository, so the hub and
+# prompts/ get neither line. The lines must be written here, before init_repo's `git add -A`, or a
+# new project starts with a modified .gitignore.
 write_gitignore() {
   cat > "$1/.gitignore" <<'GI'
 # OS / editor cruft
@@ -893,9 +1550,10 @@ write_gitignore() {
 # Per-machine agent config (not shared). Patterns rather than one filename: an editor's lock and
 # autosave siblings (#settings.local.json#, settings.local.json~) are per-machine too, and a
 # `git add -A` would otherwise commit them. Shared project config (.claude/settings.json) still commits.
-.claude/*.local.json
-.claude/#*#
-.claude/*~
+# **/ matches at any depth: an agent started inside a code folder writes its .claude/ there.
+**/.claude/*.local.json
+**/.claude/#*#
+**/.claude/*~
 
 # Personal local Throughstone profile (not shared)
 /.throughstone/local-user.md
@@ -904,8 +1562,17 @@ write_gitignore() {
 .env
 .env.*
 !.env.example
-.secrets/
+.secrets
 GI
+  if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
+    cat >> "$1/.gitignore" <<'GI'
+
+# The STEP in flight (per-machine scratch until it is archived into prompts/). The .gitkeep stays
+# tracked so every clone has the folder.
+/Upcoming Prompts/*
+!/Upcoming Prompts/.gitkeep
+GI
+  fi
 }
 
 # stamp_license DIR — write the selected project LICENSE for open-source projects.
@@ -914,7 +1581,7 @@ GI
 # so apply-project-license.sh has the same source of truth as multi-repo projects.
 stamp_license() {
   local src
-  [ "$LICENSE_CHOICE" = "private" ] && return 0
+  [ "$LICENSE_CHOICE" = "proprietary" ] && return 0
   src="$DOCS/templates/licenses/$LICENSE_TEMPLATE_NAME"
   [ -f "$src" ] || {
     echo "init.sh: project license template disappeared during setup: $src" >&2
@@ -922,10 +1589,13 @@ stamp_license() {
   }
   YEAR="$(date +%Y)" HOLDER="$HOLDER" perl -pe \
     's/\Q{{YEAR}}\E/$ENV{YEAR}/g; s/\Q{{HOLDER}}\E/$ENV{HOLDER}/g' "$src" > "$1/LICENSE"
-  echo "  license: $1/LICENSE"
   if [ "$LAYOUT" = "2" ] && [ "$1" = "." ]; then
     cp "$1/LICENSE" "$DOCS/LICENSE"
-    echo "  canonical project license: $DOCS/LICENSE"
+    # One repository, two copies of one text: say what each copy is for.
+    echo "  license: $1/LICENSE (this repository's license)"
+    echo "  license: $DOCS/LICENSE (the canonical copy, same text, which apply-project-license.sh copies from)"
+  else
+    echo "  license: $1/LICENSE"
   fi
 }
 
@@ -933,7 +1603,7 @@ stamp_license() {
 # Every generated repo gets LICENSING.md so readers do not mistake LICENSE-THROUGHSTONE for the
 # project's license grant.
 write_licensing_summary() {
-  if [ "$LICENSE_CHOICE" = "private" ]; then
+  if [ "$LICENSE_CHOICE" = "proprietary" ]; then
     cat > "$1/LICENSING.md" <<'EOF'
 # Licensing
 
@@ -959,18 +1629,39 @@ EOF
 # init_repo DIR — create one generated repo with baseline files and an initial trunk commit.
 # Callers decide which directories are durable repos; this helper keeps their initial commit
 # shape consistent.
+# In the mono layout DIR is the workspace root, so `git add -A` takes in init.sh itself. That is
+# deliberate: excluding it would leave every newly generated project with a
+# dirty working tree, and the next ordinary `git add -A` would commit it anyway. The script does
+# not delete itself either — not because it cannot, since an unlinked script keeps running, but
+# because reading a script while removing it is fragile, a run that failed partway would leave the
+# user no copy, and the multi layout leaves the file on disk too. Keeping both layouts alike is
+# the point.
+#
+# The committed copy has a second, smaller use, and it is worth stating narrowly. It is the
+# generator's own source exactly as the template shipped it, so diffing it against another
+# project's copy shows whether the same generator built both. It is not a version stamp — nothing
+# in it names a release — and it holds none of this run's answers: the name is the docs hub's
+# folder name, the description is in AGENTS.md, the licence posture in
+# .throughstone/project-license, the ADR authority in adr/README.md, the trunk branch in git, the
+# layout in the `layout:` line of registries/repos.yml. Nothing in a generated project records the
+# scaffold version, which is a real gap and a separate question from this one.
+#
+# It is inert: the guard in section 0c looks for a marker that section 3 strips, so running this
+# copy inside a finished project refuses and exits.
 init_repo() {
   write_gitignore "$1"
   stamp_license "$1"
   write_licensing_summary "$1"
   ( cd "$1" && git init -q && git add -A && git commit -qm "Initial commit (bootstrapped)" \
     && git branch -M "$TRUNK_BRANCH"; )
-  echo "  git repo: $1"
+  echo "  git repo: $1 (initial commit on $TRUNK_BRANCH)"
 }
 
 # record_registry_remote REPO_NAME REMOTE_URL — update registries/repos.yml after a remote is
-# attached and pushed. The registry is the multi-repo clone inventory, so mono-repo and pruned-registry
-# setups can safely no-op.
+# attached and pushed. Both layouts use it: multi for the docs and prompts repos, mono for the
+# workspace-root row. It matches the row by name. Where the row carries no `remote:` yet, the
+# line goes in after `location:` — the one field a row cannot lack, since the check-in fails a
+# row without one — never after an optional field a reader is told is safe to drop.
 record_registry_remote() {
   local repo="$1" remote="$2" reg="$DOCS/registries/repos.yml"
   [ -f "$reg" ] || return 0
@@ -986,18 +1677,18 @@ record_registry_remote() {
        $block;
      }ems
     or
-    s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*type:[^\n]*\n)}
+    s{(^[ \t]*-[ \t]*name:[ \t]*"\Q$ENV{REPO}\E"[^\n]*\n(?:(?!^[ \t]*-[ \t]*name:).)*?^[ \t]*location:[^\n]*\n)}
      {$1 . qq{    remote: "$qremote"\n}}ems;
   ' "$reg"
 }
 
-# commit_registry_remotes — persist registry remote URLs after all multi-repo remotes exist.
-# The docs repo is already initialized before this runs; recording in a second commit avoids
-# claiming remote URLs before creation/push has actually succeeded.
+# commit_registry_remotes — persist registry remote URLs after the run's remotes exist. The repo
+# holding the registry is already initialized and committed before this runs — the docs repo in
+# multi, the workspace root in mono — so recording lands in a second commit, which is what keeps
+# the file from claiming a remote URL before creation/push has actually succeeded.
 commit_registry_remotes() {
   local reg="$DOCS/registries/repos.yml"
   [ "$MK_REMOTES" = "1" ] || return 0
-  [ "$LAYOUT" = "1" ] || return 0
   [ -f "$reg" ] || return 0
   if git -C "$DOCS" diff --quiet -- registries/repos.yml; then
     return 0
@@ -1005,45 +1696,98 @@ commit_registry_remotes() {
   ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
   echo "  registry: recorded bootstrap remotes"
   if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
+    # The repository this commit has to leave is the one that holds the registry: $DOCS in multi,
+    # the workspace root in mono, where $DOCS is a folder inside it and cannot be pushed. A failure
+    # here is a backup that did not complete like any other — the remote is left without the commit
+    # that records the remotes, so its copy of repos.yml lists none of them.
+    local reg_dir reg_name
+    if [ "$LAYOUT" = "2" ]; then
+      reg_dir="the workspace root"; reg_name="$SLUG"
+    else
+      reg_dir="$DOCS"; reg_name="${SLUG}-docs"
+    fi
     ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" && echo "  registry: pushed remote updates" ) \
-      || echo "  (could not push registry remote updates; push ${DOCS} manually later)"
+      || { echo "  (could not push the registry commit; it is committed in ${reg_dir} and not yet sent)"
+           note_remote_failure "$reg_name"; }
   fi
+}
+
+# REMOTE_FAILED_REPOS — the repos whose requested backup did not complete, accumulated as a
+# space-separated list so the closing report can name them; in the multi layout either repo can
+# fail alone. Read it exactly that way: a listed repo may still have an origin attached — what the
+# list says is that the branch was not confirmed to be on it. Empty means every requested backup
+# completed; it does not mean the wizard created every remote, since reuse_root_origin pushes to
+# one that was already there.
+#
+# When a backup fails, both layouts add the repo to this list instead of ending the run, and the
+# script exits 1 after its closing report.
+REMOTE_FAILED_REPOS=""
+
+# note_remote_failure NAME — record a repo whose requested backup did not complete. Adding a name
+# twice is possible: a repo whose first push failed keeps its attached origin, so the registry
+# push at the end of the run fails against the same repo. The list is the set of repos to go and
+# look at, so the second mention would only make the report read as though two things broke.
+note_remote_failure() {
+  case " $REMOTE_FAILED_REPOS " in
+    *" $1 "*) return 0 ;;
+  esac
+  REMOTE_FAILED_REPOS="$REMOTE_FAILED_REPOS $1"
 }
 
 # setup_remote DIR REPONAME MANUAL_URL — create/attach and push a remote.
 # GitHub mode creates a repo with gh. Manual mode attaches an existing remote URL from any Git
-# host and pushes the initialized trunk branch. MADE_REMOTE_URL is a small out-parameter used
-# only by the multi-repo registry recorder.
+# host and pushes the initialized trunk branch. Either way MADE_REMOTE_URL is set only inside the
+# success arm of the command that pushes, so a caller reading it is reading a URL the branch has
+# reached.
 setup_remote() {
   MADE_REMOTE_URL=""
   [ "$MK_REMOTES" = "1" ] || return 0
   if [ "$REMOTE_PROVIDER" = "manual" ]; then
-    [ -n "${3:-}" ] || return 1
+    # Not a caller error: the mono fallback calls this with no URL on purpose. Validation only
+    # demands --remote-url when the root origin cannot be reused, so a run that expected to reuse
+    # one and then could not attach it arrives here with nothing to fall back to. That is a
+    # requested backup that did not happen, so it is recorded like any other.
+    [ -n "${3:-}" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
       return 0
     fi
-    echo "  (could not push remote for $2; check that the remote exists, is empty, and accepts your credentials)"
+    echo "  (could not complete the remote for $2 — the command stopped partway, so whether"
+    echo "   origin is attached and whether the branch reached it are both unconfirmed. Check that"
+    echo "   the remote exists, is empty, and accepts your credentials.)"
+    note_remote_failure "$2"
     return 1
   fi
   if [ "$REMOTE_PROVIDER" = "github" ]; then
+    # Like a missing URL above, a missing owner is not a caller error: the GitHub path asks for none
+    # when the folder's origin is kept, so a kept origin that could not be attached arrives here
+    # with nothing to create.
+    [ -n "$OWNER" ] || { note_remote_failure "$2"; return 1; }
     if ( cd "$1" && gh repo create "$OWNER/$2" "--$REMOTE_VISIBILITY" --source=. --remote=origin --push >/dev/null ); then
       MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
-      echo "  remote: $OWNER/$2"
+      echo "  remote: created $OWNER/$2 on GitHub ($REMOTE_VISIBILITY)"
+      echo "  pushed: ${MADE_REMOTE_URL:-$OWNER/$2}"
       return 0
     fi
-    echo "  (skipped remote for $2)"
+    # gh creates and pushes in one command, so a failure here says nothing about which half ran:
+    # the repository may well exist on the host.
+    echo "  (could not create and push $OWNER/$2 — it may have been created; check your host)"
+    note_remote_failure "$2"
     return 1
   fi
-  echo "  (skipped remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  echo "  (no remote for $2; unknown provider '$REMOTE_PROVIDER')"
+  note_remote_failure "$2"
   return 1
 }
 
 # reuse_root_origin DIR — attach the preexisting empty root origin to a mono-repo project.
 # Multi-repo never calls this: the root stops being a durable repo, so reusing its origin for
-# docs or prompts would publish the wrong repository shape.
+# docs or prompts would publish the wrong repository shape. Like setup_remote it reports the URL
+# in MADE_REMOTE_URL, and only once the trunk branch is actually on it: an origin attached under
+# --remotes=no has nothing pushed to it, so the work still lives on one machine.
 reuse_root_origin() {
+  MADE_REMOTE_URL=""
   root_origin_can_be_reused || {
     if [ -n "$ROOT_ORIGIN" ] \
       && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] \
@@ -1054,11 +1798,23 @@ reuse_root_origin() {
     fi
     return 1
   }
-  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" )
+  # Checked, not trusted to errexit: this function is called on the left of an ||, which turns
+  # errexit off for its whole body. Without the check a failed attach would fall through to the
+  # success message below. Returning 1 hands the caller its fallback, which records the failure if
+  # it cannot set up a remote either — so the outcome is reported once, not twice.
+  ( cd "$1" && git remote add origin "$ROOT_ORIGIN" ) || {
+    echo "  note: could not attach the existing origin ($ROOT_ORIGIN)"
+    return 1
+  }
   echo "  remote: reused existing origin ($ROOT_ORIGIN)"
   if [ "$MK_REMOTES" = "1" ]; then
-    ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null \
-      && echo "  pushed: $ROOT_ORIGIN" ) || echo "  (could not push existing origin; push manually later)"
+    if ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
+      MADE_REMOTE_URL="$ROOT_ORIGIN"
+      echo "  pushed: $ROOT_ORIGIN"
+    else
+      echo "  (origin is attached, but the push did not complete; check it and push later)"
+      note_remote_failure "$SLUG"
+    fi
   fi
   return 0
 }
@@ -1068,17 +1824,33 @@ if [ "$LAYOUT" = "2" ]; then
   # Mono-repo: the initialized project is the workspace root. Reuse an empty non-template root
   # origin when safe; otherwise create/use a fresh remote if requested.
   init_repo "."
+  # The `|| true` is what keeps the run going, and each branch needs it for its own reason. In the
+  # first, setup_remote is a plain command in an if-body, which errexit acts on wherever it sits.
+  # In the second it is the final command of an `||` list, the one position in such a list errexit
+  # still watches. Either way the run would end right here — after the project is generated and
+  # committed, and before the closing instructions and the report on what to do about the failed
+  # backup. Nothing is swallowed by it: the helpers record the repo in REMOTE_FAILED_REPOS, which
+  # is reported at the end and decides the exit status.
   if [ "$REMOTE_PROVIDER" = "manual" ] && [ -n "$REMOTE_URL" ]; then
-    setup_remote "." "$SLUG" "$REMOTE_URL"
+    setup_remote "." "$SLUG" "$REMOTE_URL" || true
   else
-    reuse_root_origin "." || setup_remote "." "$SLUG" ""
+    reuse_root_origin "." || setup_remote "." "$SLUG" "" || true
   fi
+  # The workspace-root row was seeded in step 5c, before this repo had a remote. Record the URL
+  # now that one exists, the way multi does for docs and prompts below — otherwise the row stays
+  # blank and every check-in reports the project's one repository as backed up nowhere.
+  if [ -n "$MADE_REMOTE_URL" ]; then
+    record_registry_remote "$SLUG" "$MADE_REMOTE_URL"
+  fi
+  commit_registry_remotes
 else
   # Multi-repo: initialize docs and prompts as siblings. The root is only a local workspace
   # shell, so any origin attached to the downloaded template cannot represent the generated
-  # repos and is reported but not reused.
-  if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ]; then
-    echo "  note: existing root origin is not reused in multi-repo mode; use --remotes=yes or add remotes to the docs/prompts repos later."
+  # repos and is not reused. Say so only when the run asked for no remotes: one that asked sets
+  # up docs and prompts below, and the report at the end names any that failed.
+  if [ -n "$ROOT_ORIGIN" ] && [ "$ROOT_ORIGIN_IS_THROUGHSTONE" = "0" ] \
+    && [ "$MK_REMOTES" = "0" ]; then
+    echo "  note: existing root origin is not reused in multi-repo mode; add remotes to the docs/prompts repos later."
   fi
   init_repo "$DOCS"
   setup_remote "$DOCS" "${SLUG}-docs" "$DOCS_REMOTE" \
@@ -1090,18 +1862,120 @@ else
 fi
 
 # --- 7. Done ----------------------------------------------------------------
+# The ending reports what this run did and gives only the next action that applies. How to set up
+# a backup is for a run that asked for none. A run that asked for one either completed it, and the
+# remote lines above say where it went, or did not, and the report after this one says what to do.
+#
 # Mono keeps ONE shared remote for the single root repo. registries/repos.yml records that repo
 # and the folders inside it; no row in it is a repo to clone (runbooks/collaboration.md §9).
-if [ "$LAYOUT" = "2" ]; then
-  REMOTE_TIP="If you did not set up remotes during init, create one empty repo on your host
-  and push the root repo's ${TRUNK_BRANCH} branch to it. Leave registries/repos.yml's rows
-  alone — they record your one repo and the folders inside it, not repos to clone."
-else
-  REMOTE_TIP="If you did not set up remotes during init, create empty repos on your host, add
-  their URLs to registries/repos.yml, and push each local repo's ${TRUNK_BRANCH} branch."
+if [ "$MK_REMOTES" = "0" ] && [ "$LAYOUT" = "2" ]; then
+  # Read from the repository rather than inferred from the reuse decision, which does not say
+  # whether the attach worked.
+  KEPT_ORIGIN="$(git remote get-url origin 2>/dev/null || true)"
+  if [ -n "$KEPT_ORIGIN" ]; then
+    REMOTE_TIP="This folder's existing origin is kept as the project's remote, and nothing was
+  pushed to it:
+    ${KEPT_ORIGIN}
+  To back up, push the root repo's ${TRUNK_BRANCH} branch to it: git push -u origin ${TRUNK_BRANCH}"
+  else
+    REMOTE_TIP="No remote is attached. To back up, create one empty repo on your host, private
+  (making it public is a separate decision), attach it with 'git remote add origin <url>',
+  and push the root repo's ${TRUNK_BRANCH} branch to it."
+  fi
+  REMOTE_TIP="${REMOTE_TIP}
+  Then record that URL on the row in Code/${SLUG}-docs/registries/repos.yml whose
+  location is \".\", the same as any other repo — until it is there the check-in reports this
+  project as backed up nowhere. The rows below it are folders inside that one repository, not
+  repos to clone."
+elif [ "$MK_REMOTES" = "0" ]; then
+  REMOTE_TIP="No remote was set up for either repo. To back up, do this for each of the two,
+  Code/${SLUG}-docs/ and prompts/: create an empty repo on your host, private (making it public
+  is a separate decision), attach it from inside the local one with 'git remote add origin <url>',
+  push the ${TRUNK_BRANCH} branch to it, and only then record that URL as remote: on that repo's
+  row in Code/${SLUG}-docs/registries/repos.yml.
+  Recording last is the point — that row is what tells a teammate where to clone from, so it
+  should never name a remote the branch has not reached."
 fi
-say "Done."
-cat <<EOF
+# In mono the workspace root is the project's repository, so init.sh is in its first commit and
+# deleting it is a change like any other. In multi the root is not a repo and the file is simply
+# on disk. Say whichever is true rather than one sentence that is only true in one of them.
+if [ "$LAYOUT" = "2" ]; then
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is in your first
+commit, so deleting the file is a change you would then commit; the copy already in that
+commit stays either way. Keeping it costs nothing: it is inert, and it is a snapshot of the
+generator that built this project."
+else
+  INIT_SH_TIP="You can delete this init.sh now — it has done its job. It is not part of any
+repo here, so deleting the file is the whole of it."
+fi
+# "your project is saved locally with Git" is true of a mono project and only partly true of a multi
+# one, where the workspace root is not a repository. One sentence saying everything is saved and
+# another saying files here are not tracked is a contradiction the reader has to resolve alone, and
+# the reassuring half is the one they will believe. Same treatment as the init.sh tip above: say
+# whichever is true, and name the commit.
+if [ "$LAYOUT" = "2" ]; then
+  SAVED_TIP="You can start now; your project is committed locally with Git — everything in this
+  folder is in that repository except the STEP in flight in Upcoming Prompts/, which stays on this
+  computer until it is archived into prompts/."
+  PUSHED_TIP="It is also pushed to the remote named above."
+else
+  SAVED_TIP="You can start now; both repositories here are committed locally with Git —
+  Code/${SLUG}-docs/ and prompts/. Files at the workspace root are not in any repository, so
+  keep anything durable inside one of those two."
+  PUSHED_TIP="Both are also pushed to the remotes named above."
+fi
+if [ "$MK_REMOTES" = "0" ]; then
+  BACKUP_SECTION="Recommended optional backup:
+  ${SAVED_TIP}
+  For backup, sharing, and working from another computer, put the project on a Git host when
+  you're ready.
+
+  GitHub, Bitbucket, GitLab, and other Git hosts all work.
+  ${REMOTE_TIP}
+
+  GitHub:
+    https://github.com/"
+elif [ -n "$REMOTE_FAILED_REPOS" ]; then
+  BACKUP_SECTION="Saved:
+  ${SAVED_TIP}"
+else
+  BACKUP_SECTION="Saved:
+  ${SAVED_TIP}
+  ${PUSHED_TIP}"
+fi
+if [ -n "$REMOTE_FAILED_REPOS" ]; then
+  say "Done — but the backup did not complete."
+else
+  say "Done."
+fi
+# The handoff command is identical in both modes ("Read AGENTS.md and follow it"); only what the
+# agent does next differs — greenfield kickoff interview vs. retcon adoption of existing code.
+# Each branch prints its closing text and the backup section in one write: a reader that stops
+# inside it, such as `| head`, would otherwise fail the next write and end init.sh with 141.
+if [ "$MODE" = "existing" ]; then
+  cat <<EOF
+
+Next step:
+  Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory
+  here, the way you normally launch it. Then send it one message:
+
+      Read AGENTS.md and follow it.
+
+  That's the whole handoff (same command for every project, every agent). This project is set
+  up to ADOPT your existing codebase (retcon): the agent reads the retcon front door
+  (RETCON-PROMPT.md), asks a few intake questions (where your repos/docs are, how deep to go),
+  then inventories your system and reverse-engineers the architecture baseline WITH you —
+  confirming what it finds rather than interviewing from a blank page.
+
+The agent builds a recon map of what you already have, then Throughstone-shaped architecture
+docs describing it; forward work starts at STEP-2 once that baseline lands. It creates your
+local communication profile in .throughstone/local-user.md along the way.
+${INIT_SH_TIP}
+
+${BACKUP_SECTION}
+EOF
+else
+  cat <<EOF
 
 Next step:
   Start your AI agent (Claude Code, Codex, …) in THIS folder — set its working directory
@@ -1115,18 +1989,52 @@ Next step:
   right in the chat. Just describe your idea when it asks.
 
 The agent will interview you, propose a roadmap, and start the architecture STEP.
-You can delete this init.sh now — it has done its job.
+${INIT_SH_TIP}
 
-Recommended optional backup:
-  You can start now; your project is saved locally with Git. For backup, sharing,
-  and working from another computer, put the project on a Git host when you're ready.
-
-  GitHub, Bitbucket, GitLab, and other Git hosts all work with the generated repos.
-  ${REMOTE_TIP}
-
-  GitHub:
-    https://github.com/
-
-  GitHub CLI (optional; lets Throughstone create GitHub remotes for you):
-    https://cli.github.com/
+${BACKUP_SECTION}
 EOF
+fi
+
+# A remote the user asked for and did not get is a failure, and the exit status has to say so —
+# --non-interactive is documented as being for scripts and CI, and a caller reading exit 0 would
+# be told the backup exists. The closing instructions above are printed first regardless, because
+# the project itself is complete and usable — this report is about the one thing that is not.
+# Both layouts behave identically here.
+if [ -n "$REMOTE_FAILED_REPOS" ]; then
+  # Which names can appear here is decided by the layout, and so is where each one lives. Mono
+  # only ever records the bare slug, and its one repository is the workspace root; prompts/ and
+  # Code/<slug>-docs/ are folders inside it, not repos to stand in. Multi only ever records the
+  # two sibling repos, and its workspace root is not a repository at all. Naming all three in
+  # either layout offers one true mapping and two that send the reader nowhere.
+  if [ "$LAYOUT" = "2" ]; then
+    FAILED_REPO_MAP="Run these from the workspace root, the one repository this project has:"
+  else
+    FAILED_REPO_MAP="Run these from inside the local repo each name backs up — prompts/ for
+  ${SLUG}-prompts, and Code/${SLUG}-docs/ for ${SLUG}-docs:"
+  fi
+  cat >&2 <<EOF
+
+The remote backup did not complete for:$REMOTE_FAILED_REPOS
+
+  Your project is complete and committed locally — nothing is missing from it and you can
+  start work now.
+
+  A failed command tells you it did not finish, not how far it got — so find out before you
+  retry. The names above are the repositories on your host, not folders here.
+  ${FAILED_REPO_MAP}
+
+    git remote -v
+      → is origin attached, and to the URL you meant?
+    git ls-remote <that-url> ${TRUNK_BRANCH}
+      → is the branch on the remote at all?
+    git rev-parse ${TRUNK_BRANCH}
+      → if it is, does that commit match the one the line above showed?
+
+  Then do whichever part is left: create the repository on your host, attach it as origin, or
+  push to it. Once the branch is there and the commits match, record that URL as remote: on this
+  repo's row in Code/${SLUG}-docs/registries/repos.yml if it is not already there — while that
+  field is missing, every check-in reports this repo as backed up nowhere.
+
+EOF
+  exit 1
+fi

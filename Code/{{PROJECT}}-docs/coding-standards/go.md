@@ -27,9 +27,10 @@ where we're opinionated. Pin the linters in the repo so the standard is enforced
 - Comment the *why* of non-obvious logic (and *why* an ignored error is safe — see below).
 
 ## Project / module layout
-- One module per repo (`go.mod` at root, module path = repo URL). Package per directory;
-  the directory name is the package name.
-- A small repo can keep `main` at the root. As it grows: **`cmd/<binary>/`** for entrypoints
+- One module per codebase (`go.mod` at its root, module path = the URL it is fetched from: its
+  repo's path, plus its folder when that is not the repo root). Package per directory; the
+  directory name is the package name.
+- A small module can keep `main` at its root. As it grows: **`cmd/<binary>/`** for entrypoints
   (thin `main`), **`internal/`** for code that must not be imported externally (the toolchain
   enforces this boundary), top-level packages for the public API. Skip `pkg/` unless you have
   a real reason. These are conventions, not an official Go standard.

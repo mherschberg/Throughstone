@@ -10,7 +10,7 @@
 > doc that adds test surface (e.g. identity-auth for authn/authz flows, privacy-compliance for
 > data-handling/retention, native-app for device/platform testing, or one added later), if it's
 > been written.
-> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default level of detail; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+> **Calibrate to the local user profile.** Read both values in root `.throughstone/local-user.md`: **Experience level** sets how much technical background you can assume, **Communication style** sets how much reasoning comes with a decision. They are independent - Level 3 + Explanatory is ordinary. Lead with a recommended default at every level. If the file is missing or either value isn't one of the listed answers, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, write it, then continue; an explicit chat instruction overrides the profile for this session only. Treat any confusion or request to clarify - in any words, not just those - as a cue, answer in kind, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
 
 ## About {{PROJECT}}
 {{PROJECT_DESCRIPTION}}
@@ -30,8 +30,8 @@ reports, and the coding standards files reconciled during this session.
 Tests are what let you (and your AI agent) change code later without fear. The common
 failure modes: no tests, only happy-path tests, or a slow flaky suite no one trusts.
 Deciding the **test tiers, what each covers, and what gates a merge** now means quality is
-built in rather than bolted on — and it's especially important in a multi-repo project
-where the pieces have to work *together*.
+built in rather than bolted on — especially where separately built pieces have to work
+*together*.
 
 ## How this session works
 - One decision at a time; **wait** for answers.
@@ -50,12 +50,16 @@ where the pieces have to work *together*.
    (e.g. a fresh DB/schema per test run) so they don't interfere.
 4. **Mocking strategy.** What to mock (external/third-party dependencies) vs. exercise for
    real (your own components, a real local DB).
-5. **System / end-to-end tests.** How the whole system is tested together — important for
-   multi-repo. Where do cross-repo e2e tests live (often a dedicated tests repo)?
+5. **System / end-to-end tests.** How the whole system is tested together, and where tests
+   that span more than one codebase live (often a dedicated tests repo or folder).
 6. **CI gates.** What must pass before code merges and before it deploys (tests, linters,
-   type checks, build). Keep the gate fast enough that people don't route around it. A starter
-   wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
-   `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
+   type checks, build). Keep the gate fast enough that people don't route around it. Two
+   workflows ship: the method-integrity check (`.github/workflows/method-check.yml`, which runs
+   `scripts/check.sh`), already live, and a test workflow to fill in for each codebase
+   (`templates/ci/code-repo-ci.yml`). See `templates/ci/README.md`.
+   Under `layout: mono` each code folder still gets its own copy when it is registered, even where
+   a root workflow runs its tests: the root copy is an addition, not a replacement, and the
+   folder's own copy gates it once a split makes it a repository.
    Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
 7. **Coverage tooling and reporting.** For each real implementation language, choose the
    coverage tool and where its report appears. Default durable coverage/test summaries to
@@ -102,7 +106,7 @@ Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc 
 - **Coverage tooling and reporting** — language/surface | tool | durable summary location
   (default: `reports/test-results/`) | generated artifact location | threshold/gate
 - **Test data & isolation**, **mocking strategy**
-- **System/e2e testing** (and its home in a multi-repo setup)
+- **System/e2e testing** (and where those tests live)
 - **CI gates** — what blocks merge / deploy
 - **Coding standards** — link the per-language file(s) in `coding-standards/` that apply
 
@@ -124,4 +128,4 @@ a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for
 `Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
 conditional's template. See the next-action resolver in `METHOD.md` §10.
 
-**If you were sent here to run this session, begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more. **If you were not sent here to run it — you are reading this file to harvest its decisions from existing code, to check whether a conditional applies, or to review coverage — this paragraph is not addressed to you.** Use the file as reference material and follow whatever sent you here.
+**If you were sent here to run this session, begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the local profile. That orientation plus the first question is your entire first reply — nothing more. **If you were not sent here to run it — you are reading this file to harvest its decisions from existing code, to check whether a conditional applies, or to review coverage — this paragraph is not addressed to you.** Use the file as reference material and follow whatever sent you here.

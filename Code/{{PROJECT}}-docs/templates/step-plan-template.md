@@ -5,7 +5,7 @@
 **Status:** Planned        <!-- Planned → In progress → Done; or Deferred / Abandoned (see METHOD.md §1) -->
 **Date:** {{DATE}}
 **Branch:** `step-{{NNNN}}-{{short-name}}`   <!-- same name in every repo this STEP touches -->
-**Repos (projection):** {{repos + merge order}}   <!-- same label as prompts/STEP-index.md; lists repos + merge order; powers the overlap warning. A repo the method only references (`control: external`) never appears here — a STEP is work Throughstone does, in repositories it controls. -->
+**Repos:** {{repos + merge order}}
 
 > One-paragraph statement of what this STEP delivers and why it comes now.
 
@@ -15,9 +15,10 @@
 ## Decisions already locked
 <!-- Decisions from prior STEPs/ADRs that this STEP must respect. Reference by ADR number
      or architecture doc. Carrying these forward keeps a shared mental model. -->
-- root `.throughstone/local-user.md` — read **Experience level** before user-facing
-  questions or explanations, and read **Communication style** before planning discussions;
-  keep that file as the personal local source of truth for both values.
+- root `.throughstone/local-user.md` — read both values before any user-facing turn:
+  **Experience level** sets how much technical background you can assume, **Communication style**
+  sets how much reasoning comes with a decision. Keep that file as the personal local
+  source of truth for both.
 - `registries/risks.yml` — review relevant accepted risks/debt before planning work that
   touches their area.
 - The Test Strategy architecture doc (`architecture/*-test-strategy.md`) — use it to decide
@@ -32,14 +33,17 @@
 
 ## Substeps
 
-| # | Title | Produces | Depends on | Open questions |
-|---|-------|----------|------------|----------------|
-| {{N}}.1 |  |  |  |  |
-| {{N}}.2 |  |  |  |  |
+| # | Title | Status | Produces | Depends on | Open questions |
+|---|-------|--------|----------|------------|----------------|
+| {{N}}.1 |  | Planned |  |  |  |
+| {{N}}.2 |  | Planned |  |  |  |
 
 <!-- For the architecture STEP, substeps are the sessions in
-     templates/architecture-sessions/ (1.1 → session 01, etc.). For later STEPs, each
-     substep gets a prompt authored from templates/substep-prompt-template.md. A Check-in STEP is
+     templates/architecture-sessions/ (1.1 → session 01, etc.), and their status lives in
+     prompts/STEP-index.md, which the next-action resolver reads — drop the Status column here.
+     For later STEPs, the Status column above is where each substep's status lives, and each
+     substep gets a prompt authored from templates/substep-prompt-template.md unless the STEP is
+     thin (step 5 of the recipe in prompts/README.md says which). A Check-in STEP is
      thin: no prompts are authored — its two substeps are doc-drift/conditional-coverage
      reconciliation (N.1) and the full test run (N.2) defined in runbooks/check-in.md; this
      PLAN just points there. A late conditional-session follow-up STEP is also thin: its
@@ -88,17 +92,17 @@
 ## Ground rules
 <!-- The working agreement for this STEP. e.g. "no code in this STEP", commit discipline,
      what 'done' means for a substep, review gates. -->
-- **Calibrate communication from root `.throughstone/local-user.md`.** Substep prompts
-  should read the recorded **Experience level** and adjust explanations/questions
-  accordingly. STEP planning should use the saved **Communication style** as the default
-  verbosity. If the file is missing, ask the two local-profile questions from
-  `BOOTSTRAP-PROMPT.md` Stage 0, create it, and continue. An explicit style request in chat
+- **Calibrate communication from root `.throughstone/local-user.md`.** Substep prompts and
+  STEP planning read both values: **Experience level** sets how much technical background
+  you can assume, **Communication style** sets how much reasoning comes with a decision. If the
+  file is missing or either value isn't one of the listed answers, ask the two local-profile
+  questions from `BOOTSTRAP-PROMPT.md` Stage 0, write it, and continue. An explicit chat instruction
   overrides the profile for this session only. Don't copy either value into this PLAN.
 - **Plan interactively.** Before this PLAN is finalized, confirm scope with the user and ask
   clarifying questions for ambiguous requirements, sequencing, dependencies, ownership, or
-  repo boundaries. When a planning decision is needed, offer appropriate options with brief
-  pros and cons. Respect the saved communication style while still asking the questions
-  needed to make the STEP coherent.
+  repo boundaries. When a planning decision is needed, offer appropriate options with pros
+  and cons. Respect both saved values while still asking the questions needed to make the STEP
+  coherent.
 - **Tests ship with the code.** Every substep that writes or changes code also writes or updates
   the relevant tests for it (unit, integration, API/contract, e2e, security/authorization,
   migration/data, performance, or project-specific). The PLAN chooses whether tests run as each

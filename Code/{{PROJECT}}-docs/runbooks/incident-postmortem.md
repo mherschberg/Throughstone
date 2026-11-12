@@ -15,7 +15,7 @@
 >   **Incident STEP** whose three substeps — RCA, find-similar, fix — *are* **Parts 2–4 below**.
 >   Its PLAN is thin and points here; you don't author substep prompts for it (the same special
 >   case as the check-in STEP — see `prompts/README.md`). Record the substeps' status in the
->   index/PLAN like any other STEP.
+>   PLAN like any other STEP.
 >
 > An "incident" is any unplanned production failure or near-miss worth not repeating — an
 > outage, data loss/corruption, a security event, a bad deploy. Small ones get a light touch;
@@ -101,5 +101,7 @@ the *next* one is caught sooner and cheaper:
 - Any **ADRs** for decisions the RCA changed; any **doc fixes** (Version Logs bumped); any
   **follow-up STEPs** filed in `prompts/STEP-index.md`; any accepted residual risks/debt recorded
   in `registries/risks.yml`.
-- Mark the Incident STEP's substeps and the STEP **Done**; note anything to watch at the next
-  **check-in** (`runbooks/check-in.md`).
+- Mark the Incident STEP's substeps **Done**, archive its thin PLAN under `prompts/` like any other
+  completed STEP, and then mark the STEP **Done** and merge its branch into the trunk
+  (`prompts/README.md`, recipe step 7); note anything to watch at the next **check-in**
+  (`runbooks/check-in.md`).

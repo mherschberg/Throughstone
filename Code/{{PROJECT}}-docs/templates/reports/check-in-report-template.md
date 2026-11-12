@@ -12,10 +12,9 @@
 |------|----------|---------|--------|
 | Architecture docs vs. code | {{docs/repos}} | {{none / summary}} | {{doc fixed / ADR written / bug STEP filed}} |
 | Code vs. still-correct docs | {{docs/repos}} | {{none / summary}} | {{bug STEP filed / fixed here}} |
-| Repo READMEs | {{repos}} | {{none / summary}} | {{updated / follow-up}} |
+| Repo READMEs | {{repos}} | {{none / summary}} | {{updated / re-registered / raised / follow-up}} |
 | Interface contracts | {{artifacts}} | {{none / summary}} | {{updated / follow-up}} |
 | Docstrings | {{areas}} | {{none / summary}} | {{updated / follow-up}} |
-| Inputs vs. architecture | {{inputs/inputs-index.md}} | {{none / rows superseded / retired to archive}} | {{index updated / archived / follow-up}} |
 
 ## Conditional Coverage
 
@@ -43,6 +42,12 @@
 |--------------|---------|--------|-------|
 | {{repo}} | `{{command}}` | {{passed/failed/skipped}} | {{counts, coverage, failures}} |
 
+## Periodic Audits
+
+| Audit or rotation | Runbook | Result | Action |
+|-------------------|---------|--------|--------|
+| {{dependency audit / secrets rotation / none attached}} | {{runbooks/...}} | {{clean / findings / not run: why}} | {{patched / risks.yml row / follow-up STEP / none}} |
+
 ## Carry-Forward
 
 | Item | Type | Owner | Next action |
@@ -51,5 +56,5 @@
 
 ## Summary
 
-{{Brief statement of project health, material changes made during the check-in, and when the
-next check-in should be considered.}}
+{{Brief statement of project health, material changes made during the check-in, and the STEP or
+date written into overview.md's NEXT-CHECK-IN line for the next one, or "not scheduled yet".}}

@@ -9,6 +9,10 @@ This is not the first project bootstrap. The first maintainer ran `./init.sh` fr
 Throughstone scaffold to create the project. Later contributors use the generated project
 workspace and, for multi-repo projects, `Code/<project>-docs/scripts/setup-workspace.sh`.
 
+> Paths below are relative to the workspace root (the folder containing `Code/` and
+> `prompts/`). `<project>` stands for the project's slug, so the docs hub is
+> `Code/{{PROJECT}}-docs/`.
+
 ## 1. Identify the project shape
 
 Most Throughstone projects are **multi-repo**:
@@ -23,7 +27,7 @@ Some early projects are **mono-repo-for-now**:
 - There is one repo.
 - `AGENTS.md`, `CLAUDE.md`, and `doctor.sh` are committed in that repo.
 - `setup-workspace.sh` is not needed. Clone the repo, open it, and continue at
-  [Read the project state](#4-read-the-project-state).
+  [Create your local user profile](#3-create-your-local-user-profile).
 
 ## 2. Set up a multi-repo workspace
 
@@ -48,36 +52,30 @@ workspace root:
 - `doctor.sh`
 
 If a repo did not arrive, `setup-workspace.sh` names it and says why as it runs, then closes
-with a count. The one case it stays quiet about is a repo with no `remote:` in
-`registries/repos.yml` — it was never going to be cloned. Read its registry entry and ask the
-maintainer how that repo is provided.
+with a count; if it skips cloning altogether, it says why instead. It stays quiet about a repo with
+no `remote:` or no `location:` in `Code/<project>-docs/registries/repos.yml` — it was never going to
+be cloned. Read its registry entry and ask the maintainer how that repo is provided.
 
 ## 3. Create your local user profile
 
 Before reading or running project sessions, create root `.throughstone/local-user.md`. If it
 already exists on this machine, confirm it belongs to the active user; otherwise replace it
-with this user's answers. This file is personal local state, not project documentation and
-not something to commit. If an agent is guiding onboarding, this is its first user-facing
-step for every second-or-later contributor. Ask the active user:
+with this user's answers. This file is personal local state, not project documentation and not
+something to commit. If an agent is guiding onboarding, this is its first user-facing step for
+every second-or-later contributor.
 
-1. How much experience do you have building a software project like this? Level **1** (no
-   coding experience), **2** (basic coding experience), or **3** (senior developer or above).
-2. How terse or explanatory should project discussions be by default? **Terse**,
-   **Normal**, or **Explanatory**.
+**First**, read `Code/<project>-docs/METHOD.md` §4, "Calibrating to the user's experience
+level". It says what the two answers change: the **Experience level** sets how much technical
+background an agent may assume, the **Communication style** sets how much reasoning it gives
+with a decision, and the two are independent. Reading it first is what lets you tell the new
+contributor up front that they can ask for any question to be explained.
 
-Record the answers as **Experience level** and **Communication style**. Agents use this file
-to calibrate explanations and questions for this contributor; they should not inherit another
-person's preferences from project docs. An explicit style request in chat overrides this file
-for the current session only; edit the file to change future defaults.
+**Then** ask the two local-profile questions from `Code/<project>-docs/BOOTSTRAP-PROMPT.md`
+Stage 0 and record the answers in the shape it gives. Stage 0 owns the question wording, the
+answer labels, the file shape and the override precedence — don't restate them here.
 
-Use this shape:
-
-```md
-# Local User Profile
-
-Experience level: {{1 | 2 | 3}} - {{label}}
-Communication style: {{Terse | Normal | Explanatory}}
-```
+Each contributor keeps their own profile. Never inherit another person's values from project
+docs.
 
 ## 4. Read the project state
 
@@ -86,7 +84,7 @@ Start with these files, in this order:
 1. `AGENTS.md` - agent and contributor operating context, including kickoff versus resume.
 2. `Code/<project>-docs/METHOD.md` - the method, read once before working.
 3. `Code/<project>-docs/overview.md` - project brief and bootstrap status marker.
-4. `prompts/STEP-index.md` - roadmap, STEP status, owners, and repo projections.
+4. `prompts/STEP-index.md` - roadmap, STEP status, owners, and scope.
 5. `Code/<project>-docs/registries/repos.yml` - canonical repo inventory.
 
 Then run the local checks from the workspace root:
@@ -97,6 +95,9 @@ Then run the local checks from the workspace root:
 ./doctor.sh links
 ```
 
+`./doctor.sh links` does not check `Code/<project>-docs/inputs/`: imported documents are kept as
+they arrived, broken links included.
+
 Use `./doctor.sh status` as the source of the next action. It reads the project state from
 disk and applies the next-action resolver from `METHOD.md`. Confirm its result against
 `prompts/STEP-index.md`, and if a STEP is already in progress, read its PLAN in
@@ -106,12 +107,12 @@ disk and applies the next-action resolver from `METHOD.md`. Confirm its result a
 
 Before editing code or durable docs:
 
-1. Read the README for every repo you expect to touch. The repo README is the local setup and
-   "about" document for that repo.
+1. Read the README of every repo or code folder you expect to touch. It is the local setup and
+   "about" document for that code.
 2. Read `prompts/STEP-index.md` and select the next appropriate STEP. If you are adding an
    ad-hoc STEP, reserve a number according to `Code/<project>-docs/runbooks/collaboration.md`.
-3. Check the selected STEP's `Repos (projection)` against other in-flight rows. If there is
-   overlap, call it out before proceeding.
+3. Compare the selected STEP's scope with the Scope of other in-flight rows. If they overlap,
+   call it out before proceeding.
 4. Create a branch named `step-NNNN-short-name`. Use the same branch name in every repo the
    STEP touches.
 5. Update only your STEP row in `prompts/STEP-index.md` to `In progress` when you start, and
@@ -124,13 +125,6 @@ Before editing code or durable docs:
    STEP `Done` in `prompts/STEP-index.md`.
 
 For team and concurrency details, read
-[`runbooks/collaboration.md`](runbooks/collaboration.md). That runbook owns the full rules
-for reserving STEP numbers, branch naming, shared-file edits, ADR numbering, overlap
-warnings, and push races.
-
-## 6. Keep paths straight
-
-This scaffold stores the template at `Code/{{PROJECT}}-docs/ONBOARDING.md`. In an
-initialized project, the generated docs hub path is `Code/<project>-docs/ONBOARDING.md`.
-When editing template files, keep the literal `{{PROJECT}}` placeholder. When instructing
-contributors in generated projects, use `Code/<project>-docs`.
+[`Code/<project>-docs/runbooks/collaboration.md`](runbooks/collaboration.md). That runbook owns
+the full rules for reserving STEP numbers, branch naming, shared-file edits, ADR numbering,
+overlap warnings, and push races.

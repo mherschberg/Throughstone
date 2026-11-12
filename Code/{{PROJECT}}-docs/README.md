@@ -1,8 +1,8 @@
 # {{PROJECT}} — Documentation Hub
 
 The durable home for **what {{PROJECT}} is and why** — architecture, decisions, standards,
-and the method that governs how it's built. This repo is *state* (the system as it is now);
-the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
+and the method that governs how it's built. This hub is *state* (the system as it is now);
+`prompts/` at the workspace root is *history* (how it was built, STEP by STEP).
 
 > This is a pointer. The substance lives in the files below — don't duplicate them here.
 
@@ -28,20 +28,18 @@ the sibling `prompts/` repo is *history* (how it was built, STEP by STEP).
 | [`architecture/`](architecture/README.md) | *What* the system is — living, versioned design docs (indexed). |
 | [`adr/`](adr/README.md) | *Why* it's that way — point-in-time decision records (indexed). |
 | [`coding-standards/`](coding-standards/README.md) | Per-language engineering standards (indexed). |
-| [`runbooks/`](runbooks/README.md) | Repeatable procedures — check-in, release, incident, dependencies, secrets, collaboration (indexed). |
-| [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`) and accepted risk / tech-debt index (`risks.yml`) (indexed). |
+| [`runbooks/`](runbooks/README.md) | Repeatable procedures (indexed). |
+| [`registries/`](registries/README.md) | Machine-readable inventories — repo map (`repos.yml`), accepted risk / tech-debt index (`risks.yml`), input capture log (`input-captures.yml`), and security review ledger (`security-reviews.yml`) (indexed). |
 | [`reports/`](reports/README.md) | Durable review and operational reports, including check-in, incident, security review, and test-result reports. |
 | [`templates/`](templates/) | The session, STEP, and doc templates the method runs from. |
 | [`scripts/`](scripts/) | Setup and doctor helpers — status, structural checks, stale-link checks, workspace setup, and project-license propagation. |
 
 > Built with **Throughstone**. The scaffold files (`METHOD.md`, `templates/`, `runbooks/`,
 > `scripts/`) are © 2026 Mark A. Herschberg under BSD-3-Clause — full text in
-> `LICENSE-THROUGHSTONE`. Your application code and project docs are yours, under the
-> open-source license you chose at setup or kept private/proprietary. For open-source projects,
-> this repo's `LICENSE` is the canonical project-license file copied unchanged into each
-> application-code repo when it is created. `.throughstone/project-license` records the durable
-> selection independently, and the repo-scaffolding helper validates the two before copying.
-> Every repo in the project gets `LICENSE-THROUGHSTONE` — one Throughstone created, or one that
-> already existed and was adopted. The notice opens by stating its own scope: it covers
-> Throughstone-authored material, and it is not the repository's license. A repo Throughstone
-> created also gets a `LICENSING.md` making the same boundary visible beside its project license.
+> `LICENSE-THROUGHSTONE`, which opens by saying it covers only Throughstone's own material and is
+> not the license of the repository it sits in. Your application code and project docs are yours,
+> by default under the open-source license you chose at setup or kept proprietary. When an
+> application-code repo is added, its licence files follow `runbooks/register-repo.md` step 3.
+> Report a problem in Throughstone's own files at
+> <https://github.com/mherschberg/Throughstone/issues>, and a security problem privately at
+> <https://github.com/mherschberg/Throughstone/security/advisories/new>.

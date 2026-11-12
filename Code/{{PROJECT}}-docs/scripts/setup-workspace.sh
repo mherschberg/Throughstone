@@ -6,8 +6,11 @@
 # assemble the workspace shell on their machine: write the per-machine pointer/helper files
 # (CLAUDE.md / AGENTS.md / doctor.sh) that the workspace root needs, and clone the sibling repos.
 #
-# Multi-repo projects only. A mono-repo-for-now project (METHOD.md §7) is a single repo with
-# the pointers committed inside it — just clone that repo; there's nothing to assemble here.
+# Multi-repo projects only, and it stops rather than trusting the reader: a mono-repo-for-now
+# project (METHOD.md §7) is a single repo with the pointers committed inside it — just clone
+# that repo; there is nothing to assemble here, and writing per-machine pointers over the
+# committed ones is a change to that repository nobody asked for. The layout comes from the
+# `layout:` line registries/repos.yml declares, never from the shape of the workspace.
 #
 # Usage:
 #   1. Clone the docs repo first, into  <workspace>/Code/<project>-docs/
@@ -15,10 +18,19 @@
 #
 set -euo pipefail
 
-# This script lives in Code/{{PROJECT}}-docs/scripts/ in the scaffold and in
-# Code/<project>-docs/scripts/ after initialization; derive paths instead of hard-coding the
-# generated project name. DOCS_REL is written into root pointers and falls back when python3
-# is unavailable.
+# This script takes no options. Reject anything passed rather than ignoring it, so a typo, or a
+# flag meant for one of the other helpers, is a visible error instead of a silent no-op — the
+# same contract check.sh keeps. The message stays bare rather than naming a help command,
+# because this script has no help of its own and ./doctor.sh does not run it.
+if [ "$#" -gt 0 ]; then
+  echo "setup-workspace.sh: unknown option: $1" >&2
+  exit 2
+fi
+
+# Paths start from this script's own location, never from the docs hub's name, which differs per
+# project. The hub is the folder above scripts/, and the workspace root is two folders above the
+# hub. DOCS_REL is the hub's path from the workspace root, written into the root pointers;
+# without python3 it is Code/ plus the hub's folder name.
 DOCS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$DOCS_DIR/../.." && pwd)"
 DOCS_REL="$(python3 -c "import os;print(os.path.relpath('$DOCS_DIR','$ROOT'))" 2>/dev/null || echo "Code/$(basename "$DOCS_DIR")")"
@@ -27,24 +39,103 @@ cd "$ROOT"
 echo "Workspace root: $ROOT"
 echo "Docs hub:       $DOCS_REL"
 
+# --- 0. Mono-repo-for-now: stop, before anything is written ------------------
+# Every step below this line writes something. In a mono-repo-for-now project the workspace root
+# is the repository, its CLAUDE.md, AGENTS.md and doctor.sh are committed files, and step 1
+# would replace them with per-machine copies; the clone step then has nothing to clone, because
+# every row is the repository the reader has already cloned or a folder inside it.
+# runbooks/collaboration.md §9 says not to run this script there, and this is that sentence as
+# code.
+#
+# It reads what the project declares and never inspects the workspace: which layout a workspace is
+# in is not something a script can tell by looking, and Throughstone manages only its own files.
+#
+# The run goes ahead on two answers and stops on every other: a registry that declares nothing does
+# not stop it, because an absent layout: is not a mono one and a project that never declared is
+# most likely the multi one this script is for; and `multi` is what it is for. Anything else stops
+# it, `mono` and a value no reader can make sense of alike — what is on the other side of the
+# decision is overwriting files a repository has committed, so a declaration this cannot read is
+# not a reason to go on. scripts/check.sh fails the same unreadable value.
+#
+# A registry this script cannot open stops it for the same reason: it cannot tell what that file
+# declares. The read below skips a file it cannot open, which would count as declaring nothing.
+REG="$DOCS_DIR/registries/repos.yml"
+if [ -f "$REG" ] && [ ! -r "$REG" ]; then
+  echo
+  echo "Cannot read $DOCS_REL/registries/repos.yml, so this script cannot tell which layout"
+  echo "it declares. Nothing has been written: in a mono-repo-for-now project this script"
+  echo "would replace root files that project has committed. Fix that file's permissions,"
+  echo "then run this script again."
+  exit 1
+fi
+DECLARED_LINES=0
+DECLARED=""
+if [ -r "$REG" ]; then
+  # Two lines rather than one field-separated line: a tab in this file is invisible and one
+  # keystroke from being spaces. The value line is absent when the value is empty, which reads
+  # the same as empty, which is what it is.
+  LAYOUT_READ="$(awk '
+    /^[[:space:]]*#/ { next }
+    /^layout:/ { lay=$0; seen=1; sub(/^[^:]*:[[:space:]]*"?/,"",lay); sub(/"?[[:space:]]*$/,"",lay) }
+    END { print (seen + 0); print lay }
+  ' "$REG")"
+  DECLARED_LINES="$(printf '%s\n' "$LAYOUT_READ" | sed -n 1p)"
+  DECLARED="$(printf '%s\n' "$LAYOUT_READ" | sed -n 2p)"
+fi
+if [ "$DECLARED_LINES" != "0" ] && [ "$DECLARED" != "multi" ]; then
+  echo
+  if [ "$DECLARED" = "mono" ]; then
+    echo "$DOCS_REL/registries/repos.yml declares layout: mono, so this project is mono-repo-for-now:"
+    echo "the workspace root is its one repository and you have already cloned it. There is nothing"
+    echo "here to assemble, and nothing has been written. See $DOCS_REL/METHOD.md §7 and"
+    echo "$DOCS_REL/runbooks/collaboration.md §9; $DOCS_REL/runbooks/splitting-repos.md Case 2"
+    echo "is what converts the project to multi-repo, and it is what changes that line to multi."
+    exit 0
+  fi
+  echo "$DOCS_REL/registries/repos.yml declares a layout this script cannot read: \"$DECLARED\"."
+  echo "The values are mono and multi. Nothing has been written: in a mono-repo-for-now project"
+  echo "this script would replace root files that project has committed, and a declaration nobody"
+  echo "can read is not a reason to go ahead. Fix that line, then run this script again."
+  exit 1
+fi
+
 # --- 1. Write the per-machine root pointers/helpers --------------------------
 # These are written before the clone step deliberately, but the ordering is not what makes the
-# clone step safe — step 2 warns and continues instead of aborting, so it can no longer take the
+# clone step safe — step 2 warns and continues instead of aborting, so it cannot take the
 # workspace down with it. The ordering is insurance against the *next* fatal path someone adds:
 # whatever fails below, the contributor still ends up with AGENTS.md, CLAUDE.md and doctor.sh.
 echo "Writing per-machine pointers and helpers (CLAUDE.md, AGENTS.md, doctor.sh) ..."
 # The workspace root is a per-machine shell in multi-repo projects, not a durable repo. These
 # pointers are regenerated locally so agents opened at the root can find the canonical docs hub.
+#
+# The wording is the wording init.sh leaves at a generated project's root, closing handoff
+# paragraph included: that paragraph is what turns "Read AGENTS.md and follow it" into an
+# instruction rather than a filename, and this file is the first thing a contributor's agent
+# reads. It is spelled out again here rather than copied from those root pointers, because they
+# sit outside the docs hub and the docs hub is all a contributor has cloned at this point.
 for name in CLAUDE.md AGENTS.md; do
+  # Past their title, the two pointers differ in one clause: each names the tool that reads it.
+  # AGENTS.md is the tool-agnostic one, so its wording is the default.
+  case "$name" in
+    CLAUDE.md) reader="Claude Code" ;;
+    *)         reader="any agent (Codex, etc.)" ;;
+  esac
   cat > "$ROOT/$name" <<EOF
 # $name
 
-The canonical agent context lives in the docs repo:
+The canonical agent context lives in the docs hub:
 **\`$DOCS_REL/AGENTS.md\`** (tool-agnostic). Read it — and the methodology it points to in
 \`$DOCS_REL/METHOD.md\` — before working here.
 
-This is a per-machine pointer (the workspace root is not a repo). Edit the canonical file
-in the docs repo, not this one.
+This is a pointer so $reader auto-discovers the project context. Edit the canonical file in
+the docs hub, not this one. In a multi-repo project the workspace root is not a repo, so this
+pointer is not versioned and \`$DOCS_REL/scripts/setup-workspace.sh\` regenerates it on a new
+machine; in mono-repo-for-now it is committed in the root repo.
+
+**Agents:** the canonical \`AGENTS.md\` (linked above) opens with a "First action — kickoff or
+resume?" section. Read it and follow it now — it decides, from disk, whether to start the
+kickoff interview (new project) or resume the next STEP (existing one). The user's whole
+handoff is the single command *"Read AGENTS.md and follow it."*
 EOF
 done
 
@@ -73,43 +164,159 @@ mkdir -p "$ROOT/.throughstone"
 # --- 2. Clone sibling repos listed in the registry (if it has remotes) ------
 # Nothing in this step is allowed to be fatal. A contributor who cannot reach one repository —
 # or whose registry names a path this workspace has no business writing to — must still end up
-# with a usable workspace, so every repo that does not arrive is reported and counted rather
-# than aborting the run.
-REG="$DOCS_DIR/registries/repos.yml"
+# with a usable workspace, so every repo with a location and a remote that does not arrive is
+# reported and counted rather than aborting the run. A registry that is missing, has a row that
+# cannot be read, or has no rows at all is an exception to the count: each is reported once, and
+# nothing is cloned.
 missing=0
-if [ -f "$REG" ]; then
-  echo "Cloning sibling repos with remotes from registries/repos.yml ..."
+# A row is found by its `- name:` line, so a row written any other way is not read, and its fields
+# land on the row above it: that repo never arrives, or one repo's remote is cloned into another
+# repo's location. So every list entry is also counted on its own, under the same comment rule, and
+# when the two counts disagree nothing is cloned. Each awk succeeds only on the state its own arm
+# reports, so an awk that cannot run at all falls past both and reaches the clone step, whose parse
+# is not fatal either. A registry this script cannot read never gets here: step 0 stops on it.
+if [ ! -f "$REG" ]; then
+  echo "No $DOCS_REL/registries/repos.yml — skipping clone step."
+elif awk '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*-[[:space:]]/ || /^[[:space:]]*-$/ { entries++ }
+    /^[[:space:]]*-[[:space:]]*name:/ { rows++ }
+    END { exit (entries == rows) }
+  ' "$REG" 2>/dev/null; then
+  echo "Not cloning: a row in $DOCS_REL/registries/repos.yml does not start with its - name: line, so"
+  echo "one repo could land at another's location. Fix that row, then re-run this script."
+elif awk '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*-[[:space:]]*name:/ { rows++ }
+    END { exit (rows > 0) }
+  ' "$REG" 2>/dev/null; then
+  # A registry with no rows in it is not a workspace with no repos: every project has a row for the
+  # docs hub and one for prompts/. This arm runs after the counts above, so a registry holding
+  # entries the walk could not read has already been reported as that; what is left here is a
+  # registry with no rows, which the counts cannot see because they agree at zero.
+  echo "Not cloning: $DOCS_REL/registries/repos.yml holds no repo rows, so there is nothing here to"
+  echo "clone. Every project has a row for the docs hub and one for prompts/ — restore the rows from"
+  echo "git history, then re-run this script."
+else
+  echo "Cloning sibling repos with remotes from $DOCS_REL/registries/repos.yml ..."
   # Parse repos.yml block-aware: pair each repo's own location with its own remote.
   # The registry is the multi-repo inventory, and remote: is optional. Walking each `- name:`
   # block keeps locations and remotes aligned when only some repos are cloneable; comment lines
   # and remote-less repos are skipped.
   #
   # The loop is fed by process substitution rather than a pipe for two reasons: the parser's
-  # exit status stays out of the pipeline, so a registry awk cannot read is not fatal either;
-  # and the loop body runs in this shell rather than a subshell, so the count below survives it.
+  # exit status stays out of the pipeline, so an awk that fails is not fatal either; and the
+  # loop body runs in this shell rather than a subshell, so the count below survives it.
   while IFS='|' read -r loc rem; do
     [ -n "${rem:-}" ] || continue
-    # Clone side effect: create a missing sibling repo at its registry location. Existing git
-    # checkouts are left untouched so rerunning setup is safe for already-cloned repos. This
-    # is also what leaves a repo registered in place alone: it is already where it belongs.
-    [ -d "$loc/.git" ] && { echo "  exists: $loc"; continue; }
-    # A location this workspace cannot own is referenced where it sits, never cloned into.
-    # Cloning would put the repository outside the workspace this script is assembling —
-    # silently, when the path happens to be writable. The test is textual on purpose: an
-    # absolute path from the first developer's machine must be skipped whether or not it
-    # resolves to anything here.
+    # A location is meant to be a path relative to the workspace root, and one that is not never
+    # gets cloned into. An absolute or `..` path can put the repository outside the workspace this
+    # script is assembling, silently, whenever that path happens to be writable. The test is
+    # textual on purpose: an absolute path from the first developer's machine is skipped whether
+    # or not it resolves to anything here. `~` fails differently and needs its own pattern — this
+    # loop reads the path out of a variable, where no tilde expansion happens, so cloning it builds
+    # a literal `~` directory here. The tilde is quoted so the pattern matches a literal tilde.
+    #
+    # This runs before the existing-checkout test below, and the order is the point: on a machine
+    # where a bad location does resolve — usually the one whose paths it was written from — that
+    # test matches and reports the repo as already present, saying nothing about the location. The
+    # machine best placed to fix the row is the one that would otherwise never hear about it.
     case "$loc" in
-      /* | .. | ../* | */../* | */..)
-        echo "  skipped: $loc — outside the workspace root; this script never clones there"
+      /* | '~'* | .. | ../* | */../* | */..)
+        echo "  skipped: $loc — a location must be a path relative to the workspace root, and this is not"
         missing=$((missing + 1))
         continue
         ;;
     esac
+    # Clone side effect: create a missing sibling repo at its registry location. Existing git
+    # checkouts are left untouched so rerunning setup is safe for already-cloned repos. That
+    # also covers a location that is a symlink to a checkout elsewhere: -e follows the link,
+    # so the repo behind it is reported and left alone rather than cloned over.
+    #
+    # -e and not -d, which is what someone tidying this line would write: a linked worktree and
+    # an initialized submodule are both repositories and both keep .git as a FILE. Read as
+    # not-a-repo, either one is cloned over, git refuses because the directory is not empty, and
+    # the repo is counted among those that did not arrive — on every run, with nothing the
+    # contributor can do to clear it. init.sh tests prompts/ with -e for the same reason.
+    #
+    # A .git is not yet the repository, either. A work tree with no commit at HEAD is what a
+    # clone leaves when the remote has no commit on the branch its HEAD names, and a location
+    # holding one does not hold the repo. The test is HEAD and not the index, because an empty
+    # index is a shape people choose — a worktree or a clone, either made with --no-checkout —
+    # and neither is a repo that failed to arrive.
+    #
+    # Two questions, and they are not the same one. --resolve-git-dir reads $loc/.git itself and
+    # never walks up, so a .git git cannot use is not quietly answered by whatever repository
+    # encloses the workspace — without it, a location holding an empty .git directory inside a
+    # workspace that is itself under a checkout reports the enclosing repo's HEAD and is skipped
+    # forever. Only then is HEAD worth asking, and only its exit 1 means "no commit at HEAD";
+    # any other status is git saying it could not answer, which is a different report with a
+    # different remedy. Neither failing call has its stderr swallowed, because git's own message
+    # is the only thing that says what is actually wrong; `--verify -q` is silent on exit 1, so
+    # the ordinary case stays quiet.
+    #
+    # Nothing is written to the location in any arm: what is there is reported, never cloned
+    # over, so the remedy stays the contributor's to apply.
+    if [ -e "$loc/.git" ]; then
+      head_rc=0
+      if ! git rev-parse --resolve-git-dir "$loc/.git" >/dev/null; then
+        head_rc=128
+      else
+        git -C "$loc" rev-parse --verify -q HEAD >/dev/null || head_rc=$?
+      fi
+      if [ "$head_rc" -eq 0 ]; then
+        echo "  exists: $loc"
+      elif [ "$head_rc" -eq 1 ]; then
+        echo "  warning: $loc holds a repository with no commit at HEAD, so the repo is not here."
+        # What to advise depends on what is there, and the script can see it. A directory holding
+        # nothing but .git is what a failed clone leaves, and deleting it is safe. One with files
+        # in it is somebody's work — an uncommitted `git init` over real content is a shape
+        # init.sh itself refuses to destroy — so it is named and left for them to decide about.
+        if [ -z "$(ls -A "$loc" | grep -v '^\.git$')" ]; then
+          echo "           A clone leaves this when the remote has no commit on the branch its"
+          echo "           HEAD names: fix that remote, delete $loc, and re-run this script."
+        else
+          echo "           It also holds files this script did not put there, and nothing in it"
+          echo "           was touched. Move $loc aside, then re-run this script."
+        fi
+        missing=$((missing + 1))
+      else
+        echo "  warning: git cannot read the repository at $loc, so the repo is not here — its"
+        echo "           own message is above. Nothing there was touched: fix what git reports,"
+        echo "           or move $loc aside, then re-run this script."
+        missing=$((missing + 1))
+      fi
+      continue
+    fi
     echo "  cloning $rem -> $loc"
-    git clone -q "$rem" "$loc" || {
+    # `--` so a value beginning with `-` reaches git as a path rather than as an option.
+    #
+    # Exit 0 from git clone is not a repository on disk. A remote whose HEAD names a branch that
+    # is not on it, and a remote with no commits at all, both clone successfully, fetch every
+    # object there is, and check nothing out. The two failures are reported apart from an
+    # unreachable remote because the remedies are different jobs, and only this one leaves a
+    # directory behind that has to be deleted before a re-run can do anything.
+    if ! git clone -q -- "$rem" "$loc"; then
       echo "  warning: could not clone $rem -> $loc — continuing without it"
       missing=$((missing + 1))
-    }
+    else
+      # The same HEAD question, read the same way, but this arm needs no --resolve-git-dir and no
+      # test of what else is in the directory: git made it a moment ago, so there is nothing of
+      # the contributor's in it and nothing above it can answer for it. Deleting it is safe, and
+      # saying so is the whole difference from the unreachable-remote warning above.
+      head_rc=0
+      git -C "$loc" rev-parse --verify -q HEAD >/dev/null || head_rc=$?
+      if [ "$head_rc" -eq 1 ]; then
+        echo "  warning: $rem arrived at $loc with nothing checked out — it has no commit on the"
+        echo "           branch its HEAD names. Fix that remote, delete $loc, and re-run this"
+        echo "           script."
+        missing=$((missing + 1))
+      elif [ "$head_rc" -ne 0 ]; then
+        echo "  warning: $rem arrived at $loc but git cannot read what it left — its own message"
+        echo "           is above. Delete $loc and re-run this script."
+        missing=$((missing + 1))
+      fi
+    fi
   done < <(awk '
     /^[[:space:]]*#/ { next }
     /^[[:space:]]*-[[:space:]]*name:/ { if (loc != "" && rem != "") print loc "|" rem; loc=""; rem=""; next }
@@ -117,14 +324,12 @@ if [ -f "$REG" ]; then
     /^[[:space:]]*remote:/   { rem=$0; sub(/^[^:]*:[[:space:]]*"?/,"",rem); sub(/"?[[:space:]]*$/,"",rem) }
     END { if (loc != "" && rem != "") print loc "|" rem }
   ' "$REG")
-else
-  echo "No registries/repos.yml — skipping clone step."
 fi
 
 echo "Done. Open this folder in your agent; it will discover the context via the pointers."
 if [ "$missing" -gt 0 ]; then
   echo
   echo "$missing repo(s) above did not arrive. The workspace itself is complete — fix the remote"
-  echo "or the location in registries/repos.yml, or clone the repo yourself, then re-run this"
+  echo "or the location in $DOCS_REL/registries/repos.yml, or clone the repo yourself, then re-run this"
   echo "script to pick it up."
 fi

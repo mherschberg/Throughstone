@@ -1,150 +1,255 @@
 # Runbook — Register a repository
 
-> **How to run:** **Not on its own.** This procedure is called by
-> `templates/planning-session.md`'s *Repo scaffolding* step (a repo the architecture named),
-> `runbooks/check-in.md` (a repo nobody registered), `runbooks/splitting-repos.md` (a repo the
-> split created), and the per-asset substep on the existing-codebase front door — whenever the
-> set of repositories the project has changes. There is no trigger phrase; something else sends
-> you here.
->
-> **Read `METHOD.md` §7 first if you have not.** It carries the model this implements: control is
-> a permission granted once per repository, the three needs, and the ladder. This file is the
-> procedure only.
+Bring a repository into the project: record it, give it a README, and put the Throughstone notice
+(`LICENSE-THROUGHSTONE`) in it. Run this when a repo is created, adopted, or split out of another.
 
-## Why this runbook exists
-A repository is registered in two places at once — its row in `registries/repos.yml` and its entry
-in the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`). They are
-one unit: neither moves without the other, and nothing maintains either by hand. Keeping the
-procedure here means every caller can name **the action** instead of describing a row, so a caller
-stays correct when the fields change.
-
-**Seeded rows are not registered through this action.** The docs hub and `prompts/` are written by
-`init.sh`, ship their own bespoke READMEs rather than a stamped template, and carry no `provides:`.
-Leave them alone.
+The goal is that the **result** is the same however a repo arrived, except for two things: the test
+gate and `.gitignore` lines only a code repo we created gets (step 2), and licensing (step 3).
 
 ## Before you start
-- [ ] **Is the repository on this machine?** If its `location` is not here — a path on someone
-      else's machine, or a repo not cloned yet — **run steps 1-3, 5 and 6 and stop there**: the
-      row and the Architecture Overview entry are the floor and always exist, but with **no
-      `provides:` at all**, plus a `registries/risks.yml` row saying the repository was not
-      reachable. Statuses are filled by looking; none may be guessed to complete the set. Say which
-      repos you skipped, by name — a silent partial run reads as a complete one.
-- [ ] **Is its work tree clean, with an attached HEAD?** If not, **write nothing into it.** Leave
-      `control:` as it is — an unsaved edit in someone's editor is not an answer to the control
-      question — and leave the affected `provides:` key **out** of the row on a first registration,
-      or **exactly as it stands** on a re-run: a key already there recorded an observation made when
-      the tree was clean, and dropping it would shrink the record. The affected key is `readme:` —
-      the only need the ladder ever writes for; `ci:` and `license:` are filled by looking and a
-      dirty tree does not stop you looking. Say what you found and ask the owner to commit or
-      stash; re-running this is all that is needed afterwards.
-- [ ] **Is it nested inside another repository's work tree?** A repo whose work tree sits inside
-      another's has no independent control: record it `external`, with the containment named in the
-      `note`, and write nothing. Unlike a dirty tree — which is transient — this is a permanent
-      property of the repository, so it is an answer rather than a deferral.
 
-**Any write that cannot be completed is handled the same way as a dirty tree** — a rejecting
-pre-commit hook, branch protection, a read-only path, anything. Say what happened, leave the
-`provides:` key out (or as it stands), leave `control:` alone, and invent no status. Neither
-precondition aborts the action, and neither does this.
+- **Work from the workspace root.** Every path below is written relative to it and can be used
+  as-is, including the repo locations in the registry.
+- **Under `layout: mono`** (the line in `Code/{{PROJECT}}-docs/registries/repos.yml`), every row
+  but the workspace root's (`location: "."`) is a folder inside the root repository with no
+  `remote:`, so the location test below prints the folder's path, which is expected. If it exits
+  0 and prints nothing, that path is a repository of its own, and that is not taken in — convert
+  first (`Code/{{PROJECT}}-docs/runbooks/splitting-repos.md` Case 2;
+  `Code/{{PROJECT}}-docs/METHOD.md` §7).
+- **You need, per repo:** its name, location, `type`, a one-line description, whether it was
+  created or adopted, its remote if it has one, and — for step 4 — its role, which slice of the
+  project it owns, and where its detail lives. The `type` vocabulary is listed beside the field
+  in `Code/{{PROJECT}}-docs/registries/repos.yml`.
+- **Do not invent any of these. Ask.** A description or a role you guessed reads exactly like one
+  somebody decided.
+- **Steps 2 and 3 write into the repo itself**, so it has to be checked out at its `location:` on
+  this machine — *that* repo, not whatever repo happens to contain that path.
+  `git -C <location> rev-parse --show-prefix` has to **exit 0 and print nothing**, and printing
+  nothing is not the test on its own: a path with no checkout at it prints nothing too, and exits
+  128. Where the row carries a `remote:` — it may legitimately carry none yet —
+  one of the checkout's remotes (`git -C <location> remote -v`; usually `origin`) has to name that
+  same repository, allowing for the row and the checkout spelling one host two ways. Looking for a `.git` instead is what passes
+  wrongly: a plain directory inside another repo's work tree answers every `git` command with the
+  **outer** repo, so steps 2 and 3 would write a README and a licence into a repository this row
+  does not describe. Both commands hold for a checkout reached through a symlink, which is the
+  other way a repo legitimately sits at its `location:`. If either comes back wrong, see *When
+  something does not work* before writing anything — it covers both shapes, the repo that is not
+  on this machine and the path that turns out to be inside somebody else's work tree, and neither
+  one aborts the run.
 
 ## The steps
-1. **Identity → the row.** `name`, `location`, `type`, `description`. A `remote:` is **recorded**
-   if the repo has one — never created, never repointed.
-2. **`origin:`** — `created` if Throughstone is making this repo now, `adopted` if it already
-   exists. It is written once and never changes; a repo handed over later was still created here.
-3. **`control:`** — `managed` or `external`. A repo Throughstone is creating now is `managed`, with
-   nothing asked; there is nobody else's work to write over. For a repo that already exists, **ask**
-   — see *The control question* below.
-4. **Run the ladder, once per need** (`METHOD.md` §7). **No per-need question is asked**: control is
-   the permission and it was granted once, for the whole repository. Writes happen only when
-   `control: managed`; an `external` repo is observed and recorded, never written into. The
-   `## Role in <project>` section's shape is in `templates/repo-readme-template.md`.
-   **For a repo Throughstone created**, licensing follows what the scaffold actually wrote:
-   `license: ours` when a project `LICENSE` was written into that repo, otherwise `theirs` with a
-   note naming `.throughstone/project-license` as where the posture is stated — a proprietary
-   project writes no per-repo `LICENSE`, and the need is met by the posture being recorded. **Two
-   sources disagreeing** — a `COPYING` and a `package.json` field, say — are both recorded as found
-   in the note and the disagreement filed as a `registries/risks.yml` row; the status is still
-   `theirs`, because the need is that the posture is *recorded*, not that it is tidy.
 
-   Not every status can be reached by every need, and it saves hunting for a branch that does not
-   exist: **README** reaches `ours`, `extended`, `theirs` and — on a repo Throughstone does not
-   control — `gap`. **CI** reaches `ours`, `theirs` and `N/A`, the last when the repo structurally
-   has no merge gate to describe. **Licensing** reaches only `ours` and `theirs`; it applies to
-   every repo, so it is never `N/A`.
-5. **Write the row, with notes** — creating `registries/repos.yml` and `registries/risks.yml` if they
-   are absent, and saying that you did. Every value sits on **one line** and `provides:` entries are
-   flow mappings; the rules at the top of `registries/repos.yml` are load-bearing, because the
-   scripts that read that file match line prefixes and do not parse YAML.
-6. **Add or refresh the Architecture Overview Repos entry** — role, the slice this repo owns, and
-   where its detail lives (its own README if Throughstone wrote one; the owners' docs if not).
-   **If the doc does not exist, create it**, seeded from `templates/architecture-doc-template.md` at
-   `**Status:** Draft`, with a Version Log line recording that the Repos section was seeded at first
-   registration. A bare stub without those header facts fails the project doctor.
-   **Steps 5 and 6 are one unit — never one without the other.**
-7. **Write the notice, then commit.** Copy the Throughstone notice into the repository **only when
-   our material landed there** — that is, when `readme:` came out `ours` or `extended` — by running
-   `scripts/apply-project-license.sh --notice-only <repo-path>`. Never on an `external` repo, and
-   **check the path exists first**: the script treats a missing target as a usage error, and a repo
-   that is not here is a skip, not a failure. Then commit: **one commit per repository**, each
-   naming its paths explicitly, never `git add -A`. The action spans at least two repositories by
-   construction — the row and the architecture entry are in the docs hub, the README section and the
-   notice are in the repo — so a single commit was never possible. Writes land on the **STEP branch**,
-   never on a repository's trunk — except where that STEP is branchless, as `METHOD.md` §7 makes
-   the mono→multi split; there they land on trunk with the rest of that split's commits.
+1. **Add the row** to `Code/{{PROJECT}}-docs/registries/repos.yml`:
 
-**Before you commit the docs-hub change, run `scripts/check.sh` once** and fix anything it reports
-about the registry. Once per registration session, not once per repository.
+   ```yaml
+   - name: "{{PROJECT}}-api"
+     location: "Code/{{PROJECT}}-api/"
+     type: service
+     description: "..."
+     added_as: adopted                     # created | adopted — written once, never changes
+     remote: "git@example.com:TEAM/api.git"
+   ```
 
-## The control question
-Explain **once**, however many repos are in the list, then ask one line per repo. The preamble has to
-say what the answer authorizes, or someone is consenting to something they were not shown:
+   **`location:` is always inside the workspace** — a path relative to the workspace root, so a
+   teammate reproduces the whole workspace from this file; a repo that genuinely cannot move stays
+   where it is, with a symlink at that workspace-relative path pointing at the real checkout.
 
-- **`managed` is a standing write permission**, asked once for the whole repository and never per
-  file. In practice it authorizes **two files**: a short section in that repo's README, and a small
-  notice saying what that section is. Never a CI workflow, never a license.
-- **`external` is fully documented**, not excluded — the repo gets a row, statuses, notes and an
-  Architecture Overview entry. It is simply never written into.
-- **These are the only two answers.** A later refusal to have a file written is this question
-  answered again, not a veto on that file.
-- **Skipping is safe.** Unanswered reads as `external`, and the next check-in asks again.
+   **`remote:` is recorded if the repo has one** — registration records what is there; it never
+   creates a remote and never repoints one. Put nothing after a `- name:`, `location:` or
+   `remote:` value: the readers take the rest of the line as part of it, so a trailing `# note`
+   ends up inside the name, the path or the clone URL. Quote those values with double quotes, as
+   above, or not at all — a single quote is read as part of the value too.
 
-**Recommend managing everything the operator has authority over** — and only that; a repo someone
-else owns is exactly what `external` is for. The reason is cost, not preference: an `external` repo
-never appears in a STEP's plan, its connection back to the project goes stale because nothing
-maintains the section that points there, and the check-in re-asks about it every cycle, forever.
-Mixed control also means everyone has to track which repos are which. **The recommendation does not
-change the default** — unanswered still means `external`, because an unanswered permission is not a
-granted one.
+   **A remote created for a repo that has none is created private** — widening is a separate
+   decision, made deliberately later. Making a repo public takes an explicit instruction from the
+   user naming that repo (`Code/{{PROJECT}}-docs/METHOD.md` §7): a licence, a public sibling repo,
+   a remote, or a project that calls itself open source is not that instruction, and neither is
+   silence.
 
-**"All of them" is a fine answer** — a team adopting its own repos is the ordinary case. If that is
-the answer, **name the repos back before writing.** Twelve names is a half-second read and it catches
-the one that should not have been on the list.
+   **A repo split out of another is `added_as: created`** — the method made it — with the split
+   history in its `provenance:` block, written by
+   `Code/{{PROJECT}}-docs/runbooks/splitting-repos.md`.
 
-## Defaults, promotion and handover
-- **Unanswered is `external`.** The safe value applies immediately; the question stays open until
-  somebody answers it, and the doctor names the row meanwhile.
-- **Promotion `external` → `managed` is this same action, re-run.** It re-runs the ladder for each
-  need and must leave no `gap`. Nothing separate to build, which is what makes "manage three now,
-  the rest later" cost nothing.
-- **Handover `managed` → `external`** sets the field **and moves every `ours` / `extended` on that
-  row to `theirs`, in the same edit**, each `note` recording that Throughstone wrote it
-  (`METHOD.md` §7 for why). `origin:` never moves and the notice stays where it is. Promoting the
-  repo back later leaves those statuses at `theirs`: the check-in re-checks them, not assumes.
+   A repo with no remote yet is fine; the check-in flags it as a bus-factor risk. **`name` is the
+   row's identity** — re-running matches on it, and a field that already says what you were going
+   to write needs nothing. A name or location already held by a different repo's row — for an
+   adopted repo, most likely the docs hub's own `{{PROJECT}}-docs` row — is not reused: ask the user
+   what to call this repo and where it goes. A `location:` or `remote:` that is **absent or empty**
+   gets filled in: that is a refresh, and the periodic check-in does exactly that when it finds a
+   row with no location, or a repo pushed to a host for the first time. One that holds a
+   **different** value is **raised and changed by nobody** — a repo that moved or was repointed is
+   a decision.
+
+2. **The README — decided by what is in the repo.** A README is a regular file at the repo root
+   whose name starts with `readme` in any capitalisation — `README.md`, `readme.rst`, a bare
+   `README`; a symlink or a `readme` directory is not one. **With more than one, ask which is
+   canonical** before writing to any of them. Three cases, and **the order is the rule** — a
+   README this method stamped is also a README that is already there, so read them in order and
+   take the first that fits.
+   - **No README** — stamp `Code/{{PROJECT}}-docs/templates/repo-readme-template.md` as
+     `README.md`. Keep its headings in order, so every repo's README reads the same way: a section
+     that does not apply can go (no *API / interface* for a library), but never the role one-liner
+     or the Overview — saying what the repo *is* is the one part that cannot be dropped. In a repo
+     we did not create, **cut `## Licensing` back to its `LICENSE-THROUGHSTONE` sentence**: step 3
+     writes no `LICENSING.md` there for its link to reach, and that sentence is the only place the
+     file says what the notice covers.
+   - **A README this method stamped** — recognised by a `## Licensing` section of its own
+     carrying the sentence that names `LICENSE-THROUGHSTONE`. Every path that stamps that template
+     writes that sentence, including the cut-back form a repo with no `LICENSING.md` gets, and
+     nothing else puts it in a README under that heading. **The heading is half the test**: a
+     README that names the notice in prose somewhere, as the docs hub's own README and
+     `prompts/README.md` both do, is not one we stamped. **Update that file in place**: bring the
+     role one-liner under the title, and the **Overview**, up to date. **Do not add a `## Role in
+     <project>` section** — those two places already say what it would say, and a README carrying
+     both states one repo's role twice, in two places that drift apart. A README carrying that
+     Licensing section **and** a `## Role in <project>` one is either a stamped README that has
+     gained one, or a README of somebody else's that happens to name the Throughstone notice: **ask
+     which**, and leave the repo with one statement of its role rather than two.
+   - **A README already there** — leave it under its own name and add a `## Role in <project>`
+     section, written in that file's own markup; a format you do not recognise is plain text. It
+     carries the role one-liner, two or three sentences naming the slice this repo owns *and what
+     it explicitly does not*, and the full path of the architecture doc that defines it. Not a bare
+     pointer — the boundary is the thing a newcomer cannot get quickly from the code. Append it at
+     the end by default, and offer to place it higher: placement is content, and content is the
+     owner's to shape. That heading through to the next heading at its level is the whole of
+     Throughstone's part of the file, which is what a check-in sweeps. If that section is already
+     present, **update it in place; never append a second one.** **One look before you write**:
+     the test above has a blind spot, and it is the owner's right — a stamped README is theirs from
+     the moment it lands, and they may have dropped its `## Licensing` section. If the file in
+     front of you plainly reads as one of ours, the repo's name as its title and a role one-liner
+     under it and an Overview, **ask** rather than writing the role a second time.
+
+   `Code/{{PROJECT}}-docs/runbooks/check-in.md`'s README sweep uses these same cases and sends
+   the reader here to recognise a stamped README. The test above is the one definition; change it
+   and that sweep changes too.
+
+   A repo that already has an `ARCHITECTURE.md` keeps it, exactly as its README is kept.
+
+   **A code repo we created also gets its own test gate and `.gitignore` lines, whichever case its
+   README took.** If it has no `.github/workflows/ci.yml`, stamp
+   `Code/{{PROJECT}}-docs/templates/ci/code-repo-ci.yml` there, with its stack's test command filled
+   in (`Code/{{PROJECT}}-docs/templates/ci/README.md`), in a code folder under `layout: mono` too,
+   even where a root workflow already runs its tests. Under `layout: multi`, add to its `.gitignore`
+   whichever of the `.env`, `.secrets` and `.claude` lines it lacks, as item 1 of
+   `Code/{{PROJECT}}-docs/templates/planning-session.md` lists them; under `layout: mono`, the root
+   `.gitignore` already has them. A repo we did not create gets no CI, and its `.gitignore` is its
+   own.
+
+3. **Licensing — decided by whether we created the repo. Two separate artifacts, and they do not
+   travel together.**
+
+   | | created by us | adopted |
+   |---|---|---|
+   | project `LICENSE` + `LICENSING.md` | written from the posture | **never** — their licensing is not ours to state |
+   | `LICENSE-THROUGHSTONE` | written | written — Throughstone's material there needs its notice |
+
+   - **Created by us** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh <location>`
+   - **Adopted** — `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only <location>`
+
+   `<location>` is the row's `location:` as written. An existing notice is left alone. In a repo we
+   created, an existing licence is never overridden without an explicit instruction from the user
+   naming that repo: if the script stops because a licence is already there, run the
+   `--notice-only` command instead, so the notice still lands, and raise the licence in the chat.
+   If the repo then has no `LICENSING.md`, cut a stamped README's `## Licensing` back to its
+   `LICENSE-THROUGHSTONE` sentence, as step 2 does for a repo we did not create.
+   **A root with no project `LICENSE` in it is not always a repo that needs one** — a repo carved
+   out of another carries its origin's licensing, and an origin that had none leaves its child
+   with none. Where the row has a `provenance:` block and neither a project `LICENSE` nor a
+   `LICENSING.md` is there, ask before stamping the posture.
+   A **proprietary** posture writes `LICENSING.md` and the notice but no project `LICENSE` — that
+   is the posture doing its job, not a failure.
+
+4. **Add or refresh the Architecture Overview Repos entry** — the repo's role, the slice it owns,
+   and where its detail lives. The doc is
+   `Code/{{PROJECT}}-docs/architecture/03-architecture-overview.md`; match an existing entry by
+   repo name. **If the doc does not exist, create it at exactly that path** from
+   `Code/{{PROJECT}}-docs/templates/architecture-doc-template.md` at `**Status:** Draft`, with an
+   entry for every row in `Code/{{PROJECT}}-docs/registries/repos.yml`, not this repo's alone.
+
+   **Always do both step 1 and step 4** — a row with no architecture entry, or the reverse, is
+   half a registration. But if one fails, **do not roll back the other**: finish what works,
+   report the gap, and re-running this runbook is the fix.
+
+5. **Commit — one commit per repository**, naming its paths explicitly, never `git add -A`.
+   - **Docs hub** — the row and the Architecture Overview entry.
+   - **The repo itself** — its README, the CI gate and `.gitignore` if step 2 wrote them, and
+     **every licensing artifact step 3 wrote there**, not the notice alone.
+
+## When something does not work
+
+**Raise it in the chat and keep going.** Nothing here aborts the run, and nothing is recorded as
+a status to be reconciled later.
+
+A repo may not be on this machine, may have a dirty tree, may reject the write, may be read-only,
+may sit inside another repo's work tree. In every case: **do the parts that work, name the parts
+that did not, and let the human decide.** They can commit, stash, grant access, or say skip it.
+
+**Nothing checked out at the row's `location:`** — no directory there, or an empty one — is a
+repo not on this machine. Write nothing there: an empty directory is not the repo, and writing
+into it stops the repo being cloned there. The row, the Architecture Overview entry and the
+docs-hub commit need only the docs hub, so do those; the README, the licence and the repo commit
+wait. The human decides the rest: clone it there, point you at a checkout elsewhere on this
+machine (step 1's symlink rule — remove the empty directory first, or the link lands inside it),
+or skip it. Re-running finishes whatever waited.
+
+## Report — always, even when everything worked
+
+End the run with one block per repository. **A repo you skipped is named here too**; a silent
+partial run reads as a complete one.
+
+- **`✓`** — the step's expected end state was reached **by this run**: the row says what it
+  should say, the README says what the repo is — its Role section, or its role one-liner and
+  Overview, whichever step 2 left there — the artifact is on disk, the commit is in the log.
+  Not "attempted", and not "already there but stale".
+- **`—`** — not reached. Always takes a reason line.
+- **`n/a`** — correctly did not apply. Also takes a reason. A commit with nothing to commit,
+  because everything was already right, is `n/a` — never invent an empty commit to earn a `✓`.
+
+```
+{{PROJECT}}-api
+  row ✓   README ✓   licence ✓   arch entry ✓   docs commit ✓   repo commit ✓
+
+acme-billing
+  row ✓   README —   licence ✓   arch entry ✓   docs commit ✓   repo commit —
+  → README: work tree is dirty. Asked the owner to commit or stash, then re-run.
+  → repo commit: blocked by the same dirty tree; the notice is written but uncommitted.
+
+internal-tooling
+  row ✓   README —   licence —   arch entry ✓   docs commit ✓   repo commit —
+  → README, licence, repo commit: nothing is checked out at Code/internal-tooling/ on this
+    machine. Asked whether to clone it there, then re-run.
+```
+
+`licence ✓` means every artifact that repo's posture requires landed: for one we created,
+`LICENSING.md` and `LICENSE-THROUGHSTONE`, plus a project `LICENSE` unless the posture is
+proprietary; for an adopted repo, or one whose existing licence sent step 3 to `--notice-only`,
+the notice alone — with the reason line naming the licence it carries.
 
 ## Running it again
-This action is **idempotent and resumable**. Re-running it on a registered repo refreshes the row
-rather than duplicating it — and if a `## Role in <project>` section is already in the README,
-**update it in place; never append a second one.** `readme: extended` on the row tells you it is
-there before you open the file. Refreshing means updating what this action writes, not rebuilding
-the row: a `provenance:` block, which only a split writes (`runbooks/splitting-repos.md`), is left
-exactly as it stands. Re-running is also the fix when a check-in finds the row and the
-Architecture Overview entry out of step.
 
-## Output / record
-- The **row** in `registries/repos.yml`, with a note on every entry that needs one.
-- The **Architecture Overview Repos entry** — created with the doc if the doc was absent.
-- In a `managed` repo, the **README section** and the **notice** — and nothing else.
-- A **`registries/risks.yml` row** for a repository that could not be reached, or for a shortfall
-  that is genuinely risky. A thin README or a CI job that only runs a linter is recorded as what it
-  is and left to ordinary forward work; that is not what this action is for.
+Idempotent and resumable. Re-running matches the row by `name`, refreshing it rather than
+duplicating it, and updates in place whatever README step 2 left — the `## Role in <project>`
+section, or the stamped file itself — rather than adding a second statement of the role beside it.
+
+`added_as:` never changes on a re-run, and a `provenance:` block is left exactly as it stands;
+only a split writes it.
+
+**There is no way to tell from the repo that a whole previous run succeeded** — a partial run may
+have written the README while the row, the licence or a commit failed. Do not look for one. Step
+2's test is a narrower question and stays answerable: it asks who wrote that README, not whether a
+run finished. Just re-run: it is safe, and it is also the fix when a check-in finds the row and the
+Architecture Overview entry out of step, or finds no entry for that row at all.
+
+## Example — adopting an existing repo
+
+The team has `acme-billing` on GitHub, written before this project existed. It has its own README
+and its own `LICENSE`.
+
+1. Row: `added_as: adopted`, `remote` set to its GitHub URL, `type: service`.
+2. It has a README, so that README stays exactly as it is and a `## Role in <project>` section
+   goes on the end saying what slice of the project it owns.
+3. `Code/{{PROJECT}}-docs/scripts/apply-project-license.sh --notice-only Code/acme-billing/` —
+   `LICENSE-THROUGHSTONE` lands beside their `LICENSE`, which is not touched.
+4. `Code/{{PROJECT}}-docs/architecture/03-architecture-overview.md` gains a Repos entry pointing
+   at the repo's own README.
+5. Two commits: one in the docs hub, one in `acme-billing`.

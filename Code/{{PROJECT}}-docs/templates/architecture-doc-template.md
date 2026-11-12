@@ -4,19 +4,18 @@
 **Status:** Draft        <!-- Draft → Current → Deprecated; see METHOD.md §6 -->
 <!-- Optional — add a **Coverage:** line only for a deliberately fat or partial area:
      omit (or `full`) = fully described; `deferred` / `enumerated to depth N` records a chunk
-     intentionally not yet enumerated (resurfaced at each check-in). Never a bare word: write it
-     as one sentence — what is missing, how big it is, and what it means for someone building on
-     this doc. For example:
+     intentionally not yet enumerated (file a registries/risks.yml row so it comes back). Never a
+     bare word: write it as one sentence — what is missing, how big it is, and what it means for
+     someone building on this doc. For example:
        **Coverage:** deferred — 40 of ~600 tables enumerated; the rest are named but their
        columns and relations are unread, so anything designed against them needs checking first.
      See METHOD.md §6. -->
-**Last updated:** {{DATE}} ({{STEP}})
 **Audience:** {{who should read this}}
 
 > One-line statement of what this document covers.
 
 <!--
-  This is the shared skeleton for every architecture doc. Keep the four header fields,
+  This is the shared skeleton for every architecture doc. Keep the header fields above,
   the Decision Summary, Open Questions, and Version Log on every doc. Replace the body
   sections (## 1, ## 2, …) with the ones for this area. Keep a Table of Contents only if
   the doc is long.

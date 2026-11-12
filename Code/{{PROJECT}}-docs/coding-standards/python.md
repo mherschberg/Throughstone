@@ -28,13 +28,12 @@ just documented.
 
 ## Project / module layout
 - **Layout:** for a packaged/distributable library, prefer the `src/` layout (package under
-  `src/{{PROJECT}}/`, tests in a top-level `tests/`) — it keeps tests running against the
+  `src/<package>/`, tests in a top-level `tests/`) — it keeps tests running against the
   installed package, not the working tree. A flat layout is fine for simple apps and scripts.
 - One responsibility per module; keep `__init__.py` thin (re-exports, not logic).
 - Manage with **`pyproject.toml`** (PEP 621) — no `setup.py`, no `requirements.txt` as the
   source of truth. Use a lockfile (`uv`, `poetry`, or `pip-tools`).
-- **Type hints** on all public APIs at minimum; fully typing new code is recommended (and
-  is what the strict type-checker config above assumes).
+- **Type hints** on all public APIs at minimum; fully typing new code is recommended.
 
 ## Language idioms
 - **Prefer immutability and value types.** Use **`@dataclass`** for data-holding classes
@@ -56,7 +55,7 @@ just documented.
 
 ## Error handling
 - Raise specific exceptions; define a small package-level hierarchy
-  (`class {{PROJECT}}Error(Exception)`) and derive from it so callers can catch by domain.
+  (`class AppError(Exception)`) and derive from it so callers can catch by domain.
 - Never `except:` or bare `except Exception:` that swallows. Catch the narrowest type,
   handle or re-raise — `raise NewError(...) from err` to preserve the cause.
 - Use exceptions for exceptional flow, return values for expected outcomes. Don't use

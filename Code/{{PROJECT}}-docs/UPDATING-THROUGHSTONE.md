@@ -11,7 +11,7 @@ Trigger phrases:
 This is **scaffold/method maintenance**, not a created-project runbook. Runbooks cover the
 project you are building; this file covers the Throughstone machinery copied into that
 project. If an update changes method rules, agent behavior, collaboration rules, CI, or
-multiple repos, turn it into a tracked STEP before applying it.
+multiple repos, turn it into a tracked STEP before applying it, once the kickoff has run (§7).
 
 ## 1. Principles
 
@@ -20,11 +20,6 @@ multiple repos, turn it into a tracked STEP before applying it.
   text merge; the behavioral risk may still be high.
 - **Project state is protected.** Never automatically update architecture docs, ADRs,
   project overview, STEP history, application code, or stamped/generated repo files.
-- **The updater is stateless.** If updater tooling exists, project state lives in a manifest
-  in the docs hub; update logic may change upstream, but it must read state from disk.
-- **Do not run surprise remote code.** Manual comparison does not require signatures or
-  checksums. If future tooling executes downloaded updater code, pin the release/ref and verify
-  it using the provenance mechanism that release publishes.
 - **Make rollback boring.** Apply updates only when every affected repo has a clean working
   tree and index, use the branch required by this guide, and keep the report with the change.
 
@@ -60,7 +55,7 @@ not just a `METHOD.md` change:
   `templates/step-plan-template.md`, `templates/substep-prompt-template.md`, and
   `templates/architecture-sessions/*.md` keep future sessions from reading project-level
   preference fields.
-- `prompts/README.md` carries the STEP-planning communication-style behavior.
+- `prompts/README.md` carries the STEP-planning behavior for both local-profile values.
 - `runbooks/collaboration.md` explains the multi-contributor local-profile expectation.
 
 During an update, treat those old `overview.md` sections as legacy project-state drift:
@@ -69,277 +64,533 @@ During an update, treat those old `overview.md` sections as legacy project-state
    the old `overview.md` values as a starting point if they actually describe that user.
 2. Remove the old personal-preference sections from `overview.md` only after confirming they
    are not project facts.
-3. Do **not** migrate them automatically in updater tooling or `doctor`: in a team, the old
+3. Do **not** migrate them automatically, by a script or by `doctor`: in a team, the old
    values may describe the original maintainer, not the active contributor.
 
 `scripts/check.sh` warns when it sees these legacy sections. The warning is advisory and does
 not fail the check.
 
-### 1.8 migration
+### 2.0 migration
 
-**Upgrading from 1.7? Nothing of yours is rewritten. There is one small edit worth making** —
-two lines per row in `registries/repos.yml`, which the project doctor now asks for by name —
-**one shape to look at in that same file**, since every value there has to sit on one line —
-**and, if your project is mono-repo-for-now, one thing to check**: whether your CI gate has ever
-actually run. Beyond those, nothing is required of
-you unless you are about to split a repository. The release adds a runbook for that, repeals one
-rule, and starts recording which of your repos Throughstone may write into — and now says what that
-recording means, in `METHOD.md` §7 and a second new runbook. Fast path:
+This section says only what to do. What changed, and why, is in this release's section of
+Throughstone's `CHANGELOG.md`.
 
-1. Pull the process docs as one review-required group (the new `runbooks/splitting-repos.md` and
-   `runbooks/register-repo.md`, `runbooks/README.md`, `METHOD.md` §7,
-   `runbooks/collaboration.md` §8 and §9, `prompts/README.md`, and the header comment in
-   `registries/repos.yml`) — **and `templates/repo-readme-template.md` with them**, which is a
-   template but belongs in this group: it carries the `## Role in <project>` section the new
-   runbook sends you to write into a repo that already exists. **The files that route to the new
-   runbook come with them**: `AGENTS.md`, `runbooks/check-in.md`,
-   `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the three
-   templates you author STEPs and substeps from — `templates/substep-prompt-template.md`,
-   `templates/step-plan-template.md` and `templates/step-index-seed.md` — **and
-   `templates/planning-session.md`**, whose repo-scaffolding step routes there too.
-2. If you were planning to split a repo **only** in order to add a second contributor — stop.
-   That rule is gone, and nothing replaces it.
-3. Add `origin:` and `control:` to each row of your `registries/repos.yml` — **details at the end of
-   this section.** Nothing rewrites the file for you.
-4. **If any value in `registries/repos.yml` is wrapped across two lines, join it onto one** and
-   quote it. `scripts/check.sh` now fails on a multi-line value — details at the end of this
-   section. Nothing else in 1.8 can turn a passing run red on its own.
-5. **Mono-repo-for-now only: check that `method-check.yml` is at your workspace root.** If it is
-   not, the method-integrity gate has never run on your project — details below.
-6. Nothing else. A project that never splits reads none of the splitting material.
+**Staying on 1.x is fine. Upgrade if any of these apply:**
 
-**A bootstrap fix, with nothing for you to do.** 1.8 also fixes `init.sh` so that it refuses to run
-anywhere but a fresh template checkout. Unpacking the template into a repository you already had and
-running it there used to delete that repository's `.git` and every commit in it, silently. `init.sh`
-runs once, when a project is created, and an existing project never runs it again — so no file of
-yours changes and there is no action here. It matters only the next time you bootstrap a **new**
-Throughstone project: do that from 1.8 or later.
+- **Your project is mono-repo-for-now.** Running `setup-workspace.sh` overwrites the root
+  `CLAUDE.md`, `AGENTS.md` and `doctor.sh` your repository commits, and your CI gate may never have
+  run.
+- **You or a teammate run `setup-workspace.sh` in a multi-repo project.** It can clone a repo into
+  the wrong place, or the wrong repo into a folder, and report success.
+- **More than one person works on it.** Two ADRs can share a number without anyone being told.
+- **Anyone keeps something in a file named `.secrets`**, not a `.secrets/` folder. 1.x's
+  `.gitignore` ignores only the folder, so `git add -A` commits the file.
+- **A planning session will name a repo that already exists.** It can plan a scaffold over that
+  repo's existing work.
+- **`prompts/STEP-index.md` might go missing on a machine.** The status helper then says to run
+  `./init.sh`, which deletes a mono project's repository history.
+- **You deferred architecture work**, such as a core session left `Deferred` or a `Coverage:` line
+  other than `full` or `deferred`. It can drop out of every check-in.
+- **Your check-ins run on a machine without every repo, or your project has several test suites.** A
+  check-in can report a green suite, or a clean dependency audit, when some of it never ran.
+- **Your STEP index has an unusual row**: a blank or dashed Status, an HTML comment, a title
+  containing "check-in" or "checking" that isn't one, or STEP-1 `Done` with a substep still open.
+  The status helper can name the wrong next STEP, or count a check-in that never ran.
 
-The same release changes one bootstrap default, and again there is nothing to do. `init.sh`'s
-interactive project-type question now defaults to private/proprietary rather than open source, so
-pressing Enter through setup no longer licenses a project MIT without anyone naming a license. Your
-project's posture was chosen when it was created and is recorded in `.throughstone/project-license`;
-it does not change. Worth knowing only if you bootstrap another project from muscle memory.
+This section starts from 1.7.1. On an older release, do the earlier sections first, oldest first,
+and skip any step they mark as superseded.
 
-**The Throughstone notice now states its scope, and refreshing yours is optional.**
-`LICENSE-THROUGHSTONE` used to be 28 lines of BSD-3 with no sentence saying what it applied to — its
-only scoping was the word in its filename, while the text inside referred to "this software" without
-ever defining it. At the root of a repository, that reads as the repository. It now opens by saying
-it is not the repository's license, that it covers Throughstone-authored material only, and that
-everything else is licensed by the repository's owners on their own terms. The BSD-3 text is
-unchanged, and so is the rule for where the notice goes: every repo in the project has one.
+1. **Every project: bring over the files this release changes.** Copy each file below from the
+   scaffold over yours, or merge it by hand where you've edited yours. Paths are from the docs hub,
+   except `prompts/README.md`.
+   - Work as §6 says: from clean working trees, on a branch. This release changes `METHOD.md`,
+     `AGENTS.md` and `status.sh`, so §7 makes the upgrade a tracked STEP if the kickoff has run.
+   - Multi-repo: merge the upgrade branches of `prompts/` and the code repos before the docs hub's,
+     or together with it. Where steps 11 or 17 change those repos, the docs hub's new helpers fail
+     their trunks until those changes land.
+   - Scripts: `scripts/apply-project-license.sh`, `check.sh`, `doctor.sh`, `links.sh`,
+     `setup-workspace.sh` and `status.sh`.
+   - CI workflow: `.github/workflows/method-check.yml`.
+   - Process docs: `AGENTS.md`, `BOOTSTRAP-PROMPT.md`, `METHOD.md`, `ONBOARDING.md`, `README.md`
+     (the docs hub's own), `RETCON-PROMPT.md` (new) and `UPDATING-THROUGHSTONE.md`;
+     `coding-standards/csharp.md`, `go.md`, `python.md` and `typescript.md`, where you kept them;
+     `inputs/README.md`; `registries/README.md`; `reports/README.md` and
+     `reports/test-results/README.md`; `runbooks/README.md`, `check-in.md`, `collaboration.md`,
+     `dependency-supply-chain.md`, `incident-postmortem.md`, `register-repo.md` (new),
+     `release-deploy.md`, `secrets-rotation.md`, `security-review.md`,
+     `security-review-s0-checklist.md`, `security-review-s1-checklist.md`,
+     `security-review-s2-checklist.md` and `splitting-repos.md` (new); and `prompts/README.md`, at
+     the workspace root.
+   - Templates: `templates/architecture-doc-template.md`; all seventeen files in
+     `templates/architecture-sessions/`; `templates/ci/README.md` and `code-repo-ci.yml`;
+     `templates/env-example.txt`; `templates/licenses/README.md`; `templates/overview-template.md`;
+     `templates/phase-readme-template.md`; `templates/planning-session.md`;
+     `templates/repo-readme-template.md`; `templates/reports/check-in-report-template.md`;
+     `templates/reports/recon-map-report-template.md` (new);
+     `templates/reports/security/s0-security-baseline-report-template.md`,
+     `s1-security-sweep-report-template.md` and `s2-security-audit-report-template.md`;
+     `templates/reports/test-results/test-results-summary-template.md`;
+     `templates/retcon-preanswer-sheet.md` (new); `templates/retcon-step-1-plan-stub.md` (new);
+     `templates/step-index-seed.md`; `templates/step-plan-template.md`; and
+     `templates/substep-prompt-template.md`.
+   - The Throughstone notice: `LICENSE-THROUGHSTONE`. Its copies in `prompts/`, in each code repo
+     and, in mono-repo-for-now, at the workspace root are the same file. Replacing those too is
+     optional.
+   - Bring the whole list. These files point at each other, so a partial set sends agents to text
+     that isn't there.
+   - Fill in the placeholders setup filled in when your project was made: `PROJECT`,
+     `PROJECT_DESCRIPTION` and `TRUNK_BRANCH`, each written in double braces, become your project's
+     slug, its one-line description and its trunk branch. Your current copies show the values, so
+     read them before you copy over them. Leave every other placeholder as it is:
+     `templates/licenses/README.md` keeps `YEAR` and `HOLDER` on purpose.
+   - Copy a file over yours only where yours still matches its *base* (the release copy it came
+     from, or one the user adopted as the base), placeholders filled in. §4 calls that
+     *upstream-only*, and a file you've edited *diverged*.
+   - Gotcha: the six scripts must stay executable. If one isn't after the copy, `chmod +x` it.
+   - Check: each file on the list matches the scaffold's apart from the placeholders and any edits
+     of yours you merged (a coding standard you pruned stays absent); every way your copy differed
+     from its base before this step is still in it, unless the user agreed to drop it; and
+     `./doctor.sh help` mentions `--check-in`.
 
-The copies already in your repos are **stamped files — yours, per the bucket table above** — and
-nothing rewrites them. If you want the clearer wording, copy the 1.8
-`Code/<project>-docs/LICENSE-THROUGHSTONE` over each copy you hold; every copy is byte-identical to
-the docs hub's, so one file replaces them all. Nothing breaks if you leave them as they are.
+2. **Every project: add `registries/input-captures.yml`, replace the comments in
+   `registries/repos.yml` with the scaffold's, and add a line to the header of
+   `registries/risks.yml`; a mono-repo-for-now project with no `registries/repos.yml` copies in the
+   scaffold's whole `registries/` folder.**
+   - Copy in the scaffold's `registries/input-captures.yml`, which holds no captures yet. Sessions
+     add to it from now on; if you have `inputs/inputs-index.md`, step 14 carries its `Superseded`
+     rows for inputs still in `inputs/` into it.
+   - In `registries/repos.yml`, replace two comment blocks with the scaffold's: the header above
+     `repos:`, and the block holding the commented example row, which starts
+     `# Service / app / library repos get added here`. Leave every row as it is, wherever that block
+     sits among them; steps 3 and 4 edit the rows.
+   - In `registries/risks.yml`, add the scaffold's new line under `status:` in the header: an
+     accepted risk or deferral that still has a revisit trigger is `open`. Then set to `open` any
+     row that is `accepted-permanently` but still has a revisit trigger to watch. The check-in
+     reviews only `open` and `monitoring` rows, so such a row never comes back.
+   - Mono-repo-for-now with no `registries/repos.yml`: 1.x let a mono project leave `registries/`
+     out. Copy in the scaffold's whole `registries/` folder, and keep both seeded rows: the docs hub
+     and `prompts/` are folders inside your one repository, and the registry lists them anyway.
+     Delete a row only if it names something your project doesn't have. Step 4 adds the third row,
+     for the workspace root.
+   - Each `.yml` file you copy, and each comment block you replace, holds the `PROJECT` placeholder
+     (in double braces): fill it in as step 1 says.
+   - Gotcha: the replacement also deletes any text of your own in those two blocks, such as a note
+     about one of your repos or a line you reworded. Copy it out first and keep it in the scaffold's
+     blocks, so it survives.
+   - Gotcha: a comment at the end of a row's line, like the one after the docs hub's `type:`, is
+     part of that row. Leave it.
+   - Check: run from the docs hub, `git diff registries/repos.yml` changes only comment and blank
+     lines (where you copied the folder in, `git status` shows it as new instead), nothing in
+     `registries/` still holds the `PROJECT` placeholder, and no `accepted-permanently` row in
+     `registries/risks.yml` still has a revisit trigger to watch.
 
-**The rule that went away.** The method used to say a mono-repo-for-now project had to split before
-taking on a second contributor. It gave two reasons and neither holds. The STEP-number push race
-works exactly the same in a mono repo with a shared remote — what a team needs is *shared* remotes,
-not *several* repos — and the overlap warning's mono fallback was already written, in the very
-section that clause cited. **How many repos you have follows your architecture, not your
-headcount.** If you already split for the old reason you have lost nothing and there is nothing to
-undo; if you were about to, you no longer need to.
+3. **Every project: check each row of `registries/repos.yml`.**
+   - Each row starts with its `- name:` line, and every value is on one line: no lists.
+   - Nothing follows a `- name:`, `location:` or `remote:` value, because a `#` there is read as
+     part of the value. A row copied from 1.x's commented example has `# team mode: …` after its
+     `remote:`; move that note onto a line of its own, or delete it.
+   - Values are in double quotes or none.
+   - Each `location:` is a path relative to the workspace root: it never starts with `/` or `~`, and
+     has no `..` segment. Move a repo that breaks this into the workspace and update its row. If it
+     can't move, leave it where it is, put a symlink at a workspace-relative path pointing at it,
+     and register the symlink's path. If the user says the repo isn't on this machine, only on its
+     remote, point its row at a workspace-relative path. Then clone it there from the workspace
+     root: `git clone <remote> <location>`, using the row's `remote:` and `location:`.
+   - Gotcha: values are taken literally, so `~/lib` and `$HOME/lib` are folder names, not paths into
+     a home directory.
+   - Check: `./doctor.sh check --check-in` reports no row it couldn't read and no row without a
+     `location:`, and each row, read against the rules above, breaks none of them.
 
-**Splitting, when you do want it.** `runbooks/splitting-repos.md` covers both cases behind one
-routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
-multi-repo. It is a STEP, like the check-in, with a thin PLAN that points at the runbook rather than
-authored substep prompts. The mechanic clones the whole repo and deletes forward, so **nothing is
-rewritten**: both sides keep the full history as the same objects with the same SHAs, and
-`git blame`, `git log --follow`, `git bisect` and every commit SHA you have recorded anywhere keep
-resolving in the new repo on day one, and `git merge-base` resolves across the split once one repo
-fetches the other. The cost is stated plainly in the file
-— every new repo inherits every blob the origin ever committed, including deleted ones — and an
-appendix covers purging history first when that matters.
+4. **Every project: declare the layout in `registries/repos.yml`, and, mono-repo-for-now only, add a
+   row for the workspace root.**
+   - Add `layout: mono` or `layout: multi` at the left margin, above `repos:`, with a blank line
+     between. One line only, and never below the rows.
+   - Mono-repo-for-now: add this as the first row under `repos:`, leaving out the `remote:` line if
+     the repository has no remote yet:
+     ```yaml
+       - name: "<your-project>"
+         location: "."
+         remote: "git@example.com:TEAM/<your-project>.git"
+         type: mono
+         added_as: created
+         description: "The workspace root: the one repository this project lives in until it is split."
+     ```
+   - Gotcha (mono): with the line but not the row, the check-in fails, so make both edits together.
+   - Gotcha (mono): only the workspace root's row may carry a `remote:`. `mono` fails any other row
+     that has one and points you to `runbooks/splitting-repos.md` Case 2, which converts the whole
+     project to multi-repo and fits only a separate repository. For each such row, ask the user
+     whose URL it is rather than guess. If it's the root repository's, move it to the root row. If
+     the row's folder is part of the root repository and also published on its own at that URL, move
+     the URL into that row's `description:`. If it's a separate repository's, the project isn't
+     mono-repo-for-now in practice: ask the user which layout it's in before declaring one.
+   - Gotcha: once the line is there, the check-in warns about each repo no recorded remote covers,
+     and a 1.x registry often has rows without one. For each, record the URL; or create a private
+     remote, push to it, then record it; or decide local-only is fine. Nothing records that
+     decision, so the warning comes back at every check-in.
+   - Check: `./doctor.sh check --check-in` no longer warns that the registry declares no layout, and
+     shows no registry `[FAIL]`.
 
-- *Process docs* (`runbooks/splitting-repos.md`, `runbooks/register-repo.md`,
-  `runbooks/README.md`, `METHOD.md` §7, `runbooks/collaboration.md` §8 and §9,
-  `prompts/README.md`, `registries/repos.yml`'s header, `AGENTS.md`, `runbooks/check-in.md`,
-  `runbooks/dependency-supply-chain.md`, `runbooks/incident-postmortem.md`, and the templates
-  `repo-readme-template.md`, `substep-prompt-template.md`, `step-plan-template.md`,
-  `step-index-seed.md` and `planning-session.md`): two new runbooks plus the edits that route to
-  them —
-  `METHOD.md` §7 gains the mono→multi special case (that STEP is
-  branchless, and its number is reserved on trunk), `collaboration.md` §9 gains a mono path
-  through solo→team including the warning not to run `scripts/setup-workspace.sh` in a mono clone,
-  and `prompts/README.md`'s thin-STEP note now names two families rather than the check-in alone.
-  `AGENTS.md`, `check-in.md`, `collaboration.md` §8 and the substep template stop describing a
-  registry row and name the registration action; `check-in.md`,
-  `dependency-supply-chain.md` and `incident-postmortem.md` carry the reachability wording; the
-  two STEP templates carry the projection rule; and the planning session decides whether a repo
-  the architecture names already exists by looking for a repository rather than by reading a
-  README.
-  **Five templates travel with this group even though §2's buckets call templates future-only.**
-  `templates/repo-readme-template.md` gained the
-  `## Role in <project>` augment form, which is what `runbooks/register-repo.md` sends you to when a
-  repo already has a README, so a 1.7 copy of it leaves the new runbook pointing at nothing. The
-  next three are what you author STEPs and substeps from: a 1.7 substep template still sends an
-  agent off to write a registry row by hand, and the two 1.7 STEP templates carry no projection
-  rule at all. `templates/planning-session.md` is the fifth, and it is the one that changes
-  behavior — see below.
-  Apply them as a coherent group; they reference each other. No `status.sh` change, and no split-
-  specific check: 1.8's new `check.sh` checks read `registries/repos.yml` for its own consistency
-  and shape, and nothing detects registry drift *after a split* — a row that still describes a
-  folder that is now its own repo — which is accepted rather than overlooked.
-- *Project state* (your existing `registries/repos.yml` rows and your repos): never auto-updated.
-  `provenance:` is a new optional block recording that a repo was split out of another one — where
-  it came from, and where the two histories part company. It is written **at** a split and only
-  then, so existing rows do not gain it and a project that split before 1.8 does not backfill.
+5. **Multi-repo only: on each machine `setup-workspace.sh` set up, run it again** from the workspace
+   root: `Code/<project>-docs/scripts/setup-workspace.sh`.
+   - It rewrites the root `AGENTS.md`, `CLAUDE.md` and `doctor.sh` (the older pair lacks the
+     paragraph that makes "Read `AGENTS.md` and follow it" an instruction), leaves repos already
+     cloned alone, and clones any that are missing.
+   - Gotcha: a location holding a `.git` and nothing else is an empty clone, now reported. Fix the
+     branch on that remote, delete the empty directory, and run again. A location where someone ran
+     `git init` and never committed is reported too: move it aside, because the files in it are
+     theirs.
+   - Check: the run ends with "Done.", no `skipped:` or `Not cloning:` line, and no count of repos
+     that didn't arrive. The root `AGENTS.md` has the paragraph that begins `**Agents:**`.
 
-**Add `origin:` and `control:` to each of your repo entries.** 1.8 gives repo rows three new fields
-— `origin:` (`created` | `adopted`, a fact written once), `control:` (`managed` | `external`, whether
-Throughstone may write into that repo), and `provides:` (how each repo's README, licensing posture
-and CI gate is actually met). The pulled `registries/repos.yml` header documents all three in full,
-along with the default, the invariants, and the rules anything reading that file has to follow.
+6. **Multi-repo only: delete the `.gitignore` at the workspace root, on any machine that has one.**
+   - It's the template's own, which 1.x's `init.sh` left there. The workspace root is in no
+     repository, so git never reads the file, and each repo keeps its own `.gitignore`. But a search
+     tool that reads ignore files applies it from the root to every repo below, so files such as a
+     `TODO.md` in the docs hub don't show up.
+   - Usually only the machine the project was set up on has one: `setup-workspace.sh` doesn't write
+     it.
+   - Gotcha: anything you added to it never applied to git. Copy any line a repo needs into that
+     repo's own `.gitignore` before you delete the file.
+   - Check: from the workspace root, `ls -a` lists no `.gitignore`.
 
-**The two worth adding by hand are `origin:` and `control:`**, because **a missing `control:` reads
-as `external`** — control is a permission, and an unanswered permission is not a granted one, so the
-method records the repo and writes nothing into it until somebody answers. Answering now means
-nothing changes under you; a row you leave alone arrives unanswered and gets surfaced and asked
-about rather than silently switched. Use `created` for a repo Throughstone made and `adopted` for one
-that was already there when you pointed the method at it, and `managed` for each repo you want the
-method to keep maintaining.
+7. **Mono-repo-for-now only: copy `method-check.yml` to `.github/workflows/` at the workspace root,
+   and commit it.**
+   - Copy the docs hub's `.github/workflows/method-check.yml`, which step 1 brought up to date, over
+     any copy already at the root. GitHub reads workflows only at a repository root, and in this
+     layout the docs hub is a folder, so unless someone copied the file to the root by hand, your CI
+     gate has never run.
+   - If you already have a root copy, replace it: 1.x's runs a root `scripts/check.sh` of your own,
+     where there is one, in place of the doctor. The new copy needs no edit: it runs the docs hub's
+     doctor, and from the root it reaches `prompts/` too, so the STEP-index checks run as well.
+   - Leave the docs hub's copy where it is. It gives the docs hub CI of its own if the project is
+     ever split.
+   - Gotcha: replacing the root copy also deletes any edit of yours that only it holds, such as a
+     job, a trigger, a permissions block or a pinned action. Carry each into the docs hub's copy
+     first, so it survives and the two still match as the Check says.
+   - Gotcha: the first run checks work no gate has seen before, so it may fail. It runs the same
+     checks as `./doctor.sh check`, so push once that ends with `RESULT: OK` in step 20.
+   - Gotcha: the test workflows your code folders were stamped with, from
+     `templates/ci/code-repo-ci.yml`, never run in this layout either, and the root gate runs the
+     method checks, not your tests. Leave them stamped and configured for a split. To gate tests
+     before then, add a root copy with one job per code folder, as `templates/ci/README.md` §2 says.
+   - Check: from the workspace root, `git ls-files .github/workflows` lists `method-check.yml`, and
+     it matches the docs hub's copy; once you push to GitHub, the commit shows a `method-check` run.
 
-**`provides:` can wait for your next check-in.** It records what is in each repo rather than what you
-have decided, so it is filled in by looking rather than remembering. A row whose `location` is not a
-repository never carries it at all — in a mono-repo-for-now workspace a row pointing at a folder
-inside the one repo is not one, and carries none until a split makes it a repo of its own.
+8. **Mono-repo-for-now only: add two lines to the `.gitignore` at the workspace root, and commit
+   it.**
+   - Add them at the end of the file, in this order, so the second keeps the folder's `.gitkeep`:
+     ```gitignore
+     /Upcoming Prompts/*
+     !/Upcoming Prompts/.gitkeep
+     ```
+   - In this layout the workspace root is the repository, so without them a `git add -A` commits the
+     PLAN and substep prompts of the STEP in flight, which stay on the machine of whoever runs the
+     STEP until it's archived into `prompts/`.
+   - Gotcha: the lines untrack nothing. From the workspace root, `git ls-files "Upcoming Prompts"`
+     lists what's still tracked. To untrack a sheet, `git rm --cached` it and commit: your copy
+     stays on disk until you check out a branch that still tracks it (see step 18's second gotcha),
+     and a teammate who pulls that commit loses their copy if they haven't edited it, so leave each
+     sheet to whoever owns its STEP.
+   - Check: `git ls-files "Upcoming Prompts"` lists only `.gitkeep` and any sheet you've left to its
+     owner, and a new file in `Upcoming Prompts/` doesn't show in `git status`.
 
-**What the fields mean, and how to register a repo, are now written down.** `METHOD.md` §7 carries
-the model — control is a permission, granted once for a whole repository and never per file; the
-invariant that a repo Throughstone controls has its needs met, so an unmet need can only sit on one
-it does not; the three needs and what "met" means for each; and the single ladder that runs per
-need. Only the README has rungs there, because CI and licensing are met by *recording* what is
-already in the repo — **the method never installs a CI gate and never applies a license to a repo it
-did not create.** The new `runbooks/register-repo.md` carries the procedure, and everything that
-changes the set of repositories your project has goes through it.
+9. **Mono-repo-for-now only: bring the root `CLAUDE.md` and `AGENTS.md` up to date, and commit
+   them.**
+   - In each, replace everything from the line starting `The canonical agent context` to the end
+     with the same text from the scaffold's root file of the same name, and fill in the `PROJECT`
+     placeholder (in double braces) as step 1 says.
+   - In this layout both files are committed in your one repository, but 1.x's text calls the docs
+     hub a repo and says they're per-machine and not versioned. The new text says that only of a
+     multi-repo project, where step 5 rewrites them instead.
+   - Gotcha: copy nothing from above that line. The scaffold's root files open with a block for
+     Throughstone's own authors, between `THROUGHSTONE-TEMPLATE-GUARD` markers, which setup removes
+     from every project.
+   - Gotcha: the replacement also deletes anything added below that line since setup, such as notes
+     for your agent. Move such text above that line first, so it survives and the file still ends as
+     the Check says.
+   - Check: each file says that in mono-repo-for-now it is committed in the root repo, and ends with
+     *"Read AGENTS.md and follow it."*; neither still holds the `PROJECT` placeholder; and
+     `git status` lists neither file.
 
-**Two rule changes ride along, and neither forces anything on you today.** STEP-1 work takes the
-`step-0001-architecture` branch in **every** repository it writes into — not only the docs hub,
-`prompts/` and the mono root, but a repository that already existed and is now under Throughstone's
-control. And a repository the method only *references* never appears in a STEP's Repos projection: a
-STEP is work Throughstone does, in repositories it controls. Both matter from the moment you mark a
-repo `external`, or run a STEP that writes into an adopted one; until then there is nothing to
-change.
+10. **Every project: put a `NEXT-CHECK-IN` line in `overview.md`, in place of any `CHECK-IN-CADENCE`
+    line.**
+    - `overview.md` is your project's own file, so step 1 doesn't replace it. 1.x worked out when a
+      check-in was due from its `<!-- CHECK-IN-CADENCE: N -->` line, or 20 without one, counted from
+      the last STEP titled like a check-in. Nothing reads that line now: `./doctor.sh status` reads
+      one that says when the next check-in is, as a STEP or a date, and without it reports none
+      scheduled and proposes a check-in on every run.
+    - Ask the user when the next check-in should be, as a STEP number or a date; don't pick one for
+      them. If they have no view, suggest the first `Planned` check-in row in
+      `prompts/STEP-index.md`; with none, the last check-in's STEP number plus the cadence the old
+      line set (20 if there was none), which is about when 1.x's `METHOD.md` said to propose one;
+      and with no check-in run yet, the cadence alone, such as `STEP-20`.
+    - In the docs hub's `overview.md`, replace the `CHECK-IN-CADENCE` line and the comment under it
+      that starts `<!-- ^ Check-in cadence`, or whichever of the two is there, with the
+      `NEXT-CHECK-IN` line and its comment from `templates/overview-template.md`, and write the
+      answer into the line: `<!-- NEXT-CHECK-IN: STEP-50 -->` or
+      `<!-- NEXT-CHECK-IN: 2026-11-15 -->`. With neither, put them below the `PROJECT-STATUS`
+      marker's comment, where a new project has them. Move any note of your own out of the old
+      comment first.
+    - Gotcha: write the value in exactly one of those two shapes. Anything else, such as `step-50`
+      or `15 Nov`, reads as none scheduled.
+    - Gotcha: a Check-in STEP, one that runs `runbooks/check-in.md`, now needs its row in
+      `prompts/STEP-index.md` titled `Check-in` or `Check-in: <scope>`. Under any other title, when
+      `./doctor.sh status` reports it `In progress`, the helper says to wait for a substep command,
+      not *"run the check-in"*. Retitle each such row that isn't `Done` or `Abandoned`, keeping its
+      words as the scope: `Check-in before launch` becomes `Check-in: before launch`.
+    - Check: `overview.md` has neither a `CHECK-IN-CADENCE` line nor a comment starting
+      `<!-- ^ Check-in cadence`, and, unless `./doctor.sh status` says the kickoff is not started,
+      under `Check-in:` it names a STEP or a date, not "none scheduled". Each Check-in STEP's index
+      row that isn't `Done` or `Abandoned` is titled `Check-in` or `Check-in: <scope>`.
 
-**Your process docs now point at that procedure, and three of them behave differently because of
-it.** Everything that used to send an agent off to write a `registries/repos.yml` row by hand —
-`AGENTS.md`, the substep prompt template, `runbooks/collaboration.md` §8 — names the registration
-action instead. None of them describes a row any more, which is what keeps them correct as the
-fields change. The two STEP templates carry the projection rule above. Three things actually
-behave differently:
+11. **If a row of `prompts/STEP-index.md` has a Status that's blank or only dashes: write its real
+    status.**
+    - `./doctor.sh check` now fails such a row: check 3 lists it with the status it read, as in
+      `STEP-7 -> "-"`. 1.x's doctor skipped a STEP or substep row whose Status was blank or only
+      dashes, such as `-`, `--` or `:-:`, as it did the table's separator line. `./doctor.sh status`
+      still skips it, so until it's fixed the helper answers as if the row weren't in the index, and
+      can name a later STEP as next or pass over a substep.
+    - For each row listed that way, write its real status: `Planned`, `In progress`, `Done`,
+      `Deferred` or `Abandoned`, or for a substep also `N/A`. A blank says nothing about where the
+      work stands, so ask the user, or in a team the STEP's owner, rather than guess.
+    - Gotcha: leave each table's separator line, the one under its header, as it is. Its first cell
+      is dashes too, which is how the doctor tells it apart.
+    - Check: under check 3, `./doctor.sh check` lists no row whose status shows as `""` or only
+      dashes.
 
-- **Your next check-in sweeps repo READMEs by row rather than uniformly.** Where the row says
-  Throughstone wrote that README, the sweep is what it always was — Overview, Setup / Running /
-  Testing, and any `ARCHITECTURE.md`. Where Throughstone only added a section to someone else's
-  README, the sweep is that section and nothing else. Anywhere else it edits nothing at all and
-  asks one question: can someone standing in this repo still find their way back to the project?
-  **The "do the setup steps still work from a clean checkout" check is deliberately gone for
-  repos you do not own** — that is a judgement about somebody else's repository rather than about
-  your connection to it. Two smaller shifts ride along: a registry row and its Architecture
-  Overview entry now count as **one** thing that drifts, fixed by re-running the registration
-  rather than by editing either side; and the licensing question is never re-asked per repo,
-  because that posture lives in one project-wide file.
-- **`runbooks/collaboration.md` §9 no longer stands up a remote for every repo.** Going solo to
-  team, the create-a-remote-and-push-your-history step is now scoped to repos Throughstone
-  created. As it stood, following it literally would have created a second remote for a
-  repository someone else owns and pushed their history into it. Recording a remote a repo
-  already has is unchanged, and every repo that has one still gets its `remote:` field.
-- **The planning session no longer decides a repo exists by reading its README.** Its
-  repo-scaffolding step used to count a repo as already there only if it had a registry row
-  **and** a README whose role one-liner and Overview were filled in — so a real repository with a
-  thin README was judged absent and scaffolded over, writing a stack, CI, an `.env.example`, a
-  `.gitignore` block and possibly a license into somebody's existing work. It now asks whether the
-  repo is already registered, and if it is not, whether there is a repository at that location —
-  a work-tree root, not a folder that looks finished. Asking the registry first also means a repo
-  you have registered but **not cloned on this machine** is never re-created. Where no repository
-  is found, the step creates one exactly as before. Where one is found, **no stack wiring, no CI,
-  no `.env.example`, no `.gitignore` block and no project `LICENSE`** go into it, and it is
-  registered instead — what does land there is the registration action's call. Creating and
-  registering are both a STEP's
-  work, as they always were; the session decides and outlines. Adopt the reworded step.
-  Nothing of yours is rewritten, and a first run on a fresh project behaves exactly as it did in
-  1.7.
+12. **If `prompts/STEP-index.md` lists the substeps of an in-flight STEP other than STEP-1: move
+    that list into the STEP's PLAN.**
+    - 1.x's recipe in `prompts/README.md` had you list a STEP's substeps in the index. A later
+      STEP's substep status now lives in the `Status` column of its PLAN's Substeps table, as
+      `templates/step-plan-template.md` shows, and only STEP-1's substeps stay in the index. While
+      STEP-1's row is still open, `./doctor.sh status` reads every substep table in the index as
+      STEP-1's, so another STEP's open substep can come out as the next architecture session.
+    - A substep's number is its row's first cell: `7.1`, `7.2` and so on for STEP-7. For each STEP
+      other than STEP-1 whose row isn't `Done`, `Deferred` or `Abandoned` and whose substeps the
+      index lists, open its PLAN in `Upcoming Prompts/`. If its Substeps table has no `Status`
+      column, add one after `Title`, as the template has it. Copy each substep's status into that
+      column, with anything else its index row records that the PLAN doesn't, then delete those
+      substeps from the index.
+    - Leave the list of a STEP that's `Done`, `Deferred` or `Abandoned` where it is. A `Done` STEP's
+      PLAN is archived in `prompts/`, and an archived STEP folder is write-once
+      (`prompts/README.md`).
+    - Gotcha: in a team, a STEP's PLAN is by default only on its owner's machine, so its owner makes
+      the move, on that machine.
+    - Check: apart from STEPs whose PLAN is on another machine, `prompts/STEP-index.md` lists
+      substeps only for STEP-1 and for STEPs that are `Done`, `Deferred` or `Abandoned`, and each
+      PLAN you moved a list into has a `Status` column holding it.
 
-**Three read-only sweeps stop over-promising.** The check-in's full test run, the dependency
-audit and the incident runbook's hunt for similar issues each asked for "all repos"; they now ask
-for every repo you can reach, and for the ones you can't to be named. What that guards against is
-not missing a repo — it is a partial sweep that reads as a clean one. If every repo your project
-has is on your machine, nothing about these three changes for you.
+13. **If you deferred architecture work: make sure a `registries/risks.yml` row covers each
+    deferral.**
+    - The check-in no longer sweeps architecture docs for a `Coverage:` line, and a core session
+      deferred wholesale writes no doc for any sweep to find. What brings a deferral back now is a
+      risk row: the check-in reviews every open one.
+    - Core sessions: look in `prompts/STEP-index.md` for a numbered STEP-1 substep, `1.1` to `1.14`,
+      whose Status is `Deferred`: most often 1.6 Security, sometimes 1.7 UI. If no row in
+      `registries/risks.yml` covers it, add one with an owner, a severity and a revisit trigger,
+      which is whatever was said at the time, such as *"before we accept real user data"*; ask
+      rather than guess any of them. Its `refs:` can point at the STEP-1 PLAN that recorded the
+      decision. A lettered substep, such as `1.3a`, is a conditional session, which the check-in
+      reviews anyway.
+    - `Coverage:` lines: from the workspace root, run
+      `grep -n "Coverage:" Code/<project>-docs/architecture/*.md`. For each doc that isn't
+      `Deprecated` and whose `Coverage:` header field says anything but `full`, check that a risk
+      row covers it, with a revisit trigger saying what would end the deferral, and add one if not,
+      asking for its owner, severity and trigger rather than guessing them.
+    - If such a line is a bare word or phrase, such as `deferred` or `enumerated to depth 2`, expand
+      it into one sentence whether or not a row covers it: what is missing, how big it is, and what
+      it means for someone building on the doc, as `METHOD.md` §6 shows. Ask whoever deferred the
+      area if you don't know. Then record the edit in the doc's Version Log, as for any
+      clarification.
+    - Gotcha: the grep also finds the field's description in a template comment some docs keep, and
+      any prose that happens to say "Coverage:". Only the header field near the top counts.
+    - Gotcha: the first row replaces the `[]` after `risks:`. Copy the field names from the
+      commented example below it.
+    - Check: each numbered STEP-1 substep left `Deferred`, and each doc that isn't `Deprecated`
+      whose `Coverage:` header field says anything but `full`, has a `registries/risks.yml` row with
+      a revisit trigger, and none of those fields is a bare word or phrase.
 
-Adding the fields is a **safe additive edit**: it inserts lines into each row and changes no existing
-data. `registries/repos.yml` is your project's own record, like `inputs/inputs-index.md`, so it is
-**never auto-overwritten**.
+14. **If you have `inputs/inputs-index.md`: carry its `Superseded` rows into
+    `registries/input-captures.yml`, then archive or delete it.**
+    - 1.7.1's ledger gave each part of each input a status, `Live` or `Superseded`, and the check-in
+      reconciled it. Nothing reads or keeps it now: `registries/input-captures.yml`, which step 2
+      copied in, is an append-only log of what sessions took from each input.
+    - Work from the docs hub. For each `Superseded` row of an input still in `inputs/`, not
+      `inputs/archive/`, add one entry to the log: `date` today's, `step` `"from inputs-index.md"`,
+      `input` the row's Input with `inputs/` in front, `taken` the row's Part (`whole file` for
+      `(whole)`), and `went_to` the doc its *Covered by / note* column names, as a path from the
+      docs hub. A `Live` row needs nothing: whatever no entry names is still only in the input.
+    - An input `Superseded` in every row was ready to archive, and no check-in will offer that now.
+      Ask whether it's fully captured, and only on a yes move it to `inputs/archive/` and add the
+      closing entry the log's header describes.
+    - Then move `inputs/inputs-index.md` itself into `inputs/archive/`, as a record, or delete it.
+      Left in `inputs/`, a session may follow its out-of-date instructions.
+    - Gotcha: the first entry replaces the `[]` after `captures:`, as the log's header says. Copy
+      the entry shape from its commented example.
+    - Gotcha: the ledger isn't an input, so moving it gets no entry.
+    - Check: `inputs/inputs-index.md` is gone, and the log has an entry for each `Superseded` row of
+      each input still in `inputs/`, not `inputs/archive/`.
 
-**What the doctor will say about that file after you pull 1.8.** `scripts/check.sh` reads
-`registries/repos.yml` for the first time in this release, so it will report on rows it has never
-looked at before. Three shapes of finding, and only one of them can fail your run:
+15. **Every project: delete the `Version` and `Status` columns from the index in
+    `architecture/README.md`.**
+    - `architecture/README.md` is your project's own file, so step 1 doesn't replace it. Its index
+      copied each doc's version and status from the doc's own header, and the check-in and the
+      Cross-Cutting Review that step 1 brought no longer keep those copies current.
+    - Delete the two columns from the index's header row, the separator row below it, and every row.
+      In the same edit, take `Last updated` out of the Conventions list above the index: the
+      architecture-doc template no longer has that line.
+    - Gotcha: delete only those two columns. A column you added yourself stays.
+    - Gotcha: a doc's own `**Last updated:**` line is harmless. Keep it or delete it.
+    - Check: the index's header row in `architecture/README.md` names neither `Version` nor
+      `Status`, and its Conventions list doesn't mention `Last updated`.
 
-- **A row with no `origin:` or `control:` is a warning**, listed by name, and a warning does not
-  change the exit code. The message says those rows carry no control record. It is **not** a
-  statement about how old your project is — nothing on disk records which version of the method you
-  installed, so the doctor cannot tell a project written before these fields existed from one whose
-  registration simply did not fill them in. Answering the two fields, as above, is what clears it.
-- **A row that contradicts itself is a failure**: a status outside `ours` / `extended` / `theirs` /
-  `N/A` / `gap`, an `origin:` or `control:` that is not one of its two values (a typo counts — it
-  reads as neither), a `managed` repo recording a `gap`, an `external` repo recording `ours` or
-  `extended`, or a `gap` or `N/A` with no note saying why. None of these can arise from leaving the
-  file alone; each one needs a row that was written and is wrong.
-- **A value written across more than one line is a failure.** This is the only finding here that can
-  turn a run red without you having changed anything, so it is worth looking for before you upgrade:
-  a long `description:` written as a YAML block scalar (`description: |`) is the likely case. Put the
-  text on one line and quote it. The reason is not tidiness — the scripts that read this registry
-  match line prefixes and know nothing about YAML nesting, so a wrapped value whose second line began
-  `location: /srv/…` made `scripts/setup-workspace.sh` clone a repository into that path and exit
-  successfully. Single-line values make that impossible rather than merely discouraged.
+16. **Every project: update the ADR-number scan in `adr/README.md`, and, in a team, check its
+    *Who accepts an ADR* line.**
+    - `adr/README.md` is your project's own file, so step 1 doesn't replace it. Its 1.x scan names
+      the file as `adr/README.md`, a path from inside the docs hub, so run from the workspace root,
+      where agents start, it scans nothing and reports no duplicate.
+    - Replace two parts with the scaffold's: the bullet under `## Conventions` that starts
+      *Reserve the number*, which now sends a team to `runbooks/collaboration.md` §6, where the scan
+      runs from the workspace root; and the note under `## Registry`, which pointed at the old scan.
+      Neither holds a placeholder.
+    - In a team, check the *Who accepts an ADR* line. `AGENTS.md` now gives an agent the team rules
+      only when that line names someone other than `_solo author_`, or the user has other agents
+      working STEPs in parallel. If more than one person works on the project and the line still
+      reads `_solo author_`, record your rule there, as `runbooks/collaboration.md` §9 step 3 says.
+    - Gotcha: if you've reworded that bullet, keep your wording and fix only its command, naming the
+      file as `Code/<project>-docs/adr/README.md`, as `runbooks/collaboration.md` §6 does.
+    - Check: the bullet in `adr/README.md` points at `runbooks/collaboration.md` §6 with no scan
+      command of its own or, where you kept your own wording, its scan command names
+      `Code/<project>-docs/adr/README.md`; in a team, the *Who accepts an ADR* line names your rule.
 
-**Rows for repos that are not on your machine are skipped, counted, and said so** — "2 row(s) not
-present on this machine". The doctor only judges what it can see, so a teammate with three of eight
-repos cloned gets findings about those three and a count for the rest, rather than silence that
-looks like a pass.
+17. **If a script or CI job of yours runs a Throughstone helper: check the arguments it passes and
+    the output it reads.**
+    - Arguments: each helper now stops with exit 2, naming what it didn't take. `check.sh` takes
+      only `--check-in`, and `status.sh`, `links.sh`, `setup-workspace.sh` and `./doctor.sh help`
+      take nothing, where 1.x ignored anything passed and ran as usual. `apply-project-license.sh`
+      takes `--notice-only` and one target, and stops on a second target or any other option, where
+      1.x ignored a second argument and took an unknown option for the target. Drop anything else a
+      call passes: `./doctor.sh status --check-in`, for one, now fails, since `--check-in` belongs
+      to `check`.
+    - Exit status, multi-repo only: `setup-workspace.sh` no longer stops at the first clone that
+      fails. It writes the root `AGENTS.md`, `CLAUDE.md` and `doctor.sh`, carries on, and ends with
+      exit 0, adding a line that counts any repos with both a `location:` and a `remote:` that
+      didn't arrive, `<N> repo(s) above did not arrive.` 1.x stopped with git's exit status. To tell
+      whether every such repo arrived, look for that line, a `Not cloning:` line and a
+      `skipping clone step` line, not at the exit status.
+    - Output: check 10 of `./doctor.sh check` is now the repo registry, which runs only with
+      `--check-in` and otherwise passes as skipped, where 1.x's check 10 checked the
+      `CHECK-IN-CADENCE` line. The pass lines of checks 1 to 3 end in a row count, as in
+      `all statuses valid (12 STEP row(s), 14 substep row(s))`, and checks 1, 2, 3 and 9 can warn
+      where 1.x passed. `./doctor.sh status` heads its last section `Check-in:`, not
+      `Check-in cadence:`.
+    - Gotcha: this release rewords many of the helpers' messages. From `check` and `links`, match on
+      `[PASS]`, `[WARN]` and `[FAIL]`, the closing `RESULT:` line and the exit status, not on a
+      message's words: both still exit 1 on a `[FAIL]`, and a warning never fails a run.
+    - Check: each such script or job runs to the end with no `unknown option`, `unknown command` or
+      `unexpected extra argument` from a helper, finds what it reads in the helper's output, and
+      none takes a `setup-workspace.sh` exit 0 to mean every repo arrived.
 
-**Mono-repo-for-now? Your CI gate has probably never run.** `method-check.yml` ships inside the docs
-hub, at `Code/<project>-docs/.github/workflows/`. In a multi-repo project the hub is its own
-repository, so that is a repository root and the workflow is live from day one. In a mono-repo-for-now
-project the workspace root is the repository and the hub is a folder inside it — and **GitHub reads
-workflows only at a repository root**, so a workflow nested that deep never triggers. Unless you
-followed the manual copy step (it is documented, but only in the workflow's own header comment and
-`templates/ci/README.md`), the gate has been silently absent for the life of the project.
+18. **Every project: fix the `.secrets` line in each repo's `.gitignore`, and optionally widen the
+    `.claude` line.**
+    - Replace the line `.secrets/` with `.secrets`, and leave the other lines as they are, apart
+      from the changes below. The old line ignores only a folder of that name, so a file named
+      `.secrets` is committed by the next `git add -A`; the new one ignores the file and the folder.
+    - Optional: replace the line `.claude/settings.local.json` with the three lines a new project
+      gets:
+      ```gitignore
+      **/.claude/*.local.json
+      **/.claude/#*#
+      **/.claude/*~
+      ```
+    - The old `.claude` line ignores that one file at the repo's top level. The new ones also ignore
+      an editor's lock or autosave copy of it, and any of these in a subfolder: in
+      mono-repo-for-now, an agent started inside a code folder writes its own `.claude/` there. A
+      shared `.claude/settings.json` still commits.
+    - In multi-repo, do this in the docs hub's, `prompts/`'s and each code repo's `.gitignore`; in
+      mono-repo-for-now, only in the one at the workspace root, whose lines cover every folder below
+      it. Leave a repo the project took in that already existed: its `.gitignore` is its own.
+    - Mono-repo-for-now: if the root `.gitignore` lacks the line `/.throughstone/local-user.md`, add
+      it. The local profile is per-machine and never committed, but without that line the next
+      `git add -A` commits it. If `git ls-files .throughstone/local-user.md` already lists it,
+      `git rm --cached` it and commit.
+    - Then, from the top of each repo you changed, run
+      `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'`, and where you widened the
+      `.claude` line, `git ls-files -- ':(glob)**/.claude/*.local.json'` too. Ask the user which of
+      the `.secrets` files these list, if any, they keep tracked on purpose, such as a template that
+      holds only placeholders, and leave those tracked; don't choose for them. In a team, first have
+      the user tell their teammates about each of the other files (see the second gotcha below).
+      Then `git rm --cached` each one and commit. Ask the user whether any of the `.secrets` files
+      ever held real values. `git rm --cached` leaves a file in the repository's history, so if one
+      did and that history has been pushed, or will be, treat those values as leaked: revoke and
+      rotate them, as `runbooks/secrets-rotation.md` Part 2 says.
+    - Gotcha: a code repo a 1.x planning session made usually has no `.claude` line to replace, and
+      may have no `.secrets` line either. Add `.secrets` anyway, and if you're widening the
+      `.claude` line, the three `.claude` lines too.
+    - Gotcha: the lines untrack nothing. A file already committed, such as a `.secrets` file or a
+      code folder's `.claude/settings.local.json` in mono-repo-for-now, stays tracked until you
+      `git rm --cached` it and commit. That leaves your copy on disk. But checking out a branch that
+      still tracks the file, such as your trunk branch before the upgrade merges or another STEP's
+      branch, silently writes the committed copy over yours. Switching back, or merging or pulling
+      the untracking commit into that branch, then deletes it. Keep a copy outside the repository,
+      and put it back once you're on a branch that no longer tracks the file. A teammate who pulls
+      that commit loses theirs if they haven't edited it, so tell them first.
+    - Check: from the top of each repo you changed,
+      `git ls-files -- ':(glob)**/.secrets' ':(glob)**/.secrets/**'` prints nothing but the files
+      the user keeps tracked on purpose, and `git check-ignore -v .secrets` prints the `.secrets`
+      line. Where you widened the `.claude` line,
+      `git ls-files -- ':(glob)**/.claude/*.local.json'` prints nothing too, and
+      `git check-ignore -v sub/.claude/settings.local.json` prints the `**/.claude/*.local.json`
+      line. In mono-repo-for-now, `git check-ignore -v .throughstone/local-user.md` prints the
+      `/.throughstone/local-user.md` line. The paths given to `check-ignore` needn't exist.
 
-**Copy `Code/<project>-docs/.github/workflows/method-check.yml` to `.github/workflows/` at your
-workspace root, and commit it.** No edit is needed: the workflow finds the doctor in either layout,
-and from the root it also sees `prompts/`, so the STEP-index checks run too. Leave the hub's copy
-where it is — that is the copy that gives the docs hub its own CI if you ever split. Expect the first
-run to report findings that have been accumulating unseen. 1.8 places the file for you in **new**
-mono projects; `init.sh` runs once, so nothing places it in a project that already exists.
+19. **Optional, each contributor: check the communication style in your root
+    `.throughstone/local-user.md`.**
+    - The file's two settings now do one job each: the experience level sets how much technical
+      background an agent assumes, and the communication style how much reasoning comes with a
+      decision. In 1.x the level set both, Level 3 meaning terse and Levels 1 and 2 an explanation
+      of why, whatever the style said, so the same file now sounds different.
+    - Ask the contributor how much reasoning they want with each decision, and set
+      `Communication style:` to `Terse`, `Normal` or `Explanatory`; don't choose for them. To keep
+      how 1.x sounded, that's `Terse` at Level 3 and at least `Normal` at Level 1 or 2. Other 1.x
+      combinations have no exact match.
+    - Nothing else needs changing: both values are still valid. The words after the level's number
+      may be 1.x's label, such as `no coding experience`; keep them, or write the new label from
+      `BOOTSTRAP-PROMPT.md` Stage 0.
+    - Gotcha: the file is per-machine and never committed, so each contributor checks their own, on
+      each machine they work on. Where there's none, there's nothing to do: the next session asks
+      both questions and writes it.
+    - Check: where the file exists, its `Communication style:` is `Terse`, `Normal` or
+      `Explanatory`, as its owner chose, and its `Experience level:` is still 1, 2 or 3.
 
-Multi-repo projects have nothing to do here.
+20. **Every project: run the checks** from the workspace root: `./doctor.sh check`,
+    `./doctor.sh check --check-in`, `./doctor.sh links` and `./doctor.sh status`.
+    - A `[FAIL]` from check 5 because two ADR files share a number: do what its hint says,
+      renumbering the file added later and giving it its own row in `adr/README.md`.
+    - A `[FAIL]` from check 4 naming a doc you lifted from `inputs/`: add the header field or the
+      Version Log table it lacks.
+    - A `[WARN]` from check 1, 2, 3 or 9 that says it had nothing, or not everything, to read: no
+      STEP rows, no ADR registry table, STEP rows under no Status column, or no session-template
+      folder. That was already wrong. If check 1 says it found no STEP rows at the left margin and
+      the table is there but indented, move its rows to the left margin; otherwise restore the
+      missing rows, file, folder or table header from git history.
+    - `--check-in` adds check 10, the registry. Its warnings about repos no recorded remote covers
+      are the ones step 4 describes; a `[FAIL]` there goes back to step 3 or 4.
+    - A `[FAIL]` from `links` on a saved S0, S1 or S2 security report: its link to its checklist
+      came from a 1.x template. Write the checklist's path as plain text instead, as the new
+      templates do. `links` no longer reads `inputs/`, so a link inside an input no longer fails it.
+    - A `[FAIL]` from `links` naming a missing anchor to a heading with a symbol beside a space,
+      such as ` & `, ` — ` or a closing emoji: write the anchor as GitHub does, one hyphen for each
+      space, so `## Risks & mitigations` is `#risks--mitigations`. The old check wanted one hyphen
+      there, and none at either end.
+    - A `[FAIL]` from `links` naming a missing anchor to a heading that holds a Markdown link: write
+      the anchor from the link's text alone, so `## The rule ([ADR-0006](../adr/ADR-0006-x.md))` is
+      `#the-rule-adr-0006`. The old check wanted the link's target in the anchor too.
+    - Check: `check`, `check --check-in` and `links` each end with `RESULT: OK`, checks 1, 2, 3 and
+      9 show no `[WARN]`, and, unless `status` says the kickoff is not started, the line under
+      `Check-in:` from `status` names a STEP or a date, not "none scheduled".
 
-**A teammate whose workspace setup died part-way can now finish it.** If someone ran
-`Code/<project>-docs/scripts/setup-workspace.sh` and it stopped with a `git clone` error, leaving the
-workspace root with no `AGENTS.md`, no `CLAUDE.md` and no `doctor.sh`, that was one failing clone
-taking the whole run down with it. **Pull 1.8 into the docs hub and run the script again.** Nothing
-needs undoing first: repos already cloned are left alone, the pointer files are rewritten every run,
-and the run now finishes whatever happens to the clones. Its closing line says how many repos did not
-arrive, so fix the `remote:` or `location:` in `registries/repos.yml` — or clone that one repo by
-hand — and re-run to pick it up.
-
-**Look at any `location:` in your registry that points outside the workspace root.** An absolute
-path, or one reaching out with `..`, is now reported and skipped rather than cloned into; before 1.8
-the path was used verbatim, so a writable one put the repository outside the workspace silently. No
-edit is required and nothing of yours is rewritten — but a repo registered that way is now one each
-contributor clones onto their own machine once, rather than something the setup script fetches for
-them. A `location:` inside the workspace root is unaffected, including one outside the `Code/*`
-shell, and so is a repo already checked out where its `location:` points.
-
-**Three generated docs need pulling, and that is the whole action.**
-`ONBOARDING.md`, the docs hub's own `README.md` and §2's file-bucket table above were each
-written when Throughstone only ever *created* a repo. 1.8 can also take on one that already
-exists, where it writes at most two files: that repo's README and the `LICENSE-THROUGHSTONE`
-notice — never CI, never a license. `ONBOARDING.md` also still described `setup-workspace.sh`
-cloning before it writes the root pointer files, which is the order 1.8 reversed. Review the
-three like the other process docs; nothing of yours is rewritten.
+That's the whole upgrade.
 
 ### 1.7 migration
 
@@ -351,6 +602,9 @@ cadence. Fast path:
    `runbooks/check-in.md`, `templates/planning-session.md`, `scripts/status.sh`, `scripts/check.sh`).
 2. Want the old check-in window (DUE 10 / OVERDUE 20)? Add `<!-- CHECK-IN-CADENCE: 15 -->` to
    `overview.md`; otherwise omit it to take the new default of 20 (DUE 15 / OVERDUE 25).
+   **Superseded in 2.0** — the cadence setting is gone and `overview.md` records
+   when the next check-in is due instead. Going straight to 2.0? Skip this step and
+   follow the 2.0 section.
 3. Optionally reinterpret old `Status: MVP` / `Status: Stable` architecture docs as
    `Status: Current` (no forced change; `check.sh` keeps passing either way).
 4. Create `inputs/` and copy its `README.md` if you want the bring-your-own-docs drop point.
@@ -377,7 +631,9 @@ apply each area as a coherent review-required group, as with the legacy migratio
   `Status: MVP → Current`, `Status: Stable → Current`. Adopt `Deprecated` / `Coverage` where useful.
   No forced change.
 
-**Deferred-coverage check-in sweep.**
+**Deferred-coverage check-in sweep.** *(Superseded in 2.0, which retires the sweep
+and brings a deferred area back through a `registries/risks.yml` row — read the 2.0 section
+instead if you are upgrading past 1.7.)*
 
 - *Process docs* (`runbooks/check-in.md`): the periodic check-in gains a deferred-coverage sweep. It
   reads the `Coverage:` field above, so it only acts on docs marked `Coverage: deferred`; a project
@@ -434,7 +690,7 @@ apply each area as a coherent review-required group, as with the legacy migratio
 **Milestone-relative planning STEP-shape.**
 
 - *Process docs* (`templates/planning-session.md`): the implementation planning session's STEP
-  sequence (work-item 2, plus work-item 1's "first STEP is scaffold" line) is now milestone-relative —
+  sequence work-item, plus the repo-scaffolding work-item's "first STEP is scaffold" line, is now milestone-relative —
   build or extend what the milestone needs, in dependency order, given what already exists, with the
   scaffold → data → capabilities → integration shape kept as the worked example for a first run. Adopt
   the reworded work-items. No `status.sh` / `check.sh` change.
@@ -455,7 +711,9 @@ apply each area as a coherent review-required group, as with the legacy migratio
   next phase's scope and outlines its STEPs instead of being pointed back at Phase 1; a first run still
   targets Phase 1 with the same outline as before.
 
-**Project-selectable check-in cadence.**
+**Project-selectable check-in cadence.** *(Superseded in 2.0, which replaces the
+setting with a recorded `NEXT-CHECK-IN` line — read the 2.0 section instead if you are
+upgrading past 1.7.)*
 
 - *Templates for future use* (`templates/overview-template.md`): new projects get the optional,
   documented `<!-- CHECK-IN-CADENCE: 20 -->` marker beside `PROJECT-STATUS`; existing generated
@@ -475,7 +733,9 @@ apply each area as a coherent review-required group, as with the legacy migratio
   default of 20. The cadence stays a judgment-based guideline — you still place each check-in at a
   sensible breakpoint.
 
-**Workspace model accepts in-place repos.**
+**Workspace model accepts in-place repos.** *(Superseded in 2.0, where a `location:`
+is always a path relative to the workspace root — read the 2.0 section instead if you are
+upgrading past 1.7.)*
 
 - *Process docs* (`METHOD.md` §7, `registries/repos.yml` header): newly documented convention — a repo
   may be registered by a `location:` **outside the `Code/*` shell** (an absolute or otherwise arbitrary
@@ -503,52 +763,6 @@ apply each area as a coherent review-required group, as with the legacy migratio
 - *Project state* (your `inputs/` contents): entirely yours — nothing is auto-created or
   rewritten. The folder is optional; a session reads what's there and ignores an empty folder.
 
-### 1.7.2 migration
-
-**Templates and guidance text only — no behavior changes, and nothing you already produced is
-rewritten.** Two edits to `templates/architecture-sessions/*.md` and three documentation fixes, all
-*Templates for future use* under §2, so they affect work you do after pulling them.
-
-- **The go-ahead is now conditional.** Each session file's closing paragraph opens "If you were sent
-  here to run this session…" and ends by releasing a reader who wasn't sent to run it. When you
-  invoke a session normally, behavior is unchanged — you type `Run STEP-1.N` and get the first
-  question back exactly as before. What changes is a file *read* for another purpose (the
-  Cross-Cutting Review checking conditional applicability, the check-in re-evaluating them): those
-  readers are now told the go-ahead isn't theirs, instead of relying on their own instructions to
-  outweigh it.
-- **One work-list heading.** The Glossary and Cross-Cutting Review templates now head their work list
-  `## Decisions to make (in order)`, matching the other fifteen, each with a note explaining what its
-  items are. If you have **customized session templates or added your own**, adopt the same heading so
-  generic readers find your work list too — `METHOD.md` §4 documents the skeleton, and it is the only
-  change you might want to make by hand.
-- **Lifting a document into `architecture/` now names all three header fields.** `inputs/README.md`
-  told you to add the `Version` / `Status` header and omitted the **Version Log**, which `check.sh`
-  check 4 also requires of every numbered architecture doc — so a lifted spec could fail the check
-  that guards it. Pull the updated `inputs/README.md`. If you have **already lifted** a document,
-  run `scripts/check.sh`: check 4 names any doc missing a field.
-- **The STEP index's status legend now mentions `N/A`.** A substep whose area structurally doesn't
-  apply is marked `N/A`, which `check.sh` and the next-action resolver have always accepted, but the
-  legend at the top of `prompts/STEP-index.md` listed only the five STEP states. Optional: copy the
-  added line into your project's index if you want the legend to describe what the file may contain.
-- **A `Coverage:` line is now a sentence, not a bare word.** `METHOD.md` §6 and
-  `templates/architecture-doc-template.md` both showed the optional `Coverage:` field as a lone
-  token (`deferred`), which tells a reader arriving months later nothing about whether the gap
-  blocks them — and gives the check-in that resurfaces it nothing to weigh. Both now ask for what is
-  missing, how big it is, and what it means for someone building on the doc, written as an ordinary
-  bold header field (`**Coverage:** deferred — …`). **One thing to check:**
-  if any of your architecture docs already carries a bare `Coverage:` value, expand it the next time
-  that doc is touched; nothing rewrites it for you.
-- **The deferred-coverage sweep now reads the field instead of matching a phrase.**
-  `runbooks/check-in.md` told the sweep to enumerate docs "carrying `Coverage: deferred`", a literal
-  string that a doc written from the template never contains — the field is bold, like every other
-  header field. It now takes any `Coverage:` field whose value isn't `full`. Pull
-  `runbooks/check-in.md` with the two files above; if a past check-in reported no deferred coverage,
-  it is worth re-running the sweep once by hand.
-
-Pull `templates/architecture-sessions/*.md`, `METHOD.md` §4 and §6, `inputs/README.md`,
-`templates/architecture-doc-template.md`, and `runbooks/check-in.md` as a group. Nothing else is affected: no `status.sh` /
-`check.sh` change, no project state touched.
-
 ### 1.7.1 migration
 
 **Upgrading from 1.7.0?** A small follow-up that gives the `inputs/` folder a lifecycle. It rewrites
@@ -560,6 +774,9 @@ no project files and is greenfield-inert — the new ledger simply starts empty.
    `templates/planning-session.md`, `templates/reports/check-in-report-template.md`).
 2. Add the ledger: copy the scaffold's empty `inputs/inputs-index.md` (and the updated
    `inputs/README.md` guidance with it), then list any inputs you already have as `Live`.
+   **Superseded in 2.0** — the ledger is replaced by `registries/input-captures.yml`
+   and the check-in's inputs sweep is gone. Going straight to 2.0? Skip this step and
+   follow the 2.0 section.
 3. Nothing else now. `inputs/archive/` is created only when you first retire an input, and the next
    check-in's inputs sweep is what surfaces a superseded input for a retire/keep decision.
 
@@ -569,7 +786,9 @@ wins, and architecture-grade inputs are lifted into `architecture/` (a spec ofte
 or a light reformat). This is **low-friction: nothing is auto-rewritten**, and the §2 file-bucket
 rules apply unchanged.
 
-**Inputs lifecycle.**
+**Inputs lifecycle.** *(Superseded in 2.0, which replaces the ledger with a capture
+log and retires the check-in's inputs sweep — read the 2.0 section instead if you are
+upgrading past 1.7.1.)*
 
 - *New project-state file* (`inputs/inputs-index.md`): copy the scaffold's empty ledger in; from
   then on it is yours to maintain, like a registry (`registries/*.yml`). Record each existing input
@@ -586,8 +805,7 @@ rules apply unchanged.
 
 ## 3. Manual Mode
 
-This guide works today even without updater tooling, a project manifest, or an upstream update
-catalog.
+Throughstone ships no updater tool, so an update is done by hand:
 
 1. Pick the target Throughstone release or commit from
    `https://github.com/mherschberg/Throughstone`.
@@ -601,115 +819,15 @@ catalog.
 5. For each candidate change, write a short report: target release/ref, files reviewed,
    implication/risk, recommendation, and whether it needs a tracked STEP.
 6. Apply only the reviewed changes the user explicitly approves, following the apply and STEP
-   rules in §8 and §10, then run `scripts/check.sh`.
+   rules in §6 and §7, then run `./doctor.sh check`.
 
-Manual mode is slower than tooling, but it is the default path until the manifest and catalog
-described below exist.
-
-## 4. Future Tooling Artifacts
-
-A future updater should read two kinds of metadata.
-
-### Project Manifest
-
-The manifest lives in the docs hub at `Code/{{PROJECT}}-docs/.throughstone/manifest.yml`
-when viewed from the workspace root. Within the docs hub, that same path is
-`.throughstone/manifest.yml`.
-
-The default upstream source is `https://github.com/mherschberg/Throughstone`. If a project
-intentionally tracks a fork or private mirror instead, record that source in the manifest so
-future checks compare against the right upstream.
-
-```yaml
-# .throughstone/manifest.yml
-throughstone:
-  installed_version: "0.1.0"
-  installed_ref: "abc1234"
-  source: "https://github.com/mherschberg/Throughstone"
-
-files:
-  - local_path: "METHOD.md"
-    upstream_area: "docs-hub"
-    upstream_path: "METHOD.md"
-    kind: "process"
-    policy: "review"
-    installed_sha256: "..."
-
-  - local_path: "scripts/status.sh"
-    upstream_area: "docs-hub"
-    upstream_path: "scripts/status.sh"
-    kind: "script"
-    policy: "review"
-    installed_sha256: "..."
-
-  - local_path: "templates/substep-prompt-template.md"
-    upstream_area: "docs-hub"
-    upstream_path: "templates/substep-prompt-template.md"
-    kind: "template"
-    policy: "future-only"
-    installed_sha256: "..."
-```
-
-Manifest field meanings:
-
-- `local_path` is relative to the initialized docs hub. For example,
-  `Code/acme-docs/scripts/status.sh` on disk is recorded as `scripts/status.sh`.
-- `upstream_area` names the logical scaffold area in the Throughstone source. For now, this
-  guide only defines `docs-hub`, which maps to upstream `Code/{{PROJECT}}-docs/`.
-- `upstream_path` is relative to `upstream_area`. For example, `upstream_area: "docs-hub"` plus
-  `upstream_path: "scripts/status.sh"` maps to upstream
-  `Code/{{PROJECT}}-docs/scripts/status.sh`.
-- Future tooling combines `source`, `installed_ref`, `upstream_area`, and `upstream_path` to
-  find the upstream file, and combines the initialized docs hub path with `local_path` to find
-  the local file.
-
-Keep upstream identifiers placeholder-free. Do not store the initialized project slug in an
-upstream path, and do not depend on the Throughstone project-placeholder token surviving
-bootstrap; `init.sh` intentionally replaces it in file contents.
-
-The manifest is advisory state, not magic truth. If it is missing, stale, or inconsistent,
-the updater must say so and fall back to a manual comparison.
-
-### Upstream Update Catalog
-
-Once updater tooling exists, each Throughstone release should ship an update catalog:
-
-```yaml
-version: "0.2.0"
-changes:
-  - area: "docs-hub"
-    path: "scripts/setup-workspace.sh"
-    group: "workspace-setup"
-    kind: "script"
-    risk: "medium"
-    summary: "Improves repo registry parsing when only some repos have remotes."
-    implications:
-      - "Changes clone behavior for multi-repo workspaces."
-      - "Does not modify project docs or application code."
-    recommendation: "Review, then apply if setup-workspace.sh was not customized."
-
-  - area: "docs-hub"
-    path: "templates/planning-session.md"
-    group: "planning-flow"
-    kind: "template"
-    risk: "low"
-    summary: "Adds stronger CI scaffolding guidance."
-    implications:
-      - "Affects future planning sessions only."
-      - "Does not update existing STEP plans."
-    recommendation: "Update for future use."
-```
-
-Catalog entries must name implications plainly. The updater should also compute mechanical
-risk signals instead of relying only on maintainer-written summaries.
-
-## 5. Compare Model
+## 4. Compare Model
 
 For every scaffold-managed file, compare three versions:
 
 | Version | Meaning |
 |---------|---------|
-| **base** | the file content recorded at install time, identified by `installed_sha256` |
+| **base** | the file as your project received it, in the Throughstone release it was built from |
 | **local** | the file currently in this project |
 | **upstream** | the file in the target Throughstone release |
 
@@ -721,21 +839,17 @@ Classify the result:
 | **upstream-only** | `local == base`, upstream changed | Candidate for apply, still review risk. |
 | **local-only** | local changed, upstream unchanged | Keep local; no update needed. |
 | **diverged** | local changed and upstream changed | Manual review or merge; do not auto-apply. |
-| **baseline-unknown** | install-time baseline is missing or cannot be verified | Report only; require manual review before any baseline is adopted or update is applied. |
-| **untracked** | file is not in the manifest | Report only unless explicitly added to manifest. |
+| **baseline-unknown** | the base cannot be found or verified | Report only; require manual review before any baseline is adopted or update is applied. |
 | **protected** | file is project-owned or generated | Never auto-apply. |
-| **manifest-invalid** | checksum/path/ref is missing or inconsistent | Stop automatic actions; require manual comparison. |
 
 Use precise wording: **"unchanged locally"** is acceptable; **"safe to apply"** is not.
-For projects without a trustworthy install-time manifest, do not backfill the manifest by
-treating today's local files as the original base. Mark those files `baseline-unknown` unless
-their local content can be verified against a known installed upstream ref after bootstrap
-normalization, or unless the user explicitly adopts a reviewed file as the new managed
-baseline.
+Do not treat today's local file as the base. Mark a file `baseline-unknown` unless it can be
+checked against the release your project was built from, with your project's name in place of
+the placeholder, or the user explicitly adopts a reviewed file as the new baseline.
 
-## 6. Mechanical Risk Signals
+## 5. Mechanical Risk Signals
 
-The updater should flag at least these signals:
+Flag at least these in the report:
 
 - executable bit changed
 - shell script changed
@@ -750,37 +864,19 @@ The updater should flag at least these signals:
 - update group is incomplete
 - affected repo has uncommitted changes
 
-Mechanical signals do not replace the catalog; they catch omissions and force review.
+Any one of them makes the change review-required, whatever the release notes say.
 
-## 7. Future Tooling Check Flow
-
-1. Confirm the docs hub and workspace layout.
-2. Read `Code/{{PROJECT}}-docs/.throughstone/manifest.yml` (or
-   `.throughstone/manifest.yml` from inside the docs hub). If absent, use manual mode (§3)
-   instead.
-3. Fetch or locate the target Throughstone release metadata. If the process executes
-   downloaded updater code, pin the release/ref and verify it using the release's published
-   provenance mechanism before execution.
-4. Read the upstream update catalog.
-5. Build the three-way comparison for every manifest file.
-6. Group related changes. If a group is incomplete, mark the whole group review-required.
-7. Print a report with:
-   - classification
-   - bucket/policy
-   - risk level and mechanical risk signals
-   - human implications from the catalog
-   - whether the update is future-only, review-required, manual-merge, or protected
-8. Stop. The default tooling command must not write files.
-
-## 8. Apply Rules
+## 6. Apply Rules
 
 Only apply when all of these are true:
 
 - user explicitly requested apply
-- every affected repo has a clean working tree and index before the updater creates or switches
-  branches and before it writes files
-- upstream release/ref was selected; any downloaded executable updater code was verified using
-  the release's published provenance mechanism
+- every affected repo has a clean working tree and index before any branch is created or switched
+  and before any file is written. Untracked files the update won't commit don't count, such as a
+  STEP's PLAN and substep prompts in `Upcoming Prompts/`, or the root `.throughstone/local-user.md`.
+  Leave them where they are, and stage the update's files by path, not with `git add -A`, which
+  would commit them.
+- the upstream release or ref was chosen
 - file is not protected
 - file is either `upstream-only` with a verified baseline or the user selected a manual merge
   result
@@ -788,46 +884,18 @@ Only apply when all of these are true:
 
 Branch rule:
 
-- If the update meets the STEP threshold in §10, reserve a STEP and use the normal
+- If the update meets the STEP threshold in §7, reserve a STEP and use the normal
   `step-NNNN-short-name` branch.
 - If the update does not meet that threshold, use a dedicated scaffold-update branch so the
   change is still reviewable and easy to roll back.
 
-This guide describes the process whether it is done manually or by future updater tooling.
-Throughstone does **not** currently ship a `throughstone-update.sh` script. If/when one is
-added, use command names that make the risk model clear, for example:
-
-```bash
-./throughstone-update.sh check
-./throughstone-update.sh diff
-./throughstone-update.sh apply --unchanged-local-only
-./throughstone-update.sh apply METHOD.md scripts/status.sh
-```
-
-Avoid names like `--safe` or `--clean-only`; they imply more certainty than the updater has.
-
 After apply:
 
-1. Recompute and write manifest checksums for updated scaffold files.
-2. Run the docs hub checks (`scripts/check.sh`).
-3. Preserve the update report in the branch or commit message.
-4. Tell the user what changed, what was skipped, and which manual review items remain.
+1. Run the docs hub checks (`./doctor.sh check`).
+2. Preserve the update report in the branch or commit message.
+3. Tell the user what changed, what was skipped, and which manual review items remain.
 
-## 9. Future Root Updater Shape
-
-A future root updater may be tiny and replaceable:
-
-1. locate the docs hub
-2. read the manifest path
-3. pin the requested upstream release/ref and verify executable updater code using the
-   release's published provenance mechanism
-4. run the verified updater from a temporary location
-5. pass only project root, docs hub path, manifest path, and requested command
-
-It must not store project state outside the manifest. If the root updater itself changes,
-that update is reported and applied like any other script update.
-
-## 10. When To Make It A STEP
+## 7. When To Make It A STEP
 
 Make a tracked STEP when the update:
 
@@ -838,6 +906,11 @@ Make a tracked STEP when the update:
 - changes how future architecture sessions or planning sessions behave
 - would affect an active team
 
+Before the kickoff, while `overview.md`'s `PROJECT-STATUS` marker says `not-started`, make no STEP,
+whatever the update touches. Use §6's scaffold-update branch and add no row to
+`prompts/STEP-index.md`: the kickoff leaves STEP-1 as the index's only row, and the planning session
+adds the STEPs after it.
+
 The STEP's PLAN can be thin: point to this guide, list the update groups under review, and
-define done as "report reviewed, selected updates applied, checks passed, manifest refreshed,
-and skipped/protected files recorded."
+define done as "report reviewed, selected updates applied, checks passed, and skipped/protected
+files recorded."

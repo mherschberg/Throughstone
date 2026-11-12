@@ -7,11 +7,11 @@ Some runbooks inspect code; some operate the system; many do both. Each runbook 
 improvised under pressure.
 
 ## Two kinds of runbook
-The method (`../METHOD.md`) draws a line that matters for how you *invoke* each one:
+The method (`METHOD.md`) draws a line that matters for how you *invoke* each one:
 
-- **STEP-shaped** — runs as a tracked STEP with substeps that record status in the
-  `prompts/STEP-index.md`/PLAN. Its PLAN is thin and points at the runbook; you don't author substep
-  prompts for it (the same special case as the architecture STEP — see `prompts/README.md`).
+- **STEP-shaped** — runs as a tracked STEP with substeps that record status in the PLAN. Its
+  PLAN is thin and points at the runbook; you don't author substep prompts for it (the same
+  special case as the architecture STEP — see `prompts/README.md`).
   The **check-in** is one; the **incident** follow-up (Parts 2–4) becomes one; a **repository
   split** is one; security reviews become one when the check-in gate or project cadence says a
   separate review is due.
@@ -20,25 +20,28 @@ The method (`../METHOD.md`) draws a line that matters for how you *invoke* each 
   **secrets rotation**, **an explicitly requested early S0 security baseline**, and the **incident** Part-1
   response are these. **Collaboration** is neither — it's reference you read once when a second
   contributor joins. Throughstone scaffold/method updates live separately at
-  `../UPDATING-THROUGHSTONE.md`.
+  `UPDATING-THROUGHSTONE.md`.
 
 The shipped runbooks are **defaults you customize** — they deliberately leave CI/CD, release
 versioning, and ecosystem-specific commands to your team's tooling. The *discipline* is the
 durable part; fill in your project's specifics.
 
 New-contributor onboarding is intentionally not a runbook. It is project setup and
-first-contribution STEP guidance, so it lives at [`../ONBOARDING.md`](../ONBOARDING.md).
+first-contribution STEP guidance, so it lives at [`ONBOARDING.md`](../ONBOARDING.md).
 
 ## Index
 
 | Runbook | Purpose (one line) | When it fires | Governed by |
 |---------|--------------------|---------------|-------------|
-| [`check-in.md`](check-in.md) | Doc-drift reconciliation (both directions), conditional-session coverage, accepted risk/debt review, and a full test run, with the completed report under `reports/`. | A **STEP**, at the project's check-in cadence; *"run the check-in."* | `METHOD.md` §5 (*Check-in STEPs*); `AGENTS.md`; `registries/risks.yml` |
+| [`check-in.md`](check-in.md) | Doc-drift reconciliation (both directions), conditional-session coverage, accepted risk/debt review, and a full test run, with the completed report under `reports/`. | A **STEP**, when the check-in scheduled in `overview.md` comes up; *"run the check-in."* | `METHOD.md` §5 (*Check-in STEPs*); `AGENTS.md`; `registries/risks.yml` |
 | [`security-review.md`](security-review.md) | Layered security reviews: S0 baseline tooling/hygiene, S1 recurring sweep, and S2 deeper audit, with a durable ledger for last-run dates and change markers. | Usually a separate **STEP**; the check-in only decides whether one is due — *"run the security baseline/sweep/audit."* | Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`); `registries/risks.yml`; `registries/security-reviews.yml` |
+| [`security-review-s0-checklist.md`](security-review-s0-checklist.md) | The S0 baseline checklist: one decision row per guardrail, from repository and CI hygiene to incident readiness, each recorded with a status and the reason or evidence for it. | Opened from `security-review.md` when an S0 baseline runs — never on its own. | `security-review.md`; `templates/reports/security/s0-security-baseline-report-template.md`; `registries/security-reviews.yml`; `registries/risks.yml` |
+| [`security-review-s1-checklist.md`](security-review-s1-checklist.md) | The S1 sweep checklist: the advisory sources to check, then review rows grouped by area, from dependency alerts to AI and tool-calling, each recorded with an outcome and its evidence. | Opened from `security-review.md` when an S1 sweep runs — never on its own. | `security-review.md`; `templates/reports/security/s1-security-sweep-report-template.md`; `registries/security-reviews.yml`; `registries/risks.yml` |
+| [`security-review-s2-checklist.md`](security-review-s2-checklist.md) | The S2 audit checklist: the framework reference set (OWASP, CWE, CIS, NIST, SLSA and others), how to choose the modules that apply, and review prompts for each module. | Opened from `security-review.md` when an S2 audit runs — never on its own. | `security-review.md`; `templates/reports/security/s2-security-audit-report-template.md`; `registries/security-reviews.yml`; `registries/risks.yml` |
 | [`release-deploy.md`](release-deploy.md) | Ship a version safely: rollback plan **before** deploy, reversible migrations, a watch window, one clear lever back. | Operational; whenever you ship/roll back — *"run the release."* | Infrastructure & Deployment architecture doc (`architecture/*-infrastructure-deployment.md`), Environments architecture doc (`architecture/*-environments.md`) |
 | [`incident-postmortem.md`](incident-postmortem.md) | Stabilize a production failure (Part 1), then a blameless RCA → find-similar → fix as a follow-up STEP (Parts 2–4), starting from `templates/reports/incidents/incident-postmortem-report-template.md` and saving the completed postmortem report under `reports/incidents/`. | Operational on an incident — *"run the incident runbook"*; follow-up is a **STEP**. | `release-deploy.md` (rollback); `METHOD.md` §5 (STEP shape) |
 | [`dependency-supply-chain.md`](dependency-supply-chain.md) | Vet a dependency **before** adding it (Part 1); audit installed deps on a cadence (Parts 2–3). | Operational; before `install`/`add` — *"vet this dependency"*; audit rides the check-in or a new advisory. | Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`); `registries/risks.yml` for accepted deferrals |
 | [`secrets-rotation.md`](secrets-rotation.md) | Rotate secrets with no downtime on a cadence (Part 1); revoke-first emergency response to a suspected leak (Part 2). | Operational; on a cadence — *"rotate the secrets"*; on exposure — *"we may have leaked a secret."* | Security & Threat Model architecture doc (`architecture/*-security-threat-model.md`) |
-| [`collaboration.md`](collaboration.md) | How more than one contributor — human or agent — works without colliding: STEP/ADR numbering, branch-per-STEP, shared-file edits. | Reference; read it when a second contributor joins (solo, mostly a no-op). | `METHOD.md` §6, §8; `AGENTS.md` (team conventions) |
+| [`collaboration.md`](collaboration.md) | How more than one contributor — human or agent — works without colliding: STEP/ADR numbering, branch-per-STEP, shared-file edits. | Reference; read it when a second contributor joins (solo, mostly a no-op). | `METHOD.md` §7, §8; `AGENTS.md` (team conventions) |
 | [`splitting-repos.md`](splitting-repos.md) | Split one code repo into two, or convert a mono-repo-for-now workspace into multi-repo — clone-and-forward-delete, so both sides keep full un-rewritten history. | A **STEP**, when the architecture calls for a new repo boundary or you're leaving mono — *"run the split."* | `METHOD.md` §7 (repos & the workspace shell); `runbooks/register-repo.md` (each repo the split creates); `registries/repos.yml` (its `provenance:`, and the workspace-root row the mono split deletes); `collaboration.md` §9 |
-| [`register-repo.md`](register-repo.md) | Register a repository: write its `registries/repos.yml` row and its Architecture Overview entry together, and meet the three needs a repo has — README, CI, licensing — in the ones Throughstone controls. | Called by the planning session, the check-in, the split and adoption — never on its own. | `METHOD.md` §7 (repos & the workspace shell); `registries/repos.yml`; the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`) |
+| [`register-repo.md`](register-repo.md) | Bring a repository into the project: write its `registries/repos.yml` row and its Architecture Overview entry, give it a README, and put the Throughstone notice (`LICENSE-THROUGHSTONE`) in it. | Called by the planning session, the check-in, the split and adoption — never on its own. | `METHOD.md` §7 (repos & the workspace shell); `registries/repos.yml`; the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`) |

@@ -1,4 +1,4 @@
-# S0 Security Baseline Report Template — {{PROJECT}}
+# S0 Security Baseline Report — {{PROJECT}}
 
 **Review level:** S0 — Security Baseline
 **Review date:** YYYY-MM-DD
@@ -50,7 +50,7 @@ S2 prerequisite / other: TBD
 ## Baseline Decision Table
 
 Use statuses exactly as defined by
-[`runbooks/security-review-s0-checklist.md`](../../../runbooks/security-review-s0-checklist.md):
+`runbooks/security-review-s0-checklist.md`:
 `Done`, `Planned`, `Deferred`, `Accepted Risk`, or `N/A`.
 
 | Area | Baseline item | Status | Decision date | Owner | Reason / evidence | Revisit trigger | Risk ref |

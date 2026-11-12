@@ -9,352 +9,679 @@ any project built with it.
 
 ## [Unreleased]
 
-> **Withdrawn (2026-08-19).** Work on how the method treats a repository it did **not** create —
-> whether it applies a license, whether it stamps or augments a README, whether it installs CI, and
-> where it records what it found — was developed on `main` between 2026-08-15 and 2026-08-19 and has
-> been backed out. It was being built without a settled design, so it is being re-planned as its own
-> piece of work and will return in a later release. If you cloned `main` during that window, your
-> copy carries an unfinished version of it. **No tagged release was affected**; the latest release
-> remains v1.7.1.
+## [2.0.0] - 2026-11-11
 
-### Added
-- **A runbook for splitting a repository** — `runbooks/splitting-repos.md`. The method used to say
-  splitting was "standard git," which is not something you can act on: the recipe you find
-  elsewhere makes the extracted repo *new*, with its history rewritten by `git filter-repo`, a
-  tool that never ships with git and needs Python on every install route. The runbook writes down
-  a different mechanic — clone the whole repo and delete forward — so nothing is rewritten, both
-  sides keep the full history, and `git blame`, `git log --follow` and every commit SHA your
-  project has recorded keep working in the new repo on day one. It covers both cases behind one
-  routing block: splitting a code repo in two, and converting a mono-repo-for-now workspace to
-  multi-repo. It asks three questions before you start and the rest at the step that needs them;
-  every one but the mapping itself has a default, so answering "use your judgement" still produces
-  a correct split. The one real cost is stated plainly in the file: every new repo inherits every
-  blob the origin ever committed, including deleted ones, and an appendix covers purging first when
-  that matters.
-  Split-out repos can now record where they came from, in a `provenance:` block on their
-  `registries/repos.yml` row.
+A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
+supported layout, bringing a repo into a project and splitting one each get a runbook, and many
+problems that 1.x projects carry without knowing it are fixed. Have a 1.x project? Staying is fine;
+the 2.0 section of `UPDATING-THROUGHSTONE.md` says when to upgrade, and how. This release
+rewrites much of `AGENTS.md`, `METHOD.md`, `check.sh` and `status.sh`, so an edit of yours to one of
+them means a hand merge, and the upgrade's step 1 checks that every edit survives it, unless you
+agree to drop one. `METHOD.md` gives the method version as 1.1, up from 1.0.
 
-  Shipping with it: **the rule telling you to split before adding a second contributor is gone.**
-  It gave two reasons and neither survived. The STEP-number push-race works exactly the same in a
-  mono repo with a shared remote — what a team needs is shared remotes, not several of them — and
-  the overlap warning's mono fallback was already written, in the very section that clause cited.
-  How many repos you have follows your architecture, not your headcount. The solo-to-team section
-  of `runbooks/collaboration.md` now has a mono path of its own, including the warning not to run
-  `scripts/setup-workspace.sh` in a mono clone; `METHOD.md` §7 and `prompts/README.md` moved with
-  it, the first gaining the mono→multi special case (that STEP is branchless, and its number is
-  reserved on trunk) and the second generalizing its thin-STEP note from the check-in alone to two
-  families.
-- **Repo rows record who owns each repo and what it already provides.** `registries/repos.yml`
-  gains three per-row fields. **`origin:`** (`created` | `adopted`) says whether Throughstone made
-  the repo or took on one that was already there — a fact, written once when the repo is
-  registered, that never changes. **`control:`** (`managed` | `external`) says whether Throughstone
-  may write into that repo: `managed` is a standing permission, asked once per repository and never
-  per file, while `external` means the repo is recorded and referenced in full and never written
-  into. Control is a state that changes over time rather than a fact about who created the repo, so
-  a repo the method built can be handed over and a repo it never built can be placed under its
-  care. **A missing `control:` reads as `external`**, because control is a permission and an
-  unanswered permission is not granted — the repo is recorded, and nothing is written into it until
-  somebody answers. **`provides:`** records how each of the three things a repo needs — a README, a
-  stated licensing posture, a described CI gate — is actually met there, as a status (`ours`,
-  `extended`, `theirs`, `N/A`, `gap`) and a note; `gap` and `N/A` must say why. It goes only on
-  rows whose `location` is a repository, and never on a row the setup script seeds — a status
-  written before anyone had looked at the repo would be a guess rather than a record. Two
-  invariants hold across the pair: a `managed` repo has no `gap` — either the need is met, or the
-  repo is `external` — and an `external` repo has no `ours` and no `extended`. The registry's
-  header carries the whole schema, the default, and the five rules anything reading or rewriting
-  that file has to follow, because it is read by scripts that match line prefixes and do not parse
-  YAML. `mono` joins the `type:` enum for the workspace root of a mono-repo-for-now project.
-  Existing rows are not rewritten — `UPDATING-THROUGHSTONE.md`'s 1.8 section covers adding the
-  fields to a project you already have.
+- **Throughstone can adopt an existing codebase.** Answer *Existing codebase* to `init.sh`'s new
+  first question, or pass `--mode=existing`, and the agent writes the architecture baseline with you
+  by reading your code, instead of interviewing you for a new design; the finished adoption is an
+  ordinary project.
+- **Setup no longer runs over a project that's already set up, a repository that isn't the
+  template's, or files of yours in the folders it deletes**, and checks its answers before it
+  changes anything. A script that pipes answers into it may need changes.
+- **Mono-repo-for-now is a full layout.** The registry says which layout a project is in, the CI
+  gate runs from the workspace root, and the prompts of the STEP in flight aren't committed.
+- **`setup-workspace.sh` no longer clones the wrong repo into a folder, or stops at the first clone
+  that fails.** It reports a row it can't read or a location it won't use, and counts the repos it
+  reports as not arriving. A script that reads its exit status may need changes.
+- **Two new runbooks:** one brings a repo into a project, whether created, adopted or split out; the
+  other splits a repo and keeps its full history. The rule that a mono-repo-for-now project must
+  split before a second contributor joins is gone.
+- **The check-in is scheduled, not calculated:** `overview.md` names the STEP or date of the next
+  one. The check-in also runs every test suite it can reach, names any it can't, and checks the
+  registry.
+- **`./doctor.sh` gives fewer wrong answers**, several of them silent before, and refuses arguments
+  it doesn't know.
+- **Team rules switch on once the *Who accepts an ADR* line in `adr/README.md` names anyone but
+  `_solo author_`**, or when agents work STEPs in parallel, and in a team a STEP in progress records
+  its owner.
+- **The two local-profile settings each do one job:** the experience level sets how much technical
+  background an agent assumes, and the communication style how much reasoning comes with a decision.
+- **Deferred core sessions and partly covered docs come back through a `registries/risks.yml` row**,
+  and an append-only log, `registries/input-captures.yml`, replaces the inputs ledger.
+- **The commands the docs and helpers give you work from the workspace root**, where agents start,
+  and so do the paths in `AGENTS.md` and in what the helpers print. A command meant for another
+  folder says so.
 
-- **`apply-project-license.sh --notice-only <repo>`** — write the Throughstone notice into a
-  repository and nothing else. The script's one mode writes three files keyed on the project's
-  license posture: the notice, a `LICENSING.md` summary, and the project `LICENSE` for an
-  open-source project. There was no way to ask for just the notice, which is what a repository the
-  method did not create needs — Throughstone-authored material there should say what it is, but
-  that project's own licensing is not ours to state. The new mode reads no posture, writes only
-  `LICENSE-THROUGHSTONE`, never touches the target's `LICENSE` or `LICENSING.md`, and leaves a
-  notice that is already there exactly as it is, whatever it says: a differing notice is the
-  ordinary state a re-run meets after the notice text changes, not a conflict to resolve. If the
-  notice cannot be written it says so and still returns success, so a caller is never stopped by
-  it. The existing mode is unchanged, including every case where it refuses to overwrite a file it
-  did not write.
+### Adopting an existing codebase
 
-- **The rule for a repository the method did not create, written down.** Repo rows have recorded who
-  owns each repo and what it already provides since earlier in this release, and nothing said what any
-  of it *meant* or how to do it — so registering a repository meant reconstructing a registry row from
-  memory. `METHOD.md` §7 now carries the model. **Control is a permission**, granted once for a whole
-  repository and never per file: `managed` means the method may write what its needs require into that
-  repo without asking again, `external` means the repo is recorded and referenced in full and never
-  written into, and an unanswered `control:` reads as `external`. The invariant follows — a repo the
-  method controls has its needs met, so an unmet need can only sit on one it does not control. A repo
-  has **three needs**: a README (someone standing in it can find their way back to the project), a CI
-  gate that is *recorded* — including "nothing runs" — and a licensing posture that is recorded,
-  including "nothing states one". One ladder runs per need and asks nothing, because permission was
-  settled once. Only the README has rungs: a repo with no README gets one stamped, a repo whose README
-  does not point back gets a short `## Role in <project>` section added to it, and no repo ever ends up
-  with two READMEs. **The ladder never installs CI and never applies a license** — both are scaffolding
-  the method writes when it *creates* a repo. Dropping the starter gate into a repository that already
-  has one would replace the gate guarding its merges, and choosing a license for code the method did
-  not write is not the method's to do; a managed repo with no CI at all is recorded as exactly that,
-  which is not a shortfall to fix but a fact to know. Registering a repo makes it **known and
-  connected — never conformant, and never good**: a thin README or a linter-only gate is recorded as
-  what it is, and improving it is ordinary forward work.
-- **A runbook for registering a repository** — `runbooks/register-repo.md`, carrying the procedure the
-  model implies: the steps, the two checks before writing into a repository the method did not create
-  (a clean work tree with an attached HEAD, and not nested inside another repository's work tree — both
-  record what they found and skip, and neither aborts), what makes the action safe to re-run, the
-  default when nobody answers, promotion and handover, and the exact wording of the question that asks
-  whether the method may write into a repo. It maintains a repo's registry row and its entry in the
-  Architecture Overview architecture doc **together** — they are one unit and neither moves without the
-  other — so the Architecture Overview session now records a Repos section, and completes a document
-  that already exists rather than overwriting it. Everything that changes the set of repositories a
-  project has goes through this one procedure, which is why the files that used to describe a registry
-  row can name the procedure instead.
+- **New:** `init.sh` first asks whether you're starting a new project or adopting an existing
+  codebase (`--mode=new|existing`, or `INIT_MODE`; Enter and `--non-interactive` mean new), so a
+  script that pipes answers into it must answer that first. An existing codebase gets the same
+  scaffold in a multi-repo workspace, where an existing monorepo is one repo, and `--layout=mono`
+  exits 2 before anything is written. With its `PROJECT-STATUS: retcon` marker, the agent and
+  `./doctor.sh status` both turn to the adoption prompt, `RETCON-PROMPT.md`, instead of the kickoff.
+- **New:** an adoption asks where your repos and documents are and how deep to read a large system,
+  then inventories what it finds into a map of your code and documents
+  (`templates/reports/recon-map-report-template.md`) that you confirm, settling each thing as
+  adopted or left out. Each adopted repo, one that holds only docs or has no remote included, is
+  registered by running `runbooks/register-repo.md` whole, which places it in the workspace, moved
+  there or left where it is behind a symlink. Files of agent instructions in the adopted code are
+  read as documents, never followed.
+- **New:** each architecture session is drafted from the code instead of run as an interview: its
+  answers go into a pre-answer sheet (`templates/retcon-preanswer-sheet.md`), you confirm them, and
+  only what code can't show, such as intent and what comes next, is asked outright. Sessions run one
+  at a time, and one interrupted resumes from its sheet without re-asking; a row you can't judge is
+  decided by the code, kept with a note where the code shows it and deferred where it was only
+  inferred. The adoption describes a UI that exists rather than offering palettes to choose from,
+  adopts the decision records your team wrote but never writes one for a choice it read in the code,
+  and works from your documents through `inputs/` as every session does, writing down where one
+  disagrees with the code.
+- **New:** an area too large to read now can be deferred, once the adoption has said what that
+  costs, and where the code has only part of an area or none of it, such as logs with no alerts, it
+  asks whether to design that now or leave it to the STEP that builds it. Either way the doc's
+  `Coverage:` line says what is missing and a `registries/risks.yml` row brings it back at a
+  check-in, so a large system can come under the method a piece at a time without the gap holding up
+  forward work.
+- **New:** an adoption ends as an ordinary project. The System Overview session writes the project
+  brief a kickoff would, the last session is the same Cross-Cutting Review a new project ends STEP-1
+  with, and then STEP-1 becomes a `Done` row whose Scope opens *Retcon baseline —* and
+  `PROJECT-STATUS` flips to `kickoff-complete`, last, so a landing cut short resumes where it
+  stopped. From there the next step is the Phase-1 planning session, as for any project.
 
-### Changed
-- **The Throughstone notice now says what it covers.** `LICENSE-THROUGHSTONE` was the scaffold's own
-  `LICENSE` under another name — 28 lines of BSD-3 and a copyright line, with the word "Throughstone"
-  appearing nowhere but the filename. The text inside says "THIS SOFTWARE IS PROVIDED BY THE
-  COPYRIGHT HOLDERS" and never says what "this software" is; sitting at the root of a repository, the
-  only available reading of that is the repository. A file whose entire job is to cover the method's
-  own material could therefore be read as licensing the project's — the opposite of its purpose, and
-  most misleading in exactly the case that matters most: a private codebase the method did not
-  create. The notice now opens with its scope. It states that it is **not** the repository's license,
-  that it covers Throughstone-authored material and nothing else, that everything else is licensed by
-  the repository's owners under their own terms — and that "this software" in the license below means
-  the Throughstone material. The BSD-3 text underneath is unchanged, and the rule for where the
-  notice goes is unchanged and unconditional: every repo in a Throughstone project gets it, whether
-  the method created the repo or adopted one that already existed.
+### Setup
 
-  It is also **a real file now**, shipped at `LICENSE-THROUGHSTONE` in the docs hub, instead of
-  something `init.sh` manufactured at bootstrap by renaming the scaffold's root `LICENSE`. That
-  rename is precisely why the notice could never carry a scope preamble: the same bytes are
-  Throughstone's own repository license, where an opening line saying "this is not this repository's
-  license" would be false. `init.sh` now drops the root `LICENSE` alongside the other template files
-  it removes, and copies the shipped notice as before.
-- **STEP-1 branches, and STEP projections, follow control rather than layout.** STEP-1 work takes the
-  `step-0001-architecture` branch in **every** repository it writes into — previously the docs hub and
-  `prompts/` in a multi-repo project, or the root repo in mono-repo-for-now, which left a repository
-  that already existed and is now under the method's control with no branch rule at all. And a
-  repository the method only *references* never appears in a STEP's Repos projection: a STEP is work
-  the method does, in repositories it controls. The repo it references stays fully documented — a
-  registry row, statuses, notes and an Architecture Overview entry — just never worked in.
-- **The doctor now checks the repo registry, and a bad row fails the build.** `registries/repos.yml`
-  records who owns each repo and what it already provides, and until now nothing read any of it. A
-  row could say Throughstone controls a repo *and* that one of that repo's needs is unmet — a
-  combination the file's own schema forbids — and the project would report clean. `scripts/check.sh`
-  gains three checks. The first reads the file only, so it holds everywhere the doctor runs, CI
-  included: statuses come from the closed set, `origin:` and `control:` do too, a `managed` repo has
-  no `gap`, an `external` repo has no `ours` or `extended`, and `gap` and `N/A` say why. The second
-  looks at disk: a row whose `location` is the root of a git work tree, and that Throughstone adopted
-  rather than created, has to record what that repo provides — naming the individual missing entry
-  rather than the row, because an entry is left out on purpose while the observation is still owed.
-  Rows whose location is not on the machine running the doctor are skipped, counted, and said out
-  loud, since silence about them is indistinguishable from a pass. Missing fields are a warning;
-  fields that contradict each other are a failure.
-  The third check is about the file's shape rather than its contents, and it closes a real hole: the
-  scripts that read this registry match line prefixes and know nothing about YAML nesting, so a note
-  written across several lines whose text happened to begin `location: /srv/acme/LICENSE` made
-  `scripts/setup-workspace.sh` clone a repository into that path — exit 0, no warning. The registry's
-  header has carried rules against this since the fields were added; three of the five are properties
-  of the file and are now enforced. Values must be single-line, `provides:` entries must be flow
-  mappings, no line inside a row may begin with a row-level field name, and row-level and nested
-  names stay disjoint. Those fail rather than warn: a violation is a clone to the wrong folder, not
-  a thin record. The two remaining rules constrain the scripts rather than the file and stay prose,
-  because a checker reading the registry cannot see them.
-  The reserved name sets are read from the registry header's own `reserved-row-level:` and
-  `reserved-nested:` lines, so there is one list, it sits where the schema is, and removing or
-  overlapping it fails loudly instead of quietly disarming the checks.
-  `scripts/check.sh` also gains its first test.
+- **New:** setting up a new mono-repo-for-now project, `init.sh` warns about each top-level file or
+  folder of yours that the first commit will take in, other than a `.gitattributes` or a `.claude/`
+  folder, then carries on.
+- **Changed:** pressing Enter settles fewer of the answers that shape a new project. At the
+  open-source-or-proprietary question, Enter now means proprietary, which writes no `LICENSE`, where
+  in 1.x two Enters chose open source and MIT. The open-source licence, layout, solo/team and
+  remote-setup menus have no default, and ask again until they get an answer they know;
+  `init.sh --help` marks the defaults `--non-interactive` falls back to.
+- **Changed:** more of `init.sh`'s questions say what each answer does to a new project. The layout
+  menu and the closing note say what each layout commits: in mono-repo-for-now, everything but the
+  STEP in flight in `Upcoming Prompts/`; in multi-repo, its two repositories, with nothing at the
+  root tracked or backed up. The remote-setup menu's choice to use existing remote URLs says each
+  repository must already exist, be empty and be reachable, and that all three are checked before
+  anything changes.
+- **Changed:** a new project's setup says more about what it did. Each `git repo:` line names the
+  branch its initial commit is on, a repository created on GitHub is reported with its visibility
+  and then the URL pushed to, and in mono-repo-for-now the two licence lines say which file is the
+  repository's licence. Its notes also say that the kickoff drafts `overview.md` and, when `python3`
+  is missing, that `./doctor.sh links` needs it, and a multi-repo run mentions an origin already at
+  the root only when no remotes were asked for.
+- **Changed:** in a new project, `BOOTSTRAP-PROMPT.md` opens by saying the agent follows it once the
+  user says "Read `AGENTS.md` and follow it", instead of giving a second kickoff command, and
+  `overview.md` opens as your project brief, which the kickoff drafts with you, instead of calling
+  itself a template.
+- **Changed:** when `init.sh` records a new project's remote on a registry row, it puts the
+  `remote:` line right after `location:` instead of after `type:`, so the three values scripts read
+  sit together.
+- **Fixed:** `init.sh` no longer destroys a repository that isn't the template's. It checks before
+  it changes anything, and stops with exit 2 in an already set-up project or a repository whose
+  history isn't the template's, or when `prompts/` is already a repository; 1.x deleted the folder's
+  `.git`, every commit with it, or committed on top of the repository in `prompts/`, and exited 0.
+- **Fixed:** `init.sh` stops with exit 2, before it changes anything, when `.github/`, `tests/`,
+  `brand/` or `docs/` holds a file the template doesn't ship, naming one and saying how many there
+  are; what macOS or Windows leaves there, such as a `.DS_Store`, doesn't count. Setup deletes those
+  folders whole, and 1.x deleted any file of yours in them, whether the template was unpacked over
+  your folder or the file was added to a clone, and exited 0.
+- **Fixed:** a new project's setup stops when its input runs out. A question with a default takes
+  it, and one without stops `init.sh` with exit 2, quoting its prompt; 1.x carried on with blank
+  answers, or asked for the slug forever.
+- **Fixed:** setting up a new project, `init.sh` reads typed answers as meant. Yes/no questions take
+  `y`, `yes`, `true` or `1` and their opposites, in any case, where 1.x read `YES` or `1` as no, and
+  the layout and solo/team menus take the words they show as well as their numbers, where in 1.x a
+  typed `mono` or `team` built the wrong project. Anything else is asked again, and so is a blank
+  description or copyright holder, which 1.x wrote into the project's files.
+- **Fixed:** a flag written in the space form must have a value: `--desc ""`, or `--desc` followed
+  by another `--` flag, now stops `init.sh` with exit 2, naming the flag. 1.x took the next flag as
+  the value, so `--desc --layout=mono --non-interactive` set up a new multi-repo project described
+  as `--layout=mono`, and exited 0.
+- **Fixed:** `init.sh` checks a new project's slug before it changes anything, stopping with exit 2,
+  or asking again when it's typed, if the slug is over 64 characters or `Code/<slug>-docs` already
+  exists. 1.x failed partway through on a slug over 250 characters, leaving a half-renamed tree, and
+  nested the template inside an existing `Code/<slug>-docs`; a slug of 65 to 250 characters, which
+  1.x took, is now refused. A slug that breaks the pattern is now told the rule in full, including
+  that it starts with a letter.
+- **Fixed:** a description or copyright holder with a line break or an upper-case placeholder in
+  double braces is refused before anything changes, with exit 2 from a flag or environment variable
+  and the question again when typed; so is one of only spaces. 1.x wrote them into the new project's
+  files, where a line break split the description across lines.
+- **Fixed:** setting up a new team project, `init.sh` stops with exit 2 before anything changes when
+  the ADR authority from `--adr-authority` or `INIT_ADR_AUTHORITY` is only spaces. 1.x wrote it into
+  `adr/README.md`, leaving a *Who accepts an ADR* line that names no one.
+- **Fixed:** a new project's remotes are checked before anything changes, and a problem stops
+  `init.sh` with exit 2: on GitHub, a `gh` that isn't signed in or can't reach it, or a repository
+  it would create that already exists; with URLs given, the same one for `--docs-remote` and
+  `--prompts-remote`. 1.x found these only after building the project, and a multi-repo run still
+  exited 0.
+- **Fixed:** a new project's setup says more about where it will push before it changes anything. In
+  mono-repo-for-now, an empty origin the folder already has is named on every path that keeps it,
+  with whether it will be pushed to, and the GitHub path then creates nothing and needs no `gh`; 1.x
+  named that origin only after building the project. A proprietary project pushing to a URL it was
+  given, or to that origin, is warned that if it's public, pushing publishes the source, which 1.x
+  said only when public visibility was chosen.
+- **Fixed:** a flag that a new project's layout, or its solo/team choice, can't use is named and
+  ignored. The other layout's remote-URL flags and their environment variables no longer switch on
+  remote setup, and `--adr-authority` in a solo project is no longer dropped without a word. Every
+  team is now told that team collaboration relies on shared remotes, not only one that typed its ADR
+  authority.
+- **Fixed:** a remote backup that was asked for and didn't complete no longer cuts a new project's
+  setup short or goes unreported at the end. `init.sh` prints its whole closing text under "Done —
+  but the backup did not complete.", reports on stderr which repositories to check and how, and
+  exits 1; 1.x exited 0, or in mono-repo-for-now stopped before the closing text.
+- **Fixed:** a new project's closing report fits the run. Backup advice appears only when no remote
+  was asked for, and fits the layout, where 1.x gave every project multi-repo advice even once its
+  backup was done; the note on deleting `init.sh` no longer tells a mono-repo-for-now project that
+  it's free, since its first commit holds the file.
+- **Fixed:** `init.sh` no longer deletes a `TODO.md`, `.dev/` or `.test-fixtures/` from the folder
+  it sets up a new project in. Those are names from Throughstone's own checkout, and 1.x lost a file
+  of yours that had one. It also leaves the copy of itself exactly as the template shipped it,
+  without the project's name, description and trunk branch written in.
+- **Fixed:** `init.sh` no longer leaves the template's own `.gitignore` at a multi-repo workspace
+  root, and the root `doctor.sh` it leaves goes straight to the docs hub, as the one
+  `setup-workspace.sh` writes does. The `.gitignore` belonged to no repository, but a search tool
+  that reads ignore files applied it from the root to every repo below, hiding files such as a
+  `TODO.md` in the docs hub. *(Upgrade step 6.)*
+- **Fixed:** the `.gitignore` that `init.sh` writes, and the one `templates/planning-session.md`
+  asks for in a new code repo, keep per-machine agent settings out of commits in any folder: every
+  `*.local.json` in a `.claude/` folder, and an editor's lock or autosave copy there. 1.x's
+  `.gitignore` named only `.claude/settings.local.json`, at the repo's top level, so a
+  mono-repo-for-now code folder an agent was started in could commit its own, and the planning
+  session gave a new code repo no such line. A shared `.claude/settings.json` still commits.
+  *(Upgrade step 18.)*
+- **Fixed:** the `.gitignore` that `init.sh` writes, and the one `templates/planning-session.md`
+  asks for in a new code repo, keep a file named `.secrets` out of commits, not only a `.secrets/`
+  folder. 1.x's line matched only the folder, so a `.secrets` file was committed by the next
+  `git add -A`, including a new mono-repo-for-now project's first commit. *(Upgrade step 18.)*
 
-- **The interactive setup no longer licenses your project open source by default.** `init.sh` asks
-  whether the project is open source or private/proprietary, and that question used to default to
-  open source, with the license question after it defaulting to MIT — so two bare Enters granted
-  everyone an irrevocable license to the project's code without the user ever naming one. The
-  project-type question now defaults to **private / proprietary**, which writes no project
-  `LICENSE` at all and leaves the decision to be made deliberately later. The open-source
-  sub-question keeps its MIT default: by the time it is asked, open source is an explicit choice.
-  Nothing changes for `--license=…` or `--non-interactive`, which have always required the posture
-  to be stated. Existing projects are unaffected — their posture is already recorded in
-  `.throughstone/project-license`.
-- **The README and website now tell you to clone the latest *release*, not `main`.**
-  `git clone --branch v1.7.1 …` gives you the 1.7 release; `main` is where Throughstone itself is
-  built and can carry unfinished work. The "Use this template" path is flagged as unable to be
-  pinned to a release, since GitHub always copies the default branch.
-- **A session template's go-ahead now fires on being *invoked*, not on being *read*.** Every
-  `templates/architecture-sessions/*.md` closed with "Begin now — in this same reply", which treated
-  the act of opening the file as the user's go-ahead. But session files are read by more than the
-  agent running the session: the Cross-Cutting Review enumerates every conditional to check
-  applicability, the periodic check-in re-evaluates them, and a reader that only wants a session's
-  work list has no business starting an interview. The paragraph now opens **"If you were sent here
-  to run this session…"** and closes by releasing a reader who wasn't — same behavior when a session
-  is actually invoked, no reliance on the reader's own framing to resist the instruction otherwise.
-- **One work-list heading across every session template.** `13-glossary.md` used "What to produce
-  (work through these)" and `14-cross-cutting-review.md` used "What to check"; both now use
-  **`## Decisions to make (in order)`**, like the other fifteen, with a note under the heading saying
-  what that session's items actually are (term batches; checks that may surface a decision). Anything
-  reading a session file now finds the work list under one name instead of learning a per-file name.
-  `METHOD.md` §4 records the skeleton as part of the contract for adding a session, and a new
-  maintainer test enforces it.
-- **`registries/` now ships with every project, and `--registries` is deprecated.** The flag pruned
-  the directory in mono-repo layout, on the reasoning that one self-contained repo has no siblings
-  to inventory. But `registries/` is not only `repos.yml`: pruning it also took `risks.yml`, the
-  accepted-risk and tech-debt register, and `security-reviews.yml`, the security-review ledger —
-  two registers that reasoning never covered, and that the docs hub's own index, `METHOD.md` and
-  several runbooks reference unconditionally. A project bootstrapped with `--registries=no` started
-  life citing files it did not have, and `scripts/check.sh` called it clean. The directory now
-  always ships, in both layouts, and the interactive mono-repo question offering to drop it is
-  gone. `--registries` still parses, so an existing scripted bootstrap keeps working: `yes` is
-  accepted silently, `no` keeps the directory and prints a deprecation notice, and an unrecognized
-  value is an error. That last part is a small behavior change — the value used to be checked only
-  in mono-repo layout, so `--registries=maybe --layout=multi` was silently accepted and now fails
-  the way mono-repo already did.
-- **The process docs now name the registration action instead of describing a registry row.** Eight
-  shipped files still told an agent to go write a `registries/repos.yml` row by hand, or swept "all
-  repos" as though every one of them were on the machine. `AGENTS.md`, the substep prompt template
-  and `runbooks/collaboration.md` §8 now say *register it* and point at `runbooks/register-repo.md`;
-  none of them knows a field name any more, so they stay correct when the fields change — which is
-  the exact way the previous attempt at this rotted. The STEP plan template and the STEP index seed
-  record that a repository the method only references never appears in a STEP's Repos projection.
-  Two files change what they actually do. **The check-in's repo-README sweep is now driven by the
-  row**: the whole file where the method wrote that README, only the `## Role in <project>` section
-  where it augmented somebody else's, and nowhere else at all — there it edits nothing and re-asks
-  the one question the README answers for the project, whether someone standing in that repo can
-  still find their way back. The "do the setup steps still work from a clean checkout" check is
-  deliberately dropped for repositories the project does not own, since that is a judgement about
-  their repo rather than about our connection to it. The check-in also treats a registry row and its
-  Architecture Overview entry as **one** thing that drifts — re-run the registration, never edit
-  either by hand — and stops re-asking the licensing question per repository, which is settled once
-  for the whole project. **`runbooks/collaboration.md` §9's solo-to-team remote setup is scoped to
-  repositories the method created**: as written it would have created a second remote for a
-  repository someone else owns and pushed their history into it.
-  Three read-only sweeps — the check-in's full test run, the dependency audit, and the incident
-  runbook's hunt for similar issues — asked for "all repos" and now ask for every repo you can
-  reach, with the unreachable ones named. The failure that guards against is not missing a
-  repository; it is a partial sweep that reads as a complete one.
-- **The planning session stops judging a repository by its README.** Its repo-scaffolding step
-  decided whether a repo the architecture names already existed by reading that repo's README — a
-  repo counted as already there only if it had a registry row **and** a README whose role one-liner
-  and Overview were filled in. That is a test of prose, and it failed in the direction that costs
-  you something: **a real repository with a thin README was judged absent and scaffolded over**,
-  which means a stack, a CI workflow, an `.env.example`, a `.gitignore` block and possibly a
-  license written into somebody's existing work. The step now asks the two questions that actually
-  answer it — is this repo already registered, and if not, is there a repository at that location,
-  meaning a repository's own work-tree root rather than a folder that looks finished. Asking the
-  registry first means a repo the project already knows about is never re-created, **including one
-  that is registered but not cloned on this machine**, which a disk test on its own would report
-  absent. Where no repository is found the step creates one exactly as before, with the whole
-  scaffolding list unchanged. Where one is found, **no stack wiring, no CI, no `.env.example`, no
-  `.gitignore` block and no project `LICENSE`** go into it, and it is registered instead — what
-  does land there is the registration action's call. Either way it goes through that one action,
-  which writes the registry row and the Architecture Overview entry together — a STEP's work, as
-  the creating always was; the session decides and outlines, and writes only the STEP-index rows.
-  A greenfield
-  first run is unchanged:
-  nothing is registered and no location holds a repository, so every repo is created exactly as it
-  is today.
+### Registry and workspace
 
-### Fixed
-- **One repository you cannot clone no longer costs you the whole workspace.**
-  `scripts/setup-workspace.sh` is what every developer after the first runs to assemble the project
-  on their machine: it clones the repos `registries/repos.yml` gives a `remote:`, then writes the
-  workspace root's `AGENTS.md`, `CLAUDE.md` and `doctor.sh`. A clone that failed aborted the run
-  before it reached those files, so the contributor ended up with **no workspace at all** — over a
-  repository they may not even need. Three ordinary situations did it, all measured: a remote nobody
-  on the team can reach, a stray folder or half-finished clone already sitting where a repo should
-  go, and a `location:` left behind as an absolute path from the first developer's machine. A failed
-  clone is now reported and the run continues; the pointer files are written before the clone step
-  rather than after it; and the closing line says how many repos did not arrive instead of reporting
-  plain success. Fix a bad `remote:` or `location:`, or clone that repo by hand, and re-run — repos
-  already cloned are left alone.
-- **A `location:` outside the workspace root is no longer cloned into.** An absolute path, or one
-  reaching out with `..`, is now reported and skipped. It used to be used verbatim, so a registry
-  naming a path that happened to be writable placed a repository *outside* the workspace silently,
-  at exit 0 — and that is the ordinary shape whenever a repo is registered where it already lives
-  instead of created as a `Code/*` sibling. A `location:` that stays inside the workspace root still
-  clones exactly as before, including one outside the `Code/*` shell, and a repo already checked out
-  where its `location:` points is still left untouched. A repo registered outside the workspace root
-  is one each contributor clones onto their own machine, once; `METHOD.md` §7 and the registry
-  header carry the narrower rule.
-- **`init.sh` could destroy a repository it was run inside.** Unpacking the template into a
-  repository you already had — the natural thing to try when you want Throughstone in a project
-  that exists — and running `./init.sh` there deleted that repository's `.git` outright, every
-  commit with it, at exit code 0 and with no warning. Your working files survived; your repository
-  did not. The bootstrap is one-time and destructive by design — it removes the template's own git
-  history and every template-only file — so it now establishes that it is looking at a fresh
-  template checkout *before* it removes anything, and refuses with an explanation when it is not.
-  The marker in the root pointers cannot answer that on its own, because an unpacked template
-  brings those files along with it, so git is asked too — and only when there is a `.git` in the
-  folder to lose. A checkout counts as fresh when its committed history is the template's own and
-  it tracks nothing the template does not ship, or when it has no commits, no branches and nothing
-  staged. Every documented setup route still works untouched: a fresh unpacked download, a clone of
-  a release tag, a "Use this template" repo, and `git init` beside the template to attach an empty
-  origin. Covered by `tests/init-fresh-template-guard.sh`, which derives the template's root-entry
-  list from the template itself so the check cannot go stale.
-- **A generated repo's ignore file named one per-machine agent file instead of matching the family.**
-  Every repo `init.sh` creates ignored `.claude/settings.local.json` exactly, so an editor's lock or
-  autosave sibling (`#settings.local.json#`, `settings.local.json~`) — per-machine files, all of
-  them — was left untracked and swept in by a `git add -A`. Throughstone's own repository moved off
-  the by-name rule for this reason and the generated one did not follow. Now matched by pattern.
-  Shared project config (`.claude/settings.json`) is still committed, so this narrows what leaks
-  without narrowing what a team can share.
-- **`init.sh`'s closing backup tip was wrong for a mono-repo project.** It told every project to
-  "create empty repos on your host, add their URLs to `registries/repos.yml`, and push each local
-  repo's `main` branch" — which is what `runbooks/collaboration.md` §9 expressly tells a mono
-  project *not* to do, since no row in that file is a repo to clone. The tip is now
-  layout-conditional: mono is told to create one repo, push the root repo's trunk, and leave the
-  registry rows alone. The mono + team kickoff note stopped citing the repealed
-  split-before-a-teammate rule in the same change — the observation under it still holds
-  and is still printed, but it now points at the fallback `collaboration.md` §4 prescribes rather
-  than telling you to split.
-- **`11-interface-contracts.md` punctuation drift.** Its go-ahead paragraph had ASCII hyphens where
-  every sibling file had em dashes — identical wording otherwise. Now byte-identical to the rest.
-- **Lifting a document into `architecture/` could fail the check that guards it.**
-  `inputs/README.md` told you to add the `Version` / `Status` header when lifting a spec or finished
-  design doc, but omitted the **Version Log** — which `scripts/check.sh` check 4 requires of every
-  numbered architecture doc, and which a document written outside the method almost never arrives
-  with. All three fields are now named at the point of the lift.
-- **The STEP index's status legend didn't mention `N/A`.** A substep whose area structurally doesn't
-  apply (the UI session on an API-only system) is marked `N/A` — accepted by `check.sh` and skipped
-  by the next-action resolver — but the legend listed only the five STEP states, so the one place a
-  reader checks before writing a status didn't describe a value the file legitimately contains.
-- **A `Coverage:` line could be a bare word that told a later reader nothing.** The field records
-  that a doc deliberately describes only part of its area, and every check-in resurfaces it for a
-  decision — but `METHOD.md` §6 and the architecture doc template both showed it as a lone token
-  (`deferred`), so the reader who meets it months later can't tell whether the gap blocks them, and
-  the check-in has nothing to weigh. Both now require one sentence: what is missing, how big it is,
-  and what it means for someone building on the doc, written as an ordinary bold header field
-  (`**Coverage:** deferred — …`).
-- **The deferred-coverage sweep looked for a string the docs don't contain.** `runbooks/check-in.md`
-  told the check-in to enumerate architecture docs "carrying `Coverage: deferred`" — but the field is
-  written like every other header field, so the literal phrase never appears, and now that its value
-  is a sentence it is further still from matching. The sweep now reads the `Coverage:` **field** and
-  takes anything other than `full`, which is what stops a deferral from quietly becoming permanent.
-- **A mono-repo project's method-integrity gate had never run.** `method-check.yml` ships inside the
-  docs hub, at `Code/<project>-docs/.github/workflows/`. In a multi-repo project the hub is its own
-  repository, so that path is a repository root and the workflow is live the moment you push it. In
-  a mono-repo-for-now project the workspace root is the repository and the hub is a folder inside
-  it — and GitHub reads workflows only at a repository root, so nothing ever triggered and no run
-  ever appeared to be missing. The manual copy was documented, but only in the workflow's own header
-  comment and `templates/ci/README.md`, neither of which is where you look to find out whether your
-  CI exists. `init.sh` now places the workflow at the workspace root when it creates a mono-repo
-  project, and the docs hub keeps its own copy, which is what gives the hub CI of its own if the
-  project later splits. `init.sh` runs once and never again, so nothing places the file in a project
-  that already exists: `UPDATING-THROUGHSTONE.md`'s 1.8 section carries the one-file copy as a
-  migration step, and says plainly that the first run is likely to report findings that have been
-  accumulating unseen.
-- **A mono-repo project's registry left out the only repository it had.** `registries/repos.yml`
-  calls itself the source of truth for which repos exist, and in a mono-repo-for-now project it
-  listed the docs hub and `prompts/` — both folders — while the workspace root, the project's one
-  actual repository and the only git work tree in it, had no row at all. `init.sh` now seeds that
-  row: `location: "."`, `type: mono`, `origin: created`, `control: managed`, and no `provides:`,
-  which is the carve-out every seeded row gets. No script reads the row and no tooling behaves
-  differently because of it — `scripts/check.sh`, `scripts/links.sh` and the clone parser in
-  `scripts/setup-workspace.sh` were each measured against it, and the parser passes over the row
-  because it carries no `remote:`. Prose describing a mono project's registry rows as folders
-  inside the single repo has been corrected wherever it appeared — the registry header, the setup
-  script's closing tip, the solo-to-team runbook and this file. Existing projects are not rewritten.
+- **New:** `registries/repos.yml` declares the project's layout in one `layout: mono` or
+  `layout: multi` line, which `init.sh` writes for new projects. The check-in reads it to tell a
+  folder inside your one repository from a repo of its own, and `setup-workspace.sh` stops when it
+  says `mono`. *(Upgrade step 4.)*
+- **New:** a mono-repo-for-now registry has a row for the workspace root (`location: "."`), the one
+  repository that holds everything else. `init.sh` seeds it and records the root's remote on it once
+  something has been pushed. It is the only row a mono check-in asks to carry a remote.
+  *(Upgrade step 4.)*
+- **New:** the check-in checks the registry, through `./doctor.sh check --check-in`, which CI
+  doesn't run. It fails a `layout:` line that's repeated, empty, unknown or below the rows, rows
+  that disagree with the layout, a row it can't read, and a row with no `location:`. It warns when
+  the `layout:` line is missing and, once that line says `mono` or `multi`, about each repo no
+  recorded remote covers. *(Upgrade steps 3 and 4.)*
+- **New:** a row can record how its repo arrived (`added_as: created` or `adopted`) and, for a repo
+  split out of another, where it came from (`provenance:`). No script reads either, and existing
+  rows don't need them.
+- **Changed:** a `location:` must be a path relative to the workspace root, where 1.x allowed any
+  path: it never starts with `/` or `~`, and has no `..` segment. `setup-workspace.sh` skips and
+  reports any other shape on a row with a `remote:`, instead of using it as written; a repo that
+  can't move stays where it is, behind a symlink. *(Upgrade steps 2 and 3.)*
+- **Changed:** the `registries/repos.yml` header explains both layouts, and tells anything that
+  rewrites a row to work on the whole row, from its `- name:` line to the next. In mono-repo-for-now
+  it calls the registry an inventory of what was registered, where 1.x called it the target of a
+  later split; `runbooks/splitting-repos.md` says how to work out what to split. *(Upgrade step 2.)*
+- **Removed:** the option to leave `registries/` out of a mono-repo-for-now project. Every project
+  gets the folder: `init.sh --registries=no` keeps it and prints a notice, and a value it can't read
+  as yes or no stops setup with exit 2 in either layout. The interactive question about it is gone,
+  so a script that pipes in answers must drop that one. *(Upgrade step 2.)*
+- **Fixed:** in a mono-repo-for-now project, `setup-workspace.sh` stops before writing anything once
+  the registry says `layout: mono`; it used to overwrite the root `CLAUDE.md`, `AGENTS.md` and
+  `doctor.sh` your repository commits with per-machine copies. It also stops, writing nothing, on a
+  layout value it can't read or a registry it can't open. *(Upgrade step 4.)*
+- **Fixed:** `setup-workspace.sh` clones nothing, and says why, when a registry row opens with a `-`
+  line other than its `- name:` line. It used to pass over such a row without a word, so one repo
+  never arrived or another repo's remote was cloned into its folder. *(Upgrade step 3.)*
+- **Fixed:** a row copied from the registry's example no longer records a clone URL that doesn't
+  exist. 1.x's example carried a note after its `remote:` value, and the scripts read a `#` there as
+  part of the value. The file's header now states the rules its readers need: one line per value,
+  nothing after a `- name:`, `location:`, `remote:` or `layout:` value, and double quotes or none.
+  *(Upgrade steps 2 and 3.)*
+- **Fixed:** one repo you can't clone no longer costs you the whole workspace. `setup-workspace.sh`
+  used to stop at the first failed clone, before writing the root `AGENTS.md`, `CLAUDE.md` and
+  `doctor.sh`; now it writes those first, keeps going, and ends by counting the repos it reported as
+  not arriving. A script that read its exit status now sees 0. *(Upgrade steps 5 and 17.)*
+- **Fixed:** `setup-workspace.sh` counts a worktree or submodule checkout as present instead of
+  trying to clone over it. It reports an empty clone, an uncommitted `git init` or an unreadable
+  `.git` instead of counting it as arrived. *(Upgrade step 5.)*
+- **Fixed:** the root `AGENTS.md` and `CLAUDE.md` that `setup-workspace.sh` writes now say the same
+  as the ones `init.sh` leaves, including the closing paragraph that makes "Read `AGENTS.md` and
+  follow it" an instruction. *(Upgrade step 5.)*
+
+### Mono-repo-for-now and CI
+
+- **Fixed:** a mono-repo-for-now project's CI gate runs. `init.sh` now puts `method-check.yml` in
+  `.github/workflows/` at the workspace root, because GitHub reads workflows only at a repository
+  root and 1.x left it in the docs hub alone. The workflow also runs the docs hub's doctor rather
+  than a root `scripts/check.sh` of your own, which 1.x's copy ran in its place. Upgrading replaces
+  any root copy you already have, so an edit of yours that only it holds, such as a job you added,
+  has to move into the docs hub's copy first. *(Upgrade step 7.)*
+- **Fixed:** in mono-repo-for-now, a test workflow stamped into a code folder never runs, and 1.x
+  didn't say so. `templates/ci/README.md` now does, says to stamp and configure it anyway for a
+  later split, even where the project's docs choose one root workflow, as
+  `runbooks/register-repo.md` and the Test Strategy session say too, and shows how to gate tests
+  before then: a root copy with one job per code folder. *(Upgrade step 7.)*
+- **Fixed:** a mono-repo-for-now project no longer commits the STEP in flight. `init.sh` adds
+  `/Upcoming Prompts/*` and `!/Upcoming Prompts/.gitkeep` to the root `.gitignore`, so a
+  `git add -A` leaves out the STEP's PLAN and substep prompts until it is archived into `prompts/`.
+  *(Upgrade step 8.)*
+- **Fixed:** in mono-repo-for-now, the root `CLAUDE.md` and `AGENTS.md` no longer call themselves
+  per-machine files that aren't versioned. They're committed in the project's one repository, and
+  the text `init.sh` leaves says that only of a multi-repo project. *(Upgrade step 9.)*
+- **Fixed:** a mono-repo-for-now project set up before 1.7 now keeps the local profile out of
+  commits. 1.7's `init.sh` gave a new project's root `.gitignore` the line
+  `/.throughstone/local-user.md`, but no upgrade step added it to an older project's, so the next
+  `git add -A` committed the profile. *(Upgrade step 18.)*
+- **Fixed:** the docs no longer assume multi-repo. `AGENTS.md` reads the `layout:` line, and
+  `METHOD.md`, `ONBOARDING.md` and `prompts/README.md` between them say what the workspace root, the
+  docs hub and `prompts/` are in each layout: in mono-repo-for-now, the root is the one repository,
+  its pointers and `doctor.sh` are committed, and `setup-workspace.sh` doesn't apply. A code folder
+  gets its own README, and in Go its own module, as a repo does.
+- **Fixed:** the session and report templates no longer assume one codebase per repository. The
+  planning session reads `registries/repos.yml` in every project, the Test Strategy session plans a
+  test workflow for each repo or code folder, a substep reads the README of each one it touches, and
+  a test-results summary has a scope row for each registry entry the run covered.
+- **Fixed:** the Test Strategy session no longer says both CI workflows ship in `templates/ci/`.
+  `method-check.yml` ships live in `.github/workflows/`, and `code-repo-ci.yml` is the test workflow
+  to fill in.
+
+### Adding and splitting repos
+
+- **New:** `runbooks/register-repo.md` brings a repo into a project, whether it's created, adopted
+  or split out of another. It writes the registry row and the Architecture Overview's Repos entry
+  together, and decides the repo's README by what is already in it; an adopted repo gets only the
+  Throughstone notice, `LICENSE-THROUGHSTONE`, never the project's licence. A code repo the method
+  creates also gets its own test gate and the `.env`, `.secrets` and `.claude` lines in its
+  `.gitignore` there, whatever README it already had, so a repo a later STEP makes gets them too.
+  The docs that had you add a row or stamp a README by hand, or said an open-source project's
+  `LICENSE` goes into every new repo, now point there, and `templates/repo-readme-template.md` no
+  longer carries its stamping instructions into the README.
+- **New:** `runbooks/splitting-repos.md` splits a code repo in two (Case 1) or converts a
+  mono-repo-for-now project to multi-repo (Case 2). It clones the whole repo and deletes forward, so
+  nothing is rewritten and both sides keep the full history, and a repo it creates keeps the
+  licensing that came with its code and gets the Throughstone notice. `METHOD.md` §7 and
+  `runbooks/README.md` point to it.
+- **Changed:** the check-in fixes a repo missing from the registry, or a row whose Architecture
+  Overview entry is missing or disagrees, by re-running `runbooks/register-repo.md`, and its README
+  sweep reviews a README with a `## Role in <project>` section only in that section, where 1.x
+  reviewed every code repo's README whole. A 1.x Architecture Overview has no Repos section, so your
+  first check-in after upgrading sends every repo back through registration, which may add a Role
+  section to a README Throughstone didn't stamp, such as the docs hub's and `prompts/`'s in a
+  multi-repo project.
+- **Changed:** a mono-repo-for-now project takes no separate repository in, where 1.x set no such
+  limit: `METHOD.md` §7 and `runbooks/register-repo.md` say to convert to multi-repo first, by
+  `runbooks/splitting-repos.md` Case 2. The check-in fails any row in a mono registry, other than
+  the workspace root's, that has a `remote:`. *(Upgrade step 4.)*
+- **Changed:** a remote created for a repo that has none is created private, and making any repo
+  public takes an explicit instruction from the user naming that repo. 1.x's planning session had
+  you choose private or public as each remote was added. `METHOD.md` §7 sets the rule, and the
+  planning session, `runbooks/register-repo.md`, the check-in and `init.sh`'s backup advice for a
+  project set up without remotes repeat it.
+- **Changed:** STEP-1 work takes the `step-0001-architecture` branch in every repository it writes
+  into, an adopted repo included. 1.x's `METHOD.md` §7 named only the docs hub and `prompts/`, or
+  the root repo in mono-repo-for-now.
+- **Removed:** the rule that a mono-repo-for-now project must split before taking on a second
+  contributor. A team needs shared remotes, not several repos, so how many repos a project has
+  follows its architecture. `METHOD.md` §7 and `runbooks/collaboration.md` §9 no longer say to
+  split, and `init.sh` no longer tells a new mono-repo-for-now team to plan one.
+- **Fixed:** the planning session no longer plans a scaffold over a repo that already exists. 1.x
+  counted a repo as already there only when it had a registry row and a filled-in README, so for a
+  real repository missing either it planned a stack, CI, an `.env.example`, a `.gitignore` block and
+  a licence. `templates/planning-session.md` now asks whether a repository is at the location and,
+  if one is, plans its registration through `runbooks/register-repo.md`; a path holding files the
+  project didn't put there stops for you.
+
+### The check-in
+
+- **New:** the check-in compares the CI gates the Test Strategy architecture doc names with the
+  gates actually running. It confirms that `method-check.yml` is in `.github/workflows/` at the
+  workspace root in mono-repo-for-now, or at the docs hub's root in multi-repo, and notes that a
+  mono-repo-for-now code folder's own `ci.yml` never runs.
+- **Changed:** the check-in is scheduled, not calculated: `overview.md`'s
+  `<!-- NEXT-CHECK-IN: … -->` line names the STEP or the date of the next one, which the planning
+  session writes and each check-in updates as it closes. `./doctor.sh status` reports it under
+  `Check-in:` as due, next or none scheduled, and while one is due or none is scheduled, proposes a
+  Check-in STEP as advice beside the next action. A STEP in progress past a check-in scheduled by
+  STEP number, such as one added outside the plan, numbered above the phase, doesn't make it due
+  while a STEP below it is still Planned. The line replaces 1.x's `CHECK-IN-CADENCE` setting, which
+  nothing reads now; the doctor's check 10, which checked that setting, is now the registry check
+  that `--check-in` runs. *(Upgrade steps 10 and 17.)*
+- **Changed:** a Check-in STEP may make a small code or test fix to clear a failure it finds, where
+  1.x's `runbooks/check-in.md` said it writes no application code, though its Part 2 also said to
+  fix a small test failure there. It still writes no new features, and a larger fix becomes a bug
+  STEP of its own.
+- **Changed:** the check-in fills in every section of its report, from
+  `templates/reports/check-in-report-template.md`, and says so where a sweep found nothing instead
+  of leaving the section out. The report's Repo READMEs row can now record a README as re-registered
+  or raised, as well as updated or followed up.
+- **Fixed:** a Check-in STEP runs whole: "run the check-in" runs both its substeps, end to end, as
+  `runbooks/check-in.md` and `METHOD.md` §10 now both say, and `./doctor.sh status` tells an
+  in-progress one to wait for that command. In 1.x, §10 let an in-progress STEP run only the substep
+  you named, and the helper told a check-in to wait for `run substep N.M`. The helper knows a
+  check-in by its row's title, `Check-in` or `Check-in: <scope>`, as `METHOD.md` §5 now says.
+  *(Upgrade step 10.)*
+- **Fixed:** the check-in runs any periodic audit or rotation the project's docs attach to it,
+  such as the dependency audit or the secrets rotation, and records each one's result in its
+  report's new *Periodic Audits* section, or names it as not run. 1.x's
+  `runbooks/dependency-supply-chain.md` and `runbooks/secrets-rotation.md` said they ride on the
+  check-in, but `runbooks/check-in.md` never mentioned them, so a check-in followed end to end
+  skipped them.
+- **Fixed:** the check-in runs every test suite in every repo or code folder you can reach,
+  `runbooks/dependency-supply-chain.md` audits every package manifest in every repo you can reach,
+  and `runbooks/incident-postmortem.md`'s hunt for similar issues covers every repo you can reach;
+  each names what it couldn't reach. 1.x asked for the full suite, the audit or the hunt across all
+  repos, so a run on a machine missing a repo, or one that ran only one of several suites, could
+  read as complete.
+
+### Status and the doctor
+
+- **Changed:** `check.sh`, `status.sh`, `links.sh` and `setup-workspace.sh` stop with exit 2 on an
+  argument they don't take, naming it, and so does `./doctor.sh help` given anything after it. 1.x
+  ignored the argument and ran as usual, so `./doctor.sh status --check-in` printed an ordinary
+  report and exited 0. A bare `./doctor.sh` still prints its help. *(Upgrade step 17.)*
+- **Changed:** a lost `PROJECT-STATUS` marker is a question, not a guess. When `overview.md` holds
+  none of its three values, `./doctor.sh status` reports the state as indeterminate, and the agent
+  asks whether the project is new, being adopted or past its kickoff, then restores the marker from
+  your answer. 1.x worked it out from the files, as past the kickoff unless `prompts/STEP-index.md`
+  still matched what `init.sh` wrote, a guess an adoption in progress would fail.
+- **Fixed:** checks 1, 2, 3 and 9 of `./doctor.sh check` warn, where 1.x passed, when they have
+  nothing, or not everything, to read: no STEP rows at the left margin of `prompts/STEP-index.md`,
+  neither an ADR row nor the registry table in `adr/README.md`, STEP rows under no Status column, or
+  no `templates/architecture-sessions/` folder. Warnings don't change the exit code, and the pass
+  lines of checks 1 to 3 now end in the number of rows read. *(Upgrade steps 17 and 20.)*
+- **Fixed:** `./doctor.sh check` fails a STEP or substep row whose Status is blank or only dashes,
+  such as `-` or `:-:`. 1.x skipped such a row, as it did the table's separator line, and passed it,
+  and `./doctor.sh status`, which still skips it, answers as though the row weren't there.
+  *(Upgrade step 11.)*
+- **Fixed:** the workspace-root check (check 7, multi-repo only) allows a top-level folder that a
+  registry `location:` starts at, and compares whole names. 1.x warned on every run about a
+  top-level folder holding a registered repo, and let a stray `Upcoming` or `Prompts` through
+  because it split the allowed `Upcoming Prompts` at its space. Its fix line now offers registering
+  the repo, moving the entry into a repo, or, if it's yours alone, moving it out of the workspace.
+- **Fixed:** doctor messages say what the check found. Check 8's failure says a session template has
+  no line starting with "Write `architecture/NN-…`", where 1.x said its Output section lacked that
+  instruction, even when a bullet gave it. A check skipped for want of `prompts/STEP-index.md` or
+  `overview.md` names the missing file and no longer asks, as 1.x did, whether the project was
+  initialized, and check 1, under `layout: multi`, adds that a checkout of the docs hub alone never
+  carries `prompts/`.
+- **Fixed:** `./doctor.sh links` no longer reads `inputs/`, where the method keeps imported
+  documents as they arrived. In 1.x, a link in one to a path your workspace doesn't have failed the
+  check for good, since nothing the method allows could fix it. A link to an input from a doc the
+  check reads is still checked.
+- **Fixed:** `./doctor.sh links` checks a link's letter case from the workspace root down instead of
+  from `/`, and it fails a link through a folder it can't list, naming the folder. 1.x listed every folder from `/` down to each link's
+  target. At the first one it couldn't list, in the workspace or above it, it stopped with a Python
+  traceback and printed no `[FAIL]` and no `RESULT:` line; an agent sandbox that lets you pass
+  through a parent folder but not list it was enough. On a disk that ignores letter case, such as
+  macOS's, 1.x also flagged every link to a file that exists as wrong case when you had reached the
+  workspace by a path in the wrong case, such as `cd ~/desktop/…` for `cd ~/Desktop/…`.
+- **Fixed:** `./doctor.sh links` turns each space in a heading's anchor into its own hyphen, as
+  GitHub does, so `## Risks & mitigations` is `#risks--mitigations`. 1.x squeezed runs of spaces and
+  hyphens into one and trimmed them from the ends, so a link that works on GitHub failed the check,
+  and one the check passed was dead on GitHub. *(Upgrade step 20.)*
+- **Fixed:** `./doctor.sh links` builds the anchor of a heading that holds a Markdown link from the
+  link's text, as GitHub does, so `## The rule ([ADR-0006](../adr/ADR-0006-x.md))` is
+  `#the-rule-adr-0006`. 1.x kept the link's target in the anchor, so a link that works on GitHub
+  failed the check, and one the check passed was dead on GitHub. *(Upgrade step 20.)*
+- **Fixed:** once the STEP-1 row reads `Done`, `./doctor.sh status` no longer names an open STEP-1
+  substep as the next action; 1.x went on naming it whatever STEP was in flight, so the work in
+  progress never showed. While every substep is final but the row is still open, it names the
+  close-out, archiving STEP-1 and then marking it `Done`, even with later STEPs in the index. 1.x
+  sent you to the planning session or, once a later STEP was in the index, on to later work or to a
+  STEP-1 substep that doesn't exist.
+- **Fixed:** once the STEP-1 row reads `Done` and the index holds a later STEP, until one is
+  `In progress` or `Done`, `./doctor.sh status` ends its next action with "If the Phase-1 planning
+  session hasn't run yet, run it first.", and `METHOD.md` §10 rule 3 says the same. 1.x sent you to
+  Phase 1's planning session only while STEP-1 was the index's only row, so a later row written
+  before it ran sent you past it, and Phase 1 could be left without its outline.
+- **Fixed:** `./doctor.sh status` suggests a conditional session's by-name phrase, such as "run the
+  identity-auth session", only when the substep's label starts with that session's topic, and
+  otherwise says to invoke it by name. 1.x matched a keyword anywhere in the label, so a conditional
+  session called `Authoring conventions` got the identity-auth session's phrase.
+- **Fixed:** an HTML comment inside a row of `prompts/STEP-index.md` no longer hides the row from
+  `./doctor.sh status`, which now strips the comment and reads the row. 1.x dropped any line holding
+  a comment, so a note on the STEP in flight made it invisible, and one on the highest-numbered row
+  could report a phase with work left as complete.
+- **Fixed:** `./doctor.sh status` counts an `Abandoned` substep as final and reads a zero-padded
+  substep number such as `1.08`; 1.x stopped at the first, calling its status unrecognized, and
+  skipped the second. It now says to author a planned STEP's PLAN and any substep prompts, since a
+  thin STEP has none, and a new project's STEP index says a substep may be `N/A`.
+- **Fixed:** `./doctor.sh status` names, by number, each substep row of `prompts/STEP-index.md`
+  whose status it doesn't recognize, and says to fix the statuses `./doctor.sh check` lists as
+  invalid. 1.x called every such row a STEP-1 substep, even one in a later STEP's table.
+- **Fixed:** with `overview.md` there but no `prompts/STEP-index.md`, `./doctor.sh status` says to
+  restore the index from git history, or in multi-repo to clone `prompts/` with `setup-workspace.sh`
+  if the folder is missing. 1.x said to run `./init.sh`, and a 1.x `init.sh` run there deletes a
+  mono-repo-for-now project's repository history; the helper now says that only when `overview.md`
+  is missing too.
+
+### Teams
+
+- **New:** closing the kickoff in a team or shared-remote project also commits the brief and the
+  `kickoff-complete` marker on the trunk of the repository that holds the docs hub and pushes them
+  (`BOOTSTRAP-PROMPT.md`), so a teammate's agent doesn't read `not-started` on the trunk and restart
+  the kickoff. 1.x named only the push of the `In progress` flip.
+- **New:** in a team, a STEP flipped to `In progress` records its owner, and before opening an
+  implementation STEP, `./doctor.sh status` and the agent ask whether it's yours: by default a
+  STEP's PLAN is only on its owner's machine.
+- **Changed:** `AGENTS.md` keeps four coordination rules for everyone and sends a team to
+  `runbooks/collaboration.md` §2–§6 for the rest. A project counts as a team once the
+  *Who accepts an ADR* line in `adr/README.md` names anyone but `_solo author_`, or the user has
+  other agents working STEPs in parallel; otherwise a team whose line still says `_solo author_`
+  gets only the solo rules. *(Upgrade step 16.)*
+- **Changed:** the overlap warning compares in-flight STEPs' one-line Scope with your STEP's scope
+  and PLAN, instead of the repos each expects to touch. The STEP index's `Repos (projection)` column
+  and the rule to keep it up to date are gone; nothing reads the column, so an index that has one
+  can keep it.
+- **Changed:** going from solo to team, `runbooks/collaboration.md` §9 creates and pushes a remote
+  only for `prompts/`, the docs hub and each code repo that has none yet. A repo that already has
+  one keeps it, and is never given a second or repointed.
+- **Changed:** a contributor who joins answers the same local-profile questions as the first
+  developer. `ONBOARDING.md` §3 sends them to `METHOD.md` §4 and then `BOOTSTRAP-PROMPT.md` Stage 0,
+  instead of keeping a copy of its own.
+- **Fixed:** `./doctor.sh check` fails when two ADR files carry the same number, and its hint gives
+  the next free one. 1.x passed them as long as the registry listed that number once.
+  *(Upgrade step 20.)*
+- **Fixed:** the ADR duplicate-number scan works from the workspace root, where agents start. 1.x's
+  scan named the registry as `adr/README.md`, a path from inside the docs hub, so from the root it
+  scanned nothing and reported no duplicate. The one scan now lives in `runbooks/collaboration.md`
+  §6, and the other docs that number a STEP or an ADR carry no scan of their own.
+  *(Upgrade step 16.)*
+- **Fixed:** in a team, an ADR reserved on the docs hub's trunk no longer leaves the trunk failing
+  `./doctor.sh links` while its STEP is open. `runbooks/collaboration.md` §6 now says the file
+  holds the whole ADR, and that a link in it to a doc that exists only on the STEP branch is
+  written as a plain path until the STEP merges, as the ADR template's *Related documents* section
+  does. 1.x didn't say, so an ADR linking an architecture doc still on `step-0001-architecture`
+  failed the links check for every teammate who pulled the trunk.
+- **Fixed:** in mono-repo-for-now, the STEP-number reservation in `runbooks/collaboration.md` §2
+  runs in the root repository, which holds `prompts/`. 1.x had a team pull and push `prompts/` as a
+  repository of its own, which a mono project doesn't have.
+- **Fixed:** a contributor who joins a mono-repo-for-now project creates their local profile before
+  reading the project state. 1.x's `ONBOARDING.md` sent them straight past §3, so the profile waited
+  until an agent found it missing.
+
+### Sessions and STEPs
+
+- **New:** a substep that adds a dependency runs Part 1 of `runbooks/dependency-supply-chain.md`
+  first, when the project's Security & Threat Model doc asks for vetting, and records the result in
+  the STEP PLAN or the commit (`templates/substep-prompt-template.md`). In 1.x only the user's "vet
+  this dependency" started that runbook, and no template pointed a substep at it.
+- **New:** the planning session asks whether the phase builds on code the project didn't write that
+  no check-in has run over, and if so puts a `Check-in: baseline` STEP at the front of the phase, so
+  that code's tests run before anything is built on it.
+- **Changed:** the two local-profile settings each do one job (`METHOD.md` §4): the experience level
+  sets how much technical background an agent assumes, and the communication style how much
+  reasoning comes with a decision. In 1.x the level set both, so a saved profile now sounds
+  different: Level 3 is terse only with the style `Terse`, and Levels 1 and 2 are told why a
+  decision matters only at `Normal` or `Explanatory`; the UI / Design System session explains every
+  decision. *(Upgrade step 19.)*
+- **Changed:** where code already exists, the Cross-Cutting Review settles a conflict between docs
+  by reading the code: the code says what the system does, and the docs what it's meant to do
+  (`METHOD.md` §3). A doc that misread the code is fixed, a real gap files a `registries/risks.yml`
+  row, or a bug where the code drifted from a decision the project took, and a choice made before
+  the project kept ADRs, whose reasons nobody knows, is recorded in its doc, never in an ADR written
+  after the fact. Its foreclosure check also asks whether the architecture supports what the roadmap
+  commits to later phases, and records rework needed before one as a `registries/risks.yml` row or
+  in the Open Questions it carries forward. The planning session now reads both and plans that
+  rework as STEPs.
+- **Changed:** every architecture-session template heads its work list
+  `## Decisions to make (in order)`, where the Glossary and the Cross-Cutting Review had headings of
+  their own, and `METHOD.md` §4 makes that shared shape part of adding a session. Each template's
+  closing go-ahead now starts the session only for an agent sent to run it, and tells any other
+  reader to use the file as reference; 1.x's told any agent that read it to begin.
+- **Changed:** the UI / Design System session deletes its `ui-design/` comparison pages once its
+  architecture doc is written, unless you ask to keep them. 1.x said only that they need not be
+  kept, so the folder could sit untracked, for every later session to ask about.
+- **Changed:** a later STEP's substep status lives in the `Status` column of its PLAN's Substeps
+  table, which `templates/step-plan-template.md` now has, and the recipe in `prompts/README.md` no
+  longer has you list a STEP's substeps in `prompts/STEP-index.md`. STEP-1's substeps stay in the
+  index, where `./doctor.sh status` reads them. *(Upgrade step 12.)*
+- **Changed:** which STEPs are thin is settled in one place, step 5 of the recipe in
+  `prompts/README.md`: runbook-driven ones, whose runbooks `runbooks/README.md` marks as
+  STEP-shaped, and session-driven ones. The note above the recipe points there instead of listing
+  kinds, the PLAN template points there too, and the recipe's steps run 1 to 7, where 1.x numbered
+  two of them 5.
+- **Changed:** the list of docs a substep keeps true, in `templates/substep-prompt-template.md`,
+  names any `ARCHITECTURE.md` beside a repo's or code folder's README, to update when the design it
+  describes changes.
+- **Changed:** the last substep hands over the words that start the STEP's review,
+  *"run the STEP N review"* (`templates/substep-prompt-template.md`, `METHOD.md` §10). 1.x said only
+  to run the review, so the user had nothing to type.
+- **Changed:** before handing over to a fresh chat, an agent asks anything its chat must still act
+  on, such as whether an input is fully captured, and waits for the answer (`AGENTS.md`). A question
+  asked in the same message as the hand-off went unanswered when the user moved straight to the new
+  chat.
+- **Changed:** a STEP's close merges its branch into the trunk in every repo it touched, by PR where
+  that is how the project merges, and checks out the trunk (step 7 of the recipe in
+  `prompts/README.md`, which the Cross-Cutting Review, the check-in and the Incident STEP now point
+  to at their close; `runbooks/collaboration.md`). 1.x never said when a STEP branch reaches the
+  trunk, so STEP-1 could close on its branch, and the planning session after it had to stop and ask
+  before writing its rows on the trunk.
+- **Changed:** `AGENTS.md`'s secrets rule also covers a secret already committed in code the agent
+  reads, as an adopted codebase's often are: the agent names it by its file and key, never by its
+  value in a command, a reply or a doc, and never uses it to decrypt or reach anything without
+  asking you. 1.x said only not to commit the project's own.
+- **Fixed:** a STEP is archived before its row is marked `Done`. The Cross-Cutting Review archives
+  STEP-1 first, and the check-in its thin PLAN, where 1.x marked the row `Done` first, so a session
+  that stopped in between left the archive undone with nothing to say so; the incident runbook,
+  which never said to archive, now does. If a session stops in between, the row is still open, so
+  `./doctor.sh status` still shows that STEP as unfinished.
+- **Fixed:** the templates say what is true in the project they make. A new project's
+  `prompts/STEP-index.md` writes some of its docs-hub paths as `Code/<project>-docs/…`, the planning
+  and system-overview sessions say `init.sh` fills in their description, where 1.x said the kickoff
+  did, and `templates/ci/README.md` and `code-repo-ci.yml` drop the project's name, which read as "a
+  acme project".
+- **Fixed:** a scaffold update made before the kickoff is no longer a tracked STEP:
+  `UPDATING-THROUGHSTONE.md` §7 now has it use §6's scaffold-update branch and add no row to
+  `prompts/STEP-index.md`, whatever it touches. 1.x made any update that changed `METHOD.md`,
+  `AGENTS.md` or `status.sh` a STEP, so a project not yet kicked off took STEP-2 ahead of its
+  planning session, and `./doctor.sh status` could later send you past that session.
+- **Fixed:** the phase README template's STEP-1 row takes STEP-1's real substep count, `N/A` and
+  `Deferred` rows included, as the template now says. 1.x always wrote 14, which a STEP-1 with a
+  conditional session never had.
+
+### Architecture docs and inputs
+
+- **Changed:** an append-only log, `registries/input-captures.yml`, replaces the
+  `inputs/inputs-index.md` ledger. A session adds an entry each time it takes something from an
+  input, saying what it took and where it went, and never edits an earlier one. The check-in no
+  longer sweeps inputs, and an input moves to `inputs/archive/` only when you say it's fully
+  captured. *(Upgrade steps 2 and 14.)*
+- **Changed:** deferred architecture work comes back through a `registries/risks.yml` row, which the
+  check-in reviews with every open row: `METHOD.md` says to file one for a core session deferred
+  wholesale, and for a doc whose `Coverage:` line isn't `full`. The check-in no longer sweeps
+  architecture docs for `Coverage:` lines, and a `Coverage:` line is now one sentence saying what is
+  missing, how big it is and what it means, where 1.x showed a bare `deferred`. *(Upgrade step 13.)*
+- **Changed:** an accepted risk or deferral that still has a revisit trigger is `open` in
+  `registries/risks.yml`, which its header now says; `accepted-permanently` is for one accepted for
+  good. The check-in reviews only `open` and `monitoring` rows, so a row filed
+  `accepted-permanently`, the only 1.x status with "accepted" in its name, never came back while it
+  still had a trigger to watch. *(Upgrade step 2.)*
+- **Changed:** the Cross-Cutting Review sets every architecture doc still at `Draft` to `Current`
+  once the review is clean. 1.x never said when a doc leaves `Draft`, so every doc read "not yet
+  agreed" unless someone changed it by hand.
+- **Removed:** the `Version` and `Status` columns of the index in `architecture/README.md`, and the
+  architecture-doc template's `**Last updated:**` line. Each copied what the doc's own header or
+  Version Log says, and nothing relied on them; the check-in and the Cross-Cutting Review now list
+  each doc by number and title only, so nothing keeps a 1.x index's two columns current.
+  *(Upgrade step 15.)*
+- **Fixed:** lifting a document from `inputs/` into `architecture/` as the docs describe no longer
+  fails `./doctor.sh check`. 1.x's `inputs/README.md` named only the `Version` and `Status` header
+  fields, and `AGENTS.md`'s copy of its guidance named none, but check 4 also requires a Version
+  Log. `inputs/README.md` now names all three and writes its paths from the docs hub, and
+  `AGENTS.md` points there. *(Upgrade step 20.)*
+- **Fixed:** the commented example row in `registries/risks.yml` gives its ADR ref as
+  `adr/ADR-0000-example.md`, from the docs hub's root like its architecture ref, so a row copied
+  from it names a file the check-in can find. 1.x gave a bare filename.
+
+### Licensing
+
+- **New:** `apply-project-license.sh --notice-only <repo>`, for a repository your project didn't
+  create, writes the Throughstone notice, `LICENSE-THROUGHSTONE`, and nothing else: it reads no
+  licence posture, never touches the repo's `LICENSE` or `LICENSING.md`, and leaves a notice already
+  there as it is. It still stops with exit 2 on a usage error or a target that isn't a directory,
+  but a notice it can't write is only a warning, with exit 0.
+- **Changed:** `proprietary` now names a licence, and `private` only a repository's visibility, a
+  separate question. `init.sh`'s open-source-or-proprietary question offers *Proprietary*, where 1.x
+  offered *Private / proprietary*, and its flag value is `--license=proprietary`;
+  `--license=private` still works, with a deprecation notice. `METHOD.md`, the docs hub's
+  `README.md` and `templates/licenses/README.md` use the two words the same way.
+- **Changed:** `apply-project-license.sh` stops with exit 2, naming the argument, on a second
+  positional argument or a `--` option it doesn't know; 1.x ignored the extra argument, and took an
+  unknown option for the target. *(Upgrade step 17.)*
+- **Changed:** the Throughstone notice, `LICENSE-THROUGHSTONE`, opens by saying what it covers:
+  Throughstone's own material, not the repository it sits in, whose code stays under its owners'
+  terms. 1.x's notice was the scaffold's BSD-3 licence under another name, so at a repository's root
+  it could read as that repository's licence. It is now a file of its own in the docs hub, and
+  `init.sh` deletes the template's root `LICENSE` instead of renaming it. The BSD-3 text is the same,
+  and every repo still gets the notice.
+- **Fixed:** `apply-project-license.sh` prints one slash, not two, after a target ending in `/`, and
+  says "target is not a directory" for any target that isn't one, where 1.x said it didn't exist.
+- **Fixed:** the `LICENSING.md` that `apply-project-license.sh` writes into a repo has the same
+  permissions as the licence files beside it. 1.x left it readable by its owner alone (mode 0600),
+  as it was copied from a temporary file; git stores it as an ordinary file, so clones were never
+  affected.
+- **Fixed:** `templates/licenses/README.md` says a licence other than the three it offers goes into
+  the repo by hand. 1.x also suggested adding a template and a branch to `init.sh`, which a project
+  never runs again.
+
+### Paths and wording
+
+- **Changed:** the comments and wording in `init.sh`, the helper scripts, `AGENTS.md`, `METHOD.md`
+  and the runbooks describe the project as it is now, without asides about earlier versions.
+- **Removed:** `UPDATING-THROUGHSTONE.md`'s design for an updater tool Throughstone never shipped:
+  the project manifest, the release update catalog, the tool's check flow and command names, and the
+  root updater. The guide now describes only the update you do by hand, in sections renumbered
+  §1–§7, and its §2 counts the README, Role section and `LICENSE-THROUGHSTONE` that registration
+  writes into a repo as stamped files.
+- **Removed:** `ONBOARDING.md` §6, the rule for editing Throughstone's own files, which told a
+  project's contributors to keep a placeholder that setup had already replaced with the project's
+  name. Its opening note now says `<project>` stands for the project's slug.
+- **Fixed:** the commands the docs and helpers give you work from the workspace root, where agents
+  start, unless a command names another folder, and so do the paths in `AGENTS.md` and in what the
+  helpers print. 1.x's `METHOD.md` and `runbooks/check-in.md` told you to run `scripts/check.sh` or
+  `scripts/status.sh`, which aren't there from the root; `AGENTS.md` wrote many paths from inside
+  the docs hub despite promising the root; and the helpers printed some hub paths the same way. Each
+  command is now written from the root, such as `./doctor.sh check`, or names its folder;
+  `AGENTS.md` and the helpers write hub paths as `Code/<project>-docs/…`; and `METHOD.md` §7's path
+  convention turns on what a path is for.
+- **Fixed:** a saved S0, S1 or S2 security report no longer fails `./doctor.sh links`. 1.x's report
+  templates linked to their checklist by a path that worked only from the template's own folder, so
+  a report saved in `reports/security/` pointed outside the docs hub; the templates now name the
+  checklist as plain text, and their titles drop "Template". *(Upgrade step 20.)*
+- **Fixed:** `runbooks/README.md` lists the S0, S1 and S2 security-review checklists, which have
+  shipped unlisted since 1.6, and `METHOD.md` §3 and the docs hub's `README.md` point at it for the
+  runbooks that ship, where their own lists left some out. `runbooks/security-review.md` points at
+  the check-in's security-review gate in `runbooks/check-in.md` instead of keeping a copy of its own
+  that had drifted from it.
+- **Fixed:** the docs hub's `README.md` lists all four registries, including `security-reviews.yml`,
+  which 1.x's left out, and gives Throughstone's issue tracker for a problem in its own files and a
+  private link for a security problem.
+- **Fixed:** the coding standards' examples work for any project name. 1.x's `python.md` built a
+  package folder and an error class from the name, and `typescript.md` an error class, so a name
+  like `acme-scheduler` gave a folder Python can't import and class names that aren't valid; they
+  now say `src/<package>/` and `AppError`. `templates/env-example.txt` names its example database
+  `app_dev`, `python.md` no longer cites a strict type-checker config it never gives, and
+  `csharp.md`'s rule on catching everything reads correctly.
 
 ## [1.7.1] - 2026-08-10
 
@@ -749,6 +1076,8 @@ software **architecture-first** with an AI coding agent.
   mono-repo-for-now layouts; license selection and stamping.
 - **Brand assets** and the throughstone.org documentation site.
 
+[Unreleased]: https://github.com/mherschberg/Throughstone/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/mherschberg/Throughstone/compare/v1.7.1...v2.0.0
 [1.7.1]: https://github.com/mherschberg/Throughstone/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/mherschberg/Throughstone/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/mherschberg/Throughstone/compare/v1.5.0...v1.6.0

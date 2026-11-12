@@ -2,9 +2,12 @@
 # and pull request, so structural drift fails the build instead of slipping through review:
 # duplicate STEP/ADR numbers, invalid statuses, architecture docs missing Version/Status/
 # Version-Log, an ADR registry that disagrees with the files on disk, architecture-session
-# numbering drift, incomplete conditional-session template contracts, and repo-registry rows
-# that contradict themselves or are shaped so the scripts reading registries/repos.yml by line
-# prefix would misread them.
+# numbering drift, and incomplete conditional-session template contracts.
+#
+# The repo registry is deliberately NOT checked here. registries/repos.yml changes when a repo
+# is created, adopted or split out — a rare action — and a typo in it has no business failing a
+# build on every push. scripts/check.sh --check-in covers it during the periodic check-in
+# instead, where a person is already looking. See runbooks/check-in.md.
 #
 # This file ships LIVE in the docs-hub repo — it is active from day one in a multi-repo project
 # (the hub is its own repo, so this sits at that repo's .github/workflows/). In the hub it
@@ -14,9 +17,8 @@
 #
 # Mono-repo-for-now project? The workspace root is the single repo, and a workflow nested under
 # Code/<project>-docs/ won't trigger there — so this file also belongs at the ROOT
-# `.github/workflows/`. init.sh puts it there when it creates the project; a project created
-# before it did needs that copy made by hand. The run step below auto-detects the doctor path in
-# either layout. See templates/ci/README.md.
+# `.github/workflows/`. init.sh puts it there when it creates the project. The run step below
+# auto-detects the doctor path in either layout. See templates/ci/README.md.
 
 name: method-check
 
@@ -32,14 +34,15 @@ jobs:
       - name: Run method doctor (project integrity)
         shell: bash
         run: |
-          if [ -f scripts/check.sh ]; then
+          # A mono checkout is the workspace root, where a scripts/check.sh may be the project's
+          # own, so the docs hub under Code/ comes first. A hub that is its own repo has no Code/.
+          shopt -s nullglob
+          candidates=(Code/*-docs/scripts/check.sh)
+          doctor="${candidates[0]:-}"
+          if [ -z "$doctor" ] && [ -f scripts/check.sh ]; then
             doctor=scripts/check.sh
-          else
-            shopt -s nullglob
-            candidates=(Code/*-docs/scripts/check.sh)
-            doctor="${candidates[0]:-}"
           fi
-          if [ -z "${doctor:-}" ]; then
+          if [ -z "$doctor" ]; then
             echo "No Throughstone check.sh found." >&2
             exit 1
           fi

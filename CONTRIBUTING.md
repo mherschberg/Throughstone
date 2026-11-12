@@ -1,6 +1,6 @@
 # Contributing to Throughstone
 
-Throughstone launched as a single-maintainer project, and the hope is that it grows into
+Throughstone is a single-maintainer project, and the hope is that it grows into
 something many people use and shape. Contributions are genuinely welcome — this guide keeps
 things light so it's easy to get involved. Expect it to expand as the community grows.
 
@@ -29,11 +29,68 @@ to discuss the direction. This saves you effort and helps keep the method consis
 changes may be declined if they conflict with the method's direction, and an early
 conversation makes that clear up front.
 
+## Working on Throughstone with an AI agent
+
+Run `git config throughstone.author true` once in your clone. The root `AGENTS.md` and
+`CLAUDE.md` tell an agent to check it. Without it, the agent treats the folder as a user's new
+download and tells you to run `./init.sh`. The setting lives in your clone's `.git/config`, so
+every worktree of the clone shares it and no download or push carries it.
+
+## Comments and docs describe the present
+
+Code comments and the directions in the method's files say how things work **now**. Context is
+welcome, including warnings about what goes wrong if a rule is not followed. How it used to work,
+and why it changed — the bug a fix answers, what it replaced — goes in the **commit message**,
+where `git log` and `git blame` find it. In the file it costs every later reader, human or AI,
+tokens and confusion. `CHANGELOG.md` and `UPDATING-THROUGHSTONE.md` record change by design, so
+the rule does not apply to them.
+
+## Placeholders in the scaffold's files
+
+Write the docs hub as `Code/{{PROJECT}}-docs/`. `init.sh` replaces the placeholder with each
+project's slug, so the path names the real folder. Where a file instructs a project's
+contributors, write `Code/<project>-docs/` instead, as `ONBOARDING.md` does; its opening note
+says what `<project>` stands for.
+
+## Paths in templates
+
+Paths follow the conventions in `Code/{{PROJECT}}-docs/METHOD.md` §7. In a template, judge each
+path from where its copy lands, not from `templates/`. `step-index-seed.md` becomes
+`prompts/STEP-index.md`, outside the docs hub, so it writes hub paths in full. A report
+template is saved under `reports/`, so a relative link written from `templates/` breaks there.
+
 ## Adding or improving coding standards
 
 The `coding-standards/` files are starting points meant to be useful defaults. New language
 standards or improvements to existing ones are welcome via pull request. Keep them in the
 same style as the existing files and the `{{PROJECT}}` placeholder convention intact.
+
+## Publishing the website
+
+The canonical source for the static marketing site is `brand/site/`. GitHub Pages publishes
+from `docs/`, so after editing the site source run:
+
+```bash
+brand/publish-site.sh
+```
+
+That copies the site into `docs/` while preserving `docs/CNAME` and `docs/.nojekyll`, which
+keep `https://throughstone.org` working. To check for drift without writing, run:
+
+```bash
+brand/publish-site.sh --check
+```
+
+CI runs the same check, so a pull request fails if `brand/site/` and `docs/` drift.
+
+## Files in the folders setup deletes
+
+Setting up a project, `init.sh` deletes `.github/`, `tests/`, `brand/` and `docs/` whole, so it
+lists every file the template ships there in `TEMPLATE_FOLDER_FILES` and stops when one of those
+folders holds anything else. When you add, rename or remove a file there, a new test or a site asset
+that `brand/publish-site.sh` copies into `docs/` among them, update that list in the same change.
+Until you do, every test that runs `init.sh` fails, some without a word, and
+`tests/init-fresh-template-guard.sh` prints the lines to add or remove.
 
 ## A note on conduct
 
