@@ -9,6 +9,11 @@ any project built with it.
 
 ## [Unreleased]
 
+- **`init.sh` takes your GitHub profile address as the owner.** The owner question gives an
+  example, and `https://github.com/alice/`, `github.com/alice` or `@alice` all count as `alice`,
+  asked or passed as `--owner`. An answer that still isn't an owner name, such as a repository
+  path, is asked again, or stops the run before it changes anything.
+
 ## [2.0.0] - 2026-11-11
 
 A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
