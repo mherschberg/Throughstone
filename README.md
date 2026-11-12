@@ -442,7 +442,8 @@ Yes. Run setup from a fresh download, not from inside your existing repo, and an
 same *"Read AGENTS.md and follow it."* Instead of the kickoff interview, it:
 
 - asks where your repos and documents are, and how deep to read a large system;
-- inventories what it finds into a recon map you confirm, including what to leave out;
+- inventories what it finds into a map of your code and documents you confirm, including what
+  to leave out;
 - runs the architecture sessions by reading your code: it drafts each answer from what the code
   does, confirms it with you, and asks you directly only what code can't show, such as intent
   and what comes next;
