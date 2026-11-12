@@ -157,6 +157,42 @@ want_text() {
   printf '%s' "$val"
 }
 
+# normalize_owner INPUT — print the GitHub owner name inside INPUT. People often paste their
+# profile address or handle instead of the bare name, so a leading http(s)://, www., github.com/
+# or @ is dropped, along with surrounding whitespace and trailing slashes.
+normalize_owner() {
+  local v="$1"
+  v="${v#"${v%%[![:space:]]*}"}"; v="${v%"${v##*[![:space:]]}"}"
+  case "$v" in [Hh][Tt][Tt][Pp]://*|[Hh][Tt][Tt][Pp][Ss]://*) v="${v#*://}" ;; esac
+  case "$v" in [Ww][Ww][Ww].*) v="${v#*.}" ;; esac
+  case "$v" in [Gg][Ii][Tt][Hh][Uu][Bb].[Cc][Oo][Mm]/*) v="${v#*/}" ;; esac
+  v="${v#@}"
+  while [ "${v%/}" != "$v" ]; do v="${v%/}"; done
+  printf '%s' "$v"
+}
+
+# want_owner PRESET PROMPT — want, for the GitHub owner: the answer is normalized, then checked
+# against GitHub's rule for user and organization names (letters, digits and hyphens, not starting
+# or ending with a hyphen). A preset that fails stops the run; a typed answer that fails is asked
+# again.
+want_owner() {
+  local raw val
+  raw="$(want "$1" "$2")" || exit
+  while :; do
+    val="$(normalize_owner "$raw")"
+    case "$val" in
+      ''|-*|*-|*[!A-Za-z0-9-]*) ;;
+      *) printf '%s' "$val"; return ;;
+    esac
+    if [ -n "$1" ]; then
+      echo "init.sh: invalid --owner '$1': give a GitHub user or organization name; for https://github.com/alice/ write \"alice\"." >&2
+      exit 2
+    fi
+    echo "  -> '$raw' is not a GitHub user or organization name; for https://github.com/alice/ write \"alice\"." >&2
+    raw="$(want "" "$2")" || exit
+  done
+}
+
 # normalize_license_choice INPUT — set NORMALIZED_LICENSE_CHOICE to a canonical value.
 # The rest of the script branches on small stable IDs, while the public interface accepts the
 # friendly spellings users are likely to type in flags, env vars, or prompts.
@@ -1160,7 +1196,7 @@ if [ "$MK_REMOTES" = "1" ]; then
         echo "  For Bitbucket, GitLab, or another Git host, pre-create empty repos and pass --remote-provider=manual with remote URL flags." >&2
         exit 2
       fi
-      OWNER="$(want "$OWNER_IN" 'GitHub owner/org')"
+      OWNER="$(want_owner "$OWNER_IN" 'GitHub owner/org (for https://github.com/alice/ write "alice")')" || exit
       # The names setup_remote creates, checked by check_github_ready before the boundary.
       if [ "$LAYOUT" = "2" ]; then
         GH_NEW_REPOS="$SLUG"
