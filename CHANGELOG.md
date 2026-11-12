@@ -9,7 +9,7 @@ any project built with it.
 
 ## [Unreleased]
 
-## [2.0.0]
+## [2.0.0] - 2026-11-11
 
 A large release for new and 1.x projects alike. Setup is safer, mono-repo-for-now becomes a fully
 supported layout, bringing a repo into a project and splitting one each get a runbook, and many

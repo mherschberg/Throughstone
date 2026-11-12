@@ -96,7 +96,7 @@ production software, get review from an experienced engineer.
 > things from scratch is exactly what this is built to do.
 >
 > Already have an AI agent open on your computer? You can let it drive the setup, too — just
-> tell it: *"Read https://github.com/mherschberg/Throughstone/blob/main/README.md and walk
+> tell it: *"Read https://github.com/mherschberg/Throughstone/blob/v2.0.0/README.md and walk
 > me through getting started, one step at a time."* It can explain each command and, with
 > your go-ahead, run them for you.
 
@@ -114,10 +114,10 @@ production software, get review from an experienced engineer.
    name you want the project to have (e.g. `acme` or `MyCoolMobileApp`, not `Throughstone`). Two ways:
    - **Clone the latest release** into a project-named folder (e.g. `acme`):
      ```bash
-     git clone --branch v1.7.1 https://github.com/mherschberg/Throughstone.git acme
+     git clone --branch v2.0.0 https://github.com/mherschberg/Throughstone.git acme
      cd acme
      ```
-     `--branch` takes a tag here, so this pins the **1.7 release**. Without the flag you get
+     `--branch` takes a tag here, so this pins the **2.0 release**. Without the flag you get
      `main`, which holds the latest release: Throughstone is built on other branches and
      reaches `main` only when a release ships. Releases are listed under
      [Releases](https://github.com/mherschberg/Throughstone/releases). Git will note a
