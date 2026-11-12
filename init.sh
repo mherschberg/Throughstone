@@ -1692,9 +1692,9 @@ init_repo() {
     && git branch -M "$TRUNK_BRANCH"; )
   echo "  git repo: $1 (initial commit on $TRUNK_BRANCH)"
   if [ "$1" = "." ]; then
-    summary_line done "Git repo: the workspace root (initial commit on $TRUNK_BRANCH)"
+    summary_line "done" "Git repo: the workspace root (initial commit on $TRUNK_BRANCH)"
   else
-    summary_line done "Git repo: $1 (initial commit on $TRUNK_BRANCH)"
+    summary_line "done" "Git repo: $1 (initial commit on $TRUNK_BRANCH)"
   fi
 }
 
@@ -1736,7 +1736,7 @@ commit_registry_remotes() {
   fi
   ( cd "$DOCS" && git add registries/repos.yml && git commit -qm "Record bootstrap remotes" )
   echo "  registry: recorded bootstrap remotes"
-  summary_line done "Registry: the remote URLs recorded in registries/repos.yml"
+  summary_line "done" "Registry: the remote URLs recorded in registries/repos.yml"
   if git -C "$DOCS" remote get-url origin >/dev/null 2>&1; then
     # The repository this commit has to leave is the one that holds the registry: $DOCS in multi,
     # the workspace root in mono, where $DOCS is a folder inside it and cannot be pushed. A failure
@@ -1750,7 +1750,7 @@ commit_registry_remotes() {
     fi
     if ( cd "$DOCS" && git push -q origin "$TRUNK_BRANCH" ); then
       echo "  registry: pushed remote updates"
-      summary_line done "Registry: that commit pushed to $reg_name"
+      summary_line "done" "Registry: that commit pushed to $reg_name"
     else
       echo "  (could not push the registry commit; it is committed in ${reg_dir} and not yet sent)"
       summary_line FAILED "Registry: push that commit to $reg_name"
@@ -1809,7 +1809,7 @@ setup_remote() {
     if ( cd "$1" && git remote add origin "$3" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$3"
       echo "  remote: $3"
-      summary_line done "Remote: $2 pushed to $3"
+      summary_line "done" "Remote: $2 pushed to $3"
       return 0
     fi
     echo "  (could not complete the remote for $2 — the command stopped partway, so whether"
@@ -1828,7 +1828,7 @@ setup_remote() {
       MADE_REMOTE_URL="$(git -C "$1" remote get-url origin 2>/dev/null || true)"
       echo "  remote: created $OWNER/$2 on GitHub ($REMOTE_VISIBILITY)"
       echo "  pushed: ${MADE_REMOTE_URL:-$OWNER/$2}"
-      summary_line done "GitHub: created and pushed $OWNER/$2 ($REMOTE_VISIBILITY)"
+      summary_line "done" "GitHub: created and pushed $OWNER/$2 ($REMOTE_VISIBILITY)"
       return 0
     fi
     # gh creates and pushes in one command, so a failure here says nothing about which half ran:
@@ -1874,7 +1874,7 @@ reuse_root_origin() {
     if ( cd "$1" && git push -u origin "$TRUNK_BRANCH" >/dev/null ); then
       MADE_REMOTE_URL="$ROOT_ORIGIN"
       echo "  pushed: $ROOT_ORIGIN"
-      summary_line done "Remote: pushed to this folder's existing origin ($ROOT_ORIGIN)"
+      summary_line "done" "Remote: pushed to this folder's existing origin ($ROOT_ORIGIN)"
     else
       echo "  (origin is attached, but the push did not complete; check it and push later)"
       summary_line FAILED "Remote: push to this folder's existing origin ($ROOT_ORIGIN)"
@@ -1885,9 +1885,9 @@ reuse_root_origin() {
 }
 
 if [ "$LAYOUT" = "2" ]; then
-  summary_line done "Project files: $SLUG (mono-repo-for-now)"
+  summary_line "done" "Project files: $SLUG (mono-repo-for-now)"
 else
-  summary_line done "Project files: $SLUG (multi-repo)"
+  summary_line "done" "Project files: $SLUG (multi-repo)"
 fi
 
 say "Initialising git..."
