@@ -643,7 +643,7 @@ run_remote_failure_multi_case() {
   }
   # The project is finished, so the closing instructions are exactly what the reader needs now and
   # must survive the failure.
-  grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
+  grep -Fq "NEXT STEP" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name suppressed the closing instructions" >&2
     return 1
   }
@@ -716,7 +716,7 @@ run_remote_failure_mono_case() {
     echo "FAIL: $name exited 0 with a backup that did not complete" >&2
     return 1
   }
-  grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
+  grep -Fq "NEXT STEP" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name suppressed the closing instructions" >&2
     return 1
   }
