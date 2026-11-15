@@ -97,7 +97,18 @@ fi
 
 # No STEP index. Before setup there is no overview.md either, and init.sh is the answer. A project
 # keeps overview.md, and init.sh refuses to run there, so it is told to get the index back.
+# Setup that stopped partway has no overview.md either, and init.sh refuses to run there too: the
+# root AGENTS.md still carries the template marker, but README.md and .github/, which every copy
+# of the template ships, are gone. Only a fresh copy recovers that folder.
 if [ ! -f "$INDEX" ]; then
+  if [ ! -f "$OVERVIEW" ] && grep -qF 'THROUGHSTONE-TEMPLATE-GUARD' "$ROOT/AGENTS.md" 2>/dev/null \
+    && [ ! -e "$ROOT/README.md" ] && [ ! -e "$ROOT/.github" ]; then
+    echo "Where you are:  setup stopped partway (README.md and .github/ are gone, so ./init.sh will not run here again)."
+    echo
+    echo "Next action:"
+    echo "  → download the template into a new, empty folder and run ./init.sh there. Setup removed only the template's own files here, so move anything of yours across before you delete this folder."
+    exit 0
+  fi
   if [ ! -f "$OVERVIEW" ]; then
     echo "Where you are:  project not initialized (no prompts/STEP-index.md)."
     echo
