@@ -45,7 +45,7 @@ set -e
   printf 'FAIL: publishing the fixture site exited %s\n%s\n' "$publish_status" "$publish_out" >&2
   exit 1
 }
-printf '%s\n' "$publish_out" | grep -Fxq 'site publish check: PASS' || {
+grep -Fxq 'site publish check: PASS' <<<"$publish_out" || {
   printf 'FAIL: publishing did not verify what it wrote\n%s\n' "$publish_out" >&2
   exit 1
 }
