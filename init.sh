@@ -506,6 +506,12 @@ TEMPLATE_FOLDER_FILES='
 .github/workflows/tests.yml
 brand/BRAND.md
 brand/logo/generate_logo.py
+brand/logo/retcon/README.md
+brand/logo/retcon/generate_retcon_logo.py
+brand/logo/retcon/throughstone-retcon-lockup-ondark.svg
+brand/logo/retcon/throughstone-retcon-lockup.svg
+brand/logo/retcon/throughstone-retcon-mark-ondark.svg
+brand/logo/retcon/throughstone-retcon-mark.svg
 brand/logo/throughstone-favicon.svg
 brand/logo/throughstone-icon-fullbleed.svg
 brand/logo/throughstone-lockup-mono.svg
