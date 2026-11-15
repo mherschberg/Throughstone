@@ -24,6 +24,11 @@ any project built with it.
 - **You choose when a substep's work is committed.** The first substep to finish asks whether to
   commit after each substep or once at the end of the STEP, and records the answer as **Commits**
   in your `.throughstone/local-user.md`. The STEP's close commits whatever isn't committed yet.
+- **`init.sh` refuses to run again where it stopped partway.** If setup stops after it has removed
+  the template's own files, running it again there used to report success, and under another
+  project name it left the root `AGENTS.md` and `doctor.sh` pointing at a docs folder that does
+  not exist. It now refuses and says to start again from a fresh copy, and `./doctor.sh status`
+  gives the same advice there instead of telling you to run `./init.sh`.
 - **The method check and the code-repo test starter run once per push, not twice.** A push to a
   branch with an open pull request ran `method-check.yml` once for the push and again for the pull
   request, and `templates/ci/code-repo-ci.yml` does the same in each code repo it is stamped into.
