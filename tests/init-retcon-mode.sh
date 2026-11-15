@@ -80,12 +80,12 @@ run_status_for() {
 # the person, resolves nothing, and prints no trace of the removed seed-comparison inference.
 assert_marker_ask() {
   local name="$1" out="$2" needle
-  printf '%s\n' "$out" | grep -Fq 'indeterminate' \
+  grep -Fq 'indeterminate' <<<"$out" \
     || { echo "FAIL: $name status.sh did not report indeterminate" >&2; return 1; }
-  printf '%s\n' "$out" | grep -Fq 'Ask whoever owns this project' \
+  grep -Fq 'Ask whoever owns this project' <<<"$out" \
     || { echo "FAIL: $name status.sh did not tell the reader to ask" >&2; return 1; }
   for needle in 'still-bare STEP-index seed' 'infers the mode from disk' 'Run STEP-1.1'; do
-    if printf '%s\n' "$out" | grep -Fq "$needle"; then
+    if grep -Fq "$needle" <<<"$out"; then
       echo "FAIL: $name status.sh still prints \"$needle\"" >&2
       return 1
     fi
