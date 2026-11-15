@@ -1,5 +1,5 @@
-# Method integrity check — runs the Throughstone "doctor" on every push
-# and pull request, so structural drift fails the build instead of slipping through review:
+# Method integrity check — runs the Throughstone "doctor" on every pull request and every push
+# to the trunk branch, so structural drift fails the build instead of slipping through review:
 # duplicate STEP/ADR numbers, invalid statuses, architecture docs missing Version/Status/
 # Version-Log, an ADR registry that disagrees with the files on disk, architecture-session
 # numbering drift, and incomplete conditional-session template contracts.
@@ -19,11 +19,19 @@
 # Code/<project>-docs/ won't trigger there — so this file also belongs at the ROOT
 # `.github/workflows/`. init.sh puts it there when it creates the project. The run step below
 # auto-detects the doctor path in either layout. See templates/ci/README.md.
+#
+# A push runs the check only on the trunk branch, which init.sh writes in below. A branch with an
+# open pull request is checked by the pull_request run alone, which checks the result of merging
+# it, so each push to it runs the check once. A branch pushed with no pull request is not checked
+# until one is opened; run scripts/check.sh locally before then. If you rename the trunk branch,
+# change the name below, in every copy of this file.
 
 name: method-check
 
 on:
   push:
+    branches:
+      - '{{TRUNK_BRANCH}}'
   pull_request:
 
 jobs:
