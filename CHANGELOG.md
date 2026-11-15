@@ -9,6 +9,14 @@ any project built with it.
 
 ## [Unreleased]
 
+- **`init.sh` takes your GitHub profile address as the owner.** The owner question gives an
+  example, and `https://github.com/alice/`, `github.com/alice` or `@alice` all count as `alice`,
+  asked or passed as `--owner`. An answer that still isn't an owner name, such as a repository
+  path, is asked again, or stops the run before it changes anything.
+- **`init.sh` ends with a summary of what it did.** Each part of setup is listed as done, FAILED
+  or skipped, so when a backup fails you can see it is the only thing that did, and the note under
+  the list says what to ask your agent to finish it. The handoff, under a bold **NEXT STEP**
+  heading that replaces `Next step:`, is now the last thing printed. The exit status is unchanged.
 - **A test that wasn't run is reported as not run, never as passed.** The substep and STEP
   checklists now ask that what's reported matches what happened: a test or check that wasn't run,
   or couldn't run, says so and why, and the commits, branches and files a substep or PLAN cites

@@ -7,6 +7,7 @@
 #   GH_REMOTE_ROOT  directory where local bare remotes are created
 # Optional env:
 #   GH_STUB_UNREACHABLE=1  every command fails the way gh does with no connection
+#   GH_STUB_CREATE_FAILS=1 the readiness checks pass, but `gh repo create` fails
 
 set -euo pipefail
 
@@ -43,6 +44,11 @@ esac
 if [ "${1:-}" != "repo" ] || [ "${2:-}" != "create" ] || [ -z "${3:-}" ]; then
   echo "gh-stub.sh: unsupported command: $*" >&2
   exit 2
+fi
+
+if [ "${GH_STUB_CREATE_FAILS:-}" = "1" ]; then
+  echo "HTTP 422: Repository creation failed." >&2
+  exit 1
 fi
 
 # The side effects are driven by the options, not assumed. `gh repo create` attaches a remote only

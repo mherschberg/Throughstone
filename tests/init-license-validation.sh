@@ -383,13 +383,13 @@ run_registry_mono_case() {
   reg="$work/Code/$name-docs/registries/repos.yml"
   root_row="$(first_registry_row "$reg")"
   for field in "name: \"$name\"" 'location: "."' 'type: mono' 'added_as: created'; do
-    printf '%s\n' "$root_row" | grep -Fq "$field" || {
+    grep -Fq "$field" <<<"$root_row" || {
       echo "FAIL: $name workspace-root row is missing $field" >&2
       printf '%s\n' "$root_row" >&2
       return 1
     }
   done
-  if printf '%s\n' "$root_row" | grep -Fq 'remote:'; then
+  if grep -Fq 'remote:' <<<"$root_row"; then
     echo "FAIL: $name workspace-root row carries remote:" >&2
     return 1
   fi
@@ -643,7 +643,7 @@ run_remote_failure_multi_case() {
   }
   # The project is finished, so the closing instructions are exactly what the reader needs now and
   # must survive the failure.
-  grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
+  grep -Fq "NEXT STEP" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name suppressed the closing instructions" >&2
     return 1
   }
@@ -716,7 +716,7 @@ run_remote_failure_mono_case() {
     echo "FAIL: $name exited 0 with a backup that did not complete" >&2
     return 1
   }
-  grep -Fq "Next step:" "$TMP_ROOT/$name.out" || {
+  grep -Fq "NEXT STEP" "$TMP_ROOT/$name.out" || {
     echo "FAIL: $name suppressed the closing instructions" >&2
     return 1
   }
@@ -741,7 +741,7 @@ run_remote_failure_mono_case() {
     return 1
   }
   root_row="$(first_registry_row "$work/Code/$name-docs/registries/repos.yml")"
-  if printf '%s\n' "$root_row" | grep -Fq 'remote:'; then
+  if grep -Fq 'remote:' <<<"$root_row"; then
     echo "FAIL: $name recorded a remote its branch never reached" >&2
     printf '%s\n' "$root_row" >&2
     return 1
