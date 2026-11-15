@@ -21,6 +21,7 @@
 #   the template's own plain prompts/          a repository of someone else's under prompts/
 #   what macOS or Windows leaves in the        a file of someone else's in .github/, tests/,
 #   folders setup deletes whole                brand/ or docs/, with or without a .git
+#                                              a folder where setup stopped partway
 #
 # The guard carries two lists as literals: the template's root entries, and every file it ships in
 # those four folders. Case 12 and the check before case 1 pin them to the template itself so they
@@ -308,5 +309,22 @@ copy_template "$os_meta"
 mkdir -p "$os_meta/tests/empty"
 init_once "$os_meta" osmeta --layout=multi >"$TMP_ROOT/os-meta.out" 2>&1 \
   || { echo "FAIL: guard blocked a template holding only what macOS or Windows leaves in the folders setup deletes" >&2; cat "$TMP_ROOT/os-meta.out" >&2; exit 1; }
+
+# --- 16. A folder where setup stopped partway is refused. ---------------------------------------
+# A Code/ that cannot be written to stops the first run at the docs hub's rename, after it has
+# deleted the template's own files and substituted the slug, and before it strips the marker.
+# Running again there under another slug used to exit 0 with root files naming the first slug's
+# docs hub, which does not exist. The must-proceed pairs are cases 1, 3, 4 and 15.
+half="$TMP_ROOT/half-built"
+copy_template "$half"
+chmod a-w "$half/Code"
+rc=0
+init_once "$half" first --layout=multi >"$TMP_ROOT/half-first.out" 2>&1 || rc=$?
+chmod u+w "$half/Code"
+[ "$rc" -ne 0 ] && [ ! -e "$half/README.md" ] && [ -d "$half/Code/{{PROJECT}}-docs" ] \
+  || { echo "FAIL: half-built — the fixture did not stop setup partway (exit $rc); a run as root ignores the read-only Code/" >&2; cat "$TMP_ROOT/half-first.out" >&2; exit 1; }
+assert_refused "half-built" "$half" "Setup has already run here and stopped partway"
+[ -d "$half/Code/{{PROJECT}}-docs" ] && [ ! -e "$half/Code/half-built-docs" ] \
+  || { echo "FAIL: half-built — init.sh changed the folder before refusing" >&2; exit 1; }
 
 echo "init.sh fresh-template guard: PASS"
