@@ -50,7 +50,7 @@ run_status() {
 # rest of the status report to evolve.
 assert_contains() {
   local output="$1" expected="$2"
-  if ! printf '%s\n' "$output" | grep -Fq "$expected"; then
+  if ! grep -Fq "$expected" <<<"$output"; then
     printf 'FAIL: expected status output to contain: %s\n' "$expected" >&2
     printf '%s\n' "$output" >&2
     return 1
@@ -60,7 +60,7 @@ assert_contains() {
 # assert_absent OUTPUT UNEXPECTED — fail if OUTPUT holds the wording a case rules out.
 assert_absent() {
   local output="$1" unexpected="$2"
-  if printf '%s\n' "$output" | grep -Fq "$unexpected"; then
+  if grep -Fq "$unexpected" <<<"$output"; then
     printf 'FAIL: expected status output NOT to contain: %s\n' "$unexpected" >&2
     printf '%s\n' "$output" >&2
     return 1
