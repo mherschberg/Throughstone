@@ -12,7 +12,7 @@ trap 'chmod -R u+rwx "$TMP_ROOT" 2>/dev/null; rm -rf "$TMP_ROOT"' EXIT
 
 assert_contains() {
   local output="$1" expected="$2"
-  if ! printf '%s\n' "$output" | grep -Fq "$expected"; then
+  if ! grep -Fq "$expected" <<<"$output"; then
     printf 'FAIL: expected output to contain: %s\n' "$expected" >&2
     printf '%s\n' "$output" >&2
     return 1
