@@ -211,7 +211,7 @@ nci_val="$(printf '%s\n' "$nci_line" | sed -n 's/.*NEXT-CHECK-IN:[[:space:]]*\(.
 nci_re_step="$(awk -F"'" '/^nci_step=/ { print $4 }' "$STATUS_SH")"
 nci_re_date="$(awk -F"'" '/^nci_date=/ { print $4 }' "$STATUS_SH")"
 [ -n "$nci_re_step" ] && [ -n "$nci_re_date" ] || fail "could not read status.sh's NEXT-CHECK-IN patterns"
-printf '%s\n' "$nci_val" | grep -qE "$nci_re_step|$nci_re_date" \
+grep -qE "$nci_re_step|$nci_re_date" <<<"$nci_val" \
   || fail "templates/overview-template.md seeds a NEXT-CHECK-IN value status.sh does not recognise (\"$nci_val\"); a project created from it would read as having no check-in scheduled"
 
 # Second, the line is written by agents following prose, so every document that tells someone to
@@ -232,7 +232,7 @@ cond_re="$(awk -F"'" '/grep -qiE/ && /conditional session:/ { print $4 }' "$STAT
 [ -n "$cond_re" ] || fail "could not read status.sh's Title-matching pattern"
 
 COND_TITLE='Conditional session: '    # the prefix check-in.md tells the author to use
-printf '%s\n' "${COND_TITLE}identity-auth" | grep -qiE "$cond_re" || fail "the conditional follow-up title the documents prescribe (\"$COND_TITLE…\") does not match status.sh's pattern, so such a STEP would never be prioritized"
+grep -qiE "$cond_re" <<<"${COND_TITLE}identity-auth" || fail "the conditional follow-up title the documents prescribe (\"$COND_TITLE…\") does not match status.sh's pattern, so such a STEP would never be prioritized"
 
 for f in "$METHOD" "$CHECKIN" "$AGENTS"; do
   contains "$f" "$COND_TITLE" || fail "${f#$ROOT/} no longer names the '$COND_TITLE<topic>' row title the next-action resolver prioritizes on"
@@ -252,7 +252,7 @@ checkin_re="$(awk -F"'" '/grep -qiE/ && /check-in/ { print $4 }' "$STATUS_SH" | 
 
 # Both documented forms: the bare title, and the title carrying a scope (METHOD.md §5).
 for t in 'Check-in' 'Check-in: phase 1' 'Check-in: baseline'; do
-  printf '%s\n' "$t" | grep -qiE "$checkin_re" \
+  grep -qiE "$checkin_re" <<<"$t" \
     || fail "the Check-in row title the documents prescribe (\"$t\") does not match status.sh's pattern, so such a STEP would be told to wait for a substep command that is never authored for it"
 done
 
@@ -260,7 +260,7 @@ done
 # routed into the check-in runbook is a wrong answer replacing a right one, which is worse than
 # the generic answer such a title falls through to.
 for t in 'Check-in flow' 'Guest check-in' 'Check-in API v2'; do
-  if printf '%s\n' "$t" | grep -qiE "$checkin_re"; then
+  if grep -qiE "$checkin_re" <<<"$t"; then
     fail "status.sh's Check-in pattern also matches the product STEP title \"$t\", which would send ordinary feature work into runbooks/check-in.md"
   fi
 done
@@ -437,7 +437,7 @@ case "$sweep" in
   *"runbooks/register-repo.md"*) : ;;
   *) fail "the Repo READMEs sweep no longer names runbooks/register-repo.md, the one place the cases it branches on are defined" ;;
 esac
-if printf '%s\n' "$sweep" | grep -qF "$lic_token"; then
+if grep -qF "$lic_token" <<<"$sweep"; then
   fail "runbooks/check-in.md's Repo READMEs sweep now names $lic_token itself; the test for a stamped README belongs in runbooks/register-repo.md step 2 and nowhere else, or the two documents are free to drift apart"
 fi
 
