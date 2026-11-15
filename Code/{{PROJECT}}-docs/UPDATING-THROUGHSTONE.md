@@ -85,7 +85,10 @@ To have the method check run once, not twice, for each push to a branch with a p
 `.github/workflows/method-check.yml` from the scaffold over yours and put your trunk branch's name
 in its `push:` `branches:` list, in place of the placeholder there. In a mono-repo-for-now project, copy the result over the
 workspace root's `.github/workflows/method-check.yml` too. A branch you push with no pull request
-then gets no check until you open one.
+then gets no check until you open one. For a code repo's tests, make the same change by hand in
+its `.github/workflows/ci.yml`: under `push:`, add a `branches:` list holding that repo's trunk
+branch, as `templates/ci/code-repo-ci.yml` now shows. Edit it rather than copying the template
+over it, since your copy holds the repo's own test command.
 
 ### 2.0 migration
 
