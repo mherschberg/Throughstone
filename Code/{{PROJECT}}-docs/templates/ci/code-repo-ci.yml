@@ -1,4 +1,5 @@
-# Tests CI for a code repo — runs the test suite on every push and pull request.
+# Tests CI for a code repo — runs the test suite on every pull request and every push to the
+# trunk branch.
 # This is the merge gate from the Test Strategy architecture doc
 # (architecture/*-test-strategy.md, "CI gates"): keep it fast enough that people don't route
 # around it.
@@ -7,11 +8,19 @@
 # README from templates/repo-readme-template.md), then fill in the toolchain + test command for that
 # repo's stack. The job below FAILS on purpose until you do — an unconfigured gate that silently
 # passes is worse than none. Replace the final step with one of the examples (or your own).
+#
+# A push runs the tests only on the trunk branch, which init.sh writes in below. A branch with an
+# open pull request is tested by the pull_request run alone, which tests the result of merging
+# it, so each push to it runs the tests once. A branch pushed with no pull request is not tested
+# until one is opened. If this repo's trunk branch has another name, or is renamed, change it
+# below.
 
 name: ci
 
 on:
   push:
+    branches:
+      - '{{TRUNK_BRANCH}}'
   pull_request:
 
 jobs:
