@@ -1382,8 +1382,9 @@ grep -rlF '{{PROJECT_DESCRIPTION}}' . --exclude-dir=.git 2>/dev/null | while rea
   [ "$f" = ./init.sh ] && continue
   DESC="$DESC" perl -pi -e 's/\Q{{PROJECT_DESCRIPTION}}\E/$ENV{DESC}/g' "$f"
 done
-# Fill generated collaboration docs with the actual initialized trunk branch. The scaffold
-# keeps the placeholder only where generated-project text should name the branch.
+# Fill generated collaboration docs, and the method-check workflow's push filter, with the
+# actual initialized trunk branch. The scaffold keeps the placeholder only where
+# generated-project text should name the branch.
 grep -rlF '{{TRUNK_BRANCH}}' . --exclude-dir=.git 2>/dev/null | while read -r f; do
   [ "$f" = ./init.sh ] && continue
   TRUNK_BRANCH="$TRUNK_BRANCH" perl -pi -e 's/\Q{{TRUNK_BRANCH}}\E/$ENV{TRUNK_BRANCH}/g' "$f"

@@ -53,6 +53,17 @@ assert_only_branch() {
   }
 }
 
+# assert_push_trunk WORKFLOW BRANCH — the method-check workflow's push filter names BRANCH. The
+# filter is the only line in the file that lists a branch, so a whole-line match finds it and
+# nothing else.
+assert_push_trunk() {
+  local workflow="$1" branch="$2"
+  grep -Fxq "      - '$branch'" "$workflow" || {
+    echo "FAIL: $workflow does not run on pushes to $branch" >&2
+    return 1
+  }
+}
+
 run_default_case() {
   local name="trunk-default"
   local work="$TMP_ROOT/$name"
@@ -74,6 +85,7 @@ run_default_case() {
   [ "$(git -C "$work/prompts" symbolic-ref --short HEAD)" = "main" ]
   grep -Fq '**shared trunk** (`main`)' \
     "$work/Code/$name-docs/runbooks/collaboration.md"
+  assert_push_trunk "$work/Code/$name-docs/.github/workflows/method-check.yml" main
   ! grep -R '{{TRUNK_BRANCH}}' "$work/Code/$name-docs" "$work/prompts" >/dev/null
 }
 
@@ -132,6 +144,7 @@ run_manual_remote_custom_case() {
     | grep -Fq "remote: \"$docs_remote\""
   grep -Fq '**shared trunk** (`master`)' \
     "$work/Code/$name-docs/runbooks/collaboration.md"
+  assert_push_trunk "$work/Code/$name-docs/.github/workflows/method-check.yml" master
   # The chosen trunk name has to reach the report. This run pushed both repos, so its ending gives
   # no backup advice; the per-repo lines name the branch instead. Match whole lines rather than the
   # bare word: "master" appears elsewhere in that output for other reasons.
@@ -178,6 +191,8 @@ run_mono_reused_origin_custom_case() {
     return 1
   }
   assert_only_branch "$remote" refs/heads/release/stable
+  # In mono the workflow that runs is the copy at the workspace root, made from the docs hub's.
+  assert_push_trunk "$work/.github/workflows/method-check.yml" release/stable
   # The closing line the user reads. The push behind it is asserted above; on its own this is
   # satisfied by the success arm printing while the push inside it does nothing.
   grep -Fq "pushed: $remote" "$TMP_ROOT/$name.out"
