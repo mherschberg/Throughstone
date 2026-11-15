@@ -677,6 +677,15 @@ elif [ "$FOREIGN_COUNT" -gt 1 ]; then
   refuse_not_fresh "$FOREIGN_WHY $FOREIGN_COUNT files there are not ones the template ships, among them '$FOREIGN_FIRST'."
 fi
 
+# 7. Setup that stopped partway leaves the template marker in place, since step 3 strips it only
+#    after the names are substituted, but has already deleted README.md and .github/, which every
+#    copy of the template ships. Checks 1-6 pass on that folder, and running again over it builds
+#    a project whose root files still name the first run's slug: under another slug, the root
+#    AGENTS.md and doctor.sh point at a docs hub that does not exist, and the run exits 0.
+if [ ! -e "$ROOT/README.md" ] && [ ! -e "$ROOT/.github" ]; then
+  refuse_not_fresh "Setup has already run here and stopped partway: README.md and .github/ are gone, but the template marker is not."
+fi
+
 say "Throughstone — setup"
 
 # --- 1. Questions (flags/env pre-answer; otherwise prompt) -------------------
