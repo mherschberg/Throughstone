@@ -44,14 +44,14 @@ run() {
 }
 
 has() {
-  if ! printf '%s\n' "$1" | grep -Fq "$2"; then
+  if ! grep -Fq "$2" <<<"$1"; then
     printf 'FAIL: expected status output to contain: %s\n' "$2" >&2
     printf '%s\n' "$1" >&2
     exit 1
   fi
 }
 hasnt() {
-  if printf '%s\n' "$1" | grep -Fq "$2"; then
+  if grep -Fq "$2" <<<"$1"; then
     printf 'FAIL: status output should not contain: %s\n' "$2" >&2
     printf '%s\n' "$1" >&2
     exit 1
