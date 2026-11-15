@@ -1,11 +1,19 @@
 name: Tests
 
-# Every test, on every branch. The suite is the scaffold's own safety net and it is not wired to
-# anything else. No `paths:` filter and no branch filter — a branch that skips the suite is the
-# case this job exists for.
+# Every test, on every pull request and every push to main or a dev line. The suite is the
+# scaffold's own safety net and it is not wired to anything else. No `paths:` filter — a change
+# that skips the suite is the case this job exists for. Every branch reaches main or a dev line
+# through a pull request, whose run tests the result of merging it, so pushes elsewhere are left
+# to that run and each push to such a branch runs the suite once. To run the suite on a branch
+# with no pull request, such as to see it pass under bash 5 before opening one:
+#   gh workflow run tests.yml --ref <branch>
 on:
   push:
+    branches:
+      - main
+      - 'dev-*'
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read

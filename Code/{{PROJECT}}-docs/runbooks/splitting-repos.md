@@ -589,7 +589,7 @@ before step 5 clones anything — and split two folders that sit beside each oth
    workflow has never run once — GitHub reads workflows only at a repository root
    (`templates/ci/README.md` §2). The un-nest at step 5 carries `.github/` up with everything
    else, so from step 7's push it sits at a repository root with a remote behind it and gates
-   every push and pull request. **If its `Configure me` step was never replaced it `exit 1`s, and
+   every push to the trunk branch and every pull request. **If its `Configure me` step was never replaced it `exit 1`s, and
    the repo's first push is red** — the gate doing exactly what it was stamped to do, on a repo
    you created a moment ago. Open each code repo's `.github/workflows/ci.yml` before you push and
    fill in its toolchain and test command — **and commit that edit with the rest of this step**,

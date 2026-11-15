@@ -24,11 +24,12 @@ any project built with it.
 - **You choose when a substep's work is committed.** The first substep to finish asks whether to
   commit after each substep or once at the end of the STEP, and records the answer as **Commits**
   in your `.throughstone/local-user.md`. The STEP's close commits whatever isn't committed yet.
-- **The method check runs once per push, not twice.** A push to a branch with an open pull
-  request ran `method-check.yml` once for the push and again for the pull request. Pushes now run
-  it only on the trunk branch, whose name `init.sh` writes into the workflow, and the pull request
-  run checks every other branch, including how it merges. A branch pushed with no pull request
-  is no longer checked until one is opened.
+- **The method check and the code-repo test starter run once per push, not twice.** A push to a
+  branch with an open pull request ran `method-check.yml` once for the push and again for the pull
+  request, and `templates/ci/code-repo-ci.yml` does the same in each code repo it is stamped into.
+  Pushes now run them only on the trunk branch, whose name `init.sh` writes into both, and the pull
+  request run checks every other branch, including how it merges. A branch pushed with no pull
+  request is no longer checked until one is opened.
 
 Thanks to [lvinist](https://github.com/lvinist), whose
 [pull request #206](https://github.com/mherschberg/Throughstone/pull/206) proposed both ideas.

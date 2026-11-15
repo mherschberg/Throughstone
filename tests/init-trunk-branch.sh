@@ -53,9 +53,9 @@ assert_only_branch() {
   }
 }
 
-# assert_push_trunk WORKFLOW BRANCH — the method-check workflow's push filter names BRANCH. The
-# filter is the only line in the file that lists a branch, so a whole-line match finds it and
-# nothing else.
+# assert_push_trunk WORKFLOW BRANCH — the workflow's push filter names BRANCH. In each workflow
+# the filter is the only line that lists a branch, so a whole-line match finds it and nothing
+# else.
 assert_push_trunk() {
   local workflow="$1" branch="$2"
   grep -Fxq "      - '$branch'" "$workflow" || {
@@ -86,6 +86,7 @@ run_default_case() {
   grep -Fq '**shared trunk** (`main`)' \
     "$work/Code/$name-docs/runbooks/collaboration.md"
   assert_push_trunk "$work/Code/$name-docs/.github/workflows/method-check.yml" main
+  assert_push_trunk "$work/Code/$name-docs/templates/ci/code-repo-ci.yml" main
   ! grep -R '{{TRUNK_BRANCH}}' "$work/Code/$name-docs" "$work/prompts" >/dev/null
 }
 
@@ -145,6 +146,7 @@ run_manual_remote_custom_case() {
   grep -Fq '**shared trunk** (`master`)' \
     "$work/Code/$name-docs/runbooks/collaboration.md"
   assert_push_trunk "$work/Code/$name-docs/.github/workflows/method-check.yml" master
+  assert_push_trunk "$work/Code/$name-docs/templates/ci/code-repo-ci.yml" master
   # The chosen trunk name has to reach the report. This run pushed both repos, so its ending gives
   # no backup advice; the per-repo lines name the branch instead. Match whole lines rather than the
   # bare word: "master" appears elsewhere in that output for other reasons.
