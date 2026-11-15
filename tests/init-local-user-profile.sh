@@ -91,13 +91,12 @@ assert_contains "$multi_work/prompts/.gitignore" "/.throughstone/local-user.md"
 # test run on its own inherits the caller's. Nothing else in the bootstrap reads CI, so this
 # scopes to the doctor runs, the only commands whose behaviour it changes.
 check_output="$(env -u CI "$multi_work/doctor.sh" check)"
-printf '%s\n' "$check_output" | grep -Fq \
-  'overview.md has no legacy local user preference sections' || {
+grep -Fq 'overview.md has no legacy local user preference sections' <<<"$check_output" || {
     printf 'FAIL: doctor check did not report clean legacy local profile fields\n' >&2
     printf '%s\n' "$check_output" >&2
     exit 1
   }
-if printf '%s\n' "$check_output" | grep -Fq 'unexpected entr'; then
+if grep -Fq 'unexpected entr' <<<"$check_output"; then
   printf 'FAIL: doctor check treated root .throughstone as a stray workspace entry\n' >&2
   printf '%s\n' "$check_output" >&2
   exit 1
@@ -110,7 +109,7 @@ fi
 touch "$multi_work/stray-probe.txt"
 probe_output="$(env -u CI "$multi_work/doctor.sh" check)"
 rm -f "$multi_work/stray-probe.txt"
-printf '%s\n' "$probe_output" | grep -Fq 'stray-probe.txt' || {
+grep -Fq 'stray-probe.txt' <<<"$probe_output" || {
   printf 'FAIL: doctor check did not report a stray entry at the workspace root\n' >&2
   printf '%s\n' "$probe_output" >&2
   exit 1
