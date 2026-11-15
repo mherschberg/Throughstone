@@ -68,7 +68,7 @@ without_tally() {
 
 assert_contains() {
   local output="$1" expected="$2"
-  printf '%s\n' "$output" | grep -Fq "$expected" || {
+  grep -Fq "$expected" <<<"$output" || {
     printf 'FAIL: expected status output to contain: %s\n' "$expected" >&2
     printf '%s\n' "$output" >&2
     exit 1
@@ -76,7 +76,7 @@ assert_contains() {
 }
 refute_contains() {
   local output="$1" needle="$2"
-  if printf '%s\n' "$output" | grep -Fq "$needle"; then
+  if grep -Fq "$needle" <<<"$output"; then
     printf 'FAIL: status output should NOT contain: %s\n' "$needle" >&2
     printf '%s\n' "$output" >&2
     exit 1
