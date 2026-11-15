@@ -61,8 +61,9 @@ Create or update root `.throughstone/local-user.md` with those two answers under
 state**, not a project fact and not something to commit; each additional contributor creates
 their own copy during onboarding. The user can edit it later or override it in chat for a
 single session. Override precedence is: explicit chat instruction for this session, then
-`.throughstone/local-user.md`, then ask and write the profile. Treat a file whose values are
-missing or not among the listed answers exactly as you would a missing one.
+`.throughstone/local-user.md`, then ask and write the profile. Treat a file whose Experience level
+or Communication style is missing or not among the listed answers exactly as you would a missing
+one.
 
 Use this shape:
 
@@ -71,7 +72,11 @@ Use this shape:
 
 Experience level: {{1 | 2 | 3}} - {{label}}
 Communication style: {{Terse | Normal | Explanatory}}
+Commits: {{After each substep | At the end of the STEP}}
 ```
+
+Don't ask about **Commits** here. The first substep to finish asks it and adds the line
+(`Code/{{PROJECT}}-docs/templates/substep-prompt-template.md`, "Next").
 
 These two dials **calibrate the rest of the interview and every later architecture session for
 this user**, and they move independently. The experience level decides how much you may assume
