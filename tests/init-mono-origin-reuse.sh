@@ -188,12 +188,12 @@ run_empty_origin_push_without_gh_case() {
   # check-in flags that row until it does. No other test checks that the remote is written there.
   root_row="$(awk '/^[[:space:]]*-[[:space:]]*name:/ { n++ } n == 1' \
     "$work/Code/$name-docs/registries/repos.yml")"
-  printf '%s\n' "$root_row" | grep -Fq 'location: "."' || {
+  grep -Fq 'location: "."' <<<"$root_row" || {
     echo "FAIL: the first registry row is not the workspace root" >&2
     printf '%s\n' "$root_row" >&2
     return 1
   }
-  printf '%s\n' "$root_row" | grep -Fq "remote: \"$remote\"" || {
+  grep -Fq "remote: \"$remote\"" <<<"$root_row" || {
     echo "FAIL: the workspace-root row did not record the remote it pushed to" >&2
     printf '%s\n' "$root_row" >&2
     return 1
