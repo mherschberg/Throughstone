@@ -108,6 +108,12 @@ Quarried-stone warmth: warm paper, sand, an ochre accent, mortar grey, near-blac
   ochre is borderline). For a dark CTA, use **Limestone text on Ink**.
 - On dark (Ink/Basalt) surfaces: body = **Paper `#F4EEE2`**; accent = **Ochre Light `#C99A52`**.
 
+**Sub-brand accent — Burnt Sienna `#BC5A34`.** An iron-oxide red from the same quarry: the red
+end of the palette where Ochre is the gold. Used only by the Retcon label (`brand/logo/retcon/`)
+for retcon-related posts and assets; it never replaces Ochre on the main mark or the site. Like
+Ochre it is a mid-tone, ~3.9:1 on Paper and ~4.2:1 on Limestone — tags, icons, large type and the
+mark, not small text.
+
 ---
 
 ## 5. Typography System
@@ -157,6 +163,11 @@ needed, no font downloads.
 small. **Don't:** recolor outside the palette, add gradients/3D/bevels, stretch, rotate, or place
 the full wall mark below ~24 px (use the favicon reduction instead).
 
+**Retcon label:** `brand/logo/retcon/` is the one sanctioned variant — a Sienna through-stone
+that fades in from the left and ends in a point past the wall face, and a `RETCON` outline tag
+under the wordmark. Use it only for retcon-related posts and assets; everywhere else, the main
+mark.
+
 ---
 
 ## 7. Trademark
@@ -173,4 +184,6 @@ On first prominent use, write **Throughstone™**; thereafter, "Throughstone."
 - Mark motif: **through-stone in a bonded wall**, horizontal middle course, dark tile.
 - Wordmark: **Cinzel** caps. Body and code type: **Source Sans 3** and **IBM Plex Mono**.
 - Primary tagline: **"From idea to blueprint to built."**
+- Retcon sub-brand: **Burnt Sienna** fade-in through-stone with an outline `RETCON` tag
+  (`brand/logo/retcon/`).
 - Landing page default: **light "paper & stone"**.
