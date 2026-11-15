@@ -81,6 +81,12 @@ substep's work is committed, pull these as one review-required group: `BOOTSTRAP
 Leave your `.throughstone/local-user.md` alone: the first substep written from the new template
 asks for the **Commits** value and adds it.
 
+To have the method check run once, not twice, for each push to a branch with a pull request, copy
+`.github/workflows/method-check.yml` from the scaffold over yours and put your trunk branch's name
+in its `push:` `branches:` list, in place of the placeholder there. In a mono-repo-for-now project, copy the result over the
+workspace root's `.github/workflows/method-check.yml` too. A branch you push with no pull request
+then gets no check until you open one.
+
 ### 2.0 migration
 
 This section says only what to do. What changed, and why, is in this release's section of
