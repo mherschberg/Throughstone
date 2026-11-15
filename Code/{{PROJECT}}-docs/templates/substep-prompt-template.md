@@ -138,6 +138,9 @@ Leaving the doc stale is a defect, not a follow-up.
 - [ ] Code this substep wrote or changed is covered by the relevant tests named above, and
       those tests either pass now or are assigned to the STEP's final verification substep.
       <!-- default; drop only for a genuinely code-free substep -->
+- [ ] What this substep reports is what happened: a test or check that wasn't run, or couldn't
+      run, is reported as not run, with the reason, never as passed, and every commit and file it
+      cites exists.
 - [ ] New/changed classes, functions, and methods carry docstrings (see
       `coding-standards/README.md`).
 - [ ] Any architecture decision this substep changed is reflected in the docs (Version Log
@@ -148,6 +151,10 @@ Leaving the doc stale is a defect, not a follow-up.
       recorded in `registries/risks.yml` or explicitly marked not applicable.
 
 ## Next
-When this substep is done, update its status in the STEP PLAN, then tell the user the next
-action: the next open substep — *"run substep N.M"*, in a **fresh chat** — or, if this was
-the last substep, the STEP's review: *"run the STEP N review"*. (`METHOD.md` §10.)
+When this substep is done, update its status in the STEP PLAN. Then follow the **Commits** value
+in root `.throughstone/local-user.md`: **After each substep** means commit this substep's work on
+the STEP branch in each repo it touched; **At the end of the STEP** means leave it for the STEP's
+close. If the value is missing or isn't one of those two, ask the user which they want, add the
+line to the file, and act on it. Then tell the user the next action: the next open substep —
+*"run substep N.M"*, in a **fresh chat** — or, if this was the last substep, the STEP's review:
+*"run the STEP N review"*. (`METHOD.md` §10.)

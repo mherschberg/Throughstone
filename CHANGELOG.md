@@ -17,6 +17,16 @@ any project built with it.
   or skipped, so when a backup fails you can see it is the only thing that did, and the note under
   the list says what to ask your agent to finish it. The handoff, under a bold **NEXT STEP**
   heading that replaces `Next step:`, is now the last thing printed. The exit status is unchanged.
+- **A test that wasn't run is reported as not run, never as passed.** The substep and STEP
+  checklists now ask that what's reported matches what happened: a test or check that wasn't run,
+  or couldn't run, says so and why, and the commits, branches and files a substep or PLAN cites
+  exist.
+- **You choose when a substep's work is committed.** The first substep to finish asks whether to
+  commit after each substep or once at the end of the STEP, and records the answer as **Commits**
+  in your `.throughstone/local-user.md`. The STEP's close commits whatever isn't committed yet.
+
+Thanks to [lvinist](https://github.com/lvinist), whose
+[pull request #206](https://github.com/mherschberg/Throughstone/pull/206) proposed both ideas.
 
 ## [2.0.0] - 2026-11-11
 
