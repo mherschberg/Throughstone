@@ -2,8 +2,8 @@
 
 > **Canonical** context for any AI agent working in this project. The `CLAUDE.md` and
 > `AGENTS.md` pointers at the workspace root point here. Tool-agnostic: Claude Code,
-> Codex, and others read this convention. **New session? Start with "First action — kickoff
-> or resume?" just below.**
+> Codex, and others read this convention. **New session? Start with
+> "First action — kickoff or resume?" just below.**
 >
 > **Paths in this file are relative to the workspace root** (the folder that contains
 > `Code/` and `prompts/`) — that's where your agent runs, so every path below can be used
