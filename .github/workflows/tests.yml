@@ -31,6 +31,9 @@ jobs:
           # The tests bootstrap real projects and some drive init.sh with --remotes=yes. Leaving
           # the checkout token in .git/config would put a credential inside their reach.
           persist-credentials: false
+          # upgrade-from-last-release.sh generates a project from the last release tag, so it
+          # needs the history and its tags.
+          fetch-depth: 0
 
       - name: Give the runner a Git identity
         # init.sh's preflight makes a real commit and exits when it cannot. Hosted runners set no
