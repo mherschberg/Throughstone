@@ -566,6 +566,7 @@ docs/assets/throughstone-mark.svg
 docs/assets/throughstone-social.png
 docs/assets/throughstone-social.svg
 docs/index.html
+tests/check-docs-and-templates.sh
 tests/check-nothing-to-inspect.sh
 tests/check-repo-registry.sh
 tests/check-root-hygiene.sh
