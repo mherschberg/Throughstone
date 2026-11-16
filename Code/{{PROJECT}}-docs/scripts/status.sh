@@ -90,8 +90,8 @@ if [ -f "$OVERVIEW" ] \
   echo "      retcon            adopting an existing codebase, at any stage before its baseline"
   echo "                        lands (even if no session has started) — follow $DOCS_REL/RETCON-PROMPT.md"
   echo "      kickoff-complete  past that point: its kickoff ran, or an adoption landed"
-  echo "    Restore that line in $DOCS_REL/overview.md from the answer — the AGENTS.md \"First action —"
-  echo "    kickoff or resume?\" decision states it — then re-run ./doctor.sh status."
+  echo "    Restore that line in $DOCS_REL/overview.md from the answer — the AGENTS.md"
+  echo "    \"First action — kickoff or resume?\" decision states it — then re-run ./doctor.sh status."
   exit 0
 fi
 
