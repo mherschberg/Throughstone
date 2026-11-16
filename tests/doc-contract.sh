@@ -366,13 +366,17 @@ contains "$CHECKIN" "Deprecated" || fail "runbooks/check-in.md no longer names t
 # --- 11. The section the root pointers send every agent to --------------------
 # The root AGENTS.md/CLAUDE.md — and setup-workspace.sh, which regenerates them on a new machine
 # in a multi-repo project — promise that the canonical AGENTS.md "opens with" a section of this
-# exact name, and status.sh and METHOD.md §10 both cite it. Rename or move it and the first
-# instruction every agent receives points at nothing.
+# exact name. The canonical AGENTS.md's own banner sends a new session to it by name, status.sh
+# names it when the kickoff marker is missing, and METHOD.md §10 cites it. Rename or move it and
+# the first instruction every agent receives points at nothing.
 first_h2="$(grep -m1 -E '^## ' "$AGENTS" | sed 's/^## //' || true)"
 [ "$first_h2" = "First action — kickoff or resume?" ] || fail "the docs hub AGENTS.md no longer opens with the 'First action — kickoff or resume?' section (first section is now: $first_h2)"
-for p in "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$SETUP_SH"; do
+# The quotes keep the canonical AGENTS.md's heading, which has none, from matching its own banner.
+for p in "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$SETUP_SH" "$AGENTS"; do
   contains "$p" "\"$first_h2\"" || fail "${p#$ROOT/} quotes a different section name than the one ${AGENTS#$ROOT/} actually opens with"
 done
+# status.sh prints the name from inside an echo, where its quotes are escaped, so match it bare.
+contains "$STATUS_SH" "$first_h2" || fail "${STATUS_SH#$ROOT/} names a different section than the one ${AGENTS#$ROOT/} actually opens with"
 contains "$METHOD" '"First action"' || fail "METHOD.md §10 no longer points a resuming agent at AGENTS.md's \"First action\""
 
 # --- 12. The seeded overview does not trip the doctor it ships with -----------
