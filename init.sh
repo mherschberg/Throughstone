@@ -387,12 +387,14 @@ Options:
   --prompts-remote=URL  Existing prompts repo remote URL (manual provider, multi)
   --visibility=VALUE    private | public                (GitHub creation default: private)
   -y, --non-interactive Never prompt; error on any missing required value
+  --dry-run             Ask every question and run every check, show the answers,
+                         then stop before changing anything
   -h, --help            Show this help and exit
 
 Env vars (flags take precedence): INIT_MODE, INIT_SLUG, INIT_DESC, INIT_LICENSE, INIT_HOLDER,
   INIT_LAYOUT, INIT_REGISTRIES, INIT_COLLAB, INIT_ADR_AUTHORITY, INIT_REMOTES,
   INIT_REMOTE_PROVIDER, INIT_OWNER, INIT_REMOTE_URL, INIT_DOCS_REMOTE,
-  INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_TRUNK_BRANCH, INIT_NONINTERACTIVE.
+  INIT_PROMPTS_REMOTE, INIT_VISIBILITY, INIT_TRUNK_BRANCH, INIT_NONINTERACTIVE, INIT_DRY_RUN.
 USAGE
 }
 
@@ -411,6 +413,7 @@ OWNER_IN="${INIT_OWNER:-}";     REMOTE_URL_IN="${INIT_REMOTE_URL:-}"
 DOCS_REMOTE_IN="${INIT_DOCS_REMOTE:-}"; PROMPTS_REMOTE_IN="${INIT_PROMPTS_REMOTE:-}"
 VISIBILITY_IN="${INIT_VISIBILITY:-}"
 NONINTERACTIVE="${INIT_NONINTERACTIVE:-0}"
+DRY_RUN="${INIT_DRY_RUN:-0}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -449,12 +452,14 @@ while [ $# -gt 0 ]; do
     --visibility=*)    VISIBILITY_IN="${1#*=}" ;;
     --visibility)      need_val "$1" "${2-}"; VISIBILITY_IN="$2"; shift ;;
     -y|--yes|--non-interactive) NONINTERACTIVE=1 ;;
+    --dry-run)         DRY_RUN=1 ;;
     -h|--help)         usage; exit 0 ;;
     *) echo "init.sh: unknown option: $1 (try './init.sh --help')" >&2; exit 2 ;;
   esac
   shift
 done
 case "$NONINTERACTIVE" in 1|true|yes|y|Y) NONINTERACTIVE=1 ;; *) NONINTERACTIVE=0 ;; esac
+case "$DRY_RUN" in 1|true|yes|y|Y) DRY_RUN=1 ;; *) DRY_RUN=0 ;; esac
 
 # --- 0b. Preflight: required tools ------------------------------------------
 # Stop before asking project questions if the local machine cannot perform the mechanical
@@ -1325,6 +1330,71 @@ elif [ "$MK_REMOTES" = "1" ] \
 fi
 # Last, so that a run stopped by any question above never calls gh.
 [ -z "$GH_NEW_REPOS" ] || check_github_ready $GH_NEW_REPOS
+
+# --- 1b. Recap every answer, then confirm -----------------------------------
+# Stopping anywhere above leaves the folder as it was; nothing below can be undone. So every answer
+# the run acts on is shown here, in one place, while a wrong name, layout or remote still costs only
+# a re-run. A person at a terminal is asked to confirm. A run whose input is a pipe or a file (an
+# agent, a script, a test) gets the recap and carries on: it gave its answers up front, and a
+# question it cannot answer would read end of input as no. --dry-run stops here, after every check
+# above has run, so it refuses what a real run would refuse.
+say "Check these answers before setup changes anything:"
+echo "  Project:       $SLUG — $DESC"
+echo "                 Used in Code/${SLUG}-docs/ and every repo name; renaming later is by hand."
+if [ "$MODE" = "existing" ]; then
+  echo "  Starting from: an existing codebase (retcon) — the agent reads your code"
+else
+  echo "  Starting from: a new project — the agent interviews you to design it"
+fi
+if [ "$LAYOUT" = "2" ]; then
+  echo "  Layout:        mono-repo for now — one repo at this folder"
+else
+  echo "  Layout:        multi-repo — Code/${SLUG}-docs/ and prompts/ are each a repo,"
+  echo "                 and this folder is not one"
+fi
+if [ "$PROJECT_LICENSE_ID" = "Proprietary" ]; then
+  echo "  License:       proprietary — no open-source license"
+else
+  echo "  License:       $PROJECT_LICENSE_ID, copyright $HOLDER"
+fi
+if [ "$COLLAB" = "2" ]; then
+  echo "  Working:       team — ADRs (architecture decision records) are accepted by $ADR_AUTHORITY"
+else
+  echo "  Working:       solo — you accept your own ADRs (architecture decision records)"
+fi
+echo "  Trunk branch:  $TRUNK_BRANCH"
+if [ "$REUSE_ROOT_ORIGIN" = "1" ] && [ "$MK_REMOTES" = "1" ]; then
+  echo "  Remote:        this folder's existing origin, which the project is pushed to:"
+  echo "                 $ROOT_ORIGIN"
+elif [ "$REUSE_ROOT_ORIGIN" = "1" ]; then
+  echo "  Remote:        this folder's existing origin, kept; nothing is pushed to it:"
+  echo "                 $ROOT_ORIGIN"
+elif [ "$MK_REMOTES" = "0" ]; then
+  echo "  Remotes:       none — saved on this computer only; you can add one later"
+elif [ "$REMOTE_PROVIDER" = "github" ]; then
+  echo "  Remotes:       new $REMOTE_VISIBILITY GitHub repos, created and pushed to:"
+  for repo_name in $GH_NEW_REPOS; do echo "                 $OWNER/$repo_name"; done
+elif [ "$LAYOUT" = "2" ]; then
+  echo "  Remote:        your existing repo, pushed to:"
+  echo "                 $REMOTE_URL"
+else
+  echo "  Remotes:       your existing repos, pushed to:"
+  echo "                 docs:    $DOCS_REMOTE"
+  echo "                 prompts: $PROMPTS_REMOTE"
+fi
+echo
+echo "Next, setup removes this folder's template history and the template's own files. That"
+echo "cannot be undone."
+if [ "$DRY_RUN" = "1" ]; then
+  echo
+  echo "Dry run: nothing was changed. Run ./init.sh without --dry-run to set up the project."
+  exit 0
+fi
+if [ "$NONINTERACTIVE" != "1" ] && [ -t 0 ] \
+  && ! yesno "Set up the project with these answers?"; then
+  echo "init.sh: setup cancelled; nothing was changed. Run ./init.sh again to answer differently." >&2
+  exit 2
+fi
 
 # --- 2. Untether from the template origin -----------------------------------
 # Destructive bootstrap boundary. Everything above this line is validation and choice
