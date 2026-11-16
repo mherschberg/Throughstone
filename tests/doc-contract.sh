@@ -445,4 +445,28 @@ if grep -qF "$lic_token" <<<"$sweep"; then
   fail "runbooks/check-in.md's Repo READMEs sweep now names $lic_token itself; the test for a stamped README belongs in runbooks/register-repo.md step 2 and nowhere else, or the two documents are free to drift apart"
 fi
 
+# --- 14. The STEP review's gap check ------------------------------------------
+# Step 7 of the recipe in prompts/README.md is the one place the gap check is defined: its four
+# kinds, and that the user chooses which gaps become substeps. Every PLAN's Definition of done is
+# copied from the STEP PLAN template, so that line is what an agent has open when it reviews a STEP,
+# and METHOD.md section 10 is where a resuming agent is told to run the review. Both point at the
+# recipe rather than restate it, and a renamed step would leave them pointing at nothing.
+PLAN_TPL="$DOCS/templates/step-plan-template.md"
+recipe7="$(awk '/^7\. \*\*On completion:\*\*/ { f = 1 } /^> \*\*Multiple contributors\*\*/ { f = 0 } f' "$ROOT/prompts/README.md" | tr -s ' \t\n' ' ' || true)"
+[ -n "$recipe7" ] || fail "could not read step 7 (On completion) out of the recipe in prompts/README.md"
+for k in "**missing**" "**partial**" "**contradicts**" "**unrequested**" "Add only the ones they choose"; do
+  case "$recipe7" in
+    *"$k"*) : ;;
+    *) fail "step 7 of the recipe in prompts/README.md no longer defines the gap check's \"$k\"" ;;
+  esac
+done
+plan_dod="$(awk '/^## Definition of done/ { f = 1; next } /^## / { f = 0 } f' "$PLAN_TPL" | tr -s ' \t\n' ' ' || true)"
+case "$plan_dod" in
+  *"gap check"*"prompts/README.md, step 7 of the recipe"*) : ;;
+  *) fail "the STEP PLAN template's Definition of done no longer has the gap check line pointing at step 7 of the recipe in prompts/README.md" ;;
+esac
+for p in "step 7 of the recipe in" "the gap check included"; do
+  contains "$METHOD" "$p" || fail "METHOD.md section 10 no longer sends the STEP review to step 7 of the recipe in prompts/README.md (missing: $p)"
+done
+
 echo "document contract ($(printf '%s\n' "$cites" | grep -c .) section citations, ${#conditionals[@]} conditional templates, marker $lic_token): PASS"
