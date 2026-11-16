@@ -42,6 +42,12 @@ any project built with it.
   a script or an agent shows the list and carries on, as before. New `--dry-run` (or
   `INIT_DRY_RUN=1`) asks every question and runs every check, shows the list, and stops without
   changing anything.
+- **A STEP's review checks what was built against its PLAN.** For a STEP that changes code, the
+  review now compares the work with the PLAN and sorts each difference: planned but missing, only
+  partly done, built differently from the PLAN, or built without being asked for. You see each one
+  with the substep the agent would add for it, choose which to add, and the STEP isn't done until
+  those are. Work you didn't ask for but want to keep is recorded in the PLAN. New PLANs carry
+  this as a Definition-of-done line; a PLAN written before it can add the line by hand.
 
 Thanks to [lvinist](https://github.com/lvinist), whose
 [pull request #206](https://github.com/mherschberg/Throughstone/pull/206) proposed both ideas.
