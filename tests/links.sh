@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Regression coverage for the durable-docs stale-link checker.
+# Regression coverage for the durable-docs stale-link checker, and for the links in the docs a new
+# project starts with.
 
 set -euo pipefail
 export LC_ALL=C
@@ -233,5 +234,51 @@ else
   assert_contains "$output" "→ fix: give read access to Code/acme-docs/sealed"
   assert_contains "$output" "RESULT: FAIL"
 fi
+
+# A new project's docs have no stale link, in either layout. Its CI runs only check.sh, so a link
+# the template breaks would otherwise reach every new project unreported.
+
+# copy_template DEST — build a template fixture from HEAD, then overlay current worktree changes,
+# so uncommitted edits are under test.
+copy_template() {
+  local dest="$1" file
+  mkdir -p "$dest"
+  git -C "$ROOT" archive HEAD | tar -x -C "$dest"
+  while IFS= read -r -d '' file; do
+    if [ -e "$ROOT/$file" ]; then
+      mkdir -p "$dest/$(dirname "$file")"
+      cp -p "$ROOT/$file" "$dest/$file"
+    else
+      rm -f "$dest/$file"
+    fi
+  done < <(
+    {
+      git -C "$ROOT" diff --name-only -z HEAD
+      git -C "$ROOT" ls-files --others --exclude-standard -z
+    }
+  )
+}
+
+for layout in mono multi; do
+  work="$TMP_ROOT/new-$layout"
+  copy_template "$work"
+  ( cd "$work" && ./init.sh --non-interactive --slug="links$layout" --desc="Links test" \
+      --license=mit --holder="Throughstone Test" --layout="$layout" --collab=solo --remotes=no
+  ) >"$work.init.out" 2>&1 || {
+    printf 'FAIL: init.sh failed for a new %s project\n' "$layout" >&2
+    sed -n '1,40p' "$work.init.out" >&2
+    exit 1
+  }
+  set +e
+  output="$( cd "$work" && ./doctor.sh links 2>&1 )"
+  status=$?
+  set -e
+  [ "$status" -eq 0 ] || {
+    printf 'FAIL: a new %s project has stale links (exit %s)\n' "$layout" "$status" >&2
+    printf '%s\n' "$output" >&2
+    exit 1
+  }
+  assert_contains "$output" "RESULT: OK"
+done
 
 echo "links.sh: PASS"
