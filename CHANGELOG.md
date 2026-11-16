@@ -35,6 +35,13 @@ any project built with it.
   Pushes now run them only on the trunk branch, whose name `init.sh` writes into both, and the pull
   request run checks every other branch, including how it merges. A branch pushed with no pull
   request is no longer checked until one is opened.
+- **`init.sh` shows your answers before the step that can't be undone.** Just before it removes
+  the template's history, setup lists every answer it will act on: the project name and the folder
+  it names, layout, license, solo or team, trunk branch, and the remotes it will create or push to.
+  Run at a terminal, it then asks you to confirm, and no stops with nothing changed. A run fed from
+  a script or an agent shows the list and carries on, as before. New `--dry-run` (or
+  `INIT_DRY_RUN=1`) asks every question and runs every check, shows the list, and stops without
+  changing anything.
 
 Thanks to [lvinist](https://github.com/lvinist), whose
 [pull request #206](https://github.com/mherschberg/Throughstone/pull/206) proposed both ideas.

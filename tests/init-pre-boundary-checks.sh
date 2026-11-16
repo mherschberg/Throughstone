@@ -389,6 +389,111 @@ run_init "$W" "${BASE[@]}" --slug="$CASE" --desc="Checks" --license=proprietary 
 expect_finished
 expect_not_in "which are not part of the template" "$OUT"
 
+# --- The recap, the confirm at a terminal, and --dry-run ------------------------------------------
+
+# tree_digest DIR - one line that changes if any file, folder or link under DIR is added, removed,
+# renamed or edited.
+tree_digest() {
+  ( cd "$1" && { find . | sort; find . -type f -exec cksum {} + | sort; } | cksum )
+}
+
+# type_when_asked OUT ANSWER - wait until OUT shows the confirm question, type ANSWER, then hold the
+# input open until the run has ended, so the end of input never reaches the run before the answer.
+# A person types only once the question is on screen; typed earlier, an answer can be discarded
+# before init.sh reads it. Each wait gives up after a minute, so a run that never asks still ends.
+type_when_asked() {
+  local out="$1" answer="$2" waited=0
+  until grep -Fq "these answers? [y/N]" "$out" || [ "$waited" -ge 300 ]; do
+    sleep 0.2; waited=$((waited + 1))
+  done
+  printf '%s\n' "$answer"
+  waited=0
+  until grep -Eq "setup cancelled|Done" "$out" || [ "$waited" -ge 300 ]; do
+    sleep 0.2; waited=$((waited + 1))
+  done
+}
+
+# run_at_terminal WORK ANSWER ARGS... - run init.sh in WORK with a terminal for its input, as a
+# person runs it, answering ANSWER to the confirm. script(1) makes the terminal; its options differ
+# between BSD (macOS) and util-linux.
+run_at_terminal() {
+  local work="$1" answer="$2"; shift 2
+  OUT="$TMP_ROOT/$CASE.out"; PRE="$TMP_ROOT/$CASE.pre"
+  : > "$OUT"
+  set +e
+  if [ "$(uname)" = "Darwin" ]; then
+    type_when_asked "$OUT" "$answer" | ( cd "$work" && script -q /dev/null ./init.sh "$@" ) >"$OUT" 2>&1
+  else
+    type_when_asked "$OUT" "$answer" \
+      | ( cd "$work" && script -qec "./init.sh $(printf '%q ' "$@")" /dev/null ) >"$OUT" 2>&1
+  fi
+  STATUS=$?
+  set -e
+  grep -Fq "these answers? [y/N]" "$OUT" || fail "the run never asked to confirm"
+  sed -n '1,/Detaching from the template/p' "$OUT" > "$PRE"
+}
+
+# Every answer is shown before the boundary, the repositories about to be created included.
+CASE=recap
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+run_init "$W" "${BASE[@]}" --slug="$CASE" --desc="Recap check" --license=mit --holder="Recap Holder" \
+  --layout=multi --remotes=yes --owner=throughstone-test --trunk-branch=develop
+expect_finished
+expect_pre "Check these answers before setup changes anything:"
+expect_pre "  Project:       $CASE — Recap check"
+expect_pre "  Layout:        multi-repo — Code/$CASE-docs/ and prompts/ are each a repo,"
+expect_pre "  License:       MIT, copyright Recap Holder"
+expect_pre "  Trunk branch:  develop"
+expect_pre "  Remotes:       new private GitHub repos, created and pushed to:"
+expect_pre "                 throughstone-test/$CASE-docs"
+expect_pre "                 throughstone-test/$CASE-prompts"
+expect_pre "cannot be undone."
+
+# Input from a pipe or a file is not a person: the run shows the recap and goes on without asking.
+CASE=recap-piped
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+run_init "$W" --mode=new --collab=solo --slug="$CASE" --desc="Recap check" --license=proprietary \
+  --layout=multi --remotes=no
+expect_finished
+expect_pre "  Remotes:       none — saved on this computer only; you can add one later"
+expect_not_in "Set up the project with these answers?" "$OUT"
+
+# A dry run asks and checks everything, shows the recap, and leaves the folder exactly as it was.
+CASE=dry-run
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+BEFORE="$(tree_digest "$W")"
+run_init "$W" "${BASE[@]}" --dry-run --slug="$CASE" --desc="Dry run check" --license=proprietary \
+  --layout=multi --remotes=yes --owner=throughstone-test
+[ "$STATUS" -eq 0 ] || fail "expected exit 0, got $STATUS"
+grep -Fq "Dry run: nothing was changed." "$OUT" || fail "the dry run did not say it changed nothing"
+grep -Fq "  Project:       $CASE — Dry run check" "$OUT" || fail "the dry run showed no recap"
+expect_not_in "Detaching from the template" "$OUT"
+expect_not_in "repo create" "$GH_LOG"
+[ "$(tree_digest "$W")" = "$BEFORE" ] || fail "the dry run changed the folder"
+
+# A dry run refuses whatever a real run refuses, and INIT_DRY_RUN turns it on as the flag does.
+CASE=dry-run-refused
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+INIT_DRY_RUN=1 UNREACHABLE=1 run_init "$W" "${BASE[@]}" --slug="$CASE" --desc="Dry run check" \
+  --license=proprietary --layout=multi --remotes=yes --owner=throughstone-test
+expect_refused "$W" "the gh CLI could not reach GitHub as a signed-in user"
+expect_not_in "Dry run:" "$OUT"
+
+# At a terminal the run asks before the boundary. No stops it with the template untouched.
+CASE=terminal-no
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+run_at_terminal "$W" n --mode=new --collab=solo --slug="$CASE" --desc="Terminal check" \
+  --license=proprietary --layout=multi --remotes=no
+expect_refused "$W" "setup cancelled; nothing was changed"
+
+# Yes carries on and sets the project up.
+CASE=terminal-yes
+W="$TMP_ROOT/$CASE"; copy_template "$W"
+run_at_terminal "$W" y --mode=new --collab=solo --slug="$CASE" --desc="Terminal check" \
+  --license=proprietary --layout=multi --remotes=no
+expect_finished
+[ -d "$W/Code/$CASE-docs" ] || fail "the run did not set up Code/$CASE-docs"
+
 if [ "$FAILED" != "0" ]; then
   exit 1
 fi
