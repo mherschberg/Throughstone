@@ -152,10 +152,10 @@ production software, get review from an experienced engineer.
    ./init.sh
    ```
    It asks a few questions (new project or existing codebase, project slug, repo layout,
-   **license**, solo or team, optional remotes), then detaches this download from the
-   template's git history, renames the `{{PROJECT}}` placeholder everywhere but `init.sh` to
-   your slug, stamps your chosen open-source `LICENSE` when applicable, and initializes your
-   repo(s). In mono-repo-for-now it reuses an existing root `origin` only when that origin
+   **license**, solo or team, optional remotes) and shows your answers for you to confirm. Then
+   it detaches this download from the template's git history, renames the `{{PROJECT}}`
+   placeholder everywhere but `init.sh` to your slug, stamps your chosen open-source `LICENSE`
+   when applicable, and initializes your repo(s). In mono-repo-for-now it reuses an existing root `origin` only when that origin
    appears empty; non-empty template-created origins are left unattached so setup does not lead
    you into a failed or destructive push. See [`init.sh`](init.sh).
 
@@ -167,7 +167,8 @@ production software, get review from an experienced engineer.
              --license=mit --holder="Acme Inc." --layout=multi
    ```
    Most flags you omit are still prompted (without `--non-interactive`); with it, a missing
-   required value is an error. `init.sh` first checks that `git` and `perl` are present. When
+   required value is an error. Add `--dry-run` to see the answers and checks without changing
+   anything. `init.sh` first checks that `git` and `perl` are present. When
    it finishes you can delete `init.sh` — it has done its job.
 
    Repository visibility is separate from licensing, and the two use different words.
@@ -356,6 +357,7 @@ matching environment variables.
 | `--prompts-remote=URL` | `INIT_PROMPTS_REMOTE` | Git URL | Existing prompts repo remote URL for manual multi-repo setup. |
 | `--visibility=VALUE` | `INIT_VISIBILITY` | `private`, `public` | GitHub repo visibility; default is `private`. |
 | `-y`, `--yes`, `--non-interactive` | `INIT_NONINTERACTIVE` | none / `1`, `true`, `yes` or `y` | Never prompt; error on missing required values. |
+| `--dry-run` | `INIT_DRY_RUN` | none / `1`, `true`, `yes` or `y` | Ask every question and run every check, show the answers, then stop before changing anything. |
 | `-h`, `--help` | | none | Show the help text and exit. |
 
 ### What documents does Throughstone create?
