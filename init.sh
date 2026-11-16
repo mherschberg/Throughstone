@@ -566,6 +566,7 @@ docs/assets/throughstone-mark.svg
 docs/assets/throughstone-social.png
 docs/assets/throughstone-social.svg
 docs/index.html
+tests/check-docs-and-templates.sh
 tests/check-nothing-to-inspect.sh
 tests/check-repo-registry.sh
 tests/check-root-hygiene.sh
@@ -593,6 +594,7 @@ tests/status-missing-marker.sh
 tests/status-next-check-in.sh
 tests/status-no-roadmap.sh
 tests/status-step1-precedence.sh
+tests/upgrade-from-last-release.sh
 '
 
 # refuse_not_fresh REASON — stop before the destructive boundary, saying which check refused.
