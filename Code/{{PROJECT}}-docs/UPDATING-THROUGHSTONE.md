@@ -75,11 +75,13 @@ not fail the check.
 This section says only what to do. What changed, and why, is in this release's section of
 Throughstone's `CHANGELOG.md`. It starts from 2.0.
 
-Nothing in your project needs migrating. To get the new checklists and the choice of when a
-substep's work is committed, pull these as one review-required group: `BOOTSTRAP-PROMPT.md`,
-`prompts/README.md`, `templates/substep-prompt-template.md` and `templates/step-plan-template.md`.
+Nothing in your project needs migrating. To get the new checklists, the choice of when a
+substep's work is committed, and the gap check in a STEP's review, pull these as one
+review-required group: `BOOTSTRAP-PROMPT.md`, `METHOD.md`, `prompts/README.md`,
+`templates/substep-prompt-template.md` and `templates/step-plan-template.md`.
 Leave your `.throughstone/local-user.md` alone: the first substep written from the new template
-asks for the **Commits** value and adds it.
+asks for the **Commits** value and adds it. A PLAN already written keeps its own Definition of
+done; to have the gap check for that STEP, copy its line from the new PLAN template into it.
 
 To have the method check run once, not twice, for each push to a branch with a pull request, copy
 `.github/workflows/method-check.yml` from the scaffold over yours and put your trunk branch's name
