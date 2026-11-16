@@ -128,12 +128,16 @@
       or widen with a stated reason -->
 - [ ] Each substep's status matches what's on disk: no test is reported as passed that wasn't
       run, and the commits, branches and files this PLAN cites exist.
+- [ ] The STEP review's gap check compared what was built with this PLAN (missing, partial,
+      contradicts, unrequested), the user chose which gaps to add as substeps, and those are
+      done (prompts/README.md, step 7 of the recipe). <!-- drop for a STEP that changes no code -->
 - [ ] STEP review passed; prompts/STEP-index.md updated; STEP archived to prompts/.
       <!-- For a Check-in STEP, the completed report is saved under reports/, not in the
            archived STEP folder. -->
 <!-- The "STEP review" is your team's standard PR / code review (a standard-practice gate the
      method doesn't redefine — see runbooks/collaboration.md), plus the doc-drift check from
-     templates/substep-prompt-template.md ("Keeping the docs true"). Exceptions: STEP-1's review is the
-     Cross-Cutting Review; a Check-in STEP is itself the review (runbooks/check-in.md); an
+     templates/substep-prompt-template.md ("Keeping the docs true") and the gap check above.
+     Exceptions: STEP-1's review is the Cross-Cutting Review; a Check-in STEP is itself the
+     review (runbooks/check-in.md); an
      Incident STEP closes by completing the postmortem report, reports/incidents/README.md row,
      and output checklist in runbooks/incident-postmortem.md. -->

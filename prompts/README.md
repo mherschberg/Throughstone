@@ -162,9 +162,17 @@ teammate will need later.
    substep, e.g. `run substep N.1`.
 7. **On completion:** commit any of the STEP's work not yet committed, then run the STEP's
    review — your team's standard **PR / code review** (the method doesn't redefine it), plus
-   the doc-drift check — then **gather the STEP's files
-   (PLAN + any substep prompts + review) from `Upcoming Prompts/` into a new `step-NNNN/` folder**
-   in the phase folder here and mark it **Done** in the index. (If this is the phase's
+   the doc-drift check and, for a STEP that changes code and isn't thin, the **gap check**.
+   Compare what was built with the PLAN — its motivation, locked decisions, each substep's
+   *Produces* and the test plan — and sort every difference into one of four kinds:
+   **missing** (planned, not built), **partial** (begun, not finished), **contradicts** (built
+   differently from the PLAN or a decision it locks) and **unrequested** (built, never asked
+   for). Show the user each gap with the substep you would add for it. Add only the ones they
+   choose, to the end of the PLAN's substep table as `Planned`, each with its own prompt
+   (step 5); unrequested work they keep is recorded in the PLAN instead. Finding no gaps is a
+   result too, so say so. When the added substeps are done, run the review again. Then
+   **gather the STEP's files (PLAN + any substep prompts + review) from `Upcoming Prompts/`
+   into a new `step-NNNN/` folder** in the phase folder here and mark it **Done** in the index. (If this is the phase's
    first archived STEP the phase folder won't exist yet — create `001-<phase-name>/` and its
    `README.md` from `phase-readme-template.md` first, naming it for the chosen phase; see
    Conventions.)

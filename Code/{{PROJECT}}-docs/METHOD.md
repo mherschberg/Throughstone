@@ -812,7 +812,8 @@ never blocks work, and no rule below it is skipped because a check-in is due.
    `Upcoming Prompts/` and run only the explicitly requested substep: *"run substep N.M"*. If the
    user says only *"run STEP N"*, identify the lowest open substep and wait for that explicit
    substep command. When the last substep is done, run the STEP's review
-   (*"run the STEP N review"*), then archive it (§5) and mark it `Done`.
+   (*"run the STEP N review"*; step 7 of the recipe in `prompts/README.md` says what it
+   covers, the gap check included), then archive it (§5) and mark it `Done`.
    **A Check-in STEP is the exception**: its two substeps are fixed and `runbooks/check-in.md` is
    their prompt, so *"run the check-in"* runs both, end to end. Nothing else is invoked whole.
 7. **The scheduled check-in reached, or none scheduled at all (§5 — the `NEXT-CHECK-IN` line
